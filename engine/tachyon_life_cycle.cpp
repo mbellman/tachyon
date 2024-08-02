@@ -18,11 +18,11 @@ Tachyon* Tachyon_Init() {
   return new Tachyon;
 }
 
-void Tachyon_CreateWindow(Tachyon* tachyon) {
+void Tachyon_SpawnWindow(Tachyon* tachyon, const char* title, uint32 width, uint32 height) {
   tachyon->sdl_window = SDL_CreateWindow(
-    "Tachyon",
+    title,
     SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-    640, 480,
+    width, height,
     SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI
   );
 }

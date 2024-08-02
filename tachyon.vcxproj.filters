@@ -288,20 +288,20 @@
     <ClInclude Include="engine\tachyon_types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="cosmodrone\start.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="engine\tachyon_life_cycle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="engine\renderers\tachyon_opengl_renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="engine\tachyon_aliases.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cosmodrone\game.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="cosmodrone\start.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -309,6 +309,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="engine\renderers\tachyon_opengl_renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cosmodrone\game.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
