@@ -10,3 +10,4 @@ struct TachyonOpenGLRenderer {
 
 void Tachyon_InitOpenGLRenderer(Tachyon* tachyon);
 void Tachyon_RenderOpenGL(Tachyon* tachyon);
+void Tachyon_DestroyOpenGLRenderer(Tachyon* tachyon);

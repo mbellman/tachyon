@@ -1,0 +1,1 @@
+#define internal static

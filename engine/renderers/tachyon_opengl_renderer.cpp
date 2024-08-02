@@ -40,3 +40,9 @@ void Tachyon_RenderOpenGL(Tachyon* tachyon) {
 
   SDL_GL_SwapWindow(tachyon->sdl_window);
 }
+
+void Tachyon_DestroyOpenGLRenderer(Tachyon* tachyon) {
+  auto* renderer = (TachyonOpenGLRenderer*)tachyon->renderer;
+
+  SDL_GL_DeleteContext(renderer->context);
+}
