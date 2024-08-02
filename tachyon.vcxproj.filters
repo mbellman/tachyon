@@ -285,24 +285,24 @@
     <ClInclude Include="engine\tachyon.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="engine\tachyon_init.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="engine\tachyon_types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cosmodrone\start.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="engine\tachyon_life_cycle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="engine\tachyon_init.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="cosmodrone\start.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\tachyon_life_cycle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

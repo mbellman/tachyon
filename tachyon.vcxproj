@@ -116,7 +116,7 @@
   <ItemGroup>
     <ClInclude Include="cosmodrone\start.h" />
     <ClInclude Include="engine\tachyon.h" />
-    <ClInclude Include="engine\tachyon_init.h" />
+    <ClInclude Include="engine\tachyon_life_cycle.h" />
     <ClInclude Include="engine\tachyon_types.h" />
     <ClInclude Include="external\GLEW\include\eglew.h" />
     <ClInclude Include="external\GLEW\include\glew.h" />
@@ -210,7 +210,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cosmodrone\start.cpp" />
-    <ClCompile Include="engine\tachyon_init.cpp" />
+    <ClCompile Include="engine\tachyon_life_cycle.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

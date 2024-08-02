@@ -1,6 +1,6 @@
 #include <SDL.h>
 
-#include "engine/tachyon_init.h"
+#include "engine/tachyon_life_cycle.h"
 
 Tachyon* Tachyon_Init() {
   SDL_Init(SDL_INIT_EVERYTHING);
