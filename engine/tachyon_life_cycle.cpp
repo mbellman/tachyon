@@ -67,7 +67,7 @@ void Tachyon_HandleEvents(Tachyon* tachyon) {
 
 void Tachyon_RenderScene(Tachyon* tachyon) {
   if (tachyon->render_backend == TachyonRenderBackend::OPENGL) {
-    Tachyon_RenderOpenGL(tachyon);
+    Tachyon_RenderSceneInOpenGL(tachyon);
   } else {
     SDL_Delay(16);
   }

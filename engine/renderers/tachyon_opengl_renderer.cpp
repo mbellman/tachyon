@@ -2,7 +2,36 @@
 #include <SDL.h>
 #include <SDL_opengl.h>
 
+#include "engine/tachyon_aliases.h"
+#include "engine/tachyon_file_helpers.h"
 #include "engine/renderers/tachyon_opengl_renderer.h"
+
+internal GLuint CreateShaderProgram() {
+  return glCreateProgram();
+}
+
+internal GLuint CreateShader(GLenum type, const char* path) {
+  auto shader = glCreateShader(type);
+  auto source = Tachyon_GetFileContents(path);
+  auto* sourcePointer = source.c_str();
+
+  glShaderSource(shader, 1, &sourcePointer, 0);
+  glCompileShader(shader);
+
+  // @todo check status
+
+  return shader;
+}
+
+internal void SetupShaders(TachyonOpenGLShaders& shaders) {
+  shaders.main_geometry.program = CreateShaderProgram();
+  shaders.main_geometry.vertex_shader = CreateShader(GL_VERTEX_SHADER, "./engine/renderers/opengl/main_geometry.vert.glsl");
+  shaders.main_geometry.fragment_shader = CreateShader(GL_FRAGMENT_SHADER, "./engine/renderers/opengl/main_geometry.frag.glsl");
+
+  glAttachShader(shaders.main_geometry.program, shaders.main_geometry.vertex_shader);
+  glAttachShader(shaders.main_geometry.program, shaders.main_geometry.fragment_shader);
+  glLinkProgram(shaders.main_geometry.program);
+}
 
 void Tachyon_InitOpenGLRenderer(Tachyon* tachyon) {
   auto* renderer = new TachyonOpenGLRenderer;
@@ -28,16 +57,24 @@ void Tachyon_InitOpenGLRenderer(Tachyon* tachyon) {
   glFrontFace(GL_CW);
 
   tachyon->renderer = renderer;
+
+  SetupShaders(renderer->shaders);
 }
 
-void Tachyon_RenderOpenGL(Tachyon* tachyon) {
+void Tachyon_RenderSceneInOpenGL(Tachyon* tachyon) {
   int w, h;
 
   SDL_GL_GetDrawableSize(tachyon->sdl_window, &w, &h);
 
   glViewport(0, 0, w, h);
-  glClearColor(0, 0, 1.f, 1.f);
+  glClearColor(0.f, 0.f, 0.f, 1.f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+  glEnable(GL_CULL_FACE);
+  glEnable(GL_DEPTH_TEST);
+
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+  glViewport(0, 0, w, h);
 
   SDL_GL_SwapWindow(tachyon->sdl_window);
 }
