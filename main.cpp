@@ -11,13 +11,9 @@ int main(int argc, char* argv[]) {
 
   Cosmodrone::StartGame(tachyon);
 
-  while (Tachyon_IsRunning(tachyon)) {
-    Tachyon_HandleEvents(tachyon);
-
+  Tachyon_Loop({
     Cosmodrone::RunGame(tachyon);
-
-    Tachyon_RenderScene(tachyon);
-  }
+  });
 
   Tachyon_Exit(tachyon);
 
