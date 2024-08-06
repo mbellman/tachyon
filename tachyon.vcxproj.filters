@@ -303,6 +303,9 @@
     <ClInclude Include="engine\opengl\tachyon_opengl_renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="engine\tachyon_mesh_manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -318,6 +321,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="engine\opengl\tachyon_opengl_renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\tachyon_mesh_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
