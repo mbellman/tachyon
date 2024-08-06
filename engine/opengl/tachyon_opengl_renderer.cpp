@@ -4,7 +4,7 @@
 
 #include "engine/tachyon_aliases.h"
 #include "engine/tachyon_file_helpers.h"
-#include "engine/renderers/tachyon_opengl_renderer.h"
+#include "engine/opengl/tachyon_opengl_renderer.h"
 
 internal GLuint CreateShaderProgram() {
   return glCreateProgram();

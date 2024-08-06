@@ -2,7 +2,7 @@
 
 #include "engine/tachyon_aliases.h"
 #include "engine/tachyon_life_cycle.h"
-#include "engine/renderers/tachyon_opengl_renderer.h"
+#include "engine/opengl/tachyon_opengl_renderer.h"
 
 internal void DestroyRenderer(Tachyon* tachyon) {
   if (tachyon->render_backend == TachyonRenderBackend::OPENGL) {

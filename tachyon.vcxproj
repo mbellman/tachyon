@@ -115,7 +115,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="cosmodrone\game.h" />
-    <ClInclude Include="engine\renderers\tachyon_opengl_renderer.h" />
+    <ClInclude Include="engine\opengl\tachyon_opengl_renderer.h" />
     <ClInclude Include="engine\tachyon.h" />
     <ClInclude Include="engine\tachyon_aliases.h" />
     <ClInclude Include="engine\tachyon_file_helpers.h" />
@@ -213,7 +213,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cosmodrone\game.cpp" />
-    <ClCompile Include="engine\renderers\tachyon_opengl_renderer.cpp" />
+    <ClCompile Include="engine\opengl\tachyon_opengl_renderer.cpp" />
     <ClCompile Include="engine\tachyon_file_helpers.cpp" />
     <ClCompile Include="engine\tachyon_life_cycle.cpp" />
     <ClCompile Include="main.cpp" />
