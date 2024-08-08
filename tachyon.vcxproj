@@ -120,6 +120,7 @@
     <ClInclude Include="engine\tachyon_aliases.h" />
     <ClInclude Include="engine\tachyon_file_helpers.h" />
     <ClInclude Include="engine\tachyon_life_cycle.h" />
+    <ClInclude Include="engine\tachyon_loaders.h" />
     <ClInclude Include="engine\tachyon_mesh_manager.h" />
     <ClInclude Include="engine\tachyon_types.h" />
     <ClInclude Include="external\GLEW\include\eglew.h" />
@@ -217,6 +218,7 @@
     <ClCompile Include="engine\opengl\tachyon_opengl_renderer.cpp" />
     <ClCompile Include="engine\tachyon_file_helpers.cpp" />
     <ClCompile Include="engine\tachyon_life_cycle.cpp" />
+    <ClCompile Include="engine\tachyon_loaders.cpp" />
     <ClCompile Include="engine\tachyon_mesh_manager.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
