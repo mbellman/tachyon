@@ -4,21 +4,28 @@
 
 #include "engine/tachyon_types.h"
 
-struct TachyonOpenGLShader {
+struct tOpenGLShader {
   GLuint program;
   GLuint vertex_shader;
   GLuint geometry_shader;
   GLuint fragment_shader;
 };
 
-struct TachyonOpenGLShaders {
-  TachyonOpenGLShader main_geometry;
+struct tOpenGLShaders {
+  tOpenGLShader main_geometry;
 };
 
-struct TachyonOpenGLRenderer {
-  SDL_GLContext context;
+struct tOpenGLMeshPack {
+  GLuint vao;
+  GLuint buffers[3];
+  GLuint ebo;
+};
 
-  TachyonOpenGLShaders shaders;
+struct tOpenGLRenderer {
+  SDL_GLContext context;
+  GLuint indirect_buffer;
+  tOpenGLShaders shaders;
+  tOpenGLMeshPack mesh_pack;
 };
 
 void Tachyon_InitOpenGLRenderer(Tachyon* tachyon);

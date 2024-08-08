@@ -23,6 +23,17 @@ struct tVec3f {
   float z = 0.f;
 };
 
+struct tVec4f {
+  float x = 0.f;
+  float y = 0.f;
+  float z = 0.f;
+  float w = 0.f;
+};
+
+struct tMat4f {
+  float m[16] = { 0.0f };
+};
+
 struct tVertex {
   tVec3f position;
   tVec3f normal;
@@ -31,17 +42,21 @@ struct tVertex {
 };
 
 struct tMesh {
-  std::vector<tVec3f> vertices;
+  std::vector<tVertex> vertices;
+  std::vector<uint32> face_elements;
   // @todo material properties
 };
 
 struct tMeshRecord {
-  uint32 start;
-  uint32 end;
+  uint32 vertex_start;
+  uint32 vertex_end;
+  uint32 face_element_start;
+  uint32 face_element_end;
 };
 
 struct tMeshPack {
-  std::vector<tVec3f> vertex_stream;
+  std::vector<tVertex> vertex_stream;
+  std::vector<uint32> face_element_stream;
   std::vector<tMeshRecord> mesh_records;
 };
 
