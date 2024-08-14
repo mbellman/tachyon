@@ -6,6 +6,7 @@
 
 #include "engine/tachyon_aliases.h"
 #include "engine/tachyon_file_helpers.h"
+#include "engine/tachyon_linear_algebra.h"
 #include "engine/opengl/tachyon_opengl_renderer.h"
 
 internal void Tachyon_CheckError(const std::string& message) {
@@ -138,24 +139,8 @@ internal tOpenGLMeshPack Tachyon_CreateOpenGLMeshPack(Tachyon* tachyon) {
 internal void Tachyon_RenderOpenGLMeshPack(Tachyon* tachyon, const tOpenGLMeshPack& glPack) {
   auto& renderer = *(tOpenGLRenderer*)tachyon->renderer;
 
-  tMat4f matViewProjection;
-
-  float fov = 90.f;
-  const float DEGREES_TO_RADIANS = 3.141592f / 180.f;
-  float f = 1.0f / tanf(fov / 2.0f * DEGREES_TO_RADIANS);
-  float aspectRatio = 1920.f / 1080.f;
-  float near = 1.f;
-  float far = 10000.f;
-  // float aspectRatio = (float)area.width / (float)area.height;
-
-  matViewProjection = {
-    f / aspectRatio, 0.0f, 0.0f, 0.0f,
-    0.0f, f, 0.0f, 0.0f,
-    0.0f, 0.0f, (far + near) / (near - far), (2 * far * near) / (near - far),
-    0.0f, 0.0f, -1.0f, 0.0f
-  };
-
-  matViewProjection.m[15] = 1.f;
+  // @todo include camera view matrix
+  tMat4f matViewProjection = tMat4f::perspective(90.f, 1.f, 10000.f);
 
   Tachyon_UseShader(renderer.shaders.main_geometry);
   Tachyon_SetShaderMat4f(renderer.shaders.main_geometry, "matViewProjection", matViewProjection);
@@ -164,6 +149,7 @@ internal void Tachyon_RenderOpenGLMeshPack(Tachyon* tachyon, const tOpenGLMeshPa
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glPack.ebo);
 
   // @temporary
+  // @todo buffer sub data per updated mesh record/object pool?
   {
     // Buffer colors
     tVec4f color = tVec4f(1.f, 0, 0, 0);
@@ -265,10 +251,7 @@ void Tachyon_RenderSceneInOpenGL(Tachyon* tachyon) {
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
   glViewport(0, 0, w, h);
 
-  // @todo move to its own function
-  {
-    Tachyon_RenderOpenGLMeshPack(tachyon, renderer.mesh_pack);
-  }
+  Tachyon_RenderOpenGLMeshPack(tachyon, renderer.mesh_pack);
 
   SDL_GL_SwapWindow(tachyon->sdl_window);
 }

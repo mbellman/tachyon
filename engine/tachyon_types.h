@@ -3,35 +3,12 @@
 #include <vector>
 
 #include "engine/tachyon_aliases.h"
+#include "engine/tachyon_linear_algebra.h"
 
 struct SDL_Window;
 
 enum TachyonRenderBackend {
   OPENGL
-};
-
-// @todo move to tachyon_vector.h
-struct tVec2f {
-  float x = 0.f;
-  float y = 0.f;
-};
-
-// @todo move to tachyon_vector.h
-struct tVec3f {
-  float x = 0.f;
-  float y = 0.f;
-  float z = 0.f;
-};
-
-struct tVec4f {
-  float x = 0.f;
-  float y = 0.f;
-  float z = 0.f;
-  float w = 0.f;
-};
-
-struct tMat4f {
-  float m[16] = { 0.0f };
 };
 
 struct tVertex {
