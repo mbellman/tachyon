@@ -7,7 +7,7 @@ layout (location = 0) in vec3 vertexPosition;
 layout (location = 1) in vec3 vertexNormal;
 layout (location = 2) in vec3 vertexTangent;
 layout (location = 3) in vec2 vertexUv;
-layout (location = 4) in uint modelColor;
+layout (location = 4) in vec4 modelColor;
 layout (location = 5) in mat4 modelMatrix;
 
 flat out vec3 fragColor;
@@ -35,7 +35,7 @@ void main() {
 
   gl_Position = matViewProjection * world_position;
 
-  fragColor = vec3(1, 0, 0); // @todo
+  fragColor = modelColor.xyz;
   fragPosition = world_position.xyz;
   fragNormal = vertexNormal;
   fragTangent = vertexTangent;

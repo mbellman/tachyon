@@ -121,7 +121,7 @@ internal tOpenGLMeshPack Tachyon_CreateOpenGLMeshPack(Tachyon* tachyon) {
   // Define color attributes
   glBindBuffer(GL_ARRAY_BUFFER, glPack.buffers[COLOR_BUFFER]);
   glEnableVertexAttribArray(MODEL_COLOR);
-  glVertexAttribIPointer(MODEL_COLOR, 1, GL_UNSIGNED_INT, sizeof(tVec4f), (void*)0);
+  glVertexAttribPointer(MODEL_COLOR, 4, GL_FLOAT, GL_FALSE, sizeof(tVec4f), (void*)0);
   glVertexAttribDivisor(MODEL_COLOR, 1);
 
   // Define matrix attributes
@@ -140,7 +140,7 @@ internal void Tachyon_RenderOpenGLMeshPack(Tachyon* tachyon, const tOpenGLMeshPa
   auto& renderer = *(tOpenGLRenderer*)tachyon->renderer;
 
   // @todo include camera view matrix
-  tMat4f matViewProjection = tMat4f::perspective(90.f, 1.f, 10000.f);
+  tMat4f matViewProjection = tMat4f::perspective(45.f, 1.f, 10000.f).transpose();
 
   Tachyon_UseShader(renderer.shaders.main_geometry);
   Tachyon_SetShaderMat4f(renderer.shaders.main_geometry, "matViewProjection", matViewProjection);
@@ -152,20 +152,14 @@ internal void Tachyon_RenderOpenGLMeshPack(Tachyon* tachyon, const tOpenGLMeshPa
   // @todo buffer sub data per updated mesh record/object pool?
   {
     // Buffer colors
-    tVec4f color = tVec4f(1.f, 0, 0, 0);
+    auto& colors = tachyon->colors;
     glBindBuffer(GL_ARRAY_BUFFER, glPack.buffers[COLOR_BUFFER]);
-    glBufferData(GL_ARRAY_BUFFER, 1 * sizeof(tVec4f), &color, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(tVec4f), colors.data(), GL_DYNAMIC_DRAW);
 
     // Buffer matrices
-    tMat4f mat = {
-      20.f, 0, 0, 0,
-      0, 20.f, 0, 0,
-      0, 0, 20.f, 0,
-      0, 0, -50.f, 1.f
-    };
-
+    auto& matrices = tachyon->matrices;
     glBindBuffer(GL_ARRAY_BUFFER, glPack.buffers[MATRIX_BUFFER]);
-    glBufferData(GL_ARRAY_BUFFER, 1 * sizeof(tMat4f), &mat, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, matrices.size() * sizeof(tMat4f), matrices.data(), GL_DYNAMIC_DRAW);
   }
 
   struct DrawElementsIndirectCommand {

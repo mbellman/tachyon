@@ -118,9 +118,19 @@ void Tachyon_InitializeObjects(Tachyon* tachyon) {
     totalObjects += record.group.total;
   }
 
-  tachyon->objects.reserve(totalObjects);
-  tachyon->matrices.reserve(totalObjects);
-  tachyon->colors.reserve(totalObjects);
+  tachyon->objects.resize(totalObjects);
+  tachyon->matrices.resize(totalObjects);
+  tachyon->colors.resize(totalObjects);
+
+  // @temporary
+  // @todo use an id -> index table
+  {
+    uint32 index = 0;
+
+    for (auto& o : tachyon->objects) {
+      o.index = index++;
+    }
+  }
 
   uint32 offset = 0;
 
@@ -129,4 +139,12 @@ void Tachyon_InitializeObjects(Tachyon* tachyon) {
 
     offset += record.group.total;
   }
+}
+
+void Tachyon_CommitObject(Tachyon* tachyon, const tObject& object) {
+  auto& matrices = tachyon->matrices;
+  auto& colors = tachyon->colors;
+
+  matrices[object.index] = tMat4f::transformation(object.position, object.scale, object.rotation).transpose();
+  colors[object.index] = object.color;
 }

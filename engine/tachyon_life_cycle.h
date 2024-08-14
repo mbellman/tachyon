@@ -8,6 +8,7 @@
     Tachyon_HandleEvents(tachyon);\
     code;\
     Tachyon_RenderScene(tachyon);\
+    tachyon->running_time += 1.f / 60.f;\
   }\
 
 Tachyon* Tachyon_Init();

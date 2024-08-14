@@ -4,6 +4,7 @@
 
 #include "engine/tachyon_aliases.h"
 #include "engine/tachyon_linear_algebra.h"
+#include "engine/tachyon_quaternion.h"
 
 struct SDL_Window;
 
@@ -19,7 +20,11 @@ struct tVertex {
 };
 
 struct tObject {
+  uint32 index = 0;
   tVec3f position;
+  tVec3f scale;
+  Quaternion rotation;
+  tVec4f color;
 };
 
 struct tObjectGroup {
@@ -65,10 +70,11 @@ struct Tachyon {
   TachyonRenderBackend render_backend = TachyonRenderBackend::OPENGL;
   void* renderer = nullptr;
   bool running = true;
+  float running_time = 0.f;
 
   tMeshPack mesh_pack;
 
   std::vector<tObject> objects;
   std::vector<tMat4f> matrices;
-  std::vector<tVec4f> colors;
+  std::vector<tVec4f> colors; // @todo use a uint32 or other
 };
