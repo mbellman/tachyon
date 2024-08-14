@@ -25,6 +25,7 @@ struct tOpenGLRenderer {
   SDL_GLContext context;
   GLuint indirect_buffer;
   tOpenGLShaders shaders;
+  // @todo will we need multiple mesh packs?
   tOpenGLMeshPack mesh_pack;
 };
 

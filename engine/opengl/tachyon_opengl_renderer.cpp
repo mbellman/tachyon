@@ -1,3 +1,5 @@
+#include <map>
+
 #include <glew.h>
 #include <SDL.h>
 #include <SDL_opengl.h>
@@ -5,6 +7,26 @@
 #include "engine/tachyon_aliases.h"
 #include "engine/tachyon_file_helpers.h"
 #include "engine/opengl/tachyon_opengl_renderer.h"
+
+internal void Tachyon_CheckError(const std::string& message) {
+  GLenum error;
+
+  static std::map<GLenum, std::string> glErrorMap = {
+    { GL_INVALID_ENUM, "GL_INVALID_ENUM "},
+    { GL_INVALID_VALUE, "GL_INVALID_VALUE" },
+    { GL_INVALID_OPERATION, "GL_INVALID_OPERATION" },
+    { GL_STACK_OVERFLOW, "GL_STACK_OVERFLOW" },
+    { GL_STACK_UNDERFLOW, "GL_STACK_UNDERFLOW" },
+    { GL_OUT_OF_MEMORY, "GL_OUT_OF_MEMORY" },
+    { GL_INVALID_FRAMEBUFFER_OPERATION, "GL_INVALID_FRAMEBUFFER_OPERATION" },
+    { GL_CONTEXT_LOST, "GL_CONTEXT_LOST" },
+    { GL_TABLE_TOO_LARGE, "GL_TABLE_TOO_LARGE" }
+  };
+
+  while ((error = glGetError()) != GL_NO_ERROR) {
+    printf("Error (%s): %s\n", message.c_str(), glErrorMap[error]);
+  }
+}
 
 // --------------------------------------
 // @todo move to tachyon_opengl_shaders.h
@@ -27,8 +49,8 @@ internal GLuint Tachyon_CreateShader(GLenum type, const char* path) {
 
 internal void Tachyon_SetupShaders(tOpenGLShaders& shaders) {
   shaders.main_geometry.program = Tachyon_CreateShaderProgram();
-  shaders.main_geometry.vertex_shader = Tachyon_CreateShader(GL_VERTEX_SHADER, "./engine/renderers/opengl/main_geometry.vert.glsl");
-  shaders.main_geometry.fragment_shader = Tachyon_CreateShader(GL_FRAGMENT_SHADER, "./engine/renderers/opengl/main_geometry.frag.glsl");
+  shaders.main_geometry.vertex_shader = Tachyon_CreateShader(GL_VERTEX_SHADER, "./engine/opengl/shaders/main_geometry.vert.glsl");
+  shaders.main_geometry.fragment_shader = Tachyon_CreateShader(GL_FRAGMENT_SHADER, "./engine/opengl/shaders/main_geometry.frag.glsl");
 
   glAttachShader(shaders.main_geometry.program, shaders.main_geometry.vertex_shader);
   glAttachShader(shaders.main_geometry.program, shaders.main_geometry.fragment_shader);
@@ -37,6 +59,12 @@ internal void Tachyon_SetupShaders(tOpenGLShaders& shaders) {
 
 internal void Tachyon_UseShader(tOpenGLShader& shader) {
   glUseProgram(shader.program);
+}
+
+internal void Tachyon_SetShaderMat4f(tOpenGLShader& shader, const std::string& name, const tMat4f& matrix) {
+  GLint location = glGetUniformLocation(shader.program, name.c_str());
+
+  glUniformMatrix4fv(location, 1, GL_FALSE, matrix.m);
 }
 // --------------------------------------
 
@@ -108,7 +136,81 @@ internal tOpenGLMeshPack Tachyon_CreateOpenGLMeshPack(Tachyon* tachyon) {
 }
 
 internal void Tachyon_RenderOpenGLMeshPack(Tachyon* tachyon, const tOpenGLMeshPack& glPack) {
-  // @todo
+  auto& renderer = *(tOpenGLRenderer*)tachyon->renderer;
+
+  tMat4f matViewProjection;
+
+  float fov = 90.f;
+  const float DEGREES_TO_RADIANS = 3.141592f / 180.f;
+  float f = 1.0f / tanf(fov / 2.0f * DEGREES_TO_RADIANS);
+  float aspectRatio = 1920.f / 1080.f;
+  float near = 1.f;
+  float far = 10000.f;
+  // float aspectRatio = (float)area.width / (float)area.height;
+
+  matViewProjection = {
+    f / aspectRatio, 0.0f, 0.0f, 0.0f,
+    0.0f, f, 0.0f, 0.0f,
+    0.0f, 0.0f, (far + near) / (near - far), (2 * far * near) / (near - far),
+    0.0f, 0.0f, -1.0f, 0.0f
+  };
+
+  matViewProjection.m[15] = 1.f;
+
+  Tachyon_UseShader(renderer.shaders.main_geometry);
+  Tachyon_SetShaderMat4f(renderer.shaders.main_geometry, "matViewProjection", matViewProjection);
+
+  glBindVertexArray(glPack.vao);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glPack.ebo);
+
+  // @temporary
+  {
+    // Buffer colors
+    tVec4f color = tVec4f(1.f, 0, 0, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, glPack.buffers[COLOR_BUFFER]);
+    glBufferData(GL_ARRAY_BUFFER, 1 * sizeof(tVec4f), &color, GL_DYNAMIC_DRAW);
+
+    // Buffer matrices
+    tMat4f mat = {
+      20.f, 0, 0, 0,
+      0, 20.f, 0, 0,
+      0, 0, 20.f, 0,
+      0, 0, -50.f, 1.f
+    };
+
+    glBindBuffer(GL_ARRAY_BUFFER, glPack.buffers[MATRIX_BUFFER]);
+    glBufferData(GL_ARRAY_BUFFER, 1 * sizeof(tMat4f), &mat, GL_DYNAMIC_DRAW);
+  }
+
+  struct DrawElementsIndirectCommand {
+    GLuint count;
+    GLuint instanceCount;
+    GLuint firstIndex;
+    GLuint baseVertex;
+    GLuint baseInstance;
+  };
+
+  auto& records = tachyon->mesh_pack.mesh_records;
+  auto totalMeshes = records.size();
+  auto* commands = new DrawElementsIndirectCommand[totalMeshes];
+
+  for (uint32 i = 0; i < totalMeshes; i++) {
+    auto& command = commands[i];
+    auto& record = records[i];
+
+    command.count = record.face_element_end - record.face_element_start;
+    command.firstIndex = record.face_element_start;
+    command.instanceCount = 1; // @todo
+    command.baseInstance = 0;  // @todo
+    command.baseVertex = 0;    // @todo
+  }
+
+  glBindBuffer(GL_DRAW_INDIRECT_BUFFER, renderer.indirect_buffer);
+  glBufferData(GL_DRAW_INDIRECT_BUFFER, totalMeshes * sizeof(DrawElementsIndirectCommand), commands, GL_DYNAMIC_DRAW);
+
+  glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, 0, totalMeshes, 0);
+
+  delete[] commands;
 }
 // ---------------------------------------
 
@@ -142,6 +244,8 @@ void Tachyon_InitOpenGLRenderer(Tachyon* tachyon) {
     glGenBuffers(1, &renderer->indirect_buffer);
   }
 
+  renderer->mesh_pack = Tachyon_CreateOpenGLMeshPack(tachyon);
+
   tachyon->renderer = renderer;
 }
 
@@ -163,40 +267,7 @@ void Tachyon_RenderSceneInOpenGL(Tachyon* tachyon) {
 
   // @todo move to its own function
   {
-    // auto& glPack = renderer.mesh_pack;
-
-    // Tachyon_UseShader(renderer.shaders.main_geometry);
-
-    // glBindVertexArray(glPack.vao);
-    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glPack.ebo);
-
-    // struct DrawElementsIndirectCommand {
-    //   GLuint count;
-    //   GLuint instanceCount;
-    //   GLuint firstIndex;
-    //   GLuint baseVertex;
-    //   GLuint baseInstance;
-    // };
-
-    // auto& records = tachyon->mesh_pack.mesh_records;
-    // auto totalMeshes = records.size();
-    // auto* commands = new DrawElementsIndirectCommand[totalMeshes];
-
-    // for (uint32 i = 0; i < totalMeshes; i++) {
-    //   auto& command = commands[i];
-    //   auto& record = records[i];
-
-    //   command.count = record.face_element_end - record.face_element_start;
-    //   command.firstIndex = record.face_element_start;
-    //   command.instanceCount = 1;
-    //   command.baseInstance = 0; // @todo
-    //   command.baseVertex = 0;   // @todo
-    // }
-
-    // glBindBuffer(GL_DRAW_INDIRECT_BUFFER, renderer.indirect_buffer);
-    // glBufferData(GL_DRAW_INDIRECT_BUFFER, totalMeshes * sizeof(DrawElementsIndirectCommand), commands, GL_DYNAMIC_DRAW);
-
-    // delete[] commands;
+    Tachyon_RenderOpenGLMeshPack(tachyon, renderer.mesh_pack);
   }
 
   SDL_GL_SwapWindow(tachyon->sdl_window);

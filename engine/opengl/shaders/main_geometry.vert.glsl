@@ -35,7 +35,7 @@ void main() {
 
   gl_Position = matViewProjection * world_position;
 
-  fragColor = vec3(1, 0, 0);
+  fragColor = vec3(1, 0, 0); // @todo
   fragPosition = world_position.xyz;
   fragNormal = vertexNormal;
   fragTangent = vertexTangent;
