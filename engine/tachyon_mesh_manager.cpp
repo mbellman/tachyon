@@ -83,7 +83,7 @@ tMesh Tachyon_LoadMesh(const char* path) {
   return mesh;
 }
 
-void Tachyon_AddMesh(Tachyon* tachyon, const tMesh& mesh) {
+uint32 Tachyon_AddMesh(Tachyon* tachyon, const tMesh& mesh) {
   auto& pack = tachyon->mesh_pack;
   tMeshRecord record;
 
@@ -94,6 +94,9 @@ void Tachyon_AddMesh(Tachyon* tachyon, const tMesh& mesh) {
   record.face_element_start = pack.face_element_stream.size();
   record.face_element_end = record.face_element_start + mesh.face_elements.size();
 
+  // @todo use # of objects in the mesh
+  record.group.total = 1;
+
   pack.mesh_records.push_back(record);
 
   // Add vertices/face elements to the main stream
@@ -103,5 +106,27 @@ void Tachyon_AddMesh(Tachyon* tachyon, const tMesh& mesh) {
 
   for (auto& element : mesh.face_elements) {
     pack.face_element_stream.push_back(element);
+  }
+
+  return pack.mesh_records.size();
+}
+
+void Tachyon_InitializeObjects(Tachyon* tachyon) {
+  uint32 totalObjects = 0;
+
+  for (auto& record : tachyon->mesh_pack.mesh_records) {
+    totalObjects += record.group.total;
+  }
+
+  tachyon->objects.reserve(totalObjects);
+  tachyon->matrices.reserve(totalObjects);
+  tachyon->colors.reserve(totalObjects);
+
+  uint32 offset = 0;
+
+  for (auto& record : tachyon->mesh_pack.mesh_records) {
+    record.group.objects = &tachyon->objects[offset];
+
+    offset += record.group.total;
   }
 }

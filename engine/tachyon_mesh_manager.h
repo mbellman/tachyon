@@ -3,4 +3,5 @@
 #include "engine/tachyon_types.h"
 
 tMesh Tachyon_LoadMesh(const char* path);
-void Tachyon_AddMesh(Tachyon* tachyon, const tMesh& mesh);
+uint32 Tachyon_AddMesh(Tachyon* tachyon, const tMesh& mesh);
+void Tachyon_InitializeObjects(Tachyon* tachyon);

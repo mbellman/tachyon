@@ -18,6 +18,27 @@ struct tVertex {
   tVec2f uv;
 };
 
+struct tObject {
+  tVec3f position;
+};
+
+struct tObjectGroup {
+  tObject* objects = nullptr;
+  uint32 total = 0;
+
+  tObject& operator [](uint32 index) {
+    return objects[index];
+  }
+
+  tObject* begin() const {
+    return objects;
+  }
+
+  tObject* end() const {
+    return objects + total;
+  }
+};
+
 struct tMesh {
   std::vector<tVertex> vertices;
   std::vector<uint32> face_elements;
@@ -29,6 +50,8 @@ struct tMeshRecord {
   uint32 vertex_end;
   uint32 face_element_start;
   uint32 face_element_end;
+
+  tObjectGroup group;
 };
 
 struct tMeshPack {
@@ -44,4 +67,8 @@ struct Tachyon {
   bool running = true;
 
   tMeshPack mesh_pack;
+
+  std::vector<tObject> objects;
+  std::vector<tMat4f> matrices;
+  std::vector<tVec4f> colors;
 };
