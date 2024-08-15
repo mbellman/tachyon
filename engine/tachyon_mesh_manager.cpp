@@ -83,7 +83,7 @@ tMesh Tachyon_LoadMesh(const char* path) {
   return mesh;
 }
 
-uint32 Tachyon_AddMesh(Tachyon* tachyon, const tMesh& mesh) {
+uint32 Tachyon_AddMesh(Tachyon* tachyon, const tMesh& mesh, uint16 total) {
   auto& pack = tachyon->mesh_pack;
   tMeshRecord record;
 
@@ -94,8 +94,7 @@ uint32 Tachyon_AddMesh(Tachyon* tachyon, const tMesh& mesh) {
   record.face_element_start = pack.face_element_stream.size();
   record.face_element_end = record.face_element_start + mesh.face_elements.size();
 
-  // @todo use # of objects in the mesh
-  record.group.total = 1;
+  record.group.total = total;
 
   pack.mesh_records.push_back(record);
 
@@ -108,7 +107,7 @@ uint32 Tachyon_AddMesh(Tachyon* tachyon, const tMesh& mesh) {
     pack.face_element_stream.push_back(element);
   }
 
-  return pack.mesh_records.size();
+  return pack.mesh_records.size() - 1;
 }
 
 void Tachyon_InitializeObjects(Tachyon* tachyon) {
@@ -144,6 +143,18 @@ void Tachyon_InitializeObjects(Tachyon* tachyon) {
     objectOffset += record.group.total;
     meshIndex++;
   }
+}
+
+tObject& Tachyon_CreateObject(Tachyon* tachyon, uint16 meshIndex) {
+  auto& group = tachyon->mesh_pack.mesh_records[meshIndex].group;
+
+  if (group.total_visible >= group.total) {
+    // @todo throw an error and exit
+  }
+
+  group.total_visible++;
+
+  return group[group.total_visible - 1];
 }
 
 void Tachyon_CommitObject(Tachyon* tachyon, const tObject& object) {

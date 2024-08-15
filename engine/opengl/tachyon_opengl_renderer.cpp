@@ -188,7 +188,7 @@ internal void Tachyon_RenderOpenGLMeshPack(Tachyon* tachyon, const tOpenGLMeshPa
 
     command.count = record.face_element_end - record.face_element_start;
     command.firstIndex = record.face_element_start;
-    command.instanceCount = record.group.total; // @todo group.total_visible
+    command.instanceCount = record.group.total_visible;
     command.baseInstance = record.group.object_offset;
     command.baseVertex = record.vertex_start;
   }
