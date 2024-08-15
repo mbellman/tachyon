@@ -11,6 +11,10 @@ struct tVec3f {
   float x = 0.f;
   float y = 0.f;
   float z = 0.f;
+
+  tVec3f() {};
+  tVec3f(float f) : x(f), y(f), z(f) {};
+  tVec3f(float x, float y, float z) : x(x), y(y), z(z) {};
 };
 
 struct tVec4f {

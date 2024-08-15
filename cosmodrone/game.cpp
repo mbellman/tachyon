@@ -12,15 +12,14 @@ void Cosmodrone::StartGame(Tachyon* tachyon) {
 
 void Cosmodrone::RunGame(Tachyon* tachyon) {
   // @temporary
-  auto& sun = tachyon->mesh_pack.mesh_records[sun_index - 1].group[0];
+  {
+    auto& sun = objects(sun_index)[0];
 
-  sun.position = tVec3f(0, 50.f * sinf(tachyon->running_time * 0.2f), -200.f);
-  sun.scale = tVec3f(40.f, 40.f, 40.f);
-  sun.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 0.05f * tachyon->running_time);
-  sun.color = tVec4f(1.f, 0, 0.f, 0);
+    sun.position = tVec3f(0, 50.f * sinf(tachyon->running_time * 0.2f), -200.f);
+    sun.scale = tVec3f(40.f);
+    sun.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 0.05f * tachyon->running_time);
+    sun.color = tVec4f(1.f, 0, 0.f, 0);
 
-  Tachyon_CommitObject(tachyon, sun);
-
-  // printf("%f, %f, %f\n", sun.position.x, sun.position.y, sun.position.z);
-  // printf("%d\n", tachyon->mesh_pack.mesh_records[sun_index - 1].group.total);
+    commit(sun);
+  }
 }
