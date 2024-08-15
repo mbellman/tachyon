@@ -122,29 +122,35 @@ void Tachyon_InitializeObjects(Tachyon* tachyon) {
   tachyon->matrices.resize(totalObjects);
   tachyon->colors.resize(totalObjects);
 
-  // @temporary
-  // @todo use an id -> index table
-  {
-    uint32 index = 0;
-
-    for (auto& o : tachyon->objects) {
-      o.index = index++;
-    }
-  }
-
-  uint32 offset = 0;
+  uint16 meshIndex = 0;
+  uint32 objectOffset = 0;
 
   for (auto& record : tachyon->mesh_pack.mesh_records) {
-    record.group.objects = &tachyon->objects[offset];
+    // Set object group pointers into global arrays
+    record.group.objects = &tachyon->objects[objectOffset];
+    record.group.matrices = &tachyon->matrices[objectOffset];
+    record.group.colors = &tachyon->colors[objectOffset];
+    record.group.object_offset = objectOffset;
 
-    offset += record.group.total;
+    uint16 objectIndex = 0;
+
+    // Set mesh/object indexes on each object
+    // @todo set object id
+    for (auto& object : record.group) {
+      object.mesh_index = meshIndex;
+      object.object_index = objectIndex++;
+    }
+
+    objectOffset += record.group.total;
+    meshIndex++;
   }
 }
 
 void Tachyon_CommitObject(Tachyon* tachyon, const tObject& object) {
-  auto& matrices = tachyon->matrices;
-  auto& colors = tachyon->colors;
+  auto& group = tachyon->mesh_pack.mesh_records[object.mesh_index].group;
 
-  matrices[object.index] = tMat4f::transformation(object.position, object.scale, object.rotation).transpose();
-  colors[object.index] = object.color;
+  // @todo object id -> index
+  group.matrices[object.object_index] = tMat4f::transformation(object.position, object.scale, object.rotation).transpose();
+  group.colors[object.object_index] = object.color;
+  group.buffered = false;
 }

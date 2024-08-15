@@ -136,6 +136,7 @@ internal tOpenGLMeshPack Tachyon_CreateOpenGLMeshPack(Tachyon* tachyon) {
   return glPack;
 }
 
+// @todo rename Tachyon_OpenGL_RenderStaticGeometry()
 internal void Tachyon_RenderOpenGLMeshPack(Tachyon* tachyon, const tOpenGLMeshPack& glPack) {
   auto& renderer = *(tOpenGLRenderer*)tachyon->renderer;
 
@@ -149,7 +150,7 @@ internal void Tachyon_RenderOpenGLMeshPack(Tachyon* tachyon, const tOpenGLMeshPa
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glPack.ebo);
 
   // @temporary
-  // @todo buffer sub data per updated mesh record/object pool?
+  // @todo buffer sub data per updated mesh record/object group
   {
     // Buffer colors
     auto& colors = tachyon->colors;
@@ -162,6 +163,12 @@ internal void Tachyon_RenderOpenGLMeshPack(Tachyon* tachyon, const tOpenGLMeshPa
     glBufferData(GL_ARRAY_BUFFER, matrices.size() * sizeof(tMat4f), matrices.data(), GL_DYNAMIC_DRAW);
   }
 
+  for (auto& record : tachyon->mesh_pack.mesh_records) {
+    // @todo do the matrix/color buffering here
+
+    record.group.buffered = true;
+  }
+
   struct DrawElementsIndirectCommand {
     GLuint count;
     GLuint instanceCount;
@@ -170,6 +177,7 @@ internal void Tachyon_RenderOpenGLMeshPack(Tachyon* tachyon, const tOpenGLMeshPa
     GLuint baseInstance;
   };
 
+  // @todo only use the mesh pack corresponding to the glPack
   auto& records = tachyon->mesh_pack.mesh_records;
   auto totalMeshes = records.size();
   auto* commands = new DrawElementsIndirectCommand[totalMeshes];
@@ -180,9 +188,9 @@ internal void Tachyon_RenderOpenGLMeshPack(Tachyon* tachyon, const tOpenGLMeshPa
 
     command.count = record.face_element_end - record.face_element_start;
     command.firstIndex = record.face_element_start;
-    command.instanceCount = 1; // @todo
-    command.baseInstance = 0;  // @todo
-    command.baseVertex = 0;    // @todo
+    command.instanceCount = record.group.total; // @todo group.total_visible
+    command.baseInstance = record.group.object_offset;
+    command.baseVertex = record.vertex_start;
   }
 
   glBindBuffer(GL_DRAW_INDIRECT_BUFFER, renderer.indirect_buffer);

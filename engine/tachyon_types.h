@@ -20,18 +20,25 @@ struct tVertex {
 };
 
 struct tObject {
-  uint32 index = 0;
   tVec3f position;
   tVec3f scale;
   Quaternion rotation;
   tVec4f color;
+
+  uint16 object_index = 0;  // @todo change to object_id, use an id -> index table
+  uint16 mesh_index = 0;
 };
 
 struct tObjectGroup {
   tObject* objects = nullptr;
-  uint32 total = 0;
+  tMat4f* matrices = nullptr;
+  tVec4f* colors = nullptr;
+  uint32 object_offset = 0;
+  uint16 total = 0;
+  uint16 total_visible = 0;
+  bool buffered = false;
 
-  tObject& operator [](uint32 index) {
+  tObject& operator [](uint16 index) {
     return objects[index];
   }
 
