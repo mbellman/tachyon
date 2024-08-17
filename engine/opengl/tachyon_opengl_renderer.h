@@ -29,11 +29,17 @@ struct tOpenGLScreenQuad {
 };
 
 struct tOpenGLRenderer {
-  SDL_GLContext context;
+  SDL_GLContext gl_context;
   GLuint indirect_buffer;
   tOpenGLShaders shaders;
   // @todo will we need multiple mesh packs?
   tOpenGLMeshPack mesh_pack;
+
+  struct tOpenGLRendererContext {
+    uint32 w, h;
+
+    uint64 last_frame_time_in_microseconds = 0;
+  } ctx;
 
   GLuint screen_quad_texture;
   tOpenGLScreenQuad screen_quad;

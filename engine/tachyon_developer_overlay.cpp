@@ -5,7 +5,7 @@
 #include "engine/opengl/tachyon_opengl_renderer.h"
 
 void Tachyon_InitDeveloperOverlay(Tachyon* tachyon) {
-  tachyon->developer_overlay_font = TTF_OpenFont("./fonts/OpenSans-Regular.ttf", 16);
+  tachyon->developer_overlay_font = TTF_OpenFont("./fonts/OpenSans-Regular.ttf", 20);
 }
 
 void Tachyon_DestroyDeveloperOverlay(Tachyon* tachyon) {

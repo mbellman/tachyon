@@ -1,3 +1,4 @@
+#include <chrono>
 #include <map>
 
 #include <glew.h>
@@ -267,12 +268,13 @@ internal void Tachyon_RenderOpenGLScreenQuad(Tachyon* tachyon) {
 
 internal void RenderSurface(Tachyon* tachyon, SDL_Surface* surface, uint32 x, uint32 y, uint32 w, uint32 h, const tVec3f& color, const tVec4f& background) {
   auto& renderer = *(tOpenGLRenderer*)tachyon->renderer;
+  auto& ctx = renderer.ctx;
   auto& shaders = renderer.shaders;
 
-  float offsetX = -1.0f + (2 * x + w) / 1920.f;
-  float offsetY = 1.0f - (2 * y + h) / 1080.f;
-  float scaleX = w / 1920.f;
-  float scaleY = -1.0f * h / 1080.f;
+  float offsetX = -1.0f + (2 * x + w) / (float)ctx.w;
+  float offsetY = 1.0f - (2 * y + h) / (float)ctx.h;
+  float scaleX = w / (float)ctx.w;
+  float scaleY = -1.0f * h / (float)ctx.h;
   int format = surface->format->BytesPerPixel == 4 ? GL_RGBA : GL_RGB;
 
   glActiveTexture(GL_TEXTURE0);
@@ -301,7 +303,12 @@ internal void RenderText(Tachyon* tachyon, TTF_Font* font, const char* message, 
 }
 
 internal void RenderDeveloperOverlay(Tachyon* tachyon) {
-  RenderText(tachyon, tachyon->developer_overlay_font, "Testing", 100, 100, tVec3f(1.f), tVec4f(0.f));
+  auto& ctx = ((tOpenGLRenderer*)tachyon->renderer)->ctx;
+
+  auto fps = uint32(1000000.f / (float)ctx.last_frame_time_in_microseconds);
+  auto fps_label = "Render time: " + std::to_string(ctx.last_frame_time_in_microseconds) + "us (" + std::to_string(fps) + "fps)";
+
+  RenderText(tachyon, tachyon->developer_overlay_font, fps_label.c_str(), 10, 10, tVec3f(1.f), tVec4f(0.f));
 }
 
 void Tachyon_InitOpenGLRenderer(Tachyon* tachyon) {
@@ -315,7 +322,7 @@ void Tachyon_InitOpenGLRenderer(Tachyon* tachyon) {
   SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
   SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
-  renderer->context = SDL_GL_CreateContext(tachyon->sdl_window);
+  renderer->gl_context = SDL_GL_CreateContext(tachyon->sdl_window);
 
   glewExperimental = true;
 
@@ -351,11 +358,24 @@ void Tachyon_InitOpenGLRenderer(Tachyon* tachyon) {
   tachyon->renderer = renderer;
 }
 
+// @todo move to tachyon_timer.h
+uint64 Tachyon_GetMicroseconds() {
+  auto now = std::chrono::system_clock::now();
+
+  return std::chrono::time_point_cast<std::chrono::microseconds>(now).time_since_epoch().count();
+}
+
 void Tachyon_RenderSceneInOpenGL(Tachyon* tachyon) {
-  tOpenGLRenderer& renderer = *(tOpenGLRenderer*)tachyon->renderer;
+  auto& renderer = *(tOpenGLRenderer*)tachyon->renderer;
+  auto& ctx = renderer.ctx;
   int w, h;
 
+  auto start = Tachyon_GetMicroseconds();
+
   SDL_GL_GetDrawableSize(tachyon->sdl_window, &w, &h);
+
+  ctx.w = w;
+  ctx.h = h;
 
   glViewport(0, 0, w, h);
   glClearColor(0.f, 0.f, 0.f, 1.f);
@@ -374,6 +394,8 @@ void Tachyon_RenderSceneInOpenGL(Tachyon* tachyon) {
   RenderDeveloperOverlay(tachyon);
 
   SDL_GL_SwapWindow(tachyon->sdl_window);
+
+  ctx.last_frame_time_in_microseconds = Tachyon_GetMicroseconds() - start;
 }
 
 void Tachyon_DestroyOpenGLRenderer(Tachyon* tachyon) {
@@ -382,5 +404,5 @@ void Tachyon_DestroyOpenGLRenderer(Tachyon* tachyon) {
   glDeleteBuffers(1, &renderer->indirect_buffer);
   // @todo destroy shaders/buffers/etc.
 
-  SDL_GL_DeleteContext(renderer->context);
+  SDL_GL_DeleteContext(renderer->gl_context);
 }
