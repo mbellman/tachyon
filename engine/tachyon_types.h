@@ -2,11 +2,12 @@
 
 #include <vector>
 
+#include <SDL.h>
+#include <SDL_ttf.h>
+
 #include "engine/tachyon_aliases.h"
 #include "engine/tachyon_linear_algebra.h"
 #include "engine/tachyon_quaternion.h"
-
-struct SDL_Window;
 
 enum TachyonRenderBackend {
   OPENGL
@@ -80,6 +81,9 @@ struct Tachyon {
   float running_time = 0.f;
 
   tMeshPack mesh_pack;
+
+  // @todo developer mode only
+  TTF_Font* developer_overlay_font = nullptr;
 
   std::vector<tObject> objects;
   std::vector<tMat4f> matrices;

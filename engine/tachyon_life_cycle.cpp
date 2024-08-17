@@ -1,6 +1,9 @@
 #include <SDL.h>
+#include <SDL_ttf.h>
+#include <SDL_image.h>
 
 #include "engine/tachyon_aliases.h"
+#include "engine/tachyon_developer_overlay.h"
 #include "engine/tachyon_life_cycle.h"
 #include "engine/opengl/tachyon_opengl_renderer.h"
 
@@ -14,8 +17,14 @@ internal void DestroyRenderer(Tachyon* tachyon) {
 
 Tachyon* Tachyon_Init() {
   SDL_Init(SDL_INIT_EVERYTHING);
+  TTF_Init();
+  IMG_Init(IMG_INIT_PNG);
 
-  return new Tachyon;
+  auto* tachyon = new Tachyon;
+
+  Tachyon_InitDeveloperOverlay(tachyon);
+
+  return tachyon;
 }
 
 void Tachyon_SpawnWindow(Tachyon* tachyon, const char* title, uint32 width, uint32 height) {
@@ -82,13 +91,18 @@ void Tachyon_UnfocusWindow() {
 }
 
 void Tachyon_Exit(Tachyon* tachyon) {
-  if (tachyon->sdl_window != nullptr) {
-    SDL_DestroyWindow(tachyon->sdl_window);
-  }
+  Tachyon_DestroyDeveloperOverlay(tachyon);
 
   if (tachyon->renderer != nullptr) {
     DestroyRenderer(tachyon);
   }
+
+  if (tachyon->sdl_window != nullptr) {
+    SDL_DestroyWindow(tachyon->sdl_window);
+  }
+
+  IMG_Quit();
+  TTF_Quit();
 
   delete tachyon;
 }

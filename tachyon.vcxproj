@@ -118,6 +118,7 @@
     <ClInclude Include="engine\opengl\tachyon_opengl_renderer.h" />
     <ClInclude Include="engine\tachyon.h" />
     <ClInclude Include="engine\tachyon_aliases.h" />
+    <ClInclude Include="engine\tachyon_developer_overlay.h" />
     <ClInclude Include="engine\tachyon_file_helpers.h" />
     <ClInclude Include="engine\tachyon_life_cycle.h" />
     <ClInclude Include="engine\tachyon_linear_algebra.h" />
@@ -218,6 +219,7 @@
   <ItemGroup>
     <ClCompile Include="cosmodrone\game.cpp" />
     <ClCompile Include="engine\opengl\tachyon_opengl_renderer.cpp" />
+    <ClCompile Include="engine\tachyon_developer_overlay.cpp" />
     <ClCompile Include="engine\tachyon_file_helpers.cpp" />
     <ClCompile Include="engine\tachyon_life_cycle.cpp" />
     <ClCompile Include="engine\tachyon_linear_algebra.cpp" />
