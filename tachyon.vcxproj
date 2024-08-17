@@ -115,6 +115,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="cosmodrone\game.h" />
+    <ClInclude Include="engine\opengl\tachyon_opengl_geometry.h" />
     <ClInclude Include="engine\opengl\tachyon_opengl_renderer.h" />
     <ClInclude Include="engine\tachyon.h" />
     <ClInclude Include="engine\tachyon_aliases.h" />
@@ -125,6 +126,7 @@
     <ClInclude Include="engine\tachyon_loaders.h" />
     <ClInclude Include="engine\tachyon_mesh_manager.h" />
     <ClInclude Include="engine\tachyon_quaternion.h" />
+    <ClInclude Include="engine\tachyon_timer.h" />
     <ClInclude Include="engine\tachyon_types.h" />
     <ClInclude Include="external\GLEW\include\eglew.h" />
     <ClInclude Include="external\GLEW\include\glew.h" />
@@ -218,6 +220,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cosmodrone\game.cpp" />
+    <ClCompile Include="engine\opengl\tachyon_opengl_geometry.cpp" />
     <ClCompile Include="engine\opengl\tachyon_opengl_renderer.cpp" />
     <ClCompile Include="engine\tachyon_developer_overlay.cpp" />
     <ClCompile Include="engine\tachyon_file_helpers.cpp" />
@@ -226,6 +229,7 @@
     <ClCompile Include="engine\tachyon_loaders.cpp" />
     <ClCompile Include="engine\tachyon_mesh_manager.cpp" />
     <ClCompile Include="engine\tachyon_quaternion.cpp" />
+    <ClCompile Include="engine\tachyon_timer.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -3,6 +3,7 @@
 #include <SDL_opengl.h>
 
 #include "engine/tachyon_types.h"
+#include "engine/opengl/tachyon_opengl_geometry.h"
 
 struct tOpenGLShader {
   GLuint program;
@@ -15,17 +16,6 @@ struct tOpenGLShaders {
   tOpenGLShader main_geometry;
 
   tOpenGLShader surface;
-};
-
-struct tOpenGLMeshPack {
-  GLuint vao;
-  GLuint buffers[3];
-  GLuint ebo;
-};
-
-struct tOpenGLScreenQuad {
-  GLuint vao;
-  GLuint vbo;
 };
 
 struct tOpenGLRenderer {

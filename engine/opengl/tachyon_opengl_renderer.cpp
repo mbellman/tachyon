@@ -9,6 +9,8 @@
 #include "engine/tachyon_aliases.h"
 #include "engine/tachyon_file_helpers.h"
 #include "engine/tachyon_linear_algebra.h"
+#include "engine/tachyon_timer.h"
+#include "engine/opengl/tachyon_opengl_geometry.h"
 #include "engine/opengl/tachyon_opengl_renderer.h"
 
 internal void Tachyon_CheckError(const std::string& message) {
@@ -91,109 +93,9 @@ internal void Tachyon_SetShaderMat4f(tOpenGLShader& shader, const std::string& n
 }
 // --------------------------------------
 
-// ---------------------------------------
-// @todo move to tachyon_opengl_geometry.h
-#define VERTEX_BUFFER 0
-#define COLOR_BUFFER 1
-#define MATRIX_BUFFER 2
-
-#define VERTEX_POSITION 0
-#define VERTEX_NORMAL 1
-#define VERTEX_TANGENT 2
-#define VERTEX_UV 3
-#define MODEL_COLOR 4
-#define MODEL_MATRIX 5
-
-internal tOpenGLMeshPack Tachyon_CreateOpenGLMeshPack(Tachyon* tachyon) {
-  auto& pack = tachyon->mesh_pack;
-  auto& vertices = pack.vertex_stream;
-  auto& faceElements = pack.face_element_stream;
-  tOpenGLMeshPack glPack;
-
-  glGenVertexArrays(1, &glPack.vao);
-  glGenBuffers(3, &glPack.buffers[0]);
-  glGenBuffers(1, &glPack.ebo);
-
-  glBindVertexArray(glPack.vao);
-
-  // Buffer vertex data
-  glBindBuffer(GL_ARRAY_BUFFER, glPack.buffers[VERTEX_BUFFER]);
-  glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(tVertex), vertices.data(), GL_STATIC_DRAW);
-  
-  // Buffer vertex element data
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glPack.ebo);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, faceElements.size() * sizeof(uint32), faceElements.data(), GL_STATIC_DRAW);
-
-  // Define vertex attributes
-  glBindBuffer(GL_ARRAY_BUFFER, glPack.buffers[VERTEX_BUFFER]);
-
-  glEnableVertexAttribArray(VERTEX_POSITION);
-  glVertexAttribPointer(VERTEX_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(tVertex), (void*)offsetof(tVertex, position));
-
-  glEnableVertexAttribArray(VERTEX_NORMAL);
-  glVertexAttribPointer(VERTEX_NORMAL, 3, GL_FLOAT, GL_FALSE, sizeof(tVertex), (void*)offsetof(tVertex, normal));
-
-  glEnableVertexAttribArray(VERTEX_TANGENT);
-  glVertexAttribPointer(VERTEX_TANGENT, 3, GL_FLOAT, GL_FALSE, sizeof(tVertex), (void*)offsetof(tVertex, tangent));
-
-  glEnableVertexAttribArray(VERTEX_UV);
-  glVertexAttribPointer(VERTEX_UV, 2, GL_FLOAT, GL_FALSE, sizeof(tVertex), (void*)offsetof(tVertex, uv));
-
-  // Define color attributes
-  glBindBuffer(GL_ARRAY_BUFFER, glPack.buffers[COLOR_BUFFER]);
-  glEnableVertexAttribArray(MODEL_COLOR);
-  glVertexAttribPointer(MODEL_COLOR, 4, GL_FLOAT, GL_FALSE, sizeof(tVec4f), (void*)0);
-  glVertexAttribDivisor(MODEL_COLOR, 1);
-
-  // Define matrix attributes
-  glBindBuffer(GL_ARRAY_BUFFER, glPack.buffers[MATRIX_BUFFER]);
-
-  for (uint32 i = 0; i < 4; i++) {
-    glEnableVertexAttribArray(MODEL_MATRIX + i);
-    glVertexAttribPointer(MODEL_MATRIX + i, 4, GL_FLOAT, GL_FALSE, sizeof(tMat4f), (void*)(i * 4 * sizeof(float)));
-    glVertexAttribDivisor(MODEL_MATRIX + i, 1);
-  }
-
-  return glPack;
-}
-
-#define QUAD_POSITION 0
-#define QUAD_UV 1
-
-internal tOpenGLScreenQuad Tachyon_CreateOpenGLScreenQuad(Tachyon* tachyon) {
-  const static float SCREEN_QUAD_DATA[] = {
-    -1.0f, 1.0f, 0.0f, 1.0f,
-    1.0f, 1.0f, 1.0f, 1.0f,
-    -1.0f, -1.0f, 0.0f, 0.0f,
-    1.0f, 1.0f, 1.0f, 1.0f,
-    -1.0f, -1.0f, 0.0f, 0.0f,
-    1.0f, -1.0f, 1.0f, 0.0f
-  };
-
-  tOpenGLScreenQuad quad;
-
-  glGenVertexArrays(1, &quad.vao);
-  glGenBuffers(1, &quad.vbo);
-
-  glBindVertexArray(quad.vao);
-
-  // Buffer quad data
-  glBindBuffer(GL_ARRAY_BUFFER, quad.vbo);
-  glBufferData(GL_ARRAY_BUFFER, 24 * sizeof(float), SCREEN_QUAD_DATA, GL_STATIC_DRAW);
-
-  // Define vertex attributes
-  glEnableVertexAttribArray(QUAD_POSITION);
-  glVertexAttribPointer(QUAD_POSITION, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-
-  glEnableVertexAttribArray(QUAD_UV);
-  glVertexAttribPointer(QUAD_UV, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-
-  return quad;
-}
-
-// @todo rename Tachyon_OpenGL_RenderStaticGeometry()
-internal void Tachyon_RenderOpenGLMeshPack(Tachyon* tachyon, const tOpenGLMeshPack& glPack) {
+internal void RenderStaticGeometry(Tachyon* tachyon) {
   auto& renderer = *(tOpenGLRenderer*)tachyon->renderer;
+  auto& glPack = renderer.mesh_pack;
 
   // @todo include camera view matrix
   tMat4f matViewProjection = tMat4f::perspective(45.f, 1.f, 10000.f).transpose();
@@ -256,7 +158,7 @@ internal void Tachyon_RenderOpenGLMeshPack(Tachyon* tachyon, const tOpenGLMeshPa
   delete[] commands;
 }
 
-internal void Tachyon_RenderOpenGLScreenQuad(Tachyon* tachyon) {
+internal void RenderScreenQuad(Tachyon* tachyon) {
   auto& renderer = *(tOpenGLRenderer*)tachyon->renderer;
   auto& quad = renderer.screen_quad;
 
@@ -264,7 +166,6 @@ internal void Tachyon_RenderOpenGLScreenQuad(Tachyon* tachyon) {
   glBindBuffer(GL_ARRAY_BUFFER, quad.vbo);
   glDrawArrays(GL_TRIANGLES, 0, 6);
 }
-// ---------------------------------------
 
 internal void RenderSurface(Tachyon* tachyon, SDL_Surface* surface, uint32 x, uint32 y, uint32 w, uint32 h, const tVec3f& color, const tVec4f& background) {
   auto& renderer = *(tOpenGLRenderer*)tachyon->renderer;
@@ -291,7 +192,7 @@ internal void RenderSurface(Tachyon* tachyon, SDL_Surface* surface, uint32 x, ui
   Tachyon_SetShaderVec3f(shaders.surface, "color", color);
   Tachyon_SetShaderVec4f(shaders.surface, "background", background);
 
-  Tachyon_RenderOpenGLScreenQuad(tachyon);
+  RenderScreenQuad(tachyon);
 }
 
 internal void RenderText(Tachyon* tachyon, TTF_Font* font, const char* message, uint32 x, uint32 y, const tVec3f& color, const tVec4f& background) {
@@ -309,6 +210,16 @@ internal void RenderDeveloperOverlay(Tachyon* tachyon) {
   auto fps_label = "Render time: " + std::to_string(ctx.last_frame_time_in_microseconds) + "us (" + std::to_string(fps) + "fps)";
 
   RenderText(tachyon, tachyon->developer_overlay_font, fps_label.c_str(), 10, 10, tVec3f(1.f), tVec4f(0.f));
+}
+
+internal void SetupRendererContext(Tachyon* tachyon) {
+  auto& ctx = ((tOpenGLRenderer*)tachyon->renderer)->ctx;
+  int w, h;
+
+  SDL_GL_GetDrawableSize(tachyon->sdl_window, &w, &h);
+
+  ctx.w = w;
+  ctx.h = h;
 }
 
 void Tachyon_InitOpenGLRenderer(Tachyon* tachyon) {
@@ -358,26 +269,14 @@ void Tachyon_InitOpenGLRenderer(Tachyon* tachyon) {
   tachyon->renderer = renderer;
 }
 
-// @todo move to tachyon_timer.h
-uint64 Tachyon_GetMicroseconds() {
-  auto now = std::chrono::system_clock::now();
-
-  return std::chrono::time_point_cast<std::chrono::microseconds>(now).time_since_epoch().count();
-}
-
 void Tachyon_RenderSceneInOpenGL(Tachyon* tachyon) {
   auto& renderer = *(tOpenGLRenderer*)tachyon->renderer;
   auto& ctx = renderer.ctx;
-  int w, h;
-
   auto start = Tachyon_GetMicroseconds();
 
-  SDL_GL_GetDrawableSize(tachyon->sdl_window, &w, &h);
+  SetupRendererContext(tachyon);
 
-  ctx.w = w;
-  ctx.h = h;
-
-  glViewport(0, 0, w, h);
+  glViewport(0, 0, ctx.w, ctx.h);
   glClearColor(0.f, 0.f, 0.f, 1.f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
@@ -386,9 +285,9 @@ void Tachyon_RenderSceneInOpenGL(Tachyon* tachyon) {
   glDisable(GL_BLEND);
 
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-  glViewport(0, 0, w, h);
+  glViewport(0, 0, ctx.w, ctx.h);
 
-  Tachyon_RenderOpenGLMeshPack(tachyon, renderer.mesh_pack);
+  RenderStaticGeometry(tachyon);
 
   // @todo only in developer mode
   RenderDeveloperOverlay(tachyon);

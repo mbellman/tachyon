@@ -318,6 +318,12 @@
     <ClInclude Include="engine\tachyon_developer_overlay.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="engine\tachyon_timer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\opengl\tachyon_opengl_geometry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -348,6 +354,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="engine\tachyon_developer_overlay.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\tachyon_timer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\opengl\tachyon_opengl_geometry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
