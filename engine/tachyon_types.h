@@ -86,7 +86,7 @@ struct Tachyon {
   uint64 pressed_key_state = 0;
   uint64 released_key_state = 0;
 
-  // @todo developer mode only
+  // @todo dev mode only
   TTF_Font* developer_overlay_font = nullptr;
   uint64 frame_start_time_in_microseconds = 0;
   uint64 last_frame_time_in_microseconds = 1;

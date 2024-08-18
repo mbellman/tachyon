@@ -4,7 +4,7 @@
 
 #include "engine/tachyon_types.h"
 
-const enum tOpenGLMeshPackBuffer {
+enum tOpenGLMeshPackBuffer {
   VERTEX_BUFFER,
   COLOR_BUFFER,
   MATRIX_BUFFER

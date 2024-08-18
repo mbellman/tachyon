@@ -26,7 +26,7 @@ tMesh Tachyon_LoadMesh(const char* path) {
     for (const auto& face : obj.faces) {
       faceElements.push_back(face.v1.vertexIndex);
       faceElements.push_back(face.v2.vertexIndex);
-      faceElements.push_back(face.v3.vertexIndex);      
+      faceElements.push_back(face.v3.vertexIndex);
     }
   } else {
     // Texture coordinates and/or normals defined, so we need

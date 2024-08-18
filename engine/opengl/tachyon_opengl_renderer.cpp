@@ -8,6 +8,7 @@
 
 #include "engine/tachyon_aliases.h"
 #include "engine/tachyon_file_helpers.h"
+#include "engine/tachyon_input.h"
 #include "engine/tachyon_linear_algebra.h"
 #include "engine/tachyon_timer.h"
 #include "engine/opengl/tachyon_opengl_geometry.h"
@@ -74,6 +75,12 @@ internal void Tachyon_UseShader(tOpenGLShader& shader) {
   glUseProgram(shader.program);
 }
 
+internal void Tachyon_SetShaderInt(tOpenGLShader& shader, const std::string& name, const int value) {
+  GLint location = glGetUniformLocation(shader.program, name.c_str());
+
+  glUniform1i(location, value);
+}
+
 internal void Tachyon_SetShaderVec3f(tOpenGLShader& shader, const std::string& name, const tVec3f& vector) {
   GLint location = glGetUniformLocation(shader.program, name.c_str());
 
@@ -102,6 +109,9 @@ internal void RenderStaticGeometry(Tachyon* tachyon) {
 
   Tachyon_UseShader(renderer.shaders.main_geometry);
   Tachyon_SetShaderMat4f(renderer.shaders.main_geometry, "matViewProjection", matViewProjection);
+
+  // @todo dev mode only
+  Tachyon_SetShaderInt(renderer.shaders.main_geometry, "debugView", renderer.debug_view);
 
   glBindVertexArray(glPack.vao);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glPack.ebo);
@@ -203,22 +213,50 @@ internal void RenderText(Tachyon* tachyon, TTF_Font* font, const char* message, 
   SDL_FreeSurface(text);
 }
 
-internal void RenderDeveloperOverlay(Tachyon* tachyon) {
+internal void HandleDeveloperTools(Tachyon* tachyon) {
   auto& renderer = *(tOpenGLRenderer*)tachyon->renderer;
 
-  auto runtime_label = "Running time: " + std::to_string(tachyon->running_time);
+  // Keyboard shortcuts
+  {
+    if (did_press_key(tKey::TAB)) {
+      if (renderer.debug_view == DebugView::DEFAULT) {
+        renderer.debug_view = DebugView::NORMALS;
+      } else if (renderer.debug_view == DebugView::NORMALS) {
+        renderer.debug_view = DebugView::DEPTH;
+      } else if (renderer.debug_view == DebugView::DEPTH) {
+        renderer.debug_view = DebugView::MATERIAL;
+      } else {
+        renderer.debug_view = DebugView::DEFAULT;
+      }
+    }
+  }
 
-  RenderText(tachyon, tachyon->developer_overlay_font, runtime_label.c_str(), 10, 10, tVec3f(1.f), tVec4f(0.f));
+  // Developer overlay
+  {
+    auto debug_view_label = "View: " + std::string(
+      renderer.debug_view == DebugView::DEFAULT ? "DEFAULT" :
+      renderer.debug_view == DebugView::NORMALS ? "NORMALS" :
+      renderer.debug_view == DebugView::DEPTH ? "DEPTH" :
+      renderer.debug_view == DebugView::MATERIAL ? "MATERIAL" :
+      "DEFAULT"
+    );
 
-  auto render_fps = uint32(1000000.f / (float)renderer.last_render_time_in_microseconds);
-  auto render_fps_label = "Render time: " + std::to_string(renderer.last_render_time_in_microseconds) + "us (" + std::to_string(render_fps) + "fps)";
+    RenderText(tachyon, tachyon->developer_overlay_font, debug_view_label.c_str(), 10, 10, tVec3f(1.f), tVec4f(0.f));
 
-  RenderText(tachyon, tachyon->developer_overlay_font, render_fps_label.c_str(), 10, 35, tVec3f(1.f), tVec4f(0.f));
+    auto runtime_label = "Running time: " + std::to_string(tachyon->running_time);
 
-  auto frame_fps = uint32(1000000.f / (float)tachyon->last_frame_time_in_microseconds);
-  auto frame_fps_label = "Frame time: " + std::to_string(tachyon->last_frame_time_in_microseconds) + "us (" + std::to_string(frame_fps) + "fps)";
+    RenderText(tachyon, tachyon->developer_overlay_font, runtime_label.c_str(), 10, 35, tVec3f(1.f), tVec4f(0.f));
 
-  RenderText(tachyon, tachyon->developer_overlay_font, frame_fps_label.c_str(), 10, 60, tVec3f(1.f), tVec4f(0.f));
+    auto render_fps = uint32(1000000.f / (float)renderer.last_render_time_in_microseconds);
+    auto render_fps_label = "Render time: " + std::to_string(renderer.last_render_time_in_microseconds) + "us (" + std::to_string(render_fps) + "fps)";
+
+    RenderText(tachyon, tachyon->developer_overlay_font, render_fps_label.c_str(), 10, 60, tVec3f(1.f), tVec4f(0.f));
+
+    auto frame_fps = uint32(1000000.f / (float)tachyon->last_frame_time_in_microseconds);
+    auto frame_fps_label = "Frame time: " + std::to_string(tachyon->last_frame_time_in_microseconds) + "us (" + std::to_string(frame_fps) + "fps)";
+
+    RenderText(tachyon, tachyon->developer_overlay_font, frame_fps_label.c_str(), 10, 85, tVec3f(1.f), tVec4f(0.f));
+  }
 }
 
 internal void SetupRendererContext(Tachyon* tachyon) {
@@ -252,7 +290,7 @@ void Tachyon_InitOpenGLRenderer(Tachyon* tachyon) {
 
   // Apply default OpenGL settings
   glEnable(GL_PROGRAM_POINT_SIZE);
-  glFrontFace(GL_CW);
+  glFrontFace(GL_CCW);
 
   Tachyon_SetupShaders(renderer->shaders);
 
@@ -298,8 +336,8 @@ void Tachyon_RenderSceneInOpenGL(Tachyon* tachyon) {
 
   RenderStaticGeometry(tachyon);
 
-  // @todo only in developer mode
-  RenderDeveloperOverlay(tachyon);
+  // @todo dev mode only
+  HandleDeveloperTools(tachyon);
 
   SDL_GL_SwapWindow(tachyon->sdl_window);
 

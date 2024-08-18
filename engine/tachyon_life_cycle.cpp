@@ -55,7 +55,7 @@ Tachyon* Tachyon_Init() {
 
   auto* tachyon = new Tachyon;
 
-  // @todo only in developer mode
+  // @todo dev mode only
   tachyon->developer_overlay_font = TTF_OpenFont("./fonts/OpenSans-Regular.ttf", 20);
 
   return tachyon;
@@ -109,7 +109,7 @@ void Tachyon_UnfocusWindow() {
 }
 
 void Tachyon_Exit(Tachyon* tachyon) {
-  // @todo only in developer mode
+  // @todo dev mode only
   TTF_CloseFont(tachyon->developer_overlay_font);
 
   if (tachyon->renderer != nullptr) {

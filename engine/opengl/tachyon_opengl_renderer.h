@@ -5,6 +5,14 @@
 #include "engine/tachyon_types.h"
 #include "engine/opengl/tachyon_opengl_geometry.h"
 
+// @todo dev mode only
+enum DebugView {
+  DEFAULT,
+  NORMALS,
+  DEPTH,
+  MATERIAL
+};
+
 struct tOpenGLShader {
   GLuint program;
   GLuint vertex_shader;
@@ -32,7 +40,9 @@ struct tOpenGLRenderer {
   GLuint screen_quad_texture;
   tOpenGLScreenQuad screen_quad;
 
+  // @todo dev mode only
   uint64 last_render_time_in_microseconds = 0;
+  uint8 debug_view = DebugView::DEFAULT;
 };
 
 void Tachyon_InitOpenGLRenderer(Tachyon* tachyon);
