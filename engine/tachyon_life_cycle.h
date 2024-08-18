@@ -5,18 +5,17 @@
 
 #define Tachyon_Loop(code)\
   while (Tachyon_IsRunning(tachyon)) {\
-    Tachyon_HandleEvents(tachyon);\
+    Tachyon_StartFrame(tachyon);\
     code;\
-    Tachyon_RenderScene(tachyon);\
-    tachyon->running_time += 1.f / 60.f;\
+    Tachyon_EndFrame(tachyon);\
   }\
 
 Tachyon* Tachyon_Init();
 void Tachyon_SpawnWindow(Tachyon* tachyon, const char* title, uint32 width, uint32 height);
 void Tachyon_UseRenderBackend(Tachyon* tachyon, TachyonRenderBackend backend);
 bool Tachyon_IsRunning(Tachyon* tachyon);
-void Tachyon_HandleEvents(Tachyon* tachyon);
-void Tachyon_RenderScene(Tachyon* tachyon);
+void Tachyon_StartFrame(Tachyon* tachyon);
+void Tachyon_EndFrame(Tachyon* tachyon);
 void Tachyon_FocusWindow();
 void Tachyon_UnfocusWindow();
 void Tachyon_Exit(Tachyon* tachyon);

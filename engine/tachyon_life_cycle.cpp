@@ -3,9 +3,39 @@
 #include <SDL_image.h>
 
 #include "engine/tachyon_aliases.h"
-#include "engine/tachyon_developer_overlay.h"
 #include "engine/tachyon_life_cycle.h"
+#include "engine/tachyon_timer.h"
 #include "engine/opengl/tachyon_opengl_renderer.h"
+
+internal void HandleEvents(Tachyon* tachyon) {
+  SDL_Event event;
+
+  while (SDL_PollEvent(&event)) {
+    switch (event.type) {
+      case SDL_QUIT:
+        tachyon->running = false;
+        break;
+      case SDL_MOUSEBUTTONDOWN:
+        Tachyon_FocusWindow();
+        break;
+      case SDL_KEYDOWN:
+        switch (event.key.keysym.sym) {
+          case SDLK_ESCAPE:
+            Tachyon_UnfocusWindow();
+            break;
+        }
+        break;
+    }
+  }
+}
+
+internal void RenderScene(Tachyon* tachyon) {
+  if (tachyon->render_backend == TachyonRenderBackend::OPENGL) {
+    Tachyon_RenderSceneInOpenGL(tachyon);
+  } else {
+    SDL_Delay(16);
+  }
+}
 
 internal void DestroyRenderer(Tachyon* tachyon) {
   if (tachyon->render_backend == TachyonRenderBackend::OPENGL) {
@@ -22,7 +52,8 @@ Tachyon* Tachyon_Init() {
 
   auto* tachyon = new Tachyon;
 
-  Tachyon_InitDeveloperOverlay(tachyon);
+  // @todo only in developer mode
+  tachyon->developer_overlay_font = TTF_OpenFont("./fonts/OpenSans-Regular.ttf", 20);
 
   return tachyon;
 }
@@ -52,34 +83,17 @@ bool Tachyon_IsRunning(Tachyon* tachyon) {
   return tachyon->running;
 }
 
-void Tachyon_HandleEvents(Tachyon* tachyon) {
-  SDL_Event event;
+void Tachyon_StartFrame(Tachyon* tachyon) {
+  tachyon->frame_start_time_in_microseconds = Tachyon_GetMicroseconds();
 
-  while (SDL_PollEvent(&event)) {
-    switch (event.type) {
-      case SDL_QUIT:
-        tachyon->running = false;
-        break;
-      case SDL_MOUSEBUTTONDOWN:
-        Tachyon_FocusWindow();
-        break;
-      case SDL_KEYDOWN:
-        switch (event.key.keysym.sym) {
-          case SDLK_ESCAPE:
-            Tachyon_UnfocusWindow();
-            break;
-        }
-        break;
-    }
-  }
+  HandleEvents(tachyon);
 }
 
-void Tachyon_RenderScene(Tachyon* tachyon) {
-  if (tachyon->render_backend == TachyonRenderBackend::OPENGL) {
-    Tachyon_RenderSceneInOpenGL(tachyon);
-  } else {
-    SDL_Delay(16);
-  }
+void Tachyon_EndFrame(Tachyon* tachyon) {
+  RenderScene(tachyon);
+
+  tachyon->last_frame_time_in_microseconds = Tachyon_GetMicroseconds() - tachyon->frame_start_time_in_microseconds;
+  tachyon->running_time += (float)tachyon->last_frame_time_in_microseconds / 1000000.f;
 }
 
 void Tachyon_FocusWindow() {
@@ -91,7 +105,8 @@ void Tachyon_UnfocusWindow() {
 }
 
 void Tachyon_Exit(Tachyon* tachyon) {
-  Tachyon_DestroyDeveloperOverlay(tachyon);
+  // @todo only in developer mode
+  TTF_CloseFont(tachyon->developer_overlay_font);
 
   if (tachyon->renderer != nullptr) {
     DestroyRenderer(tachyon);

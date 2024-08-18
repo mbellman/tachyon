@@ -80,6 +80,10 @@ struct Tachyon {
   bool running = true;
   float running_time = 0.f;
 
+  // @todo developer mode only
+  uint64 frame_start_time_in_microseconds = 0;
+  uint64 last_frame_time_in_microseconds = 1;
+
   tMeshPack mesh_pack;
 
   // @todo developer mode only

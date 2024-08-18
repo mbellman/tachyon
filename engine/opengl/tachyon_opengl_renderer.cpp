@@ -204,12 +204,21 @@ internal void RenderText(Tachyon* tachyon, TTF_Font* font, const char* message, 
 }
 
 internal void RenderDeveloperOverlay(Tachyon* tachyon) {
-  auto& ctx = ((tOpenGLRenderer*)tachyon->renderer)->ctx;
+  auto& renderer = *(tOpenGLRenderer*)tachyon->renderer;
 
-  auto fps = uint32(1000000.f / (float)ctx.last_frame_time_in_microseconds);
-  auto fps_label = "Render time: " + std::to_string(ctx.last_frame_time_in_microseconds) + "us (" + std::to_string(fps) + "fps)";
+  auto runtime_label = "Running time: " + std::to_string(tachyon->running_time);
 
-  RenderText(tachyon, tachyon->developer_overlay_font, fps_label.c_str(), 10, 10, tVec3f(1.f), tVec4f(0.f));
+  RenderText(tachyon, tachyon->developer_overlay_font, runtime_label.c_str(), 10, 10, tVec3f(1.f), tVec4f(0.f));
+
+  auto render_fps = uint32(1000000.f / (float)renderer.last_render_time_in_microseconds);
+  auto render_fps_label = "Render time: " + std::to_string(renderer.last_render_time_in_microseconds) + "us (" + std::to_string(render_fps) + "fps)";
+
+  RenderText(tachyon, tachyon->developer_overlay_font, render_fps_label.c_str(), 10, 35, tVec3f(1.f), tVec4f(0.f));
+
+  auto frame_fps = uint32(1000000.f / (float)tachyon->last_frame_time_in_microseconds);
+  auto frame_fps_label = "Frame time: " + std::to_string(tachyon->last_frame_time_in_microseconds) + "us (" + std::to_string(frame_fps) + "fps)";
+
+  RenderText(tachyon, tachyon->developer_overlay_font, frame_fps_label.c_str(), 10, 60, tVec3f(1.f), tVec4f(0.f));
 }
 
 internal void SetupRendererContext(Tachyon* tachyon) {
@@ -294,7 +303,7 @@ void Tachyon_RenderSceneInOpenGL(Tachyon* tachyon) {
 
   SDL_GL_SwapWindow(tachyon->sdl_window);
 
-  ctx.last_frame_time_in_microseconds = Tachyon_GetMicroseconds() - start;
+  renderer.last_render_time_in_microseconds = Tachyon_GetMicroseconds() - start;
 }
 
 void Tachyon_DestroyOpenGLRenderer(Tachyon* tachyon) {
