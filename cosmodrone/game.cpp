@@ -4,8 +4,8 @@ static uint32 sun_index = 0;
 static uint32 moon_index = 0;
 
 void Cosmodrone::StartGame(Tachyon* tachyon) {
-  auto sunMesh = Tachyon_LoadMesh("./cosmodrone/assets/sun-sign.obj");
-  auto moonMesh = Tachyon_LoadMesh("./cosmodrone/assets/moon-sign.obj");
+  auto sunMesh = Tachyon_LoadMesh("./cosmodrone/assets/sun-sign.obj", tVec3f(-1.f, 1.f, 1.f));
+  auto moonMesh = Tachyon_LoadMesh("./cosmodrone/assets/moon-sign.obj", tVec3f(-1.f, 1.f, 1.f));
 
   sun_index = Tachyon_AddMesh(tachyon, sunMesh, 10);
   moon_index = Tachyon_AddMesh(tachyon, moonMesh, 10);

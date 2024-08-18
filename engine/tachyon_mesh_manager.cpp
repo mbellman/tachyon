@@ -3,7 +3,8 @@
 #include "engine/tachyon_loaders.h"
 #include "engine/tachyon_mesh_manager.h"
 
-tMesh Tachyon_LoadMesh(const char* path) {
+// @todo compute vertex normals + tangents when not defined in the obj file
+tMesh Tachyon_LoadMesh(const char* path, const tVec3f& axis_factors) {
   tMesh mesh;
 
   ObjLoader obj(path);
@@ -19,6 +20,7 @@ tMesh Tachyon_LoadMesh(const char* path) {
       tVertex vertex;
 
       vertex.position = position;
+      vertex.position *= axis_factors;
 
       vertices.push_back(vertex);
     }
@@ -62,6 +64,7 @@ tMesh Tachyon_LoadMesh(const char* path) {
           // distance threshold of this one to avoid duplicates. Certain
           // obj files may do this on purpose, so it should be opt-in.
           vertex.position = obj.vertices[std::get<0>(vertexTuple)];
+          vertex.position *= axis_factors;
 
           if (obj.textureCoordinates.size() > 0) {
             vertex.uv = obj.textureCoordinates[std::get<1>(vertexTuple)];
@@ -69,6 +72,7 @@ tMesh Tachyon_LoadMesh(const char* path) {
 
           if (obj.normals.size() > 0) {
             vertex.normal = obj.normals[std::get<2>(vertexTuple)];
+            vertex.normal *= axis_factors;
           }
 
           vertices.push_back(vertex);
@@ -111,42 +115,42 @@ uint32 Tachyon_AddMesh(Tachyon* tachyon, const tMesh& mesh, uint16 total) {
 }
 
 void Tachyon_InitializeObjects(Tachyon* tachyon) {
-  uint32 totalObjects = 0;
+  uint32 total_objects = 0;
 
   for (auto& record : tachyon->mesh_pack.mesh_records) {
-    totalObjects += record.group.total;
+    total_objects += record.group.total;
   }
 
-  tachyon->objects.resize(totalObjects);
-  tachyon->matrices.resize(totalObjects);
-  tachyon->colors.resize(totalObjects);
+  tachyon->objects.resize(total_objects);
+  tachyon->matrices.resize(total_objects);
+  tachyon->colors.resize(total_objects);
 
-  uint16 meshIndex = 0;
-  uint32 objectOffset = 0;
+  uint16 mesh_index = 0;
+  uint32 object_offset = 0;
 
   for (auto& record : tachyon->mesh_pack.mesh_records) {
     // Set object group pointers into global arrays
-    record.group.objects = &tachyon->objects[objectOffset];
-    record.group.matrices = &tachyon->matrices[objectOffset];
-    record.group.colors = &tachyon->colors[objectOffset];
-    record.group.object_offset = objectOffset;
+    record.group.objects = &tachyon->objects[object_offset];
+    record.group.matrices = &tachyon->matrices[object_offset];
+    record.group.colors = &tachyon->colors[object_offset];
+    record.group.object_offset = object_offset;
 
-    uint16 objectIndex = 0;
+    uint16 object_index = 0;
 
     // Set mesh/object indexes on each object
     // @todo set object id
     for (auto& object : record.group) {
-      object.mesh_index = meshIndex;
-      object.object_index = objectIndex++;
+      object.mesh_index = mesh_index;
+      object.object_index = object_index++;
     }
 
-    objectOffset += record.group.total;
-    meshIndex++;
+    object_offset += record.group.total;
+    mesh_index++;
   }
 }
 
-tObject& Tachyon_CreateObject(Tachyon* tachyon, uint16 meshIndex) {
-  auto& group = tachyon->mesh_pack.mesh_records[meshIndex].group;
+tObject& Tachyon_CreateObject(Tachyon* tachyon, uint16 mesh_index) {
+  auto& group = tachyon->mesh_pack.mesh_records[mesh_index].group;
 
   if (group.total_visible >= group.total) {
     // @todo throw an error and exit

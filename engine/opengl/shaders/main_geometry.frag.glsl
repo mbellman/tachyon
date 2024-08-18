@@ -20,6 +20,7 @@ void main() {
   } else if (debugView == 1) {
     out_color_and_depth = vec4(fragNormal, gl_FragCoord.z);
   } else if (debugView == 2) {
+    // @todo use a better depth gradient
     out_color_and_depth = vec4(vec3(gl_FragCoord.z), gl_FragCoord.z);
   } else if (debugView == 3) {
     out_color_and_depth = vec4(vec3(1), gl_FragCoord.z);

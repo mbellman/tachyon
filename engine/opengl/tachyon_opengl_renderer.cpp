@@ -290,7 +290,7 @@ void Tachyon_InitOpenGLRenderer(Tachyon* tachyon) {
 
   // Apply default OpenGL settings
   glEnable(GL_PROGRAM_POINT_SIZE);
-  glFrontFace(GL_CCW);
+  glFrontFace(GL_CW);
 
   Tachyon_SetupShaders(renderer->shaders);
 
