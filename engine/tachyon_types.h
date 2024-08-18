@@ -80,14 +80,16 @@ struct Tachyon {
   bool running = true;
   float running_time = 0.f;
 
-  // @todo developer mode only
-  uint64 frame_start_time_in_microseconds = 0;
-  uint64 last_frame_time_in_microseconds = 1;
-
   tMeshPack mesh_pack;
+
+  uint64 held_key_state = 0;
+  uint64 pressed_key_state = 0;
+  uint64 released_key_state = 0;
 
   // @todo developer mode only
   TTF_Font* developer_overlay_font = nullptr;
+  uint64 frame_start_time_in_microseconds = 0;
+  uint64 last_frame_time_in_microseconds = 1;
 
   std::vector<tObject> objects;
   std::vector<tMat4f> matrices;

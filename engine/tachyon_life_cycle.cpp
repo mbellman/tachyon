@@ -3,6 +3,7 @@
 #include <SDL_image.h>
 
 #include "engine/tachyon_aliases.h"
+#include "engine/tachyon_input.h"
 #include "engine/tachyon_life_cycle.h"
 #include "engine/tachyon_timer.h"
 #include "engine/opengl/tachyon_opengl_renderer.h"
@@ -26,6 +27,8 @@ internal void HandleEvents(Tachyon* tachyon) {
         }
         break;
     }
+
+    Tachyon_HandleInputEvent(tachyon, event);
   }
 }
 
@@ -91,6 +94,7 @@ void Tachyon_StartFrame(Tachyon* tachyon) {
 
 void Tachyon_EndFrame(Tachyon* tachyon) {
   RenderScene(tachyon);
+  Tachyon_ResetPerFrameState(tachyon);
 
   tachyon->last_frame_time_in_microseconds = Tachyon_GetMicroseconds() - tachyon->frame_start_time_in_microseconds;
   tachyon->running_time += (float)tachyon->last_frame_time_in_microseconds / 1000000.f;
