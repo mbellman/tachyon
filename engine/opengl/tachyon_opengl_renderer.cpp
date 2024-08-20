@@ -396,7 +396,7 @@ void Tachyon_RenderSceneInOpenGL(Tachyon* tachyon) {
   UpdateRendererContext(tachyon);
   RenderStaticGeometry(tachyon);
 
-  // The next steps in the pipeline render in screen space using quads,
+  // The next steps in the pipeline render quads in screen space,
   // so we don't need to do any back-face culling or depth testing
   glDisable(GL_CULL_FACE);
   glDisable(GL_DEPTH_TEST);

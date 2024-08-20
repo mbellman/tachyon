@@ -327,6 +327,9 @@
     <ClInclude Include="engine\opengl\tachyon_opengl_framebuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="engine\tachyon_camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -366,6 +369,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="engine\opengl\tachyon_opengl_framebuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\tachyon_camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -18,6 +18,33 @@ void tVec3f::operator*=(const tVec3f& v) {
   z *= v.z;
 }
 
+
+tVec3f tVec3f::cross(const tVec3f& v1, const tVec3f& v2) {
+  return {
+    v1.y * v2.z - v1.z * v2.y,
+    v1.z * v2.x - v1.x * v2.z,
+    v1.x * v2.y - v1.y * v2.x
+  };
+}
+
+float tVec3f::dot(const tVec3f& v1, const tVec3f& v2) {
+  return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+}
+
+float tVec3f::magnitude() const {
+  return sqrtf(x*x + y*y + z*z);
+}
+
+tVec3f tVec3f::unit() const {
+  float m = magnitude();
+
+  return {
+    x / m,
+    y / m,
+    z / m
+  };
+}
+
 tMat4f tMat4f::perspective(float fov, float near, float far) {
   constexpr float FOV_DIVISOR = 2.f * 3.141592f / 180.f;
   constexpr float aspectRatio = 1920.f / 1080.f;

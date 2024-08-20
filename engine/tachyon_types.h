@@ -6,6 +6,7 @@
 #include <SDL_ttf.h>
 
 #include "engine/tachyon_aliases.h"
+#include "engine/tachyon_camera.h"
 #include "engine/tachyon_linear_algebra.h"
 #include "engine/tachyon_quaternion.h"
 
@@ -85,6 +86,11 @@ struct Tachyon {
   uint64 held_key_state = 0;
   uint64 pressed_key_state = 0;
   uint64 released_key_state = 0;
+
+  struct Scene {
+    tCamera camera;
+    tCamera3p camera3p;
+  } scene;
 
   // @todo dev mode only
   TTF_Font* developer_overlay_font = nullptr;

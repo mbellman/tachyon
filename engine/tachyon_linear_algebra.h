@@ -16,8 +16,14 @@ struct tVec3f {
   tVec3f(float f) : x(f), y(f), z(f) {};
   tVec3f(float x, float y, float z) : x(x), y(y), z(z) {};
 
+  static tVec3f cross(const tVec3f& v1, const tVec3f& v2);
+  static float dot(const tVec3f& v1, const tVec3f& v2);
+
   tVec3f operator*(const tVec3f& v) const;
   void operator*=(const tVec3f& v);
+
+  float magnitude() const;
+  tVec3f unit() const;
 };
 
 struct tVec4f {
