@@ -49,7 +49,18 @@ internal GLuint Tachyon_CreateShader(GLenum type, const char* path) {
   glShaderSource(shader, 1, &sourcePointer, 0);
   glCompileShader(shader);
 
-  // @todo check status
+  GLint status;
+
+  glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
+
+  if (status != GL_TRUE) {
+    char error[512];
+
+    glGetShaderInfoLog(shader, 512, 0, error);
+
+    printf("Failed to compile shader: %s\n", path);
+    printf("%s\n", error);
+  }
 
   return shader;
 }
@@ -78,6 +89,17 @@ internal void Tachyon_SetupShaders(tOpenGLShaders& shaders) {
   glAttachShader(shaders.sky_and_directional_lighting.program, shaders.sky_and_directional_lighting.vertex_shader);
   glAttachShader(shaders.sky_and_directional_lighting.program, shaders.sky_and_directional_lighting.fragment_shader);
   glLinkProgram(shaders.sky_and_directional_lighting.program);
+
+  // @todo dev mode only
+  {
+    shaders.debug_view.program = glCreateProgram();
+    shaders.debug_view.vertex_shader = Tachyon_CreateShader(GL_VERTEX_SHADER, "./engine/opengl/shaders/screen_quad.vert.glsl");
+    shaders.debug_view.fragment_shader = Tachyon_CreateShader(GL_FRAGMENT_SHADER, "./engine/opengl/shaders/debug_view.frag.glsl");
+
+    glAttachShader(shaders.debug_view.program, shaders.debug_view.vertex_shader);
+    glAttachShader(shaders.debug_view.program, shaders.debug_view.fragment_shader);
+    glLinkProgram(shaders.debug_view.program);
+  }
 }
 
 internal void Tachyon_UseShader(tOpenGLShader& shader) {
@@ -159,30 +181,20 @@ internal void HandleDeveloperTools(Tachyon* tachyon) {
 
   // Keyboard shortcuts
   {
+    // Toggle the G-Buffer view with TAB
     if (did_press_key(tKey::TAB)) {
-      if (renderer.debug_view == DebugView::DEFAULT) {
-        renderer.debug_view = DebugView::NORMALS;
-      } else if (renderer.debug_view == DebugView::NORMALS) {
-        renderer.debug_view = DebugView::DEPTH;
-      } else if (renderer.debug_view == DebugView::DEPTH) {
-        renderer.debug_view = DebugView::MATERIAL;
-      } else {
-        renderer.debug_view = DebugView::DEFAULT;
-      }
+      renderer.show_debug_view = !renderer.show_debug_view;
     }
   }
 
   // Developer overlay
+  // @todo load messages into a list and render everything in a loop
   {
-    auto debug_view_label = "View: " + std::string(
-      renderer.debug_view == DebugView::DEFAULT ? "DEFAULT" :
-      renderer.debug_view == DebugView::NORMALS ? "NORMALS" :
-      renderer.debug_view == DebugView::DEPTH ? "DEPTH" :
-      renderer.debug_view == DebugView::MATERIAL ? "MATERIAL" :
-      "DEFAULT"
+    auto view_label = "View: " + std::string(
+      renderer.show_debug_view ? "DEBUG" : "DEFAULT"
     );
 
-    RenderText(tachyon, tachyon->developer_overlay_font, debug_view_label.c_str(), 10, 10, tVec3f(1.f), tVec4f(0.f));
+    RenderText(tachyon, tachyon->developer_overlay_font, view_label.c_str(), 10, 10, tVec3f(1.f), tVec4f(0.f));
 
     auto runtime_label = "Running time: " + std::to_string(tachyon->running_time);
 
@@ -228,9 +240,6 @@ internal void RenderStaticGeometry(Tachyon* tachyon) {
 
   Tachyon_UseShader(renderer.shaders.main_geometry);
   Tachyon_SetShaderMat4f(renderer.shaders.main_geometry, "matViewProjection", matViewProjection);
-
-  // @todo dev mode only
-  Tachyon_SetShaderInt(renderer.shaders.main_geometry, "debugView", renderer.debug_view);
 
   glBindVertexArray(glPack.vao);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glPack.ebo);
@@ -286,6 +295,24 @@ internal void RenderStaticGeometry(Tachyon* tachyon) {
   delete[] commands;
 }
 
+internal void RenderDebugView(Tachyon* tachyon) {
+  auto& renderer = get_renderer();
+  auto& shaders = renderer.shaders;
+  auto& ctx = renderer.ctx;
+
+  renderer.g_buffer.read();
+
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+  glViewport(0, 0, ctx.w, ctx.h);
+
+  Tachyon_UseShader(shaders.debug_view);
+  Tachyon_SetShaderVec4f(shaders.debug_view, "transform", { 0.f, 0.f, 1.f, 1.f });
+  Tachyon_SetShaderInt(shaders.debug_view, "in_color_and_depth", 0);
+  Tachyon_SetShaderInt(shaders.debug_view, "in_normal_and_material", 1);
+
+  RenderScreenQuad(tachyon);
+}
+
 internal void RenderSkyAndDirectionalLighting(Tachyon* tachyon) {
   auto& renderer = get_renderer();
   auto& shaders = renderer.shaders;
@@ -297,13 +324,10 @@ internal void RenderSkyAndDirectionalLighting(Tachyon* tachyon) {
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
   glViewport(0, 0, ctx.w, ctx.h);
 
-  glDisable(GL_CULL_FACE);
-  glDisable(GL_DEPTH_TEST);
-
   Tachyon_UseShader(shaders.sky_and_directional_lighting);
   Tachyon_SetShaderVec4f(shaders.sky_and_directional_lighting, "transform", { 0.f, 0.f, 1.f, 1.f });
   Tachyon_SetShaderInt(shaders.sky_and_directional_lighting, "in_color_and_depth", 0);
-  Tachyon_SetShaderInt(shaders.sky_and_directional_lighting, "in_normals_and_material", 1);
+  Tachyon_SetShaderInt(shaders.sky_and_directional_lighting, "in_normal_and_material", 1);
 
   RenderScreenQuad(tachyon);
 }
@@ -371,7 +395,17 @@ void Tachyon_RenderSceneInOpenGL(Tachyon* tachyon) {
 
   UpdateRendererContext(tachyon);
   RenderStaticGeometry(tachyon);
-  RenderSkyAndDirectionalLighting(tachyon);
+
+  // The next steps in the pipeline render in screen space using quads,
+  // so we don't need to do any back-face culling or depth testing
+  glDisable(GL_CULL_FACE);
+  glDisable(GL_DEPTH_TEST);
+
+  if (renderer.show_debug_view) {
+    RenderDebugView(tachyon);
+  } else {
+    RenderSkyAndDirectionalLighting(tachyon);
+  }
 
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
   glViewport(0, 0, ctx.w, ctx.h);
@@ -385,10 +419,10 @@ void Tachyon_RenderSceneInOpenGL(Tachyon* tachyon) {
 }
 
 void Tachyon_DestroyOpenGLRenderer(Tachyon* tachyon) {
-  auto* renderer = (tOpenGLRenderer*)tachyon->renderer;
+  auto& renderer = get_renderer();
 
-  glDeleteBuffers(1, &renderer->indirect_buffer);
+  glDeleteBuffers(1, &renderer.indirect_buffer);
   // @todo destroy shaders/buffers/etc.
 
-  SDL_GL_DeleteContext(renderer->gl_context);
+  SDL_GL_DeleteContext(renderer.gl_context);
 }

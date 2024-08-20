@@ -6,14 +6,6 @@
 #include "engine/opengl/tachyon_opengl_framebuffer.h"
 #include "engine/opengl/tachyon_opengl_geometry.h"
 
-// @todo dev mode only
-enum DebugView {
-  DEFAULT,
-  NORMALS,
-  DEPTH,
-  MATERIAL
-};
-
 struct tOpenGLShader {
   GLuint program;
   GLuint vertex_shader;
@@ -26,6 +18,9 @@ struct tOpenGLShaders {
   tOpenGLShader sky_and_directional_lighting;
 
   tOpenGLShader surface;
+
+  // @todo dev mode only
+  tOpenGLShader debug_view;
 };
 
 struct tOpenGLRenderer {
@@ -46,7 +41,7 @@ struct tOpenGLRenderer {
 
   // @todo dev mode only
   uint64 last_render_time_in_microseconds = 0;
-  uint8 debug_view = DebugView::DEFAULT;
+  bool show_debug_view = false;
 };
 
 void Tachyon_InitOpenGLRenderer(Tachyon* tachyon);
