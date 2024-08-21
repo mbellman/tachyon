@@ -14,15 +14,15 @@ internal void HandleEvents(Tachyon* tachyon) {
   while (SDL_PollEvent(&event)) {
     switch (event.type) {
       case SDL_QUIT:
-        tachyon->running = false;
+        tachyon->is_running = false;
         break;
       case SDL_MOUSEBUTTONDOWN:
-        Tachyon_FocusWindow();
+        Tachyon_FocusWindow(tachyon);
         break;
       case SDL_KEYDOWN:
         switch (event.key.keysym.sym) {
           case SDLK_ESCAPE:
-            Tachyon_UnfocusWindow();
+            Tachyon_UnfocusWindow(tachyon);
             break;
         }
         break;
@@ -83,7 +83,7 @@ void Tachyon_UseRenderBackend(Tachyon* tachyon, TachyonRenderBackend backend) {
 }
 
 bool Tachyon_IsRunning(Tachyon* tachyon) {
-  return tachyon->running;
+  return tachyon->is_running;
 }
 
 void Tachyon_StartFrame(Tachyon* tachyon) {
@@ -100,12 +100,16 @@ void Tachyon_EndFrame(Tachyon* tachyon) {
   tachyon->running_time += (float)tachyon->last_frame_time_in_microseconds / 1000000.f;
 }
 
-void Tachyon_FocusWindow() {
+void Tachyon_FocusWindow(Tachyon* tachyon) {
   SDL_SetRelativeMouseMode(SDL_TRUE);
+
+  tachyon->is_window_focused = true;
 }
 
-void Tachyon_UnfocusWindow() {
+void Tachyon_UnfocusWindow(Tachyon* tachyon) {
   SDL_SetRelativeMouseMode(SDL_FALSE);
+
+  tachyon->is_window_focused = false;
 }
 
 void Tachyon_Exit(Tachyon* tachyon) {

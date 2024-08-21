@@ -45,12 +45,28 @@ tVec3f tVec3f::unit() const {
   };
 }
 
+tMat4f tMat4f::operator*(const tMat4f& matrix) const {
+  tMat4f product;
+
+  for (int r = 0; r < 4; r++) {
+    for (int c = 0; c < 4; c++) {
+      float& value = product.m[r * 4 + c] = 0;
+
+      for (int n = 0; n < 4; n++) {
+        value += m[r * 4 + n] * matrix.m[n * 4 + c];
+      }
+    }
+  }
+
+  return product;
+}
+
 tMat4f tMat4f::perspective(float fov, float near, float far) {
-  constexpr float FOV_DIVISOR = 2.f * 3.141592f / 180.f;
+  constexpr float DEGRESS_TO_RADIANS = 3.141592f / 180.f;
   constexpr float aspectRatio = 1920.f / 1080.f;
 
   // float aspectRatio = (float)area.width / (float)area.height;
-  float f = 1.0f / tanf(fov / FOV_DIVISOR);
+  float f = 1.0f / tanf(fov / 2.f * DEGRESS_TO_RADIANS);
   float nf = near - far;
 
   return {

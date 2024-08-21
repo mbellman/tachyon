@@ -16,6 +16,6 @@ void Tachyon_UseRenderBackend(Tachyon* tachyon, TachyonRenderBackend backend);
 bool Tachyon_IsRunning(Tachyon* tachyon);
 void Tachyon_StartFrame(Tachyon* tachyon);
 void Tachyon_EndFrame(Tachyon* tachyon);
-void Tachyon_FocusWindow();
-void Tachyon_UnfocusWindow();
+void Tachyon_FocusWindow(Tachyon* tachyon);
+void Tachyon_UnfocusWindow(Tachyon* tachyon);
 void Tachyon_Exit(Tachyon* tachyon);

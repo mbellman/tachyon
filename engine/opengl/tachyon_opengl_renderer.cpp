@@ -220,6 +220,8 @@ internal void UpdateRendererContext(Tachyon* tachyon) {
 
   ctx.w = w;
   ctx.h = h;
+
+  // @todo set projection + view + inv proj + inv view matrices
 }
 
 internal void RenderStaticGeometry(Tachyon* tachyon) {
@@ -235,11 +237,14 @@ internal void RenderStaticGeometry(Tachyon* tachyon) {
   glClearColor(0.f, 0.f, 0.f, 1.f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-  // @todo include camera view matrix
-  tMat4f matViewProjection = tMat4f::perspective(45.f, 1.f, 10000.f).transpose();
+  tMat4f mat_view_projection = (
+    tMat4f::perspective(45.f, 1.f, 10000.f) *
+    // @todo consider camera position in the view matrix
+    tachyon->scene.camera.orientation.toQuaternion().toMatrix4f()
+  ).transpose();
 
   Tachyon_UseShader(renderer.shaders.main_geometry);
-  Tachyon_SetShaderMat4f(renderer.shaders.main_geometry, "matViewProjection", matViewProjection);
+  Tachyon_SetShaderMat4f(renderer.shaders.main_geometry, "mat_view_projection", mat_view_projection);
 
   glBindVertexArray(glPack.vao);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glPack.ebo);

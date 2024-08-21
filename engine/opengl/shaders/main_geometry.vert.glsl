@@ -1,7 +1,7 @@
 #version 460 core
 
 // uniform sampler2D meshTexture;
-uniform mat4 matViewProjection;
+uniform mat4 mat_view_projection;
 
 layout (location = 0) in vec3 vertexPosition;
 layout (location = 1) in vec3 vertexNormal;
@@ -32,15 +32,14 @@ vec3 getFragBitangent(vec3 normal, vec3 tangent) {
 
 void main() {
   vec4 world_position = modelMatrix * vec4(vertexPosition, 1.0);
+  mat3 normal_matrix = transpose(inverse(mat3(modelMatrix)));
 
-  gl_Position = matViewProjection * world_position;
+  gl_Position = mat_view_projection * world_position;
 
   fragColor = modelColor.xyz;
   fragPosition = world_position.xyz;
-  fragNormal = vertexNormal;
-  fragTangent = vertexTangent;
-  // fragNormal = normal_matrix * vertexNormal;
-  // fragTangent = normal_matrix * vertexTangent;
+  fragNormal = normal_matrix * vertexNormal;
+  fragTangent = normal_matrix * vertexTangent;
   fragBitangent = getFragBitangent(fragNormal, fragTangent);
 
   fragUv = vertexUv;

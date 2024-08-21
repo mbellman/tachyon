@@ -78,14 +78,17 @@ struct Tachyon {
   SDL_Window* sdl_window = nullptr;
   TachyonRenderBackend render_backend = TachyonRenderBackend::OPENGL;
   void* renderer = nullptr;
-  bool running = true;
   float running_time = 0.f;
+  bool is_running = true;
+  bool is_window_focused = false;
 
   tMeshPack mesh_pack;
 
   uint64 held_key_state = 0;
   uint64 pressed_key_state = 0;
   uint64 released_key_state = 0;
+  int32 mouse_delta_x = 0;
+  int32 mouse_delta_y = 0;
 
   struct Scene {
     tCamera camera;

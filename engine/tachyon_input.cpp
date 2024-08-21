@@ -82,10 +82,17 @@ void Tachyon_HandleInputEvent(Tachyon* tachyon, const SDL_Event& event) {
       }
       break;
     }
+    case SDL_MOUSEMOTION: {
+      tachyon->mouse_delta_x = event.motion.xrel;
+      tachyon->mouse_delta_y = event.motion.yrel;
+      break;
+    }
   }
 }
 
 void Tachyon_ResetPerFrameState(Tachyon* tachyon) {
   tachyon->pressed_key_state = 0;
   tachyon->released_key_state = 0;
+  tachyon->mouse_delta_x = 0;
+  tachyon->mouse_delta_y = 0;
 }
