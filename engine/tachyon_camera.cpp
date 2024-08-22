@@ -2,7 +2,7 @@
 
 #include "engine/tachyon_camera.h"
 
-constexpr static float PI = 3.141592;
+constexpr static float PI = 3.141592f;
 constexpr static float HALF_PI = PI / 2.f;
 
 void tOrientation::operator+=(const tOrientation& orientation) {
@@ -12,14 +12,14 @@ void tOrientation::operator+=(const tOrientation& orientation) {
 }
 
 tVec3f tOrientation::getDirection() const {
-  const static tVec3f forward = tVec3f(0, 0, 1.f);
+  const static tVec3f forward = tVec3f(0, 0, -1.f);
 
   float cosr = cosf(-roll * 0.5f);
   float sinr = sinf(-roll * 0.5f);
-  float cosy = cosf(yaw * 0.5f);
-  float siny = sinf(yaw * 0.5f);
-  float cosp = cosf(pitch * 0.5f);
-  float sinp = sinf(pitch * 0.5f);
+  float cosy = cosf(yaw * -0.5f);
+  float siny = sinf(yaw * -0.5f);
+  float cosp = cosf(pitch * -0.5f);
+  float sinp = sinf(pitch * -0.5f);
 
   Quaternion q;
 
@@ -32,11 +32,11 @@ tVec3f tOrientation::getDirection() const {
 }
 
 tVec3f tOrientation::getLeftDirection() const {
-  return tVec3f::cross(getDirection(), getUpDirection()).unit();
+  return tVec3f::cross(getUpDirection(), getDirection()).unit();
 }
 
 tVec3f tOrientation::getRightDirection() const {
-  return tVec3f::cross(getUpDirection(), getDirection()).unit();
+  return tVec3f::cross(getDirection(), getUpDirection()).unit();
 }
 
 tVec3f tOrientation::getUpDirection() const {

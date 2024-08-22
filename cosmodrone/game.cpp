@@ -31,6 +31,18 @@ void Cosmodrone::RunGame(Tachyon* tachyon) {
   if (camera.orientation.pitch > 0.9f) camera.orientation.pitch = 0.9f;
   else if (camera.orientation.pitch < -0.9f) camera.orientation.pitch = -0.9f;
 
+  if (is_key_held(tKey::W)) {
+    camera.position += camera.orientation.getDirection() * 0.5f;
+  } else if (is_key_held(tKey::S)) {
+    camera.position += camera.orientation.getDirection() * -0.5f;
+  }
+
+  if (is_key_held(tKey::A)) {
+    camera.position += camera.orientation.getLeftDirection() * 0.5f;
+  } else if (is_key_held(tKey::D)) {
+    camera.position += camera.orientation.getRightDirection() * 0.5f;
+  }
+
   // @temporary
   {
     auto& sun = objects(sun_index)[0];

@@ -4,6 +4,12 @@
 #include "engine/tachyon_linear_algebra.h"
 #include "engine/tachyon_quaternion.h"
 
+void tVec3f::operator+=(const tVec3f& v) {
+  x += v.x;
+  y += v.y;
+  z += v.z;
+}
+
 tVec3f tVec3f::operator*(const tVec3f& v) const {
   return {
     x * v.x,
@@ -128,6 +134,15 @@ tMat4f tMat4f::transformation(const tVec3f& translation, const tVec3f& scale, co
   m_transform.m[15] = 1.0f;
 
   return m_transform;
+}
+
+tMat4f tMat4f::translation(const tVec3f& translation) {
+  return {
+    1.0f, 0.0f, 0.0f, translation.x,
+    0.0f, 1.0f, 0.0f, translation.y,
+    0.0f, 0.0f, 1.0f, translation.z,
+    0.0f, 0.0f, 0.0f, 1.0f
+  };
 }
 
 tVec3f tMat4f::transformVec3f(const tVec3f& vector) const {
