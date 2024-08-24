@@ -1,5 +1,6 @@
 #pragma once
 
+#include <glew.h>
 #include <SDL_opengl.h>
 
 #include "engine/tachyon_types.h"
@@ -11,6 +12,10 @@ struct tOpenGLShader {
   GLuint vertex_shader;
   GLuint geometry_shader;
   GLuint fragment_shader;
+
+  GLuint getUniformLocation(const char* name) {
+    return glGetUniformLocation(program, name);
+  }
 };
 
 struct tOpenGLShaders {

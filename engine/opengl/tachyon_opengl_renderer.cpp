@@ -19,6 +19,35 @@
 constexpr static uint32 INTERNAL_WIDTH = 1920;
 constexpr static uint32 INTERNAL_HEIGHT = 1080;
 
+static struct tShaderLocations {
+  struct {
+    GLuint mat_view_projection;
+  } main_geometry;
+
+  struct {
+    GLuint transform;
+    GLuint in_color_and_depth;
+    GLuint in_normal_and_material;
+    GLuint inverse_projection_matrix;
+    GLuint inverse_view_matrix;
+  } sky_and_directional_lighting;
+
+  struct {
+    GLuint transform;
+    GLuint color;
+    GLuint background;
+  } surface;
+
+  // @todo only in dev mode
+  struct {
+    GLuint transform;
+    GLuint in_color_and_depth;
+    GLuint in_normal_and_material;
+    GLuint inverse_projection_matrix;
+    GLuint inverse_view_matrix;
+  } debug_view;
+} shader_locations;
+
 internal void Tachyon_CheckError(const std::string& message) {
   GLenum error;
 
@@ -49,46 +78,95 @@ internal GLuint Tachyon_CreateShader(GLenum type, const char* path) {
   glShaderSource(shader, 1, &sourcePointer, 0);
   glCompileShader(shader);
 
-  GLint status;
+  // @todo dev mode only
+  {
+    GLint status;
 
-  glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
 
-  if (status != GL_TRUE) {
-    char error[512];
+    if (status != GL_TRUE) {
+      char error[512];
 
-    glGetShaderInfoLog(shader, 512, 0, error);
+      glGetShaderInfoLog(shader, 512, 0, error);
 
-    printf("Failed to compile shader: %s\n", path);
-    printf("%s\n", error);
+      // @todo print to game window
+      printf("Failed to compile shader: %s\n", path);
+      printf("%s\n", error);
+    }
   }
 
   return shader;
 }
 
+internal void Tachyon_UseShader(tOpenGLShader& shader) {
+  glUseProgram(shader.program);
+}
+
+internal void Tachyon_SetShaderInt(tOpenGLShader& shader, GLint location, const int value) {
+  glUniform1i(location, value);
+}
+
+internal void Tachyon_SetShaderVec3f(tOpenGLShader& shader, GLint location, const tVec3f& vector) {
+  glUniform3fv(location, 1, &vector.x);
+}
+
+internal void Tachyon_SetShaderVec4f(tOpenGLShader& shader, GLint location, const tVec4f& vector) {
+  glUniform4fv(location, 1, &vector.x);
+}
+
+internal void Tachyon_SetShaderMat4f(tOpenGLShader& shader, GLint location, const tMat4f& matrix) {
+  glUniformMatrix4fv(location, 1, GL_FALSE, matrix.m);
+}
+
+internal void Tachyon_SetShaderMat4f(tOpenGLShader& shader, GLuint location, const tMat4f& matrix) {
+  glUniformMatrix4fv(location, 1, GL_FALSE, matrix.m);
+}
+
 internal void Tachyon_SetupShaders(tOpenGLShaders& shaders) {
-  shaders.main_geometry.program = glCreateProgram();
-  shaders.main_geometry.vertex_shader = Tachyon_CreateShader(GL_VERTEX_SHADER, "./engine/opengl/shaders/main_geometry.vert.glsl");
-  shaders.main_geometry.fragment_shader = Tachyon_CreateShader(GL_FRAGMENT_SHADER, "./engine/opengl/shaders/main_geometry.frag.glsl");
+  #define store_shader_uniform(shader_name, uniform_name) \
+    shader_locations.shader_name.uniform_name = shaders.shader_name.getUniformLocation(#uniform_name)
 
-  glAttachShader(shaders.main_geometry.program, shaders.main_geometry.vertex_shader);
-  glAttachShader(shaders.main_geometry.program, shaders.main_geometry.fragment_shader);
-  glLinkProgram(shaders.main_geometry.program);
+  {
+    shaders.main_geometry.program = glCreateProgram();
+    shaders.main_geometry.vertex_shader = Tachyon_CreateShader(GL_VERTEX_SHADER, "./engine/opengl/shaders/main_geometry.vert.glsl");
+    shaders.main_geometry.fragment_shader = Tachyon_CreateShader(GL_FRAGMENT_SHADER, "./engine/opengl/shaders/main_geometry.frag.glsl");
 
-  shaders.surface.program = glCreateProgram();
-  shaders.surface.vertex_shader = Tachyon_CreateShader(GL_VERTEX_SHADER, "./engine/opengl/shaders/screen_quad.vert.glsl");
-  shaders.surface.fragment_shader = Tachyon_CreateShader(GL_FRAGMENT_SHADER, "./engine/opengl/shaders/surface.frag.glsl");
+    glAttachShader(shaders.main_geometry.program, shaders.main_geometry.vertex_shader);
+    glAttachShader(shaders.main_geometry.program, shaders.main_geometry.fragment_shader);
+    glLinkProgram(shaders.main_geometry.program);
 
-  glAttachShader(shaders.surface.program, shaders.surface.vertex_shader);
-  glAttachShader(shaders.surface.program, shaders.surface.fragment_shader);
-  glLinkProgram(shaders.surface.program);
+    store_shader_uniform(main_geometry, mat_view_projection);
+  }
 
-  shaders.sky_and_directional_lighting.program = glCreateProgram();
-  shaders.sky_and_directional_lighting.vertex_shader = Tachyon_CreateShader(GL_VERTEX_SHADER, "./engine/opengl/shaders/screen_quad.vert.glsl");
-  shaders.sky_and_directional_lighting.fragment_shader = Tachyon_CreateShader(GL_FRAGMENT_SHADER, "./engine/opengl/shaders/sky_and_directional_lighting.frag.glsl");
+  {
+    shaders.surface.program = glCreateProgram();
+    shaders.surface.vertex_shader = Tachyon_CreateShader(GL_VERTEX_SHADER, "./engine/opengl/shaders/screen_quad.vert.glsl");
+    shaders.surface.fragment_shader = Tachyon_CreateShader(GL_FRAGMENT_SHADER, "./engine/opengl/shaders/surface.frag.glsl");
 
-  glAttachShader(shaders.sky_and_directional_lighting.program, shaders.sky_and_directional_lighting.vertex_shader);
-  glAttachShader(shaders.sky_and_directional_lighting.program, shaders.sky_and_directional_lighting.fragment_shader);
-  glLinkProgram(shaders.sky_and_directional_lighting.program);
+    glAttachShader(shaders.surface.program, shaders.surface.vertex_shader);
+    glAttachShader(shaders.surface.program, shaders.surface.fragment_shader);
+    glLinkProgram(shaders.surface.program);
+
+    store_shader_uniform(surface, transform);
+    store_shader_uniform(surface, color);
+    store_shader_uniform(surface, background);
+  }
+
+  {
+    shaders.sky_and_directional_lighting.program = glCreateProgram();
+    shaders.sky_and_directional_lighting.vertex_shader = Tachyon_CreateShader(GL_VERTEX_SHADER, "./engine/opengl/shaders/screen_quad.vert.glsl");
+    shaders.sky_and_directional_lighting.fragment_shader = Tachyon_CreateShader(GL_FRAGMENT_SHADER, "./engine/opengl/shaders/sky_and_directional_lighting.frag.glsl");
+
+    glAttachShader(shaders.sky_and_directional_lighting.program, shaders.sky_and_directional_lighting.vertex_shader);
+    glAttachShader(shaders.sky_and_directional_lighting.program, shaders.sky_and_directional_lighting.fragment_shader);
+    glLinkProgram(shaders.sky_and_directional_lighting.program);
+
+    store_shader_uniform(sky_and_directional_lighting, transform);
+    store_shader_uniform(sky_and_directional_lighting, in_color_and_depth);
+    store_shader_uniform(sky_and_directional_lighting, in_normal_and_material);
+    store_shader_uniform(sky_and_directional_lighting, inverse_projection_matrix);
+    store_shader_uniform(sky_and_directional_lighting, inverse_view_matrix);
+  }
 
   // @todo dev mode only
   {
@@ -99,35 +177,13 @@ internal void Tachyon_SetupShaders(tOpenGLShaders& shaders) {
     glAttachShader(shaders.debug_view.program, shaders.debug_view.vertex_shader);
     glAttachShader(shaders.debug_view.program, shaders.debug_view.fragment_shader);
     glLinkProgram(shaders.debug_view.program);
+
+    store_shader_uniform(debug_view, transform);
+    store_shader_uniform(debug_view, in_color_and_depth);
+    store_shader_uniform(debug_view, in_normal_and_material);
+    store_shader_uniform(debug_view, inverse_projection_matrix);
+    store_shader_uniform(debug_view, inverse_view_matrix);
   }
-}
-
-internal void Tachyon_UseShader(tOpenGLShader& shader) {
-  glUseProgram(shader.program);
-}
-
-internal void Tachyon_SetShaderInt(tOpenGLShader& shader, const std::string& name, const int value) {
-  GLint location = glGetUniformLocation(shader.program, name.c_str());
-
-  glUniform1i(location, value);
-}
-
-internal void Tachyon_SetShaderVec3f(tOpenGLShader& shader, const std::string& name, const tVec3f& vector) {
-  GLint location = glGetUniformLocation(shader.program, name.c_str());
-
-  glUniform3fv(location, 1, &vector.x);
-}
-
-internal void Tachyon_SetShaderVec4f(tOpenGLShader& shader, const std::string& name, const tVec4f& vector) {
-  GLint location = glGetUniformLocation(shader.program, name.c_str());
-
-  glUniform4fv(location, 1, &vector.x);
-}
-
-internal void Tachyon_SetShaderMat4f(tOpenGLShader& shader, const std::string& name, const tMat4f& matrix) {
-  GLint location = glGetUniformLocation(shader.program, name.c_str());
-
-  glUniformMatrix4fv(location, 1, GL_FALSE, matrix.m);
 }
 // --------------------------------------
 
@@ -144,6 +200,7 @@ internal void RenderSurface(Tachyon* tachyon, SDL_Surface* surface, uint32 x, ui
   auto& renderer = get_renderer();
   auto& ctx = renderer.ctx;
   auto& shaders = renderer.shaders;
+  auto& locations = shader_locations.surface;
 
   float offsetX = -1.0f + (2 * x + w) / (float)ctx.w;
   float offsetY = 1.0f - (2 * y + h) / (float)ctx.h;
@@ -161,9 +218,9 @@ internal void RenderSurface(Tachyon* tachyon, SDL_Surface* surface, uint32 x, ui
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   Tachyon_UseShader(shaders.surface);
-  Tachyon_SetShaderVec4f(shaders.surface, "transform", { offsetX, offsetY, scaleX, scaleY });
-  Tachyon_SetShaderVec3f(shaders.surface, "color", color);
-  Tachyon_SetShaderVec4f(shaders.surface, "background", background);
+  Tachyon_SetShaderVec4f(shaders.surface, locations.transform, { offsetX, offsetY, scaleX, scaleY });
+  Tachyon_SetShaderVec3f(shaders.surface, locations.color, color);
+  Tachyon_SetShaderVec4f(shaders.surface, locations.background, background);
 
   RenderScreenQuad(tachyon);
 }
@@ -235,6 +292,8 @@ internal void UpdateRendererContext(Tachyon* tachyon) {
 
 internal void RenderStaticGeometry(Tachyon* tachyon) {
   auto& renderer = get_renderer();
+  auto& shader = renderer.shaders.main_geometry;
+  auto& locations = shader_locations.main_geometry;
   auto& ctx = renderer.ctx;
   auto& glPack = renderer.mesh_pack;
 
@@ -249,8 +308,8 @@ internal void RenderStaticGeometry(Tachyon* tachyon) {
 
   tMat4f mat_view_projection = ctx.view_matrix * ctx.projection_matrix;
 
-  Tachyon_UseShader(renderer.shaders.main_geometry);
-  Tachyon_SetShaderMat4f(renderer.shaders.main_geometry, "mat_view_projection", mat_view_projection);
+  Tachyon_UseShader(shader);
+  Tachyon_SetShaderMat4f(shader, locations.mat_view_projection, mat_view_projection);
 
   glBindVertexArray(glPack.vao);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glPack.ebo);
@@ -309,6 +368,7 @@ internal void RenderStaticGeometry(Tachyon* tachyon) {
 internal void RenderDebugView(Tachyon* tachyon) {
   auto& renderer = get_renderer();
   auto& shaders = renderer.shaders;
+  auto& locations = shader_locations.debug_view;
   auto& ctx = renderer.ctx;
 
   renderer.g_buffer.read();
@@ -317,11 +377,11 @@ internal void RenderDebugView(Tachyon* tachyon) {
   glViewport(0, 0, ctx.w, ctx.h);
 
   Tachyon_UseShader(shaders.debug_view);
-  Tachyon_SetShaderVec4f(shaders.debug_view, "transform", { 0.f, 0.f, 1.f, 1.f });
-  Tachyon_SetShaderInt(shaders.debug_view, "in_color_and_depth", 0);
-  Tachyon_SetShaderInt(shaders.debug_view, "in_normal_and_material", 1);
-  Tachyon_SetShaderMat4f(shaders.debug_view, "inverse_projection_matrix", ctx.inverse_projection_matrix);
-  Tachyon_SetShaderMat4f(shaders.debug_view, "inverse_view_matrix", ctx.inverse_view_matrix);
+  Tachyon_SetShaderVec4f(shaders.debug_view, locations.transform, { 0.f, 0.f, 1.f, 1.f });
+  Tachyon_SetShaderInt(shaders.debug_view, locations.in_color_and_depth, 0);
+  Tachyon_SetShaderInt(shaders.debug_view, locations.in_normal_and_material, 1);
+  Tachyon_SetShaderMat4f(shaders.debug_view, locations.inverse_projection_matrix, ctx.inverse_projection_matrix);
+  Tachyon_SetShaderMat4f(shaders.debug_view, locations.inverse_view_matrix, ctx.inverse_view_matrix);
 
   RenderScreenQuad(tachyon);
 }
@@ -329,6 +389,7 @@ internal void RenderDebugView(Tachyon* tachyon) {
 internal void RenderSkyAndDirectionalLighting(Tachyon* tachyon) {
   auto& renderer = get_renderer();
   auto& shaders = renderer.shaders;
+  auto& locations = shader_locations.sky_and_directional_lighting;
   auto& ctx = renderer.ctx;
 
   renderer.g_buffer.read();
@@ -338,9 +399,11 @@ internal void RenderSkyAndDirectionalLighting(Tachyon* tachyon) {
   glViewport(0, 0, ctx.w, ctx.h);
 
   Tachyon_UseShader(shaders.sky_and_directional_lighting);
-  Tachyon_SetShaderVec4f(shaders.sky_and_directional_lighting, "transform", { 0.f, 0.f, 1.f, 1.f });
-  Tachyon_SetShaderInt(shaders.sky_and_directional_lighting, "in_color_and_depth", 0);
-  Tachyon_SetShaderInt(shaders.sky_and_directional_lighting, "in_normal_and_material", 1);
+  Tachyon_SetShaderVec4f(shaders.sky_and_directional_lighting, locations.transform, { 0.f, 0.f, 1.f, 1.f });
+  Tachyon_SetShaderInt(shaders.sky_and_directional_lighting, locations.in_color_and_depth, 0);
+  Tachyon_SetShaderInt(shaders.sky_and_directional_lighting, locations.in_normal_and_material, 1);
+  Tachyon_SetShaderMat4f(shaders.sky_and_directional_lighting, locations.inverse_projection_matrix, ctx.inverse_projection_matrix);
+  Tachyon_SetShaderMat4f(shaders.sky_and_directional_lighting, locations.inverse_view_matrix, ctx.inverse_view_matrix);
 
   RenderScreenQuad(tachyon);
 }
