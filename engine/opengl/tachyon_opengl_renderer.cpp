@@ -222,14 +222,15 @@ internal void UpdateRendererContext(Tachyon* tachyon) {
   ctx.w = w;
   ctx.h = h;
 
-  ctx.projection_matrix = tMat4f::perspective(45.f, 1.f, 10000.f);
+  ctx.projection_matrix = tMat4f::perspective(45.f, 1.f, 10000.f).transpose();
 
   ctx.view_matrix = (
     camera.orientation.toQuaternion().toMatrix4f() *
     tMat4f::translation(camera.position * tVec3f(-1.f))
-  );
+  ).transpose();
 
-  // @todo set inv proj + inv view matrices
+  ctx.inverse_projection_matrix = ctx.projection_matrix.inverse();
+  ctx.inverse_view_matrix = ctx.view_matrix.inverse();
 }
 
 internal void RenderStaticGeometry(Tachyon* tachyon) {
@@ -246,7 +247,7 @@ internal void RenderStaticGeometry(Tachyon* tachyon) {
   glClearColor(0.f, 0.f, 0.f, 1.f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-  tMat4f mat_view_projection = (ctx.projection_matrix * ctx.view_matrix).transpose();
+  tMat4f mat_view_projection = ctx.view_matrix * ctx.projection_matrix;
 
   Tachyon_UseShader(renderer.shaders.main_geometry);
   Tachyon_SetShaderMat4f(renderer.shaders.main_geometry, "mat_view_projection", mat_view_projection);
@@ -319,6 +320,8 @@ internal void RenderDebugView(Tachyon* tachyon) {
   Tachyon_SetShaderVec4f(shaders.debug_view, "transform", { 0.f, 0.f, 1.f, 1.f });
   Tachyon_SetShaderInt(shaders.debug_view, "in_color_and_depth", 0);
   Tachyon_SetShaderInt(shaders.debug_view, "in_normal_and_material", 1);
+  Tachyon_SetShaderMat4f(shaders.debug_view, "inverse_projection_matrix", ctx.inverse_projection_matrix);
+  Tachyon_SetShaderMat4f(shaders.debug_view, "inverse_view_matrix", ctx.inverse_view_matrix);
 
   RenderScreenQuad(tachyon);
 }

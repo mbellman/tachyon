@@ -35,6 +35,9 @@ struct tOpenGLRenderer {
 
     tMat4f view_matrix;
     tMat4f projection_matrix;
+
+    tMat4f inverse_view_matrix;
+    tMat4f inverse_projection_matrix;
   } ctx;
 
   GLuint screen_quad_texture;

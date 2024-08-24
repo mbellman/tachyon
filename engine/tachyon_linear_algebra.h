@@ -44,6 +44,7 @@ struct tMat4f {
   static tMat4f transformation(const tVec3f& translation, const tVec3f& scale, const Quaternion& rotation);
   static tMat4f translation(const tVec3f& position);
 
+  tMat4f inverse() const;
   tVec3f transformVec3f(const tVec3f& vector) const;
   tMat4f transpose() const;
 };

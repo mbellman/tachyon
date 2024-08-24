@@ -67,6 +67,55 @@ tMat4f tMat4f::operator*(const tMat4f& matrix) const {
   return product;
 }
 
+tMat4f tMat4f::inverse() const {
+  float A2323 = m[10] * m[15] - m[11] * m[14];
+  float A1323 = m[9] * m[15] - m[11] * m[13];
+  float A1223 = m[9] * m[14] - m[10] * m[13];
+  float A0323 = m[8] * m[15] - m[11] * m[12];
+  float A0223 = m[8] * m[14] - m[10] * m[12];
+  float A0123 = m[8] * m[13] - m[9] * m[12];
+  float A2313 = m[6] * m[15] - m[7] * m[14];
+  float A1313 = m[5] * m[15] - m[7] * m[13];
+  float A1213 = m[5] * m[14] - m[6] * m[13];
+  float A2312 = m[6] * m[11] - m[7] * m[10];
+  float A1312 = m[5] * m[11] - m[7] * m[9];
+  float A1212 = m[5] * m[10] - m[6] * m[9];
+  float A0313 = m[4] * m[15] - m[7] * m[12];
+  float A0213 = m[4] * m[14] - m[6] * m[12];
+  float A0312 = m[4] * m[11] - m[7] * m[8];
+  float A0212 = m[4] * m[10] - m[6] * m[8];
+  float A0113 = m[4] * m[13] - m[5] * m[12];
+  float A0112 = m[4] * m[9] - m[5] * m[8];
+
+  float determinant = 1.0f / (
+    m[0] * (m[5] * A2323 - m[6] * A1323 + m[7] * A1223) -
+    m[1] * (m[4] * A2323 - m[6] * A0323 + m[7] * A0223) +
+    m[2] * (m[4] * A1323 - m[5] * A0323 + m[7] * A0123) -
+    m[3] * (m[4] * A1223 - m[5] * A0223 + m[6] * A0123)
+  );
+
+  tMat4f inverse;
+
+  inverse.m[0] = determinant *  (m[5] * A2323 - m[6] * A1323 + m[7] * A1223);
+  inverse.m[1] = determinant * -(m[1] * A2323 - m[2] * A1323 + m[3] * A1223);
+  inverse.m[2] = determinant *  (m[1] * A2313 - m[2] * A1313 + m[3] * A1213);
+  inverse.m[3] = determinant * -(m[1] * A2312 - m[2] * A1312 + m[3] * A1212);
+  inverse.m[4] = determinant * -(m[4] * A2323 - m[6] * A0323 + m[7] * A0223);
+  inverse.m[5] = determinant *  (m[0] * A2323 - m[2] * A0323 + m[3] * A0223);
+  inverse.m[6] = determinant * -(m[0] * A2313 - m[2] * A0313 + m[3] * A0213);
+  inverse.m[7] = determinant *  (m[0] * A2312 - m[2] * A0312 + m[3] * A0212);
+  inverse.m[8] = determinant *  (m[4] * A1323 - m[5] * A0323 + m[7] * A0123);
+  inverse.m[9] = determinant * -(m[0] * A1323 - m[1] * A0323 + m[3] * A0123);
+  inverse.m[10] = determinant *  (m[0] * A1313 - m[1] * A0313 + m[3] * A0113);
+  inverse.m[11] = determinant * -(m[0] * A1312 - m[1] * A0312 + m[3] * A0112);
+  inverse.m[12] = determinant * -(m[4] * A1223 - m[5] * A0223 + m[6] * A0123);
+  inverse.m[13] = determinant *  (m[0] * A1223 - m[1] * A0223 + m[2] * A0123);
+  inverse.m[14] = determinant * -(m[0] * A1213 - m[1] * A0213 + m[2] * A0113);
+  inverse.m[15] = determinant *  (m[0] * A1212 - m[1] * A0212 + m[2] * A0112);
+
+  return inverse;
+}
+
 tMat4f tMat4f::perspective(float fov, float near, float far) {
   constexpr float DEGRESS_TO_RADIANS = 3.141592f / 180.f;
   constexpr float aspectRatio = 1920.f / 1080.f;
