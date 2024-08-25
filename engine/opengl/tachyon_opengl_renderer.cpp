@@ -343,6 +343,12 @@ void Tachyon_RenderSceneInOpenGL(Tachyon* tachyon) {
   auto& ctx = renderer.ctx;
   auto start = Tachyon_GetMicroseconds();
 
+  if (tachyon->running_time - renderer.last_shader_hot_reload_time > 1.f) {
+    Tachyon_OpenGL_HotReloadShaders(renderer.shaders);
+
+    renderer.last_shader_hot_reload_time = tachyon->running_time;
+  }
+
   UpdateRendererContext(tachyon);
   RenderStaticGeometry(tachyon);
 

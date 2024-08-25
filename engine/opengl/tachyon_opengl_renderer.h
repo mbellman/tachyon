@@ -31,6 +31,7 @@ struct tOpenGLRenderer {
   OpenGLFrameBuffer g_buffer;
 
   // @todo dev mode only
+  float last_shader_hot_reload_time = 0.f;
   uint64 last_render_time_in_microseconds = 0;
   bool show_debug_view = false;
 };

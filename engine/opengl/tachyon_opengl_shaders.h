@@ -1,5 +1,8 @@
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include <glew.h>
 #include <SDL_opengl.h>
 
@@ -7,11 +10,17 @@
     GLint __VA_ARGS__;\
   }\
 
+struct tOpenGLShaderAttachment {
+  GLuint id;
+  GLenum type;
+  std::string source_path;
+  std::vector<std::string> dependencies;
+};
+
 struct tOpenGLShader {
   GLuint program;
-  GLuint vertex_shader;
-  GLuint geometry_shader;
-  GLuint fragment_shader;
+
+  std::vector<tOpenGLShaderAttachment> attachments;
 };
 
 struct tUniformLocations {
