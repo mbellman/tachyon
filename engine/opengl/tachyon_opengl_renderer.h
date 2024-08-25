@@ -6,27 +6,7 @@
 #include "engine/tachyon_types.h"
 #include "engine/opengl/tachyon_opengl_framebuffer.h"
 #include "engine/opengl/tachyon_opengl_geometry.h"
-
-struct tOpenGLShader {
-  GLuint program;
-  GLuint vertex_shader;
-  GLuint geometry_shader;
-  GLuint fragment_shader;
-
-  GLuint getUniformLocation(const char* name) {
-    return glGetUniformLocation(program, name);
-  }
-};
-
-struct tOpenGLShaders {
-  tOpenGLShader main_geometry;
-  tOpenGLShader sky_and_directional_lighting;
-
-  tOpenGLShader surface;
-
-  // @todo dev mode only
-  tOpenGLShader debug_view;
-};
+#include "engine/opengl/tachyon_opengl_shaders.h"
 
 struct tOpenGLRenderer {
   SDL_GLContext gl_context;

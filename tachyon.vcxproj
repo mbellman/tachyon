@@ -118,6 +118,7 @@
     <ClInclude Include="engine\opengl\tachyon_opengl_framebuffer.h" />
     <ClInclude Include="engine\opengl\tachyon_opengl_geometry.h" />
     <ClInclude Include="engine\opengl\tachyon_opengl_renderer.h" />
+    <ClInclude Include="engine\opengl\tachyon_opengl_shaders.h" />
     <ClInclude Include="engine\tachyon.h" />
     <ClInclude Include="engine\tachyon_aliases.h" />
     <ClInclude Include="engine\tachyon_camera.h" />
@@ -225,6 +226,7 @@
     <ClCompile Include="engine\opengl\tachyon_opengl_framebuffer.cpp" />
     <ClCompile Include="engine\opengl\tachyon_opengl_geometry.cpp" />
     <ClCompile Include="engine\opengl\tachyon_opengl_renderer.cpp" />
+    <ClCompile Include="engine\opengl\tachyon_opengl_shaders.cpp" />
     <ClCompile Include="engine\tachyon_camera.cpp" />
     <ClCompile Include="engine\tachyon_file_helpers.cpp" />
     <ClCompile Include="engine\tachyon_input.cpp" />
