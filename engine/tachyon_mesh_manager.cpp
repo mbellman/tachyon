@@ -87,6 +87,43 @@ tMesh Tachyon_LoadMesh(const char* path, const tVec3f& axis_factors) {
   return mesh;
 }
 
+tMesh Tachyon_CreatePlaneMesh() {
+  tMesh mesh;
+
+  mesh.vertices.resize(4);
+  mesh.face_elements.resize(6);
+
+  mesh.vertices[0].position = tVec3f(-1.f, 0.f, 1.f);
+  mesh.vertices[1].position = tVec3f(-1.f, 0.f, -1.f);
+  mesh.vertices[2].position = tVec3f(1.f, 0.f, 1.f);
+  mesh.vertices[3].position = tVec3f(1.f, 0.f, -1.f);
+
+  mesh.vertices[0].normal = tVec3f(0, 1.f, 0);
+  mesh.vertices[1].normal = tVec3f(0, 1.f, 0);
+  mesh.vertices[2].normal = tVec3f(0, 1.f, 0);
+  mesh.vertices[3].normal = tVec3f(0, 1.f, 0);
+
+  mesh.vertices[0].tangent = tVec3f(0, 0, -1.f);
+  mesh.vertices[1].tangent = tVec3f(0, 0, -1.f);
+  mesh.vertices[2].tangent = tVec3f(0, 0, -1.f);
+  mesh.vertices[3].tangent = tVec3f(0, 0, -1.f);
+
+  mesh.vertices[0].uv = tVec2f(0, 0);
+  mesh.vertices[1].uv = tVec2f(0, 1.f);
+  mesh.vertices[2].uv = tVec2f(1.f, 0);
+  mesh.vertices[3].uv = tVec2f(1.f, 1.f);
+
+  mesh.face_elements.push_back(0);
+  mesh.face_elements.push_back(1);
+  mesh.face_elements.push_back(2);
+
+  mesh.face_elements.push_back(1);
+  mesh.face_elements.push_back(3);
+  mesh.face_elements.push_back(2);
+
+  return mesh;
+}
+
 uint32 Tachyon_AddMesh(Tachyon* tachyon, const tMesh& mesh, uint16 total) {
   auto& pack = tachyon->mesh_pack;
   tMeshRecord record;

@@ -38,7 +38,7 @@ void main() {
     float frag_depth = texture(in_color_and_depth, uv).w;
     float depth_color = 1.0 - pow(frag_depth, 100);
     vec3 position = GetWorldPosition(frag_depth, uv, inverse_projection_matrix, inverse_view_matrix);
-    vec3 position_color = position * 0.0001;
+    vec3 position_color = position * 0.001;
 
     position_color.x = clamp(position_color.x, 0, 1);
     position_color.y = clamp(position_color.y, 0, 1);

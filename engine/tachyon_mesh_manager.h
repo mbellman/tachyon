@@ -8,6 +8,7 @@
 #define commit(__object) Tachyon_CommitObject(tachyon, __object);
 
 tMesh Tachyon_LoadMesh(const char* path, const tVec3f& axis_factors = tVec3f(1.f));
+tMesh Tachyon_CreatePlaneMesh();
 uint32 Tachyon_AddMesh(Tachyon* tachyon, const tMesh& mesh, uint16 total);
 void Tachyon_InitializeObjects(Tachyon* tachyon);
 tObject& Tachyon_CreateObject(Tachyon* tachyon, uint16 mesh_index);

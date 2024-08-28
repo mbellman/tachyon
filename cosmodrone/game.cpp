@@ -1,22 +1,38 @@
 #include "cosmodrone/game.h"
 
-static uint32 sun_index = 0;
-static uint32 moon_index = 0;
+static struct Meshes {
+  uint32
+    sun,
+    moon,
+    plane;
+} meshes;
 
 void Cosmodrone::StartGame(Tachyon* tachyon) {
   auto sunMesh = Tachyon_LoadMesh("./cosmodrone/assets/sun-sign.obj", tVec3f(-1.f, 1.f, 1.f));
   auto moonMesh = Tachyon_LoadMesh("./cosmodrone/assets/moon-sign.obj", tVec3f(-1.f, 1.f, 1.f));
+  auto planeMesh = Tachyon_CreatePlaneMesh();
 
-  sun_index = Tachyon_AddMesh(tachyon, sunMesh, 10);
-  moon_index = Tachyon_AddMesh(tachyon, moonMesh, 10);
-
-  create(sun_index);
-  create(sun_index);
-
-  create(moon_index);
-  create(moon_index);
+  meshes.sun = Tachyon_AddMesh(tachyon, sunMesh, 10);
+  meshes.moon = Tachyon_AddMesh(tachyon, moonMesh, 10);
+  meshes.plane = Tachyon_AddMesh(tachyon, planeMesh, 1);
 
   Tachyon_InitializeObjects(tachyon);
+
+  create(meshes.sun);
+  create(meshes.sun);
+
+  create(meshes.moon);
+  create(meshes.moon);
+
+  create(meshes.plane);
+
+  auto& plane = objects(meshes.plane)[0];
+
+  plane.position = tVec3f(0, -300.f, -800.f);
+  plane.scale = tVec3f(1000.f, 1.f, 1000.f);
+  plane.color = tVec4f(0.5f, 0.2f, 0.2f, 1.f);
+
+  commit(plane);
 }
 
 void Cosmodrone::RunGame(Tachyon* tachyon) {
@@ -45,8 +61,8 @@ void Cosmodrone::RunGame(Tachyon* tachyon) {
 
   // @temporary
   {
-    auto& sun = objects(sun_index)[0];
-    auto& sun2 = objects(sun_index)[1];
+    auto& sun = objects(meshes.sun)[0];
+    auto& sun2 = objects(meshes.sun)[1];
 
     sun.position = tVec3f(-100.f, 50.f * sinf(tachyon->running_time * 3.f), -800.f);
     sun.scale = tVec3f(40.f);
@@ -64,8 +80,8 @@ void Cosmodrone::RunGame(Tachyon* tachyon) {
 
   // @temporary
   {
-    auto& moon = objects(moon_index)[0];
-    auto& moon2 = objects(moon_index)[1];
+    auto& moon = objects(meshes.moon)[0];
+    auto& moon2 = objects(meshes.moon)[1];
 
     moon.position = tVec3f(-300.f, 50.f * cosf(tachyon->running_time * 3.f), -800.f);
     moon.scale = tVec3f(40.f);
