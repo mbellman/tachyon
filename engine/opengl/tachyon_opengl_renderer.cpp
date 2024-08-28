@@ -116,6 +116,12 @@ static void HandleDeveloperTools(Tachyon* tachyon) {
     if (did_press_key(tKey::TAB)) {
       renderer.show_debug_view = !renderer.show_debug_view;
     }
+
+    if (did_press_key(tKey::V)) {
+      auto swap_interval = SDL_GL_GetSwapInterval();
+
+      SDL_GL_SetSwapInterval(swap_interval ? 0 : 1);
+    }
   }
 
   // Developer overlay
@@ -162,6 +168,8 @@ static void UpdateRendererContext(Tachyon* tachyon) {
 
   ctx.inverse_projection_matrix = ctx.projection_matrix.inverse();
   ctx.inverse_view_matrix = ctx.view_matrix.inverse();
+
+  ctx.camera_position = camera.position;
 }
 
 static void RenderStaticGeometry(Tachyon* tachyon) {
@@ -278,6 +286,7 @@ static void RenderSkyAndDirectionalLighting(Tachyon* tachyon) {
   Tachyon_SetShaderInt(locations.in_normal_and_material, 1);
   Tachyon_SetShaderMat4f(locations.inverse_projection_matrix, ctx.inverse_projection_matrix);
   Tachyon_SetShaderMat4f(locations.inverse_view_matrix, ctx.inverse_view_matrix);
+  Tachyon_SetShaderVec3f(locations.camera_position, ctx.camera_position);
 
   RenderScreenQuad(tachyon);
 }

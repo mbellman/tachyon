@@ -4,8 +4,9 @@ uniform sampler2D in_color_and_depth;
 uniform sampler2D in_normal_and_material;
 uniform mat4 inverse_projection_matrix;
 uniform mat4 inverse_view_matrix;
+uniform vec3 camera_position;
 
-in vec2 fragUv;
+noperspective in vec2 fragUv;
 
 layout (location = 0) out vec4 out_color_and_depth;
 
@@ -26,14 +27,20 @@ vec3 GetWorldPosition(float depth, vec2 frag_uv, mat4 inverse_projection, mat4 i
   return world_position.xyz;
 }
 
-vec3 GetRadianceFromLightSource(vec3 albedo, vec3 normal, vec3 position) {
+vec3 GetDirectionalLightRadiance(vec3 albedo, vec3 normal, vec3 position) {
   // @temporary @todo pass as parameters
   vec3 light_direction = vec3(-1.0, -1.0, -1.0);
   vec3 light_color = vec3(1.0, 1.0, 0.5);
+  float roughness = 0.2;
 
-  float I = dot(normal, -normalize(light_direction));
+  vec3 L = -normalize(light_direction);
+  vec3 C = normalize(camera_position - position);
+  vec3 H = normalize(C + L);
 
-  return albedo * light_color * I;
+  float I = max(dot(normal, L), 0.0) * roughness;
+  float S = pow(max(dot(normal, H), 0.0), 50) * (1.0 - roughness);
+
+  return albedo * (light_color * I + vec3(1.0) * S);
 }
 
 void main() {
@@ -41,10 +48,9 @@ void main() {
   vec4 frag_normal_and_material = texture(in_normal_and_material, fragUv);
 
   vec3 albedo = frag_color_and_depth.rgb;
-  vec3 normal = normalize(frag_normal_and_material.xyz);
+  vec3 normal = frag_normal_and_material.xyz;
   vec3 position = GetWorldPosition(frag_color_and_depth.w, fragUv, inverse_projection_matrix, inverse_view_matrix);
-  vec3 color = GetRadianceFromLightSource(albedo, normal, position);
+  vec3 color = GetDirectionalLightRadiance(albedo, normal, position);
 
   out_color_and_depth = vec4(color, frag_color_and_depth.w);
-  // out_color_and_depth = vec4(position, frag_color_and_depth.w);
 }

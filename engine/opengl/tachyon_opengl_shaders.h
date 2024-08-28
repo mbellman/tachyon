@@ -33,7 +33,8 @@ struct tUniformLocations {
     in_color_and_depth,
     in_normal_and_material,
     inverse_projection_matrix,
-    inverse_view_matrix
+    inverse_view_matrix,
+    camera_position
   ) sky_and_directional_lighting;
 
   uniform_locations(
