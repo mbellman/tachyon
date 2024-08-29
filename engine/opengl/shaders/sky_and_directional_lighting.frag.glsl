@@ -27,24 +27,78 @@ vec3 GetWorldPosition(float depth, vec2 frag_uv, mat4 inverse_projection, mat4 i
   return world_position.xyz;
 }
 
-vec3 GetDirectionalLightRadiance(vec3 albedo, vec3 normal, vec3 position) {
+const float PI = 3.141592;
+
+// https://learnopengl.com/PBR/Lighting
+float DistributionGGX(vec3 N, vec3 H, float roughness) {
+  float a      = roughness*roughness;
+  float a2     = a*a;
+  float NdotH  = max(dot(N, H), 0.0);
+  float NdotH2 = NdotH*NdotH;
+
+  float num   = a2;
+  float denom = (NdotH2 * (a2 - 1.0) + 1.0);
+  denom = PI * denom * denom;
+
+  return num / denom;
+}
+
+float GeometrySchlickGGX(float NdotV, float roughness) {
+  float r = (roughness + 1.0);
+  float k = (r*r) / 8.0;
+
+  float num   = NdotV;
+  float denom = NdotV * (1.0 - k) + k;
+
+  return num / denom;
+}
+
+float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness) {
+  float NdotV = max(dot(N, V), 0.0);
+  float NdotL = max(dot(N, L), 0.0);
+  float ggx2  = GeometrySchlickGGX(NdotV, roughness);
+  float ggx1  = GeometrySchlickGGX(NdotL, roughness);
+
+  return ggx1 * ggx2;
+}
+
+vec3 FresnelSchlick(float cosTheta, vec3 F0) {
+  return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+}
+
+vec3 GetDirectionalLightRadiance(vec3 albedo, vec3 position, vec3 N, vec3 V, float roughness, float metalness, vec3 F0) {
   // @temporary @todo pass as parameters
   vec3 light_direction = vec3(-1.0, -1.0, -1.0);
   vec3 light_color = vec3(1.0);
-  float roughness = 0.6;
-  float metalness = 1.0;
 
   vec3 L = -normalize(light_direction);
-  vec3 C = normalize(camera_position - position);
-  vec3 H = normalize(C + L);
+  vec3 H = normalize(V + L);
 
-  float I = max(dot(normal, L), 0.0) * roughness;
-  float S = pow(max(dot(normal, H), 0.0), 50) * (1.0 - roughness);
+  float NDF = DistributionGGX(N, H, roughness);
+  float G = GeometrySmith(N, V, L, roughness);
+  vec3 F = FresnelSchlick(max(dot(H, V), 0.0), F0);
 
-  vec3 fD = albedo;
-  vec3 fS = mix(light_color, albedo, metalness);
+  vec3 kS = F;
+  vec3 kD = vec3(1.0) - kS;
+  kD *= 1.0 - metalness;
 
-  return fD * light_color * I + fS * vec3(1.0) * S;
+  vec3 numerator    = NDF * G * F;
+  float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
+  vec3 specular     = numerator / denominator;  
+
+  // add to outgoing radiance Lo
+  float NdotL = max(dot(N, L), 0.0);
+  return (kD * albedo / PI + specular) * light_color * NdotL;
+
+  // return vec3(0);
+
+  // float I = max(dot(N, L), 0.0) * roughness;
+  // float S = pow(max(dot(N, H), 0.0), 50) * (1.0 - roughness);
+
+  // vec3 fD = albedo;
+  // vec3 fS = mix(light_color, albedo, metalness);
+
+  // return fD * light_color * I + fS * vec3(1.0) * S;
 }
 
 void main() {
@@ -54,7 +108,19 @@ void main() {
   vec3 albedo = frag_color_and_depth.rgb;
   vec3 normal = frag_normal_and_material.xyz;
   vec3 position = GetWorldPosition(frag_color_and_depth.w, fragUv, inverse_projection_matrix, inverse_view_matrix);
-  vec3 color = GetDirectionalLightRadiance(albedo, normal, position);
+
+  vec3 V = normalize(camera_position - position);
+  float roughness = 0.6;
+  float metalness = 0.0;
+
+  vec3 F0 = vec3(0.04);
+  F0 = mix(F0, albedo, metalness);
+
+  vec3 color = GetDirectionalLightRadiance(albedo, position, normal, V, roughness, metalness, F0);
+
+  // @todo move to post shader
+  color = color / (color + vec3(1.0));
+  color = pow(color, vec3(1.0 / 2.2));
 
   out_color_and_depth = vec4(color, frag_color_and_depth.w);
 }
