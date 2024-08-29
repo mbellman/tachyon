@@ -44,7 +44,7 @@ void Cosmodrone::StartGame(Tachyon* tachyon) {
 
     sphere.position = tVec3f(0, 300.f, -800.f);
     sphere.scale = tVec3f(100.f);
-    sphere.color = tVec4f(1.f, 0.2f, 0.2f, 1.f);
+    sphere.color = tVec4f(1.f, 0.1f, 0.1f, 1.f);
 
     commit(sphere);
   }
