@@ -1,7 +1,79 @@
 #include <map>
+#include <math.h>
 
 #include "engine/tachyon_loaders.h"
 #include "engine/tachyon_mesh_manager.h"
+
+constexpr static float PI = 3.141592f;
+constexpr static float TAU = 2.f * PI;
+
+static inline float EaseInOut(float t) {
+  return -(cosf(PI * t) - 1.f) / 2.f;
+}
+
+static void ComputeNormals(tMesh& mesh) {
+  auto& vertices = mesh.vertices;
+  auto& face_elements = mesh.face_elements;
+
+  for (auto& vertex : vertices) {
+    vertex.normal = tVec3f(0.f);
+  }
+
+  for (uint32 i = 0; i < face_elements.size(); i += 3) {
+    tVertex& v1 = vertices[face_elements[i]];
+    tVertex& v2 = vertices[face_elements[i + 2]];
+    tVertex& v3 = vertices[face_elements[i + 1]];
+
+    tVec3f normal = tVec3f::cross(v2.position - v1.position, v3.position - v1.position).unit();
+
+    v1.normal += normal;
+    v2.normal += normal;
+    v3.normal += normal;
+  }
+
+  for (auto& vertex : vertices) {
+    vertex.normal = vertex.normal.unit();
+  }
+}
+
+static void ComputeTangents(tMesh& mesh) {
+  auto& vertices = mesh.vertices;
+  auto& face_elements = mesh.face_elements;
+
+  for (uint32 i = 0; i < face_elements.size(); i += 3) {
+    tVertex& v1 = vertices[face_elements[i]];
+    tVertex& v2 = vertices[face_elements[i + 1]];
+    tVertex& v3 = vertices[face_elements[i + 2]];
+
+    tVec3f e1 = v2.position - v1.position;
+    tVec3f e2 = v3.position - v1.position;
+
+    float delta_u1 = v2.uv.x - v1.uv.x;
+    float delta_v1 = v2.uv.y - v1.uv.y;
+    float delta_u2 = v3.uv.x - v1.uv.x;
+    float delta_v2 = v3.uv.y - v1.uv.y;
+
+    float d = (delta_u1 * delta_v2 - delta_u2 * delta_v1);
+
+    // Prevent division by zero when vertices are in identical positions,
+    // and there is no delta between uv coordinates
+    float f = 1.0f / (d == 0.f ? 0.001f : d);
+
+    tVec3f tangent = {
+      f * (delta_v2 * e1.x - delta_v1 * e2.x),
+      f * (delta_v2 * e1.y - delta_v1 * e2.y),
+      f * (delta_v2 * e1.z - delta_v1 * e2.z)
+    };
+
+    v1.tangent += tangent;
+    v2.tangent += tangent;
+    v3.tangent += tangent;
+  }
+
+  for (auto& vertex : vertices) {
+    vertex.tangent = vertex.tangent.unit();
+  }
+}
 
 // @todo compute vertex normals + tangents when not defined in the obj file
 tMesh Tachyon_LoadMesh(const char* path, const tVec3f& axis_factors) {
@@ -11,7 +83,7 @@ tMesh Tachyon_LoadMesh(const char* path, const tVec3f& axis_factors) {
 
   // @todo move the below into its own function
   auto& vertices = mesh.vertices;
-  auto& faceElements = mesh.face_elements;
+  auto& face_elements = mesh.face_elements;
 
   if (obj.textureCoordinates.size() == 0 && obj.normals.size() == 0) {
     // Only vertex positions defined, so simply load in vertices,
@@ -26,9 +98,9 @@ tMesh Tachyon_LoadMesh(const char* path, const tVec3f& axis_factors) {
     }
 
     for (const auto& face : obj.faces) {
-      faceElements.push_back(face.v1.vertexIndex);
-      faceElements.push_back(face.v2.vertexIndex);
-      faceElements.push_back(face.v3.vertexIndex);
+      face_elements.push_back(face.v1.vertexIndex);
+      face_elements.push_back(face.v2.vertexIndex);
+      face_elements.push_back(face.v3.vertexIndex);
     }
   } else {
     // Texture coordinates and/or normals defined, so we need
@@ -53,7 +125,7 @@ tMesh Tachyon_LoadMesh(const char* path, const tVec3f& axis_factors) {
         if (indexRecord != vertexTupleToIndexMap.end()) {
           // Vertex tuple already exists, so we can just
           // add the stored face element index
-          faceElements.push_back(indexRecord->second);
+          face_elements.push_back(indexRecord->second);
         } else {
           // Vertex doesn't exist, so we need to create it
           tVertex vertex;
@@ -76,7 +148,7 @@ tMesh Tachyon_LoadMesh(const char* path, const tVec3f& axis_factors) {
           }
 
           vertices.push_back(vertex);
-          faceElements.push_back(index);
+          face_elements.push_back(index);
 
           vertexTupleToIndexMap.emplace(vertexTuple, index);
         }
@@ -120,6 +192,103 @@ tMesh Tachyon_CreatePlaneMesh() {
   mesh.face_elements[3] = 1;
   mesh.face_elements[4] = 3;
   mesh.face_elements[5] = 2;
+
+  return mesh;
+}
+
+tMesh Tachyon_CreateSphereMesh(uint8 divisions) {
+  tMesh mesh;
+
+  auto& vertices = mesh.vertices;
+  auto& face_elements = mesh.face_elements;
+  uint8 horizontal_divisions = uint8(float(divisions) * 1.5f);
+
+  // Pole vertices
+  tVertex pole1, pole2;
+
+  // Top pole vertex
+  pole1.position = tVec3f(0, 1.f, 0);
+
+  vertices.push_back(pole1);
+
+  // Surface vertices
+  for (uint8 i = 1; i < divisions - 1; i++) {
+    for (uint8 j = 0; j < horizontal_divisions; j++) {
+      float y_progress = float(i) / float(divisions - 1);
+      float radius = sinf(y_progress * PI);
+      float x = radius * -cosf(float(j) / float(horizontal_divisions) * TAU);
+      float y = 1.f - 2.f * EaseInOut(y_progress);
+      float z = radius * sinf(float(j) / float(horizontal_divisions) * TAU);
+
+      tVertex vertex;
+
+      vertex.position = tVec3f(x, y, z);
+
+      vertices.push_back(vertex);
+    }
+  }
+
+  // Bottom pole vertex
+  pole2.position = tVec3f(0, -1.f, 0);
+
+  vertices.push_back(pole2);
+
+  // Top cap faces
+  for (uint8 i = 0; i < horizontal_divisions; i++) {
+    uint32 f1 = 0;
+    uint32 f2 = (i + 1) % horizontal_divisions + 1;
+    uint32 f3 = i + 1;
+
+    face_elements.push_back(f1);
+    face_elements.push_back(f2);
+    face_elements.push_back(f3);
+  }
+
+  // Mid-section faces
+  for (uint8 i = 1; i < divisions - 2; i++) {
+    uint32 v_start = 1 + (i - 1) * horizontal_divisions;
+    uint32 v_end = v_start + horizontal_divisions;
+
+    for (uint8 j = 0; j < horizontal_divisions; j++) {
+      uint32 v_offset = v_start + j;
+
+      uint32 f1 = v_offset;
+      uint32 f2 = v_offset + 1;
+      uint32 f3 = v_offset + horizontal_divisions;
+
+      // Ensure that the second vertex index stays on
+      // the same horizontal 'line' of the sphere
+      if (f2 >= v_end) f2 -= horizontal_divisions;
+
+      uint32 f4 = f2;
+      uint32 f5 = f2 + horizontal_divisions;
+      uint32 f6 = f1 + horizontal_divisions;
+
+      face_elements.push_back(f1);
+      face_elements.push_back(f2);
+      face_elements.push_back(f3);
+
+      face_elements.push_back(f4);
+      face_elements.push_back(f5);
+      face_elements.push_back(f6);
+    }
+  }
+
+  // Bottom cap faces
+  uint32 last_vertex_index = vertices.size() - 1;
+
+  for (uint8 i = 0; i < horizontal_divisions; i++) {
+    uint32 f1 = last_vertex_index;
+    uint32 f2 = last_vertex_index - (i + 1) % horizontal_divisions - 1;
+    uint32 f3 = last_vertex_index - (i + 1);
+
+    face_elements.push_back(f1);
+    face_elements.push_back(f2);
+    face_elements.push_back(f3);
+  }
+
+  ComputeNormals(mesh);
+  ComputeTangents(mesh);
 
   return mesh;
 }

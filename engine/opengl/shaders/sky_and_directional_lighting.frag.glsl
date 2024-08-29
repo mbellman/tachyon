@@ -30,8 +30,9 @@ vec3 GetWorldPosition(float depth, vec2 frag_uv, mat4 inverse_projection, mat4 i
 vec3 GetDirectionalLightRadiance(vec3 albedo, vec3 normal, vec3 position) {
   // @temporary @todo pass as parameters
   vec3 light_direction = vec3(-1.0, -1.0, -1.0);
-  vec3 light_color = vec3(1.0, 1.0, 0.5);
-  float roughness = 0.2;
+  vec3 light_color = vec3(1.0);
+  float roughness = 0.6;
+  float metalness = 1.0;
 
   vec3 L = -normalize(light_direction);
   vec3 C = normalize(camera_position - position);
@@ -40,7 +41,10 @@ vec3 GetDirectionalLightRadiance(vec3 albedo, vec3 normal, vec3 position) {
   float I = max(dot(normal, L), 0.0) * roughness;
   float S = pow(max(dot(normal, H), 0.0), 50) * (1.0 - roughness);
 
-  return albedo * (light_color * I + vec3(1.0) * S);
+  vec3 fD = albedo;
+  vec3 fS = mix(light_color, albedo, metalness);
+
+  return fD * light_color * I + fS * vec3(1.0) * S;
 }
 
 void main() {

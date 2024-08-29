@@ -4,17 +4,20 @@ static struct Meshes {
   uint32
     sun,
     moon,
-    plane;
+    plane,
+    sphere;
 } meshes;
 
 void Cosmodrone::StartGame(Tachyon* tachyon) {
   auto sunMesh = Tachyon_LoadMesh("./cosmodrone/assets/sun-sign.obj", tVec3f(-1.f, 1.f, 1.f));
   auto moonMesh = Tachyon_LoadMesh("./cosmodrone/assets/moon-sign.obj", tVec3f(-1.f, 1.f, 1.f));
   auto planeMesh = Tachyon_CreatePlaneMesh();
+  auto sphereMesh = Tachyon_CreateSphereMesh(16);
 
   meshes.sun = Tachyon_AddMesh(tachyon, sunMesh, 10);
   meshes.moon = Tachyon_AddMesh(tachyon, moonMesh, 10);
   meshes.plane = Tachyon_AddMesh(tachyon, planeMesh, 1);
+  meshes.sphere = Tachyon_AddMesh(tachyon, sphereMesh, 25);
 
   Tachyon_InitializeObjects(tachyon);
 
@@ -24,15 +27,27 @@ void Cosmodrone::StartGame(Tachyon* tachyon) {
   create(meshes.moon);
   create(meshes.moon);
 
-  create(meshes.plane);
+  {
+    create(meshes.plane);
+    auto& plane = objects(meshes.plane)[0];
 
-  auto& plane = objects(meshes.plane)[0];
+    plane.position = tVec3f(0, -300.f, -800.f);
+    plane.scale = tVec3f(1000.f, 1.f, 1000.f);
+    plane.color = tVec4f(0.5f, 0.2f, 0.2f, 1.f);
 
-  plane.position = tVec3f(0, -300.f, -800.f);
-  plane.scale = tVec3f(1000.f, 1.f, 1000.f);
-  plane.color = tVec4f(0.5f, 0.2f, 0.2f, 1.f);
+    commit(plane);
+  }
 
-  commit(plane);
+  {
+    create(meshes.sphere);
+    auto& sphere = objects(meshes.sphere)[0];
+
+    sphere.position = tVec3f(0, 300.f, -800.f);
+    sphere.scale = tVec3f(100.f);
+    sphere.color = tVec4f(1.f, 0.3f, 0.2f, 1.f);
+
+    commit(sphere);
+  }
 }
 
 void Cosmodrone::RunGame(Tachyon* tachyon) {
