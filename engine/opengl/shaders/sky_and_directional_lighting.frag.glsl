@@ -110,13 +110,16 @@ void main() {
   vec3 position = GetWorldPosition(frag_color_and_depth.w, fragUv, inverse_projection_matrix, inverse_view_matrix);
 
   vec3 V = normalize(camera_position - position);
-  float roughness = 0.6;
-  float metalness = 0.0;
+  float roughness = 0.5;
+  float metalness = 0.9;
 
   vec3 F0 = vec3(0.04);
   F0 = mix(F0, albedo, metalness);
 
-  vec3 color = GetDirectionalLightRadiance(albedo, position, normal, V, roughness, metalness, F0);
+  vec3 fresnel = 0.002 * vec3(pow(1 - dot(normal, V), 5.0));
+  vec3 color = fresnel + GetDirectionalLightRadiance(albedo, position, normal, V, roughness, metalness, F0);
+
+  if (frag_color_and_depth.w >= 1.0) color = vec3(0);
 
   // @todo move to post shader
   color = color / (color + vec3(1.0));
