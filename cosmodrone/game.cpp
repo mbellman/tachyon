@@ -50,7 +50,7 @@ void Cosmodrone::StartGame(Tachyon* tachyon) {
   }
 }
 
-void Cosmodrone::RunGame(Tachyon* tachyon) {
+void Cosmodrone::RunGame(Tachyon* tachyon, const float dt) {
   auto& scene = tachyon->scene;
   auto& camera = scene.camera;
 
@@ -63,15 +63,15 @@ void Cosmodrone::RunGame(Tachyon* tachyon) {
   else if (camera.orientation.pitch < -0.99f) camera.orientation.pitch = -0.99f;
 
   if (is_key_held(tKey::W)) {
-    camera.position += camera.orientation.getDirection() * 0.5f;
+    camera.position += camera.orientation.getDirection() * dt * 500.f;
   } else if (is_key_held(tKey::S)) {
-    camera.position += camera.orientation.getDirection() * -0.5f;
+    camera.position += camera.orientation.getDirection() * -dt * 500.f;
   }
 
   if (is_key_held(tKey::A)) {
-    camera.position += camera.orientation.getLeftDirection() * 0.5f;
+    camera.position += camera.orientation.getLeftDirection() * dt * 500.f;
   } else if (is_key_held(tKey::D)) {
-    camera.position += camera.orientation.getRightDirection() * 0.5f;
+    camera.position += camera.orientation.getRightDirection() * dt * 500.f;
   }
 
   // @temporary

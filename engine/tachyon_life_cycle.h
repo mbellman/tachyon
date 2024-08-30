@@ -6,6 +6,7 @@
 #define Tachyon_Loop(code)\
   while (Tachyon_IsRunning(tachyon)) {\
     Tachyon_StartFrame(tachyon);\
+    float dt = tachyon->last_frame_time_in_microseconds / 1000000.f;\
     code;\
     Tachyon_EndFrame(tachyon);\
   }\

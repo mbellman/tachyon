@@ -4,5 +4,5 @@
 
 namespace Cosmodrone {
   void StartGame(Tachyon* tachyon);
-  void RunGame(Tachyon* tachyon);
+  void RunGame(Tachyon* tachyon, const float dt);
 }
