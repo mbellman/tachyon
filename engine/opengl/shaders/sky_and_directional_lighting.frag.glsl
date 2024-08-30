@@ -68,7 +68,7 @@ vec3 FresnelSchlick(float cosTheta, vec3 F0) {
 
 // @temporary @todo pass as parameters
 const vec3 light_direction = vec3(-1.0, -1.0, -1.0);
-const vec3 light_color = vec3(1);
+const vec3 light_color = vec3(1.0);
 
 vec3 DirectionalLightRadiance(vec3 albedo, vec3 position, vec3 N, vec3 V, float roughness, float metalness, vec3 F0) {
   vec3 L = -normalize(light_direction);
@@ -101,8 +101,12 @@ float FastGeometryGGX(float NdotH, float roughness, float metalness) {
   return pow(NdotH, 10 * roughness) * pow(1.0 - metalness, 4);
 }
 
-float FastClearcoat(float NdotH, float NdotV, float NdotL, float clearcoat) {
-  return clearcoat * (FastDistributionGGX(NdotH, 0.1) + 0.2 * pow(1.0 - NdotV, 4)) * NdotL;
+float FastClearcoat(float NdotH, float NdotV, float clearcoat) {
+  return clearcoat * (FastDistributionGGX(NdotH, 0.1) + 0.2 * pow(1.0 - NdotV, 4));
+}
+
+float FastSubsurface(float NdotV, float subsurface) {
+  return subsurface * (4 * NdotV + 16 * pow(1.0 - NdotV, 4));
 }
 
 vec3 FastDirectionalLightRadiance(
@@ -113,7 +117,8 @@ vec3 FastDirectionalLightRadiance(
   float NdotV,
   float roughness,
   float metalness,
-  float clearcoat
+  float clearcoat,
+  float subsurface
 ) {
   vec3 L = -normalize(light_direction);
   vec3 H = normalize(V + L);
@@ -124,11 +129,12 @@ vec3 FastDirectionalLightRadiance(
   float sD = FastDistributionGGX(NdotH, roughness);
   float sG = FastGeometryGGX(NdotH, roughness, metalness);
 
-  float diffuse = NdotL * (1.0 - metalness);
-  float scatter = (sD + sG) * NdotL;
-  float coat = FastClearcoat(NdotH, NdotV, NdotL, clearcoat);
+  float D = (1.0 - metalness) * NdotL;
+  float S = (sD + sG) * NdotL;
+  float C = FastClearcoat(NdotH, NdotV, clearcoat) * NdotL;
+  float Sc = FastSubsurface(NdotV, subsurface) * (NdotL + 0.05) * (1.0 - metalness * 0.95);
 
-  return light_color * (albedo * diffuse + albedo * scatter + coat) / PI;
+  return light_color * (albedo * D + albedo * S + C + albedo * albedo * Sc) / PI;
 }
 
 vec3 AmbientFresnel(float NdotV) {
@@ -146,16 +152,17 @@ void main() {
   vec3 V = normalize(camera_position - position);
   float NdotV = max(dot(N, V), 0.0);
 
-  float roughness = 0.2;
-  float metalness = 1.0;
-  float clearcoat = 1.0;
+  float roughness = 0.3;
+  float metalness = 0.0;
+  float clearcoat = 0.0;
+  float subsurface = 1.0;
 
   if (roughness < 0.05) roughness = 0.05;
 
   vec3 F0 = vec3(0.04);
   F0 = mix(F0, albedo, metalness);
   // vec3 color = DirectionalLightRadiance(albedo, position, N, V, roughness, metalness, F0);
-  vec3 color = FastDirectionalLightRadiance(albedo, position, N, V, NdotV, roughness, metalness, clearcoat);
+  vec3 color = FastDirectionalLightRadiance(albedo, position, N, V, NdotV, roughness, metalness, clearcoat, subsurface);
 
   color += AmbientFresnel(NdotV);
 
