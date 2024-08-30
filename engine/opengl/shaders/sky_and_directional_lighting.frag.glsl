@@ -70,7 +70,7 @@ vec3 FresnelSchlick(float cosTheta, vec3 F0) {
 const vec3 light_direction = vec3(-1.0, -1.0, -1.0);
 const vec3 light_color = vec3(1.0);
 
-vec3 GetDirectionalLightRadiancePBR(vec3 albedo, vec3 position, vec3 N, vec3 V, float roughness, float metalness, vec3 F0) {
+vec3 DirectionalLightRadiance(vec3 albedo, vec3 position, vec3 N, vec3 V, float roughness, float metalness, vec3 F0) {
   vec3 L = -normalize(light_direction);
   vec3 H = normalize(V + L);
 
@@ -90,28 +90,35 @@ vec3 GetDirectionalLightRadiancePBR(vec3 albedo, vec3 position, vec3 N, vec3 V, 
   return (kD * albedo / PI + specular) * light_color * NdotL;
 }
 
-float EaseInOut(float t) {
-  return t < 0.5 ? 4.0 * t * t * t : 1.0 - pow(-2.0 * t + 2.0, 3) / 2.0;
+float FastDistributionGGX(float NdotH, float roughness) {
+  float r4 = roughness*roughness * roughness*roughness;
+  float d = (NdotH*NdotH * (r4 - 1.0) + 1.0);
+
+  return r4 / (PI * d*d);
 }
 
-// @WIP
-vec3 GetDirectionalLightRadianceFastPBR(vec3 albedo, vec3 position, vec3 N, vec3 V, float roughness, float metalness, vec3 F0) {
+float FastGeometryGGX(float NdotH, float roughness, float metalness) {
+  return pow(NdotH, 10 * roughness) * pow(1.0 - metalness, 4);
+}
+
+vec3 FastDirectionalLightRadiance(vec3 albedo, vec3 position, vec3 N, vec3 V, float roughness, float metalness) {
   vec3 L = -normalize(light_direction);
   vec3 H = normalize(V + L);
 
   float NdotH = max(dot(N, H), 0.0);
   float NdotL = max(dot(N, L), 0.0);
 
-  float D = NdotL * (1.0 - metalness);
+  float sD = FastDistributionGGX(NdotH, roughness);
+  float sG = FastGeometryGGX(NdotH, roughness, metalness);
 
-  // @todo write an optimized distribution GGX
-  float sD = DistributionGGX(N, H, roughness);
-  // Geometry specular GGX
-  float sG = pow(NdotH, 10 * roughness) * pow(1.0 - metalness, 4);
-  // Combined specular term
-  float S = (sD + sG) * NdotL;
+  float diffuse = NdotL * (1.0 - metalness);
+  float scatter = (sD + sG) * NdotL;
 
-  return light_color * ((D * albedo) / PI + albedo * S);
+  return light_color * (albedo * diffuse + albedo * scatter) / PI;
+}
+
+vec3 AmbientFresnel(vec3 N, vec3 V) {
+  return 0.002 * vec3(pow(1 - dot(N, V), 5));
 }
 
 void main() {
@@ -123,18 +130,18 @@ void main() {
   vec3 position = GetWorldPosition(frag_color_and_depth.w, fragUv, inverse_projection_matrix, inverse_view_matrix);
 
   vec3 V = normalize(camera_position - position);
-  float roughness = 0.2;
-  float metalness = 1.0;
+
+  float roughness = 0.1;
+  float metalness = 0.0;
 
   if (roughness < 0.05) roughness = 0.05;
 
   vec3 F0 = vec3(0.04);
   F0 = mix(F0, albedo, metalness);
+  // vec3 color = fresnel + DirectionalLightRadiance(albedo, position, N, V, roughness, metalness, F0);
+  vec3 color = FastDirectionalLightRadiance(albedo, position, N, V, roughness, metalness);
 
-  vec3 fresnel = 0.002 * vec3(pow(1 - dot(N, V), 5.0));
-
-  // vec3 color = fresnel + GetDirectionalLightRadiancePBR(albedo, position, N, V, roughness, metalness, F0);
-  vec3 color = fresnel + GetDirectionalLightRadianceFastPBR(albedo, position, N, V, roughness, metalness, F0);
+  color += AmbientFresnel(N, V);
 
   if (frag_color_and_depth.w >= 1.0) color = vec3(0);
 
