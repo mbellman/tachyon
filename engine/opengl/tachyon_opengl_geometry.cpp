@@ -8,8 +8,8 @@ tOpenGLMeshPack Tachyon_CreateOpenGLMeshPack(Tachyon* tachyon) {
   #define VERTEX_NORMAL 1
   #define VERTEX_TANGENT 2
   #define VERTEX_UV 3
-  #define MODEL_COLOR 4
   #define MODEL_MATRIX 5
+  #define MODEL_SURFACE 4
 
   auto& pack = tachyon->mesh_pack;
   auto& vertices = pack.vertex_stream;
@@ -45,11 +45,11 @@ tOpenGLMeshPack Tachyon_CreateOpenGLMeshPack(Tachyon* tachyon) {
   glEnableVertexAttribArray(VERTEX_UV);
   glVertexAttribPointer(VERTEX_UV, 2, GL_FLOAT, GL_FALSE, sizeof(tVertex), (void*)offsetof(tVertex, uv));
 
-  // Define color attributes
-  glBindBuffer(GL_ARRAY_BUFFER, glPack.buffers[COLOR_BUFFER]);
-  glEnableVertexAttribArray(MODEL_COLOR);
-  glVertexAttribPointer(MODEL_COLOR, 4, GL_FLOAT, GL_FALSE, sizeof(tVec4f), (void*)0);
-  glVertexAttribDivisor(MODEL_COLOR, 1);
+  // Define surface attributes
+  glBindBuffer(GL_ARRAY_BUFFER, glPack.buffers[SURFACE_BUFFER]);
+  glEnableVertexAttribArray(MODEL_SURFACE);
+  glVertexAttribIPointer(MODEL_SURFACE, 1, GL_UNSIGNED_INT, sizeof(uint32), (void*)0);
+  glVertexAttribDivisor(MODEL_SURFACE, 1);
 
   // Define matrix attributes
   glBindBuffer(GL_ARRAY_BUFFER, glPack.buffers[MATRIX_BUFFER]);

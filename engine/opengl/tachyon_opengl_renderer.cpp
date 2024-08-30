@@ -199,10 +199,10 @@ static void RenderStaticGeometry(Tachyon* tachyon) {
   // @temporary
   // @todo buffer sub data per updated mesh record/object group
   {
-    // Buffer colors
-    auto& colors = tachyon->colors;
-    glBindBuffer(GL_ARRAY_BUFFER, glPack.buffers[COLOR_BUFFER]);
-    glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(tVec4f), colors.data(), GL_DYNAMIC_DRAW);
+    // Buffer surface data
+    auto& surfaces = tachyon->surfaces;
+    glBindBuffer(GL_ARRAY_BUFFER, glPack.buffers[SURFACE_BUFFER]);
+    glBufferData(GL_ARRAY_BUFFER, surfaces.size() * sizeof(uint32), surfaces.data(), GL_DYNAMIC_DRAW);
 
     // Buffer matrices
     auto& matrices = tachyon->matrices;
@@ -211,7 +211,7 @@ static void RenderStaticGeometry(Tachyon* tachyon) {
   }
 
   for (auto& record : tachyon->mesh_pack.mesh_records) {
-    // @todo do the matrix/color buffering here
+    // @todo do the matrix/surface buffering here
 
     record.group.buffered = true;
   }

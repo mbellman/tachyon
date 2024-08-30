@@ -6,7 +6,7 @@
 
 enum tOpenGLMeshPackBuffer {
   VERTEX_BUFFER,
-  COLOR_BUFFER,
+  SURFACE_BUFFER,
   MATRIX_BUFFER
 };
 

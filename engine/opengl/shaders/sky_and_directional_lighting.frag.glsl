@@ -98,7 +98,7 @@ float FastDistributionGGX(float NdotH, float roughness) {
 }
 
 float FastGeometryGGX(float NdotH, float roughness, float metalness) {
-  return pow(NdotH, 10 * roughness) * pow(1.0 - metalness, 4);
+  return pow(NdotH, 2 * roughness) * pow(1.0 - metalness, 4);
 }
 
 float FastClearcoat(float NdotH, float NdotV, float clearcoat) {
@@ -129,7 +129,7 @@ vec3 FastDirectionalLightRadiance(
   float sD = FastDistributionGGX(NdotH, roughness);
   float sG = FastGeometryGGX(NdotH, roughness, metalness);
 
-  float D = (1.0 - metalness) * roughness * NdotL;
+  float D = (1.0 - metalness) * (1.0 - roughness * 0.5) * NdotL;
   float S = (sD + sG) * NdotL;
   float C = FastClearcoat(NdotH, NdotV, clearcoat) * NdotL;
   float Sc = FastSubsurface(NdotV, subsurface) * (NdotL + 0.05) * (1.0 - metalness * 0.95);
@@ -153,8 +153,8 @@ void main() {
   float NdotV = max(dot(N, V), 0.0);
 
   float roughness = 0.6;
-  float metalness = 1.0;
-  float clearcoat = 1.0;
+  float metalness = 0.0;
+  float clearcoat = 0.0;
   float subsurface = 0.0;
 
   if (roughness < 0.05) roughness = 0.05;

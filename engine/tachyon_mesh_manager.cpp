@@ -328,8 +328,8 @@ void Tachyon_InitializeObjects(Tachyon* tachyon) {
   }
 
   tachyon->objects.resize(total_objects);
+  tachyon->surfaces.resize(total_objects);
   tachyon->matrices.resize(total_objects);
-  tachyon->colors.resize(total_objects);
 
   uint16 mesh_index = 0;
   uint32 object_offset = 0;
@@ -337,8 +337,8 @@ void Tachyon_InitializeObjects(Tachyon* tachyon) {
   for (auto& record : tachyon->mesh_pack.mesh_records) {
     // Set object group pointers into global arrays
     record.group.objects = &tachyon->objects[object_offset];
+    record.group.surfaces = &tachyon->surfaces[object_offset];
     record.group.matrices = &tachyon->matrices[object_offset];
-    record.group.colors = &tachyon->colors[object_offset];
     record.group.object_offset = object_offset;
 
     uint16 object_index = 0;
@@ -371,7 +371,7 @@ void Tachyon_CommitObject(Tachyon* tachyon, const tObject& object) {
   auto& group = tachyon->mesh_pack.mesh_records[object.mesh_index].group;
 
   // @todo object id -> index
+  group.surfaces[object.object_index] = (uint32(object.color.rgba) << 16) | (uint32)object.material.data;
   group.matrices[object.object_index] = tMat4f::transformation(object.position, object.scale, object.rotation).transpose();
-  group.colors[object.object_index] = object.color;
   group.buffered = false;
 }

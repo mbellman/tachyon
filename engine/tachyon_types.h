@@ -25,16 +25,16 @@ struct tColor {
   uint16 rgba;
 
   tColor(const tVec3f& rgb) {
-    uint8 r = uint8(rgb.x * 15.f) << 12;
-    uint8 g = uint8(rgb.y * 15.f) << 8;
-    uint8 b = uint8(rgb.z * 15.f) << 4;
+    uint16 r = uint16(rgb.x * 15.f) << 12;
+    uint16 g = uint16(rgb.y * 15.f) << 8;
+    uint16 b = uint16(rgb.z * 15.f) << 4;
 
     rgba = r | g | b;
   }
 };
 
 struct tMaterial {
-  uint16 mat;
+  uint16 data;
 
   tMaterial(const tVec4f& material) {
     uint8 roughness = uint8(material.x * 15.f) << 12;
@@ -42,7 +42,7 @@ struct tMaterial {
     uint8 clearcoat = uint8(material.z * 15.f) << 4;
     uint8 subsurface = uint8(material.w * 15.f);
 
-    mat = roughness | metalness | clearcoat | subsurface;
+    data = roughness | metalness | clearcoat | subsurface;
   }
 };
 
@@ -50,9 +50,7 @@ struct tObject {
   tVec3f position;
   tVec3f scale;
   Quaternion rotation;
-  tVec4f color;
-
-  tColor t_color = tVec3f(1.f);
+  tColor color = tVec3f(1.f);
   tMaterial material = tVec4f(0.6f, 0, 0, 0);
 
   uint16 object_index = 0;  // @todo change to object_id, use an id -> index table
@@ -61,8 +59,8 @@ struct tObject {
 
 struct tObjectGroup {
   tObject* objects = nullptr;
+  uint32* surfaces = nullptr;
   tMat4f* matrices = nullptr;
-  tVec4f* colors = nullptr;
   uint32 object_offset = 0;
   uint16 total = 0;
   uint16 total_visible = 0;
@@ -129,6 +127,6 @@ struct Tachyon {
   uint64 last_frame_time_in_microseconds = 1;
 
   std::vector<tObject> objects;
+  std::vector<uint32> surfaces;
   std::vector<tMat4f> matrices;
-  std::vector<tVec4f> colors; // @todo use a uint32 or other
 };

@@ -7,7 +7,7 @@ layout (location = 0) in vec3 vertexPosition;
 layout (location = 1) in vec3 vertexNormal;
 layout (location = 2) in vec3 vertexTangent;
 layout (location = 3) in vec2 vertexUv;
-layout (location = 4) in vec4 modelColor;
+layout (location = 4) in uint modelSurface;
 layout (location = 5) in mat4 modelMatrix;
 
 flat out vec3 fragColor;
@@ -30,13 +30,21 @@ vec3 getFragBitangent(vec3 normal, vec3 tangent) {
   return cross(tangent, normal);
 }
 
+vec3 UnpackColor(uint surface) {
+  float r = float((surface & 0xF0000000) >> 28) / 15.0;
+  float g = float((surface & 0x0F000000) >> 24) / 15.0;
+  float b = float((surface & 0x00F00000) >> 20) / 15.0;
+
+  return vec3(r, g, b);
+}
+
 void main() {
   vec4 world_position = modelMatrix * vec4(vertexPosition, 1.0);
   mat3 normal_matrix = transpose(inverse(mat3(modelMatrix)));
 
   gl_Position = mat_view_projection * world_position;
 
-  fragColor = modelColor.xyz;
+  fragColor = UnpackColor(modelSurface);
   fragPosition = world_position.xyz;
   fragNormal = normal_matrix * vertexNormal;
   fragTangent = normal_matrix * vertexTangent;
