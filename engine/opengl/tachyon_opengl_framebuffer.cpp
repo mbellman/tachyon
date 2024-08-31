@@ -15,7 +15,8 @@ const static std::map<ColorFormat, GLint> glInternalFormatMap = {
   { ColorFormat::RGB16, GL_RGB16F },
   { ColorFormat::RGBA, GL_RGBA32F },
   { ColorFormat::RGBA16, GL_RGBA16F },
-  { ColorFormat::RGBA8, GL_RGBA8 }
+  { ColorFormat::RGBA8, GL_RGBA8 },
+  { ColorFormat::RGBA8UI, GL_RGBA8UI }
 };
 
 const static std::map<ColorFormat, GLenum> glFormatMap = {
@@ -27,7 +28,8 @@ const static std::map<ColorFormat, GLenum> glFormatMap = {
   { ColorFormat::RGB16, GL_RGB },
   { ColorFormat::RGBA, GL_RGBA },
   { ColorFormat::RGBA16, GL_RGBA },
-  { ColorFormat::RGBA8, GL_RGBA }
+  { ColorFormat::RGBA8, GL_RGBA },
+  { ColorFormat::RGBA8UI, GL_RGBA_INTEGER }
 };
 
 /**
@@ -65,10 +67,11 @@ void OpenGLFrameBuffer::addColorAttachment(ColorFormat format, uint32 unit, GLin
   GLuint index = GL_COLOR_ATTACHMENT0 + colorAttachments.size();
   GLint glInternalFormat = glInternalFormatMap.at(format);
   GLenum glFormat = glFormatMap.at(format);
+  GLenum type = glInternalFormat == GL_RGBA8UI ? GL_UNSIGNED_INT : GL_FLOAT;
 
   glGenTextures(1, &textureId);
   glBindTexture(GL_TEXTURE_2D, textureId);
-  glTexImage2D(GL_TEXTURE_2D, 0, glInternalFormat, width, height, 0, glFormat, GL_FLOAT, 0);
+  glTexImage2D(GL_TEXTURE_2D, 0, glInternalFormat, width, height, 0, glFormat, type, 0);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clamp);

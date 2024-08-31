@@ -33,7 +33,8 @@ void Cosmodrone::StartGame(Tachyon* tachyon) {
 
     plane.position = tVec3f(0, -600.f, -800.f);
     plane.scale = tVec3f(1000.f, 1.f, 1000.f);
-    plane.color = tVec3f(1.f, 0.4f, 0.2f);
+    plane.color = tVec3f(0.9f, 1.f, 1.f);
+    plane.material = tVec4f(0.6f, 0.5f, 0, 0);
 
     commit(plane);
   }
@@ -45,7 +46,22 @@ void Cosmodrone::StartGame(Tachyon* tachyon) {
 
         sphere.position = tVec3f(150.f * (i - 4) + 75.f, -300.f, 150.f * (j - 2) - 800.f + 75.f);
         sphere.scale = tVec3f(50.f);
-        sphere.color = tVec3f(1.f, 0.1f, 0.1f);
+
+        float progress = float(i) / 7.f;
+
+        if (j == 0) {
+          sphere.material = tVec4f(progress, 0, 0, 0);
+          sphere.color = tVec3f(1.f, 0.1f, 0.1f);
+        } else if (j == 1) {
+          sphere.material = tVec4f(0.5f, progress, 0, 0);
+          sphere.color = tVec3f(1.f, 0.4f, 0.1f);
+        } else if (j == 2) {
+          sphere.material = tVec4f(0.6f, 0, progress, 0);
+          sphere.color = tVec3f(0.3f, 0.5f, 1.f);
+        } else {
+          sphere.material = tVec4f(0.6f, 0, 0, progress);
+          sphere.color = tVec3f(1.f, 0.9f, 0.7f);
+        }
 
         commit(sphere);
       }
@@ -86,11 +102,13 @@ void Cosmodrone::RunGame(Tachyon* tachyon, const float dt) {
     sun.scale = tVec3f(40.f);
     sun.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), tachyon->running_time);
     sun.color = tVec3f(1.f, 0, 0);
+    sun.material = tVec4f(0.3f, 1.f, 0, 0);
 
     sun2.position = tVec3f(100.f, 50.f * cosf(tachyon->running_time * 3.f), -800.f);
     sun2.scale = tVec3f(40.f);
     sun2.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -tachyon->running_time);
     sun2.color = tVec3f(0, 0, 1.f);
+    sun2.material = tVec4f(0.3f, 1.f, 0, 0);
 
     commit(sun);
     commit(sun2);
@@ -105,11 +123,13 @@ void Cosmodrone::RunGame(Tachyon* tachyon, const float dt) {
     moon.scale = tVec3f(40.f);
     moon.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), tachyon->running_time);
     moon.color = tVec3f(1.f, 0, 0.f);
+    moon.material = tVec4f(0.3f, 1.f, 0, 0);
 
     moon2.position = tVec3f(300.f, 50.f * sinf(tachyon->running_time * 3.f), -800.f);
     moon2.scale = tVec3f(40.f);
     moon2.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -tachyon->running_time);
     moon2.color = tVec3f(0, 0, 1.f);
+    moon2.material = tVec4f(0.3f, 1.f, 0, 0);
 
     commit(moon);
     commit(moon2);

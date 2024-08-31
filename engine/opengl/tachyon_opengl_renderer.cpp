@@ -325,7 +325,7 @@ void Tachyon_InitOpenGLRenderer(Tachyon* tachyon) {
     g_buffer.init();
     g_buffer.setSize(INTERNAL_WIDTH, INTERNAL_HEIGHT);
     g_buffer.addColorAttachment(ColorFormat::RGBA);
-    g_buffer.addColorAttachment(ColorFormat::RGBA8);
+    g_buffer.addColorAttachment(ColorFormat::RGBA8UI);
     g_buffer.addDepthStencilAttachment();
     g_buffer.bindColorAttachments();
   }

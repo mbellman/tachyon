@@ -21,6 +21,7 @@ enum ColorFormat {
   RGB16,
   RGBA,
   RGBA8,
+  RGBA8UI,
   RGBA16
 };
 

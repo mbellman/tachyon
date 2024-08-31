@@ -1,7 +1,7 @@
 #version 460 core
 
 uniform sampler2D in_normal_and_depth;
-uniform sampler2D in_color_and_material;
+uniform usampler2D in_color_and_material;
 uniform mat4 inverse_projection_matrix;
 uniform mat4 inverse_view_matrix;
 uniform vec3 camera_position;
@@ -102,7 +102,7 @@ float FastGeometryGGX(float NdotH, float roughness, float metalness) {
 }
 
 float FastClearcoat(float NdotH, float NdotV, float clearcoat) {
-  return clearcoat * (FastDistributionGGX(NdotH, 0.1) + 0.5 * pow(1.0 - NdotV, 8));
+  return clearcoat * (FastDistributionGGX(NdotH, 0.1) + pow(1.0 - NdotV, 8));
 }
 
 float FastSubsurface(float NdotV, float subsurface) {
@@ -141,22 +141,46 @@ vec3 AmbientFresnel(float NdotV) {
   return 0.002 * vec3(pow(1 - NdotV, 5));
 }
 
+vec3 UnpackColor(uvec4 surface) {
+  float r = float((surface.x & 0xF0) >> 4) / 15.0;
+  float g = float(surface.x & 0x0F) / 15.0;
+  float b = float((surface.y & 0xF0) >> 4) / 15.0;
+
+  return vec3(r, g, b);
+}
+
+struct Material {
+  float roughness;
+  float metalness;
+  float clearcoat;
+  float subsurface;
+};
+
+Material UnpackMaterial(uvec4 surface) {
+  float roughness = float((surface.z & 0xF0) >> 4) / 15.0;
+  float metalness = float(surface.z & 0x0F) / 15.0;
+  float clearcoat = float((surface.w & 0xF0) >> 4) / 15.0;
+  float subsurface = float(surface.w & 0x0F) / 15.0;
+
+  return Material(roughness, metalness, clearcoat, subsurface);
+}
+
 void main() {
   vec4 frag_normal_and_depth = texture(in_normal_and_depth, fragUv);
-  vec4 frag_color_and_material = texture(in_color_and_material, fragUv);
+  uvec4 frag_color_and_material = texture(in_color_and_material, fragUv);
 
   vec3 N = frag_normal_and_depth.xyz;
-  vec3 albedo = frag_color_and_material.rgb;
+  vec3 albedo = UnpackColor(frag_color_and_material);
+  Material material = UnpackMaterial(frag_color_and_material);
   vec3 position = GetWorldPosition(frag_normal_and_depth.w, fragUv, inverse_projection_matrix, inverse_view_matrix);
 
   vec3 V = normalize(camera_position - position);
   float NdotV = max(dot(N, V), 0.0);
 
-  // @temporary @todo get material
-  float roughness = 0.6;
-  float metalness = 0.0;
-  float clearcoat = 0.0;
-  float subsurface = 0.0;
+  float roughness = material.roughness;
+  float metalness = material.metalness;
+  float clearcoat = material.clearcoat;
+  float subsurface = material.subsurface;
 
   if (roughness < 0.05) roughness = 0.05;
 

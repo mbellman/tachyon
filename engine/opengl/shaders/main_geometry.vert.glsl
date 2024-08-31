@@ -10,8 +10,7 @@ layout (location = 3) in vec2 vertexUv;
 layout (location = 4) in uint modelSurface;
 layout (location = 5) in mat4 modelMatrix;
 
-flat out vec3 fragColor;
-flat out vec4 fragMaterial;
+flat out uvec4 fragSurface;
 out vec3 fragPosition;
 out vec3 fragNormal;
 out vec3 fragTangent;
@@ -31,21 +30,13 @@ vec3 getFragBitangent(vec3 normal, vec3 tangent) {
   return cross(tangent, normal);
 }
 
-vec3 UnpackColor(uint surface) {
-  float r = float((surface & 0xF0000000) >> 28) / 15.0;
-  float g = float((surface & 0x0F000000) >> 24) / 15.0;
-  float b = float((surface & 0x00F00000) >> 20) / 15.0;
+uvec4 SurfaceToUVec4(uint surface) {
+  uint roughness = ((surface & 0xFF000000) >> 24);
+  uint metalness = ((surface & 0x00FF0000) >> 16);
+  uint clearcoat = ((surface & 0x0000FF00) >> 8);
+  uint subsurface = surface & 0x000000FF;
 
-  return vec3(r, g, b);
-}
-
-vec4 UnpackMaterial(uint surface) {
-  float r = float((surface & 0x0000F000) >> 12) / 15.0;
-  float m = float((surface & 0x00000F00) >> 8) / 15.0;
-  float c = float((surface & 0x000000F0) >> 4) / 15.0;
-  float s = float(surface & 0x0000000F) / 15.0;
-
-  return vec4(r, m, c, s);
+  return uvec4(roughness, metalness, clearcoat, subsurface);
 }
 
 void main() {
@@ -54,8 +45,7 @@ void main() {
 
   gl_Position = mat_view_projection * world_position;
 
-  fragColor = UnpackColor(modelSurface);
-  fragMaterial = UnpackMaterial(modelSurface);
+  fragSurface = SurfaceToUVec4(modelSurface);
   fragPosition = world_position.xyz;
   fragNormal = normal_matrix * vertexNormal;
   fragTangent = normal_matrix * vertexTangent;
