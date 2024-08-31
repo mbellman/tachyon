@@ -83,15 +83,15 @@ static void StoreShaderUniforms(tOpenGLShaders& shaders) {
   store_shader_uniform(surface, background);
 
   store_shader_uniform(sky_and_directional_lighting, transform);
-  store_shader_uniform(sky_and_directional_lighting, in_color_and_depth);
-  store_shader_uniform(sky_and_directional_lighting, in_normal_and_material);
+  store_shader_uniform(sky_and_directional_lighting, in_normal_and_depth);
+  store_shader_uniform(sky_and_directional_lighting, in_color_and_material);
   store_shader_uniform(sky_and_directional_lighting, inverse_projection_matrix);
   store_shader_uniform(sky_and_directional_lighting, inverse_view_matrix);
   store_shader_uniform(sky_and_directional_lighting, camera_position);
 
   store_shader_uniform(debug_view, transform);
-  store_shader_uniform(debug_view, in_color_and_depth);
-  store_shader_uniform(debug_view, in_normal_and_material);
+  store_shader_uniform(debug_view, in_normal_and_depth);
+  store_shader_uniform(debug_view, in_color_and_material);
   store_shader_uniform(debug_view, inverse_projection_matrix);
   store_shader_uniform(debug_view, inverse_view_matrix);
 }

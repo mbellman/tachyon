@@ -30,8 +30,8 @@ struct tUniformLocations {
 
   uniform_locations(
     transform,
-    in_color_and_depth,
-    in_normal_and_material,
+    in_normal_and_depth,
+    in_color_and_material,
     inverse_projection_matrix,
     inverse_view_matrix,
     camera_position
@@ -46,8 +46,8 @@ struct tUniformLocations {
   // @todo only in dev mode
   uniform_locations(
     transform,
-    in_color_and_depth,
-    in_normal_and_material,
+    in_normal_and_depth,
+    in_color_and_material,
     inverse_projection_matrix,
     inverse_view_matrix
   ) debug_view;

@@ -260,8 +260,8 @@ static void RenderDebugView(Tachyon* tachyon) {
 
   glUseProgram(shader.program);
   Tachyon_SetShaderVec4f(locations.transform, { 0.f, 0.f, 1.f, 1.f });
-  Tachyon_SetShaderInt(locations.in_color_and_depth, 0);
-  Tachyon_SetShaderInt(locations.in_normal_and_material, 1);
+  Tachyon_SetShaderInt(locations.in_normal_and_depth, 0);
+  Tachyon_SetShaderInt(locations.in_color_and_material, 1);
   Tachyon_SetShaderMat4f(locations.inverse_projection_matrix, ctx.inverse_projection_matrix);
   Tachyon_SetShaderMat4f(locations.inverse_view_matrix, ctx.inverse_view_matrix);
 
@@ -282,8 +282,8 @@ static void RenderSkyAndDirectionalLighting(Tachyon* tachyon) {
 
   glUseProgram(shader.program);
   Tachyon_SetShaderVec4f(locations.transform, { 0.f, 0.f, 1.f, 1.f });
-  Tachyon_SetShaderInt(locations.in_color_and_depth, 0);
-  Tachyon_SetShaderInt(locations.in_normal_and_material, 1);
+  Tachyon_SetShaderInt(locations.in_normal_and_depth, 0);
+  Tachyon_SetShaderInt(locations.in_color_and_material, 1);
   Tachyon_SetShaderMat4f(locations.inverse_projection_matrix, ctx.inverse_projection_matrix);
   Tachyon_SetShaderMat4f(locations.inverse_view_matrix, ctx.inverse_view_matrix);
   Tachyon_SetShaderVec3f(locations.camera_position, ctx.camera_position);
@@ -325,7 +325,7 @@ void Tachyon_InitOpenGLRenderer(Tachyon* tachyon) {
     g_buffer.init();
     g_buffer.setSize(INTERNAL_WIDTH, INTERNAL_HEIGHT);
     g_buffer.addColorAttachment(ColorFormat::RGBA);
-    g_buffer.addColorAttachment(ColorFormat::RGBA);
+    g_buffer.addColorAttachment(ColorFormat::RGBA8);
     g_buffer.addDepthStencilAttachment();
     g_buffer.bindColorAttachments();
   }

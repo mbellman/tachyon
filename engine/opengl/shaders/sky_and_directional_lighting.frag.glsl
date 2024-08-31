@@ -1,7 +1,7 @@
 #version 460 core
 
-uniform sampler2D in_color_and_depth;
-uniform sampler2D in_normal_and_material;
+uniform sampler2D in_normal_and_depth;
+uniform sampler2D in_color_and_material;
 uniform mat4 inverse_projection_matrix;
 uniform mat4 inverse_view_matrix;
 uniform vec3 camera_position;
@@ -142,16 +142,17 @@ vec3 AmbientFresnel(float NdotV) {
 }
 
 void main() {
-  vec4 frag_color_and_depth = texture(in_color_and_depth, fragUv);
-  vec4 frag_normal_and_material = texture(in_normal_and_material, fragUv);
+  vec4 frag_normal_and_depth = texture(in_normal_and_depth, fragUv);
+  vec4 frag_color_and_material = texture(in_color_and_material, fragUv);
 
-  vec3 albedo = frag_color_and_depth.rgb;
-  vec3 N = frag_normal_and_material.xyz;
-  vec3 position = GetWorldPosition(frag_color_and_depth.w, fragUv, inverse_projection_matrix, inverse_view_matrix);
+  vec3 N = frag_normal_and_depth.xyz;
+  vec3 albedo = frag_color_and_material.rgb;
+  vec3 position = GetWorldPosition(frag_normal_and_depth.w, fragUv, inverse_projection_matrix, inverse_view_matrix);
 
   vec3 V = normalize(camera_position - position);
   float NdotV = max(dot(N, V), 0.0);
 
+  // @temporary @todo get material
   float roughness = 0.6;
   float metalness = 0.0;
   float clearcoat = 0.0;
@@ -166,11 +167,11 @@ void main() {
 
   color += AmbientFresnel(NdotV);
 
-  if (frag_color_and_depth.w >= 1.0) color = vec3(0);
+  if (frag_normal_and_depth.w >= 1.0) color = vec3(0);
 
   // @todo move to post shader
   color = color / (color + vec3(1.0));
   color = pow(color, vec3(1.0 / 2.2));
 
-  out_color_and_depth = vec4(color, frag_color_and_depth.w);
+  out_color_and_depth = vec4(color, frag_normal_and_depth.w);
 }

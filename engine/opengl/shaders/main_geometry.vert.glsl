@@ -11,6 +11,7 @@ layout (location = 4) in uint modelSurface;
 layout (location = 5) in mat4 modelMatrix;
 
 flat out vec3 fragColor;
+flat out vec4 fragMaterial;
 out vec3 fragPosition;
 out vec3 fragNormal;
 out vec3 fragTangent;
@@ -38,6 +39,15 @@ vec3 UnpackColor(uint surface) {
   return vec3(r, g, b);
 }
 
+vec4 UnpackMaterial(uint surface) {
+  float r = float((surface & 0x0000F000) >> 12) / 15.0;
+  float m = float((surface & 0x00000F00) >> 8) / 15.0;
+  float c = float((surface & 0x000000F0) >> 4) / 15.0;
+  float s = float(surface & 0x0000000F) / 15.0;
+
+  return vec4(r, m, c, s);
+}
+
 void main() {
   vec4 world_position = modelMatrix * vec4(vertexPosition, 1.0);
   mat3 normal_matrix = transpose(inverse(mat3(modelMatrix)));
@@ -45,6 +55,7 @@ void main() {
   gl_Position = mat_view_projection * world_position;
 
   fragColor = UnpackColor(modelSurface);
+  fragMaterial = UnpackMaterial(modelSurface);
   fragPosition = world_position.xyz;
   fragNormal = normal_matrix * vertexNormal;
   fragTangent = normal_matrix * vertexTangent;

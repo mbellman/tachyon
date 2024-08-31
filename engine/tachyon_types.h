@@ -37,10 +37,10 @@ struct tMaterial {
   uint16 data;
 
   tMaterial(const tVec4f& material) {
-    uint8 roughness = uint8(material.x * 15.f) << 12;
-    uint8 metalness = uint8(material.y * 15.f) << 8;
-    uint8 clearcoat = uint8(material.z * 15.f) << 4;
-    uint8 subsurface = uint8(material.w * 15.f);
+    uint16 roughness = uint16(material.x * 15.f) << 12;
+    uint16 metalness = uint16(material.y * 15.f) << 8;
+    uint16 clearcoat = uint16(material.z * 15.f) << 4;
+    uint16 subsurface = uint16(material.w * 15.f);
 
     data = roughness | metalness | clearcoat | subsurface;
   }
