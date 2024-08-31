@@ -68,6 +68,11 @@ static void RenderScreenQuad(Tachyon* tachyon) {
   glBindVertexArray(quad.vao);
   glBindBuffer(GL_ARRAY_BUFFER, quad.vbo);
   glDrawArrays(GL_TRIANGLES, 0, 6);
+
+  // @todo dev mode only
+  {
+    renderer.total_draw_calls += 1;
+  }
 }
 
 static void RenderSurface(Tachyon* tachyon, SDL_Surface* surface, uint32 x, uint32 y, uint32 w, uint32 h, const tVec3f& color, const tVec4f& background) {
@@ -114,7 +119,7 @@ static void HandleDeveloperTools(Tachyon* tachyon) {
   {
     // Toggle the G-Buffer view with TAB
     if (did_press_key(tKey::TAB)) {
-      renderer.show_debug_view = !renderer.show_debug_view;
+      renderer.show_g_buffer_view = !renderer.show_g_buffer_view;
     }
 
     if (did_press_key(tKey::V)) {
@@ -125,27 +130,29 @@ static void HandleDeveloperTools(Tachyon* tachyon) {
   }
 
   // Developer overlay
-  // @todo load messages into a list and render everything in a loop
   {
-    auto view_label = "View: " + std::string(
-      renderer.show_debug_view ? "DEBUG" : "DEFAULT"
-    );
-
-    RenderText(tachyon, tachyon->developer_overlay_font, view_label.c_str(), 10, 10, tVec3f(1.f), tVec4f(0.f));
-
-    auto runtime_label = "Running time: " + std::to_string(tachyon->running_time);
-
-    RenderText(tachyon, tachyon->developer_overlay_font, runtime_label.c_str(), 10, 35, tVec3f(1.f), tVec4f(0.f));
+    #define String(v) std::to_string(v)
 
     auto render_fps = uint32(1000000.f / (float)renderer.last_render_time_in_microseconds);
-    auto render_fps_label = "Render time: " + std::to_string(renderer.last_render_time_in_microseconds) + "us (" + std::to_string(render_fps) + "fps)";
-
-    RenderText(tachyon, tachyon->developer_overlay_font, render_fps_label.c_str(), 10, 60, tVec3f(1.f), tVec4f(0.f));
-
     auto frame_fps = uint32(1000000.f / (float)tachyon->last_frame_time_in_microseconds);
-    auto frame_fps_label = "Frame time: " + std::to_string(tachyon->last_frame_time_in_microseconds) + "us (" + std::to_string(frame_fps) + "fps)";
 
-    RenderText(tachyon, tachyon->developer_overlay_font, frame_fps_label.c_str(), 10, 85, tVec3f(1.f), tVec4f(0.f));
+    std::vector<std::string> labels = {
+      "View: " + std::string(renderer.show_g_buffer_view ? "G-BUFFER" : "DEFAULT"),
+      "Running time: " + String(tachyon->running_time),
+      "Render time: " + String(renderer.last_render_time_in_microseconds) + "us (" + String(render_fps) + "fps)",
+      "Frame time: " + String(tachyon->last_frame_time_in_microseconds) + "us (" + String(frame_fps) + "fps)",
+      "Triangles: " + String(renderer.total_triangles),
+      "Vertices: " + String(renderer.total_vertices),
+      "Draw calls: " + String(renderer.total_draw_calls)
+    };
+
+    uint32 y_offset = 10;
+
+    for (auto& label : labels) {
+      RenderText(tachyon, tachyon->developer_overlay_font, label.c_str(), 10, y_offset, tVec3f(1.f), tVec4f(0.f));
+
+      y_offset += 25;
+    }
   }
 }
 
@@ -226,6 +233,7 @@ static void RenderStaticGeometry(Tachyon* tachyon) {
 
   auto& records = tachyon->mesh_pack.mesh_records;
   auto totalMeshes = records.size();
+  // @todo avoid allocating + deleting each frame
   auto* commands = new DrawElementsIndirectCommand[totalMeshes];
 
   for (uint32 i = 0; i < totalMeshes; i++) {
@@ -237,6 +245,12 @@ static void RenderStaticGeometry(Tachyon* tachyon) {
     command.instanceCount = record.group.total_visible;
     command.baseInstance = record.group.object_offset;
     command.baseVertex = record.vertex_start;
+
+    // @todo dev mode only
+    {
+      renderer.total_triangles += command.count * command.instanceCount;
+      renderer.total_vertices += (record.vertex_end - record.vertex_start) * command.instanceCount;
+    }
   }
 
   glBindBuffer(GL_DRAW_INDIRECT_BUFFER, renderer.indirect_buffer);
@@ -245,9 +259,14 @@ static void RenderStaticGeometry(Tachyon* tachyon) {
   glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, 0, totalMeshes, 0);
 
   delete[] commands;
+
+  // @todo dev mode only
+  {
+    renderer.total_draw_calls += 1;
+  }
 }
 
-static void RenderDebugView(Tachyon* tachyon) {
+static void RenderGBufferView(Tachyon* tachyon) {
   auto& renderer = get_renderer();
   auto& shader = renderer.shaders.debug_view;
   auto& locations = renderer.shaders.locations.debug_view;
@@ -358,6 +377,13 @@ void Tachyon_RenderSceneInOpenGL(Tachyon* tachyon) {
     renderer.last_shader_hot_reload_time = tachyon->running_time;
   }
 
+  // @todo dev mode only
+  {
+    renderer.total_triangles = 0;
+    renderer.total_vertices = 0;
+    renderer.total_draw_calls = 0;
+  }
+
   UpdateRendererContext(tachyon);
   RenderStaticGeometry(tachyon);
 
@@ -366,8 +392,8 @@ void Tachyon_RenderSceneInOpenGL(Tachyon* tachyon) {
   glDisable(GL_CULL_FACE);
   glDisable(GL_DEPTH_TEST);
 
-  if (renderer.show_debug_view) {
-    RenderDebugView(tachyon);
+  if (renderer.show_g_buffer_view) {
+    RenderGBufferView(tachyon);
   } else {
     RenderSkyAndDirectionalLighting(tachyon);
   }

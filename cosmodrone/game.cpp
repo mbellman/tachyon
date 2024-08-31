@@ -60,7 +60,7 @@ void Cosmodrone::StartGame(Tachyon* tachyon) {
           sphere.color = tVec3f(0.3f, 0.5f, 1.f);
         } else {
           sphere.material = tVec4f(0.6f, 0, 0, progress);
-          sphere.color = tVec3f(1.f, 0.9f, 0.7f);
+          sphere.color = tVec3f(1.f, 0.8f, 0.6f);
         }
 
         commit(sphere);

@@ -33,9 +33,12 @@ struct tOpenGLRenderer {
   OpenGLFrameBuffer g_buffer;
 
   // @todo dev mode only
+  bool show_g_buffer_view = false;
   float last_shader_hot_reload_time = 0.f;
   uint64 last_render_time_in_microseconds = 0;
-  bool show_debug_view = false;
+  uint32 total_triangles = 0;
+  uint32 total_vertices = 0;
+  uint32 total_draw_calls = 0;
 };
 
 void Tachyon_InitOpenGLRenderer(Tachyon* tachyon);
