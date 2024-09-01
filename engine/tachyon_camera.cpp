@@ -49,7 +49,7 @@ void tOrientation::face(const tVec3f& forward, const tVec3f& up) {
   float uDotY = tVec3f::dot(up, worldUp);
 
   // Calculate yaw as a function of forward z/x
-  yaw = -1.0f * (atan2f(forward.z, forward.x) - HALF_PI);
+  yaw = atan2f(forward.z, forward.x) + HALF_PI;
 
   if (uDotY < 0.0f) {
     // If upside-down, flip the yaw by 180 degrees
@@ -60,9 +60,9 @@ void tOrientation::face(const tVec3f& forward, const tVec3f& up) {
 
   // Rotate the up vector back onto the y/z plane,
   // and calculate pitch as a function of y/z
-  rUp.z = up.x * sinf(yaw) + up.z * cosf(yaw);
+  rUp.z = up.x * sinf(-yaw) + up.z * cosf(-yaw);
 
-  pitch = -1.0f * (atan2f(rUp.y, rUp.z) - HALF_PI);
+  pitch = atan2f(rUp.y, rUp.z) - HALF_PI;
 }
 
 tOrientation tOrientation::invert() const {

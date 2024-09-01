@@ -21,8 +21,8 @@ static void ComputeNormals(tMesh& mesh) {
 
   for (uint32 i = 0; i < face_elements.size(); i += 3) {
     tVertex& v1 = vertices[face_elements[i]];
-    tVertex& v2 = vertices[face_elements[i + 2]];
-    tVertex& v3 = vertices[face_elements[i + 1]];
+    tVertex& v2 = vertices[face_elements[i + 1]];
+    tVertex& v3 = vertices[face_elements[i + 2]];
 
     tVec3f normal = tVec3f::cross(v2.position - v1.position, v3.position - v1.position).unit();
 
@@ -216,7 +216,7 @@ tMesh Tachyon_CreateSphereMesh(uint8 divisions) {
     for (uint8 j = 0; j < horizontal_divisions; j++) {
       float y_progress = float(i) / float(divisions - 1);
       float radius = sinf(y_progress * PI);
-      float x = radius * -cosf(float(j) / float(horizontal_divisions) * TAU);
+      float x = radius * cosf(float(j) / float(horizontal_divisions) * TAU);
       float y = 1.f - 2.f * EaseInOut(y_progress);
       float z = radius * sinf(float(j) / float(horizontal_divisions) * TAU);
 
