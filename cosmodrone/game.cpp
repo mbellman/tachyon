@@ -82,10 +82,25 @@ static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
   auto& thrusters = objects(meshes.thrusters)[0];
   auto& trim = objects(meshes.trim)[0];
 
+  // @todo add an engine constant for pi/tau/half pi
+  float pi = 3.141592f;
+  float yaw = atan2f(state.ship_velocity.x, state.ship_velocity.z) + pi;
+
+  float pitch = state.ship_velocity.magnitude() > 0.f
+    ? state.ship_velocity.unit().y * pi/2.f
+    : 0.f;
+
+  auto rotation = (
+    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), yaw) *
+    Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), pitch)
+  );
+
   hull.position = state.ship_position;
   streams.position = state.ship_position;
   thrusters.position = state.ship_position;
   trim.position = state.ship_position;
+
+  hull.rotation = streams.rotation = thrusters.rotation = trim.rotation = rotation;
 
   commit(hull);
   commit(streams);
