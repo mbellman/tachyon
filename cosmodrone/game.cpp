@@ -17,6 +17,9 @@ static struct Meshes {
 static struct State {
   tCamera3p camera3p;
 
+  float current_ship_pitch = 0.f;
+  float current_ship_yaw = 0.f;
+
   tVec3f ship_position;
   tVec3f ship_velocity;
 } state;
@@ -76,6 +79,24 @@ static void LoadTestShip(Tachyon* tachyon) {
   meshes.trim = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/test-ship/trim.obj"), 1);
 }
 
+// @todo move
+static inline float Lerpf(float a, float b, float alpha) {
+  return a + (b - a) * alpha;
+}
+
+// @todo move
+static inline float LerpCircularF(float a, float b, float alpha, float maxRange) {
+  float range = b - a;
+
+  if (range > maxRange) {
+    a += maxRange * 2.f;
+  } else if (range < -maxRange) {
+    a -= maxRange * 2.f;
+  }
+
+  return a + (b - a) * alpha;
+}
+
 static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
   auto& camera = tachyon->scene.camera;
 
@@ -92,9 +113,14 @@ static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
     ? state.ship_velocity.unit().y * pi/2.f
     : 0.f;
 
+  if (is_key_held(tKey::W)) {
+    state.current_ship_yaw = LerpCircularF(state.current_ship_yaw, -camera.orientation.yaw, dt, pi);
+    state.current_ship_pitch = LerpCircularF(state.current_ship_pitch, -camera.orientation.pitch, dt, pi);
+  }
+
   auto rotation = (
-    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -camera.orientation.yaw) *
-    Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -camera.orientation.pitch)
+    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), state.current_ship_yaw) *
+    Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), state.current_ship_pitch)
   );
 
   hull.position = state.ship_position;
