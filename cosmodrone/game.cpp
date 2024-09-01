@@ -77,6 +77,8 @@ static void LoadTestShip(Tachyon* tachyon) {
 }
 
 static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
+  auto& camera = tachyon->scene.camera;
+
   auto& hull = objects(meshes.hull)[0];
   auto& streams = objects(meshes.streams)[0];
   auto& thrusters = objects(meshes.thrusters)[0];
@@ -91,8 +93,8 @@ static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
     : 0.f;
 
   auto rotation = (
-    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), yaw) *
-    Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), pitch)
+    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -camera.orientation.yaw) *
+    Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -camera.orientation.pitch)
   );
 
   hull.position = state.ship_position;
@@ -135,13 +137,16 @@ void Cosmodrone::RunGame(Tachyon* tachyon, const float dt) {
     // camera.orientation.yaw += (float)tachyon->mouse_delta_x / 1000.f;
     // camera.orientation.pitch += (float)tachyon->mouse_delta_y / 1000.f;
 
-    state.camera3p.azimuth += (float)tachyon->mouse_delta_x / 1000.f;
+    if (state.camera3p.isUpsideDown()) {
+      state.camera3p.azimuth -= (float)tachyon->mouse_delta_x / 1000.f;
+    } else {
+      state.camera3p.azimuth += (float)tachyon->mouse_delta_x / 1000.f;
+    }
+
     state.camera3p.altitude += (float)tachyon->mouse_delta_y / 1000.f;
   }
 
   state.camera3p.radius = 1000.f;
-
-  camera.position = state.camera3p.calculatePosition();
 
   // @todo move this into a separate free-camera-mode handler
   {
@@ -170,8 +175,6 @@ void Cosmodrone::RunGame(Tachyon* tachyon, const float dt) {
     }
 
     state.ship_position += state.ship_velocity * dt;
-
-    UpdateShip(tachyon, state, dt);
   }
 
   tVec3f camera_look_at_target = state.ship_position;
@@ -189,5 +192,10 @@ void Cosmodrone::RunGame(Tachyon* tachyon, const float dt) {
       : tVec3f::cross(sideways, forward);
 
     camera.orientation.face(forward, up);
+  }
+
+  // @todo move this into an animation handler
+  {
+    UpdateShip(tachyon, state, dt);
   }
 }
