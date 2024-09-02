@@ -185,7 +185,7 @@ static void RenderStaticGeometry(Tachyon* tachyon) {
   auto& shader = renderer.shaders.main_geometry;
   auto& locations = renderer.shaders.locations.main_geometry;
   auto& ctx = renderer.ctx;
-  auto& glPack = renderer.mesh_pack;
+  auto& gl_mesh_pack = renderer.mesh_pack;
 
   glEnable(GL_CULL_FACE);
   glEnable(GL_DEPTH_TEST);
@@ -201,25 +201,17 @@ static void RenderStaticGeometry(Tachyon* tachyon) {
   glUseProgram(shader.program);
   Tachyon_SetShaderMat4f(locations.mat_view_projection, mat_view_projection);
 
-  glBindVertexArray(glPack.vao);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glPack.ebo);
-
-  // @temporary
-  // @todo buffer sub data per updated mesh record/object group
-  {
-    // Buffer surface data
-    auto& surfaces = tachyon->surfaces;
-    glBindBuffer(GL_ARRAY_BUFFER, glPack.buffers[SURFACE_BUFFER]);
-    glBufferData(GL_ARRAY_BUFFER, surfaces.size() * sizeof(uint32), surfaces.data(), GL_DYNAMIC_DRAW);
-
-    // Buffer matrices
-    auto& matrices = tachyon->matrices;
-    glBindBuffer(GL_ARRAY_BUFFER, glPack.buffers[MATRIX_BUFFER]);
-    glBufferData(GL_ARRAY_BUFFER, matrices.size() * sizeof(tMat4f), matrices.data(), GL_DYNAMIC_DRAW);
-  }
+  glBindVertexArray(gl_mesh_pack.vao);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gl_mesh_pack.ebo);
 
   for (auto& record : tachyon->mesh_pack.mesh_records) {
-    // @todo do the matrix/surface buffering here
+    if (!record.group.buffered) {
+      glBindBuffer(GL_ARRAY_BUFFER, gl_mesh_pack.buffers[SURFACE_BUFFER]);
+      glBufferSubData(GL_ARRAY_BUFFER, record.group.object_offset * sizeof(uint32), record.group.total_visible * sizeof(uint32), record.group.surfaces);
+
+      glBindBuffer(GL_ARRAY_BUFFER, gl_mesh_pack.buffers[MATRIX_BUFFER]);
+      glBufferSubData(GL_ARRAY_BUFFER, record.group.object_offset * sizeof(tMat4f), record.group.total_visible * sizeof(tMat4f), record.group.matrices);
+    }
 
     record.group.buffered = true;
   }
@@ -362,6 +354,18 @@ void Tachyon_InitOpenGLRenderer(Tachyon* tachyon) {
   {
     renderer->mesh_pack = Tachyon_CreateOpenGLMeshPack(tachyon);
     renderer->screen_quad = Tachyon_CreateOpenGLScreenQuad(tachyon);
+  }
+
+  {
+    // Buffer surface data
+    auto& surfaces = tachyon->surfaces;
+    glBindBuffer(GL_ARRAY_BUFFER, renderer->mesh_pack.buffers[SURFACE_BUFFER]);
+    glBufferData(GL_ARRAY_BUFFER, surfaces.size() * sizeof(uint32), surfaces.data(), GL_DYNAMIC_DRAW);
+
+    // Buffer matrices
+    auto& matrices = tachyon->matrices;
+    glBindBuffer(GL_ARRAY_BUFFER, renderer->mesh_pack.buffers[MATRIX_BUFFER]);
+    glBufferData(GL_ARRAY_BUFFER, matrices.size() * sizeof(tMat4f), matrices.data(), GL_DYNAMIC_DRAW);
   }
 
   tachyon->renderer = renderer;
