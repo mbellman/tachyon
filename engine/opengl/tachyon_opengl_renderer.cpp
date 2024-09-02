@@ -170,7 +170,7 @@ static void UpdateRendererContext(Tachyon* tachyon) {
   ctx.projection_matrix = tMat4f::perspective(45.f, 10.f, 100000.f).transpose();
 
   ctx.view_matrix = (
-    camera.orientation.toQuaternion().toMatrix4f() *
+    camera.rotation.toMatrix4f() *
     tMat4f::translation(camera.position * tVec3f(-1.f))
   ).transpose();
 
@@ -186,6 +186,19 @@ static void RenderStaticGeometry(Tachyon* tachyon) {
   auto& locations = renderer.shaders.locations.main_geometry;
   auto& ctx = renderer.ctx;
   auto& gl_mesh_pack = renderer.mesh_pack;
+
+  // @todo have a separate method for this
+  for (auto& record : tachyon->mesh_pack.mesh_records) {
+    if (!record.group.buffered) {
+      glBindBuffer(GL_ARRAY_BUFFER, gl_mesh_pack.buffers[SURFACE_BUFFER]);
+      glBufferSubData(GL_ARRAY_BUFFER, record.group.object_offset * sizeof(uint32), record.group.total_visible * sizeof(uint32), record.group.surfaces);
+
+      glBindBuffer(GL_ARRAY_BUFFER, gl_mesh_pack.buffers[MATRIX_BUFFER]);
+      glBufferSubData(GL_ARRAY_BUFFER, record.group.object_offset * sizeof(tMat4f), record.group.total_visible * sizeof(tMat4f), record.group.matrices);
+    }
+
+    record.group.buffered = true;
+  }
 
   glEnable(GL_CULL_FACE);
   glEnable(GL_DEPTH_TEST);
@@ -203,18 +216,6 @@ static void RenderStaticGeometry(Tachyon* tachyon) {
 
   glBindVertexArray(gl_mesh_pack.vao);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gl_mesh_pack.ebo);
-
-  for (auto& record : tachyon->mesh_pack.mesh_records) {
-    if (!record.group.buffered) {
-      glBindBuffer(GL_ARRAY_BUFFER, gl_mesh_pack.buffers[SURFACE_BUFFER]);
-      glBufferSubData(GL_ARRAY_BUFFER, record.group.object_offset * sizeof(uint32), record.group.total_visible * sizeof(uint32), record.group.surfaces);
-
-      glBindBuffer(GL_ARRAY_BUFFER, gl_mesh_pack.buffers[MATRIX_BUFFER]);
-      glBufferSubData(GL_ARRAY_BUFFER, record.group.object_offset * sizeof(tMat4f), record.group.total_visible * sizeof(tMat4f), record.group.matrices);
-    }
-
-    record.group.buffered = true;
-  }
 
   struct DrawElementsIndirectCommand {
     GLuint count;

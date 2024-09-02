@@ -25,8 +25,11 @@ struct tVec3f {
   static tVec3f cross(const tVec3f& v1, const tVec3f& v2);
   static float dot(const tVec3f& v1, const tVec3f& v2);
 
+  tVec3f invert() const;
   float magnitude() const;
   tVec3f unit() const;
+
+  void debug() const;
 };
 
 struct tVec4f {

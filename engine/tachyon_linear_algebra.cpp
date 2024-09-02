@@ -1,4 +1,5 @@
 #include <math.h>
+#include <stdio.h>
 
 #include "engine/tachyon_aliases.h"
 #include "engine/tachyon_linear_algebra.h"
@@ -53,6 +54,10 @@ float tVec3f::dot(const tVec3f& v1, const tVec3f& v2) {
   return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 }
 
+tVec3f tVec3f::invert() const {
+  return *this * -1.f;
+}
+
 float tVec3f::magnitude() const {
   return sqrtf(x*x + y*y + z*z);
 }
@@ -65,6 +70,10 @@ tVec3f tVec3f::unit() const {
     y / m,
     z / m
   };
+}
+
+void tVec3f::debug() const {
+  printf("{ x: %f, y: %f, z: %f }\n", x, y, z);
 }
 
 tMat4f tMat4f::operator*(const tMat4f& matrix) const {

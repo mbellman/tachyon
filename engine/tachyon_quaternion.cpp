@@ -104,7 +104,7 @@ void Quaternion::operator*=(const Quaternion& q2) {
 }
 
 tVec3f Quaternion::getDirection() const {
-  const static tVec3f forward = tVec3f(0, 0, 1.f);
+  const static tVec3f forward = tVec3f(0, 0, -1.f);
 
   return toMatrix4f().transformVec3f(forward);
 }
