@@ -17,6 +17,8 @@ static struct Meshes {
 static struct State {
   Quaternion flight_camera_rotation = Quaternion(1.f, 0, 0, 0);
 
+  tVec3f view_forward_direction;
+
   tVec3f ship_position;
   tVec3f ship_velocity;
 } state;
@@ -76,12 +78,25 @@ static void LoadTestShip(Tachyon* tachyon) {
   meshes.trim = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/test-ship/trim.obj"), 1);
 }
 
-static void HandleFlightCamera(Tachyon* tachyon, State& state) {
-  const static auto UP_VECTOR = tVec3f(0, 1.f, 0);
-  const static auto LEFT_VECTOR = tVec3f(-1.f, 0, 0);
-
+static void UpdateViewDirections(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
 
+  auto view_matrix = (
+    camera.rotation.toMatrix4f() *
+    tMat4f::translation(camera.position * tVec3f(-1.f))
+  );
+
+  state.view_forward_direction = tVec3f(
+    view_matrix.m[8],
+    view_matrix.m[9],
+    view_matrix.m[10]
+  ).invert();
+}
+
+const static auto UP_VECTOR = tVec3f(0, 1.f, 0);
+const static auto LEFT_VECTOR = tVec3f(-1.f, 0, 0);
+
+static void HandleFlightCamera(Tachyon* tachyon, State& state) {
   if (is_window_focused()) {
     Quaternion turn = (
       Quaternion::fromAxisAngle(LEFT_VECTOR, -(float)tachyon->mouse_delta_y / 1000.f) *
@@ -91,32 +106,21 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state) {
     state.flight_camera_rotation = (turn * state.flight_camera_rotation).unit();
   }
 
+  auto& camera = tachyon->scene.camera;
+
   camera.rotation = state.flight_camera_rotation;
+
+  UpdateViewDirections(tachyon, state);
+
+  camera.position = state.ship_position - state.view_forward_direction * 1000.f;
 }
 
 static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt) {
-  auto& camera = tachyon->scene.camera;
-
-  auto view_matrix = (
-    camera.rotation.toMatrix4f() *
-    tMat4f::translation(camera.position * tVec3f(-1.f))
-  );
-
-  tVec3f view_direction = tVec3f(
-    view_matrix.m[8],
-    view_matrix.m[9],
-    view_matrix.m[10]
-  ).invert();
-
   if (is_key_held(tKey::W)) {
-    state.ship_velocity += view_direction * (500.f * dt);
+    state.ship_velocity += state.view_forward_direction * (500.f * dt);
   }
 
-  tVec3f camera_look_at_target = state.ship_position;
-
   state.ship_position += state.ship_velocity * dt;
-
-  camera.position = camera_look_at_target - view_direction * 1000.f;
 }
 
 static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
@@ -202,7 +206,7 @@ void Cosmodrone::RunGame(Tachyon* tachyon, const float dt) {
     // }
   }
 
-  HandleFlightCamera(tachyon, state);
   HandleFlightControls(tachyon, state, dt);
+  HandleFlightCamera(tachyon, state);
   UpdateShip(tachyon, state, dt);
 }
