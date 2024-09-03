@@ -21,6 +21,7 @@ static struct State {
 
   tVec3f ship_position;
   tVec3f ship_velocity;
+  float ship_rotate_to_camera_speed = 0.f;
 } state;
 
 static void SetupFlightSimLevel(Tachyon* tachyon) {
@@ -96,6 +97,20 @@ static void UpdateViewDirections(Tachyon* tachyon, State& state) {
 const static auto UP_VECTOR = tVec3f(0, 1.f, 0);
 const static auto LEFT_VECTOR = tVec3f(-1.f, 0, 0);
 
+static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt) {
+  if (is_key_held(tKey::W)) {
+    state.ship_velocity += state.view_forward_direction * (500.f * dt);
+    state.ship_rotate_to_camera_speed += dt;
+
+    if (state.ship_rotate_to_camera_speed > 1.f) {
+      state.ship_rotate_to_camera_speed = 1.f;
+    }
+  }
+
+  state.ship_rotate_to_camera_speed *= (1.f - dt);
+  state.ship_position += state.ship_velocity * dt;
+}
+
 static void HandleFlightCamera(Tachyon* tachyon, State& state) {
   if (is_window_focused()) {
     Quaternion turn = (
@@ -115,14 +130,6 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state) {
   camera.position = state.ship_position - state.view_forward_direction * 1000.f;
 }
 
-static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt) {
-  if (is_key_held(tKey::W)) {
-    state.ship_velocity += state.view_forward_direction * (500.f * dt);
-  }
-
-  state.ship_position += state.ship_velocity * dt;
-}
-
 static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
   auto& camera = tachyon->scene.camera;
 
@@ -139,7 +146,7 @@ static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
   };
 
   // @todo will nlerp work here?
-  auto rotation = Quaternion::slerp(hull.rotation, target_rotation, dt);
+  auto rotation = Quaternion::slerp(hull.rotation, target_rotation, state.ship_rotate_to_camera_speed * dt);
 
   hull.position = state.ship_position;
   streams.position = state.ship_position;

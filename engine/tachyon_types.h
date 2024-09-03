@@ -49,7 +49,7 @@ struct tMaterial {
 struct tObject {
   tVec3f position;
   tVec3f scale;
-  Quaternion rotation;
+  Quaternion rotation = Quaternion(1.f, 0, 0, 0);
   tColor color = tVec3f(1.f);
   tMaterial material = tVec4f(0.6f, 0, 0, 0);
 
