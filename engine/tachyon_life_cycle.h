@@ -11,6 +11,8 @@
     Tachyon_EndFrame(tachyon);\
   }\
 
+#define is_window_focused() tachyon->is_window_focused
+
 Tachyon* Tachyon_Init();
 void Tachyon_SpawnWindow(Tachyon* tachyon, const char* title, uint32 width, uint32 height);
 void Tachyon_UseRenderBackend(Tachyon* tachyon, TachyonRenderBackend backend);

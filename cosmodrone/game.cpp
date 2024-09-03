@@ -13,25 +13,15 @@ static struct Meshes {
     trim;
 } meshes;
 
-// @todo refactor
-static struct FlightCamera {
-  Quaternion rotation = Quaternion(1.f, 0, 0, 0);
-  tVec3f forward = tVec3f(0, 0, -1.f);
-  float radius = 1.f;
-};
-
 // @todo use within function scopes
 static struct State {
-  FlightCamera flight_camera;
-
-  float current_ship_pitch = 0.f;
-  float current_ship_yaw = 0.f;
+  Quaternion flight_camera_rotation = Quaternion(1.f, 0, 0, 0);
 
   tVec3f ship_position;
   tVec3f ship_velocity;
 } state;
 
-static void SetupFlightSim(Tachyon* tachyon) {
+static void SetupFlightSimLevel(Tachyon* tachyon) {
   for (int32 i = 0; i < 40; i++) {
     for (int32 j = 0; j < 40; j++) {
       for (int32 k = 0; k < 40; k++) {
@@ -86,22 +76,47 @@ static void LoadTestShip(Tachyon* tachyon) {
   meshes.trim = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/test-ship/trim.obj"), 1);
 }
 
-// @todo move
-static inline float Lerpf(float a, float b, float alpha) {
-  return a + (b - a) * alpha;
-}
+static void HandleFlightCamera(Tachyon* tachyon, State& state) {
+  const static auto UP_VECTOR = tVec3f(0, 1.f, 0);
+  const static auto LEFT_VECTOR = tVec3f(-1.f, 0, 0);
 
-// @todo move
-static inline float LerpCircularF(float a, float b, float alpha, float maxRange) {
-  float range = b - a;
+  auto& camera = tachyon->scene.camera;
 
-  if (range > maxRange) {
-    a += maxRange * 2.f;
-  } else if (range < -maxRange) {
-    a -= maxRange * 2.f;
+  if (is_window_focused()) {
+    Quaternion turn = (
+      Quaternion::fromAxisAngle(LEFT_VECTOR, -(float)tachyon->mouse_delta_y / 1000.f) *
+      Quaternion::fromAxisAngle(UP_VECTOR, (float)tachyon->mouse_delta_x / 1000.f)
+    );
+
+    state.flight_camera_rotation = (turn * state.flight_camera_rotation).unit();
   }
 
-  return a + (b - a) * alpha;
+  camera.rotation = state.flight_camera_rotation;
+}
+
+static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt) {
+  auto& camera = tachyon->scene.camera;
+
+  auto view_matrix = (
+    camera.rotation.toMatrix4f() *
+    tMat4f::translation(camera.position * tVec3f(-1.f))
+  );
+
+  tVec3f view_direction = tVec3f(
+    view_matrix.m[8],
+    view_matrix.m[9],
+    view_matrix.m[10]
+  ).invert();
+
+  if (is_key_held(tKey::W)) {
+    state.ship_velocity += view_direction * (500.f * dt);
+  }
+
+  tVec3f camera_look_at_target = state.ship_position;
+
+  state.ship_position += state.ship_velocity * dt;
+
+  camera.position = camera_look_at_target - view_direction * 1000.f;
 }
 
 static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
@@ -139,7 +154,7 @@ void Cosmodrone::StartGame(Tachyon* tachyon) {
   auto sunMesh = Tachyon_LoadMesh("./cosmodrone/assets/sun-sign.obj", tVec3f(-1.f, 1.f, 1.f));
   auto moonMesh = Tachyon_LoadMesh("./cosmodrone/assets/moon-sign.obj", tVec3f(-1.f, 1.f, 1.f));
   auto planeMesh = Tachyon_CreatePlaneMesh();
-  auto sphereMesh = Tachyon_CreateSphereMesh(4);
+  auto sphereMesh = Tachyon_CreateSphereMesh(6);
 
   meshes.sun = Tachyon_AddMesh(tachyon, sunMesh, 1);
   meshes.moon = Tachyon_AddMesh(tachyon, moonMesh, 1);
@@ -150,7 +165,7 @@ void Cosmodrone::StartGame(Tachyon* tachyon) {
 
   Tachyon_InitializeObjects(tachyon);
 
-  SetupFlightSim(tachyon);
+  SetupFlightSimLevel(tachyon);
 }
 
 void Cosmodrone::RunGame(Tachyon* tachyon, const float dt) {
@@ -167,34 +182,7 @@ void Cosmodrone::RunGame(Tachyon* tachyon, const float dt) {
     // } else {
     //   state.camera3p.azimuth += (float)tachyon->mouse_delta_x / 1000.f;
     // }
-
-    // @todo refactor
-    auto up = tVec3f(0, 1.f, 0);
-    auto left = tVec3f(-1.f, 0, 0);
-
-    Quaternion turn = (
-      Quaternion::fromAxisAngle(left, -(float)tachyon->mouse_delta_y / 1000.f) *
-      Quaternion::fromAxisAngle(up, (float)tachyon->mouse_delta_x / 1000.f)
-    );
-
-    state.flight_camera.rotation = (turn * state.flight_camera.rotation).unit();
-
-    camera.rotation = state.flight_camera.rotation;
   }
-
-  // @todo refactor
-  auto view_matrix = (
-    camera.rotation.toMatrix4f() *
-    tMat4f::translation(camera.position * tVec3f(-1.f))
-  );
-
-  tVec3f view_direction = tVec3f(
-    view_matrix.m[8],
-    view_matrix.m[9],
-    view_matrix.m[10]
-  ).invert();
-
-  state.flight_camera.radius = 1000.f;
 
   // @todo move this into a separate free-camera-mode handler
   {
@@ -214,21 +202,7 @@ void Cosmodrone::RunGame(Tachyon* tachyon, const float dt) {
     // }
   }
 
-  // @todo move this into a controls handler
-  {
-    if (is_key_held(tKey::W)) {
-      state.ship_velocity += view_direction * (500.f * dt);
-    }
-
-    state.ship_position += state.ship_velocity * dt;
-  }
-
-  tVec3f camera_look_at_target = state.ship_position;
-
-  camera.position = camera_look_at_target - view_direction * 1000.f;
-
-  // @todo move this into an animation handler
-  {
-    UpdateShip(tachyon, state, dt);
-  }
+  HandleFlightCamera(tachyon, state);
+  HandleFlightControls(tachyon, state, dt);
+  UpdateShip(tachyon, state, dt);
 }
