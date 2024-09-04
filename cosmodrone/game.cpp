@@ -111,17 +111,10 @@ const static auto UP_VECTOR = tVec3f(0, 1.f, 0);
 const static auto LEFT_VECTOR = tVec3f(-1.f, 0, 0);
 
 static void IncreaseShipRotateToCameraSpeed(State& state, const float dt, const float factor) {
-  state.ship_rotate_to_camera_speed += dt;
-  state.ship_rotate_to_camera_speed *= factor;
-
-  if (state.ship_rotate_to_camera_speed > factor) {
-    state.ship_rotate_to_camera_speed = factor;
-  }
+  state.ship_rotate_to_camera_speed += factor * dt;
 }
 
 static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt) {
-  bool is_issuing_input = false;
-
   // Handle forward movement
   if (is_key_held(tKey::W)) {
     state.ship_velocity += state.view_forward_direction * (500.f * dt);
@@ -130,17 +123,20 @@ static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt)
   }
 
   // Handle roll
-  state.camera_roll_speed = 0.f;
-
   if (is_key_held(tKey::Q)) {
-    state.camera_roll_speed = dt;
+    state.camera_roll_speed += dt;
 
-    IncreaseShipRotateToCameraSpeed(state, dt, 4.f);
+    IncreaseShipRotateToCameraSpeed(state, dt, 5.f);
   } else if (is_key_held(tKey::E)) {
-    state.camera_roll_speed = -dt;
+    state.camera_roll_speed -= dt;
 
-    IncreaseShipRotateToCameraSpeed(state, dt, 4.f);
+    IncreaseShipRotateToCameraSpeed(state, dt, 5.f);
   }
+
+  if (state.camera_roll_speed > 3.f) state.camera_roll_speed = 3.f;
+  if (state.camera_roll_speed < -3.f) state.camera_roll_speed = -3.f;
+
+  state.camera_roll_speed *= (1.f - dt);
 
   // Allow the ship to rotate to the camera orientation faster
   // the closer it is to the camera view's forward direction.
@@ -174,7 +170,7 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
     Quaternion turn = (
       Quaternion::fromAxisAngle(LEFT_VECTOR, -(float)tachyon->mouse_delta_y / 1000.f) *
       Quaternion::fromAxisAngle(UP_VECTOR, (float)tachyon->mouse_delta_x / 1000.f) *
-      Quaternion::fromAxisAngle(FORWARD_VECTOR, state.camera_roll_speed)
+      Quaternion::fromAxisAngle(FORWARD_VECTOR, state.camera_roll_speed * dt)
     );
 
     state.flight_camera_rotation = (turn * state.flight_camera_rotation).unit();
