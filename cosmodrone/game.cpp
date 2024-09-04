@@ -26,6 +26,10 @@ static struct State {
   float ship_rotate_to_camera_speed = 0.f;
 } state;
 
+inline float Lerpf(float a, float b, float alpha) {
+  return a + (b - a) * alpha;
+}
+
 static void SetupFlightSimLevel(Tachyon* tachyon) {
   for (int32 i = 0; i < 40; i++) {
     for (int32 j = 0; j < 40; j++) {
@@ -106,37 +110,59 @@ const static auto FORWARD_VECTOR = tVec3f(0, 0, -1.f);
 const static auto UP_VECTOR = tVec3f(0, 1.f, 0);
 const static auto LEFT_VECTOR = tVec3f(-1.f, 0, 0);
 
-static void IncreaseShipRotateToCameraSpeed(State& state, const float dt) {
+static void IncreaseShipRotateToCameraSpeed(State& state, const float dt, const float factor) {
   state.ship_rotate_to_camera_speed += dt;
+  state.ship_rotate_to_camera_speed *= factor;
 
-  if (state.ship_rotate_to_camera_speed > 1.f) {
-    state.ship_rotate_to_camera_speed = 1.f;
+  if (state.ship_rotate_to_camera_speed > factor) {
+    state.ship_rotate_to_camera_speed = factor;
   }
 }
 
 static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt) {
   bool is_issuing_input = false;
 
+  // Handle forward movement
   if (is_key_held(tKey::W)) {
     state.ship_velocity += state.view_forward_direction * (500.f * dt);
 
-    IncreaseShipRotateToCameraSpeed(state, dt);
+    IncreaseShipRotateToCameraSpeed(state, dt, 1.f);
   }
 
+  // Handle roll
   state.camera_roll_speed = 0.f;
 
   if (is_key_held(tKey::Q)) {
     state.camera_roll_speed = dt;
 
-    IncreaseShipRotateToCameraSpeed(state, dt);
-
-    state.ship_rotate_to_camera_speed *= 4.f;
+    IncreaseShipRotateToCameraSpeed(state, dt, 4.f);
   } else if (is_key_held(tKey::E)) {
     state.camera_roll_speed = -dt;
 
-    IncreaseShipRotateToCameraSpeed(state, dt);
+    IncreaseShipRotateToCameraSpeed(state, dt, 4.f);
+  }
 
-    state.ship_rotate_to_camera_speed *= 4.f;
+  // Allow the ship to rotate to the camera orientation faster
+  // the closer it is to the camera view's forward direction.
+  // Rotate-to-camera speed values > 1 are reduced the more
+  // the camera is pointed away from the ship direction.
+  // This prevents rolling from being used as an exploit to
+  // turn the ship around more quickly, since rolling ordinarily
+  // rotates the ship faster to keep up with the camera
+  // (necessary to reduce motion sickness).
+  {
+    auto& hull = objects(meshes.hull)[0];
+    float rotate_speed_factor = tVec3f::dot(hull.rotation.getDirection(), state.view_forward_direction);
+
+    if (rotate_speed_factor < 0.f) {
+      rotate_speed_factor = 0.f;
+    }
+
+    rotate_speed_factor = powf(rotate_speed_factor, 20.f);
+
+    if (state.ship_rotate_to_camera_speed > 1.f) {
+      state.ship_rotate_to_camera_speed = Lerpf(state.ship_rotate_to_camera_speed, 1.f, 1.f - rotate_speed_factor);
+    }
   }
 
   state.ship_rotate_to_camera_speed *= (1.f - dt);
@@ -163,10 +189,6 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
   camera.position = state.ship_position - state.view_forward_direction * 1000.f + state.view_up_direction * 150.f;
 }
 
-inline float Lerpf(float a, float b, float alpha) {
-  return a + (b - a) * alpha;
-}
-
 static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
   auto& camera = tachyon->scene.camera;
 
@@ -181,18 +203,6 @@ static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
     -camera.rotation.y,
     -camera.rotation.z
   };
-
-  float rotate_speed_factor = tVec3f::dot(hull.rotation.getDirection(), state.view_forward_direction);
-
-  if (rotate_speed_factor < 0.f) {
-    rotate_speed_factor = 0.f;
-  }
-
-  rotate_speed_factor = powf(rotate_speed_factor, 20.f);
-
-  if (state.ship_rotate_to_camera_speed > 1.f) {
-    state.ship_rotate_to_camera_speed = Lerpf(state.ship_rotate_to_camera_speed, 1.f, 1.f - rotate_speed_factor);
-  }
 
   // @todo will nlerp work here?
   auto rotation = Quaternion::slerp(hull.rotation, target_rotation, state.ship_rotate_to_camera_speed * dt);
