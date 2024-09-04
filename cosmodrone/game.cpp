@@ -18,9 +18,11 @@ static struct State {
   Quaternion flight_camera_rotation = Quaternion(1.f, 0, 0, 0);
 
   tVec3f view_forward_direction;
+  tVec3f view_up_direction;
 
   tVec3f ship_position;
   tVec3f ship_velocity;
+  float camera_roll_speed = 0.f;
   float ship_rotate_to_camera_speed = 0.f;
 } state;
 
@@ -92,30 +94,61 @@ static void UpdateViewDirections(Tachyon* tachyon, State& state) {
     view_matrix.m[9],
     view_matrix.m[10]
   ).invert();
+
+  state.view_up_direction = tVec3f(
+    view_matrix.m[4],
+    view_matrix.m[5],
+    view_matrix.m[6]
+  );
 }
 
+const static auto FORWARD_VECTOR = tVec3f(0, 0, -1.f);
 const static auto UP_VECTOR = tVec3f(0, 1.f, 0);
 const static auto LEFT_VECTOR = tVec3f(-1.f, 0, 0);
 
+static void IncreaseShipRotateToCameraSpeed(State& state, const float dt) {
+  state.ship_rotate_to_camera_speed += dt;
+
+  if (state.ship_rotate_to_camera_speed > 1.f) {
+    state.ship_rotate_to_camera_speed = 1.f;
+  }
+}
+
 static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt) {
+  bool is_issuing_input = false;
+
   if (is_key_held(tKey::W)) {
     state.ship_velocity += state.view_forward_direction * (500.f * dt);
-    state.ship_rotate_to_camera_speed += dt;
 
-    if (state.ship_rotate_to_camera_speed > 1.f) {
-      state.ship_rotate_to_camera_speed = 1.f;
-    }
+    IncreaseShipRotateToCameraSpeed(state, dt);
+  }
+
+  state.camera_roll_speed = 0.f;
+
+  if (is_key_held(tKey::Q)) {
+    state.camera_roll_speed = dt;
+
+    IncreaseShipRotateToCameraSpeed(state, dt);
+
+    state.ship_rotate_to_camera_speed *= 4.f;
+  } else if (is_key_held(tKey::E)) {
+    state.camera_roll_speed = -dt;
+
+    IncreaseShipRotateToCameraSpeed(state, dt);
+
+    state.ship_rotate_to_camera_speed *= 4.f;
   }
 
   state.ship_rotate_to_camera_speed *= (1.f - dt);
   state.ship_position += state.ship_velocity * dt;
 }
 
-static void HandleFlightCamera(Tachyon* tachyon, State& state) {
+static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
   if (is_window_focused()) {
     Quaternion turn = (
       Quaternion::fromAxisAngle(LEFT_VECTOR, -(float)tachyon->mouse_delta_y / 1000.f) *
-      Quaternion::fromAxisAngle(UP_VECTOR, (float)tachyon->mouse_delta_x / 1000.f)
+      Quaternion::fromAxisAngle(UP_VECTOR, (float)tachyon->mouse_delta_x / 1000.f) *
+      Quaternion::fromAxisAngle(FORWARD_VECTOR, state.camera_roll_speed)
     );
 
     state.flight_camera_rotation = (turn * state.flight_camera_rotation).unit();
@@ -127,7 +160,11 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state) {
 
   UpdateViewDirections(tachyon, state);
 
-  camera.position = state.ship_position - state.view_forward_direction * 1000.f;
+  camera.position = state.ship_position - state.view_forward_direction * 1000.f + state.view_up_direction * 150.f;
+}
+
+inline float Lerpf(float a, float b, float alpha) {
+  return a + (b - a) * alpha;
 }
 
 static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
@@ -144,6 +181,18 @@ static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
     -camera.rotation.y,
     -camera.rotation.z
   };
+
+  float rotate_speed_factor = tVec3f::dot(hull.rotation.getDirection(), state.view_forward_direction);
+
+  if (rotate_speed_factor < 0.f) {
+    rotate_speed_factor = 0.f;
+  }
+
+  rotate_speed_factor = powf(rotate_speed_factor, 20.f);
+
+  if (state.ship_rotate_to_camera_speed > 1.f) {
+    state.ship_rotate_to_camera_speed = Lerpf(state.ship_rotate_to_camera_speed, 1.f, 1.f - rotate_speed_factor);
+  }
 
   // @todo will nlerp work here?
   auto rotation = Quaternion::slerp(hull.rotation, target_rotation, state.ship_rotate_to_camera_speed * dt);
@@ -214,6 +263,6 @@ void Cosmodrone::RunGame(Tachyon* tachyon, const float dt) {
   }
 
   HandleFlightControls(tachyon, state, dt);
-  HandleFlightCamera(tachyon, state);
+  HandleFlightCamera(tachyon, state, dt);
   UpdateShip(tachyon, state, dt);
 }
