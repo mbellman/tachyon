@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "engine/tachyon_aliases.h"
+#include "engine/tachyon_console.h"
 #include "engine/tachyon_file_helpers.h"
 #include "engine/opengl/tachyon_opengl_shaders.h"
 
@@ -56,6 +57,9 @@ static tOpenGLShaderAttachment AttachShader(tOpenGLShader& shader, GLenum type, 
       // @todo print to game window
       printf("Failed to compile shader: %s\n", path);
       printf("\u001b[31m %s\n\u001b[37m", error);
+
+      add_console_message("Failed to compile shader: " + std::string(path), tVec3f(1.f, 0.8f, 0.2f));
+      add_console_message(error, tVec3f(1.f, 0, 0));
     }
   }
 
@@ -181,7 +185,8 @@ void Tachyon_OpenGL_HotReloadShaders(tOpenGLShaders& shaders) {
 
             glLinkProgram(shader->program);
 
-            printf("Hot reloaded: %s\n", attachment.source_path);
+            printf("Hot reloaded shader: %s\n", attachment.source_path);
+            add_console_message("Hot reloaded shader: " + attachment.source_path, tVec3f(1.f));
           }
         }
       }

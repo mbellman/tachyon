@@ -90,7 +90,7 @@ void Tachyon_HandleInputEvent(Tachyon* tachyon, const SDL_Event& event) {
   }
 }
 
-void Tachyon_ResetPerFrameState(Tachyon* tachyon) {
+void Tachyon_ResetPerFrameInputState(Tachyon* tachyon) {
   tachyon->pressed_key_state = 0;
   tachyon->released_key_state = 0;
   tachyon->mouse_delta_x = 0;

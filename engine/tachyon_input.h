@@ -64,4 +64,4 @@ enum class tKey : uint64 {
 };
 
 void Tachyon_HandleInputEvent(Tachyon* tachyon, const SDL_Event& event);
-void Tachyon_ResetPerFrameState(Tachyon* tachyon);
+void Tachyon_ResetPerFrameInputState(Tachyon* tachyon);

@@ -7,6 +7,7 @@
 #include <SDL_ttf.h>
 
 #include "engine/tachyon_aliases.h"
+#include "engine/tachyon_console.h"
 #include "engine/tachyon_file_helpers.h"
 #include "engine/tachyon_input.h"
 #include "engine/tachyon_linear_algebra.h"
@@ -146,6 +147,7 @@ static void HandleDeveloperTools(Tachyon* tachyon) {
       "Draw calls: " + String(renderer.total_draw_calls)
     };
 
+    // Engine labels
     uint32 y_offset = 10;
 
     for (auto& label : labels) {
@@ -156,10 +158,26 @@ static void HandleDeveloperTools(Tachyon* tachyon) {
 
     y_offset += 25;
 
+    // Custom dev labels
     for (auto& dev_label : tachyon->dev_labels) {
       auto full_label = dev_label.label + ": " + dev_label.message;
 
       RenderText(tachyon, tachyon->developer_overlay_font, full_label.c_str(), 10, y_offset, tVec3f(1.f), tVec4f(0.2f, 0.2f, 1.f, 0.4));
+
+      y_offset += 30;
+    }
+  }
+
+  // Console messages
+  {
+    auto& console_messages = Tachyon_GetConsoleMessages();
+    uint32 y_offset = renderer.ctx.h - console_messages.size() * 30 - 10;
+
+    for (auto& console_message : console_messages) {
+      auto& message = console_message.message;
+      auto& color = console_message.color;
+
+      RenderText(tachyon, tachyon->developer_overlay_font, message.c_str(), 10, y_offset, color, tVec4f(0.f));
 
       y_offset += 30;
     }
