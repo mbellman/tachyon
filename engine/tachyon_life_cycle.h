@@ -12,6 +12,7 @@
   }\
 
 #define is_window_focused() tachyon->is_window_focused
+#define add_dev_label(label, message) tachyon->dev_labels.push_back({ label, message })
 
 Tachyon* Tachyon_Init();
 void Tachyon_SpawnWindow(Tachyon* tachyon, const char* title, uint32 width, uint32 height);

@@ -1,3 +1,4 @@
+#include <format>
 #include <math.h>
 #include <stdio.h>
 
@@ -74,6 +75,10 @@ tVec3f tVec3f::unit() const {
 
 void tVec3f::debug() const {
   printf("{ x: %f, y: %f, z: %f }\n", x, y, z);
+}
+
+std::string tVec3f::toString() const {
+  return std::format("x: {:.3f}, y: {:.3f}, z: {:.3f}", x, y, z);
 }
 
 tMat4f tMat4f::operator*(const tMat4f& matrix) const {

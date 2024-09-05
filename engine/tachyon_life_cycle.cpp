@@ -98,6 +98,7 @@ void Tachyon_EndFrame(Tachyon* tachyon) {
 
   tachyon->last_frame_time_in_microseconds = Tachyon_GetMicroseconds() - tachyon->frame_start_time_in_microseconds;
   tachyon->running_time += (float)tachyon->last_frame_time_in_microseconds / 1000000.f;
+  tachyon->dev_labels.clear();
 }
 
 void Tachyon_FocusWindow(Tachyon* tachyon) {

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <vector>
 
 #include <SDL.h>
@@ -100,6 +101,11 @@ struct tMeshPack {
   std::vector<tMeshRecord> mesh_records;
 };
 
+struct tDevLabel {
+  std::string label;
+  std::string message;
+};
+
 struct Tachyon {
   SDL_Window* sdl_window = nullptr;
   TachyonRenderBackend render_backend = TachyonRenderBackend::OPENGL;
@@ -116,6 +122,10 @@ struct Tachyon {
   int32 mouse_delta_x = 0;
   int32 mouse_delta_y = 0;
 
+  std::vector<tObject> objects;
+  std::vector<uint32> surfaces;
+  std::vector<tMat4f> matrices;
+
   struct Scene {
     tCamera camera;
     tCamera3p camera3p;
@@ -125,8 +135,5 @@ struct Tachyon {
   TTF_Font* developer_overlay_font = nullptr;
   uint64 frame_start_time_in_microseconds = 0;
   uint64 last_frame_time_in_microseconds = 1;
-
-  std::vector<tObject> objects;
-  std::vector<uint32> surfaces;
-  std::vector<tMat4f> matrices;
+  std::vector<tDevLabel> dev_labels;
 };

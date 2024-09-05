@@ -153,6 +153,16 @@ static void HandleDeveloperTools(Tachyon* tachyon) {
 
       y_offset += 25;
     }
+
+    y_offset += 25;
+
+    for (auto& dev_label : tachyon->dev_labels) {
+      auto full_label = dev_label.label + ": " + dev_label.message;
+
+      RenderText(tachyon, tachyon->developer_overlay_font, full_label.c_str(), 10, y_offset, tVec3f(1.f), tVec4f(0.2f, 0.2f, 1.f, 0.4));
+
+      y_offset += 30;
+    }
   }
 }
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 struct Quaternion;
 
 struct tVec2f {
@@ -30,6 +32,7 @@ struct tVec3f {
   tVec3f unit() const;
 
   void debug() const;
+  std::string toString() const;
 };
 
 struct tVec4f {

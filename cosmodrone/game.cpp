@@ -117,7 +117,7 @@ static void IncreaseShipRotateToCameraSpeed(State& state, const float dt, const 
 static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt) {
   // Handle forward movement
   if (is_key_held(tKey::W)) {
-    state.ship_velocity += state.view_forward_direction * (500.f * dt);
+    state.ship_velocity += state.view_forward_direction * (1000.f * dt);
 
     IncreaseShipRotateToCameraSpeed(state, dt, 1.f);
   }
@@ -216,6 +216,15 @@ static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
   commit(trim);
 }
 
+static void ShowDevLabels(Tachyon* tachyon, State& state) {
+  auto& camera = tachyon->scene.camera;
+  auto& hull = objects(meshes.hull)[0];
+
+  add_dev_label("Ship position", hull.position.toString());
+  add_dev_label("Ship velocity", state.ship_velocity.toString());
+  add_dev_label("Camera position", camera.position.toString());
+}
+
 void Cosmodrone::StartGame(Tachyon* tachyon) {
   auto sunMesh = Tachyon_LoadMesh("./cosmodrone/assets/sun-sign.obj", tVec3f(-1.f, 1.f, 1.f));
   auto moonMesh = Tachyon_LoadMesh("./cosmodrone/assets/moon-sign.obj", tVec3f(-1.f, 1.f, 1.f));
@@ -271,4 +280,7 @@ void Cosmodrone::RunGame(Tachyon* tachyon, const float dt) {
   HandleFlightControls(tachyon, state, dt);
   HandleFlightCamera(tachyon, state, dt);
   UpdateShip(tachyon, state, dt);
+
+  // @todo dev mode only
+  ShowDevLabels(tachyon, state);
 }
