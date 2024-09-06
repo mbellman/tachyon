@@ -30,14 +30,35 @@ static struct State {
   tVec3f ship_position;
   tVec3f ship_velocity;
   float camera_roll_speed = 0.f;
-  float ship_rotate_to_camera_speed = 0.f;
+  float ship_rotate_to_target_speed = 0.f;
 
   OrthonormalBasis ship_rotation_basis;
   OrthonormalBasis ship_velocity_basis;
 } state;
 
+// @todo move to engine
 inline float Lerpf(float a, float b, float alpha) {
   return a + (b - a) * alpha;
+}
+
+// @todo move to engine
+static Quaternion GetOppositeRotation(const Quaternion& rotation) {
+  Quaternion opposite = rotation;
+
+  opposite.x *= -1.f;
+  opposite.y *= -1.f;
+  opposite.z *= -1.f;
+
+  return opposite;
+}
+
+// @todo allow roll
+// @todo move to engine
+static Quaternion DirectionToQuaternion(const tVec3f& direction) {
+  auto yaw = atan2f(direction.x, direction.z);
+  float pitch = atan2f(direction.xz().magnitude(), direction.y) - 3.141592f / 2.f;
+
+  return tOrientation(0.f, pitch, yaw).toQuaternion();
 }
 
 static void SetupFlightSimLevel(Tachyon* tachyon) {
@@ -130,32 +151,25 @@ const static auto FORWARD_VECTOR = tVec3f(0, 0, -1.f);
 const static auto UP_VECTOR = tVec3f(0, 1.f, 0);
 const static auto LEFT_VECTOR = tVec3f(-1.f, 0, 0);
 
-static void IncreaseShipRotateToCameraSpeed(State& state, const float dt, const float factor) {
-  state.ship_rotate_to_camera_speed += factor * dt;
-}
-
 static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt) {
   // Handle forward movement
   if (is_key_held(tKey::W)) {
-    state.ship_velocity += state.view_forward_direction * (1000.f * dt);
-
-    IncreaseShipRotateToCameraSpeed(state, dt, 1.f);
+    state.ship_velocity += state.ship_rotation_basis.forward * (1000.f * dt);
+    state.ship_rotate_to_target_speed += dt;
   }
 
   // Handle roll
   if (is_key_held(tKey::Q)) {
     state.camera_roll_speed += dt;
-
-    IncreaseShipRotateToCameraSpeed(state, dt, 5.f);
+    state.ship_rotate_to_target_speed += 5.f * dt;
   } else if (is_key_held(tKey::E)) {
     state.camera_roll_speed -= dt;
-
-    IncreaseShipRotateToCameraSpeed(state, dt, 5.f);
+    state.ship_rotate_to_target_speed += 5.f * dt;
   }
 
   // Handle deceleration
   if (is_key_held(tKey::SHIFT)) {
-    IncreaseShipRotateToCameraSpeed(state, dt, 1.f);
+    state.ship_rotate_to_target_speed += dt;
   }
 
   if (state.camera_roll_speed > 3.f) state.camera_roll_speed = 3.f;
@@ -181,12 +195,12 @@ static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt)
 
     rotate_speed_factor = powf(rotate_speed_factor, 20.f);
 
-    if (state.ship_rotate_to_camera_speed > 1.f) {
-      state.ship_rotate_to_camera_speed = Lerpf(state.ship_rotate_to_camera_speed, 1.f, 1.f - rotate_speed_factor);
+    if (state.ship_rotate_to_target_speed > 1.f) {
+      state.ship_rotate_to_target_speed = Lerpf(state.ship_rotate_to_target_speed, 1.f, 1.f - rotate_speed_factor);
     }
   }
 
-  state.ship_rotate_to_camera_speed *= (1.f - dt);
+  state.ship_rotate_to_target_speed *= (1.f - dt);
   state.ship_position += state.ship_velocity * dt;
 }
 
@@ -199,6 +213,12 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
     );
 
     state.flight_camera_rotation = (turn * state.flight_camera_rotation).unit();
+
+    if (is_key_held(tKey::SHIFT)) {
+      Quaternion target_rotation = GetOppositeRotation(objects(meshes.hull)[0].rotation);
+
+      state.flight_camera_rotation = Quaternion::slerp(state.flight_camera_rotation, target_rotation, dt);
+    }
   }
 
   auto& camera = tachyon->scene.camera;
@@ -207,16 +227,10 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
 
   UpdateViewDirections(tachyon, state);
 
-  camera.position = state.ship_position - state.view_forward_direction * 1000.f + state.view_up_direction * 150.f;
-}
+  float ship_speed = state.ship_velocity.magnitude();
+  float camera_radius = 1000.f + 300.f * (ship_speed / (ship_speed + 5000.f));
 
-// @todo allow roll
-// @todo move to engine
-static Quaternion DirectionToQuaternion(const tVec3f& direction) {
-  auto yaw = atan2f(direction.x, direction.z);
-  float pitch = atan2f(direction.xz().magnitude(), direction.y) - 3.141592f / 2.f;
-
-  return tOrientation(0.f, pitch, yaw).toQuaternion();
+  camera.position = state.ship_position - state.view_forward_direction * camera_radius + state.view_up_direction * 150.f;
 }
 
 static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
@@ -227,12 +241,7 @@ static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
   auto& thrusters = objects(meshes.thrusters)[0];
   auto& trim = objects(meshes.trim)[0];
 
-  Quaternion target_rotation = {
-    camera.rotation.w,
-    -camera.rotation.x,
-    -camera.rotation.y,
-    -camera.rotation.z
-  };
+  Quaternion target_rotation = GetOppositeRotation(camera.rotation);
 
   if (state.ship_velocity.magnitude() > 0.f) {
     auto forward = state.ship_velocity.unit();
@@ -251,7 +260,7 @@ static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
   }
 
   // @todo will nlerp work here?
-  auto rotation = Quaternion::slerp(hull.rotation, target_rotation, state.ship_rotate_to_camera_speed * dt);
+  auto rotation = Quaternion::slerp(hull.rotation, target_rotation, state.ship_rotate_to_target_speed * dt);
 
   hull.position = state.ship_position;
   streams.position = state.ship_position;
