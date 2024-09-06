@@ -196,6 +196,82 @@ tMesh Tachyon_CreatePlaneMesh() {
   return mesh;
 }
 
+tMesh Tachyon_CreateCubeMesh() {
+  /**
+   * Defines positions for each corner of the unit cube
+   */
+  const static tVec3f cube_corner_positions[8] = {
+    { -1.0f, -1.0f, -1.0f },  // rear side, bottom left
+    { 1.0f, -1.0f, -1.0f },   // rear side, bottom right
+    { 1.0f, 1.0f, -1.0f },    // rear side, top right
+    { -1.0f, 1.0f, -1.0f },   // rear side, top left
+    { -1.0f, -1.0f, 1.0f },   // far side, bottom left
+    { 1.0f, -1.0f, 1.0f },    // far side, bottom right
+    { 1.0f, 1.0f, 1.0f },     // far side, top right
+    { -1.0f, 1.0f, 1.0f }     // far side, top left
+  };
+
+  /**
+   * Defines UV coordinates for each cube side
+   */
+  const static tVec2f cube_uvs[4] = {
+    { 1.0f, 1.0f },           // bottom right
+    { 0.0f, 1.0f },           // bottom left
+    { 0.0f, 0.0f },           // top left
+    { 1.0f, 0.0f }            // top right
+  };
+
+  /**
+   * Maps the corners of each cube side to corner position indexes
+   */
+  const static int cube_faces[6][4] = {
+    { 1, 0, 3, 2 },           // back
+    { 7, 6, 2, 3 },           // top
+    { 4, 5, 6, 7 },           // front
+    { 0, 1, 5, 4 },           // bottom
+    { 0, 4, 7, 3 },           // left
+    { 5, 1, 2, 6 }            // right
+  };
+
+  tMesh mesh;
+
+  auto& vertices = mesh.vertices;
+  auto& face_elements = mesh.face_elements;
+
+  vertices.resize(24);
+  face_elements.resize(36);
+
+  // For each cube side
+  for (uint8 i = 0; i < 6; i++) {
+    auto& face = cube_faces[i];
+    uint32 f_offset = i * 6;
+    uint32 v_offset = i * 4;
+
+    // Define vertex indexes for the two triangle faces on each cube side
+    face_elements[f_offset] = v_offset;
+    face_elements[f_offset + 1] = v_offset + 1;
+    face_elements[f_offset + 2] = v_offset + 2;
+
+    face_elements[f_offset + 3] = v_offset;
+    face_elements[f_offset + 4] = v_offset + 2;
+    face_elements[f_offset + 5] = v_offset + 3;
+
+    // For each corner on this side
+    for (uint8 j = 0; j < 4; j++) {
+      auto& vertex = vertices[v_offset++];
+
+      // Define the corner vertex position/uvs
+      vertex.position = cube_corner_positions[face[j]];
+      vertex.uv = cube_uvs[j];
+    }
+  }
+
+  ComputeNormals(mesh);
+  ComputeTangents(mesh);
+
+  return mesh;
+}
+
 tMesh Tachyon_CreateSphereMesh(uint8 divisions) {
   tMesh mesh;
 

@@ -30,6 +30,7 @@ struct tVec3f {
   tVec3f invert() const;
   float magnitude() const;
   tVec3f unit() const;
+  tVec3f xz() const;
 
   void debug() const;
   std::string toString() const;

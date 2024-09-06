@@ -73,6 +73,14 @@ tVec3f tVec3f::unit() const {
   };
 }
 
+tVec3f tVec3f::xz() const {
+  return {
+    x,
+    0.f,
+    z
+  };
+}
+
 void tVec3f::debug() const {
   printf("{ x: %f, y: %f, z: %f }\n", x, y, z);
 }

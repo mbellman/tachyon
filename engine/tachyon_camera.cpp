@@ -49,7 +49,7 @@ void tOrientation::face(const tVec3f& forward, const tVec3f& up) {
   float uDotY = tVec3f::dot(up, worldUp);
 
   // Calculate yaw as a function of forward z/x
-  yaw = atan2f(forward.z, forward.x) + HALF_PI;
+  yaw = atan2f(forward.x, forward.z) + PI;
 
   if (uDotY < 0.0f) {
     // If upside-down, flip the yaw by 180 degrees
@@ -62,7 +62,7 @@ void tOrientation::face(const tVec3f& forward, const tVec3f& up) {
   // and calculate pitch as a function of y/z
   rUp.z = up.x * sinf(-yaw) + up.z * cosf(-yaw);
 
-  pitch = atan2f(rUp.y, rUp.z) - HALF_PI;
+  pitch = atan2f(rUp.z, rUp.y);
 }
 
 tOrientation tOrientation::invert() const {
@@ -77,7 +77,7 @@ Quaternion tOrientation::toQuaternion() const {
   Quaternion qy = Quaternion::fromAxisAngle(yaw, 0.0f, 1.0f, 0.0f);
   Quaternion qr = Quaternion::fromAxisAngle(roll, 0.0f, 0.0f, 1.0f);
 
-  return (qp * qy * qr);
+  return (qy * qp * qr);
 }
 
 tVec3f tOrientation::toVec3f() const {
