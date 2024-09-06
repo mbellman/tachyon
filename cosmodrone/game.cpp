@@ -15,9 +15,9 @@ static struct Meshes {
 } meshes;
 
 static struct OrthonormalBasis {
-  tVec3f forward;
-  tVec3f up;
-  tVec3f sideways;
+  tVec3f forward = tVec3f(0, 0, -1.f);
+  tVec3f up = tVec3f(0, 1.f, 0);
+  tVec3f sideways = tVec3f(1.f, 0, 0);
 };
 
 // @todo use within function scopes
@@ -89,6 +89,10 @@ static void SetupFlightSimLevel(Tachyon* tachyon) {
 }
 
 static void CreateDebugMeshes(Tachyon* tachyon) {
+  create(meshes.cube);
+  create(meshes.cube);
+  create(meshes.cube);
+
   create(meshes.cube);
   create(meshes.cube);
   create(meshes.cube);
@@ -209,8 +213,8 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
 // @todo allow roll
 // @todo move to engine
 static Quaternion DirectionToQuaternion(const tVec3f& direction) {
-  auto yaw = atan2f(state.ship_velocity.x, state.ship_velocity.z);
-  float pitch = atan2f(state.ship_velocity.xz().magnitude(), state.ship_velocity.y) - 3.141592f / 2.f;
+  auto yaw = atan2f(direction.x, direction.z);
+  float pitch = atan2f(direction.xz().magnitude(), direction.y) - 3.141592f / 2.f;
 
   return tOrientation(0.f, pitch, yaw).toQuaternion();
 }
@@ -233,7 +237,7 @@ static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
   if (state.ship_velocity.magnitude() > 0.f) {
     auto forward = state.ship_velocity.unit();
     auto up = UP_VECTOR;
-    auto sideways = tVec3f::cross(forward, up);
+    auto sideways = tVec3f::cross(forward, up).unit();
 
     up = tVec3f::cross(sideways, forward);
 
@@ -242,7 +246,7 @@ static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
     state.ship_velocity_basis.sideways = sideways;
 
     if (is_key_held(tKey::SHIFT)) {
-      target_rotation = DirectionToQuaternion(state.ship_velocity_basis.forward.invert());
+      target_rotation = DirectionToQuaternion(state.ship_velocity_basis.forward);
     }
   }
 
@@ -260,44 +264,63 @@ static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
   commit(streams);
   commit(thrusters);
   commit(trim);
+
+  state.ship_rotation_basis.forward = rotation.getDirection();
+  state.ship_rotation_basis.up = rotation.getUpDirection();
+  state.ship_rotation_basis.sideways = rotation.getLeftDirection().invert();
 }
 
-static void UpdateShipDebugVectors(Tachyon* tachyon, State& state) {
-  if (state.ship_velocity.magnitude() < 0.001f) {
-    for (auto& cube : objects(meshes.cube)) {
-      cube.scale = tVec3f(0.f);
+static void UpdateOrthonormalBasisDebugVectors(
+  Tachyon* tachyon,
+  State& state,
+  tObject& forward,
+  tObject& sideways,
+  tObject& up,
+  const OrthonormalBasis& basis,
+  const float thickness,
+  const float length
+) {
+  forward.position = state.ship_position + basis.forward * length;
+  sideways.position = state.ship_position + basis.sideways * length;
+  up.position = state.ship_position + basis.up * length;
 
-      commit(cube);
-    }
+  forward.rotation = DirectionToQuaternion(basis.forward);
+  sideways.rotation = DirectionToQuaternion(basis.sideways);
+  up.rotation = DirectionToQuaternion(basis.up);
 
-    return;
-  }
-
-  const static float thickness = 10.f;
-
-  auto& forward = objects(meshes.cube)[0];
-  auto& sideways = objects(meshes.cube)[1];
-  auto& up = objects(meshes.cube)[2];
-
-  forward.color = tVec3f(1.f, 0, 0);
-  sideways.color = tVec3f(0, 1.f, 0);
-  up.color = tVec3f(0, 0, 1.f);
-
-  forward.position = state.ship_position + state.ship_velocity_basis.forward * 400.f;
-  sideways.position = state.ship_position + state.ship_velocity_basis.sideways * 400.f;
-  up.position = state.ship_position + state.ship_velocity_basis.up * 400.f;
-
-  forward.rotation = DirectionToQuaternion(state.ship_velocity_basis.forward);
-  sideways.rotation = DirectionToQuaternion(state.ship_velocity_basis.sideways);
-  up.rotation = DirectionToQuaternion(state.ship_velocity_basis.up);
-
-  forward.scale = tVec3f(thickness, thickness, 400.f);
-  sideways.scale = tVec3f(400.f, thickness, thickness);
-  up.scale = tVec3f(thickness, 400.f, thickness);
+  forward.scale = tVec3f(thickness, thickness, length);
+  sideways.scale = tVec3f(thickness, thickness, length);
+  up.scale = tVec3f(thickness, thickness, length);
 
   commit(forward);
   commit(sideways);
   commit(up);
+}
+
+static void UpdateShipDebugVectors(Tachyon* tachyon, State& state) {
+  {
+    auto& forward = objects(meshes.cube)[0];
+    auto& sideways = objects(meshes.cube)[1];
+    auto& up = objects(meshes.cube)[2];
+
+    forward.color = tVec4f(1.f, 0, 0, 1.f);
+    sideways.color = tVec4f(0, 1.f, 0, 1.f);
+    up.color = tVec4f(0, 0, 1.f, 1.f);
+
+    UpdateOrthonormalBasisDebugVectors(tachyon, state, forward, sideways, up, state.ship_velocity_basis, 8.f, 400.f);
+  }
+
+  {
+    auto& forward = objects(meshes.cube)[3];
+    auto& sideways = objects(meshes.cube)[4];
+    auto& up = objects(meshes.cube)[5];
+
+    forward.color = tVec4f(1.f, 1.f, 0, 1.f);
+    sideways.color = tVec4f(0, 1.f, 1.f, 1.f);
+    up.color = tVec4f(1.f, 0, 1.f, 1.f);
+
+    UpdateOrthonormalBasisDebugVectors(tachyon, state, forward, sideways, up, state.ship_rotation_basis, 6.f, 300.f);
+  }
 }
 
 static void ShowDevLabels(Tachyon* tachyon, State& state) {
@@ -320,7 +343,7 @@ void Cosmodrone::StartGame(Tachyon* tachyon) {
   meshes.moon = Tachyon_AddMesh(tachyon, moonMesh, 1);
   meshes.plane = Tachyon_AddMesh(tachyon, planeMesh, 1);
   meshes.sphere = Tachyon_AddMesh(tachyon, sphereMesh, 40 * 40 * 40);
-  meshes.cube = Tachyon_AddMesh(tachyon, cubeMesh, 3);
+  meshes.cube = Tachyon_AddMesh(tachyon, cubeMesh, 6);
 
   LoadTestShip(tachyon);
 

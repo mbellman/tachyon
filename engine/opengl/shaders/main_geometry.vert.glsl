@@ -31,12 +31,12 @@ vec3 getFragBitangent(vec3 normal, vec3 tangent) {
 }
 
 uvec4 SurfaceToUVec4(uint surface) {
-  uint roughness = ((surface & 0xFF000000) >> 24);
-  uint metalness = ((surface & 0x00FF0000) >> 16);
-  uint clearcoat = ((surface & 0x0000FF00) >> 8);
-  uint subsurface = surface & 0x000000FF;
+  uint rg = ((surface & 0xFF000000) >> 24);
+  uint ba = ((surface & 0x00FF0000) >> 16);
+  uint roughness_metalness = ((surface & 0x0000FF00) >> 8);
+  uint clearcoat_subsurface = surface & 0x000000FF;
 
-  return uvec4(roughness, metalness, clearcoat, subsurface);
+  return uvec4(rg, ba, roughness_metalness, clearcoat_subsurface);
 }
 
 void main() {

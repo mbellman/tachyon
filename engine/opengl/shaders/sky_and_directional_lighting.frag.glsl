@@ -141,12 +141,13 @@ vec3 AmbientFresnel(float NdotV) {
   return 0.002 * vec3(pow(1 - NdotV, 5));
 }
 
-vec3 UnpackColor(uvec4 surface) {
+vec4 UnpackColor(uvec4 surface) {
   float r = float((surface.x & 0xF0) >> 4) / 15.0;
   float g = float(surface.x & 0x0F) / 15.0;
   float b = float((surface.y & 0xF0) >> 4) / 15.0;
+  float a = float(surface.y & 0x0F) / 15.0;
 
-  return vec3(r, g, b);
+  return vec4(r, g, b, a);
 }
 
 struct Material {
@@ -170,7 +171,9 @@ void main() {
   uvec4 frag_color_and_material = texture(in_color_and_material, fragUv);
 
   vec3 N = frag_normal_and_depth.xyz;
-  vec3 albedo = UnpackColor(frag_color_and_material);
+  vec4 color = UnpackColor(frag_color_and_material);
+  vec3 albedo = color.rgb;
+  float emissive = color.a;
   Material material = UnpackMaterial(frag_color_and_material);
   vec3 position = GetWorldPosition(frag_normal_and_depth.w, fragUv, inverse_projection_matrix, inverse_view_matrix);
 
@@ -187,15 +190,17 @@ void main() {
   vec3 F0 = vec3(0.04);
   F0 = mix(F0, albedo, metalness);
   // vec3 color = DirectionalLightRadiance(albedo, position, N, V, roughness, metalness, F0);
-  vec3 color = FastDirectionalLightRadiance(albedo, position, N, V, NdotV, roughness, metalness, clearcoat, subsurface);
+  vec3 out_color = FastDirectionalLightRadiance(albedo, position, N, V, NdotV, roughness, metalness, clearcoat, subsurface);
 
-  color += AmbientFresnel(NdotV);
+  out_color += AmbientFresnel(NdotV);
+  out_color = mix(out_color, albedo, emissive);
 
-  if (frag_normal_and_depth.w >= 1.0) color = vec3(0);
+  if (frag_normal_and_depth.w >= 1.0) out_color = vec3(0);
+
 
   // @todo move to post shader
-  color = color / (color + vec3(1.0));
-  color = pow(color, vec3(1.0 / 2.2));
+  out_color = out_color / (out_color + vec3(1.0));
+  out_color = pow(out_color, vec3(1.0 / 2.2));
 
-  out_color_and_depth = vec4(color, frag_normal_and_depth.w);
+  out_color_and_depth = vec4(out_color, frag_normal_and_depth.w);
 }

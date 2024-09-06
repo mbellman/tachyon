@@ -41,6 +41,10 @@ struct tVec4f {
   float y = 0.f;
   float z = 0.f;
   float w = 0.f;
+
+  tVec4f() {};
+  tVec4f(float f) : x(f), y(f), z(f), w(f) {};
+  tVec4f(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {};
 };
 
 struct tMat4f {

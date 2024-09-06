@@ -25,12 +25,15 @@ struct tVertex {
 struct tColor {
   uint16 rgba;
 
-  tColor(const tVec3f& rgb) {
-    uint16 r = uint16(rgb.x * 15.f) << 12;
-    uint16 g = uint16(rgb.y * 15.f) << 8;
-    uint16 b = uint16(rgb.z * 15.f) << 4;
+  tColor(const tVec3f& color) : tColor(tVec4f(color.x, color.y, color.z, 0)) {};
 
-    rgba = r | g | b;
+  tColor(const tVec4f& color) {
+    uint16 r = uint16(color.x * 15.f) << 12;
+    uint16 g = uint16(color.y * 15.f) << 8;
+    uint16 b = uint16(color.z * 15.f) << 4;
+    uint16 a = uint16(color.w * 15.f);
+
+    rgba = r | g | b | a;
   }
 };
 
