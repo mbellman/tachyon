@@ -27,7 +27,7 @@ enum FlightMode {
 
 // @todo use within function scopes
 static struct State {
-  Quaternion new_camera_rotation = Quaternion(1.f, 0, 0, 0);
+  Quaternion target_camera_rotation = Quaternion(1.f, 0, 0, 0);
   FlightMode flight_mode = FlightMode::MANUAL_CONTROL;
 
   tVec3f view_forward_direction;
@@ -169,9 +169,11 @@ static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt)
   if (is_key_held(tKey::Q)) {
     state.camera_roll_speed += dt;
     state.ship_rotate_to_target_speed += 5.f * dt;
+    state.flight_mode = FlightMode::MANUAL_CONTROL;
   } else if (is_key_held(tKey::E)) {
     state.camera_roll_speed -= dt;
     state.ship_rotate_to_target_speed += 5.f * dt;
+    state.flight_mode = FlightMode::MANUAL_CONTROL;
   }
 
   // Handle auto-retrograde actions
@@ -219,6 +221,9 @@ static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt)
 }
 
 static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
+  auto& camera = tachyon->scene.camera;
+  float camera_lerp_speed_factor = 10.f;
+
   if (is_window_focused()) {
     Quaternion turn = (
       Quaternion::fromAxisAngle(LEFT_VECTOR, -(float)tachyon->mouse_delta_y / 1000.f) *
@@ -226,18 +231,21 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
       Quaternion::fromAxisAngle(FORWARD_VECTOR, state.camera_roll_speed * dt)
     );
 
-    state.new_camera_rotation = (turn * state.new_camera_rotation).unit();
+    state.target_camera_rotation = (turn * state.target_camera_rotation).unit();
   }
 
   if (state.flight_mode == FlightMode::AUTO_RETROGRADE) {
     Quaternion target_camera_rotation = GetOppositeRotation(objects(meshes.hull)[0].rotation);
 
-    state.new_camera_rotation = Quaternion::slerp(state.new_camera_rotation, target_camera_rotation, dt);
+    state.target_camera_rotation = Quaternion::slerp(state.target_camera_rotation, target_camera_rotation, dt);
+
+    camera_lerp_speed_factor = 3.f;
   }
 
-  auto& camera = tachyon->scene.camera;
+  float camera_lerp_alpha = camera_lerp_speed_factor * dt;
+  if (camera_lerp_alpha > 1.f) camera_lerp_alpha = 1.f;
 
-  camera.rotation = state.new_camera_rotation;
+  camera.rotation = Quaternion::slerp(camera.rotation, state.target_camera_rotation, camera_lerp_alpha);
 
   UpdateViewDirections(tachyon, state);
 
