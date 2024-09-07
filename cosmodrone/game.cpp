@@ -8,6 +8,7 @@ static struct Meshes {
     sphere,
     cube,
 
+    planet,
     hull,
     streams,
     thrusters,
@@ -68,6 +69,14 @@ static Quaternion DirectionToQuaternion(const tVec3f& direction) {
 }
 
 static void SetupFlightSimLevel(Tachyon* tachyon) {
+  auto& planet = create(meshes.planet);
+
+  planet.color = tVec3f(0.3f, 0.7f, 1.f);
+  planet.scale = tVec3f(1000000.f);
+  planet.position = tVec3f(0, -5000000.f, 0);
+
+  commit(planet);
+
   for (int32 i = 0; i < 40; i++) {
     for (int32 j = 0; j < 40; j++) {
       for (int32 k = 0; k < 40; k++) {
@@ -364,17 +373,18 @@ static void ShowDevLabels(Tachyon* tachyon, State& state) {
 }
 
 void Cosmodrone::StartGame(Tachyon* tachyon) {
+  // @todo cleanup
   auto sunMesh = Tachyon_LoadMesh("./cosmodrone/assets/sun-sign.obj", tVec3f(-1.f, 1.f, 1.f));
   auto moonMesh = Tachyon_LoadMesh("./cosmodrone/assets/moon-sign.obj", tVec3f(-1.f, 1.f, 1.f));
-  auto planeMesh = Tachyon_CreatePlaneMesh();
   auto sphereMesh = Tachyon_CreateSphereMesh(6);
   auto cubeMesh = Tachyon_CreateCubeMesh();
+  auto planetMesh = Tachyon_CreateSphereMesh(24);
 
   meshes.sun = Tachyon_AddMesh(tachyon, sunMesh, 1);
   meshes.moon = Tachyon_AddMesh(tachyon, moonMesh, 1);
-  meshes.plane = Tachyon_AddMesh(tachyon, planeMesh, 1);
   meshes.sphere = Tachyon_AddMesh(tachyon, sphereMesh, 40 * 40 * 40);
   meshes.cube = Tachyon_AddMesh(tachyon, cubeMesh, 6);
+  meshes.planet = Tachyon_AddMesh(tachyon, planetMesh, 1);
 
   LoadTestShip(tachyon);
 
@@ -421,6 +431,12 @@ void Cosmodrone::RunGame(Tachyon* tachyon, const float dt) {
   HandleFlightControls(tachyon, state, dt);
   HandleFlightCamera(tachyon, state, dt);
   UpdateShip(tachyon, state, dt);
+
+  // auto& planet = objects(meshes.planet)[0];
+
+  // planet.position = camera.position + tVec3f(0, -200000.f, 0);
+
+  // commit(planet);
 
   // @todo dev mode only
   UpdateShipDebugVectors(tachyon, state);

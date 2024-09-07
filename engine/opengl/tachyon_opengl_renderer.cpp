@@ -195,7 +195,7 @@ static void UpdateRendererContext(Tachyon* tachyon) {
   ctx.h = h;
 
   // @todo make fov/near/far customizable
-  ctx.projection_matrix = tMat4f::perspective(45.f, 10.f, 100000.f).transpose();
+  ctx.projection_matrix = tMat4f::perspective(45.f, 100.f, 10000000.f).transpose();
 
   ctx.view_matrix = (
     camera.rotation.toMatrix4f() *
