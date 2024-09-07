@@ -199,7 +199,9 @@ void main() {
 
 
   // @todo move to post shader
-  out_color = out_color / (out_color + vec3(1.0));
+  float exposure = 0.8 + emissive;
+
+  out_color = vec3(1.0) - exp(-out_color * exposure);
   out_color = pow(out_color, vec3(1.0 / 2.2));
 
   out_color_and_depth = vec4(out_color, frag_normal_and_depth.w);

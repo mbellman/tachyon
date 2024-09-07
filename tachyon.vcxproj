@@ -115,6 +115,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="cosmodrone\game.h" />
+    <ClInclude Include="cosmodrone\world_setup.h" />
     <ClInclude Include="engine\opengl\tachyon_opengl_framebuffer.h" />
     <ClInclude Include="engine\opengl\tachyon_opengl_geometry.h" />
     <ClInclude Include="engine\opengl\tachyon_opengl_renderer.h" />
@@ -224,6 +225,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cosmodrone\game.cpp" />
+    <ClCompile Include="cosmodrone\world_setup.cpp" />
     <ClCompile Include="engine\opengl\tachyon_opengl_framebuffer.cpp" />
     <ClCompile Include="engine\opengl\tachyon_opengl_geometry.cpp" />
     <ClCompile Include="engine\opengl\tachyon_opengl_renderer.cpp" />
