@@ -20,9 +20,15 @@ static struct OrthonormalBasis {
   tVec3f sideways = tVec3f(1.f, 0, 0);
 };
 
+enum FlightMode {
+  MANUAL_CONTROL,
+  AUTO_RETROGRADE
+};
+
 // @todo use within function scopes
 static struct State {
-  Quaternion flight_camera_rotation = Quaternion(1.f, 0, 0, 0);
+  Quaternion new_camera_rotation = Quaternion(1.f, 0, 0, 0);
+  FlightMode flight_mode = FlightMode::MANUAL_CONTROL;
 
   tVec3f view_forward_direction;
   tVec3f view_up_direction;
@@ -152,13 +158,14 @@ const static auto UP_VECTOR = tVec3f(0, 1.f, 0);
 const static auto LEFT_VECTOR = tVec3f(-1.f, 0, 0);
 
 static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt) {
-  // Handle forward movement
+  // Handle forward thrust
   if (is_key_held(tKey::W)) {
     state.ship_velocity += state.ship_rotation_basis.forward * (1000.f * dt);
     state.ship_rotate_to_target_speed += dt;
+    state.flight_mode = FlightMode::MANUAL_CONTROL;
   }
 
-  // Handle roll
+  // Handle roll maneuvers
   if (is_key_held(tKey::Q)) {
     state.camera_roll_speed += dt;
     state.ship_rotate_to_target_speed += 5.f * dt;
@@ -167,9 +174,16 @@ static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt)
     state.ship_rotate_to_target_speed += 5.f * dt;
   }
 
-  // Handle deceleration
-  if (is_key_held(tKey::SHIFT)) {
-    state.ship_rotate_to_target_speed += dt;
+  // Handle auto-retrograde actions
+  {
+    if (did_press_key(tKey::SHIFT)) {
+      state.flight_mode = FlightMode::AUTO_RETROGRADE;
+    }
+
+    // Allow the ship to swivel quickly in auto-retrograde mode
+    if (state.flight_mode == FlightMode::AUTO_RETROGRADE) {
+      state.ship_rotate_to_target_speed += 5.f * dt;
+    }
   }
 
   if (state.camera_roll_speed > 3.f) state.camera_roll_speed = 3.f;
@@ -212,18 +226,18 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
       Quaternion::fromAxisAngle(FORWARD_VECTOR, state.camera_roll_speed * dt)
     );
 
-    state.flight_camera_rotation = (turn * state.flight_camera_rotation).unit();
+    state.new_camera_rotation = (turn * state.new_camera_rotation).unit();
+  }
 
-    if (is_key_held(tKey::SHIFT)) {
-      Quaternion target_rotation = GetOppositeRotation(objects(meshes.hull)[0].rotation);
+  if (state.flight_mode == FlightMode::AUTO_RETROGRADE) {
+    Quaternion target_camera_rotation = GetOppositeRotation(objects(meshes.hull)[0].rotation);
 
-      state.flight_camera_rotation = Quaternion::slerp(state.flight_camera_rotation, target_rotation, dt);
-    }
+    state.new_camera_rotation = Quaternion::slerp(state.new_camera_rotation, target_camera_rotation, dt);
   }
 
   auto& camera = tachyon->scene.camera;
 
-  camera.rotation = state.flight_camera_rotation;
+  camera.rotation = state.new_camera_rotation;
 
   UpdateViewDirections(tachyon, state);
 
@@ -241,7 +255,7 @@ static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
   auto& thrusters = objects(meshes.thrusters)[0];
   auto& trim = objects(meshes.trim)[0];
 
-  Quaternion target_rotation = GetOppositeRotation(camera.rotation);
+  Quaternion target_ship_rotation = GetOppositeRotation(camera.rotation);
 
   if (state.ship_velocity.magnitude() > 0.f) {
     auto forward = state.ship_velocity.unit();
@@ -253,14 +267,14 @@ static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
     state.ship_velocity_basis.forward = forward;
     state.ship_velocity_basis.up = up;
     state.ship_velocity_basis.sideways = sideways;
+  }
 
-    if (is_key_held(tKey::SHIFT)) {
-      target_rotation = DirectionToQuaternion(state.ship_velocity_basis.forward);
-    }
+  if (state.flight_mode == FlightMode::AUTO_RETROGRADE) {
+    target_ship_rotation = DirectionToQuaternion(state.ship_velocity_basis.forward);
   }
 
   // @todo will nlerp work here?
-  auto rotation = Quaternion::slerp(hull.rotation, target_rotation, state.ship_rotate_to_target_speed * dt);
+  auto rotation = Quaternion::slerp(hull.rotation, target_ship_rotation, state.ship_rotate_to_target_speed * dt);
 
   hull.position = state.ship_position;
   streams.position = state.ship_position;
