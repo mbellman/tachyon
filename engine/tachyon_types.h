@@ -132,6 +132,10 @@ struct Tachyon {
   struct Scene {
     tCamera camera;
     tCamera3p camera3p;
+
+    // @temporary
+    // @todo allow multiple directional lights
+    tVec3f directional_light_direction = tVec3f(0, -1.f, 0);
   } scene;
 
   // @todo dev mode only

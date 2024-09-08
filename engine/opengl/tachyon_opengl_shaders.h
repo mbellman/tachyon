@@ -34,7 +34,10 @@ struct tUniformLocations {
     in_color_and_material,
     inverse_projection_matrix,
     inverse_view_matrix,
-    camera_position
+    camera_position,
+    // @temporary
+    // @todo allow multiple directional lights
+    directional_light_direction
   ) sky_and_directional_lighting;
 
   uniform_locations(

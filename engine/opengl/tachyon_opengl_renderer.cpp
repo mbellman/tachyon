@@ -328,6 +328,9 @@ static void RenderSkyAndDirectionalLighting(Tachyon* tachyon) {
   Tachyon_SetShaderMat4f(locations.inverse_projection_matrix, ctx.inverse_projection_matrix);
   Tachyon_SetShaderMat4f(locations.inverse_view_matrix, ctx.inverse_view_matrix);
   Tachyon_SetShaderVec3f(locations.camera_position, ctx.camera_position);
+  // @temporary
+  // @todo allow multiple directional lights
+  Tachyon_SetShaderVec3f(locations.directional_light_direction, tachyon->scene.directional_light_direction);
 
   RenderScreenQuad(tachyon);
 }
