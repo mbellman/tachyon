@@ -339,6 +339,12 @@
     <ClInclude Include="cosmodrone\world_setup.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="cosmodrone\game_types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cosmodrone\world_behavior.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -390,6 +396,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cosmodrone\world_setup.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cosmodrone\world_behavior.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
