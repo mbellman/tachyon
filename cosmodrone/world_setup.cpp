@@ -2,7 +2,9 @@
 
 using namespace Cosmodrone;
 
-static void LoadShipPartMeshes(Tachyon* tachyon, MeshIds& meshes) {
+static void LoadShipPartMeshes(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
   // @todo define a list for these
   auto hull_mesh = Tachyon_LoadMesh("./cosmodrone/assets/test-ship/hull.obj");
   auto streams_mesh = Tachyon_LoadMesh("./cosmodrone/assets/test-ship/streams.obj");
@@ -15,7 +17,9 @@ static void LoadShipPartMeshes(Tachyon* tachyon, MeshIds& meshes) {
   meshes.trim = Tachyon_AddMesh(tachyon, trim_mesh, 1);
 }
 
-static void LoadCelestialBodyMeshes(Tachyon* tachyon, MeshIds& meshes) {
+static void LoadCelestialBodyMeshes(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
   // @todo have separate meshes for each celestial body
   // @todo define a list of celestial bodies + properties
   auto planet_mesh = Tachyon_CreateSphereMesh(24);
@@ -23,7 +27,9 @@ static void LoadCelestialBodyMeshes(Tachyon* tachyon, MeshIds& meshes) {
   meshes.planet = Tachyon_AddMesh(tachyon, planet_mesh, 3);
 }
 
-static void LoadDebugMeshes(Tachyon* tachyon, MeshIds& meshes) {
+static void LoadDebugMeshes(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
   auto sphere_mesh = Tachyon_CreateSphereMesh(4);
   auto cube_mesh = Tachyon_CreateCubeMesh();
 
@@ -31,7 +37,9 @@ static void LoadDebugMeshes(Tachyon* tachyon, MeshIds& meshes) {
   meshes.cube = Tachyon_AddMesh(tachyon, cube_mesh, 6);
 }
 
-static void SetupFlightSimLevel(Tachyon* tachyon, MeshIds& meshes) {
+static void SetupFlightSimLevel(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
   create(meshes.planet);
   create(meshes.planet);
   create(meshes.planet);
@@ -83,7 +91,9 @@ static void SetupFlightSimLevel(Tachyon* tachyon, MeshIds& meshes) {
   }
 }
 
-static void CreateDebugMeshes(Tachyon* tachyon, MeshIds& meshes) {
+static void CreateDebugMeshes(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
   create(meshes.cube);
   create(meshes.cube);
   create(meshes.cube);
@@ -93,15 +103,15 @@ static void CreateDebugMeshes(Tachyon* tachyon, MeshIds& meshes) {
   create(meshes.cube);
 }
 
-void WorldSetup::LoadMeshes(Tachyon* tachyon, MeshIds& meshes) {
-  LoadShipPartMeshes(tachyon, meshes);
-  LoadCelestialBodyMeshes(tachyon, meshes);
-  LoadDebugMeshes(tachyon, meshes);
+void WorldSetup::LoadMeshes(Tachyon* tachyon, State& state) {
+  LoadShipPartMeshes(tachyon, state);
+  LoadCelestialBodyMeshes(tachyon, state);
+  LoadDebugMeshes(tachyon, state);
 
   Tachyon_InitializeObjects(tachyon);
 }
 
-void WorldSetup::InitializeGameWorld(Tachyon* tachyon, MeshIds& meshes) {
-  SetupFlightSimLevel(tachyon, meshes);
-  CreateDebugMeshes(tachyon, meshes);
+void WorldSetup::InitializeGameWorld(Tachyon* tachyon, State& state) {
+  SetupFlightSimLevel(tachyon, state);
+  CreateDebugMeshes(tachyon, state);
 }

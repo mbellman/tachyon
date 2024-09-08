@@ -3,7 +3,6 @@
 #include "engine/tachyon.h"
 
 namespace Cosmodrone {
-  // @todo put in State
   struct MeshIds {
     uint32
       // Ship parts
@@ -32,6 +31,8 @@ namespace Cosmodrone {
   };
 
   struct State {
+    MeshIds meshes;
+
     Quaternion target_camera_rotation = Quaternion(1.f, 0, 0, 0);
     FlightMode flight_mode = FlightMode::MANUAL_CONTROL;
 

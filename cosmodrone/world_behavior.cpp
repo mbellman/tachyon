@@ -2,8 +2,9 @@
 
 using namespace Cosmodrone;
 
-static void UpdateCelestialBodies(Tachyon* tachyon, State& state, MeshIds& meshes, const float dt) {
+static void UpdateCelestialBodies(Tachyon* tachyon, State& state, const float dt) {
   auto& camera = tachyon->scene.camera;
+  auto& meshes = state.meshes;
 
   auto& earth = objects(meshes.planet)[0];
   auto& moon = objects(meshes.planet)[1];
@@ -28,6 +29,6 @@ static void UpdateCelestialBodies(Tachyon* tachyon, State& state, MeshIds& meshe
   commit(sun);
 }
 
-void WorldBehavior::UpdateWorld(Tachyon* tachyon, State& state, MeshIds& meshes, const float dt) {
-  UpdateCelestialBodies(tachyon, state, meshes, dt);
+void WorldBehavior::UpdateWorld(Tachyon* tachyon, State& state, const float dt) {
+  UpdateCelestialBodies(tachyon, state, dt);
 }

@@ -5,9 +5,6 @@
 
 using namespace Cosmodrone;
 
-// @todo put in State
-static MeshIds meshes;
-
 // @todo pass into StartGame() and RunGame() from main.cpp
 static State state;
 
@@ -106,6 +103,7 @@ static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt)
   // rotates the ship faster to keep up with the camera
   // (necessary to reduce motion sickness).
   {
+    auto& meshes = state.meshes;
     auto& hull = objects(meshes.hull)[0];
     float rotate_speed_factor = tVec3f::dot(hull.rotation.getDirection(), state.view_forward_direction);
 
@@ -139,6 +137,7 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
   }
 
   if (state.flight_mode == FlightMode::AUTO_RETROGRADE) {
+    auto& meshes = state.meshes;
     Quaternion target_camera_rotation = GetOppositeRotation(objects(meshes.hull)[0].rotation);
 
     state.target_camera_rotation = Quaternion::slerp(state.target_camera_rotation, target_camera_rotation, dt);
@@ -161,6 +160,7 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
 
 static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
   auto& camera = tachyon->scene.camera;
+  auto& meshes = state.meshes;
 
   auto& hull = objects(meshes.hull)[0];
   auto& streams = objects(meshes.streams)[0];
@@ -235,6 +235,8 @@ static void UpdateOrthonormalBasisDebugVectors(
 
 // @todo move to debug.cpp
 static void UpdateShipDebugVectors(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
   {
     auto& forward = objects(meshes.cube)[0];
     auto& sideways = objects(meshes.cube)[1];
@@ -262,6 +264,7 @@ static void UpdateShipDebugVectors(Tachyon* tachyon, State& state) {
 
 static void ShowDevLabels(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
+  auto& meshes = state.meshes;
   auto& hull = objects(meshes.hull)[0];
 
   add_dev_label("Ship position", state.ship_position.toString());
@@ -270,13 +273,13 @@ static void ShowDevLabels(Tachyon* tachyon, State& state) {
 }
 
 void Cosmodrone::StartGame(Tachyon* tachyon) {
-  WorldSetup::LoadMeshes(tachyon, meshes);
-  WorldSetup::InitializeGameWorld(tachyon, meshes);
+  WorldSetup::LoadMeshes(tachyon, state);
+  WorldSetup::InitializeGameWorld(tachyon, state);
 }
 
 void Cosmodrone::RunGame(Tachyon* tachyon, const float dt) {
-  auto& scene = tachyon->scene;
-  auto& camera = scene.camera;
+  auto& camera = tachyon->scene.camera;
+  auto& meshes = state.meshes;
 
   if (tachyon->is_window_focused) {
     // @todo move this into a separate free-camera-mode handler
@@ -312,7 +315,7 @@ void Cosmodrone::RunGame(Tachyon* tachyon, const float dt) {
   HandleFlightCamera(tachyon, state, dt);
   UpdateShip(tachyon, state, dt);
 
-  WorldBehavior::UpdateWorld(tachyon, state, meshes, dt);
+  WorldBehavior::UpdateWorld(tachyon, state, dt);
 
   // @todo dev mode only
   UpdateShipDebugVectors(tachyon, state);

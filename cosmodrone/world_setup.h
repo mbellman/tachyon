@@ -5,7 +5,7 @@
 
 namespace Cosmodrone {
   namespace WorldSetup {
-    void LoadMeshes(Tachyon* tachyon, MeshIds& meshes);
-    void InitializeGameWorld(Tachyon* tachyon, MeshIds& meshes);
+    void LoadMeshes(Tachyon* tachyon, State& state);
+    void InitializeGameWorld(Tachyon* tachyon, State& state);
   }
 }

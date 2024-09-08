@@ -6,6 +6,6 @@
 
 namespace Cosmodrone {
   namespace WorldBehavior {
-    void UpdateWorld(Tachyon* tachyon, State& state, MeshIds& meshes, const float dt);
+    void UpdateWorld(Tachyon* tachyon, State& state, const float dt);
   }
 }
