@@ -24,7 +24,7 @@ static void UpdateCelestialBodies(Tachyon* tachyon, State& state, const float dt
 
   // Sun/moon
   {
-    auto orbit_angle = tachyon->running_time * 0.01f;
+    auto orbit_angle = 0.4f + tachyon->running_time * 0.001f;
     auto orbit_rotation_matrix = Quaternion::fromAxisAngle(orbit_rotation_axis, orbit_angle).toMatrix4f();
     auto unit_moon_position = orbit_rotation_matrix.transformVec3f(moon_direction);
     auto unit_sun_position = orbit_rotation_matrix.transformVec3f(sun_direction);

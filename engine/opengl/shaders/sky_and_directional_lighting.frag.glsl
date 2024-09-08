@@ -168,8 +168,29 @@ Material UnpackMaterial(uvec4 surface) {
   return Material(roughness, metalness, clearcoat, subsurface);
 }
 
+// @todo allow game-specific definitions
+vec3 GetSkyColor(vec3 direction) {
+  float sun_dot = max(dot(-directional_light_direction, direction), 0.0);
+  float sun_alpha = clamp(pow(sun_dot, 200) * 1.5, 0, 1);
+  vec3 base_sun_color = mix(vec3(1,0,0), vec3(0.9, 0.88, 0.6), pow(sun_dot, 100));
+  vec3 sun_color = mix(vec3(0), base_sun_color, sun_alpha);
+  vec3 sky_color = sun_color;
+
+  return sky_color;
+}
+
 void main() {
   vec4 frag_normal_and_depth = texture(in_normal_and_depth, fragUv);
+  vec3 position = GetWorldPosition(frag_normal_and_depth.w, fragUv, inverse_projection_matrix, inverse_view_matrix);
+
+  if (frag_normal_and_depth.w == 1.0) {
+    vec3 direction = normalize(position - camera_position);
+
+    out_color_and_depth = vec4(GetSkyColor(direction), frag_normal_and_depth.w);
+
+    return;
+  }
+
   uvec4 frag_color_and_material = texture(in_color_and_material, fragUv);
 
   vec3 N = frag_normal_and_depth.xyz;
@@ -177,7 +198,6 @@ void main() {
   vec3 albedo = color.rgb;
   float emissive = color.a;
   Material material = UnpackMaterial(frag_color_and_material);
-  vec3 position = GetWorldPosition(frag_normal_and_depth.w, fragUv, inverse_projection_matrix, inverse_view_matrix);
 
   vec3 V = normalize(camera_position - position);
   float NdotV = max(dot(N, V), 0.0);
