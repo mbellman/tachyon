@@ -267,6 +267,8 @@ static void UpdateOrthonormalBasisDebugVectors(
 static void UpdateShipDebugVectors(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
+  objects(meshes.cube).disabled = false;
+
   {
     auto& forward = objects(meshes.cube)[0];
     auto& sideways = objects(meshes.cube)[1];
@@ -348,6 +350,10 @@ void Cosmodrone::RunGame(Tachyon* tachyon, const float dt) {
   WorldBehavior::UpdateWorld(tachyon, state, dt);
 
   // @todo dev mode only
-  UpdateShipDebugVectors(tachyon, state);
-  ShowDevLabels(tachyon, state);
+  if (tachyon->show_developer_tools) {
+    UpdateShipDebugVectors(tachyon, state);
+    ShowDevLabels(tachyon, state);
+  } else {
+    objects(meshes.cube).disabled = true;
+  }
 }

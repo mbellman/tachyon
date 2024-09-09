@@ -38,6 +38,7 @@ struct tOpenGLRenderer {
   uint64 last_render_time_in_microseconds = 0;
   uint32 total_triangles = 0;
   uint32 total_vertices = 0;
+  uint32 total_meshes_drawn = 0;
   uint32 total_draw_calls = 0;
 };
 

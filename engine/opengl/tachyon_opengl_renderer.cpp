@@ -144,6 +144,7 @@ static void HandleDeveloperTools(Tachyon* tachyon) {
       "Frame time: " + String(tachyon->last_frame_time_in_microseconds) + "us (" + String(frame_fps) + "fps)",
       "Triangles: " + String(renderer.total_triangles),
       "Vertices: " + String(renderer.total_vertices),
+      "Meshes: " + String(renderer.total_meshes_drawn),
       "Draw calls: " + String(renderer.total_draw_calls)
     };
 
@@ -254,13 +255,24 @@ static void RenderStaticGeometry(Tachyon* tachyon) {
   };
 
   auto& records = tachyon->mesh_pack.mesh_records;
-  auto totalMeshes = records.size();
-  // @todo avoid allocating + deleting each frame
-  auto* commands = new DrawElementsIndirectCommand[totalMeshes];
+  uint32 total_drawable_meshes = 0;
 
-  for (uint32 i = 0; i < totalMeshes; i++) {
+  for (auto& record : records) {
+    if (!record.group.disabled && record.group.total_visible > 0) {
+      total_drawable_meshes++;
+    }
+  }
+
+  // @todo avoid allocating + deleting each frame
+  auto* commands = new DrawElementsIndirectCommand[total_drawable_meshes];
+
+  for (uint32 i = 0; i < total_drawable_meshes; i++) {
     auto& command = commands[i];
     auto& record = records[i];
+
+    if (record.group.disabled || record.group.total_visible == 0) {
+      continue;
+    }
 
     command.count = record.face_element_end - record.face_element_start;
     command.firstIndex = record.face_element_start;
@@ -272,13 +284,14 @@ static void RenderStaticGeometry(Tachyon* tachyon) {
     {
       renderer.total_triangles += command.count * command.instanceCount;
       renderer.total_vertices += (record.vertex_end - record.vertex_start) * command.instanceCount;
+      renderer.total_meshes_drawn++;
     }
   }
 
   glBindBuffer(GL_DRAW_INDIRECT_BUFFER, renderer.indirect_buffer);
-  glBufferData(GL_DRAW_INDIRECT_BUFFER, totalMeshes * sizeof(DrawElementsIndirectCommand), commands, GL_DYNAMIC_DRAW);
+  glBufferData(GL_DRAW_INDIRECT_BUFFER, total_drawable_meshes * sizeof(DrawElementsIndirectCommand), commands, GL_DYNAMIC_DRAW);
 
-  glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, 0, totalMeshes, 0);
+  glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, 0, total_drawable_meshes, 0);
 
   delete[] commands;
 
@@ -418,6 +431,7 @@ void Tachyon_RenderSceneInOpenGL(Tachyon* tachyon) {
   {
     renderer.total_triangles = 0;
     renderer.total_vertices = 0;
+    renderer.total_meshes_drawn = 0;
     renderer.total_draw_calls = 0;
   }
 
@@ -439,7 +453,9 @@ void Tachyon_RenderSceneInOpenGL(Tachyon* tachyon) {
   glViewport(0, 0, ctx.w, ctx.h);
 
   // @todo dev mode only
-  HandleDeveloperTools(tachyon);
+  if (tachyon->show_developer_tools) {
+    HandleDeveloperTools(tachyon);
+  }
 
   SDL_GL_SwapWindow(tachyon->sdl_window);
 

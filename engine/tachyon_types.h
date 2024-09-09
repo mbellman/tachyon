@@ -69,6 +69,7 @@ struct tObjectGroup {
   uint16 total = 0;
   uint16 total_visible = 0;
   bool buffered = false;
+  bool disabled = false;
 
   tObject& operator [](uint16 index) {
     return objects[index];
@@ -139,6 +140,7 @@ struct Tachyon {
   } scene;
 
   // @todo dev mode only
+  bool show_developer_tools = true;
   TTF_Font* developer_overlay_font = nullptr;
   uint64 frame_start_time_in_microseconds = 0;
   uint64 last_frame_time_in_microseconds = 1;

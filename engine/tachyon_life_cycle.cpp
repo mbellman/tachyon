@@ -31,6 +31,10 @@ internal void HandleEvents(Tachyon* tachyon) {
 
     Tachyon_HandleInputEvent(tachyon, event);
   }
+
+  if (did_press_key(tKey::T)) {
+    tachyon->show_developer_tools = !tachyon->show_developer_tools;
+  }
 }
 
 internal void RenderScene(Tachyon* tachyon) {
