@@ -91,16 +91,22 @@ static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt)
 
   state.camera_roll_speed *= (1.f - dt);
 
-  // Handle auto-retrograde actions
-  {
-    if (did_press_key(tKey::SPACE)) {
-      state.flight_mode = FlightMode::AUTO_RETROGRADE;
-    }
+  // Handle auto-prograde actions
+  if (did_press_key(tKey::SHIFT)) {
+    state.flight_mode = FlightMode::AUTO_PROGRADE;
+  }
 
-    // Allow the ship to swivel quickly in auto-retrograde mode
-    if (state.flight_mode == FlightMode::AUTO_RETROGRADE) {
-      state.ship_rotate_to_target_speed += 5.f * dt;
-    }
+  // Handle auto-retrograde actions
+  if (did_press_key(tKey::SPACE)) {
+    state.flight_mode = FlightMode::AUTO_RETROGRADE;
+  }
+
+  // Allow the ship to swivel quickly in automatic flight modes
+  if (
+    state.flight_mode == FlightMode::AUTO_PROGRADE ||
+    state.flight_mode == FlightMode::AUTO_RETROGRADE
+  ) {
+    state.ship_rotate_to_target_speed += 5.f * dt;
   }
 
   // Allow the ship to rotate to the camera orientation faster
@@ -131,6 +137,7 @@ static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt)
 
 static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
   auto& camera = tachyon->scene.camera;
+  auto& meshes = state.meshes;
   float camera_lerp_speed_factor = 10.f;
 
   if (is_window_focused()) {
@@ -151,11 +158,11 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
     state.target_camera_rotation = state.target_camera_rotation.unit();
   }
 
-  if (state.flight_mode == FlightMode::AUTO_RETROGRADE) {
-    auto& meshes = state.meshes;
-    Quaternion target_camera_rotation = GetOppositeRotation(objects(meshes.hull)[0].rotation);
-
-    state.target_camera_rotation = Quaternion::slerp(state.target_camera_rotation, target_camera_rotation, dt);
+  if (
+    state.flight_mode == FlightMode::AUTO_PROGRADE ||
+    state.flight_mode == FlightMode::AUTO_RETROGRADE
+  ) {
+    state.target_camera_rotation = GetOppositeRotation(objects(meshes.hull)[0].rotation);
 
     camera_lerp_speed_factor = 3.f;
   }
@@ -198,6 +205,10 @@ static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
 
   if (state.ship_velocity.magnitude() > 0.f) {
     UpdateShipVelocityBasis(state);
+  }
+
+  if (state.flight_mode == FlightMode::AUTO_PROGRADE) {
+    target_ship_rotation = DirectionToQuaternion(state.ship_velocity_basis.forward.invert());
   }
 
   if (state.flight_mode == FlightMode::AUTO_RETROGRADE) {

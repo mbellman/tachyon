@@ -6,7 +6,7 @@
 int main(int argc, char* argv[]) {
   auto* tachyon = Tachyon_Init();
 
-  Tachyon_SpawnWindow(tachyon, "Tachyon", 1536, 850);
+  Tachyon_SpawnWindow(tachyon, "Cosmodrone", 1536, 850);
 
   Cosmodrone::StartGame(tachyon);
 

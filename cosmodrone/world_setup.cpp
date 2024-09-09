@@ -2,6 +2,7 @@
 
 using namespace Cosmodrone;
 
+// @bug once in a while, meshes don't load in at the beginning! figure this out
 static void LoadShipPartMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 

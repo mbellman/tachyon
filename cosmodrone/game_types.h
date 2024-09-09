@@ -27,6 +27,7 @@ namespace Cosmodrone {
 
   enum FlightMode {
     MANUAL_CONTROL,
+    AUTO_PROGRADE,
     AUTO_RETROGRADE
   };
 
