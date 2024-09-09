@@ -24,7 +24,7 @@ static void LoadCelestialBodyMeshes(Tachyon* tachyon, State& state) {
   // @todo define a list of celestial bodies + properties
   auto planet_mesh = Tachyon_CreateSphereMesh(24);
 
-  meshes.planet = Tachyon_AddMesh(tachyon, planet_mesh, 3);
+  meshes.planet = Tachyon_AddMesh(tachyon, planet_mesh, 2);
 }
 
 static void LoadDebugMeshes(Tachyon* tachyon, State& state) {
@@ -40,7 +40,6 @@ static void LoadDebugMeshes(Tachyon* tachyon, State& state) {
 static void SetupFlightSimLevel(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
-  create(meshes.planet);
   create(meshes.planet);
   create(meshes.planet);
 

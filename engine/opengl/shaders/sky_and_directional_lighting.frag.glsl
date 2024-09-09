@@ -169,12 +169,22 @@ Material UnpackMaterial(uvec4 surface) {
 }
 
 // @todo allow game-specific definitions
-vec3 GetSkyColor(vec3 direction) {
-  float sun_dot = max(dot(-directional_light_direction, direction), 0.0);
+vec3 GetSkyColor(vec3 sky_direction) {
+  vec3 sun_direction = -directional_light_direction;
+  vec3 planet_direction = vec3(0, -1, 0);
+
+  float sun_dot = max(dot(sun_direction, sky_direction), 0.0);
+  vec3 sun_base_color = mix(vec3(1,0.5,0), vec3(1.0, 0.95, 0.85), pow(sun_dot, 100));
   float sun_alpha = clamp(pow(sun_dot, 200) * 1.5, 0, 1);
-  vec3 base_sun_color = mix(vec3(1,0,0), vec3(0.9, 0.88, 0.6), pow(sun_dot, 100));
-  vec3 sun_color = mix(vec3(0), base_sun_color, sun_alpha);
-  vec3 sky_color = sun_color;
+  vec3 sun_color = mix(vec3(0), sun_base_color, sun_alpha);
+
+  float planet_dot = max(dot(planet_direction, sky_direction), 0.0);
+  vec3 planet_atmosphere_base_color = mix(vec3(0.1, 0.6, 1.0), vec3(1), pow(planet_dot, 20));
+  float planet_atmosphere_sunlight_factor = 0.2 + 0.8 * pow(sun_dot, 10);
+  float planet_atmosphere_alpha = clamp(pow(planet_dot, 95) * 20.0, 0, 1) * planet_atmosphere_sunlight_factor;
+  vec3 planet_atmosphere_color = mix(vec3(0), planet_atmosphere_base_color, planet_atmosphere_alpha);
+
+  vec3 sky_color = sun_color + planet_atmosphere_color;
 
   return sky_color;
 }
