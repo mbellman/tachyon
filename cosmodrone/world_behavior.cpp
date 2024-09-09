@@ -17,7 +17,7 @@ static void UpdateCelestialBodies(Tachyon* tachyon, State& state, const float dt
   auto& moon = objects(meshes.planet)[1];
 
   earth.position = camera.position + tVec3f(0, -4000000.f, 0);
-  earth.color = tVec3f(0.3f, 0.7f, 1.f);
+  earth.color = tVec3f(0.3f, 0.5f, 1.f);
   earth.scale = tVec3f(1000000.f);
   earth.material = tVec4f(0.4f, 0, 1.f, 0.3);
 
