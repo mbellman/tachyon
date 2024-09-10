@@ -77,7 +77,7 @@ Quaternion tOrientation::toQuaternion() const {
   Quaternion qy = Quaternion::fromAxisAngle(yaw, 0.0f, 1.0f, 0.0f);
   Quaternion qr = Quaternion::fromAxisAngle(roll, 0.0f, 0.0f, 1.0f);
 
-  return (qy * qp * qr);
+  return (qp * qy * qr);
 }
 
 tVec3f tOrientation::toVec3f() const {

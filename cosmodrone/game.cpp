@@ -6,6 +6,10 @@
 
 using namespace Cosmodrone;
 
+const static auto FORWARD_VECTOR = tVec3f(0, 0, -1.f);
+const static auto UP_VECTOR = tVec3f(0, 1.f, 0);
+const static auto RIGHT_VECTOR = tVec3f(1.f, 0, 0);
+
 // @todo pass into StartGame() and RunGame() from main.cpp
 static State state;
 
@@ -31,7 +35,10 @@ static Quaternion DirectionToQuaternion(const tVec3f& direction) {
   auto yaw = atan2f(direction.x, direction.z);
   auto pitch = atan2f(direction.xz().magnitude(), direction.y) - 3.141592f / 2.f;
 
-  return tOrientation(0.f, pitch, yaw).toQuaternion();
+  return (
+    Quaternion::fromAxisAngle(UP_VECTOR, yaw) *
+    Quaternion::fromAxisAngle(RIGHT_VECTOR, pitch)
+  );
 }
 
 static void UpdateViewDirections(Tachyon* tachyon, State& state) {
@@ -54,10 +61,6 @@ static void UpdateViewDirections(Tachyon* tachyon, State& state) {
     view_matrix.m[6]
   );
 }
-
-const static auto FORWARD_VECTOR = tVec3f(0, 0, -1.f);
-const static auto UP_VECTOR = tVec3f(0, 1.f, 0);
-const static auto LEFT_VECTOR = tVec3f(-1.f, 0, 0);
 
 static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt) {
   // Handle forward thrust
@@ -143,7 +146,7 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
 
   if (is_window_focused()) {
     Quaternion turn = (
-      Quaternion::fromAxisAngle(LEFT_VECTOR, -(float)tachyon->mouse_delta_y / 1000.f) *
+      Quaternion::fromAxisAngle(RIGHT_VECTOR, (float)tachyon->mouse_delta_y / 1000.f) *
       Quaternion::fromAxisAngle(UP_VECTOR, (float)tachyon->mouse_delta_x / 1000.f) *
       Quaternion::fromAxisAngle(FORWARD_VECTOR, state.camera_roll_speed * dt)
     );
@@ -312,39 +315,9 @@ void Cosmodrone::RunGame(Tachyon* tachyon, const float dt) {
   auto& camera = tachyon->scene.camera;
   auto& meshes = state.meshes;
 
-  if (tachyon->is_window_focused) {
-    // @todo move this into a separate free-camera-mode handler
-    // camera.orientation.yaw += (float)tachyon->mouse_delta_x / 1000.f;
-    // camera.orientation.pitch += (float)tachyon->mouse_delta_y / 1000.f;
-
-    // if (state.camera3p.isUpsideDown()) {
-    //   state.camera3p.azimuth -= (float)tachyon->mouse_delta_x / 1000.f;
-    // } else {
-    //   state.camera3p.azimuth += (float)tachyon->mouse_delta_x / 1000.f;
-    // }
-
-    // @todo dev mode only
-    if (did_press_key(tKey::NUM_1)) {
-      state.is_editor_active = !state.is_editor_active;
-    }
-  }
-
-  // @todo move this into a separate free-camera-mode handler
-  {
-    // if (camera.orientation.pitch > 0.99f) camera.orientation.pitch = 0.99f;
-    // else if (camera.orientation.pitch < -0.99f) camera.orientation.pitch = -0.99f;
-
-    // if (is_key_held(tKey::W)) {
-    //   camera.position += camera.orientation.getDirection() * dt * 500.f;
-    // } else if (is_key_held(tKey::S)) {
-    //   camera.position += camera.orientation.getDirection() * -dt * 500.f;
-    // }
-
-    // if (is_key_held(tKey::A)) {
-    //   camera.position += camera.orientation.getLeftDirection() * dt * 500.f;
-    // } else if (is_key_held(tKey::D)) {
-    //   camera.position += camera.orientation.getRightDirection() * dt * 500.f;
-    // }
+  // @todo dev mode only
+  if (did_press_key(tKey::NUM_1)) {
+    state.is_editor_active = !state.is_editor_active;
   }
 
   // @todo dev mode only

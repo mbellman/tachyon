@@ -2,6 +2,44 @@
 
 using namespace Cosmodrone;
 
-void Editor::HandleEditor(Tachyon* tachyon, State& state, const float dt) {
+static const float PITCH_LIMIT = (3.141592f / 2.f) * 0.99f;
 
+static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
+  if (!is_window_focused()) {
+    return;
+  }
+
+  auto& camera = tachyon->scene.camera;
+
+  // Handle mouse movements
+  {
+    camera.orientation.yaw += (float)tachyon->mouse_delta_x / 1000.f;
+    camera.orientation.pitch += (float)tachyon->mouse_delta_y / 1000.f;
+
+    if (camera.orientation.pitch > PITCH_LIMIT) camera.orientation.pitch = PITCH_LIMIT;
+    else if (camera.orientation.pitch < -PITCH_LIMIT) camera.orientation.pitch = -PITCH_LIMIT;
+  }
+
+  // Handle WASD controls
+  {
+    const float speed = is_key_held(tKey::SPACE) ? 50000.f : 2000.f;
+
+    if (is_key_held(tKey::W)) {
+      camera.position += camera.orientation.getDirection() * dt * speed;
+    } else if (is_key_held(tKey::S)) {
+      camera.position += camera.orientation.getDirection() * -dt * speed;
+    }
+
+    if (is_key_held(tKey::A)) {
+      camera.position += camera.orientation.getLeftDirection() * dt * speed;
+    } else if (is_key_held(tKey::D)) {
+      camera.position += camera.orientation.getRightDirection() * dt * speed;
+    }
+  }
+
+  camera.rotation = camera.orientation.toQuaternion();
+}
+
+void Editor::HandleEditor(Tachyon* tachyon, State& state, const float dt) {
+  HandleCamera(tachyon, state, dt);
 }
