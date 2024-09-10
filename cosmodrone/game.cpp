@@ -326,6 +326,7 @@ void Cosmodrone::RunGame(Tachyon* tachyon, const float dt) {
 
   // @todo dev mode only
   objects(meshes.cube).disabled = state.is_editor_active || !tachyon->show_developer_tools;
+  objects(meshes.editor_guideline).disabled = !state.is_editor_active;
 
   // @todo dev mode only
   if (state.is_editor_active) {

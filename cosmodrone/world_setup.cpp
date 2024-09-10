@@ -43,8 +43,9 @@ static void LoadDebugMeshes(Tachyon* tachyon, State& state) {
   auto sphere_mesh = Tachyon_CreateSphereMesh(4);
   auto cube_mesh = Tachyon_CreateCubeMesh();
 
-  meshes.sphere = Tachyon_AddMesh(tachyon, sphere_mesh, 40 * 40 * 40);
+  // meshes.sphere = Tachyon_AddMesh(tachyon, sphere_mesh, 40 * 40 * 40);
   meshes.cube = Tachyon_AddMesh(tachyon, cube_mesh, 6);
+  meshes.editor_guideline = Tachyon_AddMesh(tachyon, cube_mesh, 3000);
 }
 
 static void SetupFlightSimLevel(Tachyon* tachyon, State& state) {
@@ -52,26 +53,6 @@ static void SetupFlightSimLevel(Tachyon* tachyon, State& state) {
 
   create(meshes.planet);
   create(meshes.planet);
-
-  for (int32 i = 0; i < 40; i++) {
-    for (int32 j = 0; j < 40; j++) {
-      for (int32 k = 0; k < 40; k++) {
-        auto& sphere = create(meshes.sphere);
-
-        sphere.position = tVec3f(
-          (i - 20) * 4000.f,
-          (j - 20) * 4000.f,
-          (k - 20) * 4000.f
-        );
-
-        sphere.scale = 50.f;
-        sphere.color = tVec3f(0.2f, 0.5f, 1.f);
-        sphere.material = tVec4f(0.8f, 0.f, 1.f, 1.f);
-
-        commit(sphere);
-      }
-    }
-  }
 
   // @todo improve ship part handling
   {
@@ -112,6 +93,58 @@ static void CreateDebugMeshes(Tachyon* tachyon, State& state) {
   create(meshes.cube);
 }
 
+static void CreateEditorGuidelines(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
+  const float width = 500000.f;
+  const float height = 1000000.f;
+  const float thickness = 50.f;
+
+  // Vertical lines
+  for (uint32 i = 0; i < 10; i++) {
+    for (uint32 j = 0; j < 10; j++) {
+      auto& line = create(meshes.editor_guideline);
+
+      auto x = -width + (width / 5.f) * float(i);
+      auto z = -width + (width / 5.f) * float(j);
+
+      line.scale = tVec3f(thickness, height, thickness);
+      line.color = tVec4f(1.f, 0, 0, 0.3f);
+      line.position = tVec3f(x, 0, z);
+
+      commit(line);
+    }
+  }
+
+  // Planes
+  const float y_increment = height / 25.f;
+  const float w_increment = width / 5.f;
+
+  for (uint32 i = 0; i < 50; i++) {
+    auto y = -height + y_increment * float(i);
+
+    for (uint32 j = 0; j < 10; j++) {
+      auto& line = create(meshes.editor_guideline);
+
+      line.scale = tVec3f(width, thickness, thickness);
+      line.position = tVec3f(0, y, -width + w_increment * float(j));
+      line.color = tVec4f(1.f, 0, 0, 0.3f);
+
+      commit(line);
+    }
+
+    for (uint32 j = 0; j < 10; j++) {
+      auto& line = create(meshes.editor_guideline);
+
+      line.scale = tVec3f(thickness, thickness, width);
+      line.position = tVec3f(-width + w_increment * float(j), y, 0);
+      line.color = tVec4f(1.f, 0, 0, 0.3f);
+
+      commit(line);
+    }
+  }
+}
+
 void WorldSetup::LoadMeshes(Tachyon* tachyon, State& state) {
   LoadShipPartMeshes(tachyon, state);
   LoadStationPartMeshes(tachyon, state);
@@ -124,4 +157,5 @@ void WorldSetup::LoadMeshes(Tachyon* tachyon, State& state) {
 void WorldSetup::InitializeGameWorld(Tachyon* tachyon, State& state) {
   SetupFlightSimLevel(tachyon, state);
   CreateDebugMeshes(tachyon, state);
+  CreateEditorGuidelines(tachyon, state);
 }
