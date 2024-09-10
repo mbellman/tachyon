@@ -218,6 +218,10 @@ static void RenderStaticGeometry(Tachyon* tachyon) {
 
   // @todo have a separate method for this
   for (auto& record : tachyon->mesh_pack.mesh_records) {
+    if (record.group.total_visible == 0) {
+      continue;
+    }
+
     if (!record.group.buffered) {
       glBindBuffer(GL_ARRAY_BUFFER, gl_mesh_pack.buffers[SURFACE_BUFFER]);
       glBufferSubData(GL_ARRAY_BUFFER, record.group.object_offset * sizeof(uint32), record.group.total_visible * sizeof(uint32), record.group.surfaces);
@@ -264,21 +268,24 @@ static void RenderStaticGeometry(Tachyon* tachyon) {
   }
 
   // @todo avoid allocating + deleting each frame
-  auto* commands = new DrawElementsIndirectCommand[total_drawable_meshes];
+  std::vector<DrawElementsIndirectCommand> commands;
 
-  for (uint32 i = 0; i < total_drawable_meshes; i++) {
-    auto& command = commands[i];
+  for (uint32 i = 0; i < records.size(); i++) {
     auto& record = records[i];
 
     if (record.group.disabled || record.group.total_visible == 0) {
       continue;
     }
 
+    DrawElementsIndirectCommand command;
+
     command.count = record.face_element_end - record.face_element_start;
     command.firstIndex = record.face_element_start;
     command.instanceCount = record.group.total_visible;
     command.baseInstance = record.group.object_offset;
     command.baseVertex = record.vertex_start;
+
+    commands.push_back(command);
 
     // @todo dev mode only
     {
@@ -289,11 +296,9 @@ static void RenderStaticGeometry(Tachyon* tachyon) {
   }
 
   glBindBuffer(GL_DRAW_INDIRECT_BUFFER, renderer.indirect_buffer);
-  glBufferData(GL_DRAW_INDIRECT_BUFFER, total_drawable_meshes * sizeof(DrawElementsIndirectCommand), commands, GL_DYNAMIC_DRAW);
+  glBufferData(GL_DRAW_INDIRECT_BUFFER, commands.size() * sizeof(DrawElementsIndirectCommand), commands.data(), GL_DYNAMIC_DRAW);
 
-  glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, 0, total_drawable_meshes, 0);
-
-  delete[] commands;
+  glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, 0, commands.size(), 0);
 
   // @todo dev mode only
   {

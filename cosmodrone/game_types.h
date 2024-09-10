@@ -4,12 +4,17 @@
 
 namespace Cosmodrone {
   struct MeshIds {
-    uint32
+    uint16
       // Ship parts
       hull,
       streams,
       thrusters,
       trim,
+
+      // station parts
+      module_1,
+      torus_1,
+      solar_panel_1,
 
       // Celestial bodies
       planet,
