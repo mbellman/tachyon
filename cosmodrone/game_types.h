@@ -52,5 +52,8 @@ namespace Cosmodrone {
 
     OrthonormalBasis ship_rotation_basis;
     OrthonormalBasis ship_velocity_basis;
+
+    // @todo dev mode only
+    bool is_editor_active = false;
   };
 }

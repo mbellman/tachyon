@@ -115,6 +115,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="cosmodrone\game.h" />
+    <ClInclude Include="cosmodrone\game_editor.h" />
     <ClInclude Include="cosmodrone\game_types.h" />
     <ClInclude Include="cosmodrone\world_behavior.h" />
     <ClInclude Include="cosmodrone\world_setup.h" />
@@ -227,6 +228,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cosmodrone\game.cpp" />
+    <ClCompile Include="cosmodrone\game_editor.cpp" />
     <ClCompile Include="cosmodrone\world_behavior.cpp" />
     <ClCompile Include="cosmodrone\world_setup.cpp" />
     <ClCompile Include="engine\opengl\tachyon_opengl_framebuffer.cpp" />

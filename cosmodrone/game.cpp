@@ -1,4 +1,5 @@
 #include "cosmodrone/game.h"
+#include "cosmodrone/game_editor.h"
 #include "cosmodrone/game_types.h"
 #include "cosmodrone/world_behavior.h"
 #include "cosmodrone/world_setup.h"
@@ -267,8 +268,6 @@ static void UpdateOrthonormalBasisDebugVectors(
 static void UpdateShipDebugVectors(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
-  objects(meshes.cube).disabled = false;
-
   {
     auto& forward = objects(meshes.cube)[0];
     auto& sideways = objects(meshes.cube)[1];
@@ -323,6 +322,11 @@ void Cosmodrone::RunGame(Tachyon* tachyon, const float dt) {
     // } else {
     //   state.camera3p.azimuth += (float)tachyon->mouse_delta_x / 1000.f;
     // }
+
+    // @todo dev mode only
+    if (did_press_key(tKey::NUM_1)) {
+      state.is_editor_active = !state.is_editor_active;
+    }
   }
 
   // @todo move this into a separate free-camera-mode handler
@@ -343,6 +347,16 @@ void Cosmodrone::RunGame(Tachyon* tachyon, const float dt) {
     // }
   }
 
+  // @todo dev mode only
+  objects(meshes.cube).disabled = state.is_editor_active || !tachyon->show_developer_tools;
+
+  // @todo dev mode only
+  if (state.is_editor_active) {
+    Editor::HandleEditor(tachyon, state, dt);
+
+    return;
+  }
+
   HandleFlightControls(tachyon, state, dt);
   HandleFlightCamera(tachyon, state, dt);
   UpdateShip(tachyon, state, dt);
@@ -353,7 +367,5 @@ void Cosmodrone::RunGame(Tachyon* tachyon, const float dt) {
   if (tachyon->show_developer_tools) {
     UpdateShipDebugVectors(tachyon, state);
     ShowDevLabels(tachyon, state);
-  } else {
-    objects(meshes.cube).disabled = true;
   }
 }
