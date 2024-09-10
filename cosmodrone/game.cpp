@@ -317,7 +317,11 @@ void Cosmodrone::RunGame(Tachyon* tachyon, const float dt) {
 
   // @todo dev mode only
   if (did_press_key(tKey::NUM_1)) {
-    state.is_editor_active = !state.is_editor_active;
+    if (state.is_editor_active) {
+      Editor::DisableEditor(tachyon, state);
+    } else {
+      Editor::EnableEditor(tachyon, state);
+    }
   }
 
   // @todo dev mode only

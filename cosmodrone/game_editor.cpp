@@ -43,3 +43,16 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
 void Editor::HandleEditor(Tachyon* tachyon, State& state, const float dt) {
   HandleCamera(tachyon, state, dt);
 }
+
+void Editor::EnableEditor(Tachyon* tachyon, State& state) {
+  state.is_editor_active = true;
+
+  auto& camera = tachyon->scene.camera;
+  auto forward = state.ship_position - camera.position;
+
+  camera.orientation.face(forward, tVec3f(0, 1.f, 0));
+}
+
+void Editor::DisableEditor(Tachyon* tachyon, State& state) {
+  state.is_editor_active = false;
+}
