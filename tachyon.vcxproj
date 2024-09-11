@@ -117,6 +117,7 @@
     <ClInclude Include="cosmodrone\game.h" />
     <ClInclude Include="cosmodrone\game_editor.h" />
     <ClInclude Include="cosmodrone\game_types.h" />
+    <ClInclude Include="cosmodrone\mesh_library.h" />
     <ClInclude Include="cosmodrone\world_behavior.h" />
     <ClInclude Include="cosmodrone\world_setup.h" />
     <ClInclude Include="engine\opengl\tachyon_opengl_framebuffer.h" />
@@ -229,6 +230,7 @@
   <ItemGroup>
     <ClCompile Include="cosmodrone\game.cpp" />
     <ClCompile Include="cosmodrone\game_editor.cpp" />
+    <ClCompile Include="cosmodrone\mesh_library.cpp" />
     <ClCompile Include="cosmodrone\world_behavior.cpp" />
     <ClCompile Include="cosmodrone\world_setup.cpp" />
     <ClCompile Include="engine\opengl\tachyon_opengl_framebuffer.cpp" />

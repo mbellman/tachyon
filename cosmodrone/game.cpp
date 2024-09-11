@@ -1,6 +1,7 @@
 #include "cosmodrone/game.h"
 #include "cosmodrone/game_editor.h"
 #include "cosmodrone/game_types.h"
+#include "cosmodrone/mesh_library.h"
 #include "cosmodrone/world_behavior.h"
 #include "cosmodrone/world_setup.h"
 
@@ -307,7 +308,7 @@ static void ShowDevLabels(Tachyon* tachyon, State& state) {
 }
 
 void Cosmodrone::StartGame(Tachyon* tachyon) {
-  WorldSetup::LoadMeshes(tachyon, state);
+  MeshLibrary::LoadMeshes(tachyon, state);
   WorldSetup::InitializeGameWorld(tachyon, state);
 }
 
