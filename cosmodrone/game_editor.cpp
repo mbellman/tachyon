@@ -75,15 +75,33 @@ static void HandleInputs(Tachyon* tachyon, State& state) {
   }
 }
 
+static void HandleObjectPicker(Tachyon* tachyon, State& state) {
+  auto& camera = tachyon->scene.camera;
+  auto& placeable_meshes = MeshLibrary::GetPlaceableMeshAssets();
+  auto& selected_mesh = placeable_meshes[editor.object_picker_index];
+  auto mesh_name = selected_mesh.mesh_name;
+  auto mesh_index = selected_mesh.mesh_index;
+
+  if (objects(mesh_index).total_visible == 0) {
+    create(mesh_index);
+  }
+
+  auto& preview_object = objects(mesh_index)[0];
+
+  preview_object.scale = tVec3f(1000.f);
+  preview_object.position = camera.position + camera.orientation.getDirection() * 2000.f;
+
+  commit(preview_object);
+
+  add_dev_label("Object", mesh_name);
+}
+
 void Editor::HandleEditor(Tachyon* tachyon, State& state, const float dt) {
   HandleCamera(tachyon, state, dt);
   HandleInputs(tachyon, state);
 
   if (editor.show_object_picker) {
-    auto& placeable_meshes = MeshLibrary::GetPlaceableMeshAssets();
-    auto mesh_name = placeable_meshes[editor.object_picker_index].mesh_name;
-
-    add_dev_label("Object", mesh_name);
+    HandleObjectPicker(tachyon, state);
   }
 }
 
