@@ -27,6 +27,22 @@ static void LoadStationPartMeshes(Tachyon* tachyon, State& state) {
   meshes.module_1 = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/module_1.obj"), 1000);
   meshes.torus_1 = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/torus_1.obj"), 1000);
   meshes.solar_panel_1 = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/solar_panel_1.obj"), 1000);
+
+  // @todo refactor
+  mesh_assets.push_back({
+    .mesh_name = "module_1",
+    .mesh_index = meshes.module_1
+  });
+
+  mesh_assets.push_back({
+    .mesh_name = "torus_1",
+    .mesh_index = meshes.torus_1
+  });
+
+  mesh_assets.push_back({
+    .mesh_name = "solar_panel_1",
+    .mesh_index = meshes.solar_panel_1
+  });
 }
 
 static void LoadCelestialBodyMeshes(Tachyon* tachyon, State& state) {
@@ -59,6 +75,6 @@ void MeshLibrary::LoadMeshes(Tachyon* tachyon, State& state) {
   Tachyon_InitializeObjects(tachyon);
 }
 
-const std::vector<MeshAsset>& MeshLibrary::GetMeshAssets() {
+const std::vector<MeshAsset>& MeshLibrary::GetPlaceableMeshAssets() {
   return mesh_assets;
 }

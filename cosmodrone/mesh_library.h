@@ -11,6 +11,6 @@ namespace Cosmodrone {
 
   namespace MeshLibrary {
     void LoadMeshes(Tachyon* tachyon, State& state);
-    const std::vector<MeshAsset>& GetMeshAssets();
+    const std::vector<MeshAsset>& GetPlaceableMeshAssets();
   }
 }

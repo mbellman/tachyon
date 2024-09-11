@@ -1,24 +1,13 @@
 #include "cosmodrone/game_editor.h"
+#include "cosmodrone/mesh_library.h"
 
 using namespace Cosmodrone;
 
 static const float PITCH_LIMIT = (3.141592f / 2.f) * 0.99f;
 
-struct ActiveObject {
-  std::string mesh_name;
-  uint16 mesh_index;
-};
-
-std::vector<ActiveObject> object_cycle = {
-  {
-    .mesh_name = "module_1",
-    .mesh_index = 0
-  }
-};
-
 struct EditorState {
   bool show_object_picker = false;
-  uint16 object_picker_cycle_index = 0;
+  uint16 object_picker_index = 0;
 
   tObject* selected_object = nullptr;
 } editor;
@@ -65,19 +54,22 @@ static void HandleInputs(Tachyon* tachyon, State& state) {
   }
 
   if (editor.show_object_picker) {
+    auto& placeable_meshes = MeshLibrary::GetPlaceableMeshAssets();
+    auto max = placeable_meshes.size() - 1;
+
     if (did_press_key(tKey::ARROW_LEFT)) {
-      if (editor.object_picker_cycle_index == 0) {
-        editor.object_picker_cycle_index = 2;
+      if (editor.object_picker_index == 0) {
+        editor.object_picker_index = max;
       } else {
-        editor.object_picker_cycle_index--;
+        editor.object_picker_index--;
       }
     }
 
     if (did_press_key(tKey::ARROW_RIGHT)) {
-      if (editor.object_picker_cycle_index == 2) {
-        editor.object_picker_cycle_index = 0;
+      if (editor.object_picker_index == max) {
+        editor.object_picker_index = 0;
       } else {
-        editor.object_picker_cycle_index++;
+        editor.object_picker_index++;
       }
     }
   }
@@ -88,7 +80,10 @@ void Editor::HandleEditor(Tachyon* tachyon, State& state, const float dt) {
   HandleInputs(tachyon, state);
 
   if (editor.show_object_picker) {
-    add_dev_label("Object", std::to_string(editor.object_picker_cycle_index));
+    auto& placeable_meshes = MeshLibrary::GetPlaceableMeshAssets();
+    auto mesh_name = placeable_meshes[editor.object_picker_index].mesh_name;
+
+    add_dev_label("Object", mesh_name);
   }
 }
 
