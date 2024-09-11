@@ -125,6 +125,7 @@ struct Tachyon {
   uint64 released_key_state = 0;
   int32 mouse_delta_x = 0;
   int32 mouse_delta_y = 0;
+  int8 wheel_direction = 0;
 
   std::vector<tObject> objects;
   std::vector<uint32> surfaces;

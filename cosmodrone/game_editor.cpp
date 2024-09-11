@@ -49,15 +49,11 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
 }
 
 static void HandleInputs(Tachyon* tachyon, State& state) {
-  if (did_press_key(tKey::ENTER)) {
-    editor.show_object_picker = !editor.show_object_picker;
-  }
-
   if (editor.show_object_picker) {
     auto& placeable_meshes = MeshLibrary::GetPlaceableMeshAssets();
     auto max = placeable_meshes.size() - 1;
 
-    if (did_press_key(tKey::ARROW_LEFT)) {
+    if (did_wheel_up()) {
       if (editor.object_picker_index == 0) {
         editor.object_picker_index = max;
       } else {
@@ -65,13 +61,17 @@ static void HandleInputs(Tachyon* tachyon, State& state) {
       }
     }
 
-    if (did_press_key(tKey::ARROW_RIGHT)) {
+    if (did_wheel_down()) {
       if (editor.object_picker_index == max) {
         editor.object_picker_index = 0;
       } else {
         editor.object_picker_index++;
       }
     }
+  }
+
+  if (did_wheel_down() || did_wheel_up()) {
+    editor.show_object_picker = true;
   }
 }
 
