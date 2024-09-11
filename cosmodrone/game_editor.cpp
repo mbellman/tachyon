@@ -4,6 +4,25 @@ using namespace Cosmodrone;
 
 static const float PITCH_LIMIT = (3.141592f / 2.f) * 0.99f;
 
+struct ActiveObject {
+  std::string mesh_name;
+  uint16 mesh_index;
+};
+
+std::vector<ActiveObject> object_cycle = {
+  {
+    .mesh_name = "module_1",
+    .mesh_index = 0
+  }
+};
+
+struct EditorState {
+  bool show_object_picker = false;
+  uint16 object_picker_cycle_index = 0;
+
+  tObject* selected_object = nullptr;
+} editor;
+
 static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
   if (!is_window_focused()) {
     return;
@@ -40,8 +59,37 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
   camera.rotation = camera.orientation.toQuaternion();
 }
 
+static void HandleInputs(Tachyon* tachyon, State& state) {
+  if (did_press_key(tKey::ENTER)) {
+    editor.show_object_picker = !editor.show_object_picker;
+  }
+
+  if (editor.show_object_picker) {
+    if (did_press_key(tKey::ARROW_LEFT)) {
+      if (editor.object_picker_cycle_index == 0) {
+        editor.object_picker_cycle_index = 2;
+      } else {
+        editor.object_picker_cycle_index--;
+      }
+    }
+
+    if (did_press_key(tKey::ARROW_RIGHT)) {
+      if (editor.object_picker_cycle_index == 2) {
+        editor.object_picker_cycle_index = 0;
+      } else {
+        editor.object_picker_cycle_index++;
+      }
+    }
+  }
+}
+
 void Editor::HandleEditor(Tachyon* tachyon, State& state, const float dt) {
   HandleCamera(tachyon, state, dt);
+  HandleInputs(tachyon, state);
+
+  if (editor.show_object_picker) {
+    add_dev_label("Object", std::to_string(editor.object_picker_cycle_index));
+  }
 }
 
 void Editor::EnableEditor(Tachyon* tachyon, State& state) {
@@ -55,4 +103,6 @@ void Editor::EnableEditor(Tachyon* tachyon, State& state) {
 
 void Editor::DisableEditor(Tachyon* tachyon, State& state) {
   state.is_editor_active = false;
+
+  editor.show_object_picker = false;
 }
