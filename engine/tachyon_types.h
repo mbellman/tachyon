@@ -57,7 +57,7 @@ struct tObject {
   tColor color = tVec3f(1.f);
   tMaterial material = tVec4f(0.6f, 0, 0, 0);
 
-  uint16 object_index = 0;  // @todo change to object_id, use an id -> index table
+  uint16 object_id = 0;
   uint16 mesh_index = 0;
 };
 
@@ -65,9 +65,11 @@ struct tObjectGroup {
   tObject* objects = nullptr;
   uint32* surfaces = nullptr;
   tMat4f* matrices = nullptr;
+  uint16* id_to_index = nullptr;
   uint32 object_offset = 0;
   uint16 total = 0;
   uint16 total_visible = 0;
+  uint16 total_active = 0;
   bool buffered = false;
   bool disabled = false;
 

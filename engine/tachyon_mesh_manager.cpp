@@ -381,6 +381,7 @@ uint32 Tachyon_AddMesh(Tachyon* tachyon, const tMesh& mesh, uint16 total) {
   record.face_element_end = record.face_element_start + mesh.face_elements.size();
 
   record.group.total = total;
+  record.group.id_to_index = new uint16[total];
 
   pack.mesh_records.push_back(record);
 
@@ -417,13 +418,12 @@ void Tachyon_InitializeObjects(Tachyon* tachyon) {
     record.group.matrices = &tachyon->matrices[object_offset];
     record.group.object_offset = object_offset;
 
-    uint16 object_index = 0;
+    uint16 running_object_id = 0;
 
     // Set mesh/object indexes on each object
-    // @todo set object id
     for (auto& object : record.group) {
       object.mesh_index = mesh_index;
-      object.object_index = object_index++;
+      object.object_id = running_object_id++;
     }
 
     object_offset += record.group.total;
@@ -439,15 +439,21 @@ tObject& Tachyon_CreateObject(Tachyon* tachyon, uint16 mesh_index) {
   }
 
   group.total_visible++;
+  group.total_active++;
 
-  return group[group.total_visible - 1];
+  auto index = group.total_active - 1;
+  auto& object = group[index];
+
+  group.id_to_index[object.object_id] = index;
+
+  return object;
 }
 
 void Tachyon_CommitObject(Tachyon* tachyon, const tObject& object) {
   auto& group = tachyon->mesh_pack.mesh_records[object.mesh_index].group;
+  auto index = group.id_to_index[object.object_id];
 
-  // @todo object id -> index
-  group.surfaces[object.object_index] = (uint32(object.color.rgba) << 16) | (uint32)object.material.data;
-  group.matrices[object.object_index] = tMat4f::transformation(object.position, object.scale, object.rotation).transpose();
+  group.surfaces[index] = (uint32(object.color.rgba) << 16) | (uint32)object.material.data;
+  group.matrices[index] = tMat4f::transformation(object.position, object.scale, object.rotation).transpose();
   group.buffered = false;
 }
