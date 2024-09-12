@@ -10,6 +10,8 @@
 #define did_release_key(key) (tachyon->released_key_state & (uint64)key)
 #define did_wheel_up() (tachyon->wheel_direction > 0)
 #define did_wheel_down() (tachyon->wheel_direction < 0)
+#define did_press_mouse() (tachyon->did_press_mouse)
+#define did_release_mouse() (tachyon->did_release_mouse)
 
 enum class tKey : uint64 {
   A = 1ULL << 0,
