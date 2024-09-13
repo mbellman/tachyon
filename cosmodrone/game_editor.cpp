@@ -9,7 +9,8 @@ struct EditorState {
   bool show_object_picker = false;
   uint16 object_picker_index = 0;
 
-  tObject* selected_object = nullptr;
+  bool is_object_selected = false;
+  tObject selected_object;
 } editor;
 
 static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
@@ -54,6 +55,10 @@ static void HandleInputs(Tachyon* tachyon, State& state) {
     auto max = placeable_meshes.size() - 1;
 
     if (did_wheel_up()) {
+      if (editor.is_object_selected) {
+        remove(editor.selected_object);
+      }
+
       if (editor.object_picker_index == 0) {
         editor.object_picker_index = max;
       } else {
@@ -62,6 +67,10 @@ static void HandleInputs(Tachyon* tachyon, State& state) {
     }
 
     if (did_wheel_down()) {
+      if (editor.is_object_selected) {
+        remove(editor.selected_object);
+      }
+
       if (editor.object_picker_index == max) {
         editor.object_picker_index = 0;
       } else {
@@ -95,21 +104,25 @@ static void HandleObjectPicker(Tachyon* tachyon, State& state) {
     create(mesh_index);
   }
 
-  auto& preview_object = instances[instances.total_visible - 1];
+  editor.is_object_selected = true;
 
-  preview_object.scale = tVec3f(1000.f);
-  preview_object.position = camera.position + camera.orientation.getDirection() * 6000.f;
-  preview_object.color = tVec4f(1.f, 1.f, 1.f, uint32(tachyon->running_time * 3.f) % 2 == 0 ? 0.2f : 0.6f);
+  editor.selected_object = instances[instances.total_visible - 1];
+  editor.selected_object.scale = tVec3f(1000.f);
+  editor.selected_object.position = camera.position + camera.orientation.getDirection() * 6000.f;
+  editor.selected_object.color = tVec4f(1.f, 1.f, 1.f, uint32(tachyon->running_time * 3.f) % 2 == 0 ? 0.2f : 0.6f);
 
   if (did_press_mouse()) {
-    preview_object.color = tVec3f(1.f);
+    editor.selected_object.color = tVec3f(1.f);
 
     editor.show_object_picker = false;
+    editor.is_object_selected = false;
   }
 
-  commit(preview_object);
+  commit(editor.selected_object);
 
   add_dev_label("Object", mesh_name);
+  add_dev_label("Visible", std::to_string(instances.total_visible));
+  add_dev_label("Active", std::to_string(instances.total_active));
 }
 
 void Editor::HandleEditor(Tachyon* tachyon, State& state, const float dt) {

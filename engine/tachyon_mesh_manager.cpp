@@ -449,6 +449,32 @@ tObject& Tachyon_CreateObject(Tachyon* tachyon, uint16 mesh_index) {
   return object;
 }
 
+void Tachyon_RemoveObject(Tachyon* tachyon, tObject& object) {
+  auto& group = tachyon->mesh_pack.mesh_records[object.mesh_index].group;
+
+  if (group.total_active == 0) {
+    // @todo throw an error?
+    return;
+  }
+
+  uint16 index = group.id_to_index[object.object_id];
+  uint16 last_active_index = group.total_active - 1;
+
+  tObject last_active_object = group.objects[last_active_index];
+  uint32 last_active_surface = group.surfaces[last_active_index];
+  tMat4f last_active_matrix = group.matrices[last_active_index];
+
+  group.objects[index] = last_active_object;
+  group.surfaces[index] = last_active_surface;
+  group.matrices[index] = last_active_matrix;
+
+  group.total_active--;
+
+  if (index < group.total_visible) {
+    group.total_visible--;
+  }
+}
+
 void Tachyon_CommitObject(Tachyon* tachyon, const tObject& object) {
   auto& group = tachyon->mesh_pack.mesh_records[object.mesh_index].group;
   auto index = group.id_to_index[object.object_id];
