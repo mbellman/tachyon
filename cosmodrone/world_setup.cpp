@@ -47,6 +47,7 @@ static void CreateDebugMeshes(Tachyon* tachyon, State& state) {
   create(meshes.cube);
 }
 
+// @todo move to editor
 static void CreateEditorGuidelines(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 

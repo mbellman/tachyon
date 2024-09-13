@@ -10,6 +10,7 @@ struct EditorState {
   uint16 object_picker_index = 0;
 
   bool is_object_selected = false;
+  float selected_object_distance = 4000.f;
   tObject selected_object;
 } editor;
 
@@ -29,8 +30,28 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
 
   // Handle mouse movements
   {
-    camera.orientation.yaw += (float)tachyon->mouse_delta_x / 1000.f;
-    camera.orientation.pitch += (float)tachyon->mouse_delta_y / 1000.f;
+    if (is_key_held(tKey::SHIFT) && editor.is_object_selected) {
+      auto offset = camera.position - editor.selected_object.position;
+      auto unit_offset = offset.unit();
+
+      tCamera3p camera3p;
+      camera3p.radius = editor.selected_object_distance;
+      camera3p.azimuth = atan2f(unit_offset.z, unit_offset.x);
+      camera3p.altitude = atan2f(unit_offset.y, unit_offset.xz().magnitude());
+
+      if (tachyon->mouse_delta_x != 0 || tachyon->mouse_delta_y != 0) {
+        camera3p.azimuth += (float)tachyon->mouse_delta_x / 1000.f;
+        camera3p.altitude += (float)tachyon->mouse_delta_y / 1000.f;
+        camera3p.limitAltitude(0.99f);
+
+        camera.position = editor.selected_object.position + camera3p.calculatePosition();
+
+        camera.orientation.face(editor.selected_object.position - camera.position, tVec3f(0, 1.f, 0));
+      }
+    } else {
+      camera.orientation.yaw += (float)tachyon->mouse_delta_x / 1000.f;
+      camera.orientation.pitch += (float)tachyon->mouse_delta_y / 1000.f;
+    }
 
     if (camera.orientation.pitch > PITCH_LIMIT) camera.orientation.pitch = PITCH_LIMIT;
     else if (camera.orientation.pitch < -PITCH_LIMIT) camera.orientation.pitch = -PITCH_LIMIT;
@@ -111,7 +132,7 @@ static void HandleObjectPicker(Tachyon* tachyon, State& state) {
 
   editor.selected_object = instances[instances.total_visible - 1];
   editor.selected_object.scale = tVec3f(1000.f);
-  editor.selected_object.position = camera.position + camera.orientation.getDirection() * 4000.f;
+  editor.selected_object.position = camera.position + camera.orientation.getDirection() * editor.selected_object_distance;
   editor.selected_object.color = tVec4f(1.f, 1.f, 1.f, uint32(tachyon->running_time * 2.f) % 2 == 0 ? 0.2f : 0.6f);
 
   if (is_window_focused() && did_press_mouse()) {
