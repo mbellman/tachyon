@@ -80,13 +80,11 @@ static void HandleInputs(Tachyon* tachyon, State& state) {
   }
 
   if (did_wheel_down() || did_wheel_up()) {
-    if (!editor.show_object_picker) {
-      auto& placeable_meshes = MeshLibrary::GetPlaceableMeshAssets();
-      auto& selected_mesh = placeable_meshes[editor.object_picker_index];
-      auto mesh_index = selected_mesh.mesh_index;
+    auto& placeable_meshes = MeshLibrary::GetPlaceableMeshAssets();
+    auto& selected_mesh = placeable_meshes[editor.object_picker_index];
+    auto mesh_index = selected_mesh.mesh_index;
 
-      create(mesh_index);
-    }
+    create(mesh_index);
 
     editor.show_object_picker = true;
   }
@@ -111,7 +109,7 @@ static void HandleObjectPicker(Tachyon* tachyon, State& state) {
   editor.selected_object.position = camera.position + camera.orientation.getDirection() * 6000.f;
   editor.selected_object.color = tVec4f(1.f, 1.f, 1.f, uint32(tachyon->running_time * 3.f) % 2 == 0 ? 0.2f : 0.6f);
 
-  if (did_press_mouse()) {
+  if (is_window_focused() && did_press_mouse()) {
     editor.selected_object.color = tVec3f(1.f);
 
     editor.show_object_picker = false;

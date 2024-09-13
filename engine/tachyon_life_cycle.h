@@ -11,7 +11,7 @@
     Tachyon_EndFrame(tachyon);\
   }\
 
-#define is_window_focused() tachyon->is_window_focused
+#define is_window_focused() (tachyon->is_window_focused)
 #define add_dev_label(label, message) tachyon->dev_labels.push_back({ label, message })
 
 Tachyon* Tachyon_Init();
