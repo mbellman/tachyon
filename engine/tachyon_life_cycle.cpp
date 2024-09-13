@@ -18,7 +18,16 @@ internal void HandleEvents(Tachyon* tachyon) {
         tachyon->is_running = false;
         break;
       case SDL_MOUSEBUTTONDOWN:
-        Tachyon_FocusWindow(tachyon);
+        if (!is_window_focused()) {
+          // When re-focusing the window, stop here to avoid processing
+          // the mousedown or any other events until the next frame.
+          // We don't want the action to trigger a click within a game
+          // if we're simply clicking back into the unfocused window.
+          Tachyon_FocusWindow(tachyon);
+
+          return;
+        }
+
         break;
       case SDL_KEYDOWN:
         switch (event.key.keysym.sym) {

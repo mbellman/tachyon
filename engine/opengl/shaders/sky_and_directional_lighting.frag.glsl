@@ -225,11 +225,15 @@ void main() {
   // vec3 out_color = DirectionalLightRadiance(albedo, position, N, V, roughness, metalness, F0);
   vec3 out_color = FastDirectionalLightRadiance(albedo, position, N, V, NdotV, roughness, metalness, clearcoat, subsurface);
 
+  // @todo cleanup
+  vec3 L = normalize(directional_light_direction);
+  float NdotL = max(dot(N, L), 0.0);
+  out_color += albedo * vec3(0.1, 0.2, 0.3) * 0.02 * (1.0 - NdotL);
+
   out_color += AmbientFresnel(NdotV);
   out_color = mix(out_color, albedo, emissive);
 
   if (frag_normal_and_depth.w >= 1.0) out_color = vec3(0);
-
 
   // @todo move to post shader
   float exposure = 0.8 + emissive;

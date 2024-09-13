@@ -106,7 +106,7 @@ static void HandleObjectPicker(Tachyon* tachyon, State& state) {
 
   editor.selected_object = instances[instances.total_visible - 1];
   editor.selected_object.scale = tVec3f(1000.f);
-  editor.selected_object.position = camera.position + camera.orientation.getDirection() * 6000.f;
+  editor.selected_object.position = camera.position + camera.orientation.getDirection() * 4000.f;
   editor.selected_object.color = tVec4f(1.f, 1.f, 1.f, uint32(tachyon->running_time * 3.f) % 2 == 0 ? 0.2f : 0.6f);
 
   if (is_window_focused() && did_press_mouse()) {
