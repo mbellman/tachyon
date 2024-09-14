@@ -34,7 +34,7 @@ static Quaternion GetOppositeRotation(const Quaternion& rotation) {
 // @todo move to engine
 static Quaternion DirectionToQuaternion(const tVec3f& direction) {
   auto yaw = atan2f(direction.x, direction.z);
-  auto pitch = atan2f(direction.xz().magnitude(), direction.y) - 3.141592f / 2.f;
+  auto pitch = atan2f(direction.xz().magnitude(), direction.y) - t_HALF_PI;
 
   return (
     Quaternion::fromAxisAngle(UP_VECTOR, yaw) *

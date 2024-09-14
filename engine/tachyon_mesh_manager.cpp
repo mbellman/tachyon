@@ -1,14 +1,12 @@
 #include <map>
 #include <math.h>
 
+#include "engine/tachyon_constants.h"
 #include "engine/tachyon_loaders.h"
 #include "engine/tachyon_mesh_manager.h"
 
-constexpr static float PI = 3.141592f;
-constexpr static float TAU = 2.f * PI;
-
 static inline float EaseInOut(float t) {
-  return -(cosf(PI * t) - 1.f) / 2.f;
+  return -(cosf(t_PI * t) - 1.f) / 2.f;
 }
 
 static void ComputeNormals(tMesh& mesh) {
@@ -291,10 +289,10 @@ tMesh Tachyon_CreateSphereMesh(uint8 divisions) {
   for (uint8 i = 1; i < divisions - 1; i++) {
     for (uint8 j = 0; j < horizontal_divisions; j++) {
       float y_progress = float(i) / float(divisions - 1);
-      float radius = sinf(y_progress * PI);
-      float x = radius * cosf(float(j) / float(horizontal_divisions) * TAU);
+      float radius = sinf(y_progress * t_PI);
+      float x = radius * cosf(float(j) / float(horizontal_divisions) * t_TAU);
       float y = 1.f - 2.f * EaseInOut(y_progress);
-      float z = radius * sinf(float(j) / float(horizontal_divisions) * TAU);
+      float z = radius * sinf(float(j) / float(horizontal_divisions) * t_TAU);
 
       tVertex vertex;
 

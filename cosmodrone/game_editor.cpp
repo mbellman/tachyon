@@ -3,7 +3,7 @@
 
 using namespace Cosmodrone;
 
-static const float PITCH_LIMIT = (3.141592f / 2.f) * 0.99f;
+constexpr static float PITCH_LIMIT = t_HALF_PI * 0.99f;
 
 struct EditorState {
   bool show_object_picker = false;

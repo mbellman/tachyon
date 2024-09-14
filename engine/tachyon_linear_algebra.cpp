@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "engine/tachyon_aliases.h"
+#include "engine/tachyon_constants.h"
 #include "engine/tachyon_linear_algebra.h"
 #include "engine/tachyon_quaternion.h"
 
@@ -155,7 +156,7 @@ tMat4f tMat4f::inverse() const {
 }
 
 tMat4f tMat4f::perspective(float fov, float near, float far) {
-  constexpr float DEGRESS_TO_RADIANS = 3.141592f / 180.f;
+  constexpr float DEGRESS_TO_RADIANS = t_PI / 180.f;
   constexpr float aspectRatio = 1920.f / 1080.f;
 
   // float aspectRatio = (float)area.width / (float)area.height;

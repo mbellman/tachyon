@@ -1,9 +1,7 @@
 #include <math.h>
 
 #include "engine/tachyon_camera.h"
-
-constexpr static float PI = 3.141592f;
-constexpr static float HALF_PI = PI / 2.f;
+#include "engine/tachyon_constants.h"
 
 void tOrientation::operator+=(const tOrientation& orientation) {
   roll += orientation.roll;
@@ -40,7 +38,7 @@ tVec3f tOrientation::getRightDirection() const {
 }
 
 tVec3f tOrientation::getUpDirection() const {
-  return tOrientation(roll, (pitch - PI / 2.0f), yaw).getDirection();
+  return tOrientation(roll, (pitch - t_PI / 2.0f), yaw).getDirection();
 }
 
 void tOrientation::face(const tVec3f& forward, const tVec3f& up) {
@@ -49,11 +47,11 @@ void tOrientation::face(const tVec3f& forward, const tVec3f& up) {
   float uDotY = tVec3f::dot(up, worldUp);
 
   // Calculate yaw as a function of forward z/x
-  yaw = atan2f(forward.z, forward.x) + HALF_PI;
+  yaw = atan2f(forward.z, forward.x) + t_HALF_PI;
 
   if (uDotY < 0.0f) {
     // If upside-down, flip the yaw by 180 degrees
-    yaw -= PI;
+    yaw -= t_PI;
   }
 
   tVec3f rUp = up;
@@ -62,7 +60,7 @@ void tOrientation::face(const tVec3f& forward, const tVec3f& up) {
   // and calculate pitch as a function of y/z
   rUp.z = up.x * sinf(yaw) + up.z * cosf(yaw);
 
-  pitch = atan2f(forward.unit().xz().magnitude(), forward.unit().y) - HALF_PI;
+  pitch = atan2f(forward.unit().xz().magnitude(), forward.unit().y) - t_HALF_PI;
 }
 
 tOrientation tOrientation::invert() const {
@@ -99,7 +97,7 @@ bool tCamera3p::isUpsideDown() const {
 }
 
 void tCamera3p::limitAltitude(float factor) {
-  constexpr float BASE_ALTITUDE_LIMIT = HALF_PI * 0.999f;
+  constexpr float BASE_ALTITUDE_LIMIT = t_HALF_PI * 0.999f;
   float altitudeLimit = BASE_ALTITUDE_LIMIT * factor;
 
   if (altitude > altitudeLimit) altitude = altitudeLimit;
