@@ -1,3 +1,5 @@
+#include <math.h>
+
 #include "cosmodrone/game_editor.h"
 #include "cosmodrone/mesh_library.h"
 
@@ -19,6 +21,20 @@ static const MeshAsset& GetSelectedObjectPickerMeshAsset() {
   auto& selected_mesh = placeable_meshes[editor.object_picker_index];
 
   return selected_mesh;
+}
+
+static tVec3f GetMostSimilarGlobalAxis(const tVec3f& vector) {
+  auto abs_x = abs(vector.x);
+  auto abs_y = abs(vector.y);
+  auto abs_z = abs(vector.z);
+
+  if (abs_x > abs_y && abs_x > abs_z) {
+    return tVec3f(vector.x, 0, 0).unit();
+  } else if (abs_y > abs_x && abs_y > abs_z) {
+    return tVec3f(0, vector.y, 0).unit();
+  } else {
+    return tVec3f(0, 0, vector.z).unit();
+  }
 }
 
 static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
@@ -132,6 +148,16 @@ static void HandleInputs(Tachyon* tachyon, State& state) {
   if (did_press_key(tKey::ARROW_LEFT) || did_press_key(tKey::ARROW_RIGHT)) {
     HandleObjectPickerCycleChange(tachyon);
   }
+
+  if (editor.is_object_selected) {
+    if (is_mouse_held_down()) {
+      auto& camera = tachyon->scene.camera;
+      auto& selected = *get_original_object(editor.selected_object);
+      auto axis = GetMostSimilarGlobalAxis(camera.orientation.getRightDirection());
+
+      selected.position += axis * (float)tachyon->mouse_delta_x;
+    }
+  }
 }
 
 static void HandleObjectPicker(Tachyon* tachyon, State& state) {
@@ -153,10 +179,6 @@ static void HandleSelectedObject(Tachyon* tachyon, State& state) {
 
   selected.scale = tVec3f(1000.f);
   selected.color = tVec4f(1.f, 1.f, 1.f, uint32(tachyon->running_time * 2.f) % 2 == 0 ? 0.1f : 0.2f);
-
-  if (is_mouse_held_down()) {
-    selected.position += (camera.orientation.getRightDirection() * (float)tachyon->mouse_delta_x);
-  }
 
   // @todo refactor
   {
