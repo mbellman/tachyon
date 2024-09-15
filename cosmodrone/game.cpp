@@ -310,6 +310,7 @@ static void ShowDevLabels(Tachyon* tachyon, State& state) {
 void Cosmodrone::StartGame(Tachyon* tachyon) {
   MeshLibrary::LoadMeshes(tachyon, state);
   WorldSetup::InitializeGameWorld(tachyon, state);
+  Editor::InitializeEditor(tachyon, state);
 }
 
 void Cosmodrone::RunGame(Tachyon* tachyon, const float dt) {

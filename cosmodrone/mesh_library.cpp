@@ -58,12 +58,23 @@ static void LoadCelestialBodyMeshes(Tachyon* tachyon, State& state) {
 static void LoadDebugMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
-  auto sphere_mesh = Tachyon_CreateSphereMesh(4);
+  // auto sphere_mesh = Tachyon_CreateSphereMesh(4);
   auto cube_mesh = Tachyon_CreateCubeMesh();
 
   // meshes.sphere = Tachyon_AddMesh(tachyon, sphere_mesh, 40 * 40 * 40);
   meshes.cube = Tachyon_AddMesh(tachyon, cube_mesh, 6);
   meshes.editor_guideline = Tachyon_AddMesh(tachyon, cube_mesh, 3000);
+
+  // @todo description
+  {
+    auto position_mesh = Tachyon_LoadMesh("./cosmodrone/assets/editor/position-action-indicator.obj");
+    auto rotation_mesh = Tachyon_LoadMesh("./cosmodrone/assets/editor/rotate-action-indicator.obj");
+    auto scale_mesh = Tachyon_LoadMesh("./cosmodrone/assets/editor/scale-action-indicator.obj");
+
+    meshes.editor_position = add_mesh(position_mesh, 1);
+    meshes.editor_rotation = add_mesh(rotation_mesh, 1);
+    meshes.editor_scale = add_mesh(scale_mesh, 1);
+  }
 }
 
 void MeshLibrary::LoadMeshes(Tachyon* tachyon, State& state) {

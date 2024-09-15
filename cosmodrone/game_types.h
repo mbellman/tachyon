@@ -22,7 +22,10 @@ namespace Cosmodrone {
       // Debug meshes
       sphere,
       cube,
-      editor_guideline;
+      editor_guideline,
+      editor_position,
+      editor_rotation,
+      editor_scale;
   };
 
   struct OrthonormalBasis {

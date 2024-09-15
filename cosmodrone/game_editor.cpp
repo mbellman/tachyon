@@ -144,10 +144,29 @@ static void HandleObjectPicker(Tachyon* tachyon, State& state) {
 
   commit(editor.selected_object);
 
+  // @todo refactor
+  {
+    objects(state.meshes.editor_position).disabled = false;
+
+    auto& indicator = objects(state.meshes.editor_position)[0];
+
+    indicator.position = camera.position + camera.orientation.getDirection() * 200.f;
+    indicator.color = tVec4f(1.f, 1.f, 1.f, 1.f);
+    indicator.scale = tVec3f(70.f);
+
+    commit(indicator);
+  }
+
   add_dev_label("Object", (
     mesh_name + " (" +
     std::to_string(instances.total_active) + " active)"
   ));
+}
+
+void Editor::InitializeEditor(Tachyon* tachyon, State& state) {
+  create(state.meshes.editor_position);
+  create(state.meshes.editor_rotation);
+  create(state.meshes.editor_scale);
 }
 
 void Editor::HandleEditor(Tachyon* tachyon, State& state, const float dt) {
@@ -156,6 +175,9 @@ void Editor::HandleEditor(Tachyon* tachyon, State& state, const float dt) {
 
   if (editor.show_object_picker) {
     HandleObjectPicker(tachyon, state);
+  } else {
+    // @todo refactor
+    objects(state.meshes.editor_position).disabled = true;
   }
 }
 
