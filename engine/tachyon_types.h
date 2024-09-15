@@ -132,6 +132,7 @@ struct Tachyon {
   bool did_left_click_up = false;
   bool did_right_click_down = false;
   bool did_right_click_up = false;
+  bool is_mouse_held_down = false;
 
   std::vector<tObject> objects;
   std::vector<uint32> surfaces;

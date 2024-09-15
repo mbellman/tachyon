@@ -481,3 +481,14 @@ void Tachyon_CommitObject(Tachyon* tachyon, const tObject& object) {
   group.matrices[index] = tMat4f::transformation(object.position, object.scale, object.rotation).transpose();
   group.buffered = false;
 }
+
+tObject* Tachyon_GetOriginalObject(Tachyon* tachyon, tObject& object) {
+  auto& group = tachyon->mesh_pack.mesh_records[object.mesh_index].group;
+  auto index = group.id_to_index[object.object_id];
+
+  if (index > group.total_active - 1) {
+    return nullptr;
+  }
+
+  return &group.objects[index];
+}

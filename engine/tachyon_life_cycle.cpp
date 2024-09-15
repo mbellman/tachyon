@@ -33,6 +33,7 @@ internal void HandleEvents(Tachyon* tachyon) {
         switch (event.key.keysym.sym) {
           case SDLK_ESCAPE:
             Tachyon_UnfocusWindow(tachyon);
+
             break;
         }
         break;
@@ -127,6 +128,9 @@ void Tachyon_UnfocusWindow(Tachyon* tachyon) {
   SDL_SetRelativeMouseMode(SDL_FALSE);
 
   tachyon->is_window_focused = false;
+
+  // Ensure window unfocus events release the mouse held state
+  tachyon->is_mouse_held_down = false;
 }
 
 void Tachyon_Exit(Tachyon* tachyon) {

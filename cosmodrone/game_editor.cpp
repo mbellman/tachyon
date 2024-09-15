@@ -26,6 +26,10 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
     return;
   }
 
+  if (editor.is_object_selected && is_mouse_held_down()) {
+    return;
+  }
+
   auto& camera = tachyon->scene.camera;
 
   // Handle mouse movements
@@ -111,8 +115,13 @@ static void HandleObjectPickerCycleChange(Tachyon* tachyon) {
 
   auto& selected_mesh = GetSelectedObjectPickerMeshAsset();
   auto mesh_index = selected_mesh.mesh_index;
+  auto& selected = create(mesh_index);
+  auto& camera = tachyon->scene.camera;
 
-  create(mesh_index);
+  selected.position = camera.position + camera.orientation.getDirection() * editor.selected_object_distance;
+
+  editor.selected_object = selected;
+  editor.is_object_selected = true;
 }
 
 static void HandleInputs(Tachyon* tachyon, State& state) {
@@ -130,12 +139,6 @@ static void HandleObjectPicker(Tachyon* tachyon, State& state) {
   auto mesh_index = selected_mesh.mesh_index;
   auto& instances = objects(mesh_index);
 
-  if (instances.total_visible == 0) {
-    create(mesh_index);
-  }
-
-  editor.is_object_selected = true;
-
   editor.selected_object = instances[instances.total_visible - 1];
 
   add_dev_label("Object", (
@@ -146,12 +149,28 @@ static void HandleObjectPicker(Tachyon* tachyon, State& state) {
 
 static void HandleSelectedObject(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
-  auto camera_direction = camera.orientation.getDirection();
-  auto& selected = editor.selected_object;
+  auto& selected = *get_original_object(editor.selected_object);
 
   selected.scale = tVec3f(1000.f);
-  selected.position = camera.position + camera_direction * editor.selected_object_distance;
   selected.color = tVec4f(1.f, 1.f, 1.f, uint32(tachyon->running_time * 2.f) % 2 == 0 ? 0.2f : 0.6f);
+
+  if (is_mouse_held_down()) {
+    selected.position += (camera.orientation.getRightDirection() * (float)tachyon->mouse_delta_x);
+  }
+
+  // @todo refactor
+  {
+    objects(state.meshes.editor_position).disabled = false;
+
+    auto& indicator = objects(state.meshes.editor_position)[0];
+    auto selected_object_direction = (editor.selected_object.position - camera.position).unit();
+
+    indicator.position = camera.position + selected_object_direction * 150.f;
+    indicator.color = tVec4f(1.f, 1.f, 1.f, 1.f);
+    indicator.scale = tVec3f(40.f);
+
+    commit(indicator);
+  }
 
   if (did_right_click_down()) {
     selected.color = tVec3f(1.f);
@@ -162,18 +181,7 @@ static void HandleSelectedObject(Tachyon* tachyon, State& state) {
 
   commit(selected);
 
-  // @todo refactor
-  {
-    objects(state.meshes.editor_position).disabled = false;
-
-    auto& indicator = objects(state.meshes.editor_position)[0];
-
-    indicator.position = camera.position + camera_direction * 150.f;
-    indicator.color = tVec4f(1.f, 1.f, 1.f, 1.f);
-    indicator.scale = tVec3f(40.f);
-
-    commit(indicator);
-  }
+  editor.selected_object = selected;
 
   add_dev_label("Position", selected.position.toString());
 }
