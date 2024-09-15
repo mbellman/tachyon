@@ -88,11 +88,19 @@ void Tachyon_HandleInputEvent(Tachyon* tachyon, const SDL_Event& event) {
       break;
     }
     case SDL_MOUSEBUTTONDOWN: {
-      tachyon->did_press_mouse = true;
+      if (event.button.button == SDL_BUTTON_LEFT) {
+        tachyon->did_left_click_down = true;
+      } else if (event.button.button == SDL_BUTTON_RIGHT) {
+        tachyon->did_right_click_down = true;
+      }
       break;
     }
     case SDL_MOUSEBUTTONUP: {
-      tachyon->did_release_mouse = true;
+      if (event.button.button == SDL_BUTTON_LEFT) {
+        tachyon->did_left_click_up = true;
+      } else if (event.button.button == SDL_BUTTON_RIGHT) {
+        tachyon->did_right_click_up = true;
+      }
       break;
     }
     case SDL_MOUSEWHEEL: {
@@ -108,6 +116,8 @@ void Tachyon_ResetPerFrameInputState(Tachyon* tachyon) {
   tachyon->mouse_delta_x = 0;
   tachyon->mouse_delta_y = 0;
   tachyon->wheel_direction = 0;
-  tachyon->did_press_mouse = false;
-  tachyon->did_release_mouse = false;
+  tachyon->did_left_click_down = false;
+  tachyon->did_left_click_up = false;
+  tachyon->did_right_click_down = false;
+  tachyon->did_right_click_up = false;
 }
