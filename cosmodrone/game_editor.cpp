@@ -6,7 +6,7 @@ using namespace Cosmodrone;
 constexpr static float PITCH_LIMIT = t_HALF_PI * 0.99f;
 
 struct EditorState {
-  bool show_object_picker = false;
+  bool is_object_picker_active = false;
   uint16 object_picker_index = 0;
 
   bool is_object_selected = false;
@@ -77,41 +77,51 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
   camera.rotation = camera.orientation.toQuaternion();
 }
 
-static void HandleInputs(Tachyon* tachyon, State& state) {
-  if (editor.show_object_picker) {
-    auto& placeable_meshes = MeshLibrary::GetPlaceableMeshAssets();
-    auto max = placeable_meshes.size() - 1;
+static void HandleObjectPickerInputs(Tachyon* tachyon) {
+  auto& placeable_meshes = MeshLibrary::GetPlaceableMeshAssets();
+  auto max = placeable_meshes.size() - 1;
 
-    if (did_wheel_up()) {
-      if (editor.object_picker_index == 0) {
-        editor.object_picker_index = max;
-      } else {
-        editor.object_picker_index--;
-      }
-    }
-
-    if (did_wheel_down()) {
-      if (editor.object_picker_index == max) {
-        editor.object_picker_index = 0;
-      } else {
-        editor.object_picker_index++;
-      }
+  if (did_press_key(tKey::ARROW_LEFT)) {
+    // Cycle object picker left
+    if (editor.object_picker_index == 0) {
+      editor.object_picker_index = max;
+    } else {
+      editor.object_picker_index--;
     }
   }
 
-  if (did_wheel_down() || did_wheel_up()) {
-    if (!editor.show_object_picker) {
-      editor.show_object_picker = true;
+  if (did_press_key(tKey::ARROW_RIGHT)) {
+    // Cycle object picker right
+    if (editor.object_picker_index == max) {
+      editor.object_picker_index = 0;
+    } else {
+      editor.object_picker_index++;
     }
+  }
+}
 
-    if (editor.is_object_selected) {
-      remove(editor.selected_object);
-    }
+static void HandleObjectPickerCycleChange(Tachyon* tachyon) {
+  if (editor.is_object_picker_active && editor.is_object_selected) {
+    remove(editor.selected_object);
+  }
 
-    auto& selected_mesh = GetSelectedObjectPickerMeshAsset();
-    auto mesh_index = selected_mesh.mesh_index;
+  if (!editor.is_object_picker_active) {
+    editor.is_object_picker_active = true;
+  }
 
-    create(mesh_index);
+  auto& selected_mesh = GetSelectedObjectPickerMeshAsset();
+  auto mesh_index = selected_mesh.mesh_index;
+
+  create(mesh_index);
+}
+
+static void HandleInputs(Tachyon* tachyon, State& state) {
+  if (editor.is_object_picker_active) {
+    HandleObjectPickerInputs(tachyon);
+  }
+
+  if (did_press_key(tKey::ARROW_LEFT) || did_press_key(tKey::ARROW_RIGHT)) {
+    HandleObjectPickerCycleChange(tachyon);
   }
 }
 
@@ -147,7 +157,7 @@ static void HandleSelectedObject(Tachyon* tachyon, State& state) {
     selected.color = tVec3f(1.f);
 
     editor.is_object_selected = false;
-    editor.show_object_picker = false;
+    editor.is_object_picker_active = false;
   }
 
   commit(selected);
@@ -178,7 +188,7 @@ void Editor::HandleEditor(Tachyon* tachyon, State& state, const float dt) {
   HandleCamera(tachyon, state, dt);
   HandleInputs(tachyon, state);
 
-  if (editor.show_object_picker) {
+  if (editor.is_object_picker_active) {
     HandleObjectPicker(tachyon, state);
   }
 
@@ -203,9 +213,9 @@ void Editor::EnableEditor(Tachyon* tachyon, State& state) {
 void Editor::DisableEditor(Tachyon* tachyon, State& state) {
   state.is_editor_active = false;
 
-  if (editor.show_object_picker && editor.is_object_selected) {
+  if (editor.is_object_picker_active && editor.is_object_selected) {
     remove(editor.selected_object);
   }
 
-  editor.show_object_picker = false;
+  editor.is_object_picker_active = false;
 }
