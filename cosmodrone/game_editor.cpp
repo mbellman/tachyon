@@ -39,7 +39,7 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
       auto unit_offset = offset.unit();
 
       tCamera3p camera3p;
-      camera3p.radius = editor.selected_object_distance;
+      camera3p.radius = offset.magnitude();
       camera3p.azimuth = atan2f(unit_offset.z, unit_offset.x);
       camera3p.altitude = atan2f(unit_offset.y, unit_offset.xz().magnitude());
 
@@ -49,9 +49,9 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
         camera3p.limitAltitude(0.99f);
 
         camera.position = editor.selected_object.position + camera3p.calculatePosition();
-
-        camera.orientation.face(editor.selected_object.position - camera.position, tVec3f(0, 1.f, 0));
       }
+
+      camera.orientation.face(editor.selected_object.position - camera.position, tVec3f(0, 1.f, 0));
     } else {
       camera.orientation.yaw += (float)tachyon->mouse_delta_x / 1000.f;
       camera.orientation.pitch += (float)tachyon->mouse_delta_y / 1000.f;
@@ -152,7 +152,7 @@ static void HandleSelectedObject(Tachyon* tachyon, State& state) {
   auto& selected = *get_original_object(editor.selected_object);
 
   selected.scale = tVec3f(1000.f);
-  selected.color = tVec4f(1.f, 1.f, 1.f, uint32(tachyon->running_time * 2.f) % 2 == 0 ? 0.2f : 0.6f);
+  selected.color = tVec4f(1.f, 1.f, 1.f, uint32(tachyon->running_time * 2.f) % 2 == 0 ? 0.1f : 0.2f);
 
   if (is_mouse_held_down()) {
     selected.position += (camera.orientation.getRightDirection() * (float)tachyon->mouse_delta_x);
@@ -173,6 +173,7 @@ static void HandleSelectedObject(Tachyon* tachyon, State& state) {
   }
 
   if (did_right_click_down()) {
+    // Deselect the object
     selected.color = tVec3f(1.f);
 
     editor.is_object_selected = false;
@@ -226,4 +227,5 @@ void Editor::DisableEditor(Tachyon* tachyon, State& state) {
   }
 
   editor.is_object_picker_active = false;
+  editor.is_object_selected = false;
 }
