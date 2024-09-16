@@ -179,7 +179,7 @@ vec3 GetSkyColor(vec3 sky_direction) {
   vec3 sun_color = mix(vec3(0), sun_base_color, sun_alpha);
 
   float planet_dot = max(dot(planet_direction, sky_direction), 0.0);
-  vec3 planet_atmosphere_base_color = mix(vec3(0.0, 0.1, 1.0), vec3(0.8, 0.9, 0.8), pow(planet_dot, 20));
+  vec3 planet_atmosphere_base_color = mix(vec3(0.0, 0.1, 1.0), vec3(0.5, 0.7, 0.9), pow(planet_dot, 20));
   planet_atmosphere_base_color = mix(planet_atmosphere_base_color, vec3(1, 0.9, 0.6), pow(sun_dot, 20));
   float planet_atmosphere_sunlight_factor = 0.2 + 0.8 * pow(sun_dot, 10);
   float planet_atmosphere_alpha = clamp(pow(planet_dot, 95) * 20.0, 0, 1) * planet_atmosphere_sunlight_factor;
