@@ -7,12 +7,18 @@ using namespace Cosmodrone;
 
 constexpr static float PITCH_LIMIT = t_HALF_PI * 0.99f;
 
+enum ActionType {
+  POSITION,
+  ROTATE,
+  SCALE
+};
+
 struct EditorState {
   bool is_object_picker_active = false;
   uint16 object_picker_index = 0;
 
   bool is_object_selected = false;
-  float selected_object_distance = 4000.f;
+  ActionType action_type = ActionType::POSITION;
   tObject selected_object;
 } editor;
 
@@ -134,10 +140,38 @@ static void HandleObjectPickerCycleChange(Tachyon* tachyon) {
   auto& selected = create(mesh_index);
   auto& camera = tachyon->scene.camera;
 
-  selected.position = camera.position + camera.orientation.getDirection() * editor.selected_object_distance;
+  selected.position = camera.position + camera.orientation.getDirection() * 4000.f;
 
   editor.selected_object = selected;
   editor.is_object_selected = true;
+}
+
+static void HandleActionTypeCycleChange(Tachyon* tachyon, int8 change) {
+  if (change > 0) {
+    switch (editor.action_type) {
+      case ActionType::POSITION:
+        editor.action_type = ActionType::ROTATE;
+        break;
+      case ActionType::ROTATE:
+        editor.action_type = ActionType::SCALE;
+        break;
+      case ActionType::SCALE:
+        editor.action_type = ActionType::POSITION;
+        break;
+    }
+  } else {
+    switch (editor.action_type) {
+      case ActionType::POSITION:
+        editor.action_type = ActionType::SCALE;
+        break;
+      case ActionType::ROTATE:
+        editor.action_type = ActionType::POSITION;
+        break;
+      case ActionType::SCALE:
+        editor.action_type = ActionType::ROTATE;
+        break;
+    }
+  }
 }
 
 static void HandleInputs(Tachyon* tachyon, State& state) {
@@ -147,6 +181,12 @@ static void HandleInputs(Tachyon* tachyon, State& state) {
 
   if (did_press_key(tKey::ARROW_LEFT) || did_press_key(tKey::ARROW_RIGHT)) {
     HandleObjectPickerCycleChange(tachyon);
+  }
+
+  if (did_wheel_down()) {
+    HandleActionTypeCycleChange(tachyon, +1);
+  } else if (did_wheel_up()) {
+    HandleActionTypeCycleChange(tachyon, -1);
   }
 
   if (editor.is_object_selected) {
@@ -182,16 +222,47 @@ static void HandleSelectedObject(Tachyon* tachyon, State& state) {
 
   // @todo refactor
   {
-    objects(state.meshes.editor_position).disabled = false;
+    objects(state.meshes.editor_position).disabled = true;
+    objects(state.meshes.editor_rotation).disabled = true;
+    objects(state.meshes.editor_scale).disabled = true;
 
-    auto& indicator = objects(state.meshes.editor_position)[0];
-    auto selected_object_direction = (editor.selected_object.position - camera.position).unit();
+    if (editor.action_type == ActionType::POSITION) {
+      objects(state.meshes.editor_position).disabled = false;
 
-    indicator.position = camera.position + selected_object_direction * 150.f;
-    indicator.color = tVec4f(1.f, 1.f, 1.f, 1.f);
-    indicator.scale = tVec3f(40.f);
+      auto& indicator = objects(state.meshes.editor_position)[0];
+      auto selected_object_direction = (selected.position - camera.position).unit();
 
-    commit(indicator);
+      indicator.position = camera.position + selected_object_direction * 150.f;
+      indicator.color = tVec4f(1.f, 1.f, 1.f, 1.f);
+      indicator.rotation = selected.rotation;
+      indicator.scale = tVec3f(40.f);
+
+      commit(indicator);
+    } else if (editor.action_type == ActionType::ROTATE) {
+      objects(state.meshes.editor_rotation).disabled = false;
+
+      auto& indicator = objects(state.meshes.editor_rotation)[0];
+      auto selected_object_direction = (selected.position - camera.position).unit();
+
+      indicator.position = camera.position + selected_object_direction * 150.f;
+      indicator.color = tVec4f(1.f, 1.f, 1.f, 1.f);
+      indicator.rotation = selected.rotation;
+      indicator.scale = tVec3f(40.f);
+
+      commit(indicator);
+    } else if (editor.action_type == ActionType::SCALE) {
+      objects(state.meshes.editor_scale).disabled = false;
+
+      auto& indicator = objects(state.meshes.editor_scale)[0];
+      auto selected_object_direction = (selected.position - camera.position).unit();
+
+      indicator.position = camera.position + selected_object_direction * 150.f;
+      indicator.color = tVec4f(1.f, 1.f, 1.f, 1.f);
+      indicator.rotation = selected.rotation;
+      indicator.scale = tVec3f(40.f);
+
+      commit(indicator);
+    }
   }
 
   if (did_right_click_down()) {
