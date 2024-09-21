@@ -53,18 +53,18 @@ static void CreateEditorGuidelines(Tachyon* tachyon, State& state) {
 
   const float width = 500000.f;
   const float height = 1000000.f;
-  const float thickness = 50.f;
+  const float thickness = 20.f;
 
   // Vertical lines
-  for (uint32 i = 0; i < 10; i++) {
-    for (uint32 j = 0; j < 10; j++) {
+  for (uint32 i = 0; i <= 10; i++) {
+    for (uint32 j = 0; j <= 10; j++) {
       auto& line = create(meshes.editor_guideline);
 
       auto x = -width + (width / 5.f) * float(i);
       auto z = -width + (width / 5.f) * float(j);
 
       line.scale = tVec3f(thickness, height, thickness);
-      line.color = tVec4f(1.f, 0, 0, 0.3f);
+      line.color = tVec4f(1.f, 0, 0, 0.2f);
       line.position = tVec3f(x, 0, z);
 
       commit(line);
@@ -78,22 +78,22 @@ static void CreateEditorGuidelines(Tachyon* tachyon, State& state) {
   for (uint32 i = 0; i < 50; i++) {
     auto y = -height + y_increment * float(i);
 
-    for (uint32 j = 0; j < 10; j++) {
+    for (uint32 j = 0; j <= 10; j++) {
       auto& line = create(meshes.editor_guideline);
 
       line.scale = tVec3f(width, thickness, thickness);
       line.position = tVec3f(0, y, -width + w_increment * float(j));
-      line.color = tVec4f(1.f, 0, 0, 0.3f);
+      line.color = tVec4f(1.f, 0, 0, 0.2f);
 
       commit(line);
     }
 
-    for (uint32 j = 0; j < 10; j++) {
+    for (uint32 j = 0; j <= 10; j++) {
       auto& line = create(meshes.editor_guideline);
 
       line.scale = tVec3f(thickness, thickness, width);
       line.position = tVec3f(-width + w_increment * float(j), y, 0);
-      line.color = tVec4f(1.f, 0, 0, 0.3f);
+      line.color = tVec4f(1.f, 0, 0, 0.2f);
 
       commit(line);
     }

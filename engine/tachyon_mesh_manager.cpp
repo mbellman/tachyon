@@ -416,12 +416,12 @@ void Tachyon_InitializeObjects(Tachyon* tachyon) {
     record.group.matrices = &tachyon->matrices[object_offset];
     record.group.object_offset = object_offset;
 
-    uint16 running_object_id = 0;
-
     // Set mesh/object indexes on each object
-    for (auto& object : record.group) {
+    for (uint16 i = 0; i < record.group.total; i++) {
+      auto& object = record.group[i];
+
       object.mesh_index = mesh_index;
-      object.object_id = running_object_id++;
+      object.object_id = i;
     }
 
     object_offset += record.group.total;

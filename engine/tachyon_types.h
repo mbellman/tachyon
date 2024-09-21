@@ -82,7 +82,7 @@ struct tObjectGroup {
   }
 
   tObject* end() const {
-    return objects + total;
+    return &objects[total_active];
   }
 };
 
