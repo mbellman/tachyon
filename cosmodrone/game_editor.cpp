@@ -279,6 +279,43 @@ static void ResetSelectedObject(Tachyon* tachyon) {
   }
 }
 
+// @todo improve accuracy using collision planes/scale
+static void MaybeSelectObject(Tachyon* tachyon) {
+  auto& placeable_meshes = MeshLibrary::GetPlaceableMeshAssets();
+  auto& camera = tachyon->scene.camera;
+  auto forward = camera.orientation.getDirection();
+  float highest_dot = -1.f;
+  float closest_distance = 3.402823466e+38F;
+  tObject candidate;
+
+  for (auto& mesh : placeable_meshes) {
+    auto& instances = objects(mesh.mesh_index);
+
+    if (instances.disabled) {
+      continue;
+    }
+
+    for (auto& object : instances) {
+      auto camera_to_object = object.position - camera.position;
+      auto object_dot = tVec3f::dot(forward, camera_to_object.unit());
+      auto distance = camera_to_object.magnitude();
+
+      if (distance > 100000.f) continue;
+
+      if (object_dot > highest_dot) {
+        highest_dot = object_dot;
+        closest_distance = distance;
+        candidate = object;
+      }
+    }
+  }
+
+  if (highest_dot > 0.f) {
+    editor.is_object_selected = true;
+    editor.selected_object = candidate;
+  }
+}
+
 static void HandleInputs(Tachyon* tachyon, State& state) {
   if (editor.is_object_picker_active) {
     HandleObjectPickerInputs(tachyon);
@@ -302,6 +339,10 @@ static void HandleInputs(Tachyon* tachyon, State& state) {
     if (did_press_key(tKey::ENTER)) {
       ResetSelectedObject(tachyon);
     }
+  }
+
+  if (did_left_click_down() && !editor.is_object_selected) {
+    MaybeSelectObject(tachyon);
   }
 
   if (did_press_key(tKey::G)) {
@@ -428,7 +469,10 @@ static void HandleGuidelines(Tachyon* tachyon, State& state) {
     brightness *= brightness;
     if (brightness < 0.1f) brightness = 0.1f;
 
-    guideline.color = tVec4f(brightness, 0, 0, brightness);
+    float emissive = brightness * 0.5f;
+    if (emissive < 0.1f) emissive = 0.1f;
+
+    guideline.color = tVec4f(brightness, 0, 0, emissive);
 
     commit(guideline);
   }
