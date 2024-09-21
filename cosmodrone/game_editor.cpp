@@ -303,6 +303,10 @@ static void HandleInputs(Tachyon* tachyon, State& state) {
       ResetSelectedObject(tachyon);
     }
   }
+
+  if (did_press_key(tKey::G)) {
+    objects(state.meshes.editor_guideline).disabled = !objects(state.meshes.editor_guideline).disabled;
+  }
 }
 
 static void HandleObjectPicker(Tachyon* tachyon, State& state) {
@@ -386,6 +390,50 @@ static void HandleSelectedObject(Tachyon* tachyon, State& state) {
   add_dev_label("Rotation", selected.rotation.toString());
 }
 
+static void HandleGuidelines(Tachyon* tachyon, State& state) {
+  if (objects(state.meshes.editor_guideline).disabled) {
+    return;
+  }
+
+  auto& camera = tachyon->scene.camera;
+
+  for (auto& guideline : objects(state.meshes.editor_guideline)) {
+    float distance_x = abs(guideline.position.x - camera.position.x);
+    float distance_y = abs(guideline.position.y - camera.position.y);
+    float distance_z = abs(guideline.position.z - camera.position.z);
+    float brightness;
+
+    if (guideline.scale.y > guideline.scale.x) {
+      // Vertical line
+      float scale = 20.f + (distance_x + distance_z) / 2000.f;
+      brightness = 1.f - (distance_x + distance_z) / 1000000.f;
+
+      guideline.scale = tVec3f(scale, guideline.scale.y, scale);
+    } else if (guideline.scale.x > guideline.scale.z) {
+      // Horizontal x
+      float scale = 20.f + (distance_y + distance_z) / 2000.f;
+      brightness = 1.f - (distance_y + distance_z) / 1000000.f;
+
+      guideline.scale = tVec3f(guideline.scale.x, scale, scale);
+    } else {
+      // Horizontal z
+      float scale = 20.f + (distance_x + distance_y) / 2000.f;
+      brightness = 1.f - (distance_y + distance_x) / 1000000.f;
+
+      guideline.scale = tVec3f(scale, scale, guideline.scale.z);
+    }
+
+    if (brightness < 0.f) brightness = 0.f;
+    brightness *= brightness;
+    brightness *= brightness;
+    if (brightness < 0.1f) brightness = 0.1f;
+
+    guideline.color = tVec4f(brightness, 0, 0, brightness);
+
+    commit(guideline);
+  }
+}
+
 void Editor::InitializeEditor(Tachyon* tachyon, State& state) {
   create(state.meshes.editor_position);
   create(state.meshes.editor_rotation);
@@ -408,42 +456,7 @@ void Editor::HandleEditor(Tachyon* tachyon, State& state, const float dt) {
     objects(state.meshes.editor_scale).disabled = true;
   }
 
-  // @todo refactor
-  auto& camera = tachyon->scene.camera;
-
-  for (auto& guideline : objects(state.meshes.editor_guideline)) {
-    float distance_x = abs(guideline.position.x - camera.position.x);
-    float distance_y = abs(guideline.position.y - camera.position.y);
-    float distance_z = abs(guideline.position.z - camera.position.z);
-
-    if (guideline.scale.y > guideline.scale.x) {
-      // Vertical line
-      float scale = 20.f + (distance_x + distance_z) / 2000.f;
-      float r = 1.f - (distance_x + distance_z) / 1000000.f;
-      if (r < 0.f) r = 0.f;
-
-      guideline.scale = tVec3f(scale, guideline.scale.y, scale);
-      guideline.color = tVec4f(r, 0, 0, 0.2f);
-    } else if (guideline.scale.x > guideline.scale.z) {
-      // Horizontal x
-      float scale = 20.f + (distance_y + distance_z) / 2000.f;
-      float r = 1.f - (distance_y + distance_z) / 1000000.f;
-      if (r < 0.f) r = 0.f;
-
-      guideline.scale = tVec3f(guideline.scale.x, scale, scale);
-      guideline.color = tVec4f(r, 0, 0, 0.2f);
-    } else {
-      // Horizontal z
-      float scale = 20.f + (distance_x + distance_y) / 2000.f;
-      float r = 1.f - (distance_x + distance_y) / 1000000.f;
-      if (r < 0.f) r = 0.f;
-
-      guideline.scale = tVec3f(scale, scale, guideline.scale.z);
-      guideline.color = tVec4f(r, 0, 0, 0.2f);
-    }
-
-    commit(guideline);
-  }
+  HandleGuidelines(tachyon, state);
 }
 
 void Editor::EnableEditor(Tachyon* tachyon, State& state) {
@@ -453,6 +466,8 @@ void Editor::EnableEditor(Tachyon* tachyon, State& state) {
   auto forward = state.ship_position - camera.position;
 
   camera.orientation.face(forward, tVec3f(0, 1.f, 0));
+
+  objects(state.meshes.editor_guideline).disabled = false;
 }
 
 void Editor::DisableEditor(Tachyon* tachyon, State& state) {

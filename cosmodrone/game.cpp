@@ -328,7 +328,6 @@ void Cosmodrone::RunGame(Tachyon* tachyon, const float dt) {
 
   // @todo dev mode only
   objects(meshes.cube).disabled = state.is_editor_active || !tachyon->show_developer_tools;
-  objects(meshes.editor_guideline).disabled = !state.is_editor_active;
 
   // @todo dev mode only
   if (state.is_editor_active) {
@@ -336,6 +335,9 @@ void Cosmodrone::RunGame(Tachyon* tachyon, const float dt) {
 
     return;
   }
+
+  // @todo dev mode only
+  objects(state.meshes.editor_guideline).disabled = true;
 
   HandleFlightControls(tachyon, state, dt);
   HandleFlightCamera(tachyon, state, dt);
