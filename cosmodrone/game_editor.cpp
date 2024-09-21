@@ -23,6 +23,9 @@ struct EditorState {
   bool is_object_picker_active = false;
   uint16 object_picker_index = 0;
 
+  float running_angle_x = 0.f;
+  float running_angle_y = 0.f;
+
   bool is_object_selected = false;
   ActionType action_type = ActionType::POSITION;
   tObject selected_object;
@@ -202,6 +205,18 @@ static void HandleActionTypeCycleChange(Tachyon* tachyon, int8 change) {
   }
 }
 
+static void HandleRotationSnapping(float& running_angle, float& angle) {
+  constexpr static float SNAP_INCREMENT = t_PI / 12.f;
+
+  if (abs(running_angle) > SNAP_INCREMENT) {
+    angle = running_angle > 0.f ? SNAP_INCREMENT : -SNAP_INCREMENT;
+
+    running_angle = 0.f;
+  } else {
+    angle = 0.f;
+  }
+}
+
 static void HandleSelectedObjectMouseAction(Tachyon* tachyon) {
   auto& camera = tachyon->scene.camera;
   auto& selected = *get_original_object(editor.selected_object);
@@ -218,14 +233,29 @@ static void HandleSelectedObjectMouseAction(Tachyon* tachyon) {
       }
     })
     case(ActionType::ROTATE, {
+      constexpr static float SNAP_INCREMENT = t_PI / 12.f;
+      auto use_snapping = is_key_held(tKey::SHIFT);
+
       if (is_horizontal_action) {
         auto axis = GetMostSimilarObjectAxis(camera.orientation.getUpDirection(), selected);
         auto angle = (float)tachyon->mouse_delta_x * 0.005f;
+
+        editor.running_angle_x += angle;
+
+        if (use_snapping) {
+          HandleRotationSnapping(editor.running_angle_x, angle);
+        }
 
         selected.rotation *= Quaternion::fromAxisAngle(axis, angle);
       } else {
         auto axis = GetMostSimilarObjectAxis(camera.orientation.getRightDirection(), selected);
         auto angle = (float)tachyon->mouse_delta_y * 0.005f;
+
+        editor.running_angle_y += angle;
+
+        if (use_snapping) {
+          HandleRotationSnapping(editor.running_angle_y, angle);
+        }
 
         selected.rotation *= Quaternion::fromAxisAngle(axis, angle);
       }
