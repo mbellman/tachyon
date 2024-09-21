@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include "engine/tachyon_linear_algebra.h"
 
 struct Quaternion {
@@ -27,4 +29,6 @@ struct Quaternion {
   tVec3f getUpDirection() const;
   tMat4f toMatrix4f() const;
   Quaternion unit() const;
+
+  std::string toString() const;
 };

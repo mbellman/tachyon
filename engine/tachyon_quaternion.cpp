@@ -1,3 +1,4 @@
+#include <format>
 #include <math.h>
 
 #include "engine/tachyon_quaternion.h"
@@ -139,4 +140,8 @@ Quaternion Quaternion::unit() const {
     y / magnitude,
     z / magnitude
   };
+}
+
+std::string Quaternion::toString() const {
+  return std::format("w: {:.3f}, x: {:.3f}, y: {:.3f}, z: {:.3f}", w, x, y, z);
 }

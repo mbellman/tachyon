@@ -231,11 +231,20 @@ static void HandleSelectedObjectMouseAction(Tachyon* tachyon) {
       }
     })
     case(ActionType::SCALE, {
-      if (is_horizontal_action) {
+      // @todo
+    })
+  }
+}
 
-      } else {
+static void ResetSelectedObject(Tachyon* tachyon) {
+  auto& selected = *get_original_object(editor.selected_object);
 
-      }
+  switch (editor.action_type) {
+    case(ActionType::ROTATE, {
+      selected.rotation = Quaternion(1.f, 0, 0, 0);
+    })
+    case(ActionType::SCALE, {
+      selected.scale = tVec3f(1000.f);
     })
   }
 }
@@ -258,6 +267,10 @@ static void HandleInputs(Tachyon* tachyon, State& state) {
   if (editor.is_object_selected) {
     if (is_mouse_held_down()) {
       HandleSelectedObjectMouseAction(tachyon);
+    }
+
+    if (did_press_key(tKey::ENTER)) {
+      ResetSelectedObject(tachyon);
     }
   }
 }
@@ -297,7 +310,7 @@ static void HandleSelectedObject(Tachyon* tachyon, State& state) {
       indicator.position = camera.position + selected_object_direction * 150.f;
       indicator.color = tVec4f(1.f, 1.f, 1.f, 1.f);
       indicator.rotation = selected.rotation;
-      indicator.scale = tVec3f(40.f);
+      indicator.scale = tVec3f(30.f);
 
       commit(indicator);
     } else if (editor.action_type == ActionType::ROTATE) {
@@ -309,7 +322,7 @@ static void HandleSelectedObject(Tachyon* tachyon, State& state) {
       indicator.position = camera.position + selected_object_direction * 150.f;
       indicator.color = tVec4f(1.f, 1.f, 1.f, 1.f);
       indicator.rotation = selected.rotation;
-      indicator.scale = tVec3f(40.f);
+      indicator.scale = tVec3f(30.f);
 
       commit(indicator);
     } else if (editor.action_type == ActionType::SCALE) {
@@ -321,7 +334,7 @@ static void HandleSelectedObject(Tachyon* tachyon, State& state) {
       indicator.position = camera.position + selected_object_direction * 150.f;
       indicator.color = tVec4f(1.f, 1.f, 1.f, 1.f);
       indicator.rotation = selected.rotation;
-      indicator.scale = tVec3f(40.f);
+      indicator.scale = tVec3f(30.f);
 
       commit(indicator);
     }
@@ -340,6 +353,7 @@ static void HandleSelectedObject(Tachyon* tachyon, State& state) {
   editor.selected_object = selected;
 
   add_dev_label("Position", selected.position.toString());
+  add_dev_label("Rotation", selected.rotation.toString());
 }
 
 void Editor::InitializeEditor(Tachyon* tachyon, State& state) {
