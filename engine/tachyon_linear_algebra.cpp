@@ -37,6 +37,12 @@ void tVec3f::operator+=(const tVec3f& v) {
   z += v.z;
 }
 
+void tVec3f::operator-=(const tVec3f& v) {
+  x -= v.x;
+  y -= v.y;
+  z -= v.z;
+}
+
 void tVec3f::operator*=(const tVec3f& v) {
   x *= v.x;
   y *= v.y;

@@ -22,6 +22,7 @@ struct tVec3f {
   tVec3f operator-(const tVec3f& v) const;
   tVec3f operator*(const tVec3f& v) const;
   void operator+=(const tVec3f& v);
+  void operator-=(const tVec3f& v);
   void operator*=(const tVec3f& v);
 
   static tVec3f cross(const tVec3f& v1, const tVec3f& v2);

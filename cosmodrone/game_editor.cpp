@@ -174,6 +174,21 @@ static void HandleActionTypeCycleChange(Tachyon* tachyon, int8 change) {
   }
 }
 
+static void HandleSelectedObjectMouseAction(Tachyon* tachyon) {
+  auto& camera = tachyon->scene.camera;
+  auto& selected = *get_original_object(editor.selected_object);
+
+  if (editor.action_type == ActionType::POSITION) {
+    auto axis = GetMostSimilarGlobalAxis(camera.orientation.getRightDirection());
+
+    if (abs(tachyon->mouse_delta_x) > abs(tachyon->mouse_delta_y)) {
+      selected.position += axis * (float)tachyon->mouse_delta_x;
+    } else {
+      selected.position -= tVec3f(0, 1.f, 0) * (float)tachyon->mouse_delta_y;
+    }
+  }
+}
+
 static void HandleInputs(Tachyon* tachyon, State& state) {
   if (editor.is_object_picker_active) {
     HandleObjectPickerInputs(tachyon);
@@ -191,11 +206,7 @@ static void HandleInputs(Tachyon* tachyon, State& state) {
 
   if (editor.is_object_selected) {
     if (is_mouse_held_down()) {
-      auto& camera = tachyon->scene.camera;
-      auto& selected = *get_original_object(editor.selected_object);
-      auto axis = GetMostSimilarGlobalAxis(camera.orientation.getRightDirection());
-
-      selected.position += axis * (float)tachyon->mouse_delta_x;
+      HandleSelectedObjectMouseAction(tachyon);
     }
   }
 }
