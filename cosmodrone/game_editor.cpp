@@ -3,6 +3,12 @@
 #include "cosmodrone/game_editor.h"
 #include "cosmodrone/mesh_library.h"
 
+#define case(value, __code)\
+  case value: {\
+    __code\
+    break;\
+  }\
+
 using namespace Cosmodrone;
 
 constexpr static float PITCH_LIMIT = t_HALF_PI * 0.99f;
@@ -30,9 +36,9 @@ static const MeshAsset& GetSelectedObjectPickerMeshAsset() {
 }
 
 static tVec3f GetMostSimilarGlobalAxis(const tVec3f& vector) {
-  auto abs_x = abs(vector.x);
-  auto abs_y = abs(vector.y);
-  auto abs_z = abs(vector.z);
+  float abs_x = abs(vector.x);
+  float abs_y = abs(vector.y);
+  float abs_z = abs(vector.z);
 
   if (abs_x > abs_y && abs_x > abs_z) {
     return tVec3f(vector.x, 0, 0).unit();
@@ -40,6 +46,28 @@ static tVec3f GetMostSimilarGlobalAxis(const tVec3f& vector) {
     return tVec3f(0, vector.y, 0).unit();
   } else {
     return tVec3f(0, 0, vector.z).unit();
+  }
+}
+
+static tVec3f GetMostSimilarObjectAxis(const tVec3f& vector, const tObject& object) {
+  tVec3f object_up = object.rotation.getUpDirection();
+  tVec3f object_right = object.rotation.getLeftDirection().invert();
+  tVec3f object_forward = object.rotation.getDirection();
+
+  float dot_up = tVec3f::dot(vector, object_up);
+  float dot_right = tVec3f::dot(vector, object_right);
+  float dot_forward = tVec3f::dot(vector, object_forward);
+
+  float up_factor = abs(dot_up);
+  float right_factor = abs(dot_right);
+  float forward_factor = abs(dot_forward);
+
+  if (up_factor > right_factor && up_factor > forward_factor) {
+    return dot_up < 0.f ? object_up.invert() : object_up;
+  } else if (right_factor > up_factor && right_factor > forward_factor) {
+    return dot_right < 0.f ? object_right.invert() : object_right;    
+  } else {
+    return dot_forward < 0.f ? object_forward.invert() : object_forward;
   }
 }
 
@@ -149,27 +177,27 @@ static void HandleObjectPickerCycleChange(Tachyon* tachyon) {
 static void HandleActionTypeCycleChange(Tachyon* tachyon, int8 change) {
   if (change > 0) {
     switch (editor.action_type) {
-      case ActionType::POSITION:
+      case(ActionType::POSITION, {
         editor.action_type = ActionType::ROTATE;
-        break;
-      case ActionType::ROTATE:
+      })
+      case(ActionType::ROTATE, {
         editor.action_type = ActionType::SCALE;
-        break;
-      case ActionType::SCALE:
+      })
+      case(ActionType::SCALE, {
         editor.action_type = ActionType::POSITION;
-        break;
+      })
     }
   } else {
     switch (editor.action_type) {
-      case ActionType::POSITION:
+      case(ActionType::POSITION, {
         editor.action_type = ActionType::SCALE;
-        break;
-      case ActionType::ROTATE:
+      })
+      case(ActionType::ROTATE, {
         editor.action_type = ActionType::POSITION;
-        break;
-      case ActionType::SCALE:
+      })
+      case(ActionType::SCALE, {
         editor.action_type = ActionType::ROTATE;
-        break;
+      })
     }
   }
 }
@@ -177,15 +205,38 @@ static void HandleActionTypeCycleChange(Tachyon* tachyon, int8 change) {
 static void HandleSelectedObjectMouseAction(Tachyon* tachyon) {
   auto& camera = tachyon->scene.camera;
   auto& selected = *get_original_object(editor.selected_object);
+  auto is_horizontal_action = abs(tachyon->mouse_delta_x) > abs(tachyon->mouse_delta_y);
 
-  if (editor.action_type == ActionType::POSITION) {
-    auto axis = GetMostSimilarGlobalAxis(camera.orientation.getRightDirection());
+  switch (editor.action_type) {
+    case(ActionType::POSITION, {
+      if (is_horizontal_action) {
+        auto axis = GetMostSimilarGlobalAxis(camera.orientation.getRightDirection());
 
-    if (abs(tachyon->mouse_delta_x) > abs(tachyon->mouse_delta_y)) {
-      selected.position += axis * (float)tachyon->mouse_delta_x;
-    } else {
-      selected.position -= tVec3f(0, 1.f, 0) * (float)tachyon->mouse_delta_y;
-    }
+        selected.position += axis * (float)tachyon->mouse_delta_x;
+      } else {
+        selected.position -= tVec3f(0, 1.f, 0) * (float)tachyon->mouse_delta_y;
+      }
+    })
+    case(ActionType::ROTATE, {
+      if (is_horizontal_action) {
+        auto axis = GetMostSimilarObjectAxis(camera.orientation.getUpDirection(), selected);
+        auto angle = (float)tachyon->mouse_delta_x * 0.005f;
+
+        selected.rotation *= Quaternion::fromAxisAngle(axis, angle);
+      } else {
+        auto axis = GetMostSimilarObjectAxis(camera.orientation.getRightDirection(), selected);
+        auto angle = (float)tachyon->mouse_delta_y * 0.005f;
+
+        selected.rotation *= Quaternion::fromAxisAngle(axis, angle);
+      }
+    })
+    case(ActionType::SCALE, {
+      if (is_horizontal_action) {
+
+      } else {
+
+      }
+    })
   }
 }
 
