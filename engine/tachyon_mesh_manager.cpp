@@ -443,6 +443,7 @@ tObject& Tachyon_CreateObject(Tachyon* tachyon, uint16 mesh_index) {
   auto& object = group[index];
 
   group.id_to_index[object.object_id] = index;
+  group.buffered = false;
 
   return object;
 }
@@ -455,22 +456,36 @@ void Tachyon_RemoveObject(Tachyon* tachyon, tObject& object) {
     return;
   }
 
-  uint16 index = group.id_to_index[object.object_id];
+  uint16 removed_id = object.object_id;
+  uint16 removed_index = group.id_to_index[removed_id];
   uint16 last_active_index = group.total_active - 1;
 
+  // Copy the last object in the active objects set
   tObject last_active_object = group.objects[last_active_index];
   uint32 last_active_surface = group.surfaces[last_active_index];
   tMat4f last_active_matrix = group.matrices[last_active_index];
 
-  group.objects[index] = last_active_object;
-  group.surfaces[index] = last_active_surface;
-  group.matrices[index] = last_active_matrix;
+  // Move it to the removed index
+  group.objects[removed_index] = last_active_object;
+  group.surfaces[removed_index] = last_active_surface;
+  group.matrices[removed_index] = last_active_matrix;
 
+  // Update its id -> index mapping
+  group.id_to_index[last_active_object.object_id] = removed_index;
+
+  // Swap the object IDs
+  group.objects[last_active_index].object_id = removed_id;
+
+  // Truncate total active objects by 1
   group.total_active--;
 
-  if (index < group.total_visible) {
+  if (removed_index < group.total_visible) {
+    // If the removed index is within the visible objects set,
+    // truncate that by 1 too
     group.total_visible--;
   }
+
+  group.buffered = false;
 }
 
 void Tachyon_CommitObject(Tachyon* tachyon, const tObject& object) {

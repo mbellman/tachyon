@@ -144,7 +144,7 @@ static void HandleObjectPickerInputs(Tachyon* tachyon) {
   auto& placeable_meshes = MeshLibrary::GetPlaceableMeshAssets();
   auto max = placeable_meshes.size() - 1;
 
-  if (did_press_key(tKey::ARROW_LEFT)) {
+  if (did_press_key(tKey::Q)) {
     // Cycle object picker left
     if (editor.object_picker_index == 0) {
       editor.object_picker_index = max;
@@ -153,7 +153,7 @@ static void HandleObjectPickerInputs(Tachyon* tachyon) {
     }
   }
 
-  if (did_press_key(tKey::ARROW_RIGHT)) {
+  if (did_press_key(tKey::E)) {
     // Cycle object picker right
     if (editor.object_picker_index == max) {
       editor.object_picker_index = 0;
@@ -164,7 +164,13 @@ static void HandleObjectPickerInputs(Tachyon* tachyon) {
 }
 
 static void HandleObjectPickerCycleChange(Tachyon* tachyon) {
+  auto& camera = tachyon->scene.camera;
+
+  tVec3f spawn_position = camera.position + camera.orientation.getDirection() * 4000.f;
+
   if (editor.is_object_picker_active && editor.is_object_selected) {
+    spawn_position = get_original_object(editor.selected_object)->position;
+
     remove(editor.selected_object);
   }
 
@@ -175,9 +181,8 @@ static void HandleObjectPickerCycleChange(Tachyon* tachyon) {
   auto& selected_mesh = GetSelectedObjectPickerMeshAsset();
   auto mesh_index = selected_mesh.mesh_index;
   auto& selected = create(mesh_index);
-  auto& camera = tachyon->scene.camera;
 
-  selected.position = camera.position + camera.orientation.getDirection() * 4000.f;
+  selected.position = spawn_position;
 
   editor.selected_object = selected;
   editor.is_object_selected = true;
@@ -339,7 +344,7 @@ static void HandleInputs(Tachyon* tachyon, State& state) {
     HandleObjectPickerInputs(tachyon);
   }
 
-  if (did_press_key(tKey::ARROW_LEFT) || did_press_key(tKey::ARROW_RIGHT)) {
+  if (did_press_key(tKey::Q) || did_press_key(tKey::E)) {
     HandleObjectPickerCycleChange(tachyon);
   }
 
@@ -356,6 +361,13 @@ static void HandleInputs(Tachyon* tachyon, State& state) {
 
     if (did_press_key(tKey::ENTER)) {
       ResetSelectedObject(tachyon);
+    }
+
+    if (did_press_key(tKey::BACKSPACE)) {
+      remove(editor.selected_object);
+
+      editor.is_object_selected = false;
+      editor.is_object_picker_active = false;
     }
   }
 
