@@ -85,6 +85,11 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
   }
 
   auto& camera = tachyon->scene.camera;
+  float slerp_alpha = 30.f * dt;
+
+  if (tachyon->mouse_delta_x != 0 || tachyon->mouse_delta_y != 0 || slerp_alpha > 1.f) {
+    slerp_alpha = 1.f;
+  }
 
   // Handle mouse movements
   {
@@ -132,7 +137,7 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
     }
   }
 
-  camera.rotation = camera.orientation.toQuaternion();
+  camera.rotation = Quaternion::slerp(camera.rotation, camera.orientation.toQuaternion(), slerp_alpha);
 }
 
 static void HandleObjectPickerInputs(Tachyon* tachyon) {
@@ -532,6 +537,8 @@ void Editor::HandleEditor(Tachyon* tachyon, State& state, const float dt) {
 }
 
 void Editor::EnableEditor(Tachyon* tachyon, State& state) {
+  tachyon->show_developer_tools = true;
+
   state.is_editor_active = true;
 
   auto& camera = tachyon->scene.camera;
