@@ -15,6 +15,7 @@ namespace Cosmodrone {
       module_1,
       torus_1,
       solar_panel_1,
+      girder_1,
 
       // Celestial bodies
       planet,

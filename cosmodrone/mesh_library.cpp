@@ -27,6 +27,7 @@ static void LoadStationPartMeshes(Tachyon* tachyon, State& state) {
   meshes.module_1 = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/module_1.obj"), 1000);
   meshes.torus_1 = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/torus_1.obj"), 1000);
   meshes.solar_panel_1 = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/solar_panel_1.obj"), 1000);
+  meshes.girder_1 = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/girder_1.obj"), 1000);
 
   // @todo refactor
   mesh_assets.push_back({
@@ -42,6 +43,12 @@ static void LoadStationPartMeshes(Tachyon* tachyon, State& state) {
   mesh_assets.push_back({
     .mesh_name = "solar_panel_1",
     .mesh_index = meshes.solar_panel_1
+  });
+
+  mesh_assets.push_back({
+    .mesh_name = "girder_1",
+    .mesh_index = meshes.girder_1,
+    .material = tVec4f(0.4f, 1.f, 0, 0)
   });
 }
 

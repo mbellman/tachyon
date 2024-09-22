@@ -183,6 +183,7 @@ static void HandleObjectPickerCycleChange(Tachyon* tachyon) {
   auto& selected = create(mesh_index);
 
   selected.position = spawn_position;
+  selected.material = selected_mesh.material;
 
   editor.selected_object = selected;
   editor.is_object_selected = true;
@@ -302,6 +303,53 @@ static void ResetSelectedObject(Tachyon* tachyon) {
   }
 }
 
+static void RestoreSelectedObject(Tachyon* tachyon, tObject& object) {
+  // @todo restore base color (editor.selected_object.color?)
+  object.color = tVec3f(1.f);
+
+  commit(object);
+}
+
+enum Direction {
+  UP, RIGHT, LEFT, DOWN
+};
+
+static void CopySelectedObject(Tachyon* tachyon, Direction direction) {
+  auto& camera = tachyon->scene.camera;
+  auto& selected = *get_original_object(editor.selected_object);
+  auto& copy = create(selected.mesh_index);
+
+  RestoreSelectedObject(tachyon, selected);
+
+  copy.rotation = selected.rotation;
+  copy.scale = selected.scale;
+  copy.color = selected.color;
+  copy.material = selected.material;
+
+  tVec3f axis;
+
+  switch (direction) {
+    case(LEFT, {
+      axis = GetMostSimilarObjectAxis(camera.orientation.getLeftDirection(), selected);
+    })
+    case(RIGHT, {
+      axis = GetMostSimilarObjectAxis(camera.orientation.getRightDirection(), selected);
+    })
+    case(UP, {
+      axis = GetMostSimilarObjectAxis(camera.orientation.getUpDirection(), selected);
+    })
+    case(DOWN, {
+      axis = GetMostSimilarObjectAxis(camera.orientation.getUpDirection().invert(), selected);
+    })
+  }
+
+  copy.position = selected.position + axis * copy.scale;
+
+  commit(copy);
+
+  editor.selected_object = copy;
+}
+
 // @todo improve accuracy using collision planes/scale
 static void MaybeSelectObject(Tachyon* tachyon) {
   auto& placeable_meshes = MeshLibrary::GetPlaceableMeshAssets();
@@ -368,6 +416,22 @@ static void HandleInputs(Tachyon* tachyon, State& state) {
 
       editor.is_object_selected = false;
       editor.is_object_picker_active = false;
+    }
+
+    if (did_press_key(tKey::ARROW_LEFT)) {
+      CopySelectedObject(tachyon, LEFT);
+    }
+
+    if (did_press_key(tKey::ARROW_RIGHT)) {
+      CopySelectedObject(tachyon, RIGHT);
+    }
+
+    if (did_press_key(tKey::ARROW_UP)) {
+      CopySelectedObject(tachyon, UP);
+    }
+
+    if (did_press_key(tKey::ARROW_DOWN)) {
+      CopySelectedObject(tachyon, DOWN);
     }
   }
 
@@ -460,9 +524,10 @@ static void HandleSelectedObject(Tachyon* tachyon, State& state) {
     }
   }
 
+  // @todo move to HandleInputs()
   if (did_right_click_down()) {
     // Deselect the object
-    selected.color = tVec3f(1.f);
+    RestoreSelectedObject(tachyon, selected);
 
     editor.is_object_selected = false;
     editor.is_object_picker_active = false;
