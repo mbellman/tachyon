@@ -23,6 +23,7 @@ struct EditorState {
   bool is_object_picker_active = false;
   uint16 object_picker_index = 0;
 
+  bool use_modified_action = false;
   float running_angle_x = 0.f;
   float running_angle_y = 0.f;
 
@@ -221,23 +222,35 @@ static void HandleSelectedObjectMouseAction(Tachyon* tachyon) {
   auto& camera = tachyon->scene.camera;
   auto& selected = *get_original_object(editor.selected_object);
   auto is_horizontal_action = abs(tachyon->mouse_delta_x) > abs(tachyon->mouse_delta_y);
+  auto camera_up = camera.orientation.getUpDirection();
+  auto camera_right = camera.orientation.getRightDirection();
 
   switch (editor.action_type) {
     case(ActionType::POSITION, {
-      if (is_horizontal_action) {
-        auto axis = GetMostSimilarGlobalAxis(camera.orientation.getRightDirection());
+      auto distance = (selected.position - camera.position).magnitude();
+      auto movement_factor = distance / 5000.f;
+      auto use_object_axis = editor.use_modified_action;
 
-        selected.position += axis * (float)tachyon->mouse_delta_x;
+      if (is_horizontal_action) {
+        auto axis = use_object_axis
+          ? GetMostSimilarObjectAxis(camera_right, selected)
+          : GetMostSimilarGlobalAxis(camera_right);
+
+        selected.position += axis * (float)tachyon->mouse_delta_x * movement_factor;
       } else {
-        selected.position -= tVec3f(0, 1.f, 0) * (float)tachyon->mouse_delta_y;
+        auto axis = use_object_axis
+          ? GetMostSimilarObjectAxis(camera_up, selected)
+          : tVec3f(0, 1.f, 0);
+
+        selected.position -= axis * (float)tachyon->mouse_delta_y * movement_factor;
       }
     })
     case(ActionType::ROTATE, {
       constexpr static float SNAP_INCREMENT = t_PI / 12.f;
-      auto use_snapping = is_key_held(tKey::SHIFT);
+      auto use_snapping = editor.use_modified_action;
 
       if (is_horizontal_action) {
-        auto axis = GetMostSimilarObjectAxis(camera.orientation.getUpDirection(), selected);
+        auto axis = GetMostSimilarObjectAxis(camera_up, selected);
         auto angle = (float)tachyon->mouse_delta_x * 0.005f;
 
         editor.running_angle_x += angle;
@@ -248,7 +261,7 @@ static void HandleSelectedObjectMouseAction(Tachyon* tachyon) {
 
         selected.rotation *= Quaternion::fromAxisAngle(axis, angle);
       } else {
-        auto axis = GetMostSimilarObjectAxis(camera.orientation.getRightDirection(), selected);
+        auto axis = GetMostSimilarObjectAxis(camera_right, selected);
         auto angle = (float)tachyon->mouse_delta_y * 0.005f;
 
         editor.running_angle_y += angle;
@@ -345,6 +358,10 @@ static void HandleInputs(Tachyon* tachyon, State& state) {
     MaybeSelectObject(tachyon);
   }
 
+  if (did_press_key(tKey::CONTROL)) {
+    editor.use_modified_action = !editor.use_modified_action;
+  }
+
   if (did_press_key(tKey::G)) {
     objects(state.meshes.editor_guideline).disabled = !objects(state.meshes.editor_guideline).disabled;
   }
@@ -383,9 +400,15 @@ static void HandleSelectedObject(Tachyon* tachyon, State& state) {
       auto selected_object_direction = (selected.position - camera.position).unit();
 
       indicator.position = camera.position + selected_object_direction * 150.f;
-      indicator.color = tVec4f(1.f, 1.f, 1.f, 1.f);
-      indicator.rotation = selected.rotation;
       indicator.scale = tVec3f(30.f);
+
+      if (editor.use_modified_action) {
+        indicator.rotation = selected.rotation;
+        indicator.color = tVec4f(1.f, 1.f, 0.f, 1.f);
+      } else {
+        indicator.rotation = Quaternion(1.f, 0, 0, 0);
+        indicator.color = tVec4f(1.f);
+      }
 
       commit(indicator);
     } else if (editor.action_type == ActionType::ROTATE) {
@@ -395,9 +418,14 @@ static void HandleSelectedObject(Tachyon* tachyon, State& state) {
       auto selected_object_direction = (selected.position - camera.position).unit();
 
       indicator.position = camera.position + selected_object_direction * 150.f;
-      indicator.color = tVec4f(1.f, 1.f, 1.f, 1.f);
       indicator.rotation = selected.rotation;
       indicator.scale = tVec3f(30.f);
+
+      if (editor.use_modified_action) {
+        indicator.color = tVec4f(1.f, 1.f, 0.f, 1.f);
+      } else {
+        indicator.color = tVec4f(1.f);
+      }
 
       commit(indicator);
     } else if (editor.action_type == ActionType::SCALE) {
