@@ -614,25 +614,35 @@ void Editor::HandleEditor(Tachyon* tachyon, State& state, const float dt) {
 }
 
 void Editor::EnableEditor(Tachyon* tachyon, State& state) {
-  tachyon->show_developer_tools = true;
-
-  state.is_editor_active = true;
-
   auto& camera = tachyon->scene.camera;
   auto forward = state.ship_position - camera.position;
 
   camera.orientation.face(forward, tVec3f(0, 1.f, 0));
 
   objects(state.meshes.editor_guideline).disabled = false;
+
+  tachyon->show_developer_tools = true;
+
+  state.is_editor_active = true;
 }
 
 void Editor::DisableEditor(Tachyon* tachyon, State& state) {
-  state.is_editor_active = false;
+  if (editor.is_object_selected) {
+    if (editor.is_object_picker_active) {
+      remove(editor.selected_object);
+    } else {
+      auto& selected = *get_original_object(editor.selected_object);
 
-  if (editor.is_object_picker_active && editor.is_object_selected) {
-    remove(editor.selected_object);
+      RestoreSelectedObject(tachyon, selected);
+    }
   }
 
   editor.is_object_picker_active = false;
   editor.is_object_selected = false;
+
+  objects(state.meshes.editor_position).disabled = true;
+  objects(state.meshes.editor_rotation).disabled = true;
+  objects(state.meshes.editor_scale).disabled = true;
+
+  state.is_editor_active = false;
 }
