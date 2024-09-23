@@ -60,7 +60,9 @@ void tOrientation::face(const tVec3f& forward, const tVec3f& up) {
   // and calculate pitch as a function of y/z
   rUp.z = up.x * sinf(yaw) + up.z * cosf(yaw);
 
-  pitch = atan2f(forward.unit().xz().magnitude(), forward.unit().y) - t_HALF_PI;
+  auto unit_forward = forward.unit();
+
+  pitch = atan2f(unit_forward.xz().magnitude(), unit_forward.y) - t_HALF_PI;
 }
 
 tOrientation tOrientation::invert() const {

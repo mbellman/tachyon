@@ -45,20 +45,18 @@ void main() {
 
   // For the vertex transform, start by just applying rotation.
   // Translation should be offset by the transform origin.
-  vec4 model_position = mat4(mat3(modelMatrix)) * vec4(vertexPosition, 1.0);
+  vec3 model_space_position = mat3(modelMatrix) * vertexPosition;
   vec3 translation = vec3(modelMatrix[3][0], modelMatrix[3][1], modelMatrix[3][2]);
-  vec4 world_position = model_position;
 
   // Apply translation, offset by the origin
-  world_position.xyz += (translation - transform_origin);
+  vec3 world_space_position = model_space_position + (translation - transform_origin);
 
-  gl_Position = mat_view_projection * world_position;
+  gl_Position = mat_view_projection * vec4(world_space_position, 1.0);
 
   fragSurface = SurfaceToUVec4(modelSurface);
-  fragPosition = world_position.xyz;
+  fragPosition = world_space_position;
   fragNormal = normal_matrix * vertexNormal;
   fragTangent = normal_matrix * vertexTangent;
   fragBitangent = getFragBitangent(fragNormal, fragTangent);
-
   fragUv = vertexUv;
 }
