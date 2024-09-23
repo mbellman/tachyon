@@ -1,3 +1,4 @@
+#include <format>
 #include <math.h>
 
 #include "cosmodrone/game_editor.h"
@@ -387,6 +388,28 @@ static void MaybeSelectObject(Tachyon* tachyon) {
   }
 }
 
+// @todo actually serialize + write data
+static void SaveWorldData(Tachyon* tachyon) {
+  auto start = Tachyon_GetMicroseconds();
+  auto& placeable_meshes = MeshLibrary::GetPlaceableMeshAssets();
+
+  for (auto& mesh : placeable_meshes) {
+    auto& instances = objects(mesh.mesh_index);
+    auto total_active = objects(mesh.mesh_index).total_active;
+
+    printf("%s\n", ("@" + mesh.mesh_name).c_str());
+
+    for (uint16 i = 0; i < total_active; i++) {
+      printf("%s\n", instances[i].position.toString());
+    }
+  }
+
+  auto time = Tachyon_GetMicroseconds() - start;
+  auto message = std::format("Saved world data in {}us", time);
+
+  add_console_message(message, tVec3f(1.f));
+}
+
 static void HandleInputs(Tachyon* tachyon, State& state) {
   if (editor.is_object_picker_active) {
     HandleObjectPickerInputs(tachyon);
@@ -445,6 +468,10 @@ static void HandleInputs(Tachyon* tachyon, State& state) {
 
   if (did_press_key(tKey::G)) {
     objects(state.meshes.editor_guideline).disabled = !objects(state.meshes.editor_guideline).disabled;
+  }
+
+  if (did_press_key(tKey::ENTER) && !editor.is_object_selected) {
+    SaveWorldData(tachyon);
   }
 }
 
