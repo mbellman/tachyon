@@ -317,6 +317,8 @@ void Cosmodrone::RunGame(Tachyon* tachyon, const float dt) {
   auto& camera = tachyon->scene.camera;
   auto& meshes = state.meshes;
 
+  tachyon->scene.transform_origin = camera.position;
+
   // @todo dev mode only
   if (did_press_key(tKey::NUM_1)) {
     if (state.is_editor_active) {

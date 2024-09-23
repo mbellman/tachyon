@@ -2,6 +2,7 @@
 
 // uniform sampler2D meshTexture;
 uniform mat4 mat_view_projection;
+uniform vec3 transform_origin;
 
 layout (location = 0) in vec3 vertexPosition;
 layout (location = 1) in vec3 vertexNormal;
@@ -40,8 +41,16 @@ uvec4 SurfaceToUVec4(uint surface) {
 }
 
 void main() {
-  vec4 world_position = modelMatrix * vec4(vertexPosition, 1.0);
   mat3 normal_matrix = transpose(inverse(mat3(modelMatrix)));
+
+  // For the vertex transform, start by just applying rotation.
+  // Translation should be offset by the transform origin.
+  vec4 model_position = mat4(mat3(modelMatrix)) * vec4(vertexPosition, 1.0);
+  vec3 translation = vec3(modelMatrix[3][0], modelMatrix[3][1], modelMatrix[3][2]);
+  vec4 world_position = model_position;
+
+  // Apply translation, offset by the origin
+  world_position.xyz += (translation - transform_origin);
 
   gl_Position = mat_view_projection * world_position;
 

@@ -81,6 +81,7 @@ static void StoreShaderUniforms(tOpenGLShaders& shaders) {
     shaders.locations.shader_name.uniform_name = glGetUniformLocation(shaders.shader_name.program, #uniform_name);
 
   store_shader_uniform(main_geometry, mat_view_projection);
+  store_shader_uniform(main_geometry, transform_origin);
 
   store_shader_uniform(surface, transform);
   store_shader_uniform(surface, color);

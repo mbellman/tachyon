@@ -188,6 +188,7 @@ static void HandleDeveloperTools(Tachyon* tachyon) {
 static void UpdateRendererContext(Tachyon* tachyon) {
   auto& ctx = get_renderer().ctx;
   auto& camera = tachyon->scene.camera;
+  tMat4f camera_rotation_matrix = camera.rotation.toMatrix4f();
   int w, h;
 
   SDL_GL_GetDrawableSize(tachyon->sdl_window, &w, &h);
@@ -199,9 +200,17 @@ static void UpdateRendererContext(Tachyon* tachyon) {
   ctx.projection_matrix = tMat4f::perspective(45.f, 100.f, 10000000.f).transpose();
 
   ctx.view_matrix = (
-    camera.rotation.toMatrix4f() *
+    camera_rotation_matrix *
     tMat4f::translation(camera.position * tVec3f(-1.f))
   ).transpose();
+
+  ctx.view_projection_matrix = (
+    (
+      camera_rotation_matrix *
+      tMat4f::translation(tachyon->scene.transform_origin - camera.position)
+    ).transpose() *
+    ctx.projection_matrix
+  );
 
   ctx.inverse_projection_matrix = ctx.projection_matrix.inverse();
   ctx.inverse_view_matrix = ctx.view_matrix.inverse();
@@ -210,6 +219,7 @@ static void UpdateRendererContext(Tachyon* tachyon) {
 }
 
 static void RenderStaticGeometry(Tachyon* tachyon) {
+  auto& camera = tachyon->scene.camera;
   auto& renderer = get_renderer();
   auto& shader = renderer.shaders.main_geometry;
   auto& locations = renderer.shaders.locations.main_geometry;
@@ -242,10 +252,9 @@ static void RenderStaticGeometry(Tachyon* tachyon) {
   glClearColor(0.f, 0.f, 0.f, 1.f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-  tMat4f mat_view_projection = ctx.view_matrix * ctx.projection_matrix;
-
   glUseProgram(shader.program);
-  Tachyon_SetShaderMat4f(locations.mat_view_projection, mat_view_projection);
+  Tachyon_SetShaderMat4f(locations.mat_view_projection, ctx.view_projection_matrix);
+  Tachyon_SetShaderVec3f(locations.transform_origin, tachyon->scene.transform_origin);
 
   glBindVertexArray(gl_mesh_pack.vao);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gl_mesh_pack.ebo);
