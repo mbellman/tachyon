@@ -9,7 +9,7 @@
 #include "engine/tachyon_timer.h"
 #include "engine/opengl/tachyon_opengl_renderer.h"
 
-internal void HandleEvents(Tachyon* tachyon) {
+static void HandleEvents(Tachyon* tachyon) {
   SDL_Event event;
 
   while (SDL_PollEvent(&event)) {
@@ -37,6 +37,15 @@ internal void HandleEvents(Tachyon* tachyon) {
             break;
         }
         break;
+      case SDL_WINDOWEVENT:
+        if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
+          if (tachyon->renderer != nullptr) {
+            if (tachyon->render_backend == TachyonRenderBackend::OPENGL) {
+              Tachyon_OpenGL_ResizeRenderer(tachyon);
+            }
+          }
+        }
+        break;
     }
 
     Tachyon_HandleInputEvent(tachyon, event);
@@ -47,7 +56,7 @@ internal void HandleEvents(Tachyon* tachyon) {
   }
 }
 
-internal void RenderScene(Tachyon* tachyon) {
+static void RenderScene(Tachyon* tachyon) {
   if (tachyon->render_backend == TachyonRenderBackend::OPENGL) {
     Tachyon_RenderSceneInOpenGL(tachyon);
   } else {
@@ -55,7 +64,7 @@ internal void RenderScene(Tachyon* tachyon) {
   }
 }
 
-internal void DestroyRenderer(Tachyon* tachyon) {
+static void DestroyRenderer(Tachyon* tachyon) {
   if (tachyon->render_backend == TachyonRenderBackend::OPENGL) {
     Tachyon_DestroyOpenGLRenderer(tachyon);
   }

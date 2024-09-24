@@ -50,6 +50,8 @@ void OpenGLFrameBuffer::destroy() {
     glDeleteTextures(1, &attachment.textureId);
   }
 
+  colorAttachments.clear();
+
   glDeleteTextures(1, &depthTextureId);
   glDeleteTextures(1, &depthStencilTextureId);
 }

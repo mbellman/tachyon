@@ -44,6 +44,7 @@ struct tOpenGLRenderer {
 };
 
 void Tachyon_InitOpenGLRenderer(Tachyon* tachyon);
+void Tachyon_OpenGL_ResizeRenderer(Tachyon* tachyon);
 void Tachyon_RenderSceneInOpenGL(Tachyon* tachyon);
 void Tachyon_OpenGL_RenderDeveloperOverlay(Tachyon* tachyon);
 void Tachyon_DestroyOpenGLRenderer(Tachyon* tachyon);

@@ -17,9 +17,6 @@
 
 #define get_renderer() (*(tOpenGLRenderer*)tachyon->renderer)
 
-constexpr static uint32 INTERNAL_WIDTH = 1920;
-constexpr static uint32 INTERNAL_HEIGHT = 1080;
-
 static void Tachyon_CheckError(const std::string& message) {
   GLenum error;
 
@@ -105,8 +102,8 @@ static void RenderSurface(Tachyon* tachyon, SDL_Surface* surface, uint32 x, uint
   RenderScreenQuad(tachyon);
 }
 
-static void RenderText(Tachyon* tachyon, TTF_Font* font, const char* message, uint32 x, uint32 y, const tVec3f& color, const tVec4f& background) {
-  SDL_Surface* text = TTF_RenderText_Blended_Wrapped(font, message, { 255, 255, 255 }, INTERNAL_WIDTH);
+static void RenderText(Tachyon* tachyon, TTF_Font* font, const char* message, uint32 x, uint32 y, uint32 wrap_width, const tVec3f& color, const tVec4f& background) {
+  SDL_Surface* text = TTF_RenderText_Blended_Wrapped(font, message, { 255, 255, 255 }, wrap_width);
 
   RenderSurface(tachyon, text, x, y, text->w, text->h, color, background);
 
@@ -115,6 +112,7 @@ static void RenderText(Tachyon* tachyon, TTF_Font* font, const char* message, ui
 
 static void HandleDeveloperTools(Tachyon* tachyon) {
   auto& renderer = get_renderer();
+  auto& ctx = renderer.ctx;
 
   // Keyboard shortcuts
   {
@@ -139,9 +137,11 @@ static void HandleDeveloperTools(Tachyon* tachyon) {
 
     std::vector<std::string> labels = {
       "View: " + std::string(renderer.show_g_buffer_view ? "G-BUFFER" : "DEFAULT"),
+      "Resolution: " + String(ctx.w) + " x " + String(ctx.h),
       "Running time: " + String(tachyon->running_time),
       "Render time: " + String(renderer.last_render_time_in_microseconds) + "us (" + String(render_fps) + "fps)",
       "Frame time: " + String(tachyon->last_frame_time_in_microseconds) + "us (" + String(frame_fps) + "fps)",
+      "V-Sync: " + std::string(SDL_GL_GetSwapInterval() ? "ON" : "OFF"),
       "Triangles: " + String(renderer.total_triangles),
       "Vertices: " + String(renderer.total_vertices),
       "Meshes: " + String(renderer.total_meshes_drawn),
@@ -152,7 +152,7 @@ static void HandleDeveloperTools(Tachyon* tachyon) {
     uint32 y_offset = 10;
 
     for (auto& label : labels) {
-      RenderText(tachyon, tachyon->developer_overlay_font, label.c_str(), 10, y_offset, tVec3f(1.f), tVec4f(0.f));
+      RenderText(tachyon, tachyon->developer_overlay_font, label.c_str(), 10, y_offset, ctx.w, tVec3f(1.f), tVec4f(0.f));
 
       y_offset += 25;
     }
@@ -163,7 +163,7 @@ static void HandleDeveloperTools(Tachyon* tachyon) {
     for (auto& dev_label : tachyon->dev_labels) {
       auto full_label = dev_label.label + ": " + dev_label.message;
 
-      RenderText(tachyon, tachyon->developer_overlay_font, full_label.c_str(), 10, y_offset, tVec3f(1.f), tVec4f(0.2f, 0.2f, 1.f, 0.4));
+      RenderText(tachyon, tachyon->developer_overlay_font, full_label.c_str(), 10, y_offset, ctx.w, tVec3f(1.f), tVec4f(0.2f, 0.2f, 1.f, 0.4));
 
       y_offset += 30;
     }
@@ -178,7 +178,7 @@ static void HandleDeveloperTools(Tachyon* tachyon) {
       auto& message = console_message.message;
       auto& color = console_message.color;
 
-      RenderText(tachyon, tachyon->developer_overlay_font, message.c_str(), 10, y_offset, color, tVec4f(0.f));
+      RenderText(tachyon, tachyon->developer_overlay_font, message.c_str(), 10, y_offset, ctx.w, color, tVec4f(0.f));
 
       y_offset += 30;
     }
@@ -393,12 +393,19 @@ void Tachyon_InitOpenGLRenderer(Tachyon* tachyon) {
 
     auto& g_buffer = renderer->g_buffer;
 
-    g_buffer.init();
-    g_buffer.setSize(INTERNAL_WIDTH, INTERNAL_HEIGHT);
-    g_buffer.addColorAttachment(ColorFormat::RGBA);
-    g_buffer.addColorAttachment(ColorFormat::RGBA8UI);
-    g_buffer.addDepthStencilAttachment();
-    g_buffer.bindColorAttachments();
+    // @todo refactor
+    {
+      int w, h;
+
+      SDL_GL_GetDrawableSize(tachyon->sdl_window, &w, &h);
+
+      g_buffer.init();
+      g_buffer.setSize(w, h);
+      g_buffer.addColorAttachment(ColorFormat::RGBA);
+      g_buffer.addColorAttachment(ColorFormat::RGBA8UI);
+      g_buffer.addDepthStencilAttachment();
+      g_buffer.bindColorAttachments();
+    }
   }
 
   // Set up screen quad texture binding
@@ -428,6 +435,27 @@ void Tachyon_InitOpenGLRenderer(Tachyon* tachyon) {
   }
 
   tachyon->renderer = renderer;
+}
+
+void Tachyon_OpenGL_ResizeRenderer(Tachyon* tachyon) {
+  auto& renderer = get_renderer();
+  auto& g_buffer = renderer.g_buffer;
+
+  g_buffer.destroy();
+
+  // @todo refactor
+  {
+    int w, h;
+
+    SDL_GL_GetDrawableSize(tachyon->sdl_window, &w, &h);
+
+    g_buffer.init();
+    g_buffer.setSize(w, h);
+    g_buffer.addColorAttachment(ColorFormat::RGBA);
+    g_buffer.addColorAttachment(ColorFormat::RGBA8UI);
+    g_buffer.addDepthStencilAttachment();
+    g_buffer.bindColorAttachments();
+  }
 }
 
 void Tachyon_RenderSceneInOpenGL(Tachyon* tachyon) {
