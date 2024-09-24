@@ -2,7 +2,7 @@
 
 using namespace Cosmodrone;
 
-static std::vector<MeshAsset> mesh_assets;
+static std::vector<MeshAsset> placeable_mesh_assets;
 
 // @bug once in a while, meshes don't load in at the beginning! figure this out
 static void LoadShipPartMeshes(Tachyon* tachyon, State& state) {
@@ -28,27 +28,40 @@ static void LoadStationPartMeshes(Tachyon* tachyon, State& state) {
   meshes.torus_1 = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/torus_1.obj"), 1000);
   meshes.solar_panel_1 = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/solar_panel_1.obj"), 1000);
   meshes.girder_1 = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/girder_1.obj"), 1000);
+  meshes.girder_2 = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/girder_2.obj"), 1000);
 
   // @todo refactor
-  mesh_assets.push_back({
+  placeable_mesh_assets.push_back({
     .mesh_name = "module_1",
     .mesh_index = meshes.module_1
   });
 
-  mesh_assets.push_back({
+  placeable_mesh_assets.push_back({
     .mesh_name = "torus_1",
     .mesh_index = meshes.torus_1
   });
 
-  mesh_assets.push_back({
+  placeable_mesh_assets.push_back({
     .mesh_name = "solar_panel_1",
     .mesh_index = meshes.solar_panel_1
   });
 
-  mesh_assets.push_back({
+  placeable_mesh_assets.push_back({
     .mesh_name = "girder_1",
     .mesh_index = meshes.girder_1,
-    .material = tVec4f(0.4f, 1.f, 0, 0)
+    .defaults = {
+      .scale = tVec3f(2000.f),
+      .material = tVec4f(0.4f, 1.f, 0, 0)
+    }
+  });
+
+  placeable_mesh_assets.push_back({
+    .mesh_name = "girder_2",
+    .mesh_index = meshes.girder_2,
+    .defaults = {
+      .scale = tVec3f(4000.f),
+      .material = tVec4f(0.5f, 1.f, 0, 0)
+    }
   });
 }
 
@@ -94,5 +107,5 @@ void MeshLibrary::LoadMeshes(Tachyon* tachyon, State& state) {
 }
 
 const std::vector<MeshAsset>& MeshLibrary::GetPlaceableMeshAssets() {
-  return mesh_assets;
+  return placeable_mesh_assets;
 }

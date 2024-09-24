@@ -7,7 +7,14 @@ namespace Cosmodrone {
   struct MeshAsset {
     std::string mesh_name;
     uint16 mesh_index;
-    tMaterial material = tVec4f(0.6f, 0, 0, 0);
+
+    struct {
+      tVec3f scale;
+      tMaterial material;
+    } defaults = {
+      .scale = tVec3f(1000.f),
+      .material = tVec4f(0.6f, 0, 0, 0)
+    };
   };
 
   namespace MeshLibrary {

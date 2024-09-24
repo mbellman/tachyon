@@ -184,7 +184,8 @@ static void HandleObjectPickerCycleChange(Tachyon* tachyon) {
   auto& selected = create(mesh_index);
 
   selected.position = spawn_position;
-  selected.material = selected_mesh.material;
+  selected.scale = selected_mesh.defaults.scale;
+  selected.material = selected_mesh.defaults.material;
 
   editor.selected_object = selected;
   editor.is_object_selected = true;
@@ -492,7 +493,6 @@ static void HandleSelectedObject(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
   auto& selected = *get_original_object(editor.selected_object);
 
-  selected.scale = tVec3f(1000.f);
   selected.color = tVec4f(1.f, 1.f, 1.f, uint32(tachyon->running_time * 2.f) % 2 == 0 ? 0.1f : 0.2f);
 
   // @todo refactor
