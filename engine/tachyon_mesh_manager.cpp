@@ -442,6 +442,10 @@ tObject& Tachyon_CreateObject(Tachyon* tachyon, uint16 mesh_index) {
   auto index = group.total_active - 1;
   auto& object = group[index];
 
+  if (object.object_id > group.highest_used_id) {
+    group.highest_used_id = object.object_id;
+  }
+
   group.id_to_index[object.object_id] = index;
   group.buffered = false;
 

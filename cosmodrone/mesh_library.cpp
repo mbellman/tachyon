@@ -80,7 +80,7 @@ static void LoadCelestialBodyMeshes(Tachyon* tachyon, State& state) {
 
   // @todo have separate meshes for each celestial body
   // @todo define a list of celestial bodies + properties
-  auto planet_mesh = Tachyon_CreateSphereMesh(30);
+  auto planet_mesh = Tachyon_CreateSphereMesh(40);
 
   meshes.planet = Tachyon_AddMesh(tachyon, planet_mesh, 2);
 }

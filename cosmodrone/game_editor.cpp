@@ -389,24 +389,54 @@ static void MaybeSelectObject(Tachyon* tachyon) {
   }
 }
 
-// @todo actually serialize + write data
+static inline std::string Serialize(float f) {
+  return std::format("{:.3f}", f);
+}
+
+static inline std::string Serialize(const tVec3f& vector) {
+  return Serialize(vector.x) + "," + Serialize(vector.y) + "," + Serialize(vector.z);
+}
+
+static inline std::string Serialize(const Quaternion& quaternion) {
+  return (
+    Serialize(quaternion.w) + "," +
+    Serialize(quaternion.x) + "," +
+    Serialize(quaternion.y) + "," +
+    Serialize(quaternion.z)
+  );
+}
+
 static void SaveWorldData(Tachyon* tachyon) {
   auto start = Tachyon_GetMicroseconds();
   auto& placeable_meshes = MeshLibrary::GetPlaceableMeshAssets();
+  std::string data = "";
 
   for (auto& mesh : placeable_meshes) {
     auto& instances = objects(mesh.mesh_index);
-    auto total_active = objects(mesh.mesh_index).total_active;
 
-    printf("%s\n", ("@" + mesh.mesh_name).c_str());
+    data += ("@" + mesh.mesh_name + "\n");
 
-    for (uint16 i = 0; i < total_active; i++) {
-      printf("%s\n", instances[i].position.toString());
+    // Perform a sequence-preserving loop over the objects
+    // to ensure they always serialize in the same order
+    // (e.g. if objects are removed/shuffled during runtime)
+    for (uint16 id = 0; id <= instances.highest_used_id; id++) {
+      tObject* instance = instances.getById(id);
+
+      if (instance != nullptr) {
+        data += Serialize(instance->position) + "|";
+        data += Serialize(instance->scale) + "|";
+        data += Serialize(instance->rotation) + "|";
+        data += std::to_string(instance->color.rgba) + "|";
+        data += std::to_string(instance->material.data) + "\n";
+      }
+
     }
   }
 
   auto time = Tachyon_GetMicroseconds() - start;
   auto message = std::format("Saved world data in {}us", time);
+
+  Tachyon_WriteFileContents("./cosmodrone/data/world.txt", data);
 
   add_console_message(message, tVec3f(1.f));
 }

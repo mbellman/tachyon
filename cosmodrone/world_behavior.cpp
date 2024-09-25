@@ -18,12 +18,12 @@ static void UpdateCelestialBodies(Tachyon* tachyon, State& state, const float dt
 
   earth.position = camera.position + tVec3f(0, -4000000.f, 0);
   earth.color = tVec3f(0.1f, 0.2f, 1.f);
-  earth.scale = tVec3f(1000000.f);
+  earth.scale = tVec3f(1500000.f);
   earth.material = tVec4f(0.4f, 0, 1.f, 0.3);
 
   // Sun/moon
   {
-    auto orbit_angle = 0.35f + tachyon->running_time * 0.001f;
+    auto orbit_angle = 0.5f + tachyon->running_time * 0.001f;
     auto orbit_rotation_matrix = Quaternion::fromAxisAngle(orbit_rotation_axis, orbit_angle).toMatrix4f();
     auto unit_moon_position = orbit_rotation_matrix.transformVec3f(moon_direction);
     auto unit_sun_position = orbit_rotation_matrix.transformVec3f(sun_direction);

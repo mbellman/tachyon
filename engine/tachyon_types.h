@@ -70,6 +70,7 @@ struct tObjectGroup {
   uint16 total = 0;
   uint16 total_visible = 0;
   uint16 total_active = 0;
+  uint16 highest_used_id = 0;
   bool buffered = false;
   bool disabled = false;
 
@@ -83,6 +84,20 @@ struct tObjectGroup {
 
   tObject* end() const {
     return &objects[total_active];
+  }
+
+  tObject* getById(uint16 id) const {
+    if (id >= total) {
+      return nullptr;
+    }
+
+    auto index = id_to_index[id];
+
+    if (index > total_active - 1) {
+      return nullptr;
+    }
+
+    return &objects[index];
   }
 };
 

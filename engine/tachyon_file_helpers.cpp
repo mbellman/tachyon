@@ -1,4 +1,5 @@
 #include <fstream>
+#include <filesystem>
 
 #include "engine/tachyon_file_helpers.h"
 
@@ -20,4 +21,16 @@ std::string Tachyon_GetFileContents(const char* path) {
   file.close();
 
   return source;
+}
+
+void Tachyon_WriteFileContents(const std::string& path, const std::string& contents) {
+  auto last_slash_index = path.find_last_of("/");
+  auto directories = path.substr(0, last_slash_index);
+  std::ofstream file;
+
+  std::filesystem::create_directories(directories);
+
+  file.open(path, std::fstream::out);
+  file << contents;
+  file.close();
 }
