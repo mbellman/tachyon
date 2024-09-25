@@ -69,11 +69,8 @@ vec3 FresnelSchlick(float cosTheta, vec3 F0) {
   return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 
-// @temporary @todo pass as a parameter
-const vec3 light_color = vec3(1.0);
-
-vec3 DirectionalLightRadiance(vec3 albedo, vec3 position, vec3 N, vec3 V, float roughness, float metalness, vec3 F0) {
-  vec3 L = -normalize(directional_light_direction);
+vec3 DirectionalLightRadiance(vec3 light_direction, vec3 light_color, vec3 albedo, vec3 position, vec3 N, vec3 V, float roughness, float metalness, vec3 F0) {
+  vec3 L = -normalize(light_direction);
   vec3 H = normalize(V + L);
 
   float NDF = DistributionGGX(N, H, roughness);
@@ -112,6 +109,8 @@ float FastSubsurface(float NdotV, float subsurface) {
 }
 
 vec3 FastDirectionalLightRadiance(
+  vec3 light_direction,
+  vec3 light_color,
   vec3 albedo,
   vec3 position,
   vec3 N,
@@ -122,7 +121,7 @@ vec3 FastDirectionalLightRadiance(
   float clearcoat,
   float subsurface
 ) {
-  vec3 L = -normalize(directional_light_direction);
+  vec3 L = -normalize(light_direction);
   vec3 H = normalize(V + L);
 
   float NdotH = max(dot(N, H), 0.0);
@@ -222,8 +221,11 @@ void main() {
 
   vec3 F0 = vec3(0.04);
   F0 = mix(F0, albedo, metalness);
-  // vec3 out_color = DirectionalLightRadiance(albedo, position, N, V, roughness, metalness, F0);
-  vec3 out_color = FastDirectionalLightRadiance(albedo, position, N, V, NdotV, roughness, metalness, clearcoat, subsurface);
+  // vec3 out_color = DirectionalLightRadiance(directional_light_direction, vec3(1.0), albedo, position, N, V, roughness, metalness, F0);
+  vec3 out_color = FastDirectionalLightRadiance(directional_light_direction, vec3(1.0), albedo, position, N, V, NdotV, roughness, metalness, clearcoat, subsurface);
+
+  // @todo make customizable
+  out_color += FastDirectionalLightRadiance(vec3(0, 1, 0), vec3(0.2, 0.5, 1.0) * 0.2, albedo, position, N, V, NdotV, 1.0, metalness, 0.0, subsurface);
 
   // @todo cleanup
   vec3 L = normalize(directional_light_direction);
