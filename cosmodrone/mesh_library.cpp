@@ -20,7 +20,7 @@ static void LoadShipPartMeshes(Tachyon* tachyon, State& state) {
   meshes.trim = Tachyon_AddMesh(tachyon, trim_mesh, 1);
 }
 
-static void LoadStationPartMeshes(Tachyon* tachyon, State& state) {
+static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   // @todo define in a list
@@ -109,7 +109,7 @@ static void LoadDebugMeshes(Tachyon* tachyon, State& state) {
 
 void MeshLibrary::LoadMeshes(Tachyon* tachyon, State& state) {
   LoadShipPartMeshes(tachyon, state);
-  LoadStationPartMeshes(tachyon, state);
+  LoadPlaceableMeshes(tachyon, state);
   LoadCelestialBodyMeshes(tachyon, state);
   LoadDebugMeshes(tachyon, state);
 

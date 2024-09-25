@@ -131,11 +131,11 @@ vec3 FastDirectionalLightRadiance(
   float sG = FastGeometryGGX(NdotH, roughness, metalness);
 
   float D = (1.0 - metalness) * (1.0 - roughness * 0.5) * NdotL;
-  float S = (sD + sG) * NdotL;
+  float Sp = (sD + sG) * NdotL;
   float C = FastClearcoat(NdotH, NdotV, clearcoat) * NdotL;
   float Sc = FastSubsurface(NdotV, subsurface) * (NdotL + 0.05) * (1.0 - metalness * 0.95);
 
-  return light_color * (albedo * D + albedo * S + C + albedo * albedo * Sc) / PI;
+  return light_color * (albedo * D + albedo * Sp + C + albedo * albedo * Sc) / PI;
 }
 
 vec3 AmbientFresnel(float NdotV) {
@@ -174,7 +174,7 @@ vec3 GetSkyColor(vec3 sky_direction) {
 
   float sun_dot = max(dot(sun_direction, sky_direction), 0.0);
   vec3 sun_base_color = mix(vec3(1.0, 0.5, 0.0), vec3(1.0, 0.95, 0.9), pow(sun_dot, 100));
-  float sun_alpha = clamp(pow(sun_dot, 250) * 2.0, 0.0, 1.2);
+  float sun_alpha = clamp(pow(sun_dot, 250) * 2.0, 0.0, 1.1);
   vec3 sun_color = mix(vec3(0), sun_base_color, sun_alpha);
 
   float planet_dot = max(dot(planet_direction, sky_direction), 0.0);

@@ -1,6 +1,80 @@
+#include <string>
+#include <vector>
+
+#include "cosmodrone/mesh_library.h"
 #include "cosmodrone/world_setup.h"
 
 using namespace Cosmodrone;
+
+static std::vector<std::string> SplitString(const std::string& str, const std::string& delimiter) {
+  std::vector<std::string> values;
+  uint32 offset = 0;
+  uint32 found = 0;
+
+  // Add each delimited string segment to the list
+  while ((found = str.find(delimiter, offset)) != std::string::npos) {
+    values.push_back(str.substr(offset, found - offset));
+
+    offset = found + delimiter.size();
+  }
+
+  // Include the remaining string segment after the final delimiter
+  values.push_back(str.substr(offset, str.size() - offset));
+
+  return values;
+}
+
+static int16 GetMeshIndexByName(const std::string& mesh_name) {
+  auto& assets = MeshLibrary::GetPlaceableMeshAssets();
+
+  for (auto& asset : assets) {
+    if (asset.mesh_name == mesh_name) {
+      return asset.mesh_index;
+    }
+  }
+
+  return -1;
+}
+
+static void LoadWorldData(Tachyon* tachyon, State& state) {
+  auto start_time = Tachyon_GetMicroseconds();
+  auto data = Tachyon_GetFileContents("./cosmodrone/data/world.txt");
+  auto lines = SplitString(data, "\n");
+
+  uint16 mesh_index;
+
+  for (uint32 i = 0; i < lines.size(); i++) {
+    auto& line = lines[i];
+
+    if (line.size() == 0) {
+      continue;
+    }
+
+    if (line[0] == '@') {
+      auto mesh_name = line.substr(1);
+
+      mesh_index = GetMeshIndexByName(mesh_name);
+    } else {
+      auto parts = SplitString(line, ",");
+      auto& object = create(mesh_index);
+
+      #define df(n) stof(parts[n])
+      #define di(n) stoi(parts[n])
+
+      object.position = tVec3f(df(0), df(1), df(2));
+      object.scale = tVec3f(df(3), df(4), df(5));
+      object.rotation = Quaternion(df(6), df(7), df(8), df(9));
+      object.color.rgba = di(10);
+      object.material.data = di(11);
+
+      commit(object);
+    }
+  }
+
+  auto load_time = Tachyon_GetMicroseconds() - start_time;
+
+  add_console_message("Loaded world in " + std::to_string(load_time) + "us", tVec3f(1.f));
+}
 
 static void InitializeLevel(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
@@ -33,6 +107,8 @@ static void InitializeLevel(Tachyon* tachyon, State& state) {
     commit(thrusters);
     commit(trim);
   }
+
+  LoadWorldData(tachyon, state);
 }
 
 static void CreateDebugMeshes(Tachyon* tachyon, State& state) {

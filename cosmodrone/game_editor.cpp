@@ -423,20 +423,19 @@ static void SaveWorldData(Tachyon* tachyon) {
       tObject* instance = instances.getById(id);
 
       if (instance != nullptr) {
-        data += Serialize(instance->position) + "|";
-        data += Serialize(instance->scale) + "|";
-        data += Serialize(instance->rotation) + "|";
-        data += std::to_string(instance->color.rgba) + "|";
+        data += Serialize(instance->position) + ",";
+        data += Serialize(instance->scale) + ",";
+        data += Serialize(instance->rotation) + ",";
+        data += std::to_string(instance->color.rgba) + ",";
         data += std::to_string(instance->material.data) + "\n";
       }
-
     }
   }
 
-  auto time = Tachyon_GetMicroseconds() - start;
-  auto message = std::format("Saved world data in {}us", time);
-
   Tachyon_WriteFileContents("./cosmodrone/data/world.txt", data);
+
+  auto save_time = Tachyon_GetMicroseconds() - start;
+  auto message = std::format("Saved world data in {}us", save_time);
 
   add_console_message(message, tVec3f(1.f));
 }
@@ -470,6 +469,8 @@ static void HandleInputs(Tachyon* tachyon, State& state) {
 
       editor.is_object_selected = false;
       editor.is_object_picker_active = false;
+
+      SaveWorldData(tachyon);
     }
 
     if (did_press_key(tKey::ARROW_LEFT)) {
@@ -588,6 +589,8 @@ static void HandleSelectedObject(Tachyon* tachyon, State& state) {
 
     editor.is_object_selected = false;
     editor.is_object_picker_active = false;
+
+    SaveWorldData(tachyon);
   }
 
   commit(selected);
