@@ -185,6 +185,7 @@ static void HandleObjectPickerCycleChange(Tachyon* tachyon) {
 
   selected.position = spawn_position;
   selected.scale = selected_mesh.defaults.scale;
+  selected.rotation = Quaternion(1.f, 0, 0, 0);
   selected.material = selected_mesh.defaults.material;
 
   editor.selected_object = selected;
