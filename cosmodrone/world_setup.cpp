@@ -77,6 +77,7 @@ static void LoadWorldData(Tachyon* tachyon, State& state) {
 }
 
 static void InitializeLevel(Tachyon* tachyon, State& state) {
+  auto& camera = tachyon->scene.camera;
   auto& meshes = state.meshes;
 
   create(meshes.planet);
@@ -102,11 +103,19 @@ static void InitializeLevel(Tachyon* tachyon, State& state) {
     trim.scale = 200.f;
     trim.material = tVec4f(0.2f, 1.f, 0, 0);
 
+    hull.rotation = streams.rotation = thrusters.rotation = trim.rotation = (
+      Quaternion(1.f, 0, 0, 0) *
+      Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -t_HALF_PI)
+    );
+
     commit(hull);
     commit(streams);
     commit(thrusters);
     commit(trim);
   }
+
+  camera.rotation = Quaternion(0.707f, 0.707f, 0, 0);
+  state.target_camera_rotation = camera.rotation;
 
   LoadWorldData(tachyon, state);
 }

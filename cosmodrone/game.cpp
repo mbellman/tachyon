@@ -305,6 +305,7 @@ static void ShowDevLabels(Tachyon* tachyon, State& state) {
   add_dev_label("Ship position", state.ship_position.toString());
   add_dev_label("Ship velocity", state.ship_velocity.toString());
   add_dev_label("Camera position", camera.position.toString());
+  add_dev_label("Camera rotation", camera.rotation.toString());
 }
 
 void Cosmodrone::StartGame(Tachyon* tachyon) {

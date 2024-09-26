@@ -180,7 +180,7 @@ vec3 GetSkyColor(vec3 sky_direction) {
   float planet_dot = max(dot(planet_direction, sky_direction), 0.0);
   vec3 planet_atmosphere_base_color = mix(vec3(0.0, 0.1, 1.0), vec3(0.5, 0.7, 0.9), pow(planet_dot, 20));
   planet_atmosphere_base_color = mix(planet_atmosphere_base_color, vec3(1, 0.9, 0.6), pow(sun_dot, 20));
-  float planet_atmosphere_sunlight_factor = 0.2 + 0.8 * pow(sun_dot, 10);
+  float planet_atmosphere_sunlight_factor = 0.3 + 0.7 * pow(sun_dot, 10);
   float planet_atmosphere_alpha = clamp(pow(planet_dot, 40) * 20.0, 0, 1) * planet_atmosphere_sunlight_factor;
   vec3 planet_atmosphere_color = mix(vec3(0), planet_atmosphere_base_color, planet_atmosphere_alpha);
 
@@ -225,12 +225,12 @@ void main() {
   vec3 out_color = FastDirectionalLightRadiance(directional_light_direction, vec3(1.0), albedo, position, N, V, NdotV, roughness, metalness, clearcoat, subsurface);
 
   // @todo make customizable
-  out_color += FastDirectionalLightRadiance(vec3(0, 1, 0), vec3(0.2, 0.5, 1.0) * 0.2, albedo, position, N, V, NdotV, 1.0, metalness, 0.0, subsurface);
+  out_color += FastDirectionalLightRadiance(vec3(0, 1, 0), vec3(0.2, 0.5, 1.0) * 0.2, albedo, position, N, V, NdotV, 1.0, metalness, 0.0, 0.0);
 
   // @todo cleanup
   vec3 L = normalize(directional_light_direction);
   float NdotL = max(dot(N, L), 0.0);
-  out_color += albedo * vec3(0.1, 0.2, 0.3) * 0.02 * (1.0 - NdotL);
+  out_color += albedo * vec3(0.1, 0.2, 0.3) * (0.005 + 0.02 * (1.0 - NdotL));
 
   out_color += AmbientFresnel(NdotV);
   out_color = mix(out_color, albedo, emissive);
@@ -238,7 +238,7 @@ void main() {
   if (frag_normal_and_depth.w >= 1.0) out_color = vec3(0);
 
   // @todo move to post shader
-  float exposure = 0.8 + emissive;
+  float exposure = 1.5 + emissive;
 
   out_color = vec3(1.0) - exp(-out_color * exposure);
   out_color = pow(out_color, vec3(1.0 / 2.2));
