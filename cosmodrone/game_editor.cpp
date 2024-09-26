@@ -244,6 +244,11 @@ static void HandleSelectedObjectMouseAction(Tachyon* tachyon) {
       auto movement_factor = distance / 5000.f;
       auto use_object_axis = editor.use_modified_action;
 
+      if (is_key_held(tKey::CONTROL)) {
+        // Hold CONTROL for fine repositioning
+        movement_factor *= 0.1f;
+      }
+
       if (is_horizontal_action) {
         auto axis = use_object_axis
           ? GetMostSimilarObjectAxis(camera_right, selected)
@@ -494,7 +499,7 @@ static void HandleInputs(Tachyon* tachyon, State& state) {
     MaybeSelectObject(tachyon);
   }
 
-  if (did_press_key(tKey::CONTROL)) {
+  if (did_press_key(tKey::C)) {
     editor.use_modified_action = !editor.use_modified_action;
   }
 
