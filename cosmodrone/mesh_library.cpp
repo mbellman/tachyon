@@ -31,6 +31,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   meshes.girder_2 = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/girder_2.obj"), 1000);
   meshes.girder_3 = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/girder_3.obj"), 1000);
   meshes.girder_4 = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/girder_4.obj"), 1000);
+  meshes.track_1 = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/track_1.obj"), 1000);
 
   // @todo refactor
   placeable_mesh_assets.push_back({
@@ -80,7 +81,16 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     .mesh_index = meshes.girder_4,
     .defaults = {
       .scale = tVec3f(8000.f),
-      .material = tVec4f(0.2f, 1.f, 0, 0.2f)
+      .material = tVec4f(0.2f, 1.f, 0, 0)
+    }
+  });
+
+  placeable_mesh_assets.push_back({
+    .mesh_name = "track_1",
+    .mesh_index = meshes.track_1,
+    .defaults = {
+      .scale = tVec3f(12000.f),
+      .material = tVec4f(0.2f, 0, 0.2f, 0.2f)
     }
   });
 }

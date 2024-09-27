@@ -24,16 +24,16 @@ static std::vector<std::string> SplitString(const std::string& str, const std::s
   return values;
 }
 
-static int16 GetMeshIndexByName(const std::string& mesh_name) {
+static const MeshAsset* GetMeshAssetByName(const std::string& mesh_name) {
   auto& assets = MeshLibrary::GetPlaceableMeshAssets();
 
   for (auto& asset : assets) {
     if (asset.mesh_name == mesh_name) {
-      return asset.mesh_index;
+      return &asset;
     }
   }
 
-  return -1;
+  return nullptr;
 }
 
 static void LoadWorldData(Tachyon* tachyon, State& state) {
@@ -41,7 +41,7 @@ static void LoadWorldData(Tachyon* tachyon, State& state) {
   auto data = Tachyon_GetFileContents("./cosmodrone/data/world.txt");
   auto lines = SplitString(data, "\n");
 
-  uint16 mesh_index;
+  const MeshAsset* mesh_asset;
 
   for (uint32 i = 0; i < lines.size(); i++) {
     auto& line = lines[i];
@@ -53,10 +53,10 @@ static void LoadWorldData(Tachyon* tachyon, State& state) {
     if (line[0] == '@') {
       auto mesh_name = line.substr(1);
 
-      mesh_index = GetMeshIndexByName(mesh_name);
+      mesh_asset = GetMeshAssetByName(mesh_name);
     } else {
       auto parts = SplitString(line, ",");
-      auto& object = create(mesh_index);
+      auto& object = create(mesh_asset->mesh_index);
 
       #define df(n) stof(parts[n])
       #define di(n) stoi(parts[n])
@@ -65,7 +65,7 @@ static void LoadWorldData(Tachyon* tachyon, State& state) {
       object.scale = tVec3f(df(3), df(4), df(5));
       object.rotation = Quaternion(df(6), df(7), df(8), df(9));
       object.color.rgba = di(10);
-      object.material.data = di(11);
+      object.material.data = mesh_asset->defaults.material.data;
 
       commit(object);
     }

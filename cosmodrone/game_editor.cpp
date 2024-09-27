@@ -432,8 +432,7 @@ static void SaveWorldData(Tachyon* tachyon) {
         data += Serialize(instance->position) + ",";
         data += Serialize(instance->scale) + ",";
         data += Serialize(instance->rotation) + ",";
-        data += std::to_string(instance->color.rgba) + ",";
-        data += std::to_string(instance->material.data) + "\n";
+        data += std::to_string(instance->color.rgba) + "\n";
       }
     }
   }

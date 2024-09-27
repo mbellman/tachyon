@@ -19,6 +19,7 @@ namespace Cosmodrone {
       girder_2,
       girder_3,
       girder_4,
+      track_1,
 
       // Celestial bodies
       planet,
