@@ -13,6 +13,8 @@ namespace Cosmodrone {
 
       // station parts
       module_1,
+      silo_2,
+      silo_3,
       torus_1,
       solar_panel_1,
       girder_1,

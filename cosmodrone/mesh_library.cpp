@@ -21,22 +21,34 @@ static void LoadShipPartMeshes(Tachyon* tachyon, State& state) {
 }
 
 static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
+  #define load_mesh(__name) meshes.__name = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/" #__name ".obj"), 1000)
+
   auto& meshes = state.meshes;
 
-  // @todo define in a list
-  meshes.module_1 = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/module_1.obj"), 1000);
-  meshes.torus_1 = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/torus_1.obj"), 1000);
-  meshes.solar_panel_1 = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/solar_panel_1.obj"), 1000);
-  meshes.girder_1 = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/girder_1.obj"), 1000);
-  meshes.girder_2 = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/girder_2.obj"), 1000);
-  meshes.girder_3 = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/girder_3.obj"), 1000);
-  meshes.girder_4 = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/girder_4.obj"), 1000);
-  meshes.track_1 = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/track_1.obj"), 1000);
+  load_mesh(module_1);
+  load_mesh(silo_2);
+  load_mesh(silo_3);
+  load_mesh(torus_1);
+  load_mesh(solar_panel_1);
+  load_mesh(girder_1);
+  load_mesh(girder_2);
+  load_mesh(girder_3);
+  load_mesh(girder_4);
+  load_mesh(track_1);
 
   // @todo refactor
   placeable_mesh_assets.push_back({
     .mesh_name = "module_1",
     .mesh_index = meshes.module_1
+  });
+
+  placeable_mesh_assets.push_back({
+    .mesh_name = "silo_2",
+    .mesh_index = meshes.silo_2,
+    .defaults = {
+      .scale = tVec3f(2000.f),
+      .material = tVec4f(0.4f, 1.f, 0, 0)
+    }
   });
 
   placeable_mesh_assets.push_back({
@@ -72,7 +84,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     .mesh_index = meshes.girder_3,
     .defaults = {
       .scale = tVec3f(6000.f),
-      .material = tVec4f(0.7f, 1.f, 0, 0)
+      .material = tVec4f(0.8f, 1.f, 0, 0)
     }
   });
 
