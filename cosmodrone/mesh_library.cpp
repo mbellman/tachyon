@@ -52,6 +52,15 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   });
 
   placeable_mesh_assets.push_back({
+    .mesh_name = "silo_3",
+    .mesh_index = meshes.silo_3,
+    .defaults = {
+      .scale = tVec3f(3000.f),
+      .material = tVec4f(1.f, 0, 0.1f, 0.3f)
+    }
+  });
+
+  placeable_mesh_assets.push_back({
     .mesh_name = "torus_1",
     .mesh_index = meshes.torus_1
   });
@@ -107,7 +116,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   });
 }
 
-static void LoadCelestialBodyMeshes(Tachyon* tachyon, State& state) {
+static void LoadBackgroundMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   // @todo have separate meshes for each celestial body
@@ -115,6 +124,7 @@ static void LoadCelestialBodyMeshes(Tachyon* tachyon, State& state) {
   auto planet_mesh = Tachyon_CreateSphereMesh(40);
 
   meshes.planet = Tachyon_AddMesh(tachyon, planet_mesh, 2);
+  meshes.space_elevator = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/space-elevator.obj"), 1);
 }
 
 static void LoadDebugMeshes(Tachyon* tachyon, State& state) {
@@ -142,7 +152,7 @@ static void LoadDebugMeshes(Tachyon* tachyon, State& state) {
 void MeshLibrary::LoadMeshes(Tachyon* tachyon, State& state) {
   LoadShipPartMeshes(tachyon, state);
   LoadPlaceableMeshes(tachyon, state);
-  LoadCelestialBodyMeshes(tachyon, state);
+  LoadBackgroundMeshes(tachyon, state);
   LoadDebugMeshes(tachyon, state);
 
   Tachyon_InitializeObjects(tachyon);

@@ -2,10 +2,12 @@
 
 using namespace Cosmodrone;
 
+const static float orbital_rate = 0.001f;
+const static tVec3f orbit_rotation_axis = tVec3f(0.5f, 0, -1.f).unit();
+
 static void UpdateCelestialBodies(Tachyon* tachyon, State& state, const float dt) {
   static const tVec3f sun_direction = tVec3f(0, -1.f, 0).unit();
   static const tVec3f moon_direction = tVec3f(0, 1.f, 0.5f).unit();
-  static const tVec3f orbit_rotation_axis = tVec3f(0.5f, 0, -1.f).unit();
   static const tVec3f sunlight_direction = sun_direction.invert();
   static const float moon_distance = 6000000.f;
   static const float moon_scale = 350000.f;
@@ -23,7 +25,7 @@ static void UpdateCelestialBodies(Tachyon* tachyon, State& state, const float dt
 
   // Sun/moon
   {
-    auto orbit_angle = 0.4f + tachyon->running_time * 0.001f;
+    auto orbit_angle = 0.4f + tachyon->running_time * orbital_rate;
     auto orbit_rotation_matrix = Quaternion::fromAxisAngle(orbit_rotation_axis, orbit_angle).toMatrix4f();
     auto unit_moon_position = orbit_rotation_matrix.transformVec3f(moon_direction);
     auto unit_sun_position = orbit_rotation_matrix.transformVec3f(sun_direction);
@@ -41,6 +43,27 @@ static void UpdateCelestialBodies(Tachyon* tachyon, State& state, const float dt
   commit(moon);
 }
 
+static void UpdateBackgroundElements(Tachyon* tachyon, State& state, const float dt) {
+  auto& camera = tachyon->scene.camera;
+  auto& meshes = state.meshes;
+
+  // Space elevator
+  {
+    static const Quaternion base_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -t_PI * 0.15f);
+    float current_angle = t_PI * 1.5f + tachyon->running_time * orbital_rate;
+
+    auto& elevator = objects(meshes.space_elevator)[0];
+
+    elevator.position = camera.position + tVec3f(0, -4000000.f, 0);
+    elevator.scale = tVec3f(1500000.f);
+    elevator.rotation = base_rotation * Quaternion::fromAxisAngle(orbit_rotation_axis, current_angle);
+    elevator.material = tVec4f(0.3f, 0.8f, 0, 0);
+
+    commit(elevator);
+  }
+}
+
 void WorldBehavior::UpdateWorld(Tachyon* tachyon, State& state, const float dt) {
   UpdateCelestialBodies(tachyon, state, dt);
+  UpdateBackgroundElements(tachyon, state, dt);
 }

@@ -26,6 +26,10 @@ vec3 GetWorldPosition(float depth, vec2 frag_uv, mat4 inverse_projection, mat4 i
   return world_position.xyz;
 }
 
+float LinearDepth(float depth, float near, float far) {
+  return 2.0 * near / (far + near - depth * (far - near));
+}
+
 vec3 UnpackColor(uvec4 surface) {
   float r = float((surface.x & 0xF0) >> 4) / 15.0;
   float g = float(surface.x & 0x0F) / 15.0;
@@ -61,7 +65,7 @@ void main() {
     // Top right (depth/position)
     vec2 uv = 2.0 * (fragUv - vec2(0.5));
     float frag_depth = texture(in_normal_and_depth, uv).w;
-    float depth_color = 1.0 - pow(frag_depth, 100);
+    float depth_color = 0.7 * pow(1.0 - LinearDepth(frag_depth, 500.0, 10000000.0), 2);
     vec3 position = GetWorldPosition(frag_depth, uv, inverse_projection_matrix, inverse_view_matrix);
     vec3 position_color = position * 0.001;
 
@@ -70,7 +74,7 @@ void main() {
     position_color.z = clamp(position_color.z, 0, 1);
     position_color *= 0.5;
 
-    out_color_and_depth = vec4(vec3(depth_color) + position_color, 1.0);
+    out_color_and_depth = vec4(depth_color + position_color, 1.0);
   } else if (fragUv.x < 0.5 && fragUv.y < 0.5) {
     // Bottom left (normal)
     vec3 normal = texture(in_normal_and_depth, fragUv * 1.999).xyz;

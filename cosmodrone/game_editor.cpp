@@ -543,8 +543,8 @@ static void HandleSelectedObject(Tachyon* tachyon, State& state) {
       auto& indicator = objects(state.meshes.editor_position)[0];
       auto selected_object_direction = (selected.position - camera.position).unit();
 
-      indicator.position = camera.position + selected_object_direction * 150.f;
-      indicator.scale = tVec3f(30.f);
+      indicator.position = camera.position + selected_object_direction * 600.f;
+      indicator.scale = tVec3f(90.f);
 
       if (editor.use_modified_action) {
         indicator.rotation = selected.rotation;
@@ -561,9 +561,9 @@ static void HandleSelectedObject(Tachyon* tachyon, State& state) {
       auto& indicator = objects(state.meshes.editor_rotation)[0];
       auto selected_object_direction = (selected.position - camera.position).unit();
 
-      indicator.position = camera.position + selected_object_direction * 150.f;
+      indicator.position = camera.position + selected_object_direction * 600.f;
       indicator.rotation = selected.rotation;
-      indicator.scale = tVec3f(30.f);
+      indicator.scale = tVec3f(90.f);
 
       if (editor.use_modified_action) {
         indicator.color = tVec4f(1.f, 1.f, 0.f, 1.f);
@@ -578,10 +578,10 @@ static void HandleSelectedObject(Tachyon* tachyon, State& state) {
       auto& indicator = objects(state.meshes.editor_scale)[0];
       auto selected_object_direction = (selected.position - camera.position).unit();
 
-      indicator.position = camera.position + selected_object_direction * 150.f;
+      indicator.position = camera.position + selected_object_direction * 600.f;
       indicator.color = tVec4f(1.f, 1.f, 1.f, 1.f);
       indicator.rotation = selected.rotation;
-      indicator.scale = tVec3f(30.f);
+      indicator.scale = tVec3f(90.f);
 
       commit(indicator);
     }

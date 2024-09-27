@@ -23,8 +23,9 @@ namespace Cosmodrone {
       girder_4,
       track_1,
 
-      // Celestial bodies
+      // Background elements
       planet,
+      space_elevator,
 
       // Debug meshes
       sphere,
