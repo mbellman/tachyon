@@ -73,7 +73,7 @@ static void LoadWorldData(Tachyon* tachyon, State& state) {
 
   auto load_time = Tachyon_GetMicroseconds() - start_time;
 
-  add_console_message("Loaded world in " + std::to_string(load_time) + "us", tVec3f(1.f));
+  add_console_message("Loaded world data in " + std::to_string(load_time) + "us", tVec3f(1.f));
 }
 
 static void InitializeLevel(Tachyon* tachyon, State& state) {

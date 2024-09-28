@@ -76,6 +76,56 @@ static tVec3f GetMostSimilarObjectAxis(const tVec3f& vector, const tObject& obje
   }
 }
 
+static inline std::string Serialize(float f) {
+  return std::format("{:.3f}", f);
+}
+
+static inline std::string Serialize(const tVec3f& vector) {
+  return Serialize(vector.x) + "," + Serialize(vector.y) + "," + Serialize(vector.z);
+}
+
+static inline std::string Serialize(const Quaternion& quaternion) {
+  return (
+    Serialize(quaternion.w) + "," +
+    Serialize(quaternion.x) + "," +
+    Serialize(quaternion.y) + "," +
+    Serialize(quaternion.z)
+  );
+}
+
+static void SaveWorldData(Tachyon* tachyon) {
+  auto start = Tachyon_GetMicroseconds();
+  auto& placeable_meshes = MeshLibrary::GetPlaceableMeshAssets();
+  std::string data = "";
+
+  for (auto& mesh : placeable_meshes) {
+    auto& instances = objects(mesh.mesh_index);
+
+    data += ("@" + mesh.mesh_name + "\n");
+
+    // Perform a sequence-preserving loop over the objects
+    // to ensure they always serialize in the same order
+    // (e.g. if objects are removed/shuffled during runtime)
+    for (uint16 id = 0; id <= instances.highest_used_id; id++) {
+      tObject* instance = instances.getById(id);
+
+      if (instance != nullptr) {
+        data += Serialize(instance->position) + ",";
+        data += Serialize(instance->scale) + ",";
+        data += Serialize(instance->rotation) + ",";
+        data += std::to_string(instance->color.rgba) + "\n";
+      }
+    }
+  }
+
+  Tachyon_WriteFileContents("./cosmodrone/data/world.txt", data);
+
+  auto save_time = Tachyon_GetMicroseconds() - start;
+  auto message = std::format("Saved world data in {}us", save_time);
+
+  add_console_message(message, tVec3f(1.f));
+}
+
 static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
   if (!is_window_focused()) {
     return;
@@ -362,6 +412,9 @@ static void CopySelectedObject(Tachyon* tachyon, Direction direction) {
   commit(copy);
 
   editor.selected_object = copy;
+
+  // Save when objects are copied
+  SaveWorldData(tachyon);
 }
 
 // @todo improve accuracy using collision planes/scale
@@ -401,56 +454,6 @@ static void MaybeSelectObject(Tachyon* tachyon) {
   }
 }
 
-static inline std::string Serialize(float f) {
-  return std::format("{:.3f}", f);
-}
-
-static inline std::string Serialize(const tVec3f& vector) {
-  return Serialize(vector.x) + "," + Serialize(vector.y) + "," + Serialize(vector.z);
-}
-
-static inline std::string Serialize(const Quaternion& quaternion) {
-  return (
-    Serialize(quaternion.w) + "," +
-    Serialize(quaternion.x) + "," +
-    Serialize(quaternion.y) + "," +
-    Serialize(quaternion.z)
-  );
-}
-
-static void SaveWorldData(Tachyon* tachyon) {
-  auto start = Tachyon_GetMicroseconds();
-  auto& placeable_meshes = MeshLibrary::GetPlaceableMeshAssets();
-  std::string data = "";
-
-  for (auto& mesh : placeable_meshes) {
-    auto& instances = objects(mesh.mesh_index);
-
-    data += ("@" + mesh.mesh_name + "\n");
-
-    // Perform a sequence-preserving loop over the objects
-    // to ensure they always serialize in the same order
-    // (e.g. if objects are removed/shuffled during runtime)
-    for (uint16 id = 0; id <= instances.highest_used_id; id++) {
-      tObject* instance = instances.getById(id);
-
-      if (instance != nullptr) {
-        data += Serialize(instance->position) + ",";
-        data += Serialize(instance->scale) + ",";
-        data += Serialize(instance->rotation) + ",";
-        data += std::to_string(instance->color.rgba) + "\n";
-      }
-    }
-  }
-
-  Tachyon_WriteFileContents("./cosmodrone/data/world.txt", data);
-
-  auto save_time = Tachyon_GetMicroseconds() - start;
-  auto message = std::format("Saved world data in {}us", save_time);
-
-  add_console_message(message, tVec3f(1.f));
-}
-
 static void HandleInputs(Tachyon* tachyon, State& state) {
   if (editor.is_object_picker_active) {
     HandleObjectPickerInputs(tachyon);
@@ -482,6 +485,7 @@ static void HandleInputs(Tachyon* tachyon, State& state) {
       editor.is_object_selected = false;
       editor.is_object_picker_active = false;
 
+      // Save when objects are deleted
       SaveWorldData(tachyon);
     }
 
@@ -512,11 +516,6 @@ static void HandleInputs(Tachyon* tachyon, State& state) {
 
   if (did_press_key(tKey::G)) {
     objects(state.meshes.editor_guideline).disabled = !objects(state.meshes.editor_guideline).disabled;
-  }
-
-  // @todo remove
-  if (did_press_key(tKey::ENTER) && !editor.is_object_selected) {
-    SaveWorldData(tachyon);
   }
 }
 
@@ -595,13 +594,14 @@ static void HandleSelectedObject(Tachyon* tachyon, State& state) {
   }
 
   // @todo move to HandleInputs()
+  // @todo DeselectObject()
   if (did_right_click_down()) {
-    // Deselect the object
     RestoreSelectedObject(tachyon, selected);
 
     editor.is_object_selected = false;
     editor.is_object_picker_active = false;
 
+    // Save when deselecting an object
     SaveWorldData(tachyon);
   }
 
