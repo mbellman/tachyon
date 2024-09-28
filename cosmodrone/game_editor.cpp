@@ -506,8 +506,31 @@ static void HandleInputs(Tachyon* tachyon, State& state) {
     }
   }
 
-  if (did_left_click_down() && !editor.is_object_selected) {
+  if (!editor.is_object_selected && did_left_click_down()) {
     MaybeSelectObject(tachyon);
+  }
+
+  if (!editor.is_object_selected && did_press_key(tKey::R)) {
+    // @todo factor
+    auto& camera = tachyon->scene.camera;
+
+    state.ship_position = camera.position + camera.orientation.getDirection() * 1000.f;
+    state.ship_velocity = tVec3f(0.f);
+
+    auto& hull = objects(state.meshes.hull)[0];
+    auto& trim = objects(state.meshes.trim)[0];
+    auto& streams = objects(state.meshes.streams)[0];
+    auto& thrusters = objects(state.meshes.thrusters)[0];
+
+    hull.position = state.ship_position;
+    trim.position = state.ship_position;
+    streams.position = state.ship_position;
+    thrusters.position = state.ship_position;
+
+    commit(hull);
+    commit(trim);
+    commit(streams);
+    commit(thrusters);
   }
 
   if (did_press_key(tKey::C)) {
