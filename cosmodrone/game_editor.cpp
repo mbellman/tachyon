@@ -542,17 +542,6 @@ static void HandleInputs(Tachyon* tachyon, State& state) {
   }
 }
 
-static void HandleObjectPicker(Tachyon* tachyon, State& state) {
-  auto& selected_mesh = GetSelectedObjectPickerMeshAsset();
-  auto mesh_index = selected_mesh.mesh_index;
-  auto& instances = objects(mesh_index);
-
-  add_dev_label("Object", (
-    selected_mesh.mesh_name + " (" +
-    std::to_string(instances.total_active) + " active)"
-  ));
-}
-
 static void HandleSelectedObject(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
   auto& selected = *get_original_object(editor.selected_object);
@@ -630,6 +619,15 @@ static void HandleSelectedObject(Tachyon* tachyon, State& state) {
 
   commit(selected);
 
+  auto mesh_name = GetSelectedObjectPickerMeshAsset().mesh_name;
+  auto& record = tachyon->mesh_pack.mesh_records[selected.mesh_index];
+  auto total_vertices = record.vertex_end - record.vertex_start;
+  auto total_triangles = record.face_element_end - record.face_element_start;
+  auto total_instances = record.group.total_active;
+
+  add_dev_label(mesh_name, "(" + std::to_string(total_instances) + " active)");
+  add_dev_label("Vertices", std::to_string(total_vertices) + " [" + std::to_string(total_vertices * total_instances) + "]");
+  add_dev_label("Triangles", std::to_string(total_triangles) + " [" + std::to_string(total_triangles * total_instances) + "]");
   add_dev_label("Position", selected.position.toString());
   add_dev_label("Rotation", selected.rotation.toString());
 }
@@ -690,10 +688,6 @@ void Editor::InitializeEditor(Tachyon* tachyon, State& state) {
 void Editor::HandleEditor(Tachyon* tachyon, State& state, const float dt) {
   HandleCamera(tachyon, state, dt);
   HandleInputs(tachyon, state);
-
-  if (editor.is_object_picker_active) {
-    HandleObjectPicker(tachyon, state);
-  }
 
   if (editor.is_object_selected) {
     HandleSelectedObject(tachyon, state);
