@@ -47,6 +47,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     .mesh_index = meshes.silo_2,
     .defaults = {
       .scale = tVec3f(2000.f),
+      .color = tVec3f(1.f),
       .material = tVec4f(0.4f, 1.f, 0, 0)
     }
   });
@@ -56,6 +57,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     .mesh_index = meshes.silo_3,
     .defaults = {
       .scale = tVec3f(3000.f),
+      .color = tVec3f(1.f),
       .material = tVec4f(1.f, 0, 0.1f, 0.3f)
     }
   });
@@ -75,6 +77,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     .mesh_index = meshes.girder_1,
     .defaults = {
       .scale = tVec3f(2000.f),
+      .color = tVec3f(1.f),
       .material = tVec4f(0.4f, 1.f, 0, 0)
     }
   });
@@ -84,6 +87,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     .mesh_index = meshes.girder_2,
     .defaults = {
       .scale = tVec3f(4000.f),
+      .color = tVec3f(1.f),
       .material = tVec4f(0.5f, 1.f, 0, 0)
     }
   });
@@ -93,6 +97,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     .mesh_index = meshes.girder_3,
     .defaults = {
       .scale = tVec3f(6000.f),
+      .color = tVec3f(1.f),
       .material = tVec4f(0.8f, 1.f, 0, 0)
     }
   });
@@ -102,6 +107,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     .mesh_index = meshes.girder_4,
     .defaults = {
       .scale = tVec3f(8000.f),
+      .color = tVec3f(1.f),
       .material = tVec4f(0.2f, 1.f, 0, 0)
     }
   });
@@ -111,6 +117,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     .mesh_index = meshes.track_1,
     .defaults = {
       .scale = tVec3f(12000.f),
+      .color = tVec3f(1.f),
       .material = tVec4f(0.2f, 0, 0.2f, 0.2f)
     }
   });

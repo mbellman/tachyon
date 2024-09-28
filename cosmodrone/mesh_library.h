@@ -10,9 +10,11 @@ namespace Cosmodrone {
 
     struct {
       tVec3f scale;
+      tColor color;
       tMaterial material;
     } defaults = {
       .scale = tVec3f(1000.f),
+      .color = tVec3f(1.f),
       .material = tVec4f(0.6f, 0, 0, 0)
     };
   };
