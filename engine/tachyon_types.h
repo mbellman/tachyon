@@ -25,6 +25,7 @@ struct tVertex {
 struct tColor {
   uint16 rgba;
 
+  tColor(uint16 rgba) : rgba(rgba) {};
   tColor(const tVec3f& color) : tColor(tVec4f(color.x, color.y, color.z, 0)) {};
 
   tColor(const tVec4f& color) {

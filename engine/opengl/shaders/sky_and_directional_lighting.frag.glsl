@@ -233,7 +233,7 @@ void main() {
   out_color += albedo * vec3(0.1, 0.2, 0.3) * (0.005 + 0.02 * (1.0 - NdotL));
 
   out_color += AmbientFresnel(NdotV);
-  out_color = mix(out_color, albedo, emissive);
+  out_color = mix(out_color, albedo, pow(emissive, 1.5));
 
   if (frag_normal_and_depth.w >= 1.0) out_color = vec3(0);
 

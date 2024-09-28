@@ -363,8 +363,7 @@ static void MaybeSelectObject(Tachyon* tachyon) {
   auto& placeable_meshes = MeshLibrary::GetPlaceableMeshAssets();
   auto& camera = tachyon->scene.camera;
   auto forward = camera.orientation.getDirection();
-  float highest_dot = -1.f;
-  float closest_distance = 3.402823466e+38F;
+  float highest_candidate_score = 0.f;
   tObject candidate;
 
   for (auto& mesh : placeable_meshes) {
@@ -379,17 +378,18 @@ static void MaybeSelectObject(Tachyon* tachyon) {
       auto object_dot = tVec3f::dot(forward, camera_to_object.unit());
       auto distance = camera_to_object.magnitude();
 
-      if (distance > 30000.f) continue;
+      if (distance > 30000.f || object_dot < 0.6f) continue;
 
-      if (object_dot > highest_dot) {
-        highest_dot = object_dot;
-        closest_distance = distance;
+      auto score = (100.f * powf(object_dot, 20.f)) / distance;
+
+      if (score > highest_candidate_score) {
+        highest_candidate_score = score;
         candidate = object;
       }
     }
   }
 
-  if (highest_dot > 0.f) {
+  if (highest_candidate_score > 0.f) {
     editor.is_object_selected = true;
     editor.selected_object = candidate;
   }
@@ -673,6 +673,8 @@ void Editor::HandleEditor(Tachyon* tachyon, State& state, const float dt) {
   }
 
   HandleGuidelines(tachyon, state);
+
+  add_dev_label("Camera position", tachyon->scene.camera.position.toString());
 }
 
 void Editor::EnableEditor(Tachyon* tachyon, State& state) {

@@ -77,9 +77,9 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     .mesh_name = "solar_panel_2",
     .mesh_index = meshes.solar_panel_2,
     .defaults = {
-      .scale = tVec3f(3000.f),
-      .color = tVec3f(1.f, 1.f, 0.4f),
-      .material = tVec4f(0.1f, 1.f, 0.3f, 0)
+      .scale = tVec3f(5000.f),
+      .color = 0x28F1,
+      .material = tVec4f(0.2f, 1.f, 0.3f, 1.f)
     }
   });
 
@@ -109,7 +109,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     .defaults = {
       .scale = tVec3f(6000.f),
       .color = tVec3f(1.f),
-      .material = tVec4f(0.8f, 1.f, 0, 0)
+      .material = tVec4f(0.6f, 1.f, 0, 0)
     }
   });
 
