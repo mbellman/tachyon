@@ -297,6 +297,12 @@ static void HandleSelectedObjectMouseAction(Tachyon* tachyon) {
       // @todo
     })
   }
+
+  // Synchronize the transform properties, but not color, since the
+  // selected instance uses a flashing hightlight color while selected
+  editor.selected_object.position = selected.position;
+  editor.selected_object.scale = selected.scale;
+  editor.selected_object.rotation = selected.rotation;
 }
 
 static void ResetSelectedObject(Tachyon* tachyon) {
@@ -378,7 +384,7 @@ static void MaybeSelectObject(Tachyon* tachyon) {
       auto object_dot = tVec3f::dot(forward, camera_to_object.unit());
       auto distance = camera_to_object.magnitude();
 
-      if (distance > 30000.f || object_dot < 0.6f) continue;
+      if (distance > 50000.f || object_dot < 0.6f) continue;
 
       auto score = (100.f * powf(object_dot, 20.f)) / distance;
 
@@ -470,6 +476,7 @@ static void HandleInputs(Tachyon* tachyon, State& state) {
     }
 
     if (did_press_key(tKey::BACKSPACE)) {
+      // @todo factor
       remove(editor.selected_object);
 
       editor.is_object_selected = false;
@@ -507,6 +514,7 @@ static void HandleInputs(Tachyon* tachyon, State& state) {
     objects(state.meshes.editor_guideline).disabled = !objects(state.meshes.editor_guideline).disabled;
   }
 
+  // @todo remove
   if (did_press_key(tKey::ENTER) && !editor.is_object_selected) {
     SaveWorldData(tachyon);
   }
