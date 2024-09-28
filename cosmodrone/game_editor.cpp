@@ -313,8 +313,7 @@ static void ResetSelectedObject(Tachyon* tachyon) {
 }
 
 static void RestoreSelectedObject(Tachyon* tachyon, tObject& object) {
-  // @todo restore base color (editor.selected_object.color?)
-  object.color = tVec3f(1.f);
+  object.color = editor.selected_object.color;
 
   commit(object);
 }
@@ -332,7 +331,7 @@ static void CopySelectedObject(Tachyon* tachyon, Direction direction) {
 
   copy.rotation = selected.rotation;
   copy.scale = selected.scale;
-  copy.color = selected.color;
+  copy.color = editor.selected_object.color;
   copy.material = selected.material;
 
   tVec3f axis;
@@ -518,8 +517,6 @@ static void HandleObjectPicker(Tachyon* tachyon, State& state) {
   auto mesh_index = selected_mesh.mesh_index;
   auto& instances = objects(mesh_index);
 
-  editor.selected_object = instances[instances.total_visible - 1];
-
   add_dev_label("Object", (
     selected_mesh.mesh_name + " (" +
     std::to_string(instances.total_active) + " active)"
@@ -530,7 +527,8 @@ static void HandleSelectedObject(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
   auto& selected = *get_original_object(editor.selected_object);
 
-  selected.color = tVec4f(1.f, 1.f, 1.f, uint32(tachyon->running_time * 2.f) % 2 == 0 ? 0.1f : 0.2f);
+  selected.color.rgba &= 0xFFF0;
+  selected.color.rgba |= uint32(tachyon->running_time * 2.f) % 2 == 0 ? 0x0002 : 0x0006;
 
   // @todo refactor
   {
@@ -600,8 +598,6 @@ static void HandleSelectedObject(Tachyon* tachyon, State& state) {
   }
 
   commit(selected);
-
-  editor.selected_object = selected;
 
   add_dev_label("Position", selected.position.toString());
   add_dev_label("Rotation", selected.rotation.toString());
