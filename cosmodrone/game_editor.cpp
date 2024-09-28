@@ -379,7 +379,7 @@ static void MaybeSelectObject(Tachyon* tachyon) {
       auto object_dot = tVec3f::dot(forward, camera_to_object.unit());
       auto distance = camera_to_object.magnitude();
 
-      if (distance > 100000.f) continue;
+      if (distance > 30000.f) continue;
 
       if (object_dot > highest_dot) {
         highest_dot = object_dot;
