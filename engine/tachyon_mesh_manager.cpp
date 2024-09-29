@@ -474,10 +474,11 @@ void Tachyon_RemoveObject(Tachyon* tachyon, tObject& object) {
   group.surfaces[removed_index] = last_active_surface;
   group.matrices[removed_index] = last_active_matrix;
 
-  // Update its id -> index mapping
+  // Swap the id -> index mappings
   group.id_to_index[last_active_object.object_id] = removed_index;
+  group.id_to_index[removed_id] = last_active_index;
 
-  // Swap the object IDs
+  // Copy the removed object ID over to its new position
   group.objects[last_active_index].object_id = removed_id;
 
   // Truncate total active objects by 1
