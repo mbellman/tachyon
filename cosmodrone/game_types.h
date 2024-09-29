@@ -15,6 +15,7 @@ namespace Cosmodrone {
       module_1,
       silo_2,
       silo_3,
+      silo_4,
       torus_1,
       solar_panel_1,
       solar_panel_2,

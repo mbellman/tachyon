@@ -28,6 +28,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh(module_1);
   load_mesh(silo_2);
   load_mesh(silo_3);
+  load_mesh(silo_4);
   load_mesh(torus_1);
   load_mesh(solar_panel_1);
   load_mesh(solar_panel_2);
@@ -60,6 +61,16 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
       .scale = tVec3f(3000.f),
       .color = tVec3f(1.f),
       .material = tVec4f(1.f, 0, 0.1f, 0.3f)
+    }
+  });
+
+  placeable_mesh_assets.push_back({
+    .mesh_name = "silo_4",
+    .mesh_index = meshes.silo_4,
+    .defaults = {
+      .scale = tVec3f(6000.f),
+      .color = tVec3f(1.f),
+      .material = tVec4f(0.5f, 1.f, 0, 0)
     }
   });
 
