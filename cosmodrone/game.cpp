@@ -302,6 +302,7 @@ static void ShowDevLabels(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
   auto& hull = objects(meshes.hull)[0];
 
+  add_dev_label("Game time", std::to_string(state.current_game_time));
   add_dev_label("Ship position", state.ship_position.toString());
   add_dev_label("Ship velocity", state.ship_velocity.toString());
   add_dev_label("Camera position", camera.position.toString());

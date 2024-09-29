@@ -54,6 +54,8 @@ namespace Cosmodrone {
   struct State {
     MeshIds meshes;
 
+    float current_game_time = 0.f;
+
     Quaternion target_camera_rotation = Quaternion(1.f, 0, 0, 0);
     FlightMode flight_mode = FlightMode::MANUAL_CONTROL;
 

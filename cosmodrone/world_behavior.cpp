@@ -25,7 +25,7 @@ static void UpdateCelestialBodies(Tachyon* tachyon, State& state, const float dt
 
   // Sun/moon
   {
-    auto orbit_angle = 0.4f + tachyon->running_time * orbital_rate;
+    auto orbit_angle = 0.4f + state.current_game_time * orbital_rate;
     auto orbit_rotation_matrix = Quaternion::fromAxisAngle(orbit_rotation_axis, orbit_angle).toMatrix4f();
     auto unit_moon_position = orbit_rotation_matrix.transformVec3f(moon_direction);
     auto unit_sun_position = orbit_rotation_matrix.transformVec3f(sun_direction);
@@ -50,7 +50,7 @@ static void UpdateBackgroundElements(Tachyon* tachyon, State& state, const float
   // Space elevator
   {
     static const Quaternion base_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -t_PI * 0.15f);
-    float current_angle = t_PI * 1.5f + tachyon->running_time * orbital_rate;
+    float current_angle = t_PI * 1.5f + state.current_game_time * orbital_rate;
 
     auto& elevator = objects(meshes.space_elevator)[0];
 
@@ -64,6 +64,8 @@ static void UpdateBackgroundElements(Tachyon* tachyon, State& state, const float
 }
 
 void WorldBehavior::UpdateWorld(Tachyon* tachyon, State& state, const float dt) {
+  state.current_game_time += dt;
+
   UpdateCelestialBodies(tachyon, state, dt);
   UpdateBackgroundElements(tachyon, state, dt);
 }

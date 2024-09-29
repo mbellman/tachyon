@@ -3,6 +3,7 @@
 
 #include "cosmodrone/game_editor.h"
 #include "cosmodrone/mesh_library.h"
+#include "cosmodrone/world_behavior.h"
 
 #define case(value, __code)\
   case value: {\
@@ -454,13 +455,25 @@ static void MaybeSelectObject(Tachyon* tachyon) {
   }
 }
 
-static void HandleInputs(Tachyon* tachyon, State& state) {
+static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
   if (editor.is_object_picker_active) {
     HandleObjectPickerInputs(tachyon);
   }
 
   if (did_press_key(tKey::Q) || did_press_key(tKey::E)) {
     HandleObjectPickerCycleChange(tachyon);
+  }
+
+  if (is_key_held(tKey::ARROW_LEFT)) {
+    state.current_game_time -= 500.f * dt;
+
+    WorldBehavior::UpdateWorld(tachyon, state, 0.f);
+  }
+
+  if (is_key_held(tKey::ARROW_RIGHT)) {
+    state.current_game_time += 500.f * dt;
+
+    WorldBehavior::UpdateWorld(tachyon, state, 0.f);
   }
 
   if (did_wheel_down()) {
@@ -687,7 +700,7 @@ void Editor::InitializeEditor(Tachyon* tachyon, State& state) {
 
 void Editor::HandleEditor(Tachyon* tachyon, State& state, const float dt) {
   HandleCamera(tachyon, state, dt);
-  HandleInputs(tachyon, state);
+  HandleInputs(tachyon, state, dt);
 
   if (editor.is_object_selected) {
     HandleSelectedObject(tachyon, state);
@@ -699,6 +712,7 @@ void Editor::HandleEditor(Tachyon* tachyon, State& state, const float dt) {
 
   HandleGuidelines(tachyon, state);
 
+  add_dev_label("Game time", std::to_string(state.current_game_time));
   add_dev_label("Camera position", tachyon->scene.camera.position.toString());
 }
 
