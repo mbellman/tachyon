@@ -71,7 +71,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     .defaults = {
       .scale = tVec3f(6000.f),
       .color = tVec3f(1.f),
-      .material = tVec4f(0.5f, 1.f, 0, 0)
+      .material = tVec4f(0.3f, 0.2f, 0, 0.1f)
     }
   });
 

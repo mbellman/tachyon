@@ -464,18 +464,6 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
     HandleObjectPickerCycleChange(tachyon);
   }
 
-  if (is_key_held(tKey::ARROW_LEFT)) {
-    state.current_game_time -= 500.f * dt;
-
-    WorldBehavior::UpdateWorld(tachyon, state, 0.f);
-  }
-
-  if (is_key_held(tKey::ARROW_RIGHT)) {
-    state.current_game_time += 500.f * dt;
-
-    WorldBehavior::UpdateWorld(tachyon, state, 0.f);
-  }
-
   if (did_wheel_down()) {
     HandleActionTypeCycleChange(tachyon, +1);
   } else if (did_wheel_up()) {
@@ -521,6 +509,18 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
 
   if (!editor.is_object_selected && did_left_click_down()) {
     MaybeSelectObject(tachyon);
+  }
+
+  if (!editor.is_object_selected && is_key_held(tKey::ARROW_LEFT)) {
+    state.current_game_time -= 500.f * dt;
+
+    WorldBehavior::UpdateWorld(tachyon, state, 0.f);
+  }
+
+  if (!editor.is_object_selected && is_key_held(tKey::ARROW_RIGHT)) {
+    state.current_game_time += 500.f * dt;
+
+    WorldBehavior::UpdateWorld(tachyon, state, 0.f);
   }
 
   if (!editor.is_object_selected && did_press_key(tKey::R)) {
