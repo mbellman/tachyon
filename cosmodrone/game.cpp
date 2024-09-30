@@ -71,6 +71,13 @@ static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt)
     state.flight_mode = FlightMode::MANUAL_CONTROL;
   }
 
+  // Enforce maximum ship speed
+  float ship_speed = state.ship_velocity.magnitude();
+
+  if (ship_speed > 10000.f) {
+    state.ship_velocity = state.ship_velocity.unit() * 10000.f;
+  }
+
   // Handle yaw manuevers
   if (is_key_held(tKey::A)) {
     state.ship_rotate_to_target_speed += 5.f * dt;
@@ -305,6 +312,7 @@ static void ShowDevLabels(Tachyon* tachyon, State& state) {
   add_dev_label("Game time", std::to_string(state.current_game_time));
   add_dev_label("Ship position", state.ship_position.toString());
   add_dev_label("Ship velocity", state.ship_velocity.toString());
+  add_dev_label("Ship speed", std::to_string(state.ship_velocity.magnitude()));
   add_dev_label("Camera position", camera.position.toString());
   add_dev_label("Camera rotation", camera.rotation.toString());
 }
