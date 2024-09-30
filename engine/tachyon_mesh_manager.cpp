@@ -367,7 +367,7 @@ tMesh Tachyon_CreateSphereMesh(uint8 divisions) {
   return mesh;
 }
 
-uint32 Tachyon_AddMesh(Tachyon* tachyon, const tMesh& mesh, uint16 total) {
+uint16 Tachyon_AddMesh(Tachyon* tachyon, const tMesh& mesh, uint16 total) {
   auto& pack = tachyon->mesh_pack;
   tMeshRecord record;
 
@@ -378,8 +378,10 @@ uint32 Tachyon_AddMesh(Tachyon* tachyon, const tMesh& mesh, uint16 total) {
   record.face_element_start = pack.face_element_stream.size();
   record.face_element_end = record.face_element_start + mesh.face_elements.size();
 
+  record.mesh_index = (uint16)pack.mesh_records.size();
+
   record.group.total = total;
-  record.group.id_to_index = new uint16[total];
+  record.group.id_to_index = new uint16[total];  // @todo deallocate (Tachyon_DestroyMesh()?)
 
   pack.mesh_records.push_back(record);
 
@@ -392,7 +394,7 @@ uint32 Tachyon_AddMesh(Tachyon* tachyon, const tMesh& mesh, uint16 total) {
     pack.face_element_stream.push_back(element);
   }
 
-  return pack.mesh_records.size() - 1;
+  return record.mesh_index;
 }
 
 void Tachyon_InitializeObjects(Tachyon* tachyon) {

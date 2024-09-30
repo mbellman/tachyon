@@ -75,6 +75,8 @@ struct tObjectGroup {
   bool buffered = false;
   bool disabled = false;
 
+  std::vector<tObject> initial_objects;
+
   tObject& operator [](uint16 index) {
     return objects[index];
   }
@@ -105,7 +107,6 @@ struct tObjectGroup {
 struct tMesh {
   std::vector<tVertex> vertices;
   std::vector<uint32> face_elements;
-  // @todo material properties
 };
 
 struct tMeshRecord {
@@ -113,6 +114,7 @@ struct tMeshRecord {
   uint32 vertex_end;
   uint32 face_element_start;
   uint32 face_element_end;
+  uint16 mesh_index;
 
   tObjectGroup group;
 };
@@ -150,6 +152,7 @@ struct Tachyon {
   bool did_right_click_up = false;
   bool is_mouse_held_down = false;
 
+  // @todo should these go into tMeshPack? use a global array per mesh pack?
   std::vector<tObject> objects;
   std::vector<uint32> surfaces;
   std::vector<tMat4f> matrices;

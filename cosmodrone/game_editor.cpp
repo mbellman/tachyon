@@ -747,5 +747,7 @@ void Editor::DisableEditor(Tachyon* tachyon, State& state) {
   objects(state.meshes.editor_rotation).disabled = true;
   objects(state.meshes.editor_scale).disabled = true;
 
+  // @todo save initial objects
+
   state.is_editor_active = false;
 }
