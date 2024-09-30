@@ -110,23 +110,25 @@ static void RenderText(Tachyon* tachyon, TTF_Font* font, const char* message, ui
   SDL_FreeSurface(text);
 }
 
+static void HandleDevModeInputs(Tachyon* tachyon) {
+  auto& renderer = get_renderer();
+
+  // Toggle the G-Buffer view with TAB
+  if (did_press_key(tKey::TAB)) {
+    renderer.show_g_buffer_view = !renderer.show_g_buffer_view;
+  }
+
+  // Toggle V-Sync with V
+  if (did_press_key(tKey::V)) {
+    auto swap_interval = SDL_GL_GetSwapInterval();
+
+    SDL_GL_SetSwapInterval(swap_interval ? 0 : 1);
+  }
+}
+
 static void HandleDeveloperTools(Tachyon* tachyon) {
   auto& renderer = get_renderer();
   auto& ctx = renderer.ctx;
-
-  // Keyboard shortcuts
-  {
-    // Toggle the G-Buffer view with TAB
-    if (did_press_key(tKey::TAB)) {
-      renderer.show_g_buffer_view = !renderer.show_g_buffer_view;
-    }
-
-    if (did_press_key(tKey::V)) {
-      auto swap_interval = SDL_GL_GetSwapInterval();
-
-      SDL_GL_SetSwapInterval(swap_interval ? 0 : 1);
-    }
-  }
 
   // Developer overlay
   {
@@ -495,8 +497,16 @@ void Tachyon_RenderSceneInOpenGL(Tachyon* tachyon) {
   glViewport(0, 0, ctx.w, ctx.h);
 
   // @todo dev mode only
+  HandleDevModeInputs(tachyon);
+
+  // @todo dev mode only
   if (tachyon->show_developer_tools) {
     HandleDeveloperTools(tachyon);
+  } else {
+    auto frame_fps = uint32(1000000.f / (float)tachyon->last_frame_time_in_microseconds);
+    auto label = std::to_string(frame_fps) + "fps";
+
+    RenderText(tachyon, tachyon->developer_overlay_font, label.c_str(), 10, 10, 1920, tVec3f(1.f), tVec4f(0.f));
   }
 
   SDL_GL_SwapWindow(tachyon->sdl_window);
