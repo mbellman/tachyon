@@ -66,7 +66,7 @@ static void UpdateViewDirections(Tachyon* tachyon, State& state) {
 static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt) {
   // Handle forward thrust
   if (is_key_held(tKey::W)) {
-    state.ship_velocity += state.ship_rotation_basis.forward * (1000.f * dt);
+    state.ship_velocity += state.ship_rotation_basis.forward * 1000.f * dt;
     state.ship_rotate_to_target_speed += dt;
     state.flight_mode = FlightMode::MANUAL_CONTROL;
   }
@@ -147,6 +147,30 @@ static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt)
   state.ship_position += state.ship_velocity * dt;
 }
 
+static void HandleAutopilot(Tachyon* tachyon, State& state, const float dt) {
+  switch (state.flight_mode) {
+    case FlightMode::AUTO_RETROGRADE: {
+      // Figure out how 'backward' the ship is pointed
+      float reverse_dot = tVec3f::dot(state.ship_rotation_basis.forward, state.ship_velocity.unit());
+
+      if (reverse_dot < -0.f) {
+        // Use the current speed to determine how much we need to accelerate in the opposite direction
+        float acceleration = state.ship_velocity.magnitude() / 5.f;
+        // Increase acceleration the more the ship is aligned with the 'backward' vector
+        float speed = acceleration * powf(-reverse_dot, 5.f);
+
+        state.ship_velocity += state.ship_rotation_basis.forward * speed * dt;
+      }
+
+      if (state.ship_velocity.magnitude() < 10.f) {
+        state.flight_mode = FlightMode::MANUAL_CONTROL;
+      }
+
+      break;
+    }
+  }
+}
+
 static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
   auto& camera = tachyon->scene.camera;
   auto& meshes = state.meshes;
@@ -170,10 +194,7 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
     state.target_camera_rotation = state.target_camera_rotation.unit();
   }
 
-  if (
-    state.flight_mode == FlightMode::AUTO_PROGRADE ||
-    state.flight_mode == FlightMode::AUTO_RETROGRADE
-  ) {
+  if (state.flight_mode == FlightMode::AUTO_PROGRADE || state.flight_mode == FlightMode::AUTO_RETROGRADE) {
     state.target_camera_rotation = GetOppositeRotation(objects(meshes.hull)[0].rotation);
 
     camera_lerp_speed_factor = 3.f;
@@ -213,16 +234,19 @@ static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
   auto& thrusters = objects(meshes.thrusters)[0];
   auto& trim = objects(meshes.trim)[0];
 
+  // @todo fix ship model orientation
   auto target_ship_rotation = GetOppositeRotation(camera.rotation);
 
   if (state.ship_velocity.magnitude() > 0.f) {
     UpdateShipVelocityBasis(state);
   }
 
+  // @todo move to HandleAutopilot()
   if (state.flight_mode == FlightMode::AUTO_PROGRADE) {
     target_ship_rotation = DirectionToQuaternion(state.ship_velocity_basis.forward.invert());
   }
 
+  // @todo move to HandleAutopilot()
   if (state.flight_mode == FlightMode::AUTO_RETROGRADE) {
     target_ship_rotation = DirectionToQuaternion(state.ship_velocity_basis.forward);
   }
@@ -352,6 +376,7 @@ void Cosmodrone::RunGame(Tachyon* tachyon, const float dt) {
   objects(state.meshes.editor_guideline).disabled = true;
 
   HandleFlightControls(tachyon, state, dt);
+  HandleAutopilot(tachyon, state, dt);
   HandleFlightCamera(tachyon, state, dt);
   UpdateShip(tachyon, state, dt);
 
