@@ -4,6 +4,7 @@
 #include "cosmodrone/game_editor.h"
 #include "cosmodrone/mesh_library.h"
 #include "cosmodrone/world_behavior.h"
+#include "cosmodrone/world_setup.h"
 
 #define case(value, __code)\
   case value: {\
@@ -692,6 +693,22 @@ static void HandleGuidelines(Tachyon* tachyon, State& state) {
   }
 }
 
+static void ResetInitialObjects(Tachyon* tachyon) {
+  for (auto& record : tachyon->mesh_pack.mesh_records) {
+    for (auto& initial : record.group.initial_objects) {
+      auto& original = *get_original_object(initial);
+
+      original.position = initial.position;
+      original.scale = initial.scale;
+      original.rotation = initial.rotation;
+      original.color = initial.color;
+      original.material = initial.material;
+
+      commit(original);
+    }
+  }
+}
+
 void Editor::InitializeEditor(Tachyon* tachyon, State& state) {
   create(state.meshes.editor_position);
   create(state.meshes.editor_rotation);
@@ -724,6 +741,8 @@ void Editor::EnableEditor(Tachyon* tachyon, State& state) {
 
   objects(state.meshes.editor_guideline).disabled = false;
 
+  ResetInitialObjects(tachyon);
+
   tachyon->show_developer_tools = true;
 
   state.is_editor_active = true;
@@ -747,7 +766,7 @@ void Editor::DisableEditor(Tachyon* tachyon, State& state) {
   objects(state.meshes.editor_rotation).disabled = true;
   objects(state.meshes.editor_scale).disabled = true;
 
-  // @todo save initial objects
+  WorldSetup::StoreInitialObjects(tachyon, state);
 
   state.is_editor_active = false;
 }

@@ -192,4 +192,17 @@ void WorldSetup::InitializeGameWorld(Tachyon* tachyon, State& state) {
   // @todo dev mode only
   CreateDebugMeshes(tachyon, state);
   CreateEditorGuidelines(tachyon, state);
+
+  StoreInitialObjects(tachyon, state);
+}
+
+void WorldSetup::StoreInitialObjects(Tachyon* tachyon, State& state) {
+  #define store(__mesh_index)\
+    auto& group = objects(__mesh_index);\
+    group.initial_objects.clear();\
+    for (auto& object : objects(__mesh_index)) {\
+      group.initial_objects.push_back(object);\
+    };\
+
+  store(state.meshes.station_torus_1);
 }

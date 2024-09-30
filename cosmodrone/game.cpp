@@ -313,14 +313,6 @@ void Cosmodrone::StartGame(Tachyon* tachyon) {
   MeshLibrary::LoadMeshes(tachyon, state);
   WorldSetup::InitializeGameWorld(tachyon, state);
   Editor::InitializeEditor(tachyon, state);
-
-  for (auto& record : tachyon->mesh_pack.mesh_records) {
-    // @todo tObjectGroup::saveInitialObjects()
-    // @todo only do this for dynamic objects!
-    for (auto& object : record.group) {
-      record.group.initial_objects.push_back(object);
-    }
-  }
 }
 
 void Cosmodrone::RunGame(Tachyon* tachyon, const float dt) {
