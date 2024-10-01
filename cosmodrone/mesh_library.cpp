@@ -26,6 +26,8 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   load_mesh(module_1);
+  load_mesh(habitation_1);
+  load_mesh(habitation_2);
   load_mesh(silo_2);
   load_mesh(silo_3);
   load_mesh(silo_4);
@@ -43,6 +45,26 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   placeable_mesh_assets.push_back({
     .mesh_name = "module_1",
     .mesh_index = meshes.module_1
+  });
+
+  placeable_mesh_assets.push_back({
+    .mesh_name = "habitation_1",
+    .mesh_index = meshes.habitation_1,
+    .defaults = {
+      .scale = tVec3f(6000.f),
+      .color = tVec3f(1.f),
+      .material = tVec4f(1.f, 0, 0, 0.1f)
+    }
+  });
+
+  placeable_mesh_assets.push_back({
+    .mesh_name = "habitation_2",
+    .mesh_index = meshes.habitation_2,
+    .defaults = {
+      .scale = tVec3f(6000.f),
+      .color = tVec3f(1.f),
+      .material = tVec4f(0.4f, 1.f, 0, 0)
+    }
   });
 
   placeable_mesh_assets.push_back({
