@@ -72,10 +72,11 @@ static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt)
   }
 
   // Enforce maximum ship speed
+  const static float MAX_SHIP_SPEED = 15000.f;
   float ship_speed = state.ship_velocity.magnitude();
 
-  if (ship_speed > 10000.f) {
-    state.ship_velocity = state.ship_velocity.unit() * 10000.f;
+  if (ship_speed > MAX_SHIP_SPEED) {
+    state.ship_velocity = state.ship_velocity.unit() * MAX_SHIP_SPEED;
   }
 
   // Handle yaw manuevers
@@ -156,8 +157,9 @@ static void HandleAutopilot(Tachyon* tachyon, State& state, const float dt) {
       if (reverse_dot < -0.f) {
         // Use the current speed to determine how much we need to accelerate in the opposite direction
         float acceleration = state.ship_velocity.magnitude() / 5.f;
+        if (acceleration < 500.f) acceleration = 500.f;
         // Increase acceleration the more the ship is aligned with the 'backward' vector
-        float speed = acceleration * powf(-reverse_dot, 5.f);
+        float speed = acceleration * powf(-reverse_dot, 8.f);
 
         state.ship_velocity += state.ship_rotation_basis.forward * speed * dt;
       }
