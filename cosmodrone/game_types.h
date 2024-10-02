@@ -26,6 +26,7 @@ namespace Cosmodrone {
       girder_2,
       girder_3,
       girder_4,
+      girder_5,
       track_1,
 
       // Background elements
