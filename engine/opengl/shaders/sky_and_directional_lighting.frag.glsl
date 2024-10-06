@@ -5,6 +5,7 @@ uniform usampler2D in_color_and_material;
 uniform mat4 inverse_projection_matrix;
 uniform mat4 inverse_view_matrix;
 uniform vec3 camera_position;
+uniform float scene_time;
 // @temporary
 // @todo allow multiple directional lights
 uniform vec3 directional_light_direction;
@@ -239,6 +240,18 @@ float simplex_noise(vec2 v) {
   return 130.0 * dot(m, g);
 }
 
+vec3 RotateAroundAxis(vec3 axis, vec3 vector, float angle) {
+  vec4 q;
+  float sa = sin(angle / 2.0);
+
+  q.x = axis.x * sa;
+  q.y = axis.y * sa;
+  q.z = axis.z * sa;
+  q.w = cos(angle / 2.0);
+
+  return vector + 2.0 * cross(cross(vector, q.xyz) + q.w * vector, q.xyz);
+}
+
 // @todo allow game-specific definitions
 vec3 GetSkyColor(vec3 sky_direction) {
   vec3 sun_direction = -directional_light_direction;
@@ -257,27 +270,28 @@ vec3 GetSkyColor(vec3 sky_direction) {
   vec3 planet_atmosphere_color = mix(vec3(0), planet_atmosphere_base_color, planet_atmosphere_alpha);
 
   // @todo cleanup
-  float bg_noise = simplex_noise(sky_direction.xy);
+  const vec3 orbit_rotation_axis = normalize(vec3(0.5, 0, -1.0));
+  vec3 bg_direction = RotateAroundAxis(orbit_rotation_axis, sky_direction, scene_time * 0.001);
+
+  float bg_noise = simplex_noise(bg_direction.xy);
   bg_noise = clamp(bg_noise, 0.0, 1.0);
 
-  float bg_noise2 = simplex_noise(sky_direction.xz);
+  float bg_noise2 = simplex_noise(bg_direction.xz);
   bg_noise2 = clamp(bg_noise2, 0.0, 1.0);
 
   vec3 space_color = vec3(0);
   space_color += vec3(bg_noise) * vec3(1, 0.5, 1) * 0.2;
   space_color += vec3(bg_noise2) * vec3(0, 0.75, 1) * 0.1;
 
-  float stars_x = atan(sky_direction.x, sky_direction.z);
-  float stars_y = atan(length(sky_direction.xz), sky_direction.y);
+  float stars_x = atan(bg_direction.x, bg_direction.z) + 3.141592;
+  float stars_y = atan(length(bg_direction.xz), bg_direction.y);
 
-  float intensity =
-    120.0 *
-    (0.9 + 0.1 * sin(stars_x * 2.0)) *
-    (0.9 + 0.1 * cos(stars_y * 2.0));
+  float stars_noise =
+    simplex_noise(vec2(stars_x, stars_y) * 200.0) *
+    simplex_noise(vec2(stars_x, stars_y) * 185.0);
 
-  float stars_noise = simplex_noise(vec2(stars_x, stars_y) * 200.0);
   stars_noise = clamp(stars_noise, 0.0, 1.0);
-  stars_noise = pow(stars_noise, intensity) * 80.0;
+  stars_noise = pow(stars_noise, 15.0) * 50.0;
   vec3 stars_color = vec3(stars_noise);
 
   vec3 sky_color = planet_atmosphere_color + sun_color + space_color + stars_color;

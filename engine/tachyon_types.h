@@ -162,6 +162,7 @@ struct Tachyon {
     tCamera3p camera3p;
 
     tVec3f transform_origin = tVec3f(0.f);
+    float scene_time = 0.f;
 
     // @temporary
     // @todo allow multiple directional lights

@@ -42,6 +42,10 @@ static void Tachyon_SetShaderInt(GLint location, const int value) {
   glUniform1i(location, value);
 }
 
+static void Tachyon_SetShaderFloat(GLint location, const float value) {
+  glUniform1f(location, value);
+}
+
 static void Tachyon_SetShaderVec3f(GLint location, const tVec3f& vector) {
   glUniform3fv(location, 1, &vector.x);
 }
@@ -357,6 +361,7 @@ static void RenderSkyAndDirectionalLighting(Tachyon* tachyon) {
   Tachyon_SetShaderMat4f(locations.inverse_projection_matrix, ctx.inverse_projection_matrix);
   Tachyon_SetShaderMat4f(locations.inverse_view_matrix, ctx.inverse_view_matrix);
   Tachyon_SetShaderVec3f(locations.camera_position, ctx.camera_position);
+  Tachyon_SetShaderFloat(locations.scene_time, tachyon->scene.scene_time);
   // @temporary
   // @todo allow multiple directional lights
   Tachyon_SetShaderVec3f(locations.directional_light_direction, tachyon->scene.directional_light_direction);

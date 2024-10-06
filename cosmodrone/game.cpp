@@ -183,6 +183,8 @@ static void HandleAutopilot(Tachyon* tachyon, State& state, const float dt) {
 }
 
 static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
+  const static float BASE_SHIP_DISTANCE = 1000.f;
+
   auto& camera = tachyon->scene.camera;
   auto& meshes = state.meshes;
   float camera_lerp_speed_factor = 10.f;
@@ -219,7 +221,7 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
   UpdateViewDirections(tachyon, state);
 
   float ship_speed = state.ship_velocity.magnitude();
-  float camera_radius = 1000.f + 300.f * (ship_speed / (ship_speed + 5000.f));
+  float camera_radius = BASE_SHIP_DISTANCE + 500.f * (ship_speed / (ship_speed + 5000.f));
 
   camera.position = state.ship_position - state.view_forward_direction * camera_radius + state.view_up_direction * 150.f;
 }

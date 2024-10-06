@@ -36,6 +36,7 @@ struct tUniformLocations {
     inverse_projection_matrix,
     inverse_view_matrix,
     camera_position,
+    scene_time,
     // @temporary
     // @todo allow multiple directional lights
     directional_light_direction

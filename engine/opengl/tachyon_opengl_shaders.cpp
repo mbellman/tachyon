@@ -93,6 +93,7 @@ static void StoreShaderUniforms(tOpenGLShaders& shaders) {
   store_shader_uniform(sky_and_directional_lighting, inverse_projection_matrix);
   store_shader_uniform(sky_and_directional_lighting, inverse_view_matrix);
   store_shader_uniform(sky_and_directional_lighting, camera_position);
+  store_shader_uniform(sky_and_directional_lighting, scene_time);
   // @temporary
   // @todo allow multiple directional lights
   store_shader_uniform(sky_and_directional_lighting, directional_light_direction);

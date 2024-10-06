@@ -20,6 +20,7 @@ namespace Cosmodrone {
       silo_4,
       torus_1,
       station_torus_1,
+      station_base,
       solar_panel_1,
       solar_panel_2,
       girder_1,

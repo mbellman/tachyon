@@ -42,6 +42,7 @@ static void UpdateCelestialBodies(Tachyon* tachyon, State& state) {
     auto sunlight_direction = unit_sun_position.invert();
 
     tachyon->scene.directional_light_direction = sunlight_direction;
+    tachyon->scene.scene_time = state.current_game_time;
 
     moon.position = camera.position + unit_moon_position * moon_distance;
     moon.scale = tVec3f(moon_scale);
