@@ -66,15 +66,8 @@ static void UpdateViewDirections(Tachyon* tachyon, State& state) {
 static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt) {
   // Handle forward thrust
   if (is_key_held(tKey::W)) {
-    auto& view_forward = state.view_forward_direction;
-    auto ship_forward = state.ship_velocity_basis.forward;
-    auto forward_dot = tVec3f::dot(view_forward, ship_forward);
-    auto ship_forward_factor = 1000.f * (forward_dot < 0.f ? 0.f : forward_dot);
-    auto view_forward_factor = 2000.f * (1.f - forward_dot);
-
-    state.ship_velocity += state.ship_rotation_basis.forward * ship_forward_factor * dt;
-    // Bias the velocity in the view direction for easier ship control
-    state.ship_velocity += view_forward * view_forward_factor * dt;
+    state.ship_velocity -= state.ship_velocity_basis.forward * 500.f * dt;
+    state.ship_velocity += state.ship_rotation_basis.forward * 1000.f * dt;
 
     state.ship_rotate_to_target_speed += dt;
     state.flight_mode = FlightMode::MANUAL_CONTROL;
