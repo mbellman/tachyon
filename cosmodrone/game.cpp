@@ -66,10 +66,10 @@ static void UpdateViewDirections(Tachyon* tachyon, State& state) {
 static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt) {
   // Handle forward thrust
   if (is_key_held(tKey::W)) {
-    state.ship_velocity -= state.ship_velocity_basis.forward * 500.f * dt;
-    state.ship_velocity += state.ship_rotation_basis.forward * 1000.f * dt;
+    state.ship_velocity -= state.ship_velocity_basis.forward * 800.f * dt;
+    state.ship_velocity += state.ship_rotation_basis.forward * 1500.f * dt;
 
-    state.ship_rotate_to_target_speed += dt;
+    state.ship_rotate_to_target_speed += 5.f * dt;
     state.flight_mode = FlightMode::MANUAL_CONTROL;
   }
 
@@ -158,15 +158,16 @@ static void HandleAutopilot(Tachyon* tachyon, State& state, const float dt) {
 
       if (reverse_dot < -0.f) {
         // Use the current speed to determine how much we need to accelerate in the opposite direction
-        float acceleration = state.ship_velocity.magnitude() / 5.f;
+        float acceleration = state.ship_velocity.magnitude() / 2.f;
+        if (acceleration > 5000.f) acceleration = 5000.f;
         if (acceleration < 500.f) acceleration = 500.f;
         // Increase acceleration the more the ship is aligned with the 'backward' vector
-        float speed = acceleration * powf(-reverse_dot, 8.f);
+        float speed = acceleration * powf(-reverse_dot, 15.f);
 
         state.ship_velocity += state.ship_rotation_basis.forward * speed * dt;
       }
 
-      if (state.ship_velocity.magnitude() < 10.f) {
+      if (state.ship_velocity.magnitude() < 25.f) {
         state.flight_mode = FlightMode::MANUAL_CONTROL;
       }
 
