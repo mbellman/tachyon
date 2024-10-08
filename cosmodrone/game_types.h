@@ -12,6 +12,8 @@ namespace Cosmodrone {
       trim,
 
       // station parts
+      antenna_1,
+      antenna_2,
       module_1,
       habitation_1,
       habitation_2,

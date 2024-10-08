@@ -25,6 +25,8 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
 
   auto& meshes = state.meshes;
 
+  load_mesh(antenna_1);
+  load_mesh(antenna_2);
   load_mesh(module_1);
   load_mesh(habitation_1);
   load_mesh(habitation_2);
@@ -44,6 +46,26 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh(track_1);
 
   // @todo refactor
+  placeable_mesh_assets.push_back({
+    .mesh_name = "antenna_1",
+    .mesh_index = meshes.antenna_1,
+    .defaults = {
+      .scale = tVec3f(2000.f),
+      .color = tVec3f(1.f),
+      .material = tVec4f(0.4f, 1.f, 0, 0)
+    }
+  });
+
+  placeable_mesh_assets.push_back({
+    .mesh_name = "antenna_2",
+    .mesh_index = meshes.antenna_2,
+    .defaults = {
+      .scale = tVec3f(8000.f),
+      .color = tVec3f(1.f),
+      .material = tVec4f(0.8f, 1.f, 0, 0)
+    }
+  });
+
   placeable_mesh_assets.push_back({
     .mesh_name = "module_1",
     .mesh_index = meshes.module_1

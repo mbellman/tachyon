@@ -133,10 +133,7 @@ static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt)
   // rotates the ship faster to keep up with the camera
   // (necessary to reduce motion sickness).
   {
-    auto& meshes = state.meshes;
-    auto& hull = objects(meshes.hull)[0];
-    float rotate_speed_factor = tVec3f::dot(hull.rotation.getDirection(), state.view_forward_direction);
-
+    float rotate_speed_factor = tVec3f::dot(state.ship_rotation_basis.forward, state.view_forward_direction);
     if (rotate_speed_factor < 0.f) rotate_speed_factor = 0.f;
 
     rotate_speed_factor = powf(rotate_speed_factor, 20.f);
