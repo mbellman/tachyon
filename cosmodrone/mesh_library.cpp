@@ -68,7 +68,12 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
 
   placeable_mesh_assets.push_back({
     .mesh_name = "module_1",
-    .mesh_index = meshes.module_1
+    .mesh_index = meshes.module_1,
+    .defaults = {
+      .scale = tVec3f(1000.f),
+      .color = tVec3f(1.f, 0.7f, 0.2f),
+      .material = tVec4f(0.6f, 1.f, 0, 0)
+    }
   });
 
   placeable_mesh_assets.push_back({
@@ -96,7 +101,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     .mesh_index = meshes.silo_2,
     .defaults = {
       .scale = tVec3f(2000.f),
-      .color = tVec3f(1.f),
+      .color = tVec3f(1.f, 0.7f, 0.6f),
       .material = tVec4f(0.4f, 1.f, 0, 0)
     }
   });

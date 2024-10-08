@@ -62,10 +62,10 @@ static void LoadWorldData(Tachyon* tachyon, State& state) {
       #define di(n) stoi(parts[n])
 
       object.position = tVec3f(df(0), df(1), df(2));
-      object.scale = tVec3f(df(3), df(4), df(5));
-      object.rotation = Quaternion(df(6), df(7), df(8), df(9));
-      object.color.rgba = di(10);
-      object.material.data = mesh_asset->defaults.material.data;
+      object.scale = mesh_asset->defaults.scale;
+      object.rotation = Quaternion(df(3), df(4), df(5), df(6));
+      object.color.rgba = di(7);
+      object.material = mesh_asset->defaults.material;
 
       commit(object);
     }

@@ -113,7 +113,6 @@ static void SaveWorldData(Tachyon* tachyon) {
 
       if (instance != nullptr) {
         data += Serialize(instance->position) + ",";
-        data += Serialize(instance->scale) + ",";
         data += Serialize(instance->rotation) + ",";
         data += std::to_string(instance->color.rgba) + "\n";
       }
