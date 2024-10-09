@@ -46,7 +46,13 @@ struct tUniformLocations {
     transform,
     in_normal_and_depth,
     in_color_and_material,
-    in_accumulation
+    in_accumulation,
+    projection_matrix,
+    view_matrix,
+    inverse_projection_matrix,
+    inverse_view_matrix,
+    camera_position,
+    time
   ) indirect_lighting;
 
   uniform_locations(

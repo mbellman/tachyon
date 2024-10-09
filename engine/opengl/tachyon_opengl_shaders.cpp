@@ -98,6 +98,12 @@ static void StoreShaderUniforms(tOpenGLShaders& shaders) {
   store_shader_uniform(indirect_lighting, in_normal_and_depth);
   store_shader_uniform(indirect_lighting, in_color_and_material);
   store_shader_uniform(indirect_lighting, in_accumulation);
+  store_shader_uniform(indirect_lighting, projection_matrix);
+  store_shader_uniform(indirect_lighting, view_matrix);
+  store_shader_uniform(indirect_lighting, inverse_projection_matrix);
+  store_shader_uniform(indirect_lighting, inverse_view_matrix);
+  store_shader_uniform(indirect_lighting, camera_position);
+  store_shader_uniform(indirect_lighting, time);
 
   store_shader_uniform(surface, transform);
   store_shader_uniform(surface, color);
@@ -201,7 +207,7 @@ void Tachyon_OpenGL_HotReloadShaders(tOpenGLShaders& shaders) {
 
             glLinkProgram(shader->program);
 
-            printf("Hot reloaded shader: %s\n", attachment.source_path);
+            printf("Hot reloaded shader: %s\n", attachment.source_path.c_str());
             add_console_message("Hot reloaded shader: " + attachment.source_path, tVec3f(1.f));
           }
         }

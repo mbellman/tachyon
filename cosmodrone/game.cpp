@@ -316,7 +316,7 @@ static void UpdateShipDebugVectors(Tachyon* tachyon, State& state) {
     sideways.color = tVec4f(0, 1.f, 0, 1.f);
     up.color = tVec4f(0, 0, 1.f, 1.f);
 
-    UpdateOrthonormalBasisDebugVectors(tachyon, state, forward, sideways, up, state.ship_velocity_basis, 8.f, 400.f);
+    UpdateOrthonormalBasisDebugVectors(tachyon, state, forward, sideways, up, state.ship_velocity_basis, 8.f, 250.f);
   }
 
   {
@@ -328,7 +328,7 @@ static void UpdateShipDebugVectors(Tachyon* tachyon, State& state) {
     sideways.color = tVec4f(0, 1.f, 1.f, 1.f);
     up.color = tVec4f(1.f, 0, 1.f, 1.f);
 
-    UpdateOrthonormalBasisDebugVectors(tachyon, state, forward, sideways, up, state.ship_rotation_basis, 6.f, 300.f);
+    UpdateOrthonormalBasisDebugVectors(tachyon, state, forward, sideways, up, state.ship_rotation_basis, 6.f, 200.f);
   }
 }
 

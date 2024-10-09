@@ -33,7 +33,7 @@ static void Tachyon_CheckError(const std::string& message) {
   };
 
   while ((error = glGetError()) != GL_NO_ERROR) {
-    printf("Error (%s): %s\n", message.c_str(), glErrorMap[error]);
+    printf("Error (%s): %s\n", message.c_str(), glErrorMap[error].c_str());
   }
 }
 
@@ -169,7 +169,7 @@ static void HandleDeveloperTools(Tachyon* tachyon) {
     for (auto& dev_label : tachyon->dev_labels) {
       auto full_label = dev_label.label + ": " + dev_label.message;
 
-      RenderText(tachyon, tachyon->developer_overlay_font, full_label.c_str(), 10, y_offset, ctx.w, tVec3f(1.f), tVec4f(0.2f, 0.2f, 1.f, 0.4));
+      RenderText(tachyon, tachyon->developer_overlay_font, full_label.c_str(), 10, y_offset, ctx.w, tVec3f(1.f), tVec4f(0.2f, 0.2f, 1.f, 0.4f));
 
       y_offset += 30;
     }
@@ -388,6 +388,12 @@ static void RenderIndirectLighting(Tachyon* tachyon) {
   Tachyon_SetShaderInt(locations.in_normal_and_depth, 0);
   Tachyon_SetShaderInt(locations.in_color_and_material, 1);
   Tachyon_SetShaderInt(locations.in_accumulation, 2);
+  Tachyon_SetShaderMat4f(locations.projection_matrix, ctx.projection_matrix);
+  Tachyon_SetShaderMat4f(locations.view_matrix, ctx.view_matrix);
+  Tachyon_SetShaderMat4f(locations.inverse_projection_matrix, ctx.inverse_projection_matrix);
+  Tachyon_SetShaderMat4f(locations.inverse_view_matrix, ctx.inverse_view_matrix);
+  Tachyon_SetShaderVec3f(locations.camera_position, ctx.camera_position);
+  Tachyon_SetShaderFloat(locations.time, tachyon->running_time);
 
   RenderScreenQuad(tachyon);
 }
