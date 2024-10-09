@@ -369,7 +369,7 @@ static void RenderSkyAndDirectionalLighting(Tachyon* tachyon) {
   RenderScreenQuad(tachyon);
 }
 
-void Tachyon_InitOpenGLRenderer(Tachyon* tachyon) {
+void Tachyon_OpenGL_InitRenderer(Tachyon* tachyon) {
   auto* renderer = new tOpenGLRenderer;
 
   // @todo only do GL setup stuff once in case we destroy/recreate the renderer
@@ -465,11 +465,13 @@ void Tachyon_OpenGL_ResizeRenderer(Tachyon* tachyon) {
   }
 }
 
-void Tachyon_RenderSceneInOpenGL(Tachyon* tachyon) {
+void Tachyon_OpenGL_RenderScene(Tachyon* tachyon) {
   auto& renderer = get_renderer();
   auto& ctx = renderer.ctx;
   auto start = Tachyon_GetMicroseconds();
 
+  // @todo dev mode only
+  // Every second, check for shader changes and do hot reloading
   if (tachyon->running_time - renderer.last_shader_hot_reload_time > 1.f) {
     Tachyon_OpenGL_HotReloadShaders(renderer.shaders);
 
@@ -519,7 +521,7 @@ void Tachyon_RenderSceneInOpenGL(Tachyon* tachyon) {
   renderer.last_render_time_in_microseconds = Tachyon_GetMicroseconds() - start;
 }
 
-void Tachyon_DestroyOpenGLRenderer(Tachyon* tachyon) {
+void Tachyon_OpenGL_DestroyRenderer(Tachyon* tachyon) {
   auto& renderer = get_renderer();
 
   glDeleteBuffers(1, &renderer.indirect_buffer);

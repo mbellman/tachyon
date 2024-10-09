@@ -58,7 +58,7 @@ static void HandleEvents(Tachyon* tachyon) {
 
 static void RenderScene(Tachyon* tachyon) {
   if (tachyon->render_backend == TachyonRenderBackend::OPENGL) {
-    Tachyon_RenderSceneInOpenGL(tachyon);
+    Tachyon_OpenGL_RenderScene(tachyon);
   } else {
     SDL_Delay(16);
   }
@@ -66,7 +66,7 @@ static void RenderScene(Tachyon* tachyon) {
 
 static void DestroyRenderer(Tachyon* tachyon) {
   if (tachyon->render_backend == TachyonRenderBackend::OPENGL) {
-    Tachyon_DestroyOpenGLRenderer(tachyon);
+    Tachyon_OpenGL_DestroyRenderer(tachyon);
   }
 
   delete tachyon->renderer;
@@ -102,7 +102,7 @@ void Tachyon_UseRenderBackend(Tachyon* tachyon, TachyonRenderBackend backend) {
   tachyon->render_backend = backend;
 
   if (backend == TachyonRenderBackend::OPENGL) {
-    Tachyon_InitOpenGLRenderer(tachyon);
+    Tachyon_OpenGL_InitRenderer(tachyon);
   }
 }
 
