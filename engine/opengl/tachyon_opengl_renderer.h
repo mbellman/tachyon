@@ -32,6 +32,7 @@ struct tOpenGLRenderer {
   tOpenGLScreenQuad screen_quad;
 
   OpenGLFrameBuffer g_buffer;
+  OpenGLFrameBuffer accumulation_buffer;
 
   // @todo dev mode only
   bool show_g_buffer_view = false;

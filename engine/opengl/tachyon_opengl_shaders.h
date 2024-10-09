@@ -44,6 +44,13 @@ struct tUniformLocations {
 
   uniform_locations(
     transform,
+    in_normal_and_depth,
+    in_color_and_material,
+    in_accumulation
+  ) indirect_lighting;
+
+  uniform_locations(
+    transform,
     color,
     background
   ) surface;
@@ -61,6 +68,7 @@ struct tUniformLocations {
 struct tOpenGLShaders {
   tOpenGLShader main_geometry;
   tOpenGLShader sky_and_directional_lighting;
+  tOpenGLShader indirect_lighting;
 
   tOpenGLShader surface;
 

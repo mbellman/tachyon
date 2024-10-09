@@ -83,10 +83,6 @@ static void StoreShaderUniforms(tOpenGLShaders& shaders) {
   store_shader_uniform(main_geometry, mat_view_projection);
   store_shader_uniform(main_geometry, transform_origin);
 
-  store_shader_uniform(surface, transform);
-  store_shader_uniform(surface, color);
-  store_shader_uniform(surface, background);
-
   store_shader_uniform(sky_and_directional_lighting, transform);
   store_shader_uniform(sky_and_directional_lighting, in_normal_and_depth);
   store_shader_uniform(sky_and_directional_lighting, in_color_and_material);
@@ -97,6 +93,15 @@ static void StoreShaderUniforms(tOpenGLShaders& shaders) {
   // @temporary
   // @todo allow multiple directional lights
   store_shader_uniform(sky_and_directional_lighting, directional_light_direction);
+
+  store_shader_uniform(indirect_lighting, transform);
+  store_shader_uniform(indirect_lighting, in_normal_and_depth);
+  store_shader_uniform(indirect_lighting, in_color_and_material);
+  store_shader_uniform(indirect_lighting, in_accumulation);
+
+  store_shader_uniform(surface, transform);
+  store_shader_uniform(surface, color);
+  store_shader_uniform(surface, background);
 
   store_shader_uniform(debug_view, transform);
   store_shader_uniform(debug_view, in_normal_and_depth);
@@ -142,6 +147,12 @@ void Tachyon_OpenGL_InitShaders(tOpenGLShaders& shaders) {
     shaders.sky_and_directional_lighting,
     "./engine/opengl/shaders/screen_quad.vert.glsl",
     "./engine/opengl/shaders/sky_and_directional_lighting.frag.glsl"
+  );
+
+  InitVertexFragmentShader(
+    shaders.indirect_lighting,
+    "./engine/opengl/shaders/screen_quad.vert.glsl",
+    "./engine/opengl/shaders/indirect_lighting.frag.glsl"
   );
 
   // @todo dev mode only
