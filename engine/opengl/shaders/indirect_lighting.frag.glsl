@@ -88,7 +88,8 @@ float saturate(float value) {
 }
 
 float GetSSAO(int total_samples, float depth, vec3 position, vec3 normal, float seed) {
-  float radius = mix(500.0, 10000.0, pow(depth, 50.0));
+  float linear_depth = LinearDepth(depth, 500.0, 10000000.0);
+  float radius = mix(100.0, 30000.0, pow(linear_depth, 0.333));
   float ssao = 0.0;
 
   vec3 random_vector = vec3(noise(1.0 + seed), noise(2.0 + seed), noise(3.0 + seed));
@@ -113,7 +114,10 @@ float GetSSAO(int total_samples, float depth, vec3 position, vec3 normal, float 
     }
   }
 
-  float factor = mix(1.0, 0.0, pow(depth, 30.0));
+  const float max_ssao = 0.7;
+  const float min_ssao = 0.0;
+
+  float factor = mix(max_ssao, min_ssao, pow(depth, 50.0));
 
   return ssao / float(total_samples) * factor;
 }
