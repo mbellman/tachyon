@@ -33,27 +33,17 @@ struct tUniformLocations {
     transform,
     in_normal_and_depth,
     in_color_and_material,
-    inverse_projection_matrix,
-    inverse_view_matrix,
-    camera_position,
-    scene_time,
-    // @temporary
-    // @todo allow multiple directional lights
-    directional_light_direction
-  ) sky_and_directional_lighting;
-
-  uniform_locations(
-    transform,
-    in_normal_and_depth,
-    in_color_and_material,
-    in_accumulation,
     projection_matrix,
     view_matrix,
     inverse_projection_matrix,
     inverse_view_matrix,
     camera_position,
-    time
-  ) indirect_lighting;
+    scene_time,
+    running_time,
+    // @temporary
+    // @todo allow multiple directional lights
+    directional_light_direction
+  ) global_lighting;
 
   uniform_locations(
     transform,
@@ -73,8 +63,7 @@ struct tUniformLocations {
 
 struct tOpenGLShaders {
   tOpenGLShader main_geometry;
-  tOpenGLShader sky_and_directional_lighting;
-  tOpenGLShader indirect_lighting;
+  tOpenGLShader global_lighting;
 
   tOpenGLShader surface;
 

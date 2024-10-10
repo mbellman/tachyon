@@ -342,58 +342,34 @@ static void RenderGBufferView(Tachyon* tachyon) {
   RenderScreenQuad(tachyon);
 }
 
-static void RenderSkyAndDirectionalLighting(Tachyon* tachyon) {
+static void RenderGlobalLighting(Tachyon* tachyon) {
   auto& renderer = get_renderer();
   auto& scene = tachyon->scene;
-  auto& shader = renderer.shaders.sky_and_directional_lighting;
-  auto& locations = renderer.shaders.locations.sky_and_directional_lighting;
+  auto& shader = renderer.shaders.global_lighting;
+  auto& locations = renderer.shaders.locations.global_lighting;
   auto& ctx = renderer.ctx;
 
   renderer.g_buffer.read();
-  renderer.accumulation_buffer.write();
-
-  // glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-  glViewport(0, 0, ctx.w, ctx.h);
-  glClear(GL_COLOR_BUFFER_BIT);
-
-  glUseProgram(shader.program);
-  Tachyon_SetShaderVec4f(locations.transform, { 0.f, 0.f, 1.f, 1.f });
-  Tachyon_SetShaderInt(locations.in_normal_and_depth, 0);
-  Tachyon_SetShaderInt(locations.in_color_and_material, 1);
-  Tachyon_SetShaderMat4f(locations.inverse_projection_matrix, ctx.inverse_projection_matrix);
-  Tachyon_SetShaderMat4f(locations.inverse_view_matrix, ctx.inverse_view_matrix);
-  Tachyon_SetShaderVec3f(locations.camera_position, ctx.camera_position);
-  Tachyon_SetShaderFloat(locations.scene_time, scene.scene_time);
-  // @temporary
-  // @todo allow multiple directional lights
-  Tachyon_SetShaderVec3f(locations.directional_light_direction, scene.directional_light_direction);
-
-  RenderScreenQuad(tachyon);
-}
-
-static void RenderIndirectLighting(Tachyon* tachyon) {
-  auto& renderer = get_renderer();
-  auto& ctx = renderer.ctx;
-  auto& shader = renderer.shaders.indirect_lighting;
-  auto& locations = renderer.shaders.locations.indirect_lighting;
-
-  renderer.g_buffer.read();
-  renderer.accumulation_buffer.read();
+  // renderer.accumulation_buffer.write();
 
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
   glViewport(0, 0, ctx.w, ctx.h);
+  // glClear(GL_COLOR_BUFFER_BIT);
 
   glUseProgram(shader.program);
   Tachyon_SetShaderVec4f(locations.transform, { 0.f, 0.f, 1.f, 1.f });
   Tachyon_SetShaderInt(locations.in_normal_and_depth, 0);
   Tachyon_SetShaderInt(locations.in_color_and_material, 1);
-  Tachyon_SetShaderInt(locations.in_accumulation, 2);
   Tachyon_SetShaderMat4f(locations.projection_matrix, ctx.projection_matrix);
   Tachyon_SetShaderMat4f(locations.view_matrix, ctx.view_matrix);
   Tachyon_SetShaderMat4f(locations.inverse_projection_matrix, ctx.inverse_projection_matrix);
   Tachyon_SetShaderMat4f(locations.inverse_view_matrix, ctx.inverse_view_matrix);
   Tachyon_SetShaderVec3f(locations.camera_position, ctx.camera_position);
-  Tachyon_SetShaderFloat(locations.time, tachyon->running_time);
+  Tachyon_SetShaderFloat(locations.scene_time, scene.scene_time);
+  Tachyon_SetShaderFloat(locations.running_time, tachyon->running_time);
+  // @temporary
+  // @todo allow multiple directional lights
+  Tachyon_SetShaderVec3f(locations.directional_light_direction, scene.directional_light_direction);
 
   RenderScreenQuad(tachyon);
 }
@@ -539,8 +515,7 @@ void Tachyon_OpenGL_RenderScene(Tachyon* tachyon) {
   if (renderer.show_g_buffer_view) {
     RenderGBufferView(tachyon);
   } else {
-    RenderSkyAndDirectionalLighting(tachyon);
-    RenderIndirectLighting(tachyon);
+    RenderGlobalLighting(tachyon);
   }
 
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);

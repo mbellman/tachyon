@@ -2,10 +2,13 @@
 
 uniform sampler2D in_normal_and_depth;
 uniform usampler2D in_color_and_material;
+uniform mat4 projection_matrix;
+uniform mat4 view_matrix;
 uniform mat4 inverse_projection_matrix;
 uniform mat4 inverse_view_matrix;
 uniform vec3 camera_position;
 uniform float scene_time;
+uniform float running_time;
 // @temporary
 // @todo allow multiple directional lights
 uniform vec3 directional_light_direction;
@@ -33,83 +36,26 @@ vec3 GetWorldPosition(float depth, vec2 frag_uv, mat4 inverse_projection, mat4 i
 
 const float PI = 3.141592;
 
-// https://learnopengl.com/PBR/Lighting
-float DistributionGGX(vec3 N, vec3 H, float roughness) {
-  float a      = roughness*roughness;
-  float a2     = a*a;
-  float NdotH  = max(dot(N, H), 0.0);
-  float NdotH2 = NdotH*NdotH;
-
-  float num   = a2;
-  float denom = (NdotH2 * (a2 - 1.0) + 1.0);
-  denom = PI * denom * denom;
-
-  return num / denom;
-}
-
-float GeometrySchlickGGX(float NdotV, float roughness) {
-  float r = (roughness + 1.0);
-  float k = (r*r) / 8.0;
-
-  float num   = NdotV;
-  float denom = NdotV * (1.0 - k) + k;
-
-  return num / denom;
-}
-
-float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness) {
-  float NdotV = max(dot(N, V), 0.0);
-  float NdotL = max(dot(N, L), 0.0);
-  float ggx2  = GeometrySchlickGGX(NdotV, roughness);
-  float ggx1  = GeometrySchlickGGX(NdotL, roughness);
-
-  return ggx1 * ggx2;
-}
-
-vec3 FresnelSchlick(float cosTheta, vec3 F0) {
-  return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
-}
-
-vec3 DirectionalLightRadiance(vec3 light_direction, vec3 light_color, vec3 albedo, vec3 position, vec3 N, vec3 V, float roughness, float metalness, vec3 F0) {
-  vec3 L = -normalize(light_direction);
-  vec3 H = normalize(V + L);
-
-  float NDF = DistributionGGX(N, H, roughness);
-  float G = GeometrySmith(N, V, L, roughness);
-  vec3 F = FresnelSchlick(max(dot(H, V), 0.0), F0);
-
-  vec3 kS = F;
-  vec3 kD = vec3(1.0) - kS;
-  kD *= 1.0 - metalness;
-
-  vec3 numerator    = NDF * G * F;
-  float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
-  vec3 specular     = numerator / denominator;  
-
-  float NdotL = max(dot(N, L), 0.0);
-  return (kD * albedo / PI + specular) * light_color * NdotL;
-}
-
-float FastDistributionGGX(float NdotH, float roughness) {
+float DistributionGGX(float NdotH, float roughness) {
   float r4 = roughness*roughness * roughness*roughness;
   float d = (NdotH*NdotH * (r4 - 1.0) + 1.0);
 
   return r4 / (PI * d*d);
 }
 
-float FastGeometryGGX(float NdotH, float roughness, float metalness) {
+float GeometryGGX(float NdotH, float roughness, float metalness) {
   return pow(NdotH, 2 * roughness) * pow(1.0 - metalness, 4);
 }
 
-float FastClearcoat(float NdotH, float NdotV, float clearcoat) {
-  return clearcoat * (FastDistributionGGX(NdotH, 0.1) + pow(1.0 - NdotV, 8));
+float Clearcoat(float NdotH, float NdotV, float clearcoat) {
+  return clearcoat * (DistributionGGX(NdotH, 0.1) + pow(1.0 - NdotV, 8));
 }
 
-float FastSubsurface(float NdotV, float subsurface) {
+float Subsurface(float NdotV, float subsurface) {
   return subsurface * (4 * NdotV + 16 * pow(1.0 - NdotV, 4));
 }
 
-vec3 FastDirectionalLightRadiance(
+vec3 GetDirectionalLightRadiance(
   vec3 light_direction,
   vec3 light_color,
   vec3 albedo,
@@ -128,18 +74,19 @@ vec3 FastDirectionalLightRadiance(
   float NdotH = max(dot(N, H), 0.0);
   float NdotL = max(dot(N, L), 0.0);
 
-  float sD = FastDistributionGGX(NdotH, roughness);
-  float sG = FastGeometryGGX(NdotH, roughness, metalness);
+  float sD = DistributionGGX(NdotH, roughness);
+  float sG = GeometryGGX(NdotH, roughness, metalness);
 
   float D = (1.0 - metalness) * (1.0 - roughness * 0.5) * NdotL;
   float Sp = (sD + sG) * NdotL;
-  float C = FastClearcoat(NdotH, NdotV, clearcoat) * NdotL;
-  float Sc = FastSubsurface(NdotV, subsurface) * (NdotL + 0.05) * (1.0 - metalness * 0.95);
+  float C = Clearcoat(NdotH, NdotV, clearcoat) * NdotL;
+  // @todo pass the additional terms into Subsurface()
+  float Sc = Subsurface(NdotV, subsurface) * (NdotL + 0.05) * (1.0 - metalness * 0.95);
 
   return light_color * (albedo * D + albedo * Sp + C + albedo * albedo * Sc) / PI;
 }
 
-vec3 AmbientFresnel(float NdotV) {
+vec3 GetAmbientFresnel(float NdotV) {
   return 0.002 * vec3(pow(1 - NdotV, 5));
 }
 
@@ -299,6 +246,104 @@ vec3 GetSkyColor(vec3 sky_direction) {
   return sky_color;
 }
 
+const vec3[] ssao_sample_points = {
+  vec3(0.021429, 0.059112, 0.07776),
+  vec3(0.042287, -0.020052, 0.092332),
+  vec3(0.087243, -0.025947, 0.068744),
+  vec3(-0.001496, -0.027043, 0.128824),
+  vec3(-0.088486, -0.099508, 0.081747),
+  vec3(0.108582, 0.02973, 0.15043),
+  vec3(-0.131723, 0.143868, 0.115246),
+  vec3(-0.137142, -0.089451, 0.21753),
+  vec3(-0.225405, 0.214709, 0.09337),
+  vec3(-0.152747, 0.129375, 0.328595),
+  vec3(0.155238, 0.146029, 0.398102),
+  vec3(-0.205277, 0.358875, 0.3242),
+  vec3(0.129059, 0.579216, 0.124064),
+  vec3(-0.427557, -0.123908, 0.53261),
+  vec3(0.661657, -0.296235, 0.311568),
+  vec3(0.175674, 0.013574, 0.87342)
+};
+
+/**
+ * Returns a value within the range -1.0 - 1.0, constant
+ * in screen space, acting as a noise filter.
+ */
+float noise(float seed) {
+  return 2.0 * (fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * seed * 43758.545312) - 0.5);
+}
+
+/**
+ * Returns the 2D screen coordinates, normalized to the range
+ * [0.0, 1.0], corresponding to a point in view space.
+ */
+vec2 GetScreenCoordinates(vec3 view_position, mat4 projection_matrix) {
+  vec4 projection = projection_matrix * vec4(view_position, 1.0);
+  vec3 clip = projection.xyz / projection.w;
+
+  return clip.xy * 0.5 + 0.5;
+}
+
+/**
+ * Maps a nonlinear [0, 1] depth value to a linearized
+ * depth between the near and far planes.
+ */
+float GetWorldDepth(float depth, float near, float far) {
+  float clip_depth = 2.0 * depth - 1.0;
+
+  return 2.0 * near * far / (far + near - clip_depth * (far - near));
+}
+
+/**
+ * Converts a nonlinear [0, 1] depth value to a linearized
+ * depth between 0 and 1.
+ */
+float GetLinearDepth(float depth, float near, float far) {
+  return 2.0 * near / (far + near - depth * (far - near));
+}
+
+/**
+ * Returns a value clamped between 0 and 1.
+ */
+float saturate(float value) {
+  return clamp(value, 0.0, 1.0);
+}
+
+float GetSSAO(int total_samples, float depth, vec3 position, vec3 normal, float seed) {
+  float linear_depth = GetLinearDepth(depth, 500.0, 10000000.0);
+  float radius = mix(100.0, 30000.0, pow(linear_depth, 0.25));
+  float ssao = 0.0;
+
+  vec3 random_vector = vec3(noise(1.0 + seed), noise(2.0 + seed), noise(3.0 + seed));
+  vec3 tangent = normalize(random_vector - normal * dot(random_vector, normal));
+  vec3 bitangent = cross(normal, tangent);
+  mat3 tbn = mat3(tangent, bitangent, normal);
+
+  for (int i = 0; i < total_samples; i++) {
+    vec3 tbn_sample_position = tbn * ssao_sample_points[i];
+    vec3 world_sample_position = position + tbn_sample_position * radius;
+    vec3 view_sample_position = (view_matrix * vec4(world_sample_position, 1.0)).xyz;
+    vec2 screen_sample_uv = GetScreenCoordinates(view_sample_position, projection_matrix);
+    // float sample_depth = textureLod(texColorAndDepth, screen_sample_uv, 1).w;
+    float sample_depth = texture(in_normal_and_depth, screen_sample_uv).w;
+    float world_depth = GetWorldDepth(sample_depth, 500.0, 10000000.0);
+
+    if (world_depth < -view_sample_position.z) {
+      float occluder_distance = -view_sample_position.z - world_depth;
+      float occlusion_factor = mix(1.0, 0.0, saturate(occluder_distance / (0.5 * radius)));
+
+      ssao += occlusion_factor;
+    }
+  }
+
+  const float max_ssao = 0.7;
+  const float min_ssao = 0.0;
+
+  float ssao_intensity = mix(max_ssao, min_ssao, pow(depth, 50.0));
+
+  return ssao / float(total_samples) * ssao_intensity;
+}
+
 void main() {
   vec4 frag_normal_and_depth = texture(in_normal_and_depth, fragUv);
   vec3 position = GetWorldPosition(frag_normal_and_depth.w, fragUv, inverse_projection_matrix, inverse_view_matrix);
@@ -331,18 +376,17 @@ void main() {
 
   vec3 F0 = vec3(0.04);
   F0 = mix(F0, albedo, metalness);
-  // vec3 out_color = DirectionalLightRadiance(directional_light_direction, vec3(1.0), albedo, position, N, V, roughness, metalness, F0);
-  vec3 out_color = FastDirectionalLightRadiance(directional_light_direction, vec3(1.0), albedo, position, N, V, NdotV, roughness, metalness, clearcoat, subsurface);
+  vec3 out_color = GetDirectionalLightRadiance(directional_light_direction, vec3(1.0), albedo, position, N, V, NdotV, roughness, metalness, clearcoat, subsurface);
 
   // @todo make customizable
-  out_color += FastDirectionalLightRadiance(vec3(0, 1, 0), vec3(0.2, 0.5, 1.0) * 0.2, albedo, position, N, V, NdotV, 0.8, metalness, 0.0, 0.0);
+  out_color += GetDirectionalLightRadiance(vec3(0, 1, 0), vec3(0.2, 0.5, 1.0) * 0.2, albedo, position, N, V, NdotV, 0.8, metalness, 0.0, 0.0);
 
   // @todo cleanup
   vec3 L = normalize(directional_light_direction);
   float NdotL = max(dot(N, L), 0.0);
   out_color += albedo * vec3(0.1, 0.2, 0.3) * (0.005 + 0.02 * (1.0 - NdotL));
 
-  out_color += AmbientFresnel(NdotV);
+  out_color += GetAmbientFresnel(NdotV);
   out_color = mix(out_color, albedo, pow(emissive, 1.5));
 
   if (frag_normal_and_depth.w >= 1.0) out_color = vec3(0);
@@ -352,6 +396,10 @@ void main() {
 
   out_color = vec3(1.0) - exp(-out_color * exposure);
   out_color = pow(out_color, vec3(1.0 / 2.2));
+
+  float ssao = GetSSAO(8, frag_normal_and_depth.w, position, frag_normal_and_depth.xyz, fract(running_time));
+
+  out_color -= ssao;
 
   out_color_and_depth = vec4(out_color, frag_normal_and_depth.w);
 }
