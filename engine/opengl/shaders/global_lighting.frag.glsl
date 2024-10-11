@@ -5,6 +5,7 @@ uniform usampler2D in_color_and_material;
 uniform sampler2D in_temporal_data;
 uniform mat4 projection_matrix;
 uniform mat4 view_matrix;
+uniform mat4 previous_view_matrix;
 uniform mat4 inverse_projection_matrix;
 uniform mat4 inverse_view_matrix;
 uniform vec3 camera_position;
@@ -342,12 +343,17 @@ float GetSSAO(int total_samples, float depth, vec3 position, vec3 normal, float 
   const float far_ssao = 0.6;
 
   float ssao_intensity = mix(near_ssao, far_ssao, pow(depth, 30.0));
+  ssao_intensity = mix(ssao_intensity, 0.0, pow(depth, 1024.0));
 
   return ssao / float(total_samples) * ssao_intensity;
 }
 
-float GetDenoisedSSAO(float ssao, float depth) {
+float GetDenoisedSSAO(float ssao, float depth, vec2 temporal_uv) {
   #define USE_SPATIAL_DENOISING 1
+
+  if (temporal_uv.x < 0.0 || temporal_uv.x > 1.0 || temporal_uv.y < 0.0 || temporal_uv.y > 1.0) {
+    return 0.0;
+  }
 
   // @todo use screen size
   const vec2 texel_size = 1.0 / vec2(1920.0, 1080.0);
@@ -366,20 +372,20 @@ float GetDenoisedSSAO(float ssao, float depth) {
 
     for (int i = 0; i < 4; i++) {
       vec2 offset = spatial_spread * offsets[i];
-      vec4 temporal_data = texture(in_temporal_data, fragUv + texel_size * offset);
+      vec4 temporal_data = texture(in_temporal_data, temporal_uv + texel_size * offset);
       float temporal_depth = temporal_data.w;
       float depth_distance = abs(GetWorldDepth(depth, 500.0, 10000000.0) - GetWorldDepth(temporal_depth, 500.0, 10000000.0));
 
       if (depth_distance < 100.0) {
         ssao += temporal_data.x * temporal_weight;
       } else {
-        ssao += texture(in_temporal_data, fragUv).x * temporal_weight;
+        ssao += base_ssao * temporal_weight;
       }
     }
 
     return ssao / (temporal_weight * 4.0 + 1.0);
   #else
-    vec4 temporal_data = texture(in_temporal_data, fragUv);
+    vec4 temporal_data = texture(in_temporal_data, temporal_uv);
 
     ssao += temporal_data.x * temporal_weight;
 
@@ -442,13 +448,13 @@ void main() {
   out_color = pow(out_color, vec3(1.0 / 2.2));
 
   float ssao = GetSSAO(8, frag_normal_and_depth.w, position, frag_normal_and_depth.xyz, fract(running_time));
+  vec3 previous_view_position = (previous_view_matrix * vec4(position, 1.0)).xyz;
+  vec2 temporal_uv = GetScreenCoordinates(previous_view_position, projection_matrix);
 
-  ssao = GetDenoisedSSAO(ssao, frag_normal_and_depth.w);
+  ssao = GetDenoisedSSAO(ssao, frag_normal_and_depth.w, temporal_uv);
   ssao = clamp(ssao, 0.0, 1.0);
 
   out_color -= ssao;
-
-  // out_color = vec3(1) - ssao;
 
   out_color_and_depth = vec4(out_color, frag_normal_and_depth.w);
   out_temporal_data = vec4(ssao, 0, 0, frag_normal_and_depth.w);

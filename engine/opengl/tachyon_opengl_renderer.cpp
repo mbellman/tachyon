@@ -205,6 +205,8 @@ static void UpdateRendererContext(Tachyon* tachyon) {
   // @todo make fov/near/far customizable
   ctx.projection_matrix = tMat4f::perspective(45.f, 500.f, 10000000.f).transpose();
 
+  ctx.previous_view_matrix = ctx.view_matrix;
+
   ctx.view_matrix = (
     camera_rotation_matrix *
     tMat4f::translation(camera.position * tVec3f(-1.f))
@@ -259,7 +261,7 @@ static void RenderStaticGeometry(Tachyon* tachyon) {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
   glUseProgram(shader.program);
-  SetShaderMat4f(locations.mat_view_projection, ctx.view_projection_matrix);
+  SetShaderMat4f(locations.view_projection_matrix, ctx.view_projection_matrix);
   SetShaderVec3f(locations.transform_origin, tachyon->scene.transform_origin);
 
   glBindVertexArray(gl_mesh_pack.vao);
@@ -351,6 +353,7 @@ static void RenderGlobalLighting(Tachyon* tachyon) {
   SetShaderInt(locations.in_temporal_data, 3);
   SetShaderMat4f(locations.projection_matrix, ctx.projection_matrix);
   SetShaderMat4f(locations.view_matrix, ctx.view_matrix);
+  SetShaderMat4f(locations.previous_view_matrix, ctx.previous_view_matrix);
   SetShaderMat4f(locations.inverse_projection_matrix, ctx.inverse_projection_matrix);
   SetShaderMat4f(locations.inverse_view_matrix, ctx.inverse_view_matrix);
   SetShaderVec3f(locations.camera_position, ctx.camera_position);

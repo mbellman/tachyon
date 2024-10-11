@@ -80,7 +80,7 @@ static void StoreShaderUniforms(tOpenGLShaders& shaders) {
   #define store_shader_uniform(shader_name, uniform_name) \
     shaders.locations.shader_name.uniform_name = glGetUniformLocation(shaders.shader_name.program, #uniform_name);
 
-  store_shader_uniform(main_geometry, mat_view_projection);
+  store_shader_uniform(main_geometry, view_projection_matrix);
   store_shader_uniform(main_geometry, transform_origin);
 
   store_shader_uniform(global_lighting, transform);
@@ -89,6 +89,7 @@ static void StoreShaderUniforms(tOpenGLShaders& shaders) {
   store_shader_uniform(global_lighting, in_temporal_data);
   store_shader_uniform(global_lighting, projection_matrix);
   store_shader_uniform(global_lighting, view_matrix);
+  store_shader_uniform(global_lighting, previous_view_matrix);
   store_shader_uniform(global_lighting, inverse_projection_matrix);
   store_shader_uniform(global_lighting, inverse_view_matrix);
   store_shader_uniform(global_lighting, camera_position);

@@ -22,6 +22,8 @@ struct tOpenGLRenderer {
     tMat4f projection_matrix;
     tMat4f view_projection_matrix;
 
+    tMat4f previous_view_matrix;
+
     tMat4f inverse_view_matrix;
     tMat4f inverse_projection_matrix;
 
