@@ -33,6 +33,7 @@ struct tUniformLocations {
     transform,
     in_normal_and_depth,
     in_color_and_material,
+    in_temporal_data,
     projection_matrix,
     view_matrix,
     inverse_projection_matrix,
@@ -44,6 +45,11 @@ struct tUniformLocations {
     // @todo allow multiple directional lights
     directional_light_direction
   ) global_lighting;
+
+  uniform_locations(
+    transform,
+    in_color_and_depth
+  ) post;
 
   uniform_locations(
     transform,
@@ -64,6 +70,7 @@ struct tUniformLocations {
 struct tOpenGLShaders {
   tOpenGLShader main_geometry;
   tOpenGLShader global_lighting;
+  tOpenGLShader post;
 
   tOpenGLShader surface;
 

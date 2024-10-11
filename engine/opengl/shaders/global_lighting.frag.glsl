@@ -2,6 +2,7 @@
 
 uniform sampler2D in_normal_and_depth;
 uniform usampler2D in_color_and_material;
+uniform sampler2D in_temporal_data;
 uniform mat4 projection_matrix;
 uniform mat4 view_matrix;
 uniform mat4 inverse_projection_matrix;
@@ -16,6 +17,7 @@ uniform vec3 directional_light_direction;
 noperspective in vec2 fragUv;
 
 layout (location = 0) out vec4 out_color_and_depth;
+layout (location = 1) out vec4 out_temporal_data;
 
 /**
  * Reconstructs a fragment's world position from depth,
@@ -336,12 +338,53 @@ float GetSSAO(int total_samples, float depth, vec3 position, vec3 normal, float 
     }
   }
 
-  const float max_ssao = 0.7;
-  const float min_ssao = 0.0;
+  const float near_ssao = 0.1;
+  const float far_ssao = 0.6;
 
-  float ssao_intensity = mix(max_ssao, min_ssao, pow(depth, 50.0));
+  float ssao_intensity = mix(near_ssao, far_ssao, pow(depth, 30.0));
 
   return ssao / float(total_samples) * ssao_intensity;
+}
+
+float GetDenoisedSSAO(float ssao, float depth) {
+  #define USE_SPATIAL_DENOISING 1
+
+  // @todo use screen size
+  const vec2 texel_size = 1.0 / vec2(1920.0, 1080.0);
+  const float temporal_weight = 2.0;
+  const float spatial_spread = 1.0;
+
+  #if USE_SPATIAL_DENOISING
+    const vec2[] offsets = {
+      vec2(1.0, 0),
+      vec2(-1.0, 0),
+      vec2(0, 1.0),
+      vec2(0, -1.0)
+    };
+
+    float base_ssao = ssao;
+
+    for (int i = 0; i < 4; i++) {
+      vec2 offset = spatial_spread * offsets[i];
+      vec4 temporal_data = texture(in_temporal_data, fragUv + texel_size * offset);
+      float temporal_depth = temporal_data.w;
+      float depth_distance = abs(GetWorldDepth(depth, 500.0, 10000000.0) - GetWorldDepth(temporal_depth, 500.0, 10000000.0));
+
+      if (depth_distance < 100.0) {
+        ssao += temporal_data.x * temporal_weight;
+      } else {
+        ssao += texture(in_temporal_data, fragUv).x * temporal_weight;
+      }
+    }
+
+    return ssao / (temporal_weight * 4.0 + 1.0);
+  #else
+    vec4 temporal_data = texture(in_temporal_data, fragUv);
+
+    ssao += temporal_data.x * temporal_weight;
+
+    return ssao / (temporal_weight + 1.0);
+  #endif
 }
 
 void main() {
@@ -352,6 +395,7 @@ void main() {
     vec3 direction = normalize(position - camera_position);
 
     out_color_and_depth = vec4(GetSkyColor(direction), frag_normal_and_depth.w);
+    out_temporal_data = vec4(0, 0, 0, 1.0);
 
     return;
   }
@@ -399,7 +443,13 @@ void main() {
 
   float ssao = GetSSAO(8, frag_normal_and_depth.w, position, frag_normal_and_depth.xyz, fract(running_time));
 
+  ssao = GetDenoisedSSAO(ssao, frag_normal_and_depth.w);
+  ssao = clamp(ssao, 0.0, 1.0);
+
   out_color -= ssao;
 
+  // out_color = vec3(1) - ssao;
+
   out_color_and_depth = vec4(out_color, frag_normal_and_depth.w);
+  out_temporal_data = vec4(ssao, 0, 0, frag_normal_and_depth.w);
 }

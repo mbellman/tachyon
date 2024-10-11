@@ -38,27 +38,27 @@ static void Tachyon_CheckError(const std::string& message) {
 }
 
 // --------------------------------------
-static void Tachyon_SetShaderInt(GLint location, const int value) {
+static void SetShaderInt(GLint location, const int value) {
   glUniform1i(location, value);
 }
 
-static void Tachyon_SetShaderFloat(GLint location, const float value) {
+static void SetShaderFloat(GLint location, const float value) {
   glUniform1f(location, value);
 }
 
-static void Tachyon_SetShaderVec3f(GLint location, const tVec3f& vector) {
+static void SetShaderVec3f(GLint location, const tVec3f& vector) {
   glUniform3fv(location, 1, &vector.x);
 }
 
-static void Tachyon_SetShaderVec4f(GLint location, const tVec4f& vector) {
+static void SetShaderVec4f(GLint location, const tVec4f& vector) {
   glUniform4fv(location, 1, &vector.x);
 }
 
-static void Tachyon_SetShaderMat4f(GLint location, const tMat4f& matrix) {
+static void SetShaderMat4f(GLint location, const tMat4f& matrix) {
   glUniformMatrix4fv(location, 1, GL_FALSE, matrix.m);
 }
 
-static void Tachyon_SetShaderMat4f(GLuint location, const tMat4f& matrix) {
+static void SetShaderMat4f(GLuint location, const tMat4f& matrix) {
   glUniformMatrix4fv(location, 1, GL_FALSE, matrix.m);
 }
 // --------------------------------------
@@ -99,9 +99,9 @@ static void RenderSurface(Tachyon* tachyon, SDL_Surface* surface, uint32 x, uint
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   glUseProgram(shader.program);
-  Tachyon_SetShaderVec4f(locations.transform, { offsetX, offsetY, scaleX, scaleY });
-  Tachyon_SetShaderVec3f(locations.color, color);
-  Tachyon_SetShaderVec4f(locations.background, background);
+  SetShaderVec4f(locations.transform, { offsetX, offsetY, scaleX, scaleY });
+  SetShaderVec3f(locations.color, color);
+  SetShaderVec4f(locations.background, background);
 
   RenderScreenQuad(tachyon);
 }
@@ -259,8 +259,8 @@ static void RenderStaticGeometry(Tachyon* tachyon) {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
   glUseProgram(shader.program);
-  Tachyon_SetShaderMat4f(locations.mat_view_projection, ctx.view_projection_matrix);
-  Tachyon_SetShaderVec3f(locations.transform_origin, tachyon->scene.transform_origin);
+  SetShaderMat4f(locations.mat_view_projection, ctx.view_projection_matrix);
+  SetShaderVec3f(locations.transform_origin, tachyon->scene.transform_origin);
 
   glBindVertexArray(gl_mesh_pack.vao);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gl_mesh_pack.ebo);
@@ -321,6 +321,70 @@ static void RenderStaticGeometry(Tachyon* tachyon) {
   }
 }
 
+static void RenderGlobalLighting(Tachyon* tachyon) {
+  auto& renderer = get_renderer();
+  auto& scene = tachyon->scene;
+  auto& shader = renderer.shaders.global_lighting;
+  auto& locations = renderer.shaders.locations.global_lighting;
+  auto& ctx = renderer.ctx;
+
+  auto& previous_accumulation_buffer = renderer.current_frame % 2 == 0
+    ? renderer.accumulation_buffer_b
+    : renderer.accumulation_buffer_a;
+
+  auto& target_accumulation_buffer = renderer.current_frame % 2 == 0
+    ? renderer.accumulation_buffer_a
+    : renderer.accumulation_buffer_b;
+
+  renderer.g_buffer.read();
+  previous_accumulation_buffer.read();
+  target_accumulation_buffer.write();
+
+  // glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+  glViewport(0, 0, ctx.w, ctx.h);
+  glClear(GL_COLOR_BUFFER_BIT);
+
+  glUseProgram(shader.program);
+  SetShaderVec4f(locations.transform, { 0.f, 0.f, 1.f, 1.f });
+  SetShaderInt(locations.in_normal_and_depth, 0);
+  SetShaderInt(locations.in_color_and_material, 1);
+  SetShaderInt(locations.in_temporal_data, 3);
+  SetShaderMat4f(locations.projection_matrix, ctx.projection_matrix);
+  SetShaderMat4f(locations.view_matrix, ctx.view_matrix);
+  SetShaderMat4f(locations.inverse_projection_matrix, ctx.inverse_projection_matrix);
+  SetShaderMat4f(locations.inverse_view_matrix, ctx.inverse_view_matrix);
+  SetShaderVec3f(locations.camera_position, ctx.camera_position);
+  SetShaderFloat(locations.scene_time, scene.scene_time);
+  SetShaderFloat(locations.running_time, tachyon->running_time);
+  // @temporary
+  // @todo allow multiple directional lights
+  SetShaderVec3f(locations.directional_light_direction, scene.directional_light_direction);
+
+  RenderScreenQuad(tachyon);
+}
+
+static void RenderPost(Tachyon* tachyon) {
+  auto& renderer = get_renderer();
+  auto& shader = renderer.shaders.post;
+  auto& locations = renderer.shaders.locations.post;
+  auto& ctx = renderer.ctx;
+
+  auto& accumulation_buffer = renderer.current_frame % 2 == 0
+    ? renderer.accumulation_buffer_a
+    : renderer.accumulation_buffer_b;
+
+  accumulation_buffer.read();
+
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+  glViewport(0, 0, ctx.w, ctx.h);
+
+  glUseProgram(shader.program);
+  SetShaderVec4f(locations.transform, { 0.f, 0.f, 1.f, 1.f });
+  SetShaderInt(locations.in_color_and_depth, 2);
+
+  RenderScreenQuad(tachyon);
+}
+
 static void RenderGBufferView(Tachyon* tachyon) {
   auto& renderer = get_renderer();
   auto& shader = renderer.shaders.debug_view;
@@ -333,45 +397,43 @@ static void RenderGBufferView(Tachyon* tachyon) {
   glViewport(0, 0, ctx.w, ctx.h);
 
   glUseProgram(shader.program);
-  Tachyon_SetShaderVec4f(locations.transform, { 0.f, 0.f, 1.f, 1.f });
-  Tachyon_SetShaderInt(locations.in_normal_and_depth, 0);
-  Tachyon_SetShaderInt(locations.in_color_and_material, 1);
-  Tachyon_SetShaderMat4f(locations.inverse_projection_matrix, ctx.inverse_projection_matrix);
-  Tachyon_SetShaderMat4f(locations.inverse_view_matrix, ctx.inverse_view_matrix);
+  SetShaderVec4f(locations.transform, { 0.f, 0.f, 1.f, 1.f });
+  SetShaderInt(locations.in_normal_and_depth, 0);
+  SetShaderInt(locations.in_color_and_material, 1);
+  SetShaderMat4f(locations.inverse_projection_matrix, ctx.inverse_projection_matrix);
+  SetShaderMat4f(locations.inverse_view_matrix, ctx.inverse_view_matrix);
 
   RenderScreenQuad(tachyon);
 }
 
-static void RenderGlobalLighting(Tachyon* tachyon) {
+static void CreateRenderBuffers(Tachyon* tachyon) {
   auto& renderer = get_renderer();
-  auto& scene = tachyon->scene;
-  auto& shader = renderer.shaders.global_lighting;
-  auto& locations = renderer.shaders.locations.global_lighting;
-  auto& ctx = renderer.ctx;
+  auto& g_buffer = renderer.g_buffer;
+  auto& accumulation_buffer_a = renderer.accumulation_buffer_a;
+  auto& accumulation_buffer_b = renderer.accumulation_buffer_b;
 
-  renderer.g_buffer.read();
-  // renderer.accumulation_buffer.write();
+  int w, h;
 
-  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-  glViewport(0, 0, ctx.w, ctx.h);
-  // glClear(GL_COLOR_BUFFER_BIT);
+  SDL_GL_GetDrawableSize(tachyon->sdl_window, &w, &h);
 
-  glUseProgram(shader.program);
-  Tachyon_SetShaderVec4f(locations.transform, { 0.f, 0.f, 1.f, 1.f });
-  Tachyon_SetShaderInt(locations.in_normal_and_depth, 0);
-  Tachyon_SetShaderInt(locations.in_color_and_material, 1);
-  Tachyon_SetShaderMat4f(locations.projection_matrix, ctx.projection_matrix);
-  Tachyon_SetShaderMat4f(locations.view_matrix, ctx.view_matrix);
-  Tachyon_SetShaderMat4f(locations.inverse_projection_matrix, ctx.inverse_projection_matrix);
-  Tachyon_SetShaderMat4f(locations.inverse_view_matrix, ctx.inverse_view_matrix);
-  Tachyon_SetShaderVec3f(locations.camera_position, ctx.camera_position);
-  Tachyon_SetShaderFloat(locations.scene_time, scene.scene_time);
-  Tachyon_SetShaderFloat(locations.running_time, tachyon->running_time);
-  // @temporary
-  // @todo allow multiple directional lights
-  Tachyon_SetShaderVec3f(locations.directional_light_direction, scene.directional_light_direction);
+  g_buffer.init();
+  g_buffer.setSize(w, h);
+  g_buffer.addColorAttachment(ColorFormat::RGBA);
+  g_buffer.addColorAttachment(ColorFormat::RGBA8UI);
+  g_buffer.addDepthStencilAttachment();
+  g_buffer.bindColorAttachments();
 
-  RenderScreenQuad(tachyon);
+  accumulation_buffer_a.init();
+  accumulation_buffer_a.setSize(w, h);
+  accumulation_buffer_a.addColorAttachment(ColorFormat::RGBA, 2);
+  accumulation_buffer_a.addColorAttachment(ColorFormat::RGBA, 3);
+  accumulation_buffer_a.bindColorAttachments();
+
+  accumulation_buffer_b.init();
+  accumulation_buffer_b.setSize(w, h);
+  accumulation_buffer_b.addColorAttachment(ColorFormat::RGBA, 2);
+  accumulation_buffer_b.addColorAttachment(ColorFormat::RGBA, 3);
+  accumulation_buffer_b.bindColorAttachments();
 }
 
 void Tachyon_OpenGL_InitRenderer(Tachyon* tachyon) {
@@ -397,33 +459,14 @@ void Tachyon_OpenGL_InitRenderer(Tachyon* tachyon) {
   glEnable(GL_PROGRAM_POINT_SIZE);
   glFrontFace(GL_CCW);
 
+  tachyon->renderer = renderer;
+
   Tachyon_OpenGL_InitShaders(renderer->shaders);
 
-  // @todo InitBuffers()
+  // Initialize buffers
   {
     glGenBuffers(1, &renderer->indirect_buffer);
-
-    auto& g_buffer = renderer->g_buffer;
-    auto& accumulation_buffer = renderer->accumulation_buffer;
-
-    // @todo refactor
-    {
-      int w, h;
-
-      SDL_GL_GetDrawableSize(tachyon->sdl_window, &w, &h);
-
-      g_buffer.init();
-      g_buffer.setSize(w, h);
-      g_buffer.addColorAttachment(ColorFormat::RGBA);
-      g_buffer.addColorAttachment(ColorFormat::RGBA8UI);
-      g_buffer.addDepthStencilAttachment();
-      g_buffer.bindColorAttachments();
-
-      accumulation_buffer.init();
-      accumulation_buffer.setSize(w, h);
-      accumulation_buffer.addColorAttachment(ColorFormat::RGBA, 2);
-      accumulation_buffer.bindColorAttachments();
-    }
+    CreateRenderBuffers(tachyon);
   }
 
   // Set up screen quad texture binding
@@ -451,36 +494,16 @@ void Tachyon_OpenGL_InitRenderer(Tachyon* tachyon) {
     glBindBuffer(GL_ARRAY_BUFFER, renderer->mesh_pack.buffers[MATRIX_BUFFER]);
     glBufferData(GL_ARRAY_BUFFER, matrices.size() * sizeof(tMat4f), matrices.data(), GL_DYNAMIC_DRAW);
   }
-
-  tachyon->renderer = renderer;
 }
 
 void Tachyon_OpenGL_ResizeRenderer(Tachyon* tachyon) {
   auto& renderer = get_renderer();
-  auto& g_buffer = renderer.g_buffer;
-  auto& accumulation_buffer = renderer.accumulation_buffer;
 
-  g_buffer.destroy();
-  accumulation_buffer.destroy();
+  renderer.g_buffer.destroy();
+  renderer.accumulation_buffer_a.destroy();
+  renderer.accumulation_buffer_b.destroy();
 
-  // @todo refactor
-  {
-    int w, h;
-
-    SDL_GL_GetDrawableSize(tachyon->sdl_window, &w, &h);
-
-    g_buffer.init();
-    g_buffer.setSize(w, h);
-    g_buffer.addColorAttachment(ColorFormat::RGBA);
-    g_buffer.addColorAttachment(ColorFormat::RGBA8UI);
-    g_buffer.addDepthStencilAttachment();
-    g_buffer.bindColorAttachments();
-
-    accumulation_buffer.init();
-    accumulation_buffer.setSize(w, h);
-    accumulation_buffer.addColorAttachment(ColorFormat::RGBA, 2);
-    accumulation_buffer.bindColorAttachments();
-  }
+  CreateRenderBuffers(tachyon);
 }
 
 void Tachyon_OpenGL_RenderScene(Tachyon* tachyon) {
@@ -516,10 +539,8 @@ void Tachyon_OpenGL_RenderScene(Tachyon* tachyon) {
     RenderGBufferView(tachyon);
   } else {
     RenderGlobalLighting(tachyon);
+    RenderPost(tachyon);
   }
-
-  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-  glViewport(0, 0, ctx.w, ctx.h);
 
   // @todo dev mode only
   HandleDevModeInputs(tachyon);
@@ -536,6 +557,7 @@ void Tachyon_OpenGL_RenderScene(Tachyon* tachyon) {
 
   SDL_GL_SwapWindow(tachyon->sdl_window);
 
+  renderer.current_frame++;
   renderer.last_render_time_in_microseconds = Tachyon_GetMicroseconds() - start;
 }
 
