@@ -388,6 +388,18 @@ static void RenderPost(Tachyon* tachyon) {
   RenderScreenQuad(tachyon);
 }
 
+static void RenderUIElements(Tachyon* tachyon) {
+  for (auto& command : tachyon->ui_draw_commands) {
+    auto* surface = command.ui_element->surface;
+    auto half_w = surface->w >> 1;
+    auto half_h = surface->h >> 1;
+    auto x = (int)command.screen_x - half_w;
+    auto y = (int)command.screen_y - half_h;
+
+    RenderSurface(tachyon, surface, x, y, surface->w, surface->h, tVec3f(1.f), tVec4f(0.f));
+  }
+}
+
 static void RenderGBufferView(Tachyon* tachyon) {
   auto& renderer = get_renderer();
   auto& shader = renderer.shaders.debug_view;
@@ -437,6 +449,9 @@ static void CreateRenderBuffers(Tachyon* tachyon) {
   accumulation_buffer_b.addColorAttachment(ColorFormat::RGBA, 2);
   accumulation_buffer_b.addColorAttachment(ColorFormat::RGBA, 3);
   accumulation_buffer_b.bindColorAttachments();
+
+  tachyon->window_width = w;
+  tachyon->window_height = h;
 }
 
 void Tachyon_OpenGL_InitRenderer(Tachyon* tachyon) {
@@ -544,6 +559,8 @@ void Tachyon_OpenGL_RenderScene(Tachyon* tachyon) {
     RenderGlobalLighting(tachyon);
     RenderPost(tachyon);
   }
+
+  RenderUIElements(tachyon);
 
   // @todo dev mode only
   HandleDevModeInputs(tachyon);

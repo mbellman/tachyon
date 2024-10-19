@@ -130,8 +130,20 @@ struct tDevLabel {
   std::string message;
 };
 
+struct tUIElement {
+  SDL_Surface* surface = nullptr;
+};
+
+struct tUIDrawCommand {
+  const tUIElement* ui_element = nullptr;
+  uint16 screen_x = 0;
+  uint16 screen_y = 0;
+};
+
 struct Tachyon {
   SDL_Window* sdl_window = nullptr;
+  uint32 window_width;
+  uint32 window_height;
   TachyonRenderBackend render_backend = TachyonRenderBackend::OPENGL;
   void* renderer = nullptr;
   float running_time = 0.f;
@@ -139,6 +151,13 @@ struct Tachyon {
   bool is_window_focused = false;
 
   tMeshPack mesh_pack;
+
+  // @todo should these go into tMeshPack? use a global array per mesh pack?
+  std::vector<tObject> objects;
+  std::vector<uint32> surfaces;
+  std::vector<tMat4f> matrices;
+
+  std::vector<tUIDrawCommand> ui_draw_commands;
 
   uint64 held_key_state = 0;
   uint64 pressed_key_state = 0;
@@ -151,11 +170,6 @@ struct Tachyon {
   bool did_right_click_down = false;
   bool did_right_click_up = false;
   bool is_mouse_held_down = false;
-
-  // @todo should these go into tMeshPack? use a global array per mesh pack?
-  std::vector<tObject> objects;
-  std::vector<uint32> surfaces;
-  std::vector<tMat4f> matrices;
 
   struct Scene {
     tCamera camera;

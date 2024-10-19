@@ -7,6 +7,7 @@
 #include "engine/tachyon_input.h"
 #include "engine/tachyon_life_cycle.h"
 #include "engine/tachyon_timer.h"
+#include "engine/tachyon_ui.h"
 #include "engine/opengl/tachyon_opengl_renderer.h"
 
 static void HandleEvents(Tachyon* tachyon) {
@@ -120,6 +121,7 @@ void Tachyon_EndFrame(Tachyon* tachyon) {
   RenderScene(tachyon);
 
   Tachyon_ResetPerFrameInputState(tachyon);
+  Tachyon_ClearUIDrawCommands(tachyon);
   Tachyon_ProcessConsoleMessages();
 
   tachyon->last_frame_time_in_microseconds = Tachyon_GetMicroseconds() - tachyon->frame_start_time_in_microseconds;

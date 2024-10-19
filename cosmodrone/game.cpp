@@ -217,24 +217,38 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
   camera.position = state.ship_position - state.view_forward_direction * camera_radius + state.view_up_direction * 150.f;
 }
 
-static void HandleFlightOverlays(Tachyon* tachyon, State& state, const float dt) {
+// @todo move to UI
+static tUIElement* target_indicator = nullptr;
+
+// @todo move to UI
+static void HandleFlightIndicators(Tachyon* tachyon, State& state, const float dt) {
   auto& camera = tachyon->scene.camera;
 
   tMat4f view_matrix = (
     camera.rotation.toMatrix4f() *
-    tMat4f::translation(tachyon->scene.transform_origin - camera.position)
+    tMat4f::translation(camera.position * tVec3f(-1.f))
   );
 
   // @todo make fov/near/far customizable
   tMat4f projection_matrix = tMat4f::perspective(45.f, 500.f, 10000000.f);
 
   for (auto& object : objects(state.meshes.antenna_2)) {
-    auto local_position = view_matrix * object.position;
-    auto screen_position = (projection_matrix * local_position) / local_position.z;
-    auto screen_x = screen_position.x;
-    auto screen_y = screen_position.y;
+    auto camera_to_object = (object.position - camera.position).unit();
 
-    // @todo render target reticules
+    if (tVec3f::dot(camera_to_object, state.view_forward_direction) < 0.5f) {
+      continue;
+    }
+
+    tVec3f local_position = view_matrix * object.position;
+    tVec3f clip_position = (projection_matrix * local_position) / local_position.z;
+    clip_position.x *= 0.5f;
+    clip_position.x += 0.5f;
+    clip_position.y *= 0.5f;
+    clip_position.y += 0.5f;
+    auto screen_x = uint16(tachyon->window_width - clip_position.x * tachyon->window_width);
+    auto screen_y = uint16(clip_position.y * tachyon->window_height);
+
+    Tachyon_DrawUIElement(tachyon, target_indicator, screen_x, screen_y);
   }
 }
 
@@ -370,6 +384,11 @@ void Cosmodrone::StartGame(Tachyon* tachyon) {
   MeshLibrary::LoadMeshes(tachyon, state);
   WorldSetup::InitializeGameWorld(tachyon, state);
   Editor::InitializeEditor(tachyon, state);
+
+  // @todo UI::Initialize()
+  {
+    target_indicator = Tachyon_CreateUIElement("./cosmodrone/assets/ui/target.png");
+  }
 }
 
 void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
@@ -403,7 +422,7 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
   HandleFlightControls(tachyon, state, dt);
   HandleAutopilot(tachyon, state, dt);
   HandleFlightCamera(tachyon, state, dt);
-  HandleFlightOverlays(tachyon, state, dt);
+  HandleFlightIndicators(tachyon, state, dt);
   UpdateShip(tachyon, state, dt);
 
   WorldBehavior::UpdateWorld(tachyon, state, dt);

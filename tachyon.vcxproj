@@ -138,6 +138,7 @@
     <ClInclude Include="engine\tachyon_quaternion.h" />
     <ClInclude Include="engine\tachyon_timer.h" />
     <ClInclude Include="engine\tachyon_types.h" />
+    <ClInclude Include="engine\tachyon_ui.h" />
     <ClInclude Include="external\GLEW\include\eglew.h" />
     <ClInclude Include="external\GLEW\include\glew.h" />
     <ClInclude Include="external\GLEW\include\glxew.h" />
@@ -248,6 +249,7 @@
     <ClCompile Include="engine\tachyon_mesh_manager.cpp" />
     <ClCompile Include="engine\tachyon_quaternion.cpp" />
     <ClCompile Include="engine\tachyon_timer.cpp" />
+    <ClCompile Include="engine\tachyon_ui.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
