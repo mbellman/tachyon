@@ -21,6 +21,7 @@ struct tVec3f {
   tVec3f operator+(const tVec3f& v) const;
   tVec3f operator-(const tVec3f& v) const;
   tVec3f operator*(const tVec3f& v) const;
+  tVec3f operator/(const float f) const;
   void operator+=(const tVec3f& v);
   void operator-=(const tVec3f& v);
   void operator*=(const tVec3f& v);
@@ -52,6 +53,7 @@ struct tMat4f {
   float m[16] = { 0.f };
 
   tMat4f operator*(const tMat4f& matrix) const;
+  tVec3f operator*(const tVec3f& vector) const;
 
   static tMat4f perspective(float fov, float near, float far);
   static tMat4f scale(const tVec3f& scale);

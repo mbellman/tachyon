@@ -340,7 +340,7 @@ float GetSSAO(int total_samples, float depth, vec3 position, vec3 normal, float 
   }
 
   const float near_ssao = 0.1;
-  const float far_ssao = 0.6;
+  const float far_ssao = 0.4;
 
   float ssao_intensity = mix(near_ssao, far_ssao, pow(depth, 30.0));
   ssao_intensity = mix(ssao_intensity, 0.0, pow(depth, 1024.0));

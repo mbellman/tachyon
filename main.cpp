@@ -13,7 +13,7 @@ int main(int argc, char* argv[]) {
   Tachyon_UseRenderBackend(tachyon, TachyonRenderBackend::OPENGL);
 
   Tachyon_Loop({
-    Cosmodrone::RunGame(tachyon, dt);
+    Cosmodrone::UpdateGame(tachyon, dt);
   });
 
   Tachyon_Exit(tachyon);

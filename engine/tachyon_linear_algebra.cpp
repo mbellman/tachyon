@@ -31,6 +31,14 @@ tVec3f tVec3f::operator*(const tVec3f& v) const {
   };
 }
 
+tVec3f tVec3f::operator/(const float f) const {
+  return {
+    x / f,
+    y / f,
+    z / f
+  };
+}
+
 void tVec3f::operator+=(const tVec3f& v) {
   x += v.x;
   y += v.y;
@@ -110,6 +118,10 @@ tMat4f tMat4f::operator*(const tMat4f& matrix) const {
   }
 
   return product;
+}
+
+tVec3f tMat4f::operator*(const tVec3f& vector) const {
+  return transformVec3f(vector);
 }
 
 tMat4f tMat4f::inverse() const {

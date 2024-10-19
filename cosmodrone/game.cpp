@@ -217,6 +217,27 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
   camera.position = state.ship_position - state.view_forward_direction * camera_radius + state.view_up_direction * 150.f;
 }
 
+static void HandleFlightOverlays(Tachyon* tachyon, State& state, const float dt) {
+  auto& camera = tachyon->scene.camera;
+
+  tMat4f view_matrix = (
+    camera.rotation.toMatrix4f() *
+    tMat4f::translation(tachyon->scene.transform_origin - camera.position)
+  );
+
+  // @todo make fov/near/far customizable
+  tMat4f projection_matrix = tMat4f::perspective(45.f, 500.f, 10000000.f);
+
+  for (auto& object : objects(state.meshes.antenna_2)) {
+    auto local_position = view_matrix * object.position;
+    auto screen_position = (projection_matrix * local_position) / local_position.z;
+    auto screen_x = screen_position.x;
+    auto screen_y = screen_position.y;
+
+    // @todo render target reticules
+  }
+}
+
 static void UpdateShipVelocityBasis(State& state) {
   auto forward = state.ship_velocity.unit();
   auto up = UP_VECTOR;
@@ -351,7 +372,7 @@ void Cosmodrone::StartGame(Tachyon* tachyon) {
   Editor::InitializeEditor(tachyon, state);
 }
 
-void Cosmodrone::RunGame(Tachyon* tachyon, const float dt) {
+void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
   auto& camera = tachyon->scene.camera;
   auto& meshes = state.meshes;
 
@@ -382,6 +403,7 @@ void Cosmodrone::RunGame(Tachyon* tachyon, const float dt) {
   HandleFlightControls(tachyon, state, dt);
   HandleAutopilot(tachyon, state, dt);
   HandleFlightCamera(tachyon, state, dt);
+  HandleFlightOverlays(tachyon, state, dt);
   UpdateShip(tachyon, state, dt);
 
   WorldBehavior::UpdateWorld(tachyon, state, dt);
