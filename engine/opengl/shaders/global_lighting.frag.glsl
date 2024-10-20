@@ -339,7 +339,7 @@ float GetSSAO(int total_samples, float depth, vec3 position, vec3 normal, float 
     }
   }
 
-  const float near_ssao = 0.1;
+  const float near_ssao = 0.2;
   const float far_ssao = 0.4;
 
   float ssao_intensity = mix(near_ssao, far_ssao, pow(depth, 30.0));
@@ -447,7 +447,7 @@ void main() {
   out_color = vec3(1.0) - exp(-out_color * exposure);
   out_color = pow(out_color, vec3(1.0 / 2.2));
 
-  float ssao = GetSSAO(8, frag_normal_and_depth.w, position, frag_normal_and_depth.xyz, fract(running_time));
+  float ssao = GetSSAO(12, frag_normal_and_depth.w, position, frag_normal_and_depth.xyz, fract(running_time));
   vec3 previous_view_position = (previous_view_matrix * vec4(position, 1.0)).xyz;
   vec2 temporal_uv = GetScreenCoordinates(previous_view_position, projection_matrix);
 
