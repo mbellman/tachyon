@@ -64,6 +64,8 @@ static void UpdateViewDirections(Tachyon* tachyon, State& state) {
 }
 
 static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt) {
+  bool is_issuing_control_action = false;
+
   // Handle forward thrust
   if (is_key_held(tKey::W)) {
     state.ship_velocity -= state.ship_velocity_basis.forward * 800.f * dt;
@@ -71,6 +73,8 @@ static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt)
 
     state.ship_rotate_to_target_speed += 5.f * dt;
     state.flight_mode = FlightMode::MANUAL_CONTROL;
+
+    is_issuing_control_action = true;
   }
 
   // Enforce maximum ship speed
@@ -85,9 +89,13 @@ static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt)
   if (is_key_held(tKey::A)) {
     state.ship_rotate_to_target_speed += 5.f * dt;
     state.flight_mode = FlightMode::MANUAL_CONTROL;
+
+    is_issuing_control_action = true;
   } else if (is_key_held(tKey::D)) {
     state.ship_rotate_to_target_speed += 5.f * dt;
     state.flight_mode = FlightMode::MANUAL_CONTROL;
+
+    is_issuing_control_action = true;
   }
 
   // Handle roll maneuvers
@@ -95,10 +103,14 @@ static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt)
     state.camera_roll_speed += dt;
     state.ship_rotate_to_target_speed += 5.f * dt;
     state.flight_mode = FlightMode::MANUAL_CONTROL;
+
+    is_issuing_control_action = true;
   } else if (is_key_held(tKey::E)) {
     state.camera_roll_speed -= dt;
     state.ship_rotate_to_target_speed += 5.f * dt;
     state.flight_mode = FlightMode::MANUAL_CONTROL;
+
+    is_issuing_control_action = true;
   }
 
   if (state.camera_roll_speed > 3.f) state.camera_roll_speed = 3.f;
@@ -145,6 +157,16 @@ static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt)
 
   state.ship_rotate_to_target_speed *= (1.f - dt);
   state.ship_position += state.ship_velocity * dt;
+
+  // When panning the camera around while not issuing ship controls,
+  // rapidly slow the ship's natural rotation drift
+  if (
+    state.flight_mode == FlightMode::MANUAL_CONTROL &&
+    !is_issuing_control_action &&
+    (tachyon->mouse_delta_x != 0 || tachyon->mouse_delta_y != 0)
+  ) {
+    state.ship_rotate_to_target_speed *= (1.f - 5.f * dt);
+  }
 }
 
 static void HandleAutopilot(Tachyon* tachyon, State& state, const float dt) {
@@ -199,7 +221,11 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
   }
 
   if (state.flight_mode == FlightMode::AUTO_PROGRADE || state.flight_mode == FlightMode::AUTO_RETROGRADE) {
-    state.target_camera_rotation = GetOppositeRotation(objects(meshes.hull)[0].rotation);
+    state.target_camera_rotation = Quaternion::slerp(
+      state.target_camera_rotation,
+      GetOppositeRotation(objects(meshes.hull)[0].rotation),
+      10.f * dt
+    );
 
     camera_lerp_speed_factor = 3.f;
   }
