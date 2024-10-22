@@ -43,6 +43,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh(girder_3);
   load_mesh(girder_4);
   load_mesh(girder_5);
+  load_mesh(girder_6);
   load_mesh(track_1);
 
   // @todo refactor
@@ -213,6 +214,16 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
       .scale = tVec3f(8000.f),
       .color = tVec3f(1.f),
       .material = tVec4f(0.8f, 1.f, 0, 0)
+    }
+  });
+
+  placeable_mesh_assets.push_back({
+    .mesh_name = "girder_6",
+    .mesh_index = meshes.girder_6,
+    .defaults = {
+      .scale = tVec3f(20000.f),
+      .color = tVec3f(0.6, 0.1f, 0.1f),
+      .material = tVec4f(0.5f, 1.f, 0, 0)
     }
   });
 
