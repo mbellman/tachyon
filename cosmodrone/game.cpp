@@ -196,8 +196,6 @@ static void HandleAutopilot(Tachyon* tachyon, State& state, const float dt) {
 }
 
 static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
-  const static float BASE_SHIP_DISTANCE = 1000.f;
-
   auto& camera = tachyon->scene.camera;
   auto& meshes = state.meshes;
   float camera_lerp_speed_factor = 10.f;
@@ -211,10 +209,23 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
 
     state.target_camera_rotation *= turn;
 
-    if (is_key_held(tKey::A)) {
-      state.target_camera_rotation = state.target_camera_rotation * Quaternion::fromAxisAngle(state.ship_rotation_basis.up, -0.5f * dt);
-    } else if (is_key_held(tKey::D)) {
-      state.target_camera_rotation = state.target_camera_rotation * Quaternion::fromAxisAngle(state.ship_rotation_basis.up, 0.5f * dt);
+    // Swiveling
+    {
+      if (is_key_held(tKey::A)) {
+        state.target_camera_rotation = state.target_camera_rotation * Quaternion::fromAxisAngle(state.ship_rotation_basis.up, -1.f * dt);
+      } else if (is_key_held(tKey::D)) {
+        state.target_camera_rotation = state.target_camera_rotation * Quaternion::fromAxisAngle(state.ship_rotation_basis.up, 1.f * dt);
+      }
+    }
+
+    // Zoom in/out
+    {
+      if (did_wheel_down()) {
+        state.ship_camera_distance_target += 1000.f;
+      } else if (did_wheel_up()) {
+        state.ship_camera_distance_target -= 1000.f;
+        if (state.ship_camera_distance_target < 1000.f) state.ship_camera_distance_target = 1000.f;
+      }
     }
 
     state.target_camera_rotation = state.target_camera_rotation.unit();
@@ -237,8 +248,10 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
 
   UpdateViewDirections(tachyon, state);
 
+  state.ship_camera_distance = Lerpf(state.ship_camera_distance, state.ship_camera_distance_target, 10.f * dt);
+
   float ship_speed = state.ship_velocity.magnitude();
-  float camera_radius = BASE_SHIP_DISTANCE + 500.f * (ship_speed / (ship_speed + 5000.f));
+  float camera_radius = state.ship_camera_distance + 500.f * (ship_speed / (ship_speed + 5000.f));
 
   camera.position = state.ship_position - state.view_forward_direction * camera_radius + state.view_up_direction * 150.f;
 }
