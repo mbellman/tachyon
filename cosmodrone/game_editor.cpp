@@ -692,6 +692,20 @@ static void HandleGuidelines(Tachyon* tachyon, State& state) {
   }
 }
 
+static void UseGeneratedObjectPlaceholders(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
+  // Disabled generated objects
+  objects(meshes.girder_6_core).disabled = true;
+  objects(meshes.girder_6_frame).disabled = true;
+  objects(meshes.antenna_2_frame).disabled = true;
+  objects(meshes.antenna_2_receivers).disabled = true;
+
+  // Enable placeholders
+  objects(meshes.girder_6).disabled = false;
+  objects(meshes.antenna_2).disabled = false;
+}
+
 static void ResetInitialObjects(Tachyon* tachyon) {
   for (auto& record : tachyon->mesh_pack.mesh_records) {
     for (auto& initial : record.group.initial_objects) {
@@ -740,6 +754,7 @@ void Editor::EnableEditor(Tachyon* tachyon, State& state) {
 
   objects(state.meshes.editor_guideline).disabled = false;
 
+  UseGeneratedObjectPlaceholders(tachyon, state);
   ResetInitialObjects(tachyon);
 
   tachyon->show_developer_tools = true;
@@ -766,6 +781,7 @@ void Editor::DisableEditor(Tachyon* tachyon, State& state) {
   objects(state.meshes.editor_scale).disabled = true;
 
   WorldSetup::StoreInitialObjects(tachyon, state);
+  WorldSetup::RebuildGeneratedObjects(tachyon, state);
 
   state.is_editor_active = false;
 }

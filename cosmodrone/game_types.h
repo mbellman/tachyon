@@ -11,7 +11,7 @@ namespace Cosmodrone {
       thrusters,
       trim,
 
-      // station parts
+      // Station parts
       antenna_1,
       antenna_2,
       module_1,
@@ -32,6 +32,12 @@ namespace Cosmodrone {
       girder_5,
       girder_6,
       track_1,
+
+      // Generated station parts
+      antenna_2_frame,
+      antenna_2_receivers,
+      girder_6_core,
+      girder_6_frame,
 
       // Background elements
       planet,

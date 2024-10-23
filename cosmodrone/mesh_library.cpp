@@ -63,7 +63,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     .defaults = {
       .scale = tVec3f(8000.f),
       .color = tVec3f(1.f),
-      .material = tVec4f(0.8f, 1.f, 0, 0)
+      .material = tVec4f(1.f, 1.f, 0, 0)
     }
   });
 
@@ -238,6 +238,17 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   });
 }
 
+static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
+  #define load_mesh(__name) meshes.__name = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/generated/" #__name ".obj"), 1000)
+
+  auto& meshes = state.meshes;
+
+  load_mesh(girder_6_core);
+  load_mesh(girder_6_frame);
+  load_mesh(antenna_2_frame);
+  load_mesh(antenna_2_receivers);
+}
+
 static void LoadBackgroundMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
@@ -274,6 +285,7 @@ static void LoadDebugMeshes(Tachyon* tachyon, State& state) {
 void MeshLibrary::LoadMeshes(Tachyon* tachyon, State& state) {
   LoadShipPartMeshes(tachyon, state);
   LoadPlaceableMeshes(tachyon, state);
+  LoadGeneratedMeshes(tachyon, state);
   LoadBackgroundMeshes(tachyon, state);
   LoadDebugMeshes(tachyon, state);
 

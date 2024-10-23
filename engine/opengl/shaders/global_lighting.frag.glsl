@@ -429,7 +429,7 @@ void main() {
   vec3 out_color = GetDirectionalLightRadiance(directional_light_direction, vec3(1.0), albedo, position, N, V, NdotV, roughness, metalness, clearcoat, subsurface);
 
   // @todo make customizable
-  out_color += GetDirectionalLightRadiance(vec3(0, 1, 0), vec3(0.2, 0.5, 1.0) * 0.2, albedo, position, N, V, NdotV, 0.8, metalness, 0.0, 0.0);
+  out_color += GetDirectionalLightRadiance(vec3(0, 1, 0), vec3(0.2, 0.5, 1.0) * 0.4, albedo, position, N, V, NdotV, 0.8, metalness, 0.0, 0.0);
 
   // @todo cleanup
   vec3 L = normalize(directional_light_direction);

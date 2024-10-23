@@ -451,6 +451,12 @@ tObject& Tachyon_CreateObject(Tachyon* tachyon, uint16 mesh_index) {
   group.id_to_index[object.object_id] = index;
   group.buffered = false;
 
+  object.position = tVec3f(0.f);
+  object.rotation = Quaternion(1.f, 0, 0, 0);
+  object.scale = tVec3f(1.f);
+  object.color = tVec3f(1.f);
+  object.material = tVec4f(0.6f, 0, 0, 0);
+
   return object;
 }
 
@@ -493,6 +499,13 @@ void Tachyon_RemoveObject(Tachyon* tachyon, tObject& object) {
   }
 
   group.buffered = false;
+}
+
+void Tachyon_RemoveAllObjects(Tachyon* tachyon, uint16 mesh_index) {
+  auto& group = tachyon->mesh_pack.mesh_records[mesh_index].group;
+
+  group.total_active = 0;
+  group.total_visible = 0;
 }
 
 void Tachyon_CommitObject(Tachyon* tachyon, const tObject& object) {

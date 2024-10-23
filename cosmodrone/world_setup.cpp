@@ -194,6 +194,7 @@ void WorldSetup::InitializeGameWorld(Tachyon* tachyon, State& state) {
   CreateEditorGuidelines(tachyon, state);
 
   StoreInitialObjects(tachyon, state);
+  RebuildGeneratedObjects(tachyon, state);
 }
 
 void WorldSetup::StoreInitialObjects(Tachyon* tachyon, State& state) {
@@ -205,4 +206,66 @@ void WorldSetup::StoreInitialObjects(Tachyon* tachyon, State& state) {
     };\
 
   store(state.meshes.station_torus_1);
+}
+
+void WorldSetup::RebuildGeneratedObjects(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
+  // antenna_2
+  {
+    remove_all(meshes.antenna_2_frame);
+    remove_all(meshes.antenna_2_receivers);
+
+    for (auto& antenna : objects(meshes.antenna_2)) {
+      auto& frame = create(meshes.antenna_2_frame);
+      auto& receivers = create(meshes.antenna_2_receivers);
+
+      frame.position = receivers.position = antenna.position;
+      frame.scale = receivers.scale = antenna.scale;
+      frame.rotation = receivers.rotation = antenna.rotation;
+
+      frame.color = antenna.color;
+      frame.material = antenna.material;
+
+      receivers.color = tVec3f(1.f);
+      receivers.material = tVec4f(0.9f, 0, 0, 0.2f);
+
+      commit(frame);
+      commit(receivers);
+    }
+
+    objects(meshes.antenna_2).disabled = true;
+
+    objects(meshes.antenna_2_frame).disabled = false;
+    objects(meshes.antenna_2_receivers).disabled = false;
+  }
+
+  // girder_6
+  {
+    remove_all(meshes.girder_6_core);
+    remove_all(meshes.girder_6_frame);
+
+    for (auto& girder : objects(meshes.girder_6)) {
+      auto& core = create(meshes.girder_6_core);
+      auto& frame = create(meshes.girder_6_frame);
+
+      core.position = frame.position = girder.position;
+      core.scale = frame.scale = girder.scale;
+      core.rotation = frame.rotation = girder.rotation;
+
+      core.color = girder.color;
+      core.material = girder.material;
+
+      frame.color = tVec3f(1.f);
+      frame.material = tVec4f(0.4f, 1.f, 0, 0);
+
+      commit(core);
+      commit(frame);
+    }
+
+    objects(meshes.girder_6).disabled = true;
+
+    objects(meshes.girder_6_core).disabled = false;
+    objects(meshes.girder_6_frame).disabled = false;
+  }
 }
