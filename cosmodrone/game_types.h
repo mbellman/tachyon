@@ -21,6 +21,7 @@ namespace Cosmodrone {
       silo_2,
       silo_3,
       silo_4,
+      silo_5,
       torus_1,
       station_torus_1,
       station_base,
