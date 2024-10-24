@@ -208,6 +208,7 @@ void WorldSetup::StoreInitialObjects(Tachyon* tachyon, State& state) {
   store(state.meshes.station_torus_1);
 }
 
+// @todo refactor
 void WorldSetup::RebuildGeneratedObjects(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
@@ -267,5 +268,34 @@ void WorldSetup::RebuildGeneratedObjects(Tachyon* tachyon, State& state) {
 
     objects(meshes.girder_6_core).disabled = false;
     objects(meshes.girder_6_frame).disabled = false;
+  }
+
+  // module_2
+  {
+    remove_all(meshes.module_2_core);
+    remove_all(meshes.module_2_frame);
+
+    for (auto& module : objects(meshes.module_2)) {
+      auto& core = create(meshes.module_2_core);
+      auto& frame = create(meshes.module_2_frame);
+
+      core.position = frame.position = module.position;
+      core.scale = frame.scale = module.scale;
+      core.rotation = frame.rotation = module.rotation;
+
+      core.color = module.color;
+      core.material = module.material;
+
+      frame.color = tVec3f(1.f);
+      frame.material = tVec4f(0.4f, 1.f, 0, 0);
+
+      commit(core);
+      commit(frame);
+    }
+
+    objects(meshes.module_2).disabled = true;
+
+    objects(meshes.module_2_core).disabled = false;
+    objects(meshes.module_2_frame).disabled = false;
   }
 }

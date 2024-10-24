@@ -15,6 +15,7 @@ namespace Cosmodrone {
       antenna_1,
       antenna_2,
       module_1,
+      module_2,
       habitation_1,
       habitation_2,
       silo_2,
@@ -38,6 +39,8 @@ namespace Cosmodrone {
       antenna_2_receivers,
       girder_6_core,
       girder_6_frame,
+      module_2_core,
+      module_2_frame,
 
       // Background elements
       planet,

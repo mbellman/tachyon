@@ -693,17 +693,23 @@ static void HandleGuidelines(Tachyon* tachyon, State& state) {
 }
 
 static void UseGeneratedObjectPlaceholders(Tachyon* tachyon, State& state) {
+  #define enable_mesh(name) objects(meshes.name).disabled = false
+  #define disable_mesh(name) objects(meshes.name).disabled = true
+
   auto& meshes = state.meshes;
 
   // Disabled generated objects
-  objects(meshes.girder_6_core).disabled = true;
-  objects(meshes.girder_6_frame).disabled = true;
-  objects(meshes.antenna_2_frame).disabled = true;
-  objects(meshes.antenna_2_receivers).disabled = true;
+  disable_mesh(antenna_2_frame);
+  disable_mesh(antenna_2_receivers);
+  disable_mesh(girder_6_core);
+  disable_mesh(girder_6_frame);
+  disable_mesh(module_2_core);
+  disable_mesh(module_2_frame);
 
   // Enable placeholders
-  objects(meshes.girder_6).disabled = false;
-  objects(meshes.antenna_2).disabled = false;
+  enable_mesh(antenna_2);
+  enable_mesh(girder_6);
+  enable_mesh(module_2);
 }
 
 static void ResetInitialObjects(Tachyon* tachyon) {

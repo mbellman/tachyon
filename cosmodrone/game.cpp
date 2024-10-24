@@ -269,7 +269,7 @@ static void HandleFlightIndicators(Tachyon* tachyon, State& state, const float d
   );
 
   // @todo make fov/near/far customizable
-  tMat4f projection_matrix = tMat4f::perspective(45.f, 500.f, 10000000.f);
+  tMat4f projection_matrix = tMat4f::perspective(camera.fov, 500.f, 10000000.f);
 
   for (auto& object : objects(state.meshes.antenna_2)) {
     auto camera_to_object = (object.position - camera.position).unit();
