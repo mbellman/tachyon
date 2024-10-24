@@ -33,6 +33,9 @@ struct EditorState {
   bool is_object_selected = false;
   ActionType action_type = ActionType::POSITION;
   tObject selected_object;
+
+  bool is_high_speed_camera_mode = false;
+  float last_pressed_space_time = 0.f;
 } editor;
 
 static const MeshAsset& GetSelectedObjectPickerMeshAsset() {
@@ -174,18 +177,21 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
 
   // Handle WASD controls
   {
-    const float speed = is_key_held(tKey::SPACE) ? 50000.f : 2000.f;
+    const float move_speed =
+      editor.is_high_speed_camera_mode ? 300000.f :
+      is_key_held(tKey::SPACE) ? 50000.f :
+      2000.f;
 
     if (is_key_held(tKey::W)) {
-      camera.position += camera.orientation.getDirection() * dt * speed;
+      camera.position += camera.orientation.getDirection() * dt * move_speed;
     } else if (is_key_held(tKey::S)) {
-      camera.position += camera.orientation.getDirection() * -dt * speed;
+      camera.position += camera.orientation.getDirection() * -dt * move_speed;
     }
 
     if (is_key_held(tKey::A)) {
-      camera.position += camera.orientation.getLeftDirection() * dt * speed;
+      camera.position += camera.orientation.getLeftDirection() * dt * move_speed;
     } else if (is_key_held(tKey::D)) {
-      camera.position += camera.orientation.getRightDirection() * dt * speed;
+      camera.position += camera.orientation.getRightDirection() * dt * move_speed;
     }
   }
 
@@ -513,18 +519,21 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
   }
 
   if (!editor.is_object_selected && is_key_held(tKey::ARROW_LEFT)) {
+    // Fast-rewind time
     state.current_game_time -= 500.f * dt;
 
     WorldBehavior::UpdateWorld(tachyon, state, 0.f);
   }
 
   if (!editor.is_object_selected && is_key_held(tKey::ARROW_RIGHT)) {
+    // Fast-forward time
     state.current_game_time += 500.f * dt;
 
     WorldBehavior::UpdateWorld(tachyon, state, 0.f);
   }
 
   if (!editor.is_object_selected && did_press_key(tKey::R)) {
+    // Respawn
     // @todo factor
     auto& camera = tachyon->scene.camera;
 
@@ -548,11 +557,28 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
   }
 
   if (did_press_key(tKey::C)) {
+    // Toggle global/local transformations
     editor.use_modified_action = !editor.use_modified_action;
   }
 
   if (did_press_key(tKey::G)) {
+    // Toggle guidelines
     objects(state.meshes.editor_guideline).disabled = !objects(state.meshes.editor_guideline).disabled;
+  }
+
+  // Active high-speed camera movement with SPACE+SPACE
+  {
+    if (did_press_key(tKey::SPACE)) {
+      if (tachyon->running_time - editor.last_pressed_space_time < 0.2f) {
+        editor.is_high_speed_camera_mode = true;
+      }
+
+      editor.last_pressed_space_time = tachyon->running_time;
+    }
+
+    if (!is_key_held(tKey::SPACE)) {
+      editor.is_high_speed_camera_mode = false;
+    }
   }
 }
 

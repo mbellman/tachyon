@@ -27,6 +27,7 @@ namespace Cosmodrone {
       station_torus_1,
       station_base,
       spire_fortress,
+      gate_tower_1,
       solar_panel_1,
       solar_panel_2,
       girder_1,
