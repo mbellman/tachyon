@@ -437,8 +437,9 @@ static void MaybeSelectObject(Tachyon* tachyon) {
       auto camera_to_object = object.position - camera.position;
       auto object_dot = tVec3f::dot(forward, camera_to_object.unit());
       auto distance = camera_to_object.magnitude();
+      auto scale_limit = std::clamp(object.scale.x * 2.f, 50000.f, 1000000.f);
 
-      if (distance > 50000.f || object_dot < 0.6f) continue;
+      if (distance > scale_limit || object_dot < 0.6f) continue;
 
       auto score = (100.f * powf(object_dot, 20.f)) / distance;
 

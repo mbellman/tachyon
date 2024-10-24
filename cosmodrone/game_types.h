@@ -14,6 +14,7 @@ namespace Cosmodrone {
       // Station parts
       antenna_1,
       antenna_2,
+      antenna_3,
       module_1,
       module_2,
       habitation_1,
@@ -25,6 +26,7 @@ namespace Cosmodrone {
       torus_1,
       station_torus_1,
       station_base,
+      spire_fortress,
       solar_panel_1,
       solar_panel_2,
       girder_1,

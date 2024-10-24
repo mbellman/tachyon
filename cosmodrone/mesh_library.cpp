@@ -27,6 +27,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
 
   load_mesh(antenna_1);
   load_mesh(antenna_2);
+  load_mesh(antenna_3);
   load_mesh(module_1);
   load_mesh(module_2);
   load_mesh(habitation_1);
@@ -38,6 +39,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh(torus_1);
   load_mesh(station_torus_1);
   load_mesh(station_base);
+  load_mesh(spire_fortress);
   load_mesh(solar_panel_1);
   load_mesh(solar_panel_2);
   load_mesh(girder_1);
@@ -66,6 +68,16 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
       .scale = tVec3f(8000.f),
       .color = tVec3f(1.f),
       .material = tVec4f(1.f, 1.f, 0, 0)
+    }
+  });
+
+  placeable_mesh_assets.push_back({
+    .mesh_name = "antenna_3",
+    .mesh_index = meshes.antenna_3,
+    .defaults = {
+      .scale = tVec3f(4000.f),
+      .color = tVec3f(1.f),
+      .material = tVec4f(0.6f, 0, 0.1f, 0.3f)
     }
   });
 
@@ -170,7 +182,17 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     .defaults = {
       .scale = tVec3f(80000.f),
       .color = tVec3f(1.f),
-      .material = tVec4f(1.f, 0, 0.f, 0.2f)
+      .material = tVec4f(1.f, 0, 0, 0.2f)
+    }
+  });
+
+  placeable_mesh_assets.push_back({
+    .mesh_name = "spire_fortress",
+    .mesh_index = meshes.spire_fortress,
+    .defaults = {
+      .scale = tVec3f(400000.f),
+      .color = tVec3f(1.f),
+      .material = tVec4f(1.f, 1.f, 0, 0)
     }
   });
 
