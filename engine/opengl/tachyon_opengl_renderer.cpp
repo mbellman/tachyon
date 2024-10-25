@@ -73,6 +73,91 @@ static void SetShaderMat4f(GLuint location, const tMat4f& matrix) {
   glUniformMatrix4fv(location, 1, GL_FALSE, matrix.m);
 }
 // --------------------------------------
+// { near, far }
+const static float cascade_depth_ranges[4][2] = {
+  { 500.0f, 10000.0f },
+  { 10000.0f, 50000.0f },
+  { 50000.0f, 200000.0f },
+  { 200000.f, 1000000.f }
+};
+
+/**
+ * Adapted from https://alextardif.com/shadowmapping.html
+ */
+tMat4f CreateCascadedLightMatrix(uint8 cascade, const tVec3f& light_direction, const tCamera& camera) {
+  // Determine the near and far ranges of the cascade volume
+  float near = cascade_depth_ranges[cascade][0];
+  float far = cascade_depth_ranges[cascade][1];
+
+  // Define clip space camera frustum
+  tVec3f corners[] = {
+    tVec3f(-1.0f, 1.0f, -1.0f),   // Near plane, top left
+    tVec3f(1.0f, 1.0f, -1.0f),    // Near plane, top right
+    tVec3f(-1.0f, -1.0f, -1.0f),  // Near plane, bottom left
+    tVec3f(1.0f, -1.0f, -1.0f),   // Near plane, bottom right
+
+    tVec3f(-1.0f, 1.0f, 1.0f),    // Far plane, top left
+    tVec3f(1.0f, 1.0f, 1.0f),     // Far plane, top right
+    tVec3f(-1.0f, -1.0f, 1.0f),   // Far plane, bottom left
+    tVec3f(1.0f, -1.0f, 1.0f)     // Far plane, bottom right
+  };
+
+  // Transform clip space camera frustum into world space
+  tMat4f camera_view = (
+    camera.rotation.toMatrix4f() *
+    tMat4f::translation(camera.position.invert())
+  );
+
+  tMat4f camera_projection = tMat4f::perspective(camera.fov, near, far);
+  tMat4f camera_view_projection = camera_projection * camera_view;
+  tMat4f inverse_camera_view_projection = camera_view_projection.inverse();
+
+  for (uint32 i = 0; i < 8; i++) {
+    corners[i] = (inverse_camera_view_projection * tVec4f(corners[i], 1.f)).homogenize();
+  }
+
+  // Calculate world space frustum center/centroid
+  tVec3f frustum_center;
+
+  for (uint32 i = 0; i < 8; i++) {
+    frustum_center += corners[i];
+  }
+
+  frustum_center /= 8.0f;
+
+  // Calculate the radius of a sphere encapsulating the frustum
+  float radius = 0.0f;
+
+  for (uint32 i = 0; i < 8; i++) {
+    radius = std::max(radius, (frustum_center - corners[i]).magnitude());
+  }
+
+  // Calculate the ideal frustum center, 'snapped' to the shadow map texel
+  // grid to avoid warbling and other distortions when moving the camera
+  float texels_per_unit = 2048.f / (radius * 2.f);
+
+  // Determine the top (up) vector for the lookAt matrix
+  bool is_vertical_light = light_direction == tVec3f(0, 1.f, 0) || light_direction == tVec3f(0, -1.f, 0);
+  tVec3f up_vector = is_vertical_light ? tVec3f(0, 0, 1.f) : tVec3f(0, 1.f, 0);
+
+  tMat4f texel_look_at_matrix = tMat4f::lookAt(tVec3f(0.0f), light_direction.invert(), up_vector);
+  tMat4f texel_scale_matrix = tMat4f::scale(texels_per_unit);
+  tMat4f texel_matrix = texel_scale_matrix * texel_look_at_matrix;
+
+  // Align the frustum center in texel space, and then
+  // restore that to its world space coordinates
+  frustum_center = (texel_matrix * tVec4f(frustum_center, 1.f)).homogenize();
+  frustum_center.x = floorf(frustum_center.x);
+  frustum_center.y = floorf(frustum_center.y);
+  frustum_center = (texel_matrix.inverse() * tVec4f(frustum_center, 1.f)).homogenize();
+
+  // Compute final light view matrix for rendering the shadow map
+  tMat4f projection_matrix = tMat4f::orthographic(radius, -radius, -radius, radius, -radius - 20000.0f, radius);
+  tMat4f view_matrix = tMat4f::lookAt(frustum_center, light_direction.invert(), up_vector);
+
+  return (projection_matrix * view_matrix).transpose();
+}
+// --------------------------------------
 
 static void RenderScreenQuad(Tachyon* tachyon) {
   auto& renderer = get_renderer();
@@ -347,19 +432,27 @@ static void RenderShadowMaps(Tachyon* tachyon) {
   auto& ctx = renderer.ctx;
   auto& gl_mesh_pack = renderer.mesh_pack;
 
+  // @temporary
+  // @todo allow multiple directional lights
+  auto& directional_light_direction = tachyon->scene.directional_light_direction;
+
   glBindVertexArray(gl_mesh_pack.vao);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gl_mesh_pack.ebo);
 
+  renderer.directional_shadow_map.write();
+
   // Directional shadow map
   for (uint8 attachment = DIRECTIONAL_SHADOW_MAP_CASCADE_1; attachment <= DIRECTIONAL_SHADOW_MAP_CASCADE_4; attachment++) {
-    renderer.directional_shadow_map.writeToAttachment(attachment);
+    auto cascade_index = attachment - DIRECTIONAL_SHADOW_MAP_CASCADE_1;
+    auto light_matrix = CreateCascadedLightMatrix(cascade_index, directional_light_direction, camera);
 
+    renderer.directional_shadow_map.writeToAttachment(cascade_index);
+
+    glClearColor(1.f, 1.f, 1.f, 1.f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    tMat4f light_matrix;
-
     glUseProgram(shader.program);
-    SetShaderMat4f(locations.view_projection_matrix, light_matrix);
+    SetShaderMat4f(locations.light_matrix, light_matrix);
     SetShaderVec3f(locations.transform_origin, tachyon->scene.transform_origin);
 
     // @todo avoid allocating + deleting each frame
@@ -383,13 +476,6 @@ static void RenderShadowMaps(Tachyon* tachyon) {
       command.baseVertex = record.vertex_start;
 
       commands.push_back(command);
-
-      // @todo dev mode only
-      {
-        renderer.total_triangles += command.count * command.instanceCount;
-        renderer.total_vertices += (record.vertex_end - record.vertex_start) * command.instanceCount;
-        renderer.total_meshes_drawn++;
-      }
     }
 
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, renderer.indirect_buffer);
@@ -407,9 +493,14 @@ static void RenderShadowMaps(Tachyon* tachyon) {
 static void RenderGlobalLighting(Tachyon* tachyon) {
   auto& renderer = get_renderer();
   auto& scene = tachyon->scene;
+  auto& camera = scene.camera;
   auto& shader = renderer.shaders.global_lighting;
   auto& locations = renderer.shaders.locations.global_lighting;
   auto& ctx = renderer.ctx;
+
+  // @temporary
+  // @todo allow multiple directional lights
+  auto& directional_light_direction = tachyon->scene.directional_light_direction;
 
   auto& previous_accumulation_buffer = renderer.current_frame % 2 == 0
     ? renderer.accumulation_buffer_b
@@ -421,6 +512,7 @@ static void RenderGlobalLighting(Tachyon* tachyon) {
 
   renderer.g_buffer.read();
   previous_accumulation_buffer.read();
+  renderer.directional_shadow_map.read();
   target_accumulation_buffer.write();
 
   glViewport(0, 0, ctx.w, ctx.h);
@@ -431,6 +523,14 @@ static void RenderGlobalLighting(Tachyon* tachyon) {
   SetShaderInt(locations.in_normal_and_depth, G_BUFFER_NORMALS_AND_DEPTH);
   SetShaderInt(locations.in_color_and_material, G_BUFFER_COLOR_AND_MATERIAL);
   SetShaderInt(locations.in_temporal_data, ACCUMULATION_TEMPORAL_DATA);
+  SetShaderInt(locations.in_shadow_map_cascade_1, DIRECTIONAL_SHADOW_MAP_CASCADE_1);
+  SetShaderInt(locations.in_shadow_map_cascade_2, DIRECTIONAL_SHADOW_MAP_CASCADE_2);
+  SetShaderInt(locations.in_shadow_map_cascade_3, DIRECTIONAL_SHADOW_MAP_CASCADE_3);
+  SetShaderInt(locations.in_shadow_map_cascade_4, DIRECTIONAL_SHADOW_MAP_CASCADE_4);
+  SetShaderMat4f(locations.light_matrix_cascade_1, CreateCascadedLightMatrix(0, directional_light_direction, camera));
+  SetShaderMat4f(locations.light_matrix_cascade_2, CreateCascadedLightMatrix(1, directional_light_direction, camera));
+  SetShaderMat4f(locations.light_matrix_cascade_3, CreateCascadedLightMatrix(2, directional_light_direction, camera));
+  SetShaderMat4f(locations.light_matrix_cascade_4, CreateCascadedLightMatrix(3, directional_light_direction, camera));
   SetShaderMat4f(locations.projection_matrix, ctx.projection_matrix);
   SetShaderMat4f(locations.view_matrix, ctx.view_matrix);
   SetShaderMat4f(locations.previous_view_matrix, ctx.previous_view_matrix);
@@ -638,7 +738,7 @@ void Tachyon_OpenGL_RenderScene(Tachyon* tachyon) {
 
   UpdateRendererContext(tachyon);
   RenderStaticGeometry(tachyon);
-  // RenderShadowMaps(tachyon);
+  RenderShadowMaps(tachyon);
 
   // The next steps in the pipeline render quads in screen space,
   // so we don't need to do any back-face culling or depth testing

@@ -3,6 +3,16 @@
 uniform sampler2D in_normal_and_depth;
 uniform usampler2D in_color_and_material;
 uniform sampler2D in_temporal_data;
+
+uniform sampler2D in_shadow_map_cascade_1;
+uniform sampler2D in_shadow_map_cascade_2;
+uniform sampler2D in_shadow_map_cascade_3;
+uniform sampler2D in_shadow_map_cascade_4;
+uniform mat4 light_matrix_cascade_1;
+uniform mat4 light_matrix_cascade_2;
+uniform mat4 light_matrix_cascade_3;
+uniform mat4 light_matrix_cascade_4;
+
 uniform mat4 projection_matrix;
 uniform mat4 view_matrix;
 uniform mat4 previous_view_matrix;
@@ -19,6 +29,50 @@ noperspective in vec2 fragUv;
 
 layout (location = 0) out vec4 out_color_and_depth;
 layout (location = 1) out vec4 out_temporal_data;
+
+/**
+ * Returns a value within the range -1.0 - 1.0, constant
+ * in screen space, acting as a noise filter.
+ */
+float noise(float seed) {
+  return 2.0 * (fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * seed * 43758.545312) - 0.5);
+}
+
+/**
+ * Returns the 2D screen coordinates, normalized to the range
+ * [0.0, 1.0], corresponding to a point in view space.
+ */
+vec2 GetScreenCoordinates(vec3 view_position, mat4 projection_matrix) {
+  vec4 projection = projection_matrix * vec4(view_position, 1.0);
+  vec3 clip = projection.xyz / projection.w;
+
+  return clip.xy * 0.5 + 0.5;
+}
+
+/**
+ * Maps a nonlinear [0, 1] depth value to a linearized
+ * depth between the near and far planes.
+ */
+float GetWorldDepth(float depth, float near, float far) {
+  float clip_depth = 2.0 * depth - 1.0;
+
+  return 2.0 * near * far / (far + near - clip_depth * (far - near));
+}
+
+/**
+ * Converts a nonlinear [0, 1] depth value to a linearized
+ * depth between 0 and 1.
+ */
+float GetLinearDepth(float depth, float near, float far) {
+  return 2.0 * near / (far + near - depth * (far - near));
+}
+
+/**
+ * Returns a value clamped between 0 and 1.
+ */
+float saturate(float value) {
+  return clamp(value, 0.0, 1.0);
+}
 
 /**
  * Reconstructs a fragment's world position from depth,
@@ -87,6 +141,71 @@ vec3 GetDirectionalLightRadiance(
   float Sc = Subsurface(NdotV, subsurface) * (NdotL + 0.05) * (1.0 - metalness * 0.95);
 
   return light_color * (albedo * D + albedo * Sp + C + albedo * albedo * Sc) / PI;
+}
+
+const mat4[] light_matrices = {
+  light_matrix_cascade_1,
+  light_matrix_cascade_2,
+  light_matrix_cascade_3,
+  light_matrix_cascade_4
+};
+
+// const sampler2D[] shadow_maps = {
+//   in_shadow_map_cascade_1,
+//   in_shadow_map_cascade_2,
+//   in_shadow_map_cascade_3,
+//   in_shadow_map_cascade_4
+// };
+
+int GetCascadeIndex(float depth) {
+  float world_depth = GetWorldDepth(depth, 500.0, 10000000.0);
+
+  if (world_depth < 10000.0) {
+    return 0;
+  } else if (world_depth < 50000.0) {
+    return 1;
+  } else if (world_depth < 200000.0) {
+    return 2;
+  } else {
+    return 3;
+  }
+}
+
+vec4 GetShadowMapSample(sampler2D shadow_map, vec2 uv) {
+  return texture(shadow_map, uv);
+}
+
+float GetPrimaryLightShadowFactor(vec3 world_position, float depth) {
+  int cascade_index = GetCascadeIndex(depth);
+  vec4 light_space_position = light_matrices[cascade_index] * vec4(world_position, 1.0);
+
+  light_space_position.xyz /= light_space_position.w;
+  light_space_position.xyz *= 0.5;
+  light_space_position.xyz += 0.5;
+
+  if (light_space_position.z > 0.999) {
+    // If the position-to-light space transform depth
+    // is out of range, we've sampled outside the
+    // shadow map and can just render the fragment
+    // with full illumination.
+    return 1.0;
+  }
+
+  vec4 shadow_map_sample = texture(
+    cascade_index == 0 ? in_shadow_map_cascade_1 :
+    cascade_index == 1 ? in_shadow_map_cascade_2 :
+    cascade_index == 2 ? in_shadow_map_cascade_3 :
+    in_shadow_map_cascade_4,
+    light_space_position.xy
+  );
+
+  float bias = 0.001;
+
+  if (shadow_map_sample.r < light_space_position.z - bias) {
+    return 0.0;
+  }
+
+  return 1.0;
 }
 
 vec3 GetAmbientFresnel(float NdotV) {
@@ -268,50 +387,6 @@ const vec3[] ssao_sample_points = {
   vec3(0.175674, 0.013574, 0.87342)
 };
 
-/**
- * Returns a value within the range -1.0 - 1.0, constant
- * in screen space, acting as a noise filter.
- */
-float noise(float seed) {
-  return 2.0 * (fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * seed * 43758.545312) - 0.5);
-}
-
-/**
- * Returns the 2D screen coordinates, normalized to the range
- * [0.0, 1.0], corresponding to a point in view space.
- */
-vec2 GetScreenCoordinates(vec3 view_position, mat4 projection_matrix) {
-  vec4 projection = projection_matrix * vec4(view_position, 1.0);
-  vec3 clip = projection.xyz / projection.w;
-
-  return clip.xy * 0.5 + 0.5;
-}
-
-/**
- * Maps a nonlinear [0, 1] depth value to a linearized
- * depth between the near and far planes.
- */
-float GetWorldDepth(float depth, float near, float far) {
-  float clip_depth = 2.0 * depth - 1.0;
-
-  return 2.0 * near * far / (far + near - clip_depth * (far - near));
-}
-
-/**
- * Converts a nonlinear [0, 1] depth value to a linearized
- * depth between 0 and 1.
- */
-float GetLinearDepth(float depth, float near, float far) {
-  return 2.0 * near / (far + near - depth * (far - near));
-}
-
-/**
- * Returns a value clamped between 0 and 1.
- */
-float saturate(float value) {
-  return clamp(value, 0.0, 1.0);
-}
-
 float GetSSAO(int total_samples, float depth, vec3 position, vec3 normal, float seed) {
   float linear_depth = GetLinearDepth(depth, 500.0, 10000000.0);
   float radius = mix(100.0, 30000.0, pow(linear_depth, 0.25));
@@ -397,6 +472,10 @@ void main() {
   vec4 frag_normal_and_depth = texture(in_normal_and_depth, fragUv);
   vec3 position = GetWorldPosition(frag_normal_and_depth.w, fragUv, inverse_projection_matrix, inverse_view_matrix);
 
+  // vec4 shadow = texture(in_shadow_map_cascade_1, fragUv);
+  // out_color_and_depth = vec4(shadow.r, 0, 0, frag_normal_and_depth.w);
+  // return;
+
   if (frag_normal_and_depth.w == 1.0) {
     vec3 direction = normalize(position - camera_position);
 
@@ -424,10 +503,12 @@ void main() {
 
   if (roughness < 0.05) roughness = 0.05;
 
-  vec3 F0 = vec3(0.04);
-  F0 = mix(F0, albedo, metalness);
+  // Primary directional light
   vec3 out_color = GetDirectionalLightRadiance(directional_light_direction, vec3(1.0), albedo, position, N, V, NdotV, roughness, metalness, clearcoat, subsurface);
 
+  out_color *= GetPrimaryLightShadowFactor(position, frag_normal_and_depth.w);
+
+  // Earth bounce light
   // @todo make customizable
   out_color += GetDirectionalLightRadiance(vec3(0, 1, 0), vec3(0.2, 0.5, 1.0) * 0.4, albedo, position, N, V, NdotV, 0.8, metalness, 0.0, 0.0);
 

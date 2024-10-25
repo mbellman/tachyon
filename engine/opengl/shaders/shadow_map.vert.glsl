@@ -1,7 +1,7 @@
 #version 460 core
 
 // uniform sampler2D meshTexture;
-uniform mat4 view_projection_matrix;
+uniform mat4 light_matrix;
 uniform vec3 transform_origin;
 
 layout (location = 0) in vec3 vertexPosition;
@@ -22,6 +22,8 @@ void main() {
   // Apply translation, offset by the origin
   vec3 world_space_position = model_space_position + (translation - transform_origin);
 
-  gl_Position = view_projection_matrix * vec4(world_space_position, 1.0);
+  vec4 world_transform = modelMatrix * vec4(vertexPosition, 1.0);
+  gl_Position = light_matrix * world_transform;
+  // gl_Position = light_matrix * vec4(world_space_position, 1.0);
   // fragUv = vertexUv;
 }

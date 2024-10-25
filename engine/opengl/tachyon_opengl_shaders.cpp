@@ -83,13 +83,21 @@ static void StoreShaderUniforms(tOpenGLShaders& shaders) {
   store_shader_uniform(main_geometry, view_projection_matrix);
   store_shader_uniform(main_geometry, transform_origin);
 
-  store_shader_uniform(shadow_map, view_projection_matrix);
+  store_shader_uniform(shadow_map, light_matrix);
   store_shader_uniform(shadow_map, transform_origin);
 
   store_shader_uniform(global_lighting, transform);
   store_shader_uniform(global_lighting, in_normal_and_depth);
   store_shader_uniform(global_lighting, in_color_and_material);
   store_shader_uniform(global_lighting, in_temporal_data);
+  store_shader_uniform(global_lighting, in_shadow_map_cascade_1);
+  store_shader_uniform(global_lighting, in_shadow_map_cascade_2);
+  store_shader_uniform(global_lighting, in_shadow_map_cascade_3);
+  store_shader_uniform(global_lighting, in_shadow_map_cascade_4);
+  store_shader_uniform(global_lighting, light_matrix_cascade_1);
+  store_shader_uniform(global_lighting, light_matrix_cascade_2);
+  store_shader_uniform(global_lighting, light_matrix_cascade_3);
+  store_shader_uniform(global_lighting, light_matrix_cascade_4);
   store_shader_uniform(global_lighting, projection_matrix);
   store_shader_uniform(global_lighting, view_matrix);
   store_shader_uniform(global_lighting, previous_view_matrix);

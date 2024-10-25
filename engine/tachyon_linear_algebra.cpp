@@ -39,6 +39,10 @@ tVec3f tVec3f::operator/(const float f) const {
   };
 }
 
+bool tVec3f::operator==(const tVec3f& v) const {
+  return x == v.x && y == v.y && z == v.z;
+}
+
 void tVec3f::operator+=(const tVec3f& v) {
   x += v.x;
   y += v.y;
@@ -57,6 +61,11 @@ void tVec3f::operator*=(const tVec3f& v) {
   z *= v.z;
 }
 
+void tVec3f::operator/=(const float f) {
+  x /= f;
+  y /= f;
+  z /= f;
+}
 
 tVec3f tVec3f::cross(const tVec3f& v1, const tVec3f& v2) {
   return {
@@ -104,6 +113,14 @@ std::string tVec3f::toString() const {
   return std::format("x: {:.3f}, y: {:.3f}, z: {:.3f}", x, y, z);
 }
 
+tVec3f tVec4f::homogenize() const {
+  return {
+    x / w,
+    y / w,
+    z / w
+  };
+}
+
 tMat4f tMat4f::operator*(const tMat4f& matrix) const {
   tMat4f product;
 
@@ -122,6 +139,20 @@ tMat4f tMat4f::operator*(const tMat4f& matrix) const {
 
 tVec3f tMat4f::operator*(const tVec3f& vector) const {
   return transformVec3f(vector);
+}
+
+tVec4f tMat4f::operator*(const tVec4f& vector) const {
+  float x = vector.x;
+  float y = vector.y;
+  float z = vector.z;
+  float w = vector.w;
+
+  return tVec4f(
+    x * m[0] + y * m[1] + z * m[2] + w * m[3],
+    x * m[4] + y * m[5] + z * m[6] + w * m[7],
+    x * m[8] + y * m[9] + z * m[10] + w * m[11],
+    x * m[12] + y * m[13] + z * m[14] + w * m[15]
+  );
 }
 
 tMat4f tMat4f::inverse() const {
@@ -144,7 +175,7 @@ tMat4f tMat4f::inverse() const {
   float A0113 = m[4] * m[13] - m[5] * m[12];
   float A0112 = m[4] * m[9] - m[5] * m[8];
 
-  float determinant = 1.0f / (
+  float determinant = 1.f / (
     m[0] * (m[5] * A2323 - m[6] * A1323 + m[7] * A1223) -
     m[1] * (m[4] * A2323 - m[6] * A0323 + m[7] * A0223) +
     m[2] * (m[4] * A1323 - m[5] * A0323 + m[7] * A0123) -
@@ -175,26 +206,51 @@ tMat4f tMat4f::inverse() const {
 
 tMat4f tMat4f::perspective(float fov, float near, float far) {
   constexpr float DEGRESS_TO_RADIANS = t_PI / 180.f;
+  // @todo pass width/height as arguments
   constexpr float aspectRatio = 1920.f / 1080.f;
 
-  // float aspectRatio = (float)area.width / (float)area.height;
-  float f = 1.0f / tanf(fov / 2.f * DEGRESS_TO_RADIANS);
+  float f = 1.f / tanf(fov / 2.f * DEGRESS_TO_RADIANS);
   float nf = near - far;
 
   return {
-    f / aspectRatio, 0.0f, 0.0f, 0.0f,
-    0.0f, f, 0.0f, 0.0f,
-    0.0f, 0.0f, (far + near) / nf, (2 * far * near) / nf,
-    0.0f, 0.0f, -1.0f, 0.0f
+    f / aspectRatio, 0.f, 0.f, 0.f,
+    0.f, f, 0.f, 0.f,
+    0.f, 0.f, (far + near) / nf, (2 * far * near) / nf,
+    0.f, 0.f, -1.f, 0.f
   };
+}
+
+tMat4f tMat4f::orthographic(float top, float bottom, float left, float right, float near, float far) {
+  return {
+    2.f / (right - left), 0.f, 0.f, -(right + left) / (right - left),
+    0.f, 2.f / (top - bottom), 0.f, -(top + bottom) / (top - bottom),
+    0.f, 0.f, -2.f / (far - near), -(far + near) / (far - near),
+    0.f, 0.f, 0.f, 1.f
+  };
+}
+
+tMat4f tMat4f::lookAt(const tVec3f& eye, const tVec3f& direction, const tVec3f& top) {
+  tVec3f forward = direction.unit();
+  tVec3f right = tVec3f::cross(top, forward).unit();
+  tVec3f up = tVec3f::cross(forward, right).unit();
+  tMat4f translation = tMat4f::translation(eye.invert());
+
+  tMat4f rotation = {
+    right.x, right.y, right.z, 0.0f,
+    up.x, up.y, up.z, 0.0f,
+    forward.x, forward.y, forward.z, 0.0f,
+    0.0f, 0.0f, 0.0f, 1.0f
+  };
+
+  return rotation * translation;
 }
 
 tMat4f tMat4f::scale(const tVec3f& scale) {
   return {
-    scale.x, 0.0f, 0.0f, 0.0f,
-    0.0f, scale.y, 0.0f, 0.0f,
-    0.0f, 0.0f, scale.z, 0.0f,
-    0.0f, 0.0f, 0.0f, 1.0f
+    scale.x, 0.f, 0.f, 0.f,
+    0.f, scale.y, 0.f, 0.f,
+    0.f, 0.f, scale.z, 0.f,
+    0.f, 0.f, 0.f, 1.f
   };
 }
 
@@ -237,17 +293,17 @@ tMat4f tMat4f::transformation(const tVec3f& translation, const tVec3f& scale, co
   m_transform.m[3] = translation.x;
   m_transform.m[7] = translation.y;
   m_transform.m[11] = translation.z;
-  m_transform.m[15] = 1.0f;
+  m_transform.m[15] = 1.f;
 
   return m_transform;
 }
 
 tMat4f tMat4f::translation(const tVec3f& translation) {
   return {
-    1.0f, 0.0f, 0.0f, translation.x,
-    0.0f, 1.0f, 0.0f, translation.y,
-    0.0f, 0.0f, 1.0f, translation.z,
-    0.0f, 0.0f, 0.0f, 1.0f
+    1.f, 0.f, 0.f, translation.x,
+    0.f, 1.f, 0.f, translation.y,
+    0.f, 0.f, 1.f, translation.z,
+    0.f, 0.f, 0.f, 1.f
   };
 }
 

@@ -30,7 +30,7 @@ struct tUniformLocations {
   ) main_geometry;
 
   uniform_locations(
-    view_projection_matrix,
+    light_matrix,
     transform_origin
   ) shadow_map;
 
@@ -39,6 +39,14 @@ struct tUniformLocations {
     in_normal_and_depth,
     in_color_and_material,
     in_temporal_data,
+    in_shadow_map_cascade_1,
+    in_shadow_map_cascade_2,
+    in_shadow_map_cascade_3,
+    in_shadow_map_cascade_4,
+    light_matrix_cascade_1,
+    light_matrix_cascade_2,
+    light_matrix_cascade_3,
+    light_matrix_cascade_4,
     projection_matrix,
     view_matrix,
     previous_view_matrix,
