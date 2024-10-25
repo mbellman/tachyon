@@ -34,7 +34,7 @@ struct EditorState {
   ActionType action_type = ActionType::POSITION;
   tObject selected_object;
 
-  bool is_high_speed_camera_mode = false;
+  bool use_high_speed_camera_movement = false;
   float last_pressed_space_time = 0.f;
 } editor;
 
@@ -178,7 +178,7 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
   // Handle WASD controls
   {
     const float move_speed =
-      editor.is_high_speed_camera_mode ? 300000.f :
+      editor.use_high_speed_camera_movement ? 300000.f :
       is_key_held(tKey::SPACE) ? 50000.f :
       2000.f;
 
@@ -566,18 +566,18 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
     objects(state.meshes.editor_guideline).disabled = !objects(state.meshes.editor_guideline).disabled;
   }
 
-  // Active high-speed camera movement with SPACE+SPACE
+  // Activate high-speed camera movement with SPACE+SPACE
   {
     if (did_press_key(tKey::SPACE)) {
-      if (tachyon->running_time - editor.last_pressed_space_time < 0.2f) {
-        editor.is_high_speed_camera_mode = true;
+      if (tachyon->running_time - editor.last_pressed_space_time < 0.3f) {
+        editor.use_high_speed_camera_movement = true;
       }
 
       editor.last_pressed_space_time = tachyon->running_time;
     }
 
     if (!is_key_held(tKey::SPACE)) {
-      editor.is_high_speed_camera_mode = false;
+      editor.use_high_speed_camera_movement = false;
     }
   }
 }
