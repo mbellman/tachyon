@@ -17,6 +17,18 @@
 
 #define get_renderer() (*(tOpenGLRenderer*)tachyon->renderer)
 
+enum Attachment {
+  G_BUFFER_NORMALS_AND_DEPTH = 0,
+  G_BUFFER_COLOR_AND_MATERIAL = 1,
+  ACCUMULATION_COLOR_AND_DEPTH = 2,
+  ACCUMULATION_TEMPORAL_DATA = 3,
+  DIRECTIONAL_SHADOW_MAP_CASCADE_1 = 4,
+  DIRECTIONAL_SHADOW_MAP_CASCADE_2 = 5,
+  DIRECTIONAL_SHADOW_MAP_CASCADE_3 = 6,
+  DIRECTIONAL_SHADOW_MAP_CASCADE_4 = 7
+};
+
+// --------------------------------------
 static void Tachyon_CheckError(const std::string& message) {
   GLenum error;
 
@@ -36,7 +48,6 @@ static void Tachyon_CheckError(const std::string& message) {
     printf("Error (%s): %s\n", message.c_str(), glErrorMap[error].c_str());
   }
 }
-
 // --------------------------------------
 static void SetShaderInt(GLint location, const int value) {
   glUniform1i(location, value);
@@ -238,6 +249,14 @@ static void UpdateRendererContext(Tachyon* tachyon) {
   ctx.camera_position = camera.position;
 }
 
+struct DrawElementsIndirectCommand {
+  GLuint count;
+  GLuint instanceCount;
+  GLuint firstIndex;
+  GLuint baseVertex;
+  GLuint baseInstance;
+};
+
 static void RenderStaticGeometry(Tachyon* tachyon) {
   auto& camera = tachyon->scene.camera;
   auto& renderer = get_renderer();
@@ -279,25 +298,10 @@ static void RenderStaticGeometry(Tachyon* tachyon) {
   glBindVertexArray(gl_mesh_pack.vao);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gl_mesh_pack.ebo);
 
-  struct DrawElementsIndirectCommand {
-    GLuint count;
-    GLuint instanceCount;
-    GLuint firstIndex;
-    GLuint baseVertex;
-    GLuint baseInstance;
-  };
-
-  auto& records = tachyon->mesh_pack.mesh_records;
-  uint32 total_drawable_meshes = 0;
-
-  for (auto& record : records) {
-    if (!record.group.disabled && record.group.total_visible > 0) {
-      total_drawable_meshes++;
-    }
-  }
-
   // @todo avoid allocating + deleting each frame
   std::vector<DrawElementsIndirectCommand> commands;
+
+  auto& records = tachyon->mesh_pack.mesh_records;
 
   for (uint32 i = 0; i < records.size(); i++) {
     auto& record = records[i];
@@ -335,6 +339,71 @@ static void RenderStaticGeometry(Tachyon* tachyon) {
   }
 }
 
+static void RenderShadowMaps(Tachyon* tachyon) {
+  auto& camera = tachyon->scene.camera;
+  auto& renderer = get_renderer();
+  auto& shader = renderer.shaders.shadow_map;
+  auto& locations = renderer.shaders.locations.shadow_map;
+  auto& ctx = renderer.ctx;
+  auto& gl_mesh_pack = renderer.mesh_pack;
+
+  glBindVertexArray(gl_mesh_pack.vao);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gl_mesh_pack.ebo);
+
+  // Directional shadow map
+  for (uint8 attachment = DIRECTIONAL_SHADOW_MAP_CASCADE_1; attachment <= DIRECTIONAL_SHADOW_MAP_CASCADE_4; attachment++) {
+    renderer.directional_shadow_map.writeToAttachment(attachment);
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    tMat4f light_matrix;
+
+    glUseProgram(shader.program);
+    SetShaderMat4f(locations.view_projection_matrix, light_matrix);
+    SetShaderVec3f(locations.transform_origin, tachyon->scene.transform_origin);
+
+    // @todo avoid allocating + deleting each frame
+    std::vector<DrawElementsIndirectCommand> commands;
+
+    auto& records = tachyon->mesh_pack.mesh_records;
+
+    for (uint32 i = 0; i < records.size(); i++) {
+      auto& record = records[i];
+
+      if (record.group.disabled || record.group.total_visible == 0) {
+        continue;
+      }
+
+      DrawElementsIndirectCommand command;
+
+      command.count = record.face_element_end - record.face_element_start;
+      command.firstIndex = record.face_element_start;
+      command.instanceCount = record.group.total_visible;
+      command.baseInstance = record.group.object_offset;
+      command.baseVertex = record.vertex_start;
+
+      commands.push_back(command);
+
+      // @todo dev mode only
+      {
+        renderer.total_triangles += command.count * command.instanceCount;
+        renderer.total_vertices += (record.vertex_end - record.vertex_start) * command.instanceCount;
+        renderer.total_meshes_drawn++;
+      }
+    }
+
+    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, renderer.indirect_buffer);
+    glBufferData(GL_DRAW_INDIRECT_BUFFER, commands.size() * sizeof(DrawElementsIndirectCommand), commands.data(), GL_DYNAMIC_DRAW);
+
+    glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, 0, commands.size(), 0);
+
+    // @todo dev mode only
+    {
+      renderer.total_draw_calls += 1;
+    }
+  }
+}
+
 static void RenderGlobalLighting(Tachyon* tachyon) {
   auto& renderer = get_renderer();
   auto& scene = tachyon->scene;
@@ -354,15 +423,14 @@ static void RenderGlobalLighting(Tachyon* tachyon) {
   previous_accumulation_buffer.read();
   target_accumulation_buffer.write();
 
-  // glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
   glViewport(0, 0, ctx.w, ctx.h);
   glClear(GL_COLOR_BUFFER_BIT);
 
   glUseProgram(shader.program);
   SetShaderVec4f(locations.transform, { 0.f, 0.f, 1.f, 1.f });
-  SetShaderInt(locations.in_normal_and_depth, 0);
-  SetShaderInt(locations.in_color_and_material, 1);
-  SetShaderInt(locations.in_temporal_data, 3);
+  SetShaderInt(locations.in_normal_and_depth, G_BUFFER_NORMALS_AND_DEPTH);
+  SetShaderInt(locations.in_color_and_material, G_BUFFER_COLOR_AND_MATERIAL);
+  SetShaderInt(locations.in_temporal_data, ACCUMULATION_TEMPORAL_DATA);
   SetShaderMat4f(locations.projection_matrix, ctx.projection_matrix);
   SetShaderMat4f(locations.view_matrix, ctx.view_matrix);
   SetShaderMat4f(locations.previous_view_matrix, ctx.previous_view_matrix);
@@ -395,7 +463,7 @@ static void RenderPost(Tachyon* tachyon) {
 
   glUseProgram(shader.program);
   SetShaderVec4f(locations.transform, { 0.f, 0.f, 1.f, 1.f });
-  SetShaderInt(locations.in_color_and_depth, 2);
+  SetShaderInt(locations.in_color_and_depth, ACCUMULATION_COLOR_AND_DEPTH);
 
   RenderScreenQuad(tachyon);
 }
@@ -440,36 +508,35 @@ static void CreateRenderBuffers(Tachyon* tachyon) {
   auto& accumulation_buffer_a = renderer.accumulation_buffer_a;
   auto& accumulation_buffer_b = renderer.accumulation_buffer_b;
   auto& directional_shadow_map = renderer.directional_shadow_map;
-
   int w, h;
 
   SDL_GL_GetDrawableSize(tachyon->sdl_window, &w, &h);
 
   g_buffer.init();
   g_buffer.setSize(w, h);
-  g_buffer.addColorAttachment(ColorFormat::RGBA);
-  g_buffer.addColorAttachment(ColorFormat::RGBA8UI);
+  g_buffer.addColorAttachment(ColorFormat::RGBA, G_BUFFER_NORMALS_AND_DEPTH);
+  g_buffer.addColorAttachment(ColorFormat::RGBA8UI, G_BUFFER_COLOR_AND_MATERIAL);
   g_buffer.addDepthStencilAttachment();
   g_buffer.bindColorAttachments();
 
   accumulation_buffer_a.init();
   accumulation_buffer_a.setSize(w, h);
-  accumulation_buffer_a.addColorAttachment(ColorFormat::RGBA, 2);
-  accumulation_buffer_a.addColorAttachment(ColorFormat::RGBA, 3);
+  accumulation_buffer_a.addColorAttachment(ColorFormat::RGBA, ACCUMULATION_COLOR_AND_DEPTH);
+  accumulation_buffer_a.addColorAttachment(ColorFormat::RGBA, ACCUMULATION_TEMPORAL_DATA);
   accumulation_buffer_a.bindColorAttachments();
 
   accumulation_buffer_b.init();
   accumulation_buffer_b.setSize(w, h);
-  accumulation_buffer_b.addColorAttachment(ColorFormat::RGBA, 2);
-  accumulation_buffer_b.addColorAttachment(ColorFormat::RGBA, 3);
+  accumulation_buffer_b.addColorAttachment(ColorFormat::RGBA, ACCUMULATION_COLOR_AND_DEPTH);
+  accumulation_buffer_b.addColorAttachment(ColorFormat::RGBA, ACCUMULATION_TEMPORAL_DATA);
   accumulation_buffer_b.bindColorAttachments();
 
   directional_shadow_map.init();
   directional_shadow_map.setSize(2048, 2048);
-  directional_shadow_map.addColorAttachment(ColorFormat::R, 4);
-  directional_shadow_map.addColorAttachment(ColorFormat::R, 5);
-  directional_shadow_map.addColorAttachment(ColorFormat::R, 6);
-  directional_shadow_map.addColorAttachment(ColorFormat::R, 7);
+  directional_shadow_map.addColorAttachment(ColorFormat::R, DIRECTIONAL_SHADOW_MAP_CASCADE_1);
+  directional_shadow_map.addColorAttachment(ColorFormat::R, DIRECTIONAL_SHADOW_MAP_CASCADE_2);
+  directional_shadow_map.addColorAttachment(ColorFormat::R, DIRECTIONAL_SHADOW_MAP_CASCADE_3);
+  directional_shadow_map.addColorAttachment(ColorFormat::R, DIRECTIONAL_SHADOW_MAP_CASCADE_4);
   directional_shadow_map.addDepthAttachment();
   directional_shadow_map.bindColorAttachments();
 
@@ -571,6 +638,7 @@ void Tachyon_OpenGL_RenderScene(Tachyon* tachyon) {
 
   UpdateRendererContext(tachyon);
   RenderStaticGeometry(tachyon);
+  // RenderShadowMaps(tachyon);
 
   // The next steps in the pipeline render quads in screen space,
   // so we don't need to do any back-face culling or depth testing

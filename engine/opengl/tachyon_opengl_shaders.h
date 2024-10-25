@@ -30,6 +30,11 @@ struct tUniformLocations {
   ) main_geometry;
 
   uniform_locations(
+    view_projection_matrix,
+    transform_origin
+  ) shadow_map;
+
+  uniform_locations(
     transform,
     in_normal_and_depth,
     in_color_and_material,
@@ -70,6 +75,7 @@ struct tUniformLocations {
 
 struct tOpenGLShaders {
   tOpenGLShader main_geometry;
+  tOpenGLShader shadow_map;
   tOpenGLShader global_lighting;
   tOpenGLShader post;
 
