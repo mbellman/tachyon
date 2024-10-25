@@ -123,22 +123,24 @@ vec3 GetDirectionalLightRadiance(
   float roughness,
   float metalness,
   float clearcoat,
-  float subsurface
+  float subsurface,
+  float shadow_factor
 ) {
   vec3 L = -normalize(light_direction);
   vec3 H = normalize(V + L);
 
   float NdotH = max(dot(N, H), 0.0);
   float NdotL = max(dot(N, L), 0.0);
+  float light_factor = NdotL * shadow_factor;
 
   float sD = DistributionGGX(NdotH, roughness);
   float sG = GeometryGGX(NdotH, roughness, metalness);
 
-  float D = (1.0 - metalness) * (1.0 - roughness * 0.5) * NdotL;
-  float Sp = (sD + sG) * NdotL;
-  float C = Clearcoat(NdotH, NdotV, clearcoat) * NdotL;
+  float D = (1.0 - metalness) * (1.0 - roughness * 0.5) * light_factor;
+  float Sp = (sD + sG) * light_factor;
+  float C = Clearcoat(NdotH, NdotV, clearcoat) * light_factor;
   // @todo pass the additional terms into Subsurface()
-  float Sc = Subsurface(NdotV, subsurface) * (NdotL + 0.05) * (1.0 - metalness * 0.95);
+  float Sc = Subsurface(NdotV, subsurface) * (light_factor + 0.05) * (1.0 - metalness * 0.95);
 
   return light_color * (albedo * D + albedo * Sp + C + albedo * albedo * Sc) / PI;
 }
@@ -149,13 +151,6 @@ const mat4[] light_matrices = {
   light_matrix_cascade_3,
   light_matrix_cascade_4
 };
-
-// const sampler2D[] shadow_maps = {
-//   in_shadow_map_cascade_1,
-//   in_shadow_map_cascade_2,
-//   in_shadow_map_cascade_3,
-//   in_shadow_map_cascade_4
-// };
 
 int GetCascadeIndex(float depth) {
   float world_depth = GetWorldDepth(depth, 500.0, 10000000.0);
@@ -472,10 +467,6 @@ void main() {
   vec4 frag_normal_and_depth = texture(in_normal_and_depth, fragUv);
   vec3 position = GetWorldPosition(frag_normal_and_depth.w, fragUv, inverse_projection_matrix, inverse_view_matrix);
 
-  // vec4 shadow = texture(in_shadow_map_cascade_1, fragUv);
-  // out_color_and_depth = vec4(shadow.r, 0, 0, frag_normal_and_depth.w);
-  // return;
-
   if (frag_normal_and_depth.w == 1.0) {
     vec3 direction = normalize(position - camera_position);
 
@@ -504,13 +495,12 @@ void main() {
   if (roughness < 0.05) roughness = 0.05;
 
   // Primary directional light
-  vec3 out_color = GetDirectionalLightRadiance(directional_light_direction, vec3(1.0), albedo, position, N, V, NdotV, roughness, metalness, clearcoat, subsurface);
-
-  out_color *= GetPrimaryLightShadowFactor(position, frag_normal_and_depth.w);
+  float primary_light_shadow_factor = GetPrimaryLightShadowFactor(position, frag_normal_and_depth.w);
+  vec3 out_color = GetDirectionalLightRadiance(directional_light_direction, vec3(1.0), albedo, position, N, V, NdotV, roughness, metalness, clearcoat, subsurface, primary_light_shadow_factor);
 
   // Earth bounce light
   // @todo make customizable
-  out_color += GetDirectionalLightRadiance(vec3(0, 1, 0), vec3(0.2, 0.5, 1.0) * 0.4, albedo, position, N, V, NdotV, 0.8, metalness, 0.0, 0.0);
+  out_color += GetDirectionalLightRadiance(vec3(0, 1, 0), vec3(0.2, 0.5, 1.0) * 0.4, albedo, position, N, V, NdotV, 0.8, metalness, 0.0, 0.0, 1.0);
 
   // @todo cleanup
   vec3 L = normalize(directional_light_direction);
