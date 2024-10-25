@@ -152,7 +152,7 @@ tMat4f CreateCascadedLightMatrix(uint8 cascade, const tVec3f& light_direction, c
   frustum_center = (texel_matrix.inverse() * tVec4f(frustum_center, 1.f)).homogenize();
 
   // Compute final light view matrix for rendering the shadow map
-  tMat4f projection_matrix = tMat4f::orthographic(radius, -radius, -radius, radius, -radius - 20000.0f, radius);
+  tMat4f projection_matrix = tMat4f::orthographic(radius, -radius, -radius, radius, -radius - 250000.0f, radius);
   tMat4f view_matrix = tMat4f::lookAt(frustum_center, light_direction.invert(), up_vector);
 
   return (projection_matrix * view_matrix).transpose();

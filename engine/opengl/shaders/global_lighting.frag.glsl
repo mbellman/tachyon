@@ -166,8 +166,30 @@ int GetCascadeIndex(float depth) {
   }
 }
 
-vec4 GetShadowMapSample(sampler2D shadow_map, vec2 uv) {
-  return texture(shadow_map, uv);
+float GetAverageShadowFactor(sampler2D shadow_map, vec3 light_space_position) {
+  const vec2 texel_size = 1.0 / vec2(2048.0);
+  float t = fract(running_time);
+
+  const vec2[] offsets = {
+    vec2(0.0),
+    vec2(noise(1.0 + t), noise(2.0 + t)),
+    vec2(noise(3.0 + t), noise(4.0 + t)),
+    vec2(noise(5.0 + t), noise(6.0 + t)),
+    vec2(noise(7.0 + t), noise(8.0 + t)),
+  };
+
+  const float bias = 0.001;
+  float shadow_factor = 0.0;
+
+  for (int i = 0; i < 5; i++) {
+    vec4 shadow_sample = texture(shadow_map, light_space_position.xy + 2.0 * offsets[i] * texel_size);
+
+    if (shadow_sample.r >= light_space_position.z - bias) {
+      shadow_factor += 1.0;
+    }
+  }
+
+  return shadow_factor / 5.0;
 }
 
 float GetPrimaryLightShadowFactor(vec3 world_position, float depth) {
@@ -186,21 +208,13 @@ float GetPrimaryLightShadowFactor(vec3 world_position, float depth) {
     return 1.0;
   }
 
-  vec4 shadow_map_sample = texture(
+  return GetAverageShadowFactor(
     cascade_index == 0 ? in_shadow_map_cascade_1 :
     cascade_index == 1 ? in_shadow_map_cascade_2 :
     cascade_index == 2 ? in_shadow_map_cascade_3 :
     in_shadow_map_cascade_4,
-    light_space_position.xy
+    light_space_position.xyz
   );
-
-  float bias = 0.001;
-
-  if (shadow_map_sample.r < light_space_position.z - bias) {
-    return 0.0;
-  }
-
-  return 1.0;
 }
 
 vec3 GetAmbientFresnel(float NdotV) {
@@ -418,17 +432,17 @@ float GetSSAO(int total_samples, float depth, vec3 position, vec3 normal, float 
   return ssao / float(total_samples) * ssao_intensity;
 }
 
-float GetDenoisedSSAO(float ssao, float depth, vec2 temporal_uv) {
+vec2 GetDenoisedTemporalData(float ssao, float shadow, float depth, vec2 temporal_uv) {
   #define USE_SPATIAL_DENOISING 1
 
   if (temporal_uv.x < 0.0 || temporal_uv.x > 1.0 || temporal_uv.y < 0.0 || temporal_uv.y > 1.0) {
-    return 0.0;
+    return vec2(0.0, 0.0);
   }
 
   // @todo use screen size
   const vec2 texel_size = 1.0 / vec2(1920.0, 1080.0);
-  const float temporal_weight = 2.0;
-  const float spatial_spread = 1.0;
+  const float temporal_weight = 1.0;
+  const float spatial_spread = 2.0;
 
   #if USE_SPATIAL_DENOISING
     const vec2[] offsets = {
@@ -439,6 +453,7 @@ float GetDenoisedSSAO(float ssao, float depth, vec2 temporal_uv) {
     };
 
     float base_ssao = ssao;
+    float base_shadow = shadow;
 
     for (int i = 0; i < 4; i++) {
       vec2 offset = spatial_spread * offsets[i];
@@ -448,18 +463,21 @@ float GetDenoisedSSAO(float ssao, float depth, vec2 temporal_uv) {
 
       if (depth_distance < 100.0) {
         ssao += temporal_data.x * temporal_weight;
+        shadow += temporal_data.y * temporal_weight;
       } else {
         ssao += base_ssao * temporal_weight;
+        shadow += base_shadow * temporal_weight;
       }
     }
 
-    return ssao / (temporal_weight * 4.0 + 1.0);
+    return vec2(ssao, shadow) / (temporal_weight * 4.0 + 1.0);
   #else
     vec4 temporal_data = texture(in_temporal_data, temporal_uv);
 
     ssao += temporal_data.x * temporal_weight;
+    shadow += temporal_data.y * temporal_weight;
 
-    return ssao / (temporal_weight + 1.0);
+    return vec2(ssao, shadow) / (temporal_weight + 1.0);
   #endif
 }
 
@@ -494,9 +512,24 @@ void main() {
 
   if (roughness < 0.05) roughness = 0.05;
 
+  // Temporal data
+  vec3 previous_view_position = (previous_view_matrix * vec4(position, 1.0)).xyz;
+  vec2 temporal_uv = GetScreenCoordinates(previous_view_position, projection_matrix);
+  vec4 last_temporal_sample = texture(in_temporal_data, temporal_uv);
+
+  // Denoised SSAO/shadow
+  float ssao = GetSSAO(12, frag_normal_and_depth.w, position, frag_normal_and_depth.xyz, fract(running_time));
+  float shadow = GetPrimaryLightShadowFactor(position, frag_normal_and_depth.w);
+  vec2 denoised_temporal_data = GetDenoisedTemporalData(ssao, shadow, frag_normal_and_depth.w, temporal_uv);
+
+  ssao = denoised_temporal_data.x;
+  shadow = denoised_temporal_data.y;
+
+  ssao = clamp(ssao, 0.0, 1.0);
+  shadow = clamp(shadow, 0.0, 1.0);
+
   // Primary directional light
-  float primary_light_shadow_factor = GetPrimaryLightShadowFactor(position, frag_normal_and_depth.w);
-  vec3 out_color = GetDirectionalLightRadiance(directional_light_direction, vec3(1.0), albedo, position, N, V, NdotV, roughness, metalness, clearcoat, subsurface, primary_light_shadow_factor);
+  vec3 out_color = GetDirectionalLightRadiance(directional_light_direction, vec3(1.0), albedo, position, N, V, NdotV, roughness, metalness, clearcoat, subsurface, shadow);
 
   // Earth bounce light
   // @todo make customizable
@@ -518,15 +551,8 @@ void main() {
   out_color = vec3(1.0) - exp(-out_color * exposure);
   out_color = pow(out_color, vec3(1.0 / 2.2));
 
-  float ssao = GetSSAO(12, frag_normal_and_depth.w, position, frag_normal_and_depth.xyz, fract(running_time));
-  vec3 previous_view_position = (previous_view_matrix * vec4(position, 1.0)).xyz;
-  vec2 temporal_uv = GetScreenCoordinates(previous_view_position, projection_matrix);
-
-  ssao = GetDenoisedSSAO(ssao, frag_normal_and_depth.w, temporal_uv);
-  ssao = clamp(ssao, 0.0, 1.0);
-
   out_color -= ssao;
 
   out_color_and_depth = vec4(out_color, frag_normal_and_depth.w);
-  out_temporal_data = vec4(ssao, 0, 0, frag_normal_and_depth.w);
+  out_temporal_data = vec4(ssao, shadow, 0, frag_normal_and_depth.w);
 }
