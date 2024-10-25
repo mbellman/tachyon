@@ -138,8 +138,19 @@ static void HandleDeveloperTools(Tachyon* tachyon) {
   {
     #define String(v) std::to_string(v)
 
+    GLint gpu_available = 0;
+    GLint gpu_total = 0;
+    const char* vendor = (const char*)glGetString(GL_VENDOR);
+
+    if (strcmp(vendor, "NVIDIA Corporation") == 0) {
+      glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &gpu_available);
+      glGetIntegerv(GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX, &gpu_total);
+    }
+
     auto render_fps = uint32(1000000.f / (float)renderer.last_render_time_in_microseconds);
     auto frame_fps = uint32(1000000.f / (float)tachyon->last_frame_time_in_microseconds);
+    auto used_gpu_memory = (gpu_total - gpu_available) / 1000;
+    auto total_gpu_memory = gpu_total / 1000;
 
     std::vector<std::string> labels = {
       "View: " + std::string(renderer.show_g_buffer_view ? "G-BUFFER" : "DEFAULT"),
@@ -147,6 +158,7 @@ static void HandleDeveloperTools(Tachyon* tachyon) {
       "Running time: " + String(tachyon->running_time),
       "Render time: " + String(renderer.last_render_time_in_microseconds) + "us (" + String(render_fps) + "fps)",
       "Frame time: " + String(tachyon->last_frame_time_in_microseconds) + "us (" + String(frame_fps) + "fps)",
+      "GPU: " + String(used_gpu_memory) + " / " + String(total_gpu_memory) + "MB",
       "V-Sync: " + std::string(SDL_GL_GetSwapInterval() ? "ON" : "OFF"),
       "Triangles: " + String(renderer.total_triangles),
       "Vertices: " + String(renderer.total_vertices),
@@ -396,6 +408,7 @@ static void RenderUIElements(Tachyon* tachyon) {
     auto x = (int)command.screen_x - half_w;
     auto y = (int)command.screen_y - half_h;
 
+    // @todo batch render common surfaces
     RenderSurface(tachyon, surface, x, y, surface->w, surface->h, tVec3f(1.f), tVec4f(0.f));
   }
 }
@@ -426,6 +439,7 @@ static void CreateRenderBuffers(Tachyon* tachyon) {
   auto& g_buffer = renderer.g_buffer;
   auto& accumulation_buffer_a = renderer.accumulation_buffer_a;
   auto& accumulation_buffer_b = renderer.accumulation_buffer_b;
+  auto& directional_shadow_map = renderer.directional_shadow_map;
 
   int w, h;
 
@@ -449,6 +463,15 @@ static void CreateRenderBuffers(Tachyon* tachyon) {
   accumulation_buffer_b.addColorAttachment(ColorFormat::RGBA, 2);
   accumulation_buffer_b.addColorAttachment(ColorFormat::RGBA, 3);
   accumulation_buffer_b.bindColorAttachments();
+
+  directional_shadow_map.init();
+  directional_shadow_map.setSize(2048, 2048);
+  directional_shadow_map.addColorAttachment(ColorFormat::R, 4);
+  directional_shadow_map.addColorAttachment(ColorFormat::R, 5);
+  directional_shadow_map.addColorAttachment(ColorFormat::R, 6);
+  directional_shadow_map.addColorAttachment(ColorFormat::R, 7);
+  directional_shadow_map.addDepthAttachment();
+  directional_shadow_map.bindColorAttachments();
 
   tachyon->window_width = w;
   tachyon->window_height = h;
@@ -520,6 +543,7 @@ void Tachyon_OpenGL_ResizeRenderer(Tachyon* tachyon) {
   renderer.g_buffer.destroy();
   renderer.accumulation_buffer_a.destroy();
   renderer.accumulation_buffer_b.destroy();
+  renderer.directional_shadow_map.destroy();
 
   CreateRenderBuffers(tachyon);
 }
@@ -558,9 +582,8 @@ void Tachyon_OpenGL_RenderScene(Tachyon* tachyon) {
   } else {
     RenderGlobalLighting(tachyon);
     RenderPost(tachyon);
+    RenderUIElements(tachyon);
   }
-
-  RenderUIElements(tachyon);
 
   // @todo dev mode only
   HandleDevModeInputs(tachyon);

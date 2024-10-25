@@ -37,6 +37,8 @@ struct tOpenGLRenderer {
   OpenGLFrameBuffer accumulation_buffer_a;
   OpenGLFrameBuffer accumulation_buffer_b;
 
+  OpenGLFrameBuffer directional_shadow_map;
+
   uint32 current_frame = 0;
 
   // @todo dev mode only
