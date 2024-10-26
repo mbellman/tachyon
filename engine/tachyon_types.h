@@ -60,6 +60,10 @@ struct tObject {
 
   uint16 object_id = 0;
   uint16 mesh_index = 0;
+
+  bool operator==(const tObject& object) const {
+    return object_id == object.object_id && mesh_index == object.mesh_index;
+  }
 };
 
 struct tObjectGroup {
@@ -115,7 +119,7 @@ struct tMeshRecord {
   uint32 face_element_start;
   uint32 face_element_end;
   uint16 mesh_index;
-  uint8 highest_cascade_index = 3;
+  uint8 shadow_cascade_ceiling = 4;
 
   tObjectGroup group;
 };

@@ -466,7 +466,7 @@ static void RenderShadowMaps(Tachyon* tachyon) {
       if (
         record.group.disabled ||
         record.group.total_visible == 0 ||
-        record.highest_cascade_index < cascade_index
+        record.shadow_cascade_ceiling <= cascade_index
       ) {
         continue;
       }

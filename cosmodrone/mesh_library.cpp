@@ -350,7 +350,11 @@ void MeshLibrary::LoadMeshes(Tachyon* tachyon, State& state) {
   {
     auto& meshes = state.meshes;
 
-    tachyon->mesh_pack.mesh_records[meshes.girder_1].highest_cascade_index = 2;
+    tachyon->mesh_pack.mesh_records[meshes.girder_1].shadow_cascade_ceiling = 3;
+
+    // @todo dev mode only
+    tachyon->mesh_pack.mesh_records[meshes.editor_guideline].shadow_cascade_ceiling = 0;
+    tachyon->mesh_pack.mesh_records[meshes.cube].shadow_cascade_ceiling = 0;
   }
 
   Tachyon_InitializeObjects(tachyon);
