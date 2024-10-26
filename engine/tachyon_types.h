@@ -115,6 +115,7 @@ struct tMeshRecord {
   uint32 face_element_start;
   uint32 face_element_end;
   uint16 mesh_index;
+  uint8 highest_cascade_index = 3;
 
   tObjectGroup group;
 };

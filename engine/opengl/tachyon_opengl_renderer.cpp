@@ -463,7 +463,11 @@ static void RenderShadowMaps(Tachyon* tachyon) {
     for (uint32 i = 0; i < records.size(); i++) {
       auto& record = records[i];
 
-      if (record.group.disabled || record.group.total_visible == 0) {
+      if (
+        record.group.disabled ||
+        record.group.total_visible == 0 ||
+        record.highest_cascade_index < cascade_index
+      ) {
         continue;
       }
 

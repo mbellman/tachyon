@@ -346,6 +346,13 @@ void MeshLibrary::LoadMeshes(Tachyon* tachyon, State& state) {
   LoadBackgroundMeshes(tachyon, state);
   LoadDebugMeshes(tachyon, state);
 
+  // Define highest cascades per mesh
+  {
+    auto& meshes = state.meshes;
+
+    tachyon->mesh_pack.mesh_records[meshes.girder_1].highest_cascade_index = 2;
+  }
+
   Tachyon_InitializeObjects(tachyon);
 }
 
