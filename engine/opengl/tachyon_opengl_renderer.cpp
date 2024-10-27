@@ -173,7 +173,7 @@ static void RenderScreenQuad(Tachyon* tachyon) {
   }
 }
 
-static void RenderSurface(Tachyon* tachyon, SDL_Surface* surface, int32 x, int32 y, uint32 w, uint32 h, const tVec3f& color, const tVec4f& background) {
+static void RenderSurface(Tachyon* tachyon, SDL_Surface* surface, int32 x, int32 y, uint32 w, uint32 h, float rotation, const tVec3f& color, const tVec4f& background) {
   auto& renderer = get_renderer();
   auto& ctx = renderer.ctx;
   auto& shader = renderer.shaders.surface;
@@ -195,7 +195,8 @@ static void RenderSurface(Tachyon* tachyon, SDL_Surface* surface, int32 x, int32
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   glUseProgram(shader.program);
-  SetShaderVec4f(locations.transform, { offsetX, offsetY, scaleX, scaleY });
+  SetShaderVec4f(locations.offset_and_scale, { offsetX, offsetY, scaleX, scaleY });
+  SetShaderFloat(locations.rotation, rotation);
   SetShaderVec3f(locations.color, color);
   SetShaderVec4f(locations.background, background);
 
@@ -205,7 +206,7 @@ static void RenderSurface(Tachyon* tachyon, SDL_Surface* surface, int32 x, int32
 static void RenderText(Tachyon* tachyon, TTF_Font* font, const char* message, int32 x, int32 y, uint32 wrap_width, const tVec3f& color, const tVec4f& background) {
   SDL_Surface* text = TTF_RenderText_Blended_Wrapped(font, message, { 255, 255, 255 }, wrap_width);
 
-  RenderSurface(tachyon, text, x, y, text->w, text->h, color, background);
+  RenderSurface(tachyon, text, x, y, text->w, text->h, 0.f, color, background);
 
   SDL_FreeSurface(text);
 }
@@ -523,7 +524,8 @@ static void RenderGlobalLighting(Tachyon* tachyon) {
   glClear(GL_COLOR_BUFFER_BIT);
 
   glUseProgram(shader.program);
-  SetShaderVec4f(locations.transform, { 0.f, 0.f, 1.f, 1.f });
+  SetShaderVec4f(locations.offset_and_scale, { 0.f, 0.f, 1.f, 1.f });
+  SetShaderFloat(locations.rotation, 0.f);
   SetShaderInt(locations.in_normal_and_depth, G_BUFFER_NORMALS_AND_DEPTH);
   SetShaderInt(locations.in_color_and_material, G_BUFFER_COLOR_AND_MATERIAL);
   SetShaderInt(locations.in_temporal_data, ACCUMULATION_TEMPORAL_DATA);
@@ -566,7 +568,8 @@ static void RenderPost(Tachyon* tachyon) {
   glViewport(0, 0, ctx.w, ctx.h);
 
   glUseProgram(shader.program);
-  SetShaderVec4f(locations.transform, { 0.f, 0.f, 1.f, 1.f });
+  SetShaderVec4f(locations.offset_and_scale, { 0.f, 0.f, 1.f, 1.f });
+  SetShaderFloat(locations.rotation, 0.f);
   SetShaderInt(locations.in_color_and_depth, ACCUMULATION_COLOR_AND_DEPTH);
 
   RenderScreenQuad(tachyon);
@@ -577,11 +580,11 @@ static void RenderUIElements(Tachyon* tachyon) {
     auto* surface = command.ui_element->surface;
     auto half_w = surface->w >> 1;
     auto half_h = surface->h >> 1;
-    auto x = (int)command.screen_x - half_w;
-    auto y = (int)command.screen_y - half_h;
+    auto x = command.screen_x - half_w;
+    auto y = command.screen_y - half_h;
 
     // @todo batch render common surfaces
-    RenderSurface(tachyon, surface, x, y, surface->w, surface->h, tVec3f(1.f), tVec4f(0.f));
+    RenderSurface(tachyon, surface, x, y, surface->w, surface->h, command.rotation, tVec3f(1.f), tVec4f(0.f));
   }
 }
 
@@ -597,7 +600,8 @@ static void RenderGBufferView(Tachyon* tachyon) {
   glViewport(0, 0, ctx.w, ctx.h);
 
   glUseProgram(shader.program);
-  SetShaderVec4f(locations.transform, { 0.f, 0.f, 1.f, 1.f });
+  SetShaderVec4f(locations.offset_and_scale, { 0.f, 0.f, 1.f, 1.f });
+  SetShaderFloat(locations.rotation, 0.f);
   SetShaderInt(locations.in_normal_and_depth, 0);
   SetShaderInt(locations.in_color_and_material, 1);
   SetShaderMat4f(locations.inverse_projection_matrix, ctx.inverse_projection_matrix);

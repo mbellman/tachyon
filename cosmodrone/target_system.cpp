@@ -136,28 +136,39 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
     // Draw trackers
     for (auto& tracker : state.on_screen_target_trackers) {
       if (tracker.selected_time != 0.f) {
+        const static float animation_time = 0.5f;
+
         Tachyon_DrawUIElement(tachyon, state.ui.selected_target_center, tracker.screen_x, tracker.screen_y);
 
         auto time_since_selected = state.current_game_time - tracker.selected_time;
-        if (time_since_selected > 0.5f) time_since_selected = 0.5f;
+        if (time_since_selected > animation_time) time_since_selected = animation_time;
 
-        const static auto offsets = {
+        const static std::vector<tVec2f> offsets = {
           tVec2f(-1.f, -1.f),
           tVec2f(1.f, -1.f),
-          tVec2f(-1.f, 1.f),
-          tVec2f(1.f, 1.f)
+          tVec2f(1.f, 1.f),
+          tVec2f(-1.f, 1.f)
         };
 
-        auto alpha = time_since_selected / 0.5f;
+        const static std::vector<float> rotations = {
+          0.f,
+          t_PI * 0.5f,
+          t_PI,
+          t_PI + t_HALF_PI
+        };
+
+        auto alpha = time_since_selected / animation_time;
         alpha = sqrtf(alpha);
 
-        auto spread = 20.f + 20.f * (1.f - alpha);
+        auto spread = 30.f + 10.f * (1.f - alpha);
 
-        for (auto& offset : offsets) {
+        for (uint32 i = 0; i < 4; i++) {
+          auto& offset = offsets[i];
+          auto rotation = rotations[i];
           int32 screen_x = tracker.screen_x + int32(offset.x * spread);
           int32 screen_y = tracker.screen_y + int32(offset.y * spread);
 
-          Tachyon_DrawUIElement(tachyon, state.ui.selected_target_corner, screen_x, screen_y);
+          Tachyon_DrawUIElement(tachyon, state.ui.selected_target_corner, screen_x, screen_y, rotation);
         }
       } else {
         Tachyon_DrawUIElement(tachyon, state.ui.target_indicator, tracker.screen_x, tracker.screen_y);

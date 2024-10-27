@@ -35,7 +35,8 @@ struct tUniformLocations {
   ) shadow_map;
 
   uniform_locations(
-    transform,
+    offset_and_scale,
+    rotation,
     in_normal_and_depth,
     in_color_and_material,
     in_temporal_data,
@@ -61,19 +62,22 @@ struct tUniformLocations {
   ) global_lighting;
 
   uniform_locations(
-    transform,
+    offset_and_scale,
+    rotation,
     in_color_and_depth
   ) post;
 
   uniform_locations(
-    transform,
+    offset_and_scale,
+    rotation,
     color,
     background
   ) surface;
 
   // @todo only in dev mode
   uniform_locations(
-    transform,
+    offset_and_scale,
+    rotation,
     in_normal_and_depth,
     in_color_and_material,
     inverse_projection_matrix,

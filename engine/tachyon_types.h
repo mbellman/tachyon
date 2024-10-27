@@ -143,6 +143,7 @@ struct tUIDrawCommand {
   const tUIElement* ui_element = nullptr;
   int32 screen_x = 0;
   int32 screen_y = 0;
+  float rotation = 0.f;
 };
 
 struct Tachyon {

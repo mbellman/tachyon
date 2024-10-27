@@ -86,7 +86,8 @@ static void StoreShaderUniforms(tOpenGLShaders& shaders) {
   store_shader_uniform(shadow_map, light_matrix);
   store_shader_uniform(shadow_map, transform_origin);
 
-  store_shader_uniform(global_lighting, transform);
+  store_shader_uniform(global_lighting, offset_and_scale);
+  store_shader_uniform(global_lighting, rotation);
   store_shader_uniform(global_lighting, in_normal_and_depth);
   store_shader_uniform(global_lighting, in_color_and_material);
   store_shader_uniform(global_lighting, in_temporal_data);
@@ -110,14 +111,17 @@ static void StoreShaderUniforms(tOpenGLShaders& shaders) {
   // @todo allow multiple directional lights
   store_shader_uniform(global_lighting, directional_light_direction);
 
-  store_shader_uniform(post, transform);
+  store_shader_uniform(post, offset_and_scale);
+  store_shader_uniform(post, rotation);
   store_shader_uniform(post, in_color_and_depth);
 
-  store_shader_uniform(surface, transform);
+  store_shader_uniform(surface, offset_and_scale);
+  store_shader_uniform(surface, rotation);
   store_shader_uniform(surface, color);
   store_shader_uniform(surface, background);
 
-  store_shader_uniform(debug_view, transform);
+  store_shader_uniform(debug_view, offset_and_scale);
+  store_shader_uniform(debug_view, rotation);
   store_shader_uniform(debug_view, in_normal_and_depth);
   store_shader_uniform(debug_view, in_color_and_material);
   store_shader_uniform(debug_view, inverse_projection_matrix);
