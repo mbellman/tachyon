@@ -2,6 +2,7 @@
 #include "cosmodrone/game_editor.h"
 #include "cosmodrone/game_types.h"
 #include "cosmodrone/mesh_library.h"
+#include "cosmodrone/target_system.h"
 #include "cosmodrone/world_behavior.h"
 #include "cosmodrone/world_setup.h"
 
@@ -294,7 +295,7 @@ static void HandleFlightIndicators(Tachyon* tachyon, State& state, const float d
     auto object_direction = camera_to_object.unit();
 
     if (
-      camera_to_object.magnitude() > 200000.f ||
+      camera_to_object.magnitude() > 400000.f ||
       tVec3f::dot(object_direction, state.view_forward_direction) < 0.8f
     ) {
       continue;
@@ -511,6 +512,7 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
   HandleFlightIndicators(tachyon, state, dt);
   UpdateShip(tachyon, state, dt);
 
+  TargetSystem::HandleTargets(tachyon, state, dt);
   WorldBehavior::UpdateWorld(tachyon, state, dt);
 
   // @todo dev mode only

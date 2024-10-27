@@ -71,6 +71,14 @@ namespace Cosmodrone {
     AUTO_RETROGRADE
   };
 
+  struct Target {
+    tObject object;
+    float activated_time = 0.f;
+    float selected_time = 0.f;
+    float deselected_time = 0.f;
+    float deactivated_time = 0.f;
+  };
+
   struct State {
     MeshIds meshes;
 
@@ -91,6 +99,8 @@ namespace Cosmodrone {
 
     OrthonormalBasis ship_rotation_basis;
     OrthonormalBasis ship_velocity_basis;
+
+    std::vector<Target> on_screen_targets;
 
     // @todo dev mode only
     bool is_editor_active = false;

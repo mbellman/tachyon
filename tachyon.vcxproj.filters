@@ -357,6 +357,9 @@
     <ClInclude Include="engine\tachyon_ui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="cosmodrone\target_system.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -420,6 +423,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="engine\tachyon_ui.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cosmodrone\target_system.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
