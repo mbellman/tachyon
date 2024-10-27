@@ -21,7 +21,7 @@ static void LoadShipPartMeshes(Tachyon* tachyon, State& state) {
 }
 
 static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
-  #define load_mesh(__name) meshes.__name = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/" #__name ".obj"), 1000)
+  #define load_mesh(__name) meshes.__name = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/" #__name ".obj"), 5000)
 
   auto& meshes = state.meshes;
 
@@ -294,7 +294,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
 }
 
 static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
-  #define load_mesh(__name) meshes.__name = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/generated/" #__name ".obj"), 1000)
+  #define load_mesh(__name) meshes.__name = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/generated/" #__name ".obj"), 5000)
 
   auto& meshes = state.meshes;
 

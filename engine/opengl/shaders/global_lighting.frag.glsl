@@ -159,7 +159,7 @@ int GetCascadeIndex(float depth) {
     return 0;
   } else if (world_depth < 50000.0) {
     return 1;
-  } else if (world_depth < 200000.0) {
+  } else if (world_depth < 100000.0) {
     return 2;
   } else {
     return 3;

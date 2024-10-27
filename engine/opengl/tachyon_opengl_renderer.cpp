@@ -77,8 +77,8 @@ static void SetShaderMat4f(GLuint location, const tMat4f& matrix) {
 const static float cascade_depth_ranges[4][2] = {
   { 500.0f, 10000.0f },
   { 10000.0f, 50000.0f },
-  { 50000.0f, 200000.0f },
-  { 200000.f, 1000000.f }
+  { 50000.0f, 100000.0f },
+  { 100000.f, 500000.f }
 };
 
 /**

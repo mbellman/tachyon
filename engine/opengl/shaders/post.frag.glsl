@@ -41,7 +41,7 @@ void main() {
   #if ENABLE_CHROMATIC_ABERRATION
     // Chromatic aberration
     {
-      const float intensity = 4.0;
+      const float intensity = 3.0;
 
       vec2 offset = intensity * (vec2(0.0) - 2.0 * (fragUv - 0.5));
       float r = texture(in_color_and_depth, fragUv + texel_size * offset).r;
