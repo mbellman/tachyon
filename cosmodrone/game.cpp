@@ -260,84 +260,6 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
   camera.position = state.ship_position - state.view_forward_direction * camera_radius + state.view_up_direction * 150.f;
 }
 
-// @todo move to UI
-static tUIElement* target_indicator = nullptr;
-static tUIElement* selected_target_indicator = nullptr;
-
-// @todo move to UI
-static void HandleFlightIndicators(Tachyon* tachyon, State& state, const float dt) {
-  auto& camera = tachyon->scene.camera;
-
-  tMat4f view_matrix = (
-    camera.rotation.toMatrix4f() *
-    tMat4f::translation(camera.position * tVec3f(-1.f))
-  );
-
-  // @todo make fov/near/far customizable
-  tMat4f projection_matrix = tMat4f::perspective(camera.fov, 500.f, 10000000.f);
-
-  struct Target {
-    tObject object;
-    uint32 screen_x;
-    uint32 screen_y;
-  };
-
-  std::vector<Target> on_screen_targets;
-
-  float closest_distance_to_center = std::numeric_limits<float>::max();
-  tObject selected_target_object;
-
-  uint16 center_x = uint16(tachyon->window_width >> 1);
-  uint16 center_y = uint16(tachyon->window_height >> 1);
-
-  for (auto& object : objects(state.meshes.antenna_3)) {
-    auto camera_to_object = object.position - camera.position;
-    auto object_direction = camera_to_object.unit();
-
-    if (
-      camera_to_object.magnitude() > 400000.f ||
-      tVec3f::dot(object_direction, state.view_forward_direction) < 0.8f
-    ) {
-      continue;
-    }
-
-    tVec3f local_position = view_matrix * object.position;
-    tVec3f clip_position = (projection_matrix * local_position) / local_position.z;
-
-    clip_position.x *= 0.5f;
-    clip_position.x += 0.5f;
-    clip_position.y *= 0.5f;
-    clip_position.y += 0.5f;
-
-    auto screen_x = uint16(tachyon->window_width - clip_position.x * tachyon->window_width);
-    auto screen_y = uint16(clip_position.y * tachyon->window_height);
-
-    float dx = float(screen_x - center_x);
-    float dy = float(screen_y - center_y);
-
-    float center_distance = sqrtf(dx*dx + dy*dy);
-
-    if (center_distance < closest_distance_to_center) {
-      closest_distance_to_center = center_distance;
-      selected_target_object = object;
-    }
-
-    on_screen_targets.push_back({
-      .object = object,
-      .screen_x = screen_x,
-      .screen_y = screen_y
-    });
-  }
-
-  for (auto& target : on_screen_targets) {
-    if (target.object == selected_target_object) {
-      Tachyon_DrawUIElement(tachyon, selected_target_indicator, target.screen_x, target.screen_y);
-    } else {
-      Tachyon_DrawUIElement(tachyon, target_indicator, target.screen_x, target.screen_y);
-    }
-  }
-}
-
 static void UpdateShipVelocityBasis(State& state) {
   auto forward = state.ship_velocity.unit();
   auto up = UP_VECTOR;
@@ -473,8 +395,8 @@ void Cosmodrone::StartGame(Tachyon* tachyon) {
 
   // @todo UI::Initialize()
   {
-    target_indicator = Tachyon_CreateUIElement("./cosmodrone/assets/ui/target.png");
-    selected_target_indicator = Tachyon_CreateUIElement("./cosmodrone/assets/ui/target-selected.png");
+    state.ui.target_indicator = Tachyon_CreateUIElement("./cosmodrone/assets/ui/target.png");
+    state.ui.selected_target_indicator = Tachyon_CreateUIElement("./cosmodrone/assets/ui/target-selected.png");
   }
 }
 
@@ -509,10 +431,9 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
   HandleFlightControls(tachyon, state, dt);
   HandleAutopilot(tachyon, state, dt);
   HandleFlightCamera(tachyon, state, dt);
-  HandleFlightIndicators(tachyon, state, dt);
   UpdateShip(tachyon, state, dt);
 
-  TargetSystem::HandleTargets(tachyon, state, dt);
+  TargetSystem::HandleTargetTrackers(tachyon, state, dt);
   WorldBehavior::UpdateWorld(tachyon, state, dt);
 
   // @todo dev mode only

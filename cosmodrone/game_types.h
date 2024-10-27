@@ -71,12 +71,15 @@ namespace Cosmodrone {
     AUTO_RETROGRADE
   };
 
-  struct Target {
+  struct TargetTracker {
     tObject object;
     float activated_time = 0.f;
     float selected_time = 0.f;
     float deselected_time = 0.f;
     float deactivated_time = 0.f;
+
+    uint16 screen_x = 0;
+    uint16 screen_y = 0;
   };
 
   struct State {
@@ -100,7 +103,13 @@ namespace Cosmodrone {
     OrthonormalBasis ship_rotation_basis;
     OrthonormalBasis ship_velocity_basis;
 
-    std::vector<Target> on_screen_targets;
+    std::vector<TargetTracker> on_screen_target_trackers;
+
+    // @todo move to UI/UISystem
+    struct {
+      tUIElement* target_indicator = nullptr;
+      tUIElement* selected_target_indicator = nullptr;
+    } ui;
 
     // @todo dev mode only
     bool is_editor_active = false;

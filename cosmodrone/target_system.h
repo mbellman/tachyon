@@ -5,6 +5,6 @@
 
 namespace Cosmodrone {
   namespace TargetSystem {
-    void HandleTargets(Tachyon* tachyon, State& state, const float dt);
+    void HandleTargetTrackers(Tachyon* tachyon, State& state, const float dt);
   };
 }

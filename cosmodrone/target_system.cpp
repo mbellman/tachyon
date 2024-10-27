@@ -2,6 +2,144 @@
 
 using namespace Cosmodrone;
 
-void TargetSystem::HandleTargets(Tachyon* tachyon, State& state, const float dt) {
+static bool IsTrackingObject(State& state, const tObject& object) {
+  for (auto& tracker : state.on_screen_target_trackers) {
+    if (tracker.object == object) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+static void StartTrackingObject(State& state, const tObject& object) {
+  state.on_screen_target_trackers.push_back({
+    .object = object,
+    .activated_time = state.current_game_time,
+    .selected_time = 0.f,
+    .deselected_time = 0.f,
+    .deactivated_time = 0.f
+  });
+}
+
+static void StopTrackingObject(State& state, const tObject& object) {
+  auto& trackers = state.on_screen_target_trackers;
+
+  for (uint32 i = 0; i < trackers.size(); i++) {
+    if (trackers[i].object == object) {
+      trackers.erase(trackers.begin() + i);
+
+      return;
+    }
+  }
+
   // @todo
+  // for (auto& tracker : state.on_screen_target_trackers) {
+  //   if (tracker.object == object) {
+  //     tracker.deactivated_time = state.current_game_time;
+
+  //     return;
+  //   }
+  // }
+}
+
+void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const float dt) {
+  auto& camera = tachyon->scene.camera;
+
+  // Manage tracker instances
+  {
+    for (auto& object : objects(state.meshes.antenna_3)) {
+      auto camera_to_object = object.position - camera.position;
+      auto object_direction = camera_to_object.unit();
+
+      if (
+        camera_to_object.magnitude() > 400000.f ||
+        tVec3f::dot(object_direction, state.view_forward_direction) < 0.8f
+      ) {
+        if (IsTrackingObject(state, object)) {
+          StopTrackingObject(state, object);
+        }
+
+        continue;
+      }
+
+      if (!IsTrackingObject(state, object)) {
+        StartTrackingObject(state, object);
+      }
+    }
+  }
+
+  // Draw target trackers
+  {
+    uint16 center_x = uint16(tachyon->window_width >> 1);
+    uint16 center_y = uint16(tachyon->window_height >> 1);
+    float closest_distance_to_center = std::numeric_limits<float>::max();
+    tObject selected_target;
+
+    tMat4f view_matrix = (
+      camera.rotation.toMatrix4f() *
+      tMat4f::translation(camera.position * tVec3f(-1.f))
+    );
+
+    // @todo make fov/near/far customizable
+    tMat4f projection_matrix = tMat4f::perspective(camera.fov, 500.f, 10000000.f);
+
+    // Calculate tracker screen coordinates
+    for (auto& tracker : state.on_screen_target_trackers) {
+      auto& object = tracker.object;
+      tVec3f local_position = view_matrix * object.position;
+      tVec3f clip_position = (projection_matrix * local_position) / local_position.z;
+
+      clip_position.x *= 0.5f;
+      clip_position.x += 0.5f;
+      clip_position.y *= 0.5f;
+      clip_position.y += 0.5f;
+
+      auto screen_x = uint16(tachyon->window_width - clip_position.x * tachyon->window_width);
+      auto screen_y = uint16(clip_position.y * tachyon->window_height);
+
+      tracker.screen_x = screen_x;
+      tracker.screen_y = screen_y;
+
+      float dx = float(screen_x - center_x);
+      float dy = float(screen_y - center_y);
+
+      float center_distance = sqrtf(dx*dx + dy*dy);
+
+      if (center_distance < closest_distance_to_center) {
+        closest_distance_to_center = center_distance;
+        selected_target = tracker.object;
+      }
+    }
+
+    // Update tracker selection
+    for (auto& tracker : state.on_screen_target_trackers) {
+      if (
+        tracker.object != selected_target &&
+        tracker.selected_time > tracker.deselected_time
+      ) {
+        // Deselect any previously-selected trackers
+        // if they are not for the selected target object
+        tracker.deselected_time = state.current_game_time;
+        tracker.selected_time = 0.f;
+      }
+
+      if (
+        tracker.object == selected_target &&
+        tracker.selected_time == 0.f
+      ) {
+        // Select the tracker for the selected target object
+        tracker.selected_time = state.current_game_time;
+      }
+    }
+
+    // Draw trackers
+    for (auto& tracker : state.on_screen_target_trackers) {
+      if (tracker.selected_time != 0.f) {
+        Tachyon_DrawUIElement(tachyon, state.ui.selected_target_indicator, tracker.screen_x, tracker.screen_y);
+      } else {
+        Tachyon_DrawUIElement(tachyon, state.ui.target_indicator, tracker.screen_x, tracker.screen_y);
+      }
+    }
+  }
 }
