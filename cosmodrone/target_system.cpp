@@ -136,7 +136,7 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
     // Draw trackers
     for (auto& tracker : state.on_screen_target_trackers) {
       if (tracker.selected_time != 0.f) {
-        const static float animation_time = 0.5f;
+        const static float animation_time = 0.3f;
 
         Tachyon_DrawUIElement(tachyon, state.ui.selected_target_center, tracker.screen_x, tracker.screen_y);
 

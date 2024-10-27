@@ -528,8 +528,15 @@ void main() {
   ssao = clamp(ssao, 0.0, 1.0);
   shadow = clamp(shadow, 0.0, 1.0);
 
+  // shadow = 1.0;
+  // roughness = 0.6;
+  // metalness = 0.0;
+  // ssao = 0.0;
+
   // Primary directional light
   vec3 out_color = GetDirectionalLightRadiance(directional_light_direction, vec3(1.0), albedo, position, N, V, NdotV, roughness, metalness, clearcoat, subsurface, shadow);
+
+  // out_color = albedo * pow(NdotV, 3.0);
 
   // Earth bounce light
   // @todo make customizable
