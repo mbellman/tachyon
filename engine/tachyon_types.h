@@ -141,8 +141,8 @@ struct tUIElement {
 
 struct tUIDrawCommand {
   const tUIElement* ui_element = nullptr;
-  uint16 screen_x = 0;
-  uint16 screen_y = 0;
+  int32 screen_x = 0;
+  int32 screen_y = 0;
 };
 
 struct Tachyon {

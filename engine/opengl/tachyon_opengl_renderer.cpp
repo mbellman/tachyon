@@ -173,7 +173,7 @@ static void RenderScreenQuad(Tachyon* tachyon) {
   }
 }
 
-static void RenderSurface(Tachyon* tachyon, SDL_Surface* surface, uint32 x, uint32 y, uint32 w, uint32 h, const tVec3f& color, const tVec4f& background) {
+static void RenderSurface(Tachyon* tachyon, SDL_Surface* surface, int32 x, int32 y, uint32 w, uint32 h, const tVec3f& color, const tVec4f& background) {
   auto& renderer = get_renderer();
   auto& ctx = renderer.ctx;
   auto& shader = renderer.shaders.surface;
@@ -202,7 +202,7 @@ static void RenderSurface(Tachyon* tachyon, SDL_Surface* surface, uint32 x, uint
   RenderScreenQuad(tachyon);
 }
 
-static void RenderText(Tachyon* tachyon, TTF_Font* font, const char* message, uint32 x, uint32 y, uint32 wrap_width, const tVec3f& color, const tVec4f& background) {
+static void RenderText(Tachyon* tachyon, TTF_Font* font, const char* message, int32 x, int32 y, uint32 wrap_width, const tVec3f& color, const tVec4f& background) {
   SDL_Surface* text = TTF_RenderText_Blended_Wrapped(font, message, { 255, 255, 255 }, wrap_width);
 
   RenderSurface(tachyon, text, x, y, text->w, text->h, color, background);
@@ -263,7 +263,7 @@ static void HandleDeveloperTools(Tachyon* tachyon) {
     };
 
     // Engine labels
-    uint32 y_offset = 10;
+    int32 y_offset = 10;
 
     for (auto& label : labels) {
       RenderText(tachyon, tachyon->developer_overlay_font, label.c_str(), 10, y_offset, ctx.w, tVec3f(1.f), tVec4f(0.f));

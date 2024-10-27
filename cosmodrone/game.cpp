@@ -396,7 +396,8 @@ void Cosmodrone::StartGame(Tachyon* tachyon) {
   // @todo UI::Initialize()
   {
     state.ui.target_indicator = Tachyon_CreateUIElement("./cosmodrone/assets/ui/target.png");
-    state.ui.selected_target_indicator = Tachyon_CreateUIElement("./cosmodrone/assets/ui/target-selected.png");
+    state.ui.selected_target_corner = Tachyon_CreateUIElement("./cosmodrone/assets/ui/selected-target-corner.png");
+    state.ui.selected_target_center = Tachyon_CreateUIElement("./cosmodrone/assets/ui/selected-target-center.png");
   }
 }
 

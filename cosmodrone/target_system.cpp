@@ -136,7 +136,29 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
     // Draw trackers
     for (auto& tracker : state.on_screen_target_trackers) {
       if (tracker.selected_time != 0.f) {
-        Tachyon_DrawUIElement(tachyon, state.ui.selected_target_indicator, tracker.screen_x, tracker.screen_y);
+        Tachyon_DrawUIElement(tachyon, state.ui.selected_target_center, tracker.screen_x, tracker.screen_y);
+
+        auto time_since_selected = state.current_game_time - tracker.selected_time;
+        if (time_since_selected > 0.5f) time_since_selected = 0.5f;
+
+        const static auto offsets = {
+          tVec2f(-1.f, -1.f),
+          tVec2f(1.f, -1.f),
+          tVec2f(-1.f, 1.f),
+          tVec2f(1.f, 1.f)
+        };
+
+        auto alpha = time_since_selected / 0.5f;
+        alpha = sqrtf(alpha);
+
+        auto spread = 20.f + 20.f * (1.f - alpha);
+
+        for (auto& offset : offsets) {
+          int32 screen_x = tracker.screen_x + int32(offset.x * spread);
+          int32 screen_y = tracker.screen_y + int32(offset.y * spread);
+
+          Tachyon_DrawUIElement(tachyon, state.ui.selected_target_corner, screen_x, screen_y);
+        }
       } else {
         Tachyon_DrawUIElement(tachyon, state.ui.target_indicator, tracker.screen_x, tracker.screen_y);
       }

@@ -78,8 +78,8 @@ namespace Cosmodrone {
     float deselected_time = 0.f;
     float deactivated_time = 0.f;
 
-    uint16 screen_x = 0;
-    uint16 screen_y = 0;
+    int32 screen_x = 0;
+    int32 screen_y = 0;
   };
 
   struct State {
@@ -108,7 +108,8 @@ namespace Cosmodrone {
     // @todo move to UI/UISystem
     struct {
       tUIElement* target_indicator = nullptr;
-      tUIElement* selected_target_indicator = nullptr;
+      tUIElement* selected_target_corner = nullptr;
+      tUIElement* selected_target_center = nullptr;
     } ui;
 
     // @todo dev mode only
