@@ -585,9 +585,11 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
 static void HandleSelectedObject(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
   auto& selected = *get_original_object(editor.selected_object);
+  bool should_flash = uint32(tachyon->running_time * 2.f) % 2;
 
-  selected.color.rgba &= 0xFFF0;
-  selected.color.rgba |= uint32(tachyon->running_time * 2.f) % 2 == 0 ? 0x0002 : 0x0006;
+  selected.color = editor.selected_object.color;
+  selected.color.rgba &= should_flash ? 0xF0F0 : 0xFFF0;
+  selected.color.rgba |= should_flash ? 0x0006 : 0x0001;
 
   // @todo refactor
   {

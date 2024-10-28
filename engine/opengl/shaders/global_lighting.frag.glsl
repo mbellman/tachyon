@@ -535,7 +535,7 @@ void main() {
   // Primary directional light
   vec3 out_color = GetDirectionalLightRadiance(directional_light_direction, vec3(1.0), albedo, position, N, V, NdotV, roughness, metalness, clearcoat, subsurface, shadow);
 
-  // out_color = albedo * pow(NdotV, 5.0);
+  // out_color = albedo * pow(NdotV, 3.0);
 
   // Earth bounce light
   // @todo make customizable
