@@ -556,14 +556,19 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
     commit(thrusters);
   }
 
+  // Toggle global/local transformations
   if (did_press_key(tKey::C)) {
-    // Toggle global/local transformations
     editor.use_modified_action = !editor.use_modified_action;
   }
 
+  // Toggle guidelines
   if (did_press_key(tKey::G)) {
-    // Toggle guidelines
     objects(state.meshes.editor_guideline).disabled = !objects(state.meshes.editor_guideline).disabled;
+  }
+
+  // Toggle high-visibility mode
+  if (did_press_key(tKey::ENTER)) {
+    tachyon->use_high_visibility_mode = !tachyon->use_high_visibility_mode;
   }
 
   // Activate high-speed camera movement with SPACE+SPACE
@@ -793,6 +798,7 @@ void Editor::EnableEditor(Tachyon* tachyon, State& state) {
   ResetInitialObjects(tachyon);
 
   tachyon->show_developer_tools = true;
+  tachyon->use_high_visibility_mode = true;
 
   state.is_editor_active = true;
 }
@@ -819,4 +825,6 @@ void Editor::DisableEditor(Tachyon* tachyon, State& state) {
   WorldSetup::RebuildGeneratedObjects(tachyon, state);
 
   state.is_editor_active = false;
+
+  tachyon->use_high_visibility_mode = false;
 }

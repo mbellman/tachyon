@@ -191,6 +191,7 @@ struct Tachyon {
 
   // @todo dev mode only
   bool show_developer_tools = true;
+  bool use_high_visibility_mode = false;
   TTF_Font* developer_overlay_font = nullptr;
   uint64 frame_start_time_in_microseconds = 0;
   uint64 last_frame_time_in_microseconds = 1;

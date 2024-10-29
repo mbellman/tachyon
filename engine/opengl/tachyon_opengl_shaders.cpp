@@ -110,6 +110,7 @@ static void StoreShaderUniforms(tOpenGLShaders& shaders) {
   // @temporary
   // @todo allow multiple directional lights
   store_shader_uniform(global_lighting, directional_light_direction);
+  store_shader_uniform(global_lighting, use_high_visibility_mode);
 
   store_shader_uniform(post, offset_and_scale);
   store_shader_uniform(post, rotation);

@@ -49,6 +49,10 @@ static void Tachyon_CheckError(const std::string& message) {
   }
 }
 // --------------------------------------
+static void SetShaderBool(GLint location, const bool value) {
+  glUniform1i(location, value);
+}
+
 static void SetShaderInt(GLint location, const int value) {
   glUniform1i(location, value);
 }
@@ -548,6 +552,7 @@ static void RenderGlobalLighting(Tachyon* tachyon) {
   // @temporary
   // @todo allow multiple directional lights
   SetShaderVec3f(locations.directional_light_direction, scene.directional_light_direction);
+  SetShaderBool(locations.use_high_visibility_mode, tachyon->use_high_visibility_mode);
 
   RenderScreenQuad(tachyon);
 }

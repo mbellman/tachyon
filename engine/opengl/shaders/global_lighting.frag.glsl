@@ -25,6 +25,9 @@ uniform float running_time;
 // @todo allow multiple directional lights
 uniform vec3 directional_light_direction;
 
+// @todo dev mode only
+uniform bool use_high_visibility_mode;
+
 noperspective in vec2 fragUv;
 
 layout (location = 0) out vec4 out_color_and_depth;
@@ -528,14 +531,20 @@ void main() {
   ssao = clamp(ssao, 0.0, 1.0);
   shadow = clamp(shadow, 0.0, 1.0);
 
-  // shadow = 1.0;
-  // roughness = 0.6;
-  // metalness = 0.0;
+  // @todo dev mode only
+  if (use_high_visibility_mode) {
+    shadow = 1.0;
+    roughness = 0.6;
+    metalness = 0.0;
+  }
 
   // Primary directional light
   vec3 out_color = GetDirectionalLightRadiance(directional_light_direction, vec3(1.0), albedo, position, N, V, NdotV, roughness, metalness, clearcoat, subsurface, shadow);
 
-  // out_color = albedo * pow(NdotV, 3.0);
+  // @todo dev mode only
+  if (use_high_visibility_mode) {
+    out_color = albedo * pow(NdotV, 3.0);
+  }
 
   // Earth bounce light
   // @todo make customizable
