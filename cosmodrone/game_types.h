@@ -25,6 +25,7 @@ namespace Cosmodrone {
       silo_5,
       torus_1,
       station_torus_1,
+      station_torus_2,
       station_base,
       spire_fortress,
       gate_tower_1,
@@ -45,6 +46,9 @@ namespace Cosmodrone {
       girder_6_frame,
       module_2_core,
       module_2_frame,
+      station_torus_2_body,
+      station_torus_2_supports,
+      station_torus_2_frame,
 
       // Background elements
       planet,

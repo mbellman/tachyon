@@ -70,14 +70,48 @@ static void UpdateSpaceElevator(Tachyon* tachyon, State& state) {
   commit(elevator);
 }
 
-static void UpdateSpaceStation(Tachyon* tachyon, State& state, const float dt) {
-  for_dynamic_objects(state.meshes.station_torus_1, {
-    auto axis = initial.rotation.getUpDirection();
+static void UpdateRotators(Tachyon* tachyon, State& state, const float dt) {
+  auto& meshes = state.meshes;
 
-    object.rotation = Quaternion::fromAxisAngle(axis, state.current_game_time * 0.05f) * initial.rotation;
+  {
+    for_dynamic_objects(meshes.station_torus_1, {
+      auto axis = initial.rotation.getUpDirection();
 
-    commit(object);
-  });
+      object.rotation = Quaternion::fromAxisAngle(axis, state.current_game_time * 0.05f) * initial.rotation;
+
+      commit(object);
+    });
+  }
+
+  {
+    for_dynamic_objects(meshes.station_torus_2_body, {
+      auto axis = initial.rotation.getUpDirection();
+
+      object.rotation = Quaternion::fromAxisAngle(axis, state.current_game_time * 0.05f) * initial.rotation;
+
+      commit(object);
+    });
+  }
+
+  {
+    for_dynamic_objects(meshes.station_torus_2_supports, {
+      auto axis = initial.rotation.getUpDirection();
+
+      object.rotation = Quaternion::fromAxisAngle(axis, state.current_game_time * 0.05f) * initial.rotation;
+
+      commit(object);
+    });
+  }
+
+  {
+    for_dynamic_objects(meshes.station_torus_2_frame, {
+      auto axis = initial.rotation.getUpDirection();
+
+      object.rotation = Quaternion::fromAxisAngle(axis, state.current_game_time * 0.05f) * initial.rotation;
+
+      commit(object);
+    });
+  }
 }
 
 void WorldBehavior::UpdateWorld(Tachyon* tachyon, State& state, const float dt) {
@@ -93,5 +127,5 @@ void WorldBehavior::UpdateWorld(Tachyon* tachyon, State& state, const float dt) 
   state.current_game_time += dt;
 
   // Game time cycle-independent entities
-  UpdateSpaceStation(tachyon, state, dt);
+  UpdateRotators(tachyon, state, dt);
 }

@@ -186,6 +186,16 @@ static void CreateEditorGuidelines(Tachyon* tachyon, State& state) {
   }
 }
 
+static inline void StoreInitialObjects(Tachyon* tachyon, uint16 mesh_index) {
+  auto& group = objects(mesh_index);
+
+  group.initial_objects.clear();
+
+  for (auto& object : group) {
+    group.initial_objects.push_back(object);
+  }
+}
+
 void WorldSetup::InitializeGameWorld(Tachyon* tachyon, State& state) {
   InitializeLevel(tachyon, state);
 
@@ -193,8 +203,8 @@ void WorldSetup::InitializeGameWorld(Tachyon* tachyon, State& state) {
   CreateDebugMeshes(tachyon, state);
   CreateEditorGuidelines(tachyon, state);
 
-  StoreInitialObjects(tachyon, state);
   RebuildGeneratedObjects(tachyon, state);
+  StoreInitialObjects(tachyon, state);
 }
 
 void WorldSetup::StoreInitialObjects(Tachyon* tachyon, State& state) {
@@ -205,7 +215,10 @@ void WorldSetup::StoreInitialObjects(Tachyon* tachyon, State& state) {
       group.initial_objects.push_back(object);\
     };\
 
-  store(state.meshes.station_torus_1);
+  StoreInitialObjects(tachyon, state.meshes.station_torus_1);
+  StoreInitialObjects(tachyon, state.meshes.station_torus_2_body);
+  StoreInitialObjects(tachyon, state.meshes.station_torus_2_supports);
+  StoreInitialObjects(tachyon, state.meshes.station_torus_2_frame);
 }
 
 // @todo refactor
@@ -297,5 +310,41 @@ void WorldSetup::RebuildGeneratedObjects(Tachyon* tachyon, State& state) {
 
     objects(meshes.module_2_core).disabled = false;
     objects(meshes.module_2_frame).disabled = false;
+  }
+
+  // station_torus_2
+  {
+    remove_all(meshes.station_torus_2_body);
+    remove_all(meshes.station_torus_2_supports);
+    remove_all(meshes.station_torus_2_frame);
+
+    for (auto& base : objects(meshes.station_torus_2)) {
+      auto& body = create(meshes.station_torus_2_body);
+      auto& supports = create(meshes.station_torus_2_supports);
+      auto& frame = create(meshes.station_torus_2_frame);
+
+      body.position = supports.position = frame.position = base.position;
+      body.scale = supports.scale = frame.scale = base.scale;
+      body.rotation = supports.rotation = frame.rotation = base.rotation;
+
+      body.color = base.color;
+      body.material = base.material;
+
+      supports.color = tVec3f(1.f);
+      supports.material = tVec4f(0.4f, 1.f, 0, 0);
+
+      frame.color = tVec3f(1.f, 0.2f, 0.2f);
+      frame.material = tVec4f(0.4f, 1.f, 0, 0);
+
+      commit(body);
+      commit(supports);
+      commit(frame);
+    }
+
+    objects(meshes.station_torus_2).disabled = true;
+
+    objects(meshes.station_torus_2_body).disabled = false;
+    objects(meshes.station_torus_2_supports).disabled = false;
+    objects(meshes.station_torus_2_frame).disabled = false;
   }
 }

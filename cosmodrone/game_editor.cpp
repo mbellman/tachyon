@@ -739,11 +739,15 @@ static void UseGeneratedObjectPlaceholders(Tachyon* tachyon, State& state) {
   disable_mesh(girder_6_frame);
   disable_mesh(module_2_core);
   disable_mesh(module_2_frame);
+  disable_mesh(station_torus_2_body);
+  disable_mesh(station_torus_2_supports);
+  disable_mesh(station_torus_2_frame);
 
   // Enable placeholders
   enable_mesh(antenna_2);
   enable_mesh(girder_6);
   enable_mesh(module_2);
+  enable_mesh(station_torus_2);
 }
 
 static void ResetInitialObjects(Tachyon* tachyon) {

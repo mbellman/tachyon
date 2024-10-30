@@ -38,6 +38,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh(silo_5);
   load_mesh(torus_1);
   load_mesh(station_torus_1);
+  load_mesh(station_torus_2);
   load_mesh(station_base);
   load_mesh(spire_fortress);
   load_mesh(gate_tower_1);
@@ -178,6 +179,16 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   });
 
   placeable_mesh_assets.push_back({
+    .mesh_name = "station_torus_2",
+    .mesh_index = meshes.station_torus_2,
+    .defaults = {
+      .scale = tVec3f(100000.f),
+      .color = tVec3f(1.f),
+      .material = tVec4f(1.f, 0, 0.1f, 0.3f)
+    }
+  });
+
+  placeable_mesh_assets.push_back({
     .mesh_name = "station_base",
     .mesh_index = meshes.station_base,
     .defaults = {
@@ -300,10 +311,16 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
 
   load_mesh(antenna_2_frame);
   load_mesh(antenna_2_receivers);
+
   load_mesh(girder_6_core);
   load_mesh(girder_6_frame);
+
   load_mesh(module_2_core);
   load_mesh(module_2_frame);
+
+  load_mesh(station_torus_2_body);
+  load_mesh(station_torus_2_supports);
+  load_mesh(station_torus_2_frame);
 }
 
 static void LoadBackgroundMeshes(Tachyon* tachyon, State& state) {
