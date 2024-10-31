@@ -15,6 +15,7 @@ namespace Cosmodrone {
       antenna_1,
       antenna_2,
       antenna_3,
+      radio_tower_1,
       module_1,
       module_2,
       habitation_1,

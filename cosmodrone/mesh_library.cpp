@@ -29,6 +29,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh(antenna_1);
   load_mesh(antenna_2);
   load_mesh(antenna_3);
+  load_mesh(radio_tower_1);
   load_mesh(module_1);
   load_mesh(module_2);
   load_mesh(habitation_1);
@@ -82,6 +83,16 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
       .scale = tVec3f(4000.f),
       .color = tVec3f(1.f),
       .material = tVec4f(0.6f, 0, 0.1f, 0.3f)
+    }
+  });
+
+  placeable_mesh_assets.push_back({
+    .mesh_name = "radio_tower_1",
+    .mesh_index = meshes.radio_tower_1,
+    .defaults {
+      .scale = tVec3f(5000.f),
+      .color = tVec3f(1.f),
+      .material = tVec4f(0.9f, 0, 0, 0)
     }
   });
 
