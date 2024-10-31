@@ -482,6 +482,7 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
       HandleSelectedObjectMouseAction(tachyon);
     }
 
+    // @todo CTRL-Z
     if (did_press_key(tKey::ENTER)) {
       ResetSelectedObject(tachyon);
     }
@@ -511,6 +512,12 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
 
     if (did_press_key(tKey::ARROW_DOWN)) {
       CopySelectedObject(tachyon, DOWN);
+    }
+
+    // @temporary
+    // @todo implement a color picker, or color controls
+    if (did_press_key(tKey::J)) {
+      editor.selected_object.color = tVec3f(1.f, 0.1f, 0.1f);
     }
   }
 
