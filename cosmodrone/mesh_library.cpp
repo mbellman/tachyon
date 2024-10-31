@@ -3,6 +3,7 @@
 using namespace Cosmodrone;
 
 static std::vector<MeshAsset> placeable_mesh_assets;
+static std::vector<MeshAsset> generated_mesh_assets;
 
 // @bug once in a while, meshes don't load in at the beginning! figure this out
 static void LoadShipPartMeshes(Tachyon* tachyon, State& state) {
@@ -66,6 +67,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   placeable_mesh_assets.push_back({
     .mesh_name = "antenna_2",
     .mesh_index = meshes.antenna_2,
+    .placeholder = true,
     .defaults = {
       .scale = tVec3f(8000.f),
       .color = tVec3f(1.f),
@@ -96,6 +98,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   placeable_mesh_assets.push_back({
     .mesh_name = "module_2",
     .mesh_index = meshes.module_2,
+    .placeholder = true,
     .defaults = {
       .scale = tVec3f(8000.f),
       .color = tVec3f(0.4f),
@@ -181,6 +184,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   placeable_mesh_assets.push_back({
     .mesh_name = "station_torus_2",
     .mesh_index = meshes.station_torus_2,
+    .placeholder = true,
     .defaults = {
       .scale = tVec3f(100000.f),
       .color = tVec3f(1.f),
@@ -286,6 +290,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   placeable_mesh_assets.push_back({
     .mesh_name = "girder_6",
     .mesh_index = meshes.girder_6,
+    .placeholder = true,
     .defaults = {
       .scale = tVec3f(20000.f),
       .color = tVec3f(0.6, 0.1f, 0.1f),
@@ -321,6 +326,75 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
   load_mesh(station_torus_2_body);
   load_mesh(station_torus_2_supports);
   load_mesh(station_torus_2_frame);
+
+  generated_mesh_assets = {
+    // antenna_2
+    {
+      .mesh_index = meshes.antenna_2_frame,
+      .generated_from = meshes.antenna_2,
+      .defaults = {
+        .material = tVec4f(1.f, 1.f, 0, 0)
+      }
+    },
+    {
+      .mesh_index = meshes.antenna_2_receivers,
+      .generated_from = meshes.antenna_2,
+      .defaults = {
+        .material = tVec4f(0.9f, 0, 0, 0.2f)
+      }
+    },
+
+    // girder_6
+    {
+      .mesh_index = meshes.girder_6_core,
+      .generated_from = meshes.girder_6,
+      .defaults = {
+        .color = tVec3f(0.6, 0.1f, 0.1f),
+        .material = tVec4f(0.5f, 1.f, 0, 0)
+      }
+    },
+    {
+      .mesh_index = meshes.girder_6_frame,
+      .generated_from = meshes.girder_6,
+      .defaults = {
+        .material = tVec4f(0.4f, 1.f, 0, 0)
+      }
+    },
+
+    // module_2
+    {
+      .mesh_index = meshes.module_2_core,
+      .generated_from = meshes.module_2
+    },
+    {
+      .mesh_index = meshes.module_2_frame,
+      .generated_from = meshes.module_2,
+      .defaults = {
+        .material = tVec4f(0.4f, 1.f, 0, 0)
+      }
+    },
+
+    // station_torus_2
+    {
+      .mesh_index = meshes.station_torus_2_body,
+      .generated_from = meshes.station_torus_2
+    },
+    {
+      .mesh_index = meshes.station_torus_2_supports,
+      .generated_from = meshes.station_torus_2,
+      .defaults = {
+        .material = tVec4f(0.4f, 1.f, 0, 0)
+      }
+    },
+    {
+      .mesh_index = meshes.station_torus_2_frame,
+      .generated_from = meshes.station_torus_2,
+      .defaults = {
+        .color = tVec3f(1.f, 0.2f, 0.2f),
+        .material = tVec4f(0.4f, 1.f, 0, 0)
+      }
+    }
+  };
 }
 
 static void LoadBackgroundMeshes(Tachyon* tachyon, State& state) {
@@ -337,10 +411,8 @@ static void LoadBackgroundMeshes(Tachyon* tachyon, State& state) {
 static void LoadDebugMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
-  // auto sphere_mesh = Tachyon_CreateSphereMesh(4);
   auto cube_mesh = Tachyon_CreateCubeMesh();
 
-  // meshes.sphere = Tachyon_AddMesh(tachyon, sphere_mesh, 40 * 40 * 40);
   meshes.cube = Tachyon_AddMesh(tachyon, cube_mesh, 6);
   meshes.editor_guideline = Tachyon_AddMesh(tachyon, cube_mesh, 3000);
 
@@ -379,4 +451,9 @@ void MeshLibrary::LoadMeshes(Tachyon* tachyon, State& state) {
 
 const std::vector<MeshAsset>& MeshLibrary::GetPlaceableMeshAssets() {
   return placeable_mesh_assets;
+}
+
+
+const std::vector<MeshAsset>& MeshLibrary::GetGeneratedMeshAssets() {
+  return generated_mesh_assets;
 }

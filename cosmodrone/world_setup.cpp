@@ -186,7 +186,7 @@ static void CreateEditorGuidelines(Tachyon* tachyon, State& state) {
   }
 }
 
-static inline void StoreInitialObjects(Tachyon* tachyon, uint16 mesh_index) {
+static inline void StoreInitialMeshObjects(Tachyon* tachyon, uint16 mesh_index) {
   auto& group = objects(mesh_index);
 
   group.initial_objects.clear();
@@ -208,143 +208,32 @@ void WorldSetup::InitializeGameWorld(Tachyon* tachyon, State& state) {
 }
 
 void WorldSetup::StoreInitialObjects(Tachyon* tachyon, State& state) {
-  #define store(__mesh_index)\
-    auto& group = objects(__mesh_index);\
-    group.initial_objects.clear();\
-    for (auto& object : objects(__mesh_index)) {\
-      group.initial_objects.push_back(object);\
-    };\
-
-  StoreInitialObjects(tachyon, state.meshes.station_torus_1);
-  StoreInitialObjects(tachyon, state.meshes.station_torus_2_body);
-  StoreInitialObjects(tachyon, state.meshes.station_torus_2_supports);
-  StoreInitialObjects(tachyon, state.meshes.station_torus_2_frame);
+  StoreInitialMeshObjects(tachyon, state.meshes.station_torus_1);
+  StoreInitialMeshObjects(tachyon, state.meshes.station_torus_2_body);
+  StoreInitialMeshObjects(tachyon, state.meshes.station_torus_2_supports);
+  StoreInitialMeshObjects(tachyon, state.meshes.station_torus_2_frame);
 }
 
-// @todo refactor
 void WorldSetup::RebuildGeneratedObjects(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
-  // antenna_2
-  {
-    remove_all(meshes.antenna_2_frame);
-    remove_all(meshes.antenna_2_receivers);
+  for (auto& asset : MeshLibrary::GetGeneratedMeshAssets()) {
+    remove_all(asset.mesh_index);
 
-    for (auto& antenna : objects(meshes.antenna_2)) {
-      auto& frame = create(meshes.antenna_2_frame);
-      auto& receivers = create(meshes.antenna_2_receivers);
+    for (auto& base : objects(asset.generated_from)) {
+      auto& piece = create(asset.mesh_index);
 
-      frame.position = receivers.position = antenna.position;
-      frame.scale = receivers.scale = antenna.scale;
-      frame.rotation = receivers.rotation = antenna.rotation;
+      piece.position = base.position;
+      piece.scale = base.scale;
+      piece.rotation = base.rotation;
 
-      frame.color = antenna.color;
-      frame.material = antenna.material;
+      piece.color = asset.defaults.color;
+      piece.material = asset.defaults.material;
 
-      receivers.color = tVec3f(1.f);
-      receivers.material = tVec4f(0.9f, 0, 0, 0.2f);
-
-      commit(frame);
-      commit(receivers);
+      commit(piece);
     }
 
-    objects(meshes.antenna_2).disabled = true;
-
-    objects(meshes.antenna_2_frame).disabled = false;
-    objects(meshes.antenna_2_receivers).disabled = false;
-  }
-
-  // girder_6
-  {
-    remove_all(meshes.girder_6_core);
-    remove_all(meshes.girder_6_frame);
-
-    for (auto& girder : objects(meshes.girder_6)) {
-      auto& core = create(meshes.girder_6_core);
-      auto& frame = create(meshes.girder_6_frame);
-
-      core.position = frame.position = girder.position;
-      core.scale = frame.scale = girder.scale;
-      core.rotation = frame.rotation = girder.rotation;
-
-      core.color = girder.color;
-      core.material = girder.material;
-
-      frame.color = tVec3f(1.f);
-      frame.material = tVec4f(0.4f, 1.f, 0, 0);
-
-      commit(core);
-      commit(frame);
-    }
-
-    objects(meshes.girder_6).disabled = true;
-
-    objects(meshes.girder_6_core).disabled = false;
-    objects(meshes.girder_6_frame).disabled = false;
-  }
-
-  // module_2
-  {
-    remove_all(meshes.module_2_core);
-    remove_all(meshes.module_2_frame);
-
-    for (auto& module : objects(meshes.module_2)) {
-      auto& core = create(meshes.module_2_core);
-      auto& frame = create(meshes.module_2_frame);
-
-      core.position = frame.position = module.position;
-      core.scale = frame.scale = module.scale;
-      core.rotation = frame.rotation = module.rotation;
-
-      core.color = module.color;
-      core.material = module.material;
-
-      frame.color = tVec3f(1.f);
-      frame.material = tVec4f(0.4f, 1.f, 0, 0);
-
-      commit(core);
-      commit(frame);
-    }
-
-    objects(meshes.module_2).disabled = true;
-
-    objects(meshes.module_2_core).disabled = false;
-    objects(meshes.module_2_frame).disabled = false;
-  }
-
-  // station_torus_2
-  {
-    remove_all(meshes.station_torus_2_body);
-    remove_all(meshes.station_torus_2_supports);
-    remove_all(meshes.station_torus_2_frame);
-
-    for (auto& base : objects(meshes.station_torus_2)) {
-      auto& body = create(meshes.station_torus_2_body);
-      auto& supports = create(meshes.station_torus_2_supports);
-      auto& frame = create(meshes.station_torus_2_frame);
-
-      body.position = supports.position = frame.position = base.position;
-      body.scale = supports.scale = frame.scale = base.scale;
-      body.rotation = supports.rotation = frame.rotation = base.rotation;
-
-      body.color = base.color;
-      body.material = base.material;
-
-      supports.color = tVec3f(1.f);
-      supports.material = tVec4f(0.4f, 1.f, 0, 0);
-
-      frame.color = tVec3f(1.f, 0.2f, 0.2f);
-      frame.material = tVec4f(0.4f, 1.f, 0, 0);
-
-      commit(body);
-      commit(supports);
-      commit(frame);
-    }
-
-    objects(meshes.station_torus_2).disabled = true;
-
-    objects(meshes.station_torus_2_body).disabled = false;
-    objects(meshes.station_torus_2_supports).disabled = false;
-    objects(meshes.station_torus_2_frame).disabled = false;
+    objects(asset.generated_from).disabled = true;
+    objects(asset.mesh_index).disabled = false;
   }
 }
