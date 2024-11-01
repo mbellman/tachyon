@@ -434,7 +434,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .mesh_index = meshes.light_1_bulb,
       .generated_from = meshes.light_1,
       .defaults = {
-        .color = tVec4f(1.f, 0.4f, 0.1f, 1.f),
+        .color = tVec4f(1.f, 0.2f, 0.1f, 1.f),
         .material = tVec4f(1.f, 0, 0, 0)
       }
     }

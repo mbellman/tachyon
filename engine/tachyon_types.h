@@ -130,6 +130,14 @@ struct tMeshPack {
   std::vector<tMeshRecord> mesh_records;
 };
 
+struct tPointLight {
+  tVec3f position;
+  float radius = 1000.f;
+  tVec3f color = tVec3f(1.f);
+  float power = 1.f;
+};
+
+// @todo dev mode only
 struct tDevLabel {
   std::string label;
   std::string message;
@@ -162,6 +170,8 @@ struct Tachyon {
   std::vector<tObject> objects;
   std::vector<uint32> surfaces;
   std::vector<tMat4f> matrices;
+
+  std::vector<tPointLight> point_lights;
 
   std::vector<tUIDrawCommand> ui_draw_commands;
 

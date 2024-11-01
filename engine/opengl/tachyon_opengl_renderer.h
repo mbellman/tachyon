@@ -32,6 +32,7 @@ struct tOpenGLRenderer {
 
   GLuint screen_quad_texture;
   tOpenGLScreenQuad screen_quad;
+  tOpenGLLightDisc point_light_disc;
 
   OpenGLFrameBuffer g_buffer;
   OpenGLFrameBuffer accumulation_buffer_a;

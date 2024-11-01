@@ -112,6 +112,14 @@ static void StoreShaderUniforms(tOpenGLShaders& shaders) {
   store_shader_uniform(global_lighting, directional_light_direction);
   store_shader_uniform(global_lighting, use_high_visibility_mode);
 
+  store_shader_uniform(point_lights, in_normal_and_depth);
+  store_shader_uniform(point_lights, in_color_and_material);
+  store_shader_uniform(point_lights, projection_matrix);
+  store_shader_uniform(point_lights, view_matrix);
+  store_shader_uniform(point_lights, inverse_projection_matrix);
+  store_shader_uniform(point_lights, inverse_view_matrix);
+  store_shader_uniform(point_lights, camera_position);
+
   store_shader_uniform(post, offset_and_scale);
   store_shader_uniform(post, rotation);
   store_shader_uniform(post, in_color_and_depth);
@@ -172,6 +180,12 @@ void Tachyon_OpenGL_InitShaders(tOpenGLShaders& shaders) {
     shaders.global_lighting,
     "./engine/opengl/shaders/screen_quad.vert.glsl",
     "./engine/opengl/shaders/global_lighting.frag.glsl"
+  );
+
+  InitVertexFragmentShader(
+    shaders.point_lights,
+    "./engine/opengl/shaders/point_lights.vert.glsl",
+    "./engine/opengl/shaders/point_lights.frag.glsl"
   );
 
   InitVertexFragmentShader(

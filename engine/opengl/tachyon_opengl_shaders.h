@@ -63,6 +63,16 @@ struct tUniformLocations {
   ) global_lighting;
 
   uniform_locations(
+    in_normal_and_depth,
+    in_color_and_material,
+    projection_matrix,
+    view_matrix,
+    inverse_projection_matrix,
+    inverse_view_matrix,
+    camera_position
+  ) point_lights;
+
+  uniform_locations(
     offset_and_scale,
     rotation,
     in_color_and_depth
@@ -90,6 +100,7 @@ struct tOpenGLShaders {
   tOpenGLShader main_geometry;
   tOpenGLShader shadow_map;
   tOpenGLShader global_lighting;
+  tOpenGLShader point_lights;
   tOpenGLShader post;
 
   tOpenGLShader surface;

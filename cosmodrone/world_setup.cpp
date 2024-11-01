@@ -196,6 +196,23 @@ static inline void StoreInitialMeshObjects(Tachyon* tachyon, uint16 mesh_index) 
   }
 }
 
+static void RebuildLightSources(Tachyon* tachyon, State& state) {
+  // @todo only clear generated lights
+  tachyon->point_lights.clear();
+
+  for (auto& bulb : objects(state.meshes.light_1_bulb)) {
+    tVec3f offset = bulb.rotation.toMatrix4f() * tVec3f(0.f, 0.2f, 0);
+    offset *= bulb.scale;
+
+    tachyon->point_lights.push_back({
+      .position = bulb.position + offset,
+      .radius = 2000.f,
+      .color = tVec3f(1.f, 0.3f, 0.1f),
+      .power = 1.f
+    });
+  }
+}
+
 void WorldSetup::InitializeGameWorld(Tachyon* tachyon, State& state) {
   InitializeLevel(tachyon, state);
 
@@ -236,4 +253,6 @@ void WorldSetup::RebuildGeneratedObjects(Tachyon* tachyon, State& state) {
     objects(asset.generated_from).disabled = true;
     objects(asset.mesh_index).disabled = false;
   }
+
+  RebuildLightSources(tachyon, state);
 }

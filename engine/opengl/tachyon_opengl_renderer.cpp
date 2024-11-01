@@ -557,6 +557,97 @@ static void RenderGlobalLighting(Tachyon* tachyon) {
   RenderScreenQuad(tachyon);
 }
 
+static void RenderPointLights(Tachyon* tachyon) {
+  auto& renderer = get_renderer();
+  auto& scene = tachyon->scene;
+  auto& camera = scene.camera;
+  auto& shader = renderer.shaders.point_lights;
+  auto& locations = renderer.shaders.locations.point_lights;
+  auto& ctx = renderer.ctx;
+
+  // @temporary
+  // @todo allow multiple directional lights
+  auto& directional_light_direction = tachyon->scene.directional_light_direction;
+
+  auto& previous_accumulation_buffer = renderer.current_frame % 2 == 0
+    ? renderer.accumulation_buffer_b
+    : renderer.accumulation_buffer_a;
+
+  auto& target_accumulation_buffer = renderer.current_frame % 2 == 0
+    ? renderer.accumulation_buffer_a
+    : renderer.accumulation_buffer_b;
+
+  renderer.g_buffer.read();
+  previous_accumulation_buffer.read();
+  target_accumulation_buffer.write();
+
+  glEnable(GL_BLEND);
+  glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
+
+  glUseProgram(shader.program);
+  SetShaderInt(locations.in_normal_and_depth, G_BUFFER_NORMALS_AND_DEPTH);
+  SetShaderInt(locations.in_color_and_material, G_BUFFER_COLOR_AND_MATERIAL);
+  SetShaderMat4f(locations.projection_matrix, ctx.projection_matrix);
+  SetShaderMat4f(locations.view_matrix, ctx.view_matrix);
+  SetShaderMat4f(locations.inverse_projection_matrix, ctx.inverse_projection_matrix);
+  SetShaderMat4f(locations.inverse_view_matrix, ctx.inverse_view_matrix);
+  SetShaderVec3f(locations.camera_position, ctx.camera_position);
+
+  // @todo perform culling
+  auto& lights = tachyon->point_lights;
+  auto total_instances = lights.size();
+  // @todo avoid reallocating each frame
+  auto* instances = new tOpenGLPointLightDiscInstance[total_instances];
+  // @todo put in ctx
+  auto aspect_ratio = float(ctx.w) / float(ctx.h);
+
+  auto view_matrix = ctx.view_matrix.transpose();
+  auto projection_matrix = ctx.projection_matrix.transpose();
+
+  for (uint32 i = 0; i < total_instances; i++) {
+    auto& light = lights[i];
+    auto& instance = instances[i];
+
+    instance.light = light;
+
+    tVec3f local_light_position = view_matrix * light.position;
+
+    if (light.power == 0.f) {
+      instance.offset = tVec2f(0.f);
+      instance.scale = tVec2f(0.f);
+    } else if (local_light_position.z < -0.1f) {
+      // Light source in front of the camera
+      tVec3f clip_position = (projection_matrix * local_light_position) / local_light_position.z;
+
+      clip_position.x = 1.f - clip_position.x - 1.f;
+      clip_position.y = 1.f - clip_position.y - 1.f;
+
+      instance.offset = tVec2f(clip_position.x, clip_position.y);
+      // @todo use 1 + log(light.power) or similar for scaling term
+      instance.scale.x = 1.5f * light.radius / local_light_position.z;
+      instance.scale.y = 1.5f * light.radius / local_light_position.z * aspect_ratio;
+    } else {
+      // Light source behind the camera; scale to cover
+      // screen when within range, and scale to 0 when
+      // out of range
+      float scale = local_light_position.magnitude() < light.radius ? 2.f : 0.f;
+
+      instance.offset = tVec2f(0.f);
+      instance.scale = tVec2f(scale);
+    }
+  }
+
+  glBindBuffer(GL_ARRAY_BUFFER, renderer.point_light_disc.light_buffer);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(tOpenGLPointLightDiscInstance) * total_instances, instances, GL_DYNAMIC_DRAW);
+
+  glBindVertexArray(renderer.point_light_disc.vao);
+  glDrawArraysInstanced(GL_TRIANGLES, 0, 16 * 3, total_instances);
+
+  glDisable(GL_BLEND);
+
+  delete[] instances;
+}
+
 static void RenderPost(Tachyon* tachyon) {
   auto& renderer = get_renderer();
   auto& shader = renderer.shaders.post;
@@ -702,6 +793,7 @@ void Tachyon_OpenGL_InitRenderer(Tachyon* tachyon) {
   {
     renderer->mesh_pack = Tachyon_CreateOpenGLMeshPack(tachyon);
     renderer->screen_quad = Tachyon_CreateOpenGLScreenQuad(tachyon);
+    renderer->point_light_disc = Tachyon_CreateOpenGLPointLightDisc(tachyon);
   }
 
   {
@@ -762,6 +854,11 @@ void Tachyon_OpenGL_RenderScene(Tachyon* tachyon) {
     RenderGBufferView(tachyon);
   } else {
     RenderGlobalLighting(tachyon);
+
+    if (!tachyon->use_high_visibility_mode) {
+      RenderPointLights(tachyon);
+    }
+
     RenderPost(tachyon);
     RenderUIElements(tachyon);
   }

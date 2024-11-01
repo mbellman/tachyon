@@ -21,5 +21,18 @@ struct tOpenGLScreenQuad {
   GLuint vbo;
 };
 
+struct tOpenGLLightDisc {
+  GLuint vao;
+  GLuint vertex_buffer;
+  GLuint light_buffer;
+};
+
+struct tOpenGLPointLightDiscInstance {
+  tVec2f offset;
+  tVec2f scale;
+  tPointLight light;
+};
+
 tOpenGLMeshPack Tachyon_CreateOpenGLMeshPack(Tachyon* tachyon);
 tOpenGLScreenQuad Tachyon_CreateOpenGLScreenQuad(Tachyon* tachyon);
+tOpenGLLightDisc Tachyon_CreateOpenGLPointLightDisc(Tachyon* tachyon);
