@@ -201,7 +201,7 @@ static void RebuildLightSources(Tachyon* tachyon, State& state) {
   tachyon->point_lights.clear();
 
   for (auto& bulb : objects(state.meshes.light_1_bulb)) {
-    tVec3f offset = bulb.rotation.toMatrix4f() * tVec3f(0.f, 0.2f, 0);
+    tVec3f offset = bulb.rotation.toMatrix4f() * tVec3f(0.f, 0.1f, 0);
     offset *= bulb.scale;
 
     tachyon->point_lights.push_back({

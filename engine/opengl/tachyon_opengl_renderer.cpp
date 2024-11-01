@@ -565,10 +565,6 @@ static void RenderPointLights(Tachyon* tachyon) {
   auto& locations = renderer.shaders.locations.point_lights;
   auto& ctx = renderer.ctx;
 
-  // @temporary
-  // @todo allow multiple directional lights
-  auto& directional_light_direction = tachyon->scene.directional_light_direction;
-
   auto& previous_accumulation_buffer = renderer.current_frame % 2 == 0
     ? renderer.accumulation_buffer_b
     : renderer.accumulation_buffer_a;
