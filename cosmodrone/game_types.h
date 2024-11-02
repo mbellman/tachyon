@@ -40,6 +40,7 @@ namespace Cosmodrone {
       girder_6,
       track_1,
       light_1,
+      light_2,
 
       // Generated station parts
       antenna_2_frame,
@@ -53,6 +54,8 @@ namespace Cosmodrone {
       station_torus_2_frame,
       light_1_base,
       light_1_bulb,
+      light_2_base,
+      light_2_bulb,
 
       // Background elements
       planet,

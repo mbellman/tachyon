@@ -211,6 +211,18 @@ static void RebuildLightSources(Tachyon* tachyon, State& state) {
       .power = 1.f
     });
   }
+
+  for (auto& bulb : objects(state.meshes.light_2_bulb)) {
+    tVec3f offset = bulb.rotation.toMatrix4f() * tVec3f(0.f, 0.1f, 0);
+    offset *= bulb.scale;
+
+    tachyon->point_lights.push_back({
+      .position = bulb.position + offset,
+      .radius = 2000.f,
+      .color = tVec3f(0.1f, 0.4f, 1.f),
+      .power = 1.f
+    });
+  }
 }
 
 void WorldSetup::InitializeGameWorld(Tachyon* tachyon, State& state) {
