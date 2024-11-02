@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "cosmodrone/target_system.h"
 
 using namespace Cosmodrone;
@@ -106,6 +108,8 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
 
       float center_distance = sqrtf(dx*dx + dy*dy);
 
+      tracker.center_distance = center_distance;
+
       if (center_distance < closest_distance_to_center) {
         closest_distance_to_center = center_distance;
         selected_target = tracker.object;
@@ -171,7 +175,18 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
           Tachyon_DrawUIElement(tachyon, state.ui.selected_target_corner, screen_x, screen_y, rotation);
         }
       } else {
-        Tachyon_DrawUIElement(tachyon, state.ui.target_indicator, tracker.screen_x, tracker.screen_y);
+        int32 minimum_edge_distance = std::min({
+          tracker.screen_x,
+          (int32)tachyon->window_width - tracker.screen_x,
+          tracker.screen_y,
+          (int32)tachyon->window_height - tracker.screen_y
+        });
+
+        float alpha = (float)minimum_edge_distance / 200.f;
+        if (alpha < 0.f) alpha = 0.f;
+        if (alpha > 1.f) alpha = 1.f;
+
+        Tachyon_DrawUIElement(tachyon, state.ui.target_indicator, tracker.screen_x, tracker.screen_y, 0.f, alpha);
       }
     }
   }

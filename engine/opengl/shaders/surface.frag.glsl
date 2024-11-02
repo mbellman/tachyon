@@ -1,7 +1,7 @@
 #version 460 core
 
 uniform sampler2D screenTexture;
-uniform vec3 color;
+uniform vec4 color;
 uniform vec4 background;
 
 in vec2 fragUv;
@@ -24,8 +24,9 @@ void main() {
     // Fix destination color bleeding through the background
     // in semi-transparent areas. We only need to do this when
     // a custom background color is specified (alpha > 0).
-    out_color = vec4(texture_color.rgb * color * texture_color.a, 1.0);
+    out_color = vec4(texture_color.rgb * color.rgb * texture_color.a, 1.0);
+    out_color.w = color.w;
   } else {
-    out_color = texture_color * vec4(color, 1.0);
+    out_color = texture_color * color;
   }
 }

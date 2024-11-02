@@ -152,6 +152,7 @@ struct tUIDrawCommand {
   int32 screen_x = 0;
   int32 screen_y = 0;
   float rotation = 0.f;
+  float alpha = 1.f;
 };
 
 struct Tachyon {

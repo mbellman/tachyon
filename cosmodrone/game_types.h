@@ -88,6 +88,7 @@ namespace Cosmodrone {
 
     int32 screen_x = 0;
     int32 screen_y = 0;
+    float center_distance = 0.f;
   };
 
   struct State {

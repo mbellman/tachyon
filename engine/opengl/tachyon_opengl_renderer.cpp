@@ -177,7 +177,7 @@ static void RenderScreenQuad(Tachyon* tachyon) {
   }
 }
 
-static void RenderSurface(Tachyon* tachyon, SDL_Surface* surface, int32 x, int32 y, uint32 w, uint32 h, float rotation, const tVec3f& color, const tVec4f& background) {
+static void RenderSurface(Tachyon* tachyon, SDL_Surface* surface, int32 x, int32 y, uint32 w, uint32 h, float rotation, const tVec4f& color, const tVec4f& background) {
   auto& renderer = get_renderer();
   auto& ctx = renderer.ctx;
   auto& shader = renderer.shaders.surface;
@@ -201,7 +201,7 @@ static void RenderSurface(Tachyon* tachyon, SDL_Surface* surface, int32 x, int32
   glUseProgram(shader.program);
   SetShaderVec4f(locations.offset_and_scale, { offsetX, offsetY, scaleX, scaleY });
   SetShaderFloat(locations.rotation, rotation);
-  SetShaderVec3f(locations.color, color);
+  SetShaderVec4f(locations.color, color);
   SetShaderVec4f(locations.background, background);
 
   RenderScreenQuad(tachyon);
@@ -210,7 +210,7 @@ static void RenderSurface(Tachyon* tachyon, SDL_Surface* surface, int32 x, int32
 static void RenderText(Tachyon* tachyon, TTF_Font* font, const char* message, int32 x, int32 y, uint32 wrap_width, const tVec3f& color, const tVec4f& background) {
   SDL_Surface* text = TTF_RenderText_Blended_Wrapped(font, message, { 255, 255, 255 }, wrap_width);
 
-  RenderSurface(tachyon, text, x, y, text->w, text->h, 0.f, color, background);
+  RenderSurface(tachyon, text, x, y, text->w, text->h, 0.f, tVec4f(color, 1.f), background);
 
   SDL_FreeSurface(text);
 }
@@ -676,7 +676,7 @@ static void RenderUIElements(Tachyon* tachyon) {
     auto y = command.screen_y - half_h;
 
     // @todo batch render common surfaces
-    RenderSurface(tachyon, surface, x, y, surface->w, surface->h, command.rotation, tVec3f(1.f), tVec4f(0.f));
+    RenderSurface(tachyon, surface, x, y, surface->w, surface->h, command.rotation, tVec4f(tVec3f(1.f), command.alpha), tVec4f(0.f));
   }
 }
 
