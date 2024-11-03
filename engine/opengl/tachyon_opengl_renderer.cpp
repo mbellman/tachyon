@@ -579,7 +579,7 @@ static void RenderPointLights(Tachyon* tachyon) {
   target_accumulation_buffer.write();
 
   glEnable(GL_BLEND);
-  glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
+  glBlendFuncSeparatei(0, GL_ONE, GL_ONE, GL_ONE, GL_ONE);
 
   glUseProgram(shader.program);
   SetShaderInt(locations.in_normal_and_depth, G_BUFFER_NORMALS_AND_DEPTH);
@@ -846,6 +846,7 @@ void Tachyon_OpenGL_RenderScene(Tachyon* tachyon) {
   // so we don't need to do any back-face culling or depth testing
   glDisable(GL_CULL_FACE);
   glDisable(GL_DEPTH_TEST);
+  glDisable(GL_BLEND);
 
   if (renderer.show_g_buffer_view) {
     RenderGBufferView(tachyon);

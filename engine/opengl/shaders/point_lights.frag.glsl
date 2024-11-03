@@ -19,6 +19,7 @@ flat in vec2 center;
 in float intensity;
 
 layout (location = 0) out vec4 out_color_and_depth;
+layout (location = 1) out vec4 out_temporal_data;
 
 /**
  * Reconstructs a fragment's world position from depth,
@@ -66,12 +67,30 @@ float GetGlowFactor(vec3 world_position) {
   glow_factor += diffraction_factor * pow(1.0 - abs(dy), 500.0);
   glow_factor += diffraction_factor * pow(1.0 - abs(dx), 500.0);
 
+  if (isnan(glow_factor)) glow_factor = 0.0;
+
+  float distance_factor = min(1.0, light_distance_from_camera / 20000.0);
+  distance_factor *= distance_factor;
+  distance_factor *= distance_factor;
+
+  glow_factor *= distance_factor;
+
   return glow_factor;
 }
 
-vec3 GetPointLightRadiance(vec3 world_position) {
-  // @todo
-  return vec3(0.0);
+vec3 GetPointLightRadiance(vec3 world_position, float light_distance, vec3 N, vec3 L) {
+  vec3 radiant_flux = light.color * light.power;
+  float NdotL = max(0.0, dot(N, -L));
+  float distance_factor = 1.0 - min(1.0, light_distance / light.radius);
+
+  // distance_factor *= distance_factor;
+
+  // @todo use surface color
+  vec3 albedo = vec3(1.0);
+
+  vec3 D = albedo * radiant_flux * distance_factor * NdotL;
+
+  return D;
 }
 
 void main() {
@@ -84,10 +103,9 @@ void main() {
 
   vec3 N = frag_normal_and_depth.xyz;
   vec3 L = light_to_surface / light_distance;
-  float NdotL = max(0.0, dot(N, -L));
 
-  out_color += GetPointLightRadiance(position);
+  out_color += GetPointLightRadiance(position, light_distance, N, L);
   out_color += light.color * GetGlowFactor(position);
 
-  out_color_and_depth = vec4(out_color, 1.0);
+  out_color_and_depth = vec4(out_color, 0);
 }

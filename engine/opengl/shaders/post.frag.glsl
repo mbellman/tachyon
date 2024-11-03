@@ -22,10 +22,10 @@ void main() {
       float blur = mix(0.0, 1.0, pow(depth, 200.0));
 
       const vec2[] offsets = {
+        vec2(0.0, -1.0),
         vec2(1.0, 0.0),
-        vec2(-1.0, 0.0),
         vec2(0.0, 1.0),
-        vec2(0.0, -1.0)
+        vec2(-1.0, 0.0),
       };
 
       for (int i = 0; i < 4; i++) {
