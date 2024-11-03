@@ -112,8 +112,8 @@ namespace Cosmodrone {
     tVec3f ship_velocity;
     float camera_roll_speed = 0.f;
     float ship_rotate_to_target_speed = 0.f;
-    float ship_camera_distance = 1000.f;
-    float ship_camera_distance_target = 1000.f;
+    float ship_camera_distance = 1200.f;
+    float ship_camera_distance_target = 1200.f;
 
     OrthonormalBasis ship_rotation_basis;
     OrthonormalBasis ship_velocity_basis;

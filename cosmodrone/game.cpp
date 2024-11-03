@@ -226,7 +226,7 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
         state.ship_camera_distance_target += 1000.f;
       } else if (did_wheel_up()) {
         state.ship_camera_distance_target -= 1000.f;
-        if (state.ship_camera_distance_target < 1000.f) state.ship_camera_distance_target = 1000.f;
+        if (state.ship_camera_distance_target < 1200.f) state.ship_camera_distance_target = 1200.f;
       }
     }
 
@@ -256,7 +256,7 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
   float speed_zoom_ratio = ship_speed / (ship_speed + 5000.f);
   float camera_radius = state.ship_camera_distance + 250.f * speed_zoom_ratio;
 
-  camera.fov = 45.f + 5.f * speed_zoom_ratio;
+  camera.fov = 45.f + 10.f * speed_zoom_ratio;
   camera.position = state.ship_position - state.view_forward_direction * camera_radius + state.view_up_direction * 150.f;
 }
 
