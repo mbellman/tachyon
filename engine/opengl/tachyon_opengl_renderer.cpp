@@ -264,6 +264,7 @@ static void HandleDeveloperTools(Tachyon* tachyon) {
       "Triangles: " + String(renderer.total_triangles),
       "Vertices: " + String(renderer.total_vertices),
       "Meshes: " + String(renderer.total_meshes_drawn),
+      "Point lights: " + String(tachyon->point_lights.size()),
       "Draw calls: " + String(renderer.total_draw_calls)
     };
 
