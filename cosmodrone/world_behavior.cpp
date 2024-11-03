@@ -112,6 +112,26 @@ static void UpdateRotators(Tachyon* tachyon, State& state, const float dt) {
       commit(object);
     });
   }
+
+  {
+    for_dynamic_objects(meshes.station_torus_3_body, {
+      auto axis = initial.rotation.getUpDirection();
+
+      object.rotation = Quaternion::fromAxisAngle(axis, state.current_game_time * 0.08f) * initial.rotation;
+
+      commit(object);
+    });
+  }
+
+  {
+    for_dynamic_objects(meshes.station_torus_3_frame, {
+      auto axis = initial.rotation.getUpDirection();
+
+      object.rotation = Quaternion::fromAxisAngle(axis, state.current_game_time * 0.08f) * initial.rotation;
+
+      commit(object);
+    });
+  }
 }
 
 void WorldBehavior::UpdateWorld(Tachyon* tachyon, State& state, const float dt) {

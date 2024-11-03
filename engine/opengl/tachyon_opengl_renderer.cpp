@@ -358,7 +358,7 @@ static void RenderStaticGeometry(Tachyon* tachyon) {
 
   // @todo have a separate method for this
   for (auto& record : tachyon->mesh_pack.mesh_records) {
-    if (record.group.total_visible == 0) {
+    if (record.group.total_visible == 0 || record.group.disabled) {
       continue;
     }
 

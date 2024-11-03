@@ -116,7 +116,9 @@ static void InitializeLevel(Tachyon* tachyon, State& state) {
   }
 
   camera.rotation = Quaternion(0.707f, 0.707f, 0, 0);
+
   state.target_camera_rotation = camera.rotation;
+  state.ship_position = tVec3f(-21000.f, 3500.f, -6500.f);
 
   LoadWorldData(tachyon, state);
 }
@@ -241,6 +243,8 @@ void WorldSetup::StoreInitialObjects(Tachyon* tachyon, State& state) {
   StoreInitialMeshObjects(tachyon, state.meshes.station_torus_2_body);
   StoreInitialMeshObjects(tachyon, state.meshes.station_torus_2_supports);
   StoreInitialMeshObjects(tachyon, state.meshes.station_torus_2_frame);
+  StoreInitialMeshObjects(tachyon, state.meshes.station_torus_3_body);
+  StoreInitialMeshObjects(tachyon, state.meshes.station_torus_3_frame);
 }
 
 void WorldSetup::RebuildGeneratedObjects(Tachyon* tachyon, State& state) {

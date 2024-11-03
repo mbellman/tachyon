@@ -88,6 +88,7 @@ vec3 GetPointLightRadiance(vec3 world_position, float light_distance, vec3 N, ve
   // @todo use surface color
   vec3 albedo = vec3(1.0);
 
+  // @todo PBR
   vec3 D = albedo * radiant_flux * distance_factor * NdotL;
 
   return D;
