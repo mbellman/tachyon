@@ -245,7 +245,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     .mesh_index = meshes.solar_panel_2,
     .defaults = {
       .scale = tVec3f(5000.f),
-      .color = 0x28F1,
+      .color = 0x44F1,
       .material = tVec4f(0.2f, 1.f, 0.3f, 1.f)
     }
   });

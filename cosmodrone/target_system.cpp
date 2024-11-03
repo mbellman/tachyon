@@ -182,7 +182,9 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
           (int32)tachyon->window_height - tracker.screen_y
         });
 
-        float alpha = (float)minimum_edge_distance / 200.f;
+        float edge_distance_factor = (float)minimum_edge_distance / 200.f;
+        float world_distance_factor = 1.f - (tracker.object.position - camera.position).magnitude() / 400000.f;
+        float alpha = edge_distance_factor * world_distance_factor;
         if (alpha < 0.f) alpha = 0.f;
         if (alpha > 1.f) alpha = 1.f;
 
