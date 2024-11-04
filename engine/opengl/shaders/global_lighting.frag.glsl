@@ -464,7 +464,7 @@ vec2 GetDenoisedTemporalData(float ssao, float shadow, float depth, vec2 tempora
       float temporal_depth = temporal_data.w;
       float depth_distance = abs(GetWorldDepth(depth, 500.0, 10000000.0) - GetWorldDepth(temporal_depth, 500.0, 10000000.0));
 
-      if (depth_distance < 100.0) {
+      if (depth_distance < 500.0) {
         ssao += temporal_data.x * temporal_weight;
         shadow += temporal_data.y * temporal_weight;
       } else {

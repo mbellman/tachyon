@@ -82,7 +82,8 @@ namespace Cosmodrone {
   enum FlightMode {
     MANUAL_CONTROL,
     AUTO_PROGRADE,
-    AUTO_RETROGRADE
+    AUTO_RETROGRADE,
+    AUTO_DOCK
   };
 
   struct TargetTracker {
@@ -119,6 +120,7 @@ namespace Cosmodrone {
     OrthonormalBasis ship_velocity_basis;
 
     std::vector<TargetTracker> on_screen_target_trackers;
+    tObject docking_target;
 
     // @todo move to UI/UISystem
     struct {

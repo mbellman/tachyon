@@ -76,6 +76,7 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
     uint16 center_x = uint16(tachyon->window_width >> 1);
     uint16 center_y = uint16(tachyon->window_height >> 1);
     float closest_distance_to_center = std::numeric_limits<float>::max();
+    float closest_relative_distance = std::numeric_limits<float>::max();
     tObject selected_target;
 
     tMat4f view_matrix = (
@@ -107,11 +108,26 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
       float dy = float(screen_y - center_y);
 
       float center_distance = sqrtf(dx*dx + dy*dy);
+      float relative_distance = (object.position - state.ship_position).magnitude();
 
       tracker.center_distance = center_distance;
 
-      if (center_distance < closest_distance_to_center) {
+      // Try to select the target tracker closest to the center of the screen,
+      // assuming its object is closer than the closest relative distance threshold
+      if (
+        relative_distance < closest_relative_distance &&
+        center_distance < closest_distance_to_center
+      ) {
         closest_distance_to_center = center_distance;
+        selected_target = tracker.object;
+      }
+
+      // Prioritize closer target objects
+      if (
+        relative_distance < 20000.f &&
+        relative_distance < closest_relative_distance
+      ) {
+        closest_relative_distance = relative_distance;
         selected_target = tracker.object;
       }
     }
@@ -192,4 +208,14 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
       }
     }
   }
+}
+
+const TargetTracker* TargetSystem::GetSelectedTargetTracker(State& state) {
+  for (auto& tracker : state.on_screen_target_trackers) {
+    if (tracker.selected_time != 0.f) {
+      return &tracker;
+    }
+  }
+
+  return nullptr;
 }
