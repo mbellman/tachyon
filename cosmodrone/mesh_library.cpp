@@ -153,6 +153,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   placeable_mesh_assets.push_back({
     .mesh_name = "silo_3",
     .mesh_index = meshes.silo_3,
+    .placeholder = true,
     .defaults = {
       .scale = tVec3f(3000.f),
       .color = tVec3f(1.f),
@@ -364,6 +365,9 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
   load_mesh(antenna_2_frame);
   load_mesh(antenna_2_receivers);
 
+  load_mesh(silo_3_body);
+  load_mesh(silo_3_frame);
+
   load_mesh(girder_6_core);
   load_mesh(girder_6_frame);
 
@@ -397,6 +401,23 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .generated_from = meshes.antenna_2,
       .defaults = {
         .material = tVec4f(0.9f, 0, 0, 0.2f)
+      }
+    },
+
+    // silo_3
+    {
+      .mesh_index = meshes.silo_3_body,
+      .generated_from = meshes.silo_3,
+      .defaults = {
+        .material = tVec4f(1.f, 0, 0.2f, 0.3f)
+      }
+    },
+    {
+      .mesh_index = meshes.silo_3_frame,
+      .generated_from = meshes.silo_3,
+      .defaults = {
+        .color = tVec3f(0.2f),
+        .material = tVec4f(0.2f, 0, 0, 0.3f)
       }
     },
 
