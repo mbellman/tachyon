@@ -39,6 +39,8 @@ namespace Cosmodrone {
       girder_4,
       girder_5,
       girder_6,
+      grate_1,
+      grate_2,
       track_1,
       light_1,
       light_2,
