@@ -52,6 +52,7 @@ namespace Cosmodrone {
       silo_3_frame,
       girder_6_core,
       girder_6_frame,
+      habitation_1_windows,
       module_2_core,
       module_2_frame,
       station_torus_2_body,

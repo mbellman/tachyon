@@ -45,6 +45,18 @@ static const MeshAsset& GetSelectedObjectPickerMeshAsset() {
   return selected_mesh;
 }
 
+static const MeshAsset& GetPlaceableMeshAssetByMeshIndex(uint16 mesh_index) {
+  auto& placeable_meshes = MeshLibrary::GetPlaceableMeshAssets();
+
+  for (auto& asset : placeable_meshes) {
+    if (asset.mesh_index == mesh_index) {
+      return asset;
+    }
+  }
+
+  return placeable_meshes[0];
+}
+
 static tVec3f GetMostSimilarGlobalAxis(const tVec3f& vector) {
   float abs_x = abs(vector.x);
   float abs_y = abs(vector.y);
@@ -673,7 +685,7 @@ static void HandleSelectedObject(Tachyon* tachyon, State& state) {
 
   commit(selected);
 
-  auto mesh_name = GetSelectedObjectPickerMeshAsset().mesh_name;
+  auto mesh_name = GetPlaceableMeshAssetByMeshIndex(selected.mesh_index).mesh_name;
   auto& record = tachyon->mesh_pack.mesh_records[selected.mesh_index];
   auto total_vertices = record.vertex_end - record.vertex_start;
   auto total_triangles = record.face_element_end - record.face_element_start;

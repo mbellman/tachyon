@@ -393,6 +393,8 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
   load_mesh(girder_6_core);
   load_mesh(girder_6_frame);
 
+  load_mesh(habitation_1_windows);
+
   load_mesh(module_2_core);
   load_mesh(module_2_frame);
 
@@ -457,6 +459,16 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .generated_from = meshes.girder_6,
       .defaults = {
         .material = tVec4f(0.4f, 1.f, 0, 0)
+      }
+    },
+
+    // habitation_1,
+    {
+      .mesh_index = meshes.habitation_1_windows,
+      .generated_from = meshes.habitation_1,
+      .defaults {
+        .color = tVec3f(0.1f, 0.1f, 0.2f),
+        .material = tVec4f(0.1f, 0, 1.f, 1.f)
       }
     },
 

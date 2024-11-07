@@ -250,6 +250,12 @@ void WorldSetup::StoreInitialObjects(Tachyon* tachyon, State& state) {
 void WorldSetup::RebuildGeneratedObjects(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
+  for (auto& asset : MeshLibrary::GetPlaceableMeshAssets()) {
+    if (asset.placeholder) {
+      objects(asset.mesh_index).disabled = true;
+    }
+  }
+
   for (auto& asset : MeshLibrary::GetGeneratedMeshAssets()) {
     remove_all(asset.mesh_index);
 
@@ -266,7 +272,6 @@ void WorldSetup::RebuildGeneratedObjects(Tachyon* tachyon, State& state) {
       commit(piece);
     }
 
-    objects(asset.generated_from).disabled = true;
     objects(asset.mesh_index).disabled = false;
   }
 
