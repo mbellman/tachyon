@@ -55,6 +55,8 @@ namespace Cosmodrone {
       habitation_1_windows,
       module_2_core,
       module_2_frame,
+      solar_panel_2_cells,
+      solar_panel_2_frame,
       station_torus_2_body,
       station_torus_2_supports,
       station_torus_2_frame,
