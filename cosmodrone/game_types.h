@@ -105,6 +105,12 @@ namespace Cosmodrone {
     float center_distance = 0.f;
   };
 
+  enum AutoDockStage {
+    APPROACH_DECELERATION,
+    APPROACH_ALIGNMENT,
+    APPROACH
+  };
+
   struct State {
     MeshIds meshes;
 
@@ -127,7 +133,9 @@ namespace Cosmodrone {
     OrthonormalBasis ship_velocity_basis;
 
     std::vector<TargetTracker> on_screen_target_trackers;
+    AutoDockStage auto_dock_stage;
     tObject docking_target;
+    tVec3f docking_position;
 
     // @todo move to UI/UISystem
     struct {

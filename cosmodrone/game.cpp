@@ -47,7 +47,7 @@ static Quaternion DirectionToQuaternion(const tVec3f& direction) {
  * Adapted from https://forum.playcanvas.com/t/quaternion-from-direction-vector/6369/3
  * @todo move to engine
  */
-static Quaternion LookRotation(const tVec3f& forward, tVec3f& up) {
+static Quaternion LookRotation(const tVec3f& forward, const tVec3f& up) {
   auto vector = forward;
   auto vector2 = tVec3f::cross(up, vector).unit();
   auto vector3 = tVec3f::cross(vector, vector2);
@@ -123,6 +123,32 @@ static void UpdateViewDirections(Tachyon* tachyon, State& state) {
   );
 }
 
+static tVec3f GetDockingPositionOffset(const State& state) {
+  if (state.docking_target.mesh_index == state.meshes.antenna_3) {
+    return tVec3f(0, -1.f, -1.f).unit() * 0.7f;
+  }
+
+  return tVec3f(0, -1.f, -1.f).unit();
+}
+
+static tVec3f GetDockingPosition(const State& state) {
+  const tObject& target = state.docking_target;
+  const Quaternion& target_rotation = state.docking_target.rotation;
+  tVec3f offset = GetDockingPositionOffset(state);
+
+  offset *= target.scale;
+  offset = target_rotation.toMatrix4f() * offset;
+
+  return target.position + offset;
+}
+
+static float GetTargetPositionAim(const State& state, const tVec3f& target_position) {
+  auto forward = state.ship_rotation_basis.forward;
+  auto ship_to_target = (target_position - state.ship_position).unit();
+
+  return tVec3f::dot(forward, ship_to_target);
+}
+
 static void AttemptDockingProcedure(State& state) {
   auto* tracker = TargetSystem::GetSelectedTargetTracker(state);
 
@@ -138,11 +164,8 @@ static void AttemptDockingProcedure(State& state) {
     return;
   }
 
-  if (state.ship_velocity.magnitude() > 2000.f) {
-    return;
-  }
-
   state.flight_mode = FlightMode::AUTO_DOCK;
+  state.auto_dock_stage = AutoDockStage::APPROACH_DECELERATION;
   state.docking_target = target_object;
 }
 
@@ -219,10 +242,16 @@ static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt)
   // Allow the ship to swivel quickly in automatic flight modes
   if (
     state.flight_mode == FlightMode::AUTO_PROGRADE ||
-    state.flight_mode == FlightMode::AUTO_RETROGRADE ||
-    state.flight_mode == FlightMode::AUTO_DOCK
+    state.flight_mode == FlightMode::AUTO_RETROGRADE
   ) {
     state.ship_rotate_to_target_speed += 5.f * dt;
+  }
+
+  if (
+    state.flight_mode == FlightMode::AUTO_DOCK &&
+    state.auto_dock_stage < AutoDockStage::APPROACH
+  ) {
+    state.ship_rotate_to_target_speed += 2.f * dt;
   }
 
   // Allow the ship to rotate to the camera orientation faster
@@ -283,9 +312,21 @@ static void HandleAutopilot(Tachyon* tachyon, State& state, const float dt) {
     }
 
     case FlightMode::AUTO_DOCK: {
-      // @todo if docking targets can move, we'll need to look up the
-      // original object every time to determine the live position
-      auto direction = (state.docking_target.position - state.ship_position).unit();
+      if (state.auto_dock_stage == AutoDockStage::APPROACH_DECELERATION) {
+        // @todo use ship rotation basis
+        state.ship_velocity -= state.ship_velocity_basis.forward * 500.f * dt;
+
+        if (state.ship_velocity.magnitude() < 25.f) {
+          state.auto_dock_stage = AutoDockStage::APPROACH_ALIGNMENT;
+        }
+      }
+
+      if (
+        state.auto_dock_stage == AutoDockStage::APPROACH &&
+        state.ship_velocity.magnitude() < 500.f
+      ) {
+        state.ship_velocity += state.ship_rotation_basis.forward * 1500.f * dt;
+      }
     }
   }
 }
@@ -328,8 +369,11 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
 
   if (
     state.flight_mode == FlightMode::AUTO_PROGRADE ||
-    state.flight_mode == FlightMode::AUTO_RETROGRADE ||
-    state.flight_mode == FlightMode::AUTO_DOCK
+    state.flight_mode == FlightMode::AUTO_RETROGRADE || (
+      state.flight_mode == FlightMode::AUTO_DOCK &&
+      state.auto_dock_stage == AutoDockStage::APPROACH_ALIGNMENT &&
+      GetTargetPositionAim(state, GetDockingPosition(state)) > 0.8f
+    )
   ) {
     state.target_camera_rotation = Quaternion::slerp(
       state.target_camera_rotation,
@@ -400,13 +444,44 @@ static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
 
   // @todo move to HandleAutopilot()
   if (state.flight_mode == FlightMode::AUTO_DOCK) {
-    auto q = state.docking_target.rotation;
-    auto target_forward = (state.docking_target.position - state.ship_position).unit();
-    auto target_up = q.getUpDirection();
-    // @todo fix ship model orientation
-    auto r = LookRotation(target_forward.invert(), target_up);
+    switch (state.auto_dock_stage) {
+      case AutoDockStage::APPROACH_DECELERATION: {
+        // @todo fix ship model orientation
+        target_ship_rotation = DirectionToQuaternion(state.ship_velocity_basis.forward);
 
-    target_ship_rotation = r;
+        break;
+      }
+
+      case AutoDockStage::APPROACH_ALIGNMENT: {
+        auto docking_position = GetDockingPosition(state);
+        auto target_rotation = state.docking_target.rotation;
+        auto forward = (docking_position - state.ship_position).unit();
+        auto target_up = target_rotation.getUpDirection();
+
+        // @todo fix ship model orientation
+        target_ship_rotation = LookRotation(forward.invert(), target_up);
+
+        if (GetTargetPositionAim(state, docking_position) > 0.99999f) {
+          state.auto_dock_stage = AutoDockStage::APPROACH;
+        }
+
+        break;
+      }
+
+      case AutoDockStage::APPROACH: {
+
+        if (state.ship_velocity.magnitude() >= 500.f) {
+          auto& target = state.docking_target;
+          auto forward = target.rotation.getDirection();
+          auto up = target.rotation.getUpDirection();
+
+          // @todo fix ship model orientation
+          // target_ship_rotation = LookRotation(forward, up);
+        }
+
+        break;
+      }
+    }
   }
 
   // @todo will nlerp work here?
