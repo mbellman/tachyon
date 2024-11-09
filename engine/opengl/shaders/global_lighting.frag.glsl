@@ -548,7 +548,7 @@ void main() {
 
   // Earth bounce light
   // @todo make customizable
-  out_color += GetDirectionalLightRadiance(vec3(0, 1, 0), vec3(0.2, 0.5, 1.0) * 0.4, albedo, position, N, V, NdotV, 0.8, metalness, 0.0, 0.0, 1.0);
+  out_color += GetDirectionalLightRadiance(vec3(0, 1, 0), vec3(0.2, 0.5, 1.0) * 0.4, albedo, position, N, V, NdotV, mix(roughness, 0.8, 0.5), metalness, 0.0, 0.0, 1.0);
 
   // @todo cleanup
   vec3 L = normalize(directional_light_direction);
