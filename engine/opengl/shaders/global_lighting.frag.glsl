@@ -380,6 +380,10 @@ vec3 GetSkyColor(vec3 sky_direction) {
   return sky_color;
 }
 
+vec3 GetReflectionColor(vec3 R) {
+  return GetSkyColor(R);
+}
+
 const vec3[] ssao_sample_points = {
   vec3(0.021429, 0.059112, 0.07776),
   vec3(0.042287, -0.020052, 0.092332),
@@ -401,7 +405,7 @@ const vec3[] ssao_sample_points = {
 
 float GetSSAO(int total_samples, float depth, vec3 position, vec3 normal, float seed) {
   float linear_depth = GetLinearDepth(depth, 500.0, 10000000.0);
-  float radius = mix(100.0, 30000.0, pow(linear_depth, 0.25));
+  float radius = mix(500.0, 500000.0, linear_depth);
   float ssao = 0.0;
 
   vec3 random_vector = vec3(noise(1.0 + seed), noise(2.0 + seed), noise(3.0 + seed));
@@ -426,8 +430,8 @@ float GetSSAO(int total_samples, float depth, vec3 position, vec3 normal, float 
     }
   }
 
-  const float near_ssao = 0.2;
-  const float far_ssao = 0.4;
+  const float near_ssao = 0.4;
+  const float far_ssao = 0.6;
 
   float ssao_intensity = mix(near_ssao, far_ssao, pow(depth, 30.0));
   ssao_intensity = mix(ssao_intensity, 0.0, pow(depth, 1024.0));
@@ -538,8 +542,12 @@ void main() {
     metalness = 0.0;
   }
 
+  vec3 out_color = vec3(0.0);
+
   // Primary directional light
-  vec3 out_color = GetDirectionalLightRadiance(directional_light_direction, vec3(1.0), albedo, position, N, V, NdotV, roughness, metalness, clearcoat, subsurface, shadow);
+  {
+    out_color += GetDirectionalLightRadiance(directional_light_direction, vec3(1.0), albedo, position, N, V, NdotV, roughness, metalness, clearcoat, subsurface, shadow);
+  }
 
   // @todo dev mode only
   if (use_high_visibility_mode) {
@@ -548,12 +556,25 @@ void main() {
 
   // Earth bounce light
   // @todo make customizable
-  out_color += GetDirectionalLightRadiance(vec3(0, 1, 0), vec3(0.2, 0.5, 1.0) * 0.4, albedo, position, N, V, NdotV, mix(roughness, 0.8, 0.5), metalness, 0.0, 0.0, 1.0);
+  {
+    out_color += GetDirectionalLightRadiance(vec3(0, 1, 0), vec3(0.2, 0.5, 1.0) * 0.4, albedo, position, N, V, NdotV, mix(roughness, 0.8, 0.5), metalness, 0.0, 0.0, 1.0);
+  }
 
+  // Ambient light (based on the primary directional light)
   // @todo cleanup
-  vec3 L = normalize(directional_light_direction);
-  float NdotL = max(dot(N, L), 0.0);
-  out_color += albedo * vec3(0.1, 0.2, 0.3) * (0.005 + 0.02 * (1.0 - NdotL));
+  {
+    vec3 L = normalize(directional_light_direction);
+    float NdotL = max(dot(N, L), 0.0);
+    out_color += albedo * vec3(0.1, 0.2, 0.3) * (0.005 + 0.02 * (1.0 - NdotL));
+  }
+
+  // Reflections
+  {
+    vec3 R = reflect(-V, N);
+    vec3 reflection = GetReflectionColor(R);
+
+    out_color += albedo * reflection * metalness * (1.0 - roughness) * 0.2;
+  }
 
   out_color += GetAmbientFresnel(NdotV);
   out_color = mix(out_color, albedo, pow(emissive, 1.5));

@@ -323,7 +323,7 @@ static void HandleAutopilot(Tachyon* tachyon, State& state, const float dt) {
 
       if (
         state.auto_dock_stage == AutoDockStage::APPROACH &&
-        state.ship_velocity.magnitude() < 500.f
+        state.ship_velocity.magnitude() < 1000.f
       ) {
         state.ship_velocity += state.ship_rotation_basis.forward * 1500.f * dt;
       }
