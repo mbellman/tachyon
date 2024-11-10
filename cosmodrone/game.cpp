@@ -160,7 +160,7 @@ static void AttemptDockingProcedure(State& state) {
   auto& ship_position = state.ship_position;
   auto target_distance = (target_object.position - ship_position).magnitude();
 
-  if (target_distance > 40000.f) {
+  if (target_distance > 80000.f) {
     return;
   }
 
@@ -314,7 +314,7 @@ static void HandleAutopilot(Tachyon* tachyon, State& state, const float dt) {
     case FlightMode::AUTO_DOCK: {
       if (state.auto_dock_stage == AutoDockStage::APPROACH_DECELERATION) {
         // @todo use ship rotation basis
-        state.ship_velocity -= state.ship_velocity_basis.forward * 500.f * dt;
+        state.ship_velocity -= state.ship_velocity_basis.forward * 1000.f * dt;
 
         if (state.ship_velocity.magnitude() < 25.f) {
           state.auto_dock_stage = AutoDockStage::APPROACH_ALIGNMENT;
