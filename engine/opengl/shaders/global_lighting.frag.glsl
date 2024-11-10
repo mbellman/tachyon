@@ -549,11 +549,6 @@ void main() {
     out_color += GetDirectionalLightRadiance(directional_light_direction, vec3(1.0), albedo, position, N, V, NdotV, roughness, metalness, clearcoat, subsurface, shadow);
   }
 
-  // @todo dev mode only
-  if (use_high_visibility_mode) {
-    out_color = albedo * pow(NdotV, 3.0);
-  }
-
   // Earth bounce light
   // @todo make customizable
   {
@@ -565,6 +560,7 @@ void main() {
   {
     vec3 L = normalize(directional_light_direction);
     float NdotL = max(dot(N, L), 0.0);
+
     out_color += albedo * vec3(0.1, 0.2, 0.3) * (0.005 + 0.02 * (1.0 - NdotL));
   }
 
@@ -574,6 +570,11 @@ void main() {
     vec3 reflection = GetReflectionColor(R);
 
     out_color += albedo * reflection * metalness * (1.0 - roughness) * 0.2;
+  }
+
+  // @todo dev mode only
+  if (use_high_visibility_mode) {
+    out_color = albedo * pow(NdotV, 2.0);
   }
 
   out_color += GetAmbientFresnel(NdotV);
