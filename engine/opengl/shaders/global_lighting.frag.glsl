@@ -360,9 +360,13 @@ vec3 GetSkyColor(vec3 sky_direction) {
   float bg_noise2 = simplex_noise(bg_direction.xz);
   bg_noise2 = clamp(bg_noise2, 0.0, 1.0);
 
+  float bg_noise3 = simplex_noise((bg_direction.xy * bg_direction.zy) * vec2(2.0, 4.0));
+  bg_noise3 = clamp(bg_noise3, 0.0, 1.0);
+
   vec3 space_color = vec3(0);
-  space_color += vec3(bg_noise) * vec3(1, 0.5, 1) * 0.2;
-  space_color += vec3(bg_noise2) * vec3(0, 0.75, 1) * 0.1;
+  space_color += vec3(bg_noise) * vec3(1.0, 0.5, 1.0) * 0.2;
+  space_color += vec3(bg_noise2) * vec3(0.0, 0.75, 1.0) * 0.1;
+  space_color += vec3(bg_noise3) * vec3(1.0, 0.2, 0.6) * 0.1 * (2.0 * pow(abs(sky_direction.y), 3.0));
 
   float stars_x = atan(bg_direction.x, bg_direction.z) + 3.141592;
   float stars_y = atan(length(bg_direction.xz), bg_direction.y);
@@ -430,7 +434,7 @@ float GetSSAO(int total_samples, float depth, vec3 position, vec3 normal, float 
     }
   }
 
-  const float near_ssao = 0.4;
+  const float near_ssao = 0.3;
   const float far_ssao = 0.6;
 
   float ssao_intensity = mix(near_ssao, far_ssao, pow(depth, 30.0));
