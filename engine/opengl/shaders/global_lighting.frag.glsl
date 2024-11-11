@@ -360,7 +360,7 @@ vec3 GetSkyColor(vec3 sky_direction) {
   float bg_noise2 = simplex_noise(bg_direction.xz);
   bg_noise2 = clamp(bg_noise2, 0.0, 1.0);
 
-  float bg_noise3 = simplex_noise((bg_direction.xy * bg_direction.zy) * vec2(2.0, 4.0));
+  float bg_noise3 = simplex_noise((bg_direction.xy * bg_direction.zy + bg_direction.xz) * vec2(1.0, 3.0));
   bg_noise3 = clamp(bg_noise3, 0.0, 1.0);
 
   vec3 space_color = vec3(0);
@@ -556,7 +556,10 @@ void main() {
   // Earth bounce light
   // @todo make customizable
   {
-    out_color += GetDirectionalLightRadiance(vec3(0, 1, 0), vec3(0.2, 0.5, 1.0) * 0.4, albedo, position, N, V, NdotV, mix(roughness, 0.8, 0.5), metalness, 0.0, 0.0, 1.0);
+    vec3 earth_light_direction = vec3(0, 1.0, 0);
+    vec3 earth_light_color = vec3(0.2, 0.5, 1.0) * 0.4;
+ 
+    out_color += GetDirectionalLightRadiance(earth_light_direction, earth_light_color, albedo, position, N, V, NdotV, mix(roughness, 0.8, 0.5), metalness, 0.0, 0.0, 1.0);
   }
 
   // Ambient light (based on the primary directional light)
