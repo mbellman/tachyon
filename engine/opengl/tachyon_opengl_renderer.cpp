@@ -638,6 +638,7 @@ static void RenderPointLights(Tachyon* tachyon) {
   glBufferData(GL_ARRAY_BUFFER, sizeof(tOpenGLPointLightDiscInstance) * total_instances, instances, GL_DYNAMIC_DRAW);
 
   glBindVertexArray(renderer.point_light_disc.vao);
+  // @todo reference # of disc slices in tachyon_opengl_geometry.cpp
   glDrawArraysInstanced(GL_TRIANGLES, 0, 16 * 3, total_instances);
 
   glDisable(GL_BLEND);

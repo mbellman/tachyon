@@ -119,11 +119,21 @@ tOpenGLLightDisc Tachyon_CreateOpenGLPointLightDisc(Tachyon* tachyon) {
     vertex_positions[index] = tVec2f(0.f);
 
     // Add corners
-    const float a1 = i * slice_angle * DEGREES_TO_RADIANS;
-    const float a2 = (i + 1) * slice_angle * DEGREES_TO_RADIANS;
+    const float a1 = float(i) * slice_angle * DEGREES_TO_RADIANS;
+    const float a2 = float(i + 1) * slice_angle * DEGREES_TO_RADIANS;
 
     vertex_positions[index + 1] = tVec2f(sinf(a1), cosf(a1));
-    vertex_positions[index + 2] = tVec2f(sinf(a2), cosf(a2));
+
+    if (i == DISC_SLICES - 1) {
+      // @hack Ensure the final disc slice does not create any seam gaps
+      // with the first slice. We actually get a subtle floating point
+      // error accumulation by the time we've gone around the circle,
+      // and manually-calculated corner positions are just slightly off.
+      vertex_positions[index + 2].x = vertex_positions[1].x;
+      vertex_positions[index + 2].y = vertex_positions[1].y;
+    } else {
+      vertex_positions[index + 2] = tVec2f(sinf(a2), cosf(a2));
+    }
   }
 
   // Buffer disc vertices
