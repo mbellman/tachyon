@@ -1,6 +1,5 @@
 #version 460 core
 
-// uniform sampler2D meshTexture;
 uniform mat4 view_projection_matrix;
 uniform vec3 transform_origin;
 
@@ -13,22 +12,6 @@ layout (location = 5) in mat4 modelMatrix;
 
 flat out uvec4 fragSurface;
 out vec3 fragNormal;
-out vec3 fragTangent;
-out vec3 fragBitangent;
-out vec2 fragUv;
-
-/**
- * Returns a bitangent from potentially non-orthonormal
- * normal/tangent vectors using the Gram-Schmidt process.
- */
-vec3 getFragBitangent(vec3 normal, vec3 tangent) {
-  // Redefine the tangent by using the projection of the tangent
-  // onto the normal line and defining a vector from that to the
-  // original tangent, orthonormalizing the normal/tangent
-  tangent = normalize(tangent - dot(tangent, normal) * normal);
-
-  return cross(tangent, normal);
-}
 
 uvec4 SurfaceToUVec4(uint surface) {
   uint rg = ((surface & 0xFF000000) >> 24);
@@ -54,7 +37,4 @@ void main() {
 
   fragSurface = SurfaceToUVec4(modelSurface);
   fragNormal = normal_matrix * vertexNormal;
-  fragTangent = normal_matrix * vertexTangent;
-  fragBitangent = getFragBitangent(fragNormal, fragTangent);
-  fragUv = vertexUv;
 }

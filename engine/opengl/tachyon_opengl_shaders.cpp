@@ -120,6 +120,9 @@ static void StoreShaderUniforms(tOpenGLShaders& shaders) {
   store_shader_uniform(point_lights, inverse_view_matrix);
   store_shader_uniform(point_lights, camera_position);
 
+  store_shader_uniform(volumetric_mesh, view_projection_matrix);
+  store_shader_uniform(volumetric_mesh, transform_origin);
+
   store_shader_uniform(post, offset_and_scale);
   store_shader_uniform(post, rotation);
   store_shader_uniform(post, in_color_and_depth);
@@ -186,6 +189,12 @@ void Tachyon_OpenGL_InitShaders(tOpenGLShaders& shaders) {
     shaders.point_lights,
     "./engine/opengl/shaders/point_lights.vert.glsl",
     "./engine/opengl/shaders/point_lights.frag.glsl"
+  );
+
+  InitVertexFragmentShader(
+    shaders.volumetric_mesh,
+    "./engine/opengl/shaders/volumetric_mesh.vert.glsl",
+    "./engine/opengl/shaders/volumetric_mesh.frag.glsl"
   );
 
   InitVertexFragmentShader(

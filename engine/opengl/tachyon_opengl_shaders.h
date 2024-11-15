@@ -73,6 +73,11 @@ struct tUniformLocations {
   ) point_lights;
 
   uniform_locations(
+    view_projection_matrix,
+    transform_origin
+  ) volumetric_mesh;
+
+  uniform_locations(
     offset_and_scale,
     rotation,
     in_color_and_depth
@@ -101,6 +106,7 @@ struct tOpenGLShaders {
   tOpenGLShader shadow_map;
   tOpenGLShader global_lighting;
   tOpenGLShader point_lights;
+  tOpenGLShader volumetric_mesh;
   tOpenGLShader post;
 
   tOpenGLShader surface;

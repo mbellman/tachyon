@@ -348,47 +348,32 @@ struct DrawElementsIndirectCommand {
   GLuint baseInstance;
 };
 
-static void RenderStaticGeometry(Tachyon* tachyon) {
-  auto& camera = tachyon->scene.camera;
+static void RenderGeometryByType(Tachyon* tachyon, tMeshType type) {
   auto& renderer = get_renderer();
-  auto& shader = renderer.shaders.main_geometry;
-  auto& locations = renderer.shaders.locations.main_geometry;
-  auto& ctx = renderer.ctx;
   auto& gl_mesh_pack = renderer.mesh_pack;
 
-  // @todo have a separate method for this
-  for (auto& record : tachyon->mesh_pack.mesh_records) {
-    if (
-      record.group.disabled ||
-      record.group.total_visible == 0 ||
-      record.type != PBR_MESH
-    ) {
-      continue;
+  // Re-buffer any updated instances
+  {
+    for (auto& record : tachyon->mesh_pack.mesh_records) {
+      if (
+        record.group.disabled ||
+        record.group.total_visible == 0 ||
+        record.type != type
+      ) {
+        continue;
+      }
+
+      if (!record.group.buffered) {
+        glBindBuffer(GL_ARRAY_BUFFER, gl_mesh_pack.buffers[SURFACE_BUFFER]);
+        glBufferSubData(GL_ARRAY_BUFFER, record.group.object_offset * sizeof(uint32), record.group.total_visible * sizeof(uint32), record.group.surfaces);
+
+        glBindBuffer(GL_ARRAY_BUFFER, gl_mesh_pack.buffers[MATRIX_BUFFER]);
+        glBufferSubData(GL_ARRAY_BUFFER, record.group.object_offset * sizeof(tMat4f), record.group.total_visible * sizeof(tMat4f), record.group.matrices);
+      }
+
+      record.group.buffered = true;
     }
-
-    if (!record.group.buffered) {
-      glBindBuffer(GL_ARRAY_BUFFER, gl_mesh_pack.buffers[SURFACE_BUFFER]);
-      glBufferSubData(GL_ARRAY_BUFFER, record.group.object_offset * sizeof(uint32), record.group.total_visible * sizeof(uint32), record.group.surfaces);
-
-      glBindBuffer(GL_ARRAY_BUFFER, gl_mesh_pack.buffers[MATRIX_BUFFER]);
-      glBufferSubData(GL_ARRAY_BUFFER, record.group.object_offset * sizeof(tMat4f), record.group.total_visible * sizeof(tMat4f), record.group.matrices);
-    }
-
-    record.group.buffered = true;
   }
-
-  glEnable(GL_CULL_FACE);
-  glEnable(GL_DEPTH_TEST);
-  glDisable(GL_BLEND);
-
-  renderer.g_buffer.write();
-
-  glClearColor(0.f, 0.f, 0.f, 1.f);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-  glUseProgram(shader.program);
-  SetShaderMat4f(locations.view_projection_matrix, ctx.view_projection_matrix);
-  SetShaderVec3f(locations.transform_origin, tachyon->scene.transform_origin);
 
   glBindVertexArray(gl_mesh_pack.vao);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gl_mesh_pack.ebo);
@@ -404,7 +389,7 @@ static void RenderStaticGeometry(Tachyon* tachyon) {
     if (
       record.group.disabled ||
       record.group.total_visible == 0 ||
-      record.type != PBR_MESH
+      record.type != type
     ) {
       continue;
     }
@@ -436,6 +421,28 @@ static void RenderStaticGeometry(Tachyon* tachyon) {
   {
     renderer.total_draw_calls += 1;
   }
+}
+
+static void RenderPbrGeometry(Tachyon* tachyon) {
+  auto& renderer = get_renderer();
+  auto& shader = renderer.shaders.main_geometry;
+  auto& locations = renderer.shaders.locations.main_geometry;
+  auto& ctx = renderer.ctx;
+
+  glEnable(GL_CULL_FACE);
+  glEnable(GL_DEPTH_TEST);
+  glDisable(GL_BLEND);
+
+  renderer.g_buffer.write();
+
+  glClearColor(0.f, 0.f, 0.f, 1.f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+  glUseProgram(shader.program);
+  SetShaderMat4f(locations.view_projection_matrix, ctx.view_projection_matrix);
+  SetShaderVec3f(locations.transform_origin, tachyon->scene.transform_origin);
+
+  RenderGeometryByType(tachyon, PBR_MESH);
 }
 
 static void RenderShadowMaps(Tachyon* tachyon) {
@@ -564,6 +571,29 @@ static void RenderGlobalLighting(Tachyon* tachyon) {
   SetShaderBool(locations.use_high_visibility_mode, tachyon->use_high_visibility_mode);
 
   RenderScreenQuad(tachyon);
+}
+
+static void RenderVolumetricMeshes(Tachyon* tachyon) {
+  auto& renderer = get_renderer();
+  auto& shader = renderer.shaders.volumetric_mesh;
+  auto& locations = renderer.shaders.locations.volumetric_mesh;
+  auto& ctx = renderer.ctx;
+
+  glEnable(GL_CULL_FACE);
+  // glEnable(GL_DEPTH_TEST);
+  // glDisable(GL_BLEND);
+
+  auto& target_accumulation_buffer = renderer.current_frame % 2 == 0
+    ? renderer.accumulation_buffer_a
+    : renderer.accumulation_buffer_b;
+
+  glUseProgram(shader.program);
+  SetShaderMat4f(locations.view_projection_matrix, ctx.view_projection_matrix);
+  SetShaderVec3f(locations.transform_origin, tachyon->scene.transform_origin);
+
+  RenderGeometryByType(tachyon, VOLUMETRIC_MESH);
+
+  glDisable(GL_CULL_FACE);
 }
 
 static void RenderPointLights(Tachyon* tachyon) {
@@ -848,7 +878,7 @@ void Tachyon_OpenGL_RenderScene(Tachyon* tachyon) {
   }
 
   UpdateRendererContext(tachyon);
-  RenderStaticGeometry(tachyon);
+  RenderPbrGeometry(tachyon);
   RenderShadowMaps(tachyon);
 
   // The next steps in the pipeline render quads in screen space,
@@ -861,6 +891,7 @@ void Tachyon_OpenGL_RenderScene(Tachyon* tachyon) {
     RenderGBufferView(tachyon);
   } else {
     RenderGlobalLighting(tachyon);
+    RenderVolumetricMeshes(tachyon);
 
     if (!tachyon->use_high_visibility_mode) {
       RenderPointLights(tachyon);
