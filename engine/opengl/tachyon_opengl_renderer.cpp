@@ -358,7 +358,11 @@ static void RenderStaticGeometry(Tachyon* tachyon) {
 
   // @todo have a separate method for this
   for (auto& record : tachyon->mesh_pack.mesh_records) {
-    if (record.group.total_visible == 0 || record.group.disabled) {
+    if (
+      record.group.disabled ||
+      record.group.total_visible == 0 ||
+      record.type != PBR_MESH
+    ) {
       continue;
     }
 
@@ -397,7 +401,11 @@ static void RenderStaticGeometry(Tachyon* tachyon) {
   for (uint32 i = 0; i < records.size(); i++) {
     auto& record = records[i];
 
-    if (record.group.disabled || record.group.total_visible == 0) {
+    if (
+      record.group.disabled ||
+      record.group.total_visible == 0 ||
+      record.type != PBR_MESH
+    ) {
       continue;
     }
 

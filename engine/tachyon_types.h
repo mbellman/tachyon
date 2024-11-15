@@ -113,6 +113,11 @@ struct tMesh {
   std::vector<uint32> face_elements;
 };
 
+enum tMeshType {
+  PBR_MESH,
+  VOLUMETRIC_MESH
+};
+
 struct tMeshRecord {
   uint32 vertex_start;
   uint32 vertex_end;
@@ -120,6 +125,7 @@ struct tMeshRecord {
   uint32 face_element_end;
   uint16 mesh_index;
   uint8 shadow_cascade_ceiling = 4;
+  tMeshType type = PBR_MESH;
 
   tObjectGroup group;
 };

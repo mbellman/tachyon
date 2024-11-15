@@ -4,6 +4,7 @@
 #include "engine/tachyon_types.h"
 
 #define add_mesh(__mesh, __total) Tachyon_AddMesh(tachyon, __mesh, __total)
+#define mesh(__mesh_index) tachyon->mesh_pack.mesh_records[__mesh_index]
 #define objects(__mesh_index) tachyon->mesh_pack.mesh_records[__mesh_index].group
 #define create(__mesh_index) Tachyon_CreateObject(tachyon, __mesh_index)
 #define remove(__object) Tachyon_RemoveObject(tachyon, __object)
