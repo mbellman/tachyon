@@ -36,7 +36,7 @@ static void UpdateCelestialBodies(Tachyon* tachyon, State& state) {
     earth.material = tVec4f(0.4f, 0, 1.f, 0.3);
 
     atmosphere.position = earth.position;
-    atmosphere.scale = earth.scale * 1.02f;
+    atmosphere.scale = earth.scale * 1.015f;
 
     commit(earth);
     commit(atmosphere);

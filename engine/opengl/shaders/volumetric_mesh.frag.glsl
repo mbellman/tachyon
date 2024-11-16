@@ -159,7 +159,7 @@ void main() {
     snoise(vec4(v * 2.0, t)) +
     snoise(vec4(v * 4.0, t)) +
     snoise(vec4(v * 8.0, t)) +
-    snoise(vec4(v * 24.0, t))
+    snoise(vec4(v * 32.0, t))
   );
 
   clouds = clamp(clouds, 0.0, 1.0);
@@ -184,16 +184,12 @@ void main() {
 
   out_color += edge_color * pow(1.0 - NdotV, 10.0) * pow(1.0 - NdotL, 20.0);
 
+  // Sunrise/sunset
   out_color +=
+    2.0 *
     (vec3(1.0, 0.8, 0.5) + clouds) *
     pow(DdotL, 50.0) *
-    pow(1.0 - NdotV * NdotV, 4.0);
-
-  // out_color += (
-  //   (scattering + pow(DdotL, 50.0)) *
-  //   pow(DdotL, 3.0) *
-  //   pow(1.0 - NdotV + 0.2, 3.0)
-  // );
+    pow(1.0 - NdotV, 2.0);
 
   out_color_and_depth = vec4(out_color, 0);
 }

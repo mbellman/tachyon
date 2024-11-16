@@ -32,11 +32,11 @@ void main() {
   vec3 translation = vec3(modelMatrix[3][0], modelMatrix[3][1], modelMatrix[3][2]);
 
   // Apply translation, offset by the origin
-  vec3 world_space_position = model_space_position + (translation - transform_origin);
+  vec3 transform_space_position = model_space_position + (translation - transform_origin);
 
-  gl_Position = view_projection_matrix * vec4(world_space_position, 1.0);
+  gl_Position = view_projection_matrix * vec4(transform_space_position, 1.0);
 
   fragSurface = SurfaceToUVec4(modelSurface);
-  fragPosition = world_space_position;
+  fragPosition = model_space_position + translation;
   fragNormal = normal_matrix * vertexNormal;
 }
