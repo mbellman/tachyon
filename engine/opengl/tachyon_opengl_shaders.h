@@ -76,7 +76,8 @@ struct tUniformLocations {
     view_projection_matrix,
     transform_origin,
     camera_position,
-    primary_light_direction
+    primary_light_direction,
+    scene_time
   ) volumetric_mesh;
 
   uniform_locations(

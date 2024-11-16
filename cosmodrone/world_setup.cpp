@@ -80,10 +80,19 @@ static void InitializeLevel(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
   auto& meshes = state.meshes;
 
+  // Earth + Moon
   create(meshes.planet);
   create(meshes.planet);
+
+  // Earth atmosphere
   create(meshes.earth_atmosphere);
+
+  // Background space elevator
   create(meshes.space_elevator);
+
+  // Local elevator car
+  create(meshes.elevator_car_1);
+  create(meshes.elevator_car_1_frame);
 
   // @todo improve ship part handling
   {

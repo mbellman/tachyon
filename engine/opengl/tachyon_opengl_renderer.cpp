@@ -574,6 +574,7 @@ static void RenderGlobalLighting(Tachyon* tachyon) {
 }
 
 static void RenderVolumetricMeshes(Tachyon* tachyon) {
+  auto& scene = tachyon->scene;
   auto& renderer = get_renderer();
   auto& shader = renderer.shaders.volumetric_mesh;
   auto& locations = renderer.shaders.locations.volumetric_mesh;
@@ -588,9 +589,10 @@ static void RenderVolumetricMeshes(Tachyon* tachyon) {
 
   glUseProgram(shader.program);
   SetShaderMat4f(locations.view_projection_matrix, ctx.view_projection_matrix);
-  SetShaderVec3f(locations.transform_origin, tachyon->scene.transform_origin);
+  SetShaderVec3f(locations.transform_origin, scene.transform_origin);
   SetShaderVec3f(locations.camera_position, ctx.camera_position);
-  SetShaderVec3f(locations.primary_light_direction, tachyon->scene.directional_light_direction);
+  SetShaderVec3f(locations.primary_light_direction, scene.directional_light_direction);
+  SetShaderFloat(locations.scene_time, scene.scene_time);
 
   RenderMeshesByType(tachyon, VOLUMETRIC_MESH);
 

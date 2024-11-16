@@ -628,6 +628,16 @@ static void LoadBackgroundMeshes(Tachyon* tachyon, State& state) {
   mesh(meshes.earth_atmosphere).type = VOLUMETRIC_MESH;
 }
 
+static void LoadEntityMeshes(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
+  auto elevator_car = Tachyon_LoadMesh("./cosmodrone/assets/elevator_car_1.obj");
+  auto elevator_car_frame = Tachyon_LoadMesh("./cosmodrone/assets/elevator_car_1_frame.obj");
+
+  meshes.elevator_car_1 = Tachyon_AddMesh(tachyon, elevator_car, 1);
+  meshes.elevator_car_1_frame = Tachyon_AddMesh(tachyon, elevator_car_frame, 1);
+}
+
 static void LoadDebugMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
@@ -653,6 +663,7 @@ void MeshLibrary::LoadMeshes(Tachyon* tachyon, State& state) {
   LoadPlaceableMeshes(tachyon, state);
   LoadGeneratedMeshes(tachyon, state);
   LoadBackgroundMeshes(tachyon, state);
+  LoadEntityMeshes(tachyon, state);
   LoadDebugMeshes(tachyon, state);
 
   // Define highest cascades per mesh
@@ -660,12 +671,12 @@ void MeshLibrary::LoadMeshes(Tachyon* tachyon, State& state) {
     auto& records = tachyon->mesh_pack.mesh_records;
     auto& meshes = state.meshes;
 
-    records[meshes.girder_1].shadow_cascade_ceiling = 3;
-    records[meshes.grate_1].shadow_cascade_ceiling = 2;
+    mesh(meshes.girder_1).shadow_cascade_ceiling = 3;
+    mesh(meshes.grate_1).shadow_cascade_ceiling = 2;
 
     // @todo dev mode only
-    records[meshes.editor_guideline].shadow_cascade_ceiling = 0;
-    records[meshes.cube].shadow_cascade_ceiling = 0;
+    mesh(meshes.editor_guideline).shadow_cascade_ceiling = 0;
+    mesh(meshes.cube).shadow_cascade_ceiling = 0;
   }
 
   Tachyon_InitializeObjects(tachyon);

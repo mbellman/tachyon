@@ -2,6 +2,7 @@
 
 uniform vec3 camera_position;
 uniform vec3 primary_light_direction;
+uniform float scene_time;
 
 flat in uvec4 fragSurface;
 in vec3 fragPosition;
@@ -153,7 +154,7 @@ void main() {
   float z = 1.0 - length(p);
   vec3 v = vec3(p, -sqrt(z));
   v *= 8.0;
-  float t = 1.0;
+  float t = scene_time * 0.001;
   float clouds = (
     snoise(vec4(v, t)) +
     snoise(vec4(v * 2.0, t)) +

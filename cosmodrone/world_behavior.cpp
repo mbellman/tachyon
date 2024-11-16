@@ -80,6 +80,35 @@ static void UpdateSpaceElevator(Tachyon* tachyon, State& state) {
   commit(elevator);
 }
 
+static void UpdateLocalEntities(Tachyon* tachyon, State& state, const float dt) {
+  auto& meshes = state.meshes;
+  float scene_time = tachyon->scene.scene_time;
+
+  // @todo turn these into placeable entities
+  auto& elevator_car = objects(meshes.elevator_car_1)[0];
+  auto& elevator_car_frame = objects(meshes.elevator_car_1_frame)[0];
+
+  elevator_car.scale = elevator_car_frame.scale = tVec3f(12000.f);
+  elevator_car.rotation = elevator_car_frame.rotation = Quaternion(0.707f, -0.707f, 0, 0);
+
+  elevator_car.position.x = elevator_car_frame.position.x = 10065.f;
+  elevator_car.position.z = elevator_car_frame.position.z = 11148.f;
+
+  elevator_car_frame.material = tVec4f(0.4f, 1.f, 0, 0);
+
+  float y = elevator_car.position.y + 20000.f * dt;
+
+  if (y > 400000.f) {
+    y = -50000.f;
+  }
+
+  elevator_car.position.y = y;
+  elevator_car_frame.position.y = y;
+
+  commit(elevator_car);
+  commit(elevator_car_frame);
+}
+
 static void UpdateRotators(Tachyon* tachyon, State& state, const float dt) {
   auto& meshes = state.meshes;
 
@@ -158,4 +187,5 @@ void WorldBehavior::UpdateWorld(Tachyon* tachyon, State& state, const float dt) 
 
   // Game time cycle-independent entities
   UpdateRotators(tachyon, state, dt);
+  UpdateLocalEntities(tachyon, state, dt);
 }

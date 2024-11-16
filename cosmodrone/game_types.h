@@ -73,6 +73,8 @@ namespace Cosmodrone {
       // Background elements
       planet,
       space_elevator,
+      elevator_car_1,
+      elevator_car_1_frame,
 
       // Volumetrics
       earth_atmosphere,
