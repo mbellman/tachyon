@@ -348,7 +348,7 @@ struct DrawElementsIndirectCommand {
   GLuint baseInstance;
 };
 
-static void RenderGeometryByType(Tachyon* tachyon, tMeshType type) {
+static void RenderMeshesByType(Tachyon* tachyon, tMeshType type) {
   auto& renderer = get_renderer();
   auto& gl_mesh_pack = renderer.mesh_pack;
 
@@ -442,7 +442,7 @@ static void RenderPbrGeometry(Tachyon* tachyon) {
   SetShaderMat4f(locations.view_projection_matrix, ctx.view_projection_matrix);
   SetShaderVec3f(locations.transform_origin, tachyon->scene.transform_origin);
 
-  RenderGeometryByType(tachyon, PBR_MESH);
+  RenderMeshesByType(tachyon, PBR_MESH);
 }
 
 static void RenderShadowMaps(Tachyon* tachyon) {
@@ -580,8 +580,7 @@ static void RenderVolumetricMeshes(Tachyon* tachyon) {
   auto& ctx = renderer.ctx;
 
   glEnable(GL_CULL_FACE);
-  // glEnable(GL_DEPTH_TEST);
-  // glDisable(GL_BLEND);
+  glEnable(GL_DEPTH_TEST);
 
   auto& target_accumulation_buffer = renderer.current_frame % 2 == 0
     ? renderer.accumulation_buffer_a
@@ -590,10 +589,13 @@ static void RenderVolumetricMeshes(Tachyon* tachyon) {
   glUseProgram(shader.program);
   SetShaderMat4f(locations.view_projection_matrix, ctx.view_projection_matrix);
   SetShaderVec3f(locations.transform_origin, tachyon->scene.transform_origin);
+  SetShaderVec3f(locations.camera_position, ctx.camera_position);
+  SetShaderVec3f(locations.primary_light_direction, tachyon->scene.directional_light_direction);
 
-  RenderGeometryByType(tachyon, VOLUMETRIC_MESH);
+  RenderMeshesByType(tachyon, VOLUMETRIC_MESH);
 
   glDisable(GL_CULL_FACE);
+  glDisable(GL_DEPTH_TEST);
 }
 
 static void RenderPointLights(Tachyon* tachyon) {
@@ -615,9 +617,6 @@ static void RenderPointLights(Tachyon* tachyon) {
   renderer.g_buffer.read();
   previous_accumulation_buffer.read();
   target_accumulation_buffer.write();
-
-  glEnable(GL_BLEND);
-  glBlendFuncSeparatei(0, GL_ONE, GL_ONE, GL_ONE, GL_ONE);
 
   glUseProgram(shader.program);
   SetShaderInt(locations.in_normal_and_depth, G_BUFFER_NORMALS_AND_DEPTH);
@@ -678,8 +677,6 @@ static void RenderPointLights(Tachyon* tachyon) {
   glBindVertexArray(renderer.point_light_disc.vao);
   // @todo reference # of disc slices in tachyon_opengl_geometry.cpp
   glDrawArraysInstanced(GL_TRIANGLES, 0, 16 * 3, total_instances);
-
-  glDisable(GL_BLEND);
 
   delete[] instances;
 }
@@ -763,12 +760,14 @@ static void CreateRenderBuffers(Tachyon* tachyon) {
   accumulation_buffer_a.setSize(w, h);
   accumulation_buffer_a.addColorAttachment(ColorFormat::RGBA, ACCUMULATION_COLOR_AND_DEPTH);
   accumulation_buffer_a.addColorAttachment(ColorFormat::RGBA, ACCUMULATION_TEMPORAL_DATA);
+  g_buffer.shareDepthStencilAttachment(accumulation_buffer_a);
   accumulation_buffer_a.bindColorAttachments();
 
   accumulation_buffer_b.init();
   accumulation_buffer_b.setSize(w, h);
   accumulation_buffer_b.addColorAttachment(ColorFormat::RGBA, ACCUMULATION_COLOR_AND_DEPTH);
   accumulation_buffer_b.addColorAttachment(ColorFormat::RGBA, ACCUMULATION_TEMPORAL_DATA);
+  g_buffer.shareDepthStencilAttachment(accumulation_buffer_b);
   accumulation_buffer_b.bindColorAttachments();
 
   directional_shadow_map.init();
@@ -891,11 +890,17 @@ void Tachyon_OpenGL_RenderScene(Tachyon* tachyon) {
     RenderGBufferView(tachyon);
   } else {
     RenderGlobalLighting(tachyon);
+
+    glEnable(GL_BLEND);
+    glBlendFuncSeparatei(0, GL_ONE, GL_ONE, GL_ONE, GL_ONE);
+
     RenderVolumetricMeshes(tachyon);
 
     if (!tachyon->use_high_visibility_mode) {
       RenderPointLights(tachyon);
     }
+
+    glDisable(GL_BLEND);
 
     RenderPost(tachyon);
     RenderUIElements(tachyon);

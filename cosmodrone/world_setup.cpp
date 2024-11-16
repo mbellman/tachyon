@@ -82,6 +82,7 @@ static void InitializeLevel(Tachyon* tachyon, State& state) {
 
   create(meshes.planet);
   create(meshes.planet);
+  create(meshes.earth_atmosphere);
   create(meshes.space_elevator);
 
   // @todo improve ship part handling

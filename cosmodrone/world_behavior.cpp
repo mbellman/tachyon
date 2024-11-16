@@ -25,13 +25,22 @@ static void UpdateCelestialBodies(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
   auto& meshes = state.meshes;
 
-  auto& earth = objects(meshes.planet)[0];
-  auto& moon = objects(meshes.planet)[1];
+  // Earth
+  {
+    auto& earth = objects(meshes.planet)[0];
+    auto& atmosphere = objects(meshes.earth_atmosphere)[0];
 
-  earth.position = camera.position + tVec3f(0, -4000000.f, 0);
-  earth.color = tVec3f(0.1f, 0.2f, 1.f);
-  earth.scale = tVec3f(1500000.f);
-  earth.material = tVec4f(0.4f, 0, 1.f, 0.3);
+    earth.position = camera.position + tVec3f(0, -4000000.f, 0);
+    earth.color = tVec3f(0.1f, 0.2f, 1.f);
+    earth.scale = tVec3f(1500000.f);
+    earth.material = tVec4f(0.4f, 0, 1.f, 0.3);
+
+    atmosphere.position = earth.position;
+    atmosphere.scale = earth.scale * 1.02f;
+
+    commit(earth);
+    commit(atmosphere);
+  }
 
   // Sun/moon
   {
@@ -44,14 +53,15 @@ static void UpdateCelestialBodies(Tachyon* tachyon, State& state) {
     tachyon->scene.directional_light_direction = sunlight_direction;
     tachyon->scene.scene_time = state.current_game_time;
 
+    auto& moon = objects(meshes.planet)[1];
+
     moon.position = camera.position + unit_moon_position * moon_distance;
     moon.scale = tVec3f(moon_scale);
     moon.color = tVec3f(0.8f);
     moon.material = tVec4f(1.f, 0, 0, 0.1f);
-  }
 
-  commit(earth);
-  commit(moon);
+    commit(moon);
+  }
 }
 
 static void UpdateSpaceElevator(Tachyon* tachyon, State& state) {

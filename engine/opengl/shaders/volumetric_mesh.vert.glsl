@@ -11,6 +11,7 @@ layout (location = 4) in uint modelSurface;
 layout (location = 5) in mat4 modelMatrix;
 
 flat out uvec4 fragSurface;
+out vec3 fragPosition;
 out vec3 fragNormal;
 
 uvec4 SurfaceToUVec4(uint surface) {
@@ -36,5 +37,6 @@ void main() {
   gl_Position = view_projection_matrix * vec4(world_space_position, 1.0);
 
   fragSurface = SurfaceToUVec4(modelSurface);
+  fragPosition = world_space_position;
   fragNormal = normal_matrix * vertexNormal;
 }

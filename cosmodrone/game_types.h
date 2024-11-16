@@ -74,6 +74,10 @@ namespace Cosmodrone {
       planet,
       space_elevator,
 
+      // Volumetrics
+      earth_atmosphere,
+      gas_flare,
+
       // Debug meshes
       sphere,
       cube,

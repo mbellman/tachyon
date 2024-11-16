@@ -622,7 +622,10 @@ static void LoadBackgroundMeshes(Tachyon* tachyon, State& state) {
   auto planet_mesh = Tachyon_CreateSphereMesh(40);
 
   meshes.planet = Tachyon_AddMesh(tachyon, planet_mesh, 2);
+  meshes.earth_atmosphere = Tachyon_AddMesh(tachyon, planet_mesh, 1);
   meshes.space_elevator = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/space-elevator.obj"), 1);
+
+  mesh(meshes.earth_atmosphere).type = VOLUMETRIC_MESH;
 }
 
 static void LoadDebugMeshes(Tachyon* tachyon, State& state) {

@@ -122,6 +122,8 @@ static void StoreShaderUniforms(tOpenGLShaders& shaders) {
 
   store_shader_uniform(volumetric_mesh, view_projection_matrix);
   store_shader_uniform(volumetric_mesh, transform_origin);
+  store_shader_uniform(volumetric_mesh, camera_position);
+  store_shader_uniform(volumetric_mesh, primary_light_direction);
 
   store_shader_uniform(post, offset_and_scale);
   store_shader_uniform(post, rotation);
