@@ -23,5 +23,15 @@ const std::vector<tConsoleMessage>& Tachyon_GetConsoleMessages() {
 }
 
 void Tachyon_ProcessConsoleMessages() {
-  // @todo remove messages by time
+  if (console_messages.size() == 0) {
+    return;
+  }
+
+  auto now = Tachyon_GetMicroseconds();
+
+  for (int32 i = console_messages.size() - 1; i >= 0; i--) {
+    if (now - console_messages[i].time > 20000000) {
+      console_messages.erase(console_messages.begin() + i);
+    }
+  }
 }

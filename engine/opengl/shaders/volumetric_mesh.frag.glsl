@@ -171,26 +171,33 @@ void main() {
   out_color += vec3(clouds);
 
   // Incidence
-  out_color *= pow(NdotL, 1.0 / 2.0) + 0.2;
+  out_color *= pow(NdotL, 1.0 / 3.0) + 0.2;
 
   // Fade out clouds near the horizon
   out_color = mix(out_color, vec3(0.0), pow(1.0 - NdotV * NdotV, 2.0));
 
   // Edge scattering
-  vec3 edge_color = mix(
-    vec3(0.4, 0.7, 1.0),
-    vec3(1.0, 0.8, 0.1),
-    pow(DdotL, 2.0)
-  );
+  {
+    // Blend between blue/orange depending on how close the sun is to this pixel
+    vec3 edge_color = mix(
+      vec3(0.4, 0.7, 1.0),
+      vec3(1.0, 0.8, 0.1),
+      pow(DdotL, 2.0)
+    );
 
-  out_color += edge_color * pow(1.0 - NdotV, 10.0) * pow(1.0 - NdotL, 20.0);
+    // Add a copper/reddish tint near the light/dark boundary
+    edge_color = mix(edge_color, vec3(1.0, 0.7, 0.5), 1.0 - abs(dot(N, L)));
+
+    out_color += edge_color * pow(1.0 - NdotV, 10.0) * pow(1.0 - NdotL, 20.0);
+  }
 
   // Sunrise/sunset
   out_color +=
     2.0 *
     (vec3(1.0, 0.8, 0.5) + clouds) *
     pow(DdotL, 50.0) *
-    pow(1.0 - NdotV, 2.0);
+    pow(1.0 - NdotV, 2.0) *
+    pow(1.0 - NdotL, 10.0);
 
   out_color_and_depth = vec4(out_color, 0);
 }

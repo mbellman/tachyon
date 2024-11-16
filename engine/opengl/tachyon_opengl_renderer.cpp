@@ -207,12 +207,16 @@ static void RenderSurface(Tachyon* tachyon, SDL_Surface* surface, int32 x, int32
   RenderScreenQuad(tachyon);
 }
 
-static void RenderText(Tachyon* tachyon, TTF_Font* font, const char* message, int32 x, int32 y, uint32 wrap_width, const tVec3f& color, const tVec4f& background) {
+static void RenderText(Tachyon* tachyon, TTF_Font* font, const char* message, int32 x, int32 y, uint32 wrap_width, const tVec4f& color, const tVec4f& background) {
   SDL_Surface* text = TTF_RenderText_Blended_Wrapped(font, message, { 255, 255, 255 }, wrap_width);
 
-  RenderSurface(tachyon, text, x, y, text->w, text->h, 0.f, tVec4f(color, 1.f), background);
+  RenderSurface(tachyon, text, x, y, text->w, text->h, 0.f, color, background);
 
   SDL_FreeSurface(text);
+}
+
+static void RenderText(Tachyon* tachyon, TTF_Font* font, const char* message, int32 x, int32 y, uint32 wrap_width, const tVec3f& color, const tVec4f& background) {
+  RenderText(tachyon, font, message, x, y, wrap_width, tVec4f(color, 1.f), background);
 }
 
 static void HandleDevModeInputs(Tachyon* tachyon) {
@@ -291,14 +295,18 @@ static void HandleDeveloperTools(Tachyon* tachyon) {
 
   // Console messages
   {
+    auto now = Tachyon_GetMicroseconds();
     auto& console_messages = Tachyon_GetConsoleMessages();
     uint32 y_offset = renderer.ctx.h - console_messages.size() * 30 - 10;
 
     for (auto& console_message : console_messages) {
       auto& message = console_message.message;
       auto& color = console_message.color;
+      auto age = std::min((uint64)20000000, now - console_message.time);
+      auto time_left = 20000000 - age;
+      auto alpha = std::min(1.f, (float)time_left / 1000000.f);
 
-      RenderText(tachyon, tachyon->developer_overlay_font, message.c_str(), 10, y_offset, ctx.w, color, tVec4f(0.f));
+      RenderText(tachyon, tachyon->developer_overlay_font, message.c_str(), 10, y_offset, ctx.w, tVec4f(color, alpha), tVec4f(0.f));
 
       y_offset += 30;
     }
