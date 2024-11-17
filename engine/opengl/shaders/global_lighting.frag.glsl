@@ -557,7 +557,7 @@ void main() {
   // @todo make customizable
   {
     vec3 earth_light_direction = vec3(0, 1.0, 0);
-    vec3 earth_light_color = vec3(0.2, 0.5, 1.0) * 0.4;
+    vec3 earth_light_color = vec3(0.2, 0.5, 1.0) * 0.2;
  
     out_color += GetDirectionalLightRadiance(earth_light_direction, earth_light_color, albedo, position, N, V, NdotV, mix(roughness, 0.8, 0.5), metalness, 0.0, 0.0, 1.0);
   }

@@ -69,6 +69,26 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
         StartTrackingObject(state, object);
       }
     }
+
+    for (auto& object : objects(state.meshes.zone_target)) {
+      auto camera_to_object = object.position - camera.position;
+      auto object_direction = camera_to_object.unit();
+
+      if (
+        camera_to_object.magnitude() > 5000000.f ||
+        tVec3f::dot(object_direction, state.view_forward_direction) < 0.8f
+      ) {
+        if (IsTrackingObject(state, object)) {
+          StopTrackingObject(state, object);
+        }
+
+        continue;
+      }
+
+      if (!IsTrackingObject(state, object)) {
+        StartTrackingObject(state, object);
+      }
+    }
   }
 
   // Draw target trackers
@@ -136,20 +156,22 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
     for (auto& tracker : state.on_screen_target_trackers) {
       if (
         tracker.object != selected_target &&
-        tracker.selected_time > tracker.deselected_time
+        tracker.selected_time != 0.f
       ) {
         // Deselect any previously-selected trackers
         // if they are not for the selected target object
-        tracker.deselected_time = state.current_game_time;
         tracker.selected_time = 0.f;
+        tracker.deselected_time = state.current_game_time;
       }
 
       if (
         tracker.object == selected_target &&
-        tracker.selected_time == 0.f
+        tracker.selected_time == 0.f &&
+        tracker.object.mesh_index != state.meshes.zone_target
       ) {
         // Select the tracker for the selected target object
         tracker.selected_time = state.current_game_time;
+        tracker.deselected_time = 0.f;
       }
     }
 
@@ -204,7 +226,11 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
         if (alpha < 0.f) alpha = 0.f;
         if (alpha > 1.f) alpha = 1.f;
 
-        Tachyon_DrawUIElement(tachyon, state.ui.target_indicator, tracker.screen_x, tracker.screen_y, 0.f, alpha);
+        if (tracker.object.mesh_index == state.meshes.antenna_3) {
+          Tachyon_DrawUIElement(tachyon, state.ui.target_indicator, tracker.screen_x, tracker.screen_y, 0.f, alpha);
+        } else if (tracker.object.mesh_index == state.meshes.zone_target) {
+          Tachyon_DrawUIElement(tachyon, state.ui.zone_target_indicator, tracker.screen_x, tracker.screen_y, 0.f, 1.f);
+        }
       }
     }
   }

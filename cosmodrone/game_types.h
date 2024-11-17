@@ -11,6 +11,9 @@ namespace Cosmodrone {
       thrusters,
       trim,
 
+      // Spawn meshes
+      zone_target,
+
       // Station parts
       antenna_1,
       antenna_2,
@@ -149,6 +152,7 @@ namespace Cosmodrone {
     // @todo move to UI/UISystem
     struct {
       tUIElement* target_indicator = nullptr;
+      tUIElement* zone_target_indicator = nullptr;
       tUIElement* selected_target_corner = nullptr;
       tUIElement* selected_target_center = nullptr;
     } ui;
