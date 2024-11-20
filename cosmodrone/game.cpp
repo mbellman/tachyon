@@ -304,7 +304,7 @@ static void HandleAutopilot(Tachyon* tachyon, State& state, const float dt) {
         state.ship_velocity += state.ship_rotation_basis.forward * speed * dt;
       }
 
-      if (state.ship_velocity.magnitude() < 50.f) {
+      if (state.ship_velocity.magnitude() < 200.f) {
         state.flight_mode = FlightMode::MANUAL_CONTROL;
       }
 
