@@ -62,8 +62,7 @@ vec4 grad4(float j, vec4 ip)
 // (sqrt(5) - 1)/4 = F4, used once below
 #define F4 0.309016994374947451
 
-float snoise(vec4 v)
-  {
+float snoise(vec4 v) {
   const vec4  C = vec4( 0.138196601125011,  // (5 - sqrt(5))/20  G4
                         0.276393202250021,  // 2 * G4
                         0.414589803375032,  // 3 * G4
@@ -138,7 +137,19 @@ float snoise(vec4 v)
   return 49.0 * ( dot(m0*m0, vec3( dot( p0, x0 ), dot( p1, x1 ), dot( p2, x2 )))
                + dot(m1*m1, vec2( dot( p3, x3 ), dot( p4, x4 ) ) ) ) ;
 
-  }
+}
+
+vec3 RotateAroundAxis(vec3 axis, vec3 vector, float angle) {
+  vec4 q;
+  float sa = sin(angle / 2.0);
+
+  q.x = axis.x * sa;
+  q.y = axis.y * sa;
+  q.z = axis.z * sa;
+  q.w = cos(angle / 2.0);
+
+  return vector + 2.0 * cross(cross(vector, q.xyz) + q.w * vector, q.xyz);
+}
 
 void main() {
   vec3 N = normalize(fragNormal);
@@ -154,13 +165,18 @@ void main() {
   float z = 1.0 - length(p);
   vec3 v = vec3(p, -sqrt(z));
   v *= 8.0;
+
+  const vec3 orbit_rotation_axis = normalize(vec3(0.5, 0, -1.0));
+  vec3 d = RotateAroundAxis(orbit_rotation_axis, vec3(v.x, -v.z, v.y), scene_time * 0.001);
+
   float t = scene_time * 0.001;
+
   float clouds = (
-    snoise(vec4(v, t)) +
-    snoise(vec4(v * 2.0, t)) +
-    snoise(vec4(v * 4.0, t)) +
-    snoise(vec4(v * 8.0, t)) +
-    snoise(vec4(v * 32.0, t))
+    snoise(vec4(d, t)) +
+    snoise(vec4(d * 2.0, t)) +
+    snoise(vec4(d * 4.0, t)) +
+    snoise(vec4(d * 8.0, t)) +
+    snoise(vec4(d * 32.0, t))
   );
 
   clouds = clamp(clouds, 0.0, 1.0);

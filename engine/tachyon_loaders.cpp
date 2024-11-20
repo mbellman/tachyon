@@ -46,7 +46,11 @@ void AbstractLoader::load(const char* filePath) {
   FILE* f;
   errno_t err = fopen_s(&f, filePath, "r");
 
-  // assert(err == 0, "AbstractLoader failed to load file:" + std::string(filePath));
+  if (err != 0) {
+    printf("Failed to load file: %s\n", filePath);
+
+    // @todo return? exit?
+  }
 
   file = f;
   isLoading = true;

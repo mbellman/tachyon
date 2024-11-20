@@ -672,12 +672,22 @@ static void LoadDebugMeshes(Tachyon* tachyon, State& state) {
 }
 
 void MeshLibrary::LoadMeshes(Tachyon* tachyon, State& state) {
+  // @todo dev mode only
+  auto start_time = Tachyon_GetMicroseconds();
+
   LoadShipPartMeshes(tachyon, state);
   LoadPlaceableMeshes(tachyon, state);
   LoadGeneratedMeshes(tachyon, state);
   LoadBackgroundMeshes(tachyon, state);
   LoadEntityMeshes(tachyon, state);
   LoadDebugMeshes(tachyon, state);
+
+  // @todo dev mode only
+  {
+    auto load_time = (Tachyon_GetMicroseconds() - start_time) / 1000;
+
+    add_console_message("Loaded meshes in " + std::to_string(load_time) + "ms", tVec3f(1.f));
+  }
 
   // Define highest cascades per mesh
   {
