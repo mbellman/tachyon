@@ -402,6 +402,47 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
   camera.position = state.ship_position - state.view_forward_direction * camera_radius + state.view_up_direction * 150.f;
 }
 
+static void HandleFlightArrows(Tachyon* tachyon, State& state, const float dt) {
+  auto& meshes = state.meshes;
+  auto& hull = objects(meshes.hull)[0];
+  float speed = state.ship_velocity.magnitude();
+
+  if (speed == 0.f) {
+    return;
+  }
+
+  state.flight_arrow_spawn_distance_remaining -= speed * dt;
+
+  if (state.flight_arrow_spawn_distance_remaining <= 0.f) {
+    state.flight_arrow_spawn_distance_remaining = 10000.f;
+
+    state.flight_arrow_cycle_step++;
+    if (state.flight_arrow_cycle_step > 4) state.flight_arrow_cycle_step = 0;
+
+    auto index_1 = state.flight_arrow_cycle_step * 2;
+    auto index_2 = index_1 + 1;
+
+    auto& arrow_1 = objects(meshes.flight_arrow)[index_1];
+    auto& arrow_2 = objects(meshes.flight_arrow)[index_2];
+
+    auto bottom_offset = state.ship_rotation_basis.up * -1000.f;
+    auto left_offset = state.ship_rotation_basis.sideways * -750.f;
+    auto right_offset = state.ship_rotation_basis.sideways * 750.f;
+
+    arrow_1.position = state.ship_position + bottom_offset + left_offset + state.ship_velocity_basis.forward * 20000.f;
+    arrow_2.position = state.ship_position + bottom_offset + right_offset + state.ship_velocity_basis.forward * 20000.f;
+
+    arrow_1.scale = arrow_2.scale = 200.f;
+    arrow_1.color = arrow_2.color = tVec4f(0.1f, 0.2f, 1.f, 1.f);
+  }
+
+  for (auto& arrow : objects(meshes.flight_arrow)) {
+    arrow.rotation = LookRotation(state.ship_velocity_basis.forward, state.ship_rotation_basis.up);
+
+    commit(arrow);
+  }
+}
+
 static void UpdateShipVelocityBasis(State& state) {
   auto forward = state.ship_velocity.unit();
   auto up = UP_VECTOR;
@@ -605,6 +646,7 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
 
   // @todo dev mode only
   objects(meshes.cube).disabled = state.is_editor_active || !tachyon->show_developer_tools;
+  objects(state.meshes.flight_arrow).disabled = state.is_editor_active;
 
   // @todo dev mode only
   if (state.is_editor_active) {
@@ -619,6 +661,7 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
   HandleFlightControls(tachyon, state, dt);
   HandleAutopilot(tachyon, state, dt);
   HandleFlightCamera(tachyon, state, dt);
+  HandleFlightArrows(tachyon, state, dt);
   UpdateShip(tachyon, state, dt);
 
   TargetSystem::HandleTargetTrackers(tachyon, state, dt);

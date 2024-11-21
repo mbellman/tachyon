@@ -644,11 +644,22 @@ static void LoadBackgroundMeshes(Tachyon* tachyon, State& state) {
 static void LoadEntityMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
-  auto elevator_car = Tachyon_LoadMesh("./cosmodrone/assets/elevator_car_1.obj");
-  auto elevator_car_frame = Tachyon_LoadMesh("./cosmodrone/assets/elevator_car_1_frame.obj");
+  // Elevator cars
+  // @todo make this a placeable mesh
+  {
+    auto elevator_car = Tachyon_LoadMesh("./cosmodrone/assets/elevator_car_1.obj");
+    auto elevator_car_frame = Tachyon_LoadMesh("./cosmodrone/assets/elevator_car_1_frame.obj");
 
-  meshes.elevator_car_1 = Tachyon_AddMesh(tachyon, elevator_car, 1);
-  meshes.elevator_car_1_frame = Tachyon_AddMesh(tachyon, elevator_car_frame, 1);
+    meshes.elevator_car_1 = Tachyon_AddMesh(tachyon, elevator_car, 1);
+    meshes.elevator_car_1_frame = Tachyon_AddMesh(tachyon, elevator_car_frame, 1);
+  }
+
+  // Flight arrows
+  {
+    auto flight_arrow = Tachyon_LoadMesh("./cosmodrone/assets/flight_arrow.obj");
+
+    meshes.flight_arrow = Tachyon_AddMesh(tachyon, flight_arrow, 10);
+  }
 }
 
 static void LoadDebugMeshes(Tachyon* tachyon, State& state) {

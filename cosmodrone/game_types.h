@@ -73,11 +73,14 @@ namespace Cosmodrone {
       light_3_base,
       light_3_bulb,
 
+      // Entities
+      elevator_car_1,
+      elevator_car_1_frame,
+      flight_arrow,
+
       // Background elements
       planet,
       space_elevator,
-      elevator_car_1,
-      elevator_car_1_frame,
 
       // Volumetrics
       earth_atmosphere,
@@ -148,6 +151,9 @@ namespace Cosmodrone {
     AutoDockStage auto_dock_stage;
     tObject docking_target;
     tVec3f docking_position;
+
+    uint8 flight_arrow_cycle_step = 0;
+    float flight_arrow_spawn_distance_remaining = 10000.f;
 
     // @todo move to UI/UISystem
     struct {
