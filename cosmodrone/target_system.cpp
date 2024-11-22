@@ -4,6 +4,8 @@
 
 using namespace Cosmodrone;
 
+const static float MAX_TARGET_DISTANCE = 300000.f;
+
 static bool IsTrackingObject(State& state, const tObject& object) {
   for (auto& tracker : state.on_screen_target_trackers) {
     if (tracker.object == object) {
@@ -55,7 +57,7 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
       auto object_direction = camera_to_object.unit();
 
       if (
-        camera_to_object.magnitude() > 200000.f ||
+        camera_to_object.magnitude() > MAX_TARGET_DISTANCE ||
         tVec3f::dot(object_direction, state.view_forward_direction) < 0.8f
       ) {
         if (IsTrackingObject(state, object)) {
@@ -221,7 +223,7 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
         });
 
         float edge_distance_factor = (float)minimum_edge_distance / 200.f;
-        float world_distance_factor = 1.f - (tracker.object.position - camera.position).magnitude() / 200000.f;
+        float world_distance_factor = 1.f - (tracker.object.position - camera.position).magnitude() / MAX_TARGET_DISTANCE;
         float alpha = edge_distance_factor * world_distance_factor;
         if (alpha < 0.f) alpha = 0.f;
         if (alpha > 1.f) alpha = 1.f;

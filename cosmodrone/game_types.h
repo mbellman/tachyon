@@ -126,6 +126,11 @@ namespace Cosmodrone {
     APPROACH
   };
 
+  struct FlightPathNode {
+    tVec3f position;
+    float distance;
+  };
+
   struct State {
     MeshIds meshes;
 
@@ -153,7 +158,8 @@ namespace Cosmodrone {
     tVec3f docking_position;
 
     uint8 flight_arrow_cycle_step = 0;
-    float flight_arrow_spawn_distance_remaining = 10000.f;
+    float flight_path_spawn_distance_remaining = 100.f;
+    std::vector<FlightPathNode> incoming_flight_path;
 
     // @todo move to UI/UISystem
     struct {
