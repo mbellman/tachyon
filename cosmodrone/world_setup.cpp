@@ -95,7 +95,7 @@ static void InitializeLevel(Tachyon* tachyon, State& state) {
   create(meshes.elevator_car_1_frame);
 
   // Flight arrows
-  for (uint8 i = 0; i < 10; i++) {
+  for (uint8 i = 0; i < 16; i++) {
     create(meshes.flight_arrow);
   }
 

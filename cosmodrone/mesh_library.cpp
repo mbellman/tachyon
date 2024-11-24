@@ -658,7 +658,7 @@ static void LoadEntityMeshes(Tachyon* tachyon, State& state) {
   {
     auto flight_arrow = Tachyon_LoadMesh("./cosmodrone/assets/flight_arrow.obj");
 
-    meshes.flight_arrow = Tachyon_AddMesh(tachyon, flight_arrow, 10);
+    meshes.flight_arrow = Tachyon_AddMesh(tachyon, flight_arrow, 16);
   }
 }
 
@@ -707,6 +707,7 @@ void MeshLibrary::LoadMeshes(Tachyon* tachyon, State& state) {
 
     mesh(meshes.girder_1).shadow_cascade_ceiling = 3;
     mesh(meshes.grate_1).shadow_cascade_ceiling = 2;
+    mesh(meshes.flight_arrow).shadow_cascade_ceiling = 0;
 
     // @todo dev mode only
     mesh(meshes.editor_guideline).shadow_cascade_ceiling = 0;

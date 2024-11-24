@@ -431,6 +431,13 @@ static void HandleFlightArrows(Tachyon* tachyon, State& state, const float dt) {
   tVec3f left_offset = sideways * -750.f;
   tVec3f right_offset = sideways * 750.f;
 
+  for (auto& arrow : objects(meshes.flight_arrow)) {
+    arrow.scale = 0.f;
+    arrow.rotation = LookRotation(state.ship_velocity_basis.forward, state.ship_rotation_basis.up);
+
+    commit(arrow);
+  }
+
   for (int32 i = flight_path.size() - 1; i >= 0; i--) {
     auto& node = flight_path[i];
     auto direction_to_ship = (state.ship_position - node.position).unit();
@@ -457,28 +464,28 @@ static void HandleFlightArrows(Tachyon* tachyon, State& state, const float dt) {
 
     arrow_1.scale = arrow_2.scale = 200.f;
     arrow_1.color = arrow_2.color = tVec4f(0.1f, 0.2f, 1.f, 1.f);
+
+    commit(arrow_1);
+    commit(arrow_2);
   }
 
   // Add new flight path nodes
   if (state.flight_path_spawn_distance_remaining <= 0.f) {
     FlightPathNode node;
 
-    node.position = state.ship_position + state.ship_velocity_basis.forward * SPAWN_DISTANCE;
+    float speed_ratio = state.ship_velocity.magnitude() / 15000.f;
+
+    node.spawn_distance = Lerpf(5000.f, 20000.f, speed_ratio);
+    node.position = state.ship_position + state.ship_velocity_basis.forward * node.spawn_distance;
     node.spawn_position = node.position;
-    node.distance = SPAWN_DISTANCE;
+    node.distance = node.spawn_distance;
 
     flight_path.push_back(node);
 
-    state.flight_path_spawn_distance_remaining = 5000.f;
+    state.flight_path_spawn_distance_remaining = node.spawn_distance * 0.25f;
 
     state.flight_arrow_cycle_step++;
     if (state.flight_arrow_cycle_step > 4) state.flight_arrow_cycle_step = 0;
-  }
-
-  for (auto& arrow : objects(meshes.flight_arrow)) {
-    arrow.rotation = LookRotation(state.ship_velocity_basis.forward, state.ship_rotation_basis.up);
-
-    commit(arrow);
   }
 }
 

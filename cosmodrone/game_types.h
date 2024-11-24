@@ -128,8 +128,9 @@ namespace Cosmodrone {
 
   struct FlightPathNode {
     tVec3f position;
-    tVec3f spawn_position;
     float distance;
+    tVec3f spawn_position;
+    float spawn_distance;
   };
 
   struct State {
