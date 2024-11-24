@@ -76,7 +76,10 @@ namespace Cosmodrone {
       // Entities
       elevator_car_1,
       elevator_car_1_frame,
-      flight_arrow,
+
+      // HUD,
+      hud_wedge,
+      hud_flight_arrow,
 
       // Background elements
       planet,

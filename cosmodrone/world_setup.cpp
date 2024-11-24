@@ -94,9 +94,14 @@ static void InitializeLevel(Tachyon* tachyon, State& state) {
   create(meshes.elevator_car_1);
   create(meshes.elevator_car_1_frame);
 
-  // Flight arrows
-  for (uint8 i = 0; i < 16; i++) {
-    create(meshes.flight_arrow);
+  // HUD
+  {
+    for (uint8 i = 0; i < 16; i++) {
+      create(meshes.hud_flight_arrow);
+    }
+
+    create(meshes.hud_wedge);
+    create(meshes.hud_wedge);
   }
 
   // @todo improve ship part handling

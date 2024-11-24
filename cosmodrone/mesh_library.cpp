@@ -654,11 +654,13 @@ static void LoadEntityMeshes(Tachyon* tachyon, State& state) {
     meshes.elevator_car_1_frame = Tachyon_AddMesh(tachyon, elevator_car_frame, 1);
   }
 
-  // Flight arrows
+  // HUD
   {
     auto flight_arrow = Tachyon_LoadMesh("./cosmodrone/assets/flight_arrow.obj");
+    auto wedge = Tachyon_LoadMesh("./cosmodrone/assets/hud_wedge.obj");
 
-    meshes.flight_arrow = Tachyon_AddMesh(tachyon, flight_arrow, 16);
+    meshes.hud_flight_arrow = Tachyon_AddMesh(tachyon, flight_arrow, 16);
+    meshes.hud_wedge = Tachyon_AddMesh(tachyon, wedge, 2);
   }
 }
 
@@ -707,7 +709,7 @@ void MeshLibrary::LoadMeshes(Tachyon* tachyon, State& state) {
 
     mesh(meshes.girder_1).shadow_cascade_ceiling = 3;
     mesh(meshes.grate_1).shadow_cascade_ceiling = 2;
-    mesh(meshes.flight_arrow).shadow_cascade_ceiling = 0;
+    mesh(meshes.hud_flight_arrow).shadow_cascade_ceiling = 0;
 
     // @todo dev mode only
     mesh(meshes.editor_guideline).shadow_cascade_ceiling = 0;
