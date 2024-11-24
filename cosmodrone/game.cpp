@@ -21,6 +21,15 @@ inline float Lerpf(float a, float b, float alpha) {
 }
 
 // @todo move to engine
+inline tVec3f Lerpf(const tVec3f& a, const tVec3f& b, const float alpha) {
+  return tVec3f(
+    Lerpf(a.x, b.x, alpha),
+    Lerpf(a.y, b.y, alpha),
+    Lerpf(a.z, b.z, alpha)
+  );
+}
+
+// @todo move to engine
 static Quaternion GetOppositeRotation(const Quaternion& rotation) {
   Quaternion opposite = rotation;
 
@@ -31,8 +40,7 @@ static Quaternion GetOppositeRotation(const Quaternion& rotation) {
   return opposite;
 }
 
-// @todo allow roll
-// @todo move to engine
+// @todo remove in favor of LookRotation()
 static Quaternion DirectionToQuaternion(const tVec3f& direction) {
   auto yaw = atan2f(direction.x, direction.z);
   auto pitch = atan2f(direction.xz().magnitude(), direction.y) - t_HALF_PI;
@@ -45,6 +53,7 @@ static Quaternion DirectionToQuaternion(const tVec3f& direction) {
 
 /**
  * Adapted from https://forum.playcanvas.com/t/quaternion-from-direction-vector/6369/3
+ *
  * @todo move to engine
  */
 static Quaternion LookRotation(const tVec3f& forward, const tVec3f& up) {
@@ -174,7 +183,7 @@ static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt)
 
   // Handle forward thrust
   if (is_key_held(tKey::W)) {
-    state.ship_velocity -= state.ship_velocity_basis.forward * 800.f * dt;
+    state.ship_velocity -= state.ship_velocity_basis.forward * 1000.f * dt;
     state.ship_velocity += state.ship_rotation_basis.forward * 1500.f * dt;
 
     state.ship_rotate_to_target_speed += 5.f * dt;
@@ -403,6 +412,8 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
 }
 
 static void HandleFlightArrows(Tachyon* tachyon, State& state, const float dt) {
+  const static float SPAWN_DISTANCE = 20000.f;
+
   auto& meshes = state.meshes;
   float speed = state.ship_velocity.magnitude();
 
@@ -415,17 +426,21 @@ static void HandleFlightArrows(Tachyon* tachyon, State& state, const float dt) {
 
   // Move incoming flight path nodes toward the ship
   auto& flight_path = state.incoming_flight_path;
-
-  auto bottom_offset = state.ship_rotation_basis.up * -1000.f;
-  auto left_offset = state.ship_rotation_basis.sideways * -750.f;
-  auto right_offset = state.ship_rotation_basis.sideways * 750.f;
+  tVec3f sideways = tVec3f::cross(state.ship_velocity_basis.forward, state.ship_rotation_basis.up).unit();
+  tVec3f bottom_offset = state.ship_rotation_basis.up * -750.f;
+  tVec3f left_offset = sideways * -750.f;
+  tVec3f right_offset = sideways * 750.f;
 
   for (int32 i = flight_path.size() - 1; i >= 0; i--) {
     auto& node = flight_path[i];
     auto direction_to_ship = (state.ship_position - node.position).unit();
 
     node.distance -= speed * dt;
-    node.position = state.ship_position + direction_to_ship.invert() * node.distance;
+
+    float progress = 1.f - node.distance / SPAWN_DISTANCE;
+    tVec3f velocity_position = state.ship_position + state.ship_velocity_basis.forward * node.distance;
+
+    node.position = Lerpf(node.spawn_position, velocity_position, progress);
 
     if (
       node.distance < 500.f ||
@@ -448,8 +463,9 @@ static void HandleFlightArrows(Tachyon* tachyon, State& state, const float dt) {
   if (state.flight_path_spawn_distance_remaining <= 0.f) {
     FlightPathNode node;
 
-    node.position = state.ship_position + state.ship_velocity_basis.forward * 20000.f;
-    node.distance = 20000.f;
+    node.position = state.ship_position + state.ship_velocity_basis.forward * SPAWN_DISTANCE;
+    node.spawn_position = node.position;
+    node.distance = SPAWN_DISTANCE;
 
     flight_path.push_back(node);
 
