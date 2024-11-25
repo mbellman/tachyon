@@ -710,6 +710,7 @@ void MeshLibrary::LoadMeshes(Tachyon* tachyon, State& state) {
     mesh(meshes.girder_1).shadow_cascade_ceiling = 3;
     mesh(meshes.grate_1).shadow_cascade_ceiling = 2;
     mesh(meshes.hud_flight_arrow).shadow_cascade_ceiling = 0;
+    mesh(meshes.hud_wedge).shadow_cascade_ceiling = 0;
 
     // @todo dev mode only
     mesh(meshes.editor_guideline).shadow_cascade_ceiling = 0;
