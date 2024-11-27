@@ -444,7 +444,7 @@ static void HandleFlightArrows(Tachyon* tachyon, State& state, const float dt) {
 
     node.distance -= speed * dt;
 
-    float progress = 1.f - node.distance / SPAWN_DISTANCE;
+    float progress = 1.f - node.distance / node.spawn_distance;
     tVec3f velocity_position = state.ship_position + state.ship_velocity_basis.forward * node.distance;
 
     node.position = Lerpf(node.spawn_position, velocity_position, progress);
