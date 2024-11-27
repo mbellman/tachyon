@@ -79,6 +79,7 @@ namespace Cosmodrone {
       // Entities
       elevator_car_1,
       elevator_car_1_frame,
+      gas_flare_1,
 
       // HUD,
       hud_wedge,
@@ -90,7 +91,6 @@ namespace Cosmodrone {
 
       // Volumetrics
       earth_atmosphere,
-      gas_flare,
 
       // Debug meshes
       sphere,

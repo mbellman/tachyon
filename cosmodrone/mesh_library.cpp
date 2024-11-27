@@ -62,6 +62,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh(light_1);
   load_mesh(light_2);
   load_mesh(light_3);
+  load_mesh(gas_flare_1);
 
   // @todo refactor
   placeable_mesh_assets.push_back({
@@ -413,6 +414,16 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
       .scale = tVec3f(1000.f),
       .color = tVec4f(1.f, 0.9f, 0.8f, 1.f),
       .material = tVec4f(1.f, 0, 1.f, 1.f)
+    }
+  });
+
+  placeable_mesh_assets.push_back({
+    .mesh_name = "gas_glare_1",
+    .mesh_index = meshes.gas_flare_1,
+    .placeholder = true,
+    .defaults = {
+      .scale = tVec3f(6000.f),
+      .color = tVec4f(1.f, 0, 0, 0.5f)
     }
   });
 }
