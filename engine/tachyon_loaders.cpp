@@ -1,3 +1,4 @@
+#include "engine/tachyon_console.h"
 #include "engine/tachyon_loaders.h"
 
 void AbstractLoader::fillBufferUntil(const std::string& end) {
@@ -43,13 +44,13 @@ bool AbstractLoader::isAtEOL() {
 }
 
 void AbstractLoader::load(const char* filePath) {
-  FILE* f;
-  errno_t err = fopen_s(&f, filePath, "r");
+  FILE* f = fopen(filePath, "r");
 
-  if (err != 0) {
+  if (!f) {
     printf("Failed to load file: %s\n", filePath);
+    add_console_message("Failed to load file: " + std::string(filePath), tVec3f(1.f, 0, 0));
 
-    // @todo return? exit?
+    return;
   }
 
   file = f;
