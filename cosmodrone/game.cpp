@@ -412,7 +412,8 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
 }
 
 static void HandleFlightArrows(Tachyon* tachyon, State& state, const float dt) {
-  const static float SPAWN_DISTANCE = 20000.f;
+  const static float MIN_SPAWN_DISTANCE = 5000.f;
+  const static float MAX_SPAWN_DISTANCE = 20000.f;
 
   auto& meshes = state.meshes;
   float speed = state.ship_velocity.magnitude();
@@ -420,6 +421,8 @@ static void HandleFlightArrows(Tachyon* tachyon, State& state, const float dt) {
   if (speed == 0.f) {
     return;
   }
+
+  float speed_ratio = state.ship_velocity.magnitude() / 15000.f;
 
   // Reduce distance to next flight path node spawn
   state.flight_path_spawn_distance_remaining -= speed * dt;
@@ -444,7 +447,11 @@ static void HandleFlightArrows(Tachyon* tachyon, State& state, const float dt) {
 
     node.distance -= speed * dt;
 
-    float progress = 1.f - node.distance / node.spawn_distance;
+    // Gradually curve nodes onto the updated flight path as it changes in real-time.
+    // Determine the node's "progress" toward the ship, and blend between its original
+    // spawn position and a position directly forward along the ship's trajectory.
+    float target_distance = Lerpf(MAX_SPAWN_DISTANCE, node.spawn_distance, speed_ratio);
+    float progress = 1.f - node.distance / target_distance;
     tVec3f velocity_position = state.ship_position + state.ship_velocity_basis.forward * node.distance;
 
     node.position = Lerpf(node.spawn_position, velocity_position, progress);
@@ -473,9 +480,7 @@ static void HandleFlightArrows(Tachyon* tachyon, State& state, const float dt) {
   if (state.flight_path_spawn_distance_remaining <= 0.f) {
     FlightPathNode node;
 
-    float speed_ratio = state.ship_velocity.magnitude() / 15000.f;
-
-    node.spawn_distance = Lerpf(5000.f, 20000.f, speed_ratio);
+    node.spawn_distance = Lerpf(MIN_SPAWN_DISTANCE, MAX_SPAWN_DISTANCE, speed_ratio);
     node.position = state.ship_position + state.ship_velocity_basis.forward * node.spawn_distance;
     node.spawn_position = node.position;
     node.distance = node.spawn_distance;
