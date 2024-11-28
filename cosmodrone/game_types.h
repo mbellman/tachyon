@@ -79,6 +79,7 @@ namespace Cosmodrone {
       // Entities
       elevator_car_1,
       elevator_car_1_frame,
+      gas_flare_1_spawn,
       gas_flare_1,
 
       // HUD,

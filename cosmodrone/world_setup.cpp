@@ -263,7 +263,7 @@ static void RebuildLightSources(Tachyon* tachyon, State& state) {
     });
   }
 
-  for (auto& flare : objects(state.meshes.gas_flare_1)) {
+  for (auto& flare : objects(state.meshes.gas_flare_1_spawn)) {
     point_lights.push_back({
       .position = flare.position,
       .radius = 50000.f,
@@ -311,7 +311,13 @@ void WorldSetup::RebuildGeneratedObjects(Tachyon* tachyon, State& state) {
       auto& piece = create(asset.mesh_index);
 
       piece.position = base.position;
-      piece.scale = base.scale;
+
+      if (asset.defaults.scale.x == 1000.f) {
+        piece.scale = base.scale;
+      } else {
+        piece.scale = asset.defaults.scale;
+      }
+
       piece.rotation = base.rotation;
 
       piece.color = asset.defaults.color;

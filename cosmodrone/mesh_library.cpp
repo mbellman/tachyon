@@ -62,7 +62,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh(light_1);
   load_mesh(light_2);
   load_mesh(light_3);
-  load_mesh(gas_flare_1);
+  load_mesh(gas_flare_1_spawn);
 
   // @todo refactor
   placeable_mesh_assets.push_back({
@@ -418,8 +418,8 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   });
 
   placeable_mesh_assets.push_back({
-    .mesh_name = "gas_glare_1",
-    .mesh_index = meshes.gas_flare_1,
+    .mesh_name = "gas_flare_1_spawn",
+    .mesh_index = meshes.gas_flare_1_spawn,
     .placeholder = true,
     .defaults = {
       .scale = tVec3f(6000.f),
@@ -432,6 +432,8 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
   #define load_mesh(__name) meshes.__name = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/generated/" #__name ".obj"), 5000)
 
   auto& meshes = state.meshes;
+
+  meshes.gas_flare_1 = Tachyon_AddMesh(tachyon, Tachyon_CreateSphereMesh(16), 5000);
 
   load_mesh(antenna_2_frame);
   load_mesh(antenna_2_receivers);
@@ -666,6 +668,16 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .defaults = {
         .color = tVec4f(1.f, 0.8f, 0.6f, 1.f),
         .material = tVec4f(1.f, 0, 0, 0)
+      }
+    },
+
+    // gas_flare_1,
+    {
+      .mesh_index = meshes.gas_flare_1,
+      .generated_from = meshes.gas_flare_1_spawn,
+      .defaults = {
+        .scale = tVec3f(6000.f, 12000.f, 6000.f),
+        .color = tVec4f(1.f, 0.2f, 0.1f, 0.8f)
       }
     }
   };
