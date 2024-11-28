@@ -169,6 +169,8 @@ namespace Cosmodrone {
     float flight_path_spawn_distance_remaining = 100.f;
     std::vector<FlightPathNode> incoming_flight_path;
 
+    std::vector<uint32> gas_flare_light_indexes;
+
     // @todo move to UI/UISystem
     struct {
       tUIElement* target_indicator = nullptr;

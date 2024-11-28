@@ -221,6 +221,9 @@ static inline void StoreInitialMeshObjects(Tachyon* tachyon, uint16 mesh_index) 
 }
 
 static void RebuildLightSources(Tachyon* tachyon, State& state) {
+  auto& point_lights = tachyon->point_lights;
+
+  state.gas_flare_light_indexes.clear();
   // @todo only clear generated lights
   tachyon->point_lights.clear();
 
@@ -228,7 +231,7 @@ static void RebuildLightSources(Tachyon* tachyon, State& state) {
     tVec3f offset = bulb.rotation.toMatrix4f() * tVec3f(0.f, 0.1f, 0);
     offset *= bulb.scale;
 
-    tachyon->point_lights.push_back({
+    point_lights.push_back({
       .position = bulb.position + offset,
       .radius = 2000.f,
       .color = tVec3f(1.f, 0.3f, 0.1f),
@@ -240,7 +243,7 @@ static void RebuildLightSources(Tachyon* tachyon, State& state) {
     tVec3f offset = bulb.rotation.toMatrix4f() * tVec3f(0.f, 0.1f, 0);
     offset *= bulb.scale;
 
-    tachyon->point_lights.push_back({
+    point_lights.push_back({
       .position = bulb.position + offset,
       .radius = 2000.f,
       .color = tVec3f(0.1f, 0.4f, 1.f),
@@ -252,12 +255,23 @@ static void RebuildLightSources(Tachyon* tachyon, State& state) {
     tVec3f offset = bulb.rotation.toMatrix4f() * tVec3f(0.f, 0.1f, 0);
     offset *= bulb.scale;
 
-    tachyon->point_lights.push_back({
+    point_lights.push_back({
       .position = bulb.position + offset,
       .radius = 7000.f,
       .color = tVec3f(0.5, 1.f, 0.8f),
       .power = 1.f
     });
+  }
+
+  for (auto& flare : objects(state.meshes.gas_flare_1)) {
+    point_lights.push_back({
+      .position = flare.position,
+      .radius = 50000.f,
+      .color = tVec3f(1.f, 0.5f, 0.1f),
+      .power = 5.f
+    });
+
+    state.gas_flare_light_indexes.push_back(point_lights.size() - 1);
   }
 }
 
