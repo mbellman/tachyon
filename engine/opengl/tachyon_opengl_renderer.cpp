@@ -581,7 +581,7 @@ static void RenderGlobalLighting(Tachyon* tachyon) {
   RenderScreenQuad(tachyon);
 }
 
-static void RenderTransparentMeshes(Tachyon* tachyon) {
+static void RenderPostMeshes(Tachyon* tachyon) {
   auto& scene = tachyon->scene;
   auto& renderer = get_renderer();
   auto& ctx = renderer.ctx;
@@ -710,10 +710,6 @@ static void RenderPointLights(Tachyon* tachyon) {
   glDrawArraysInstanced(GL_TRIANGLES, 0, 16 * 3, total_instances);
 
   delete[] instances;
-}
-
-static void RenderFireMeshes(Tachyon* tachyon) {
-  
 }
 
 static void RenderPost(Tachyon* tachyon) {
@@ -933,7 +929,7 @@ void Tachyon_OpenGL_RenderScene(Tachyon* tachyon) {
       RenderPointLights(tachyon);
     }
 
-    RenderTransparentMeshes(tachyon);
+    RenderPostMeshes(tachyon);
 
     glDisable(GL_BLEND);
 
