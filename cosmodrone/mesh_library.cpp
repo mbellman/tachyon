@@ -676,7 +676,8 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .mesh_index = meshes.gas_flare_1,
       .generated_from = meshes.gas_flare_1_spawn,
       .defaults = {
-        .scale = tVec3f(4000.f, 12000.f, 4000.f),
+        .type = FIRE_MESH,
+        .scale = tVec3f(6000.f, 18000.f, 6000.f),
         .color = tVec4f(1.f, 0.2f, 0.1f, 0.8f)
       }
     }

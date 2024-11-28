@@ -81,6 +81,13 @@ struct tUniformLocations {
   ) volumetric_mesh;
 
   uniform_locations(
+    view_projection_matrix,
+    transform_origin,
+    camera_position,
+    scene_time
+  ) fire_mesh;
+
+  uniform_locations(
     offset_and_scale,
     rotation,
     in_color_and_depth
@@ -110,6 +117,7 @@ struct tOpenGLShaders {
   tOpenGLShader global_lighting;
   tOpenGLShader point_lights;
   tOpenGLShader volumetric_mesh;
+  tOpenGLShader fire_mesh;
   tOpenGLShader post;
 
   tOpenGLShader surface;

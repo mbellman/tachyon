@@ -126,6 +126,11 @@ static void StoreShaderUniforms(tOpenGLShaders& shaders) {
   store_shader_uniform(volumetric_mesh, primary_light_direction);
   store_shader_uniform(volumetric_mesh, scene_time);
 
+  store_shader_uniform(fire_mesh, view_projection_matrix);
+  store_shader_uniform(fire_mesh, transform_origin);
+  store_shader_uniform(fire_mesh, camera_position);
+  store_shader_uniform(fire_mesh, scene_time);
+
   store_shader_uniform(post, offset_and_scale);
   store_shader_uniform(post, rotation);
   store_shader_uniform(post, in_color_and_depth);
@@ -196,8 +201,14 @@ void Tachyon_OpenGL_InitShaders(tOpenGLShaders& shaders) {
 
   InitVertexFragmentShader(
     shaders.volumetric_mesh,
-    "./engine/opengl/shaders/volumetric_mesh.vert.glsl",
+    "./engine/opengl/shaders/post_geometry.vert.glsl",
     "./engine/opengl/shaders/volumetric_mesh.frag.glsl"
+  );
+
+  InitVertexFragmentShader(
+    shaders.fire_mesh,
+    "./engine/opengl/shaders/post_geometry.vert.glsl",
+    "./engine/opengl/shaders/fire_mesh.frag.glsl"
   );
 
   InitVertexFragmentShader(

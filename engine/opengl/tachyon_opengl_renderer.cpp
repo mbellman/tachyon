@@ -581,11 +581,9 @@ static void RenderGlobalLighting(Tachyon* tachyon) {
   RenderScreenQuad(tachyon);
 }
 
-static void RenderVolumetricMeshes(Tachyon* tachyon) {
+static void RenderTransparentMeshes(Tachyon* tachyon) {
   auto& scene = tachyon->scene;
   auto& renderer = get_renderer();
-  auto& shader = renderer.shaders.volumetric_mesh;
-  auto& locations = renderer.shaders.locations.volumetric_mesh;
   auto& ctx = renderer.ctx;
 
   glEnable(GL_CULL_FACE);
@@ -595,17 +593,40 @@ static void RenderVolumetricMeshes(Tachyon* tachyon) {
     ? renderer.accumulation_buffer_a
     : renderer.accumulation_buffer_b;
 
-  glUseProgram(shader.program);
-  SetShaderMat4f(locations.view_projection_matrix, ctx.view_projection_matrix);
-  SetShaderVec3f(locations.transform_origin, scene.transform_origin);
-  SetShaderVec3f(locations.camera_position, ctx.camera_position);
-  SetShaderVec3f(locations.primary_light_direction, scene.directional_light_direction);
-  SetShaderFloat(locations.scene_time, scene.scene_time);
+  // Volumetrics (@todo rename Atmospheres)
+  {
+    auto& shader = renderer.shaders.volumetric_mesh;
+    auto& locations = renderer.shaders.locations.volumetric_mesh;
 
-  RenderMeshesByType(tachyon, VOLUMETRIC_MESH);
+    glUseProgram(shader.program);
+    SetShaderMat4f(locations.view_projection_matrix, ctx.view_projection_matrix);
+    SetShaderVec3f(locations.transform_origin, scene.transform_origin);
+    SetShaderVec3f(locations.camera_position, ctx.camera_position);
+    SetShaderVec3f(locations.primary_light_direction, scene.directional_light_direction);
+    SetShaderFloat(locations.scene_time, scene.scene_time);
+
+    RenderMeshesByType(tachyon, VOLUMETRIC_MESH);
+  }
+
+  // Fire
+  {
+    glDepthMask(false);
+
+    auto& shader = renderer.shaders.fire_mesh;
+    auto& locations = renderer.shaders.locations.fire_mesh;
+
+    glUseProgram(shader.program);
+    SetShaderMat4f(locations.view_projection_matrix, ctx.view_projection_matrix);
+    SetShaderVec3f(locations.transform_origin, scene.transform_origin);
+    SetShaderVec3f(locations.camera_position, ctx.camera_position);
+    SetShaderFloat(locations.scene_time, scene.scene_time);
+
+    RenderMeshesByType(tachyon, FIRE_MESH);
+  }
 
   glDisable(GL_CULL_FACE);
   glDisable(GL_DEPTH_TEST);
+  glDepthMask(true);
 }
 
 static void RenderPointLights(Tachyon* tachyon) {
@@ -689,6 +710,10 @@ static void RenderPointLights(Tachyon* tachyon) {
   glDrawArraysInstanced(GL_TRIANGLES, 0, 16 * 3, total_instances);
 
   delete[] instances;
+}
+
+static void RenderFireMeshes(Tachyon* tachyon) {
+  
 }
 
 static void RenderPost(Tachyon* tachyon) {
@@ -904,11 +929,11 @@ void Tachyon_OpenGL_RenderScene(Tachyon* tachyon) {
     glEnable(GL_BLEND);
     glBlendFuncSeparatei(0, GL_ONE, GL_ONE, GL_ONE, GL_ONE);
 
-    RenderVolumetricMeshes(tachyon);
-
     if (!tachyon->use_high_visibility_mode) {
       RenderPointLights(tachyon);
     }
+
+    RenderTransparentMeshes(tachyon);
 
     glDisable(GL_BLEND);
 

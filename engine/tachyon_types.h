@@ -115,7 +115,10 @@ struct tMesh {
 
 enum tMeshType {
   PBR_MESH,
-  VOLUMETRIC_MESH
+  // @todo rename ATMOSPHERE_MESH
+  VOLUMETRIC_MESH,
+  FIRE_MESH,
+  GLOW_MESH
 };
 
 struct tMeshRecord {
