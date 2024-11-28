@@ -12,6 +12,7 @@ namespace Cosmodrone {
     bool moving = false;
 
     struct {
+      tMeshType type = PBR_MESH;
       tVec3f scale = tVec3f(1000.f);
       tColor color = tVec3f(1.f);
       tMaterial material = tVec4f(0.6f, 0, 0, 0);

@@ -676,7 +676,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .mesh_index = meshes.gas_flare_1,
       .generated_from = meshes.gas_flare_1_spawn,
       .defaults = {
-        .scale = tVec3f(6000.f, 12000.f, 6000.f),
+        .scale = tVec3f(4000.f, 12000.f, 4000.f),
         .color = tVec4f(1.f, 0.2f, 0.1f, 0.8f)
       }
     }
@@ -750,6 +750,17 @@ void MeshLibrary::LoadMeshes(Tachyon* tachyon, State& state) {
   LoadBackgroundMeshes(tachyon, state);
   LoadEntityMeshes(tachyon, state);
   LoadDebugMeshes(tachyon, state);
+
+  // Set placeable/generated mesh types
+  {
+    for (auto& asset : placeable_mesh_assets) {
+      mesh(asset.mesh_index).type = asset.defaults.type;
+    }
+
+    for (auto& asset : generated_mesh_assets) {
+      mesh(asset.mesh_index).type = asset.defaults.type;
+    }
+  }
 
   // @todo dev mode only
   {
