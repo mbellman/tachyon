@@ -31,7 +31,7 @@ vec3 ClosestPointOnLine(vec3 a, vec3 b, vec3 p) {
   return a + t * AB;
 }
 
-// @todo add attribution
+// https://www.shadertoy.com/view/WllXzB
 float Noise( vec3 P )
 {
     vec3 Pi = floor(P);
@@ -52,12 +52,25 @@ float Noise( vec3 P )
 }
 
 float Fire3D(vec3 p) {
-  float v = 1.0;
+  float v = 0.0;
   vec3 line = normalize(basePosition - modelPosition);
 
-  v *= Noise(p * 0.002 + line * scene_time * 0.5) * 0.5;
-  v += Noise(p * 0.001 + line * scene_time * 1.0) * 0.5;
-  v *= Noise(p * 0.0004 + line * scene_time * 2.0) * 2.0;
+  p *= 0.5;
+
+  v += Noise(p * 0.001 + line * scene_time * 0.5) * 0.5;
+  p *= 2.0;
+  v += Noise(p * 0.001 + line * scene_time * 1.0) * 0.3;
+  p *= 2.0;
+  v += Noise(p * 0.001 + line * scene_time * 2.0) * 0.2;
+  p *= 2.0;
+  v += Noise(p * 0.001 + line * scene_time * 1.0) * 0.1;
+
+  float f = fract(v);
+  v *= f;
+  v *= f;
+  v *= f;
+  v *= f;
+  v *= 10.0;
 
   return clamp(v, 0.0, 1.0);
 }
@@ -100,7 +113,7 @@ void main() {
     float center_factor = pow(min(1.0, 1.0 / center_distance), 5.0);
     float density_factor = Fire3D(sample_position);
 
-    vec3 fire_color = mix(object_color.rgb, hot_color, 1.0 / base_distance);
+    vec3 fire_color = mix(object_color.rgb, hot_color, base_factor);
     fire_color = mix(object_color.rgb * 0.5, hot_color, 0.5 * pow(density_factor, 2.0));
 
     out_color += fire_color * intensity * base_factor * top_factor * center_factor * density_factor * 5.0;
