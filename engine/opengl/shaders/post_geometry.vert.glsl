@@ -14,6 +14,12 @@ flat out uvec4 fragSurface;
 out vec3 fragPosition;
 out vec3 fragNormal;
 
+// Used in fire_mesh.frag.glsl
+flat out vec3 modelPosition;
+flat out vec3 basePosition;
+flat out vec3 topPosition;
+out vec3 vertPosition;
+
 uvec4 SurfaceToUVec4(uint surface) {
   uint rg = ((surface & 0xFF000000) >> 24);
   uint ba = ((surface & 0x00FF0000) >> 16);
@@ -37,6 +43,10 @@ void main() {
   gl_Position = view_projection_matrix * vec4(transform_space_position, 1.0);
 
   fragSurface = SurfaceToUVec4(modelSurface);
+  modelPosition = translation;
+  basePosition = (modelMatrix * vec4(0, -1.0, 0, 1.0)).xyz;
+  topPosition = (modelMatrix * vec4(0, 1.0, 0, 1.0)).xyz;
+  vertPosition = vertexPosition;
   fragPosition = model_space_position + translation;
   fragNormal = normal_matrix * vertexNormal;
 }

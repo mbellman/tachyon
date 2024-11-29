@@ -173,22 +173,13 @@ static void UpdateLocalEntities(Tachyon* tachyon, State& state, const float dt) 
   commit(elevator_car_frame);
 }
 
-static void UpdateGasFlares(Tachyon* tachyon, State& state, const float dt) {
-  // Update lights
-  {
-    for (auto light_index : state.gas_flare_light_indexes) {
-      auto& light = tachyon->point_lights[light_index];
-      auto t = state.current_game_time + float(light_index);
-      auto power = 5.f * sinf(t);
-      if (power < 0.f) power = 0.f;
+static void UpdateGasFlareLights(Tachyon* tachyon, State& state, const float dt) {
+  for (auto light_index : state.gas_flare_light_indexes) {
+    auto& light = tachyon->point_lights[light_index];
+    auto t = state.current_game_time * 0.5f + light.position.x;
+    auto power = 5.f * (0.5f * sinf(t) + 0.5f);
 
-      light.power = power;
-    }
-  }
-
-  // Update flare objects
-  {
-    // @todo
+    light.power = power;
   }
 }
 
@@ -207,5 +198,5 @@ void WorldBehavior::UpdateWorld(Tachyon* tachyon, State& state, const float dt) 
   // Game time cycle-independent entities
   UpdateRotators(tachyon, state, dt);
   UpdateLocalEntities(tachyon, state, dt);
-  UpdateGasFlares(tachyon, state, dt);
+  UpdateGasFlareLights(tachyon, state, dt);
 }
