@@ -57,20 +57,20 @@ float Fire3D(vec3 p) {
 
   p *= 0.5;
 
-  v += Noise(p * 0.001 + line * scene_time * 0.5) * 0.5;
+  v += Noise(p * 0.001 + line * scene_time * 1.0) * 0.5;
   p *= 2.0;
-  v += Noise(p * 0.001 + line * scene_time * 1.0) * 0.3;
+  v += Noise(p * 0.001 + line * scene_time * 2.0) * 0.3;
   p *= 2.0;
-  v += Noise(p * 0.001 + line * scene_time * 2.0) * 0.2;
+  v += Noise(p * 0.001 + line * scene_time * 3.0) * 0.2;
   p *= 2.0;
-  v += Noise(p * 0.001 + line * scene_time * 1.0) * 0.1;
+  v += Noise(p * 0.001 + line * scene_time * 4.0) * 0.1;
 
   float f = fract(v);
   v *= f;
   v *= f;
   v *= f;
   v *= f;
-  v *= 10.0;
+  v *= 5.0;
 
   return clamp(v, 0.0, 1.0);
 }
@@ -102,7 +102,7 @@ void main() {
   vec3 center_line = basePosition - modelPosition;
   float intensity = 0.5 * sin(scene_time * 0.5 + modelPosition.x) + 0.5;
 
-  for (int i = 0; i < 10; i++) {
+  for (int i = 0; i < 5; i++) {
     float base_distance = 0.0002 * length(sample_position - basePosition);
     float top_distance = 0.0002 * length(sample_position - topPosition);
     vec3 center_position = ClosestPointOnLine(basePosition, modelPosition, sample_position);
@@ -113,13 +113,25 @@ void main() {
     float center_factor = pow(min(1.0, 1.0 / center_distance), 5.0);
     float density_factor = Fire3D(sample_position);
 
-    vec3 fire_color = mix(object_color.rgb, hot_color, base_factor);
-    fire_color = mix(object_color.rgb * 0.5, hot_color, 0.5 * pow(density_factor, 2.0));
+    vec3 fire_color = mix(object_color.rgb * 0.5, hot_color, base_factor);
+    fire_color = mix(fire_color, hot_color, 0.5 * pow(density_factor, 2.0));
+    fire_color = mix(fire_color, vec3(0.0), pow(density_factor, 4.0));
 
-    out_color += fire_color * intensity * base_factor * top_factor * center_factor * density_factor * 5.0;
+    if (density_factor < 0.3) out_color *= 0.75;
 
-    sample_position += D * 1000.0;
+    out_color +=
+      fire_color *
+      base_factor *
+      top_factor *
+      center_factor *
+      density_factor;
+
+    sample_position += D * 2000.0;
   }
+
+  out_color *= pow(NdotV, 2.0) * intensity;
+  out_color *= out_color * 100.0;
+  // out_color = pow(out_color, vec3(1.0 / 2.2));
 
   out_color_and_depth = vec4(out_color, 0);
 }

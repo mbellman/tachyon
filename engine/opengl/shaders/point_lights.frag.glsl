@@ -97,10 +97,6 @@ vec3 GetPointLightRadiance(vec3 world_position, float light_distance, vec3 N, ve
 void main() {
   vec4 frag_normal_and_depth = texture(in_normal_and_depth, fragUv);
 
-  if (frag_normal_and_depth.w == 1.0) {
-    discard;
-  }
-
   vec3 position = GetWorldPosition(frag_normal_and_depth.w, fragUv, inverse_projection_matrix, inverse_view_matrix);
   vec3 light_to_surface = position - light.position;
   float light_distance = length(light_to_surface);

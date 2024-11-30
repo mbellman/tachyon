@@ -103,7 +103,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     .defaults = {
       .scale = tVec3f(4000.f),
       .color = tVec4f(1.f, 1.f, 1.f, 0.2f),
-      .material = tVec4f(0.6f, 0, 0.1f, 0.6f)
+      .material = tVec4f(0.6f, 0, 0.1f, 0.2f)
     }
   });
 
@@ -204,7 +204,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     .mesh_index = meshes.silo_6,
     .placeholder = true,
     .defaults = {
-      .scale = tVec3f(40000.f),
+      .scale = tVec3f(30000.f),
       .color = tVec3f(0.8f, 0.7f, 0.6f),
       .material = tVec4f(0.5f, 1.f, 0, 0)
     }
@@ -510,15 +510,15 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .mesh_index = meshes.silo_6_body,
       .generated_from = meshes.silo_6,
       .defaults = {
-        .color = tVec3f(0.8f, 0.7f, 0.6f),
-        .material = tVec4f(0.6f, 1.f, 0, 0)
+        .color = tVec3f(1.f, 0.6f, 0.6f),
+        .material = tVec4f(0.6f, 0.5f, 0.1f, 0)
       }
     },
     {
       .mesh_index = meshes.silo_6_frame,
       .generated_from = meshes.silo_6,
       .defaults = {
-        .color = tVec3f(0.5f),
+        .color = tVec3f(1.f),
         .material = tVec4f(0.2f, 1.f, 0, 0)
       }
     },
