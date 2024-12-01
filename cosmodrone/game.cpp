@@ -494,20 +494,23 @@ static void HandleFlightArrows(Tachyon* tachyon, State& state, const float dt) {
   }
 }
 
-static void HandleOdometer(Tachyon* tachyon, State& state, const float dt) {
+static void HandleHUD(Tachyon* tachyon, State& state, const float dt) {
   auto& camera = tachyon->scene.camera;
   auto& meshes = state.meshes;
 
-  auto& wedge = objects(meshes.hud_wedge)[0];
+  // Odometer
+  {
+    auto& wedge = objects(meshes.hud_wedge)[0];
 
-  tVec3f left = tVec3f::cross(state.view_forward_direction, state.view_up_direction).invert();
+    tVec3f left = tVec3f::cross(state.view_forward_direction, state.view_up_direction).invert();
 
-  wedge.position = camera.position + state.view_forward_direction * 550.f + left * 325.f;
-  wedge.scale = 150.f + camera.fov * 1.8f;
-  wedge.color = tVec4f(0.1f, 0.2f, 1.f, 1.f);
-  wedge.rotation = GetOppositeRotation(camera.rotation) * Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI * 1.3f);
+    wedge.position = camera.position + state.view_forward_direction * 550.f + left * 325.f;
+    wedge.scale = 150.f + camera.fov * 1.8f;
+    wedge.color = tVec4f(0.1f, 0.2f, 1.f, 1.f);
+    wedge.rotation = GetOppositeRotation(camera.rotation) * Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI * 1.3f);
 
-  commit(wedge);
+    commit(wedge);
+  }
 }
 
 static void UpdateShipVelocityBasis(State& state) {
@@ -730,7 +733,7 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
   HandleAutopilot(tachyon, state, dt);
   HandleFlightCamera(tachyon, state, dt);
   HandleFlightArrows(tachyon, state, dt);
-  HandleOdometer(tachyon, state, dt);
+  HandleHUD(tachyon, state, dt);
   UpdateShip(tachyon, state, dt);
 
   TargetSystem::HandleTargetTrackers(tachyon, state, dt);
