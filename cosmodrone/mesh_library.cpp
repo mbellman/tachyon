@@ -326,10 +326,11 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   placeable_mesh_assets.push_back({
     .mesh_name = "girder_4",
     .mesh_index = meshes.girder_4,
+    .placeholder = true,
     .defaults = {
       .scale = tVec3f(8000.f),
       .color = tVec3f(1.f),
-      .material = tVec4f(0.2f, 1.f, 0, 0)
+      .material = tVec4f(0.5f, 1.f, 0, 0.5f)
     }
   });
 
@@ -444,6 +445,9 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
   load_mesh(silo_6_body);
   load_mesh(silo_6_frame);
 
+  load_mesh(girder_4_core);
+  load_mesh(girder_4_frame);
+
   load_mesh(girder_6_core);
   load_mesh(girder_6_frame);
 
@@ -520,6 +524,24 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .defaults = {
         .color = tVec3f(1.f),
         .material = tVec4f(0.2f, 1.f, 0, 0)
+      }
+    },
+
+    // girder_4
+    {
+      .mesh_index = meshes.girder_4_core,
+      .generated_from = meshes.girder_4,
+      .defaults = {
+        .color = tVec3f(1.f),
+        .material = tVec4f(0.5f, 1.f, 0, 0.5f)
+      }
+    },
+    {
+      .mesh_index = meshes.girder_4_frame,
+      .generated_from = meshes.girder_4,
+      .defaults = {
+        .color = tVec3f(1.f),
+        .material = tVec4f(0.2f, 1.f, 0, 0.5f)
       }
     },
 
