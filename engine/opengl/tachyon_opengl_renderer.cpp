@@ -423,7 +423,9 @@ static void RenderMeshesByType(Tachyon* tachyon, tMeshType type) {
   glBindBuffer(GL_DRAW_INDIRECT_BUFFER, renderer.indirect_buffer);
   glBufferData(GL_DRAW_INDIRECT_BUFFER, commands.size() * sizeof(DrawElementsIndirectCommand), commands.data(), GL_DYNAMIC_DRAW);
 
+  // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, 0, commands.size(), 0);
+  // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
   // @todo dev mode only
   {

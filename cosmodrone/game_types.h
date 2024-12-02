@@ -78,6 +78,9 @@ namespace Cosmodrone {
       light_3_base,
       light_3_bulb,
 
+      // Target inspector meshes
+      antenna_3_wireframe,
+
       // Entities
       elevator_car_1,
       elevator_car_1_frame,

@@ -533,7 +533,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .generated_from = meshes.girder_4,
       .defaults = {
         .color = tVec3f(1.f),
-        .material = tVec4f(0.5f, 1.f, 0, 0.5f)
+        .material = tVec4f(0.8f, 1.f, 0, 0.5f)
       }
     },
     {
@@ -541,7 +541,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .generated_from = meshes.girder_4,
       .defaults = {
         .color = tVec3f(1.f),
-        .material = tVec4f(0.2f, 1.f, 0, 0.5f)
+        .material = tVec4f(0.6f, 1.f, 0, 0.5f)
       }
     },
 
@@ -706,6 +706,10 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
   };
 }
 
+static void LoadTargetInspectorMeshes(Tachyon* tachyon, State& state) {
+  state.meshes.antenna_3_wireframe = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/antenna_3.obj"), 1);
+}
+
 static void LoadBackgroundMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
@@ -770,6 +774,7 @@ void MeshLibrary::LoadMeshes(Tachyon* tachyon, State& state) {
   LoadShipPartMeshes(tachyon, state);
   LoadPlaceableMeshes(tachyon, state);
   LoadGeneratedMeshes(tachyon, state);
+  LoadTargetInspectorMeshes(tachyon, state);
   LoadBackgroundMeshes(tachyon, state);
   LoadEntityMeshes(tachyon, state);
   LoadDebugMeshes(tachyon, state);

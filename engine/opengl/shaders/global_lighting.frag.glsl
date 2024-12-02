@@ -539,13 +539,6 @@ void main() {
   ssao = clamp(ssao, 0.0, 1.0);
   shadow = clamp(shadow, 0.0, 1.0);
 
-  // @todo dev mode only
-  if (use_high_visibility_mode) {
-    shadow = 1.0;
-    roughness = 0.6;
-    metalness = 0.0;
-  }
-
   vec3 out_color = vec3(0.0);
 
   // Primary directional light
