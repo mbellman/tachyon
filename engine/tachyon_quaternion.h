@@ -28,6 +28,7 @@ struct Quaternion {
   tVec3f getLeftDirection() const;
   tVec3f getUpDirection() const;
   tMat4f toMatrix4f() const;
+  Quaternion opposite() const;
   Quaternion unit() const;
 
   std::string toString() const;

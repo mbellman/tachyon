@@ -131,6 +131,10 @@ tMat4f Quaternion::toMatrix4f() const {
   };
 }
 
+Quaternion Quaternion::opposite() const {
+  return Quaternion(w, -x, -y, -z);
+}
+
 Quaternion Quaternion::unit() const {
   auto magnitude = sqrtf(w*w + x*x + y*y + z*z);
 

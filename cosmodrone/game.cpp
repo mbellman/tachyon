@@ -1,6 +1,7 @@
 #include "cosmodrone/game.h"
 #include "cosmodrone/game_editor.h"
 #include "cosmodrone/game_types.h"
+#include "cosmodrone/hud_system.h"
 #include "cosmodrone/mesh_library.h"
 #include "cosmodrone/target_system.h"
 #include "cosmodrone/world_behavior.h"
@@ -27,17 +28,6 @@ inline tVec3f Lerpf(const tVec3f& a, const tVec3f& b, const float alpha) {
     Lerpf(a.y, b.y, alpha),
     Lerpf(a.z, b.z, alpha)
   );
-}
-
-// @todo move to engine
-static Quaternion GetOppositeRotation(const Quaternion& rotation) {
-  Quaternion opposite = rotation;
-
-  opposite.x *= -1.f;
-  opposite.y *= -1.f;
-  opposite.z *= -1.f;
-
-  return opposite;
 }
 
 // @todo remove in favor of LookRotation()
@@ -384,10 +374,11 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
       GetTargetPositionAim(state, GetDockingPosition(state)) > 0.8f
     )
   ) {
+    // Gradually move the camera behind the player ship
     state.target_camera_rotation = Quaternion::slerp(
       state.target_camera_rotation,
       // @todo fix ship model orientation
-      GetOppositeRotation(objects(meshes.hull)[0].rotation),
+      objects(meshes.hull)[0].rotation.opposite(),
       10.f * dt
     );
 
@@ -494,25 +485,6 @@ static void HandleFlightArrows(Tachyon* tachyon, State& state, const float dt) {
   }
 }
 
-static void HandleHUD(Tachyon* tachyon, State& state, const float dt) {
-  auto& camera = tachyon->scene.camera;
-  auto& meshes = state.meshes;
-
-  // Odometer
-  {
-    auto& wedge = objects(meshes.hud_wedge)[0];
-
-    tVec3f left = tVec3f::cross(state.view_forward_direction, state.view_up_direction).invert();
-
-    wedge.position = camera.position + state.view_forward_direction * 550.f + left * 325.f;
-    wedge.scale = 150.f + camera.fov * 1.8f;
-    wedge.color = tVec4f(0.1f, 0.2f, 1.f, 1.f);
-    wedge.rotation = GetOppositeRotation(camera.rotation) * Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI * 1.3f);
-
-    commit(wedge);
-  }
-}
-
 static void UpdateShipVelocityBasis(State& state) {
   auto forward = state.ship_velocity.unit();
   auto up = UP_VECTOR;
@@ -535,7 +507,7 @@ static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
   auto& trim = objects(meshes.trim)[0];
 
   // @todo fix ship model orientation
-  auto target_ship_rotation = GetOppositeRotation(camera.rotation);
+  auto target_ship_rotation = camera.rotation.opposite();
 
   if (state.ship_velocity.magnitude() > 0.f) {
     UpdateShipVelocityBasis(state);
@@ -733,9 +705,9 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
   HandleAutopilot(tachyon, state, dt);
   HandleFlightCamera(tachyon, state, dt);
   HandleFlightArrows(tachyon, state, dt);
-  HandleHUD(tachyon, state, dt);
   UpdateShip(tachyon, state, dt);
 
+  HUDSystem::HandleHUD(tachyon, state, dt);
   TargetSystem::HandleTargetTrackers(tachyon, state, dt);
   WorldBehavior::UpdateWorld(tachyon, state, dt);
 
