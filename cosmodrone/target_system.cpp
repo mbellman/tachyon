@@ -4,7 +4,7 @@
 
 using namespace Cosmodrone;
 
-const static float MAX_TARGET_DISTANCE = 300000.f;
+const static float MAX_TARGET_DISTANCE = 200000.f;
 
 static bool IsTrackingObject(State& state, const tObject& object) {
   for (auto& tracker : state.on_screen_target_trackers) {
