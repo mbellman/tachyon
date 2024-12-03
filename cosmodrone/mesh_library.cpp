@@ -10,10 +10,10 @@ static void LoadShipPartMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   // @todo define in a list
-  auto hull_mesh = Tachyon_LoadMesh("./cosmodrone/assets/test-ship/hull.obj");
-  auto streams_mesh = Tachyon_LoadMesh("./cosmodrone/assets/test-ship/streams.obj");
-  auto thrusters_mesh = Tachyon_LoadMesh("./cosmodrone/assets/test-ship/thrusters.obj");
-  auto trim_mesh = Tachyon_LoadMesh("./cosmodrone/assets/test-ship/trim.obj");
+  auto hull_mesh = Tachyon_LoadMesh("./cosmodrone/assets/drone/hull.obj");
+  auto streams_mesh = Tachyon_LoadMesh("./cosmodrone/assets/drone/streams.obj");
+  auto thrusters_mesh = Tachyon_LoadMesh("./cosmodrone/assets/drone/thrusters.obj");
+  auto trim_mesh = Tachyon_LoadMesh("./cosmodrone/assets/drone/trim.obj");
 
   meshes.hull = Tachyon_AddMesh(tachyon, hull_mesh, 1);
   meshes.streams = Tachyon_AddMesh(tachyon, streams_mesh, 1);
