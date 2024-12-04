@@ -111,17 +111,17 @@ static void InitializeLevel(Tachyon* tachyon, State& state) {
     auto& thrusters = create(meshes.thrusters);
     auto& trim = create(meshes.trim);
 
-    hull.scale = 200.f;
-    hull.material = tVec4f(0.1f, 0, 0.2f, 1.f);
+    hull.scale = 400.f;
+    hull.material = tVec4f(0.1f, 0, 0.2f, 0.5f);
 
-    streams.scale = 200.f;
-    streams.material = tVec4f(0.6f, 1.f, 0, 0);
+    streams.scale = 400.f;
+    streams.material = tVec4f(0.5f, 0.5f, 0.5f, 0.2f);
 
-    thrusters.scale = 200.f;
-    thrusters.color = tVec3f(0.2f);
+    thrusters.scale = 400.f;
+    thrusters.color = tVec3f(0.3f);
     thrusters.material = tVec4f(0.8f, 0, 0, 0.4f);
 
-    trim.scale = 200.f;
+    trim.scale = 400.f;
     trim.material = tVec4f(0.2f, 1.f, 0, 0);
 
     // @todo define as a default
