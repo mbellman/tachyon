@@ -72,7 +72,8 @@ static void HandleTargetInspector(Tachyon* tachyon, State& state, const float dt
 
     preview.position = wedge.position + left * 50.f + state.view_up_direction * 110.f;
     preview.scale = 50.f;
-    preview.color = tVec4f(1.f);
+    preview.color = tVec3f(0.2f, 0.5f, 1.f);
+
     preview.rotation =
       camera.rotation.opposite() *
       Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), state.current_game_time);

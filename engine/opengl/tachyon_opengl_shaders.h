@@ -74,6 +74,11 @@ struct tUniformLocations {
 
   uniform_locations(
     view_projection_matrix,
+    transform_origin
+  ) wireframe_mesh;
+
+  uniform_locations(
+    view_projection_matrix,
     transform_origin,
     camera_position,
     primary_light_direction,
@@ -116,6 +121,7 @@ struct tOpenGLShaders {
   tOpenGLShader shadow_map;
   tOpenGLShader global_lighting;
   tOpenGLShader point_lights;
+  tOpenGLShader wireframe_mesh;
   tOpenGLShader volumetric_mesh;
   tOpenGLShader fire_mesh;
   tOpenGLShader post;

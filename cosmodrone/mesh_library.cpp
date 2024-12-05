@@ -707,7 +707,11 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
 }
 
 static void LoadTargetInspectorMeshes(Tachyon* tachyon, State& state) {
-  state.meshes.antenna_3_wireframe = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/antenna_3.obj"), 1);
+  auto& meshes = state.meshes;
+
+  meshes.antenna_3_wireframe = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/antenna_3.obj"), 1);
+
+  mesh(meshes.antenna_3_wireframe).type = WIREFRAME_MESH;
 }
 
 static void LoadBackgroundMeshes(Tachyon* tachyon, State& state) {
@@ -744,6 +748,9 @@ static void LoadEntityMeshes(Tachyon* tachyon, State& state) {
 
     meshes.hud_flight_arrow = Tachyon_AddMesh(tachyon, flight_arrow, 16);
     meshes.hud_wedge = Tachyon_AddMesh(tachyon, wedge, 2);
+
+    mesh(meshes.hud_flight_arrow).type = WIREFRAME_MESH;
+    mesh(meshes.hud_wedge).type = WIREFRAME_MESH;
   }
 }
 

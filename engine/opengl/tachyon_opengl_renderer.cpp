@@ -433,7 +433,7 @@ static void RenderMeshesByType(Tachyon* tachyon, tMeshType type) {
   }
 }
 
-static void RenderPbrGeometry(Tachyon* tachyon) {
+static void RenderPbrMeshes(Tachyon* tachyon) {
   auto& renderer = get_renderer();
   auto& shader = renderer.shaders.main_geometry;
   auto& locations = renderer.shaders.locations.main_geometry;
@@ -595,6 +595,23 @@ static void RenderPostMeshes(Tachyon* tachyon) {
     ? renderer.accumulation_buffer_a
     : renderer.accumulation_buffer_b;
 
+  // Wireframes
+  {
+    auto& shader = renderer.shaders.wireframe_mesh;
+    auto& locations = renderer.shaders.locations.wireframe_mesh;
+
+    glUseProgram(shader.program);
+    SetShaderMat4f(locations.view_projection_matrix, ctx.view_projection_matrix);
+    SetShaderVec3f(locations.transform_origin, scene.transform_origin);
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glLineWidth(1.5f);
+
+    RenderMeshesByType(tachyon, WIREFRAME_MESH);
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  }
+
   // Volumetrics (@todo rename Atmospheres)
   {
     auto& shader = renderer.shaders.volumetric_mesh;
@@ -624,11 +641,12 @@ static void RenderPostMeshes(Tachyon* tachyon) {
     SetShaderFloat(locations.scene_time, scene.scene_time);
 
     RenderMeshesByType(tachyon, FIRE_MESH);
+
+    glDepthMask(true);
   }
 
   glDisable(GL_CULL_FACE);
   glDisable(GL_DEPTH_TEST);
-  glDepthMask(true);
 }
 
 static void RenderPointLights(Tachyon* tachyon) {
@@ -910,7 +928,7 @@ void Tachyon_OpenGL_RenderScene(Tachyon* tachyon) {
   }
 
   UpdateRendererContext(tachyon);
-  RenderPbrGeometry(tachyon);
+  RenderPbrMeshes(tachyon);
   RenderShadowMaps(tachyon);
 
   // The next steps in the pipeline render quads in screen space,
