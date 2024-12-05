@@ -455,6 +455,15 @@ vec2 GetDenoisedTemporalData(float ssao, float shadow, float depth, vec2 tempora
   const float temporal_weight = 1.0;
   const float spatial_spread = 2.0;
 
+  float world_depth = GetWorldDepth(depth, 500.0, 10000000.0);
+
+  // @hack don't use the temporal UV coordinates for
+  // objects close to the camera, e.g. the player ship.
+  // This eliminates smearing/ghosting.
+  if (world_depth < 2000.0) {
+    temporal_uv = fragUv;
+  }
+
   #if USE_SPATIAL_DENOISING
     const vec2[] offsets = {
       vec2(1.0, 0),
@@ -470,7 +479,7 @@ vec2 GetDenoisedTemporalData(float ssao, float shadow, float depth, vec2 tempora
       vec2 offset = spatial_spread * offsets[i];
       vec4 temporal_data = texture(in_temporal_data, temporal_uv + texel_size * offset);
       float temporal_depth = temporal_data.w;
-      float depth_distance = abs(GetWorldDepth(depth, 500.0, 10000000.0) - GetWorldDepth(temporal_depth, 500.0, 10000000.0));
+      float depth_distance = abs(world_depth - GetWorldDepth(temporal_depth, 500.0, 10000000.0));
 
       if (depth_distance < 500.0) {
         ssao += temporal_data.x * temporal_weight;
