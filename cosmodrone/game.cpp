@@ -250,7 +250,7 @@ static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt)
     state.flight_mode == FlightMode::AUTO_DOCK &&
     state.auto_dock_stage < AutoDockStage::APPROACH
   ) {
-    state.ship_rotate_to_target_speed += 2.f * dt;
+    state.ship_rotate_to_target_speed += 1.f * dt;
   }
 
   // Allow the ship to rotate to the camera orientation faster
@@ -312,10 +312,15 @@ static void HandleAutopilot(Tachyon* tachyon, State& state, const float dt) {
 
     case FlightMode::AUTO_DOCK: {
       if (state.auto_dock_stage == AutoDockStage::APPROACH_DECELERATION) {
-        // @todo use ship rotation basis
-        state.ship_velocity -= state.ship_velocity_basis.forward * 1000.f * dt;
+        float alignment = tVec3f::dot(state.ship_rotation_basis.forward, state.ship_velocity_basis.forward.invert());
+        if (alignment < 0.f) alignment = 0.f;
 
-        if (state.ship_velocity.magnitude() < 25.f) {
+        float deceleration_factor = Lerpf(0.f, 1000.f, alignment * alignment * alignment);
+
+        state.ship_rotate_to_target_speed += 0.5f * dt;
+        state.ship_velocity += state.ship_rotation_basis.forward * deceleration_factor * dt;
+
+        if (state.ship_velocity.magnitude() < 50.f) {
           state.auto_dock_stage = AutoDockStage::APPROACH_ALIGNMENT;
         }
       }
@@ -402,6 +407,7 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
   camera.position = state.ship_position - state.view_forward_direction * camera_radius + state.view_up_direction * 300.f;
 }
 
+// @todo move to HUDSystem
 static void HandleFlightArrows(Tachyon* tachyon, State& state, const float dt) {
   const static float MIN_SPAWN_DISTANCE = 5000.f;
   const static float MAX_SPAWN_DISTANCE = 20000.f;
@@ -546,6 +552,9 @@ static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
 
         if (GetTargetPositionAim(state, docking_position) > 0.99999f) {
           state.auto_dock_stage = AutoDockStage::APPROACH;
+        } else {
+          // @hack slow the ship down after deceleration
+          state.ship_velocity *= (1.f - dt);
         }
 
         break;
