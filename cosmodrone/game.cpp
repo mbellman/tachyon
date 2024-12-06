@@ -399,7 +399,7 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
   float camera_radius = state.ship_camera_distance + 250.f * speed_zoom_ratio;
 
   camera.fov = 45.f + 10.f * speed_zoom_ratio;
-  camera.position = state.ship_position - state.view_forward_direction * camera_radius + state.view_up_direction * 250.f;
+  camera.position = state.ship_position - state.view_forward_direction * camera_radius + state.view_up_direction * 300.f;
 }
 
 static void HandleFlightArrows(Tachyon* tachyon, State& state, const float dt) {

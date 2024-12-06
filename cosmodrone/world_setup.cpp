@@ -140,7 +140,7 @@ static void InitializeLevel(Tachyon* tachyon, State& state) {
   // @todo define as a default
   state.target_camera_rotation = camera.rotation = Quaternion(0.53f, 0.47f, -0.53f, -0.47f);
   // @todo define as a default
-  state.ship_position = tVec3f(45000.f, 1000.f, 1300.f);
+  state.ship_position = tVec3f(-2500.f, 120000.f, -29000.f);
 
   LoadWorldData(tachyon, state);
 }
