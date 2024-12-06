@@ -47,7 +47,7 @@ float taylorInvSqrt(float r)
 }
 
 vec4 grad4(float j, vec4 ip)
-  {
+{
   const vec4 ones = vec4(1.0, 1.0, 1.0, -1.0);
   vec4 p,s;
 
@@ -57,8 +57,8 @@ vec4 grad4(float j, vec4 ip)
   p.xyz = p.xyz + (s.xyz*2.0 - 1.0) * s.www; 
 
   return p;
-  }
-						
+}
+
 // (sqrt(5) - 1)/4 = F4, used once below
 #define F4 0.309016994374947451
 
@@ -103,7 +103,7 @@ float snoise(vec4 v) {
   vec4 x4 = x0 + C.wwww;
 
 // Permutations
-  i = mod289(i); 
+  i = mod289(i);
   float j0 = permute( permute( permute( permute(i.w) + i.z) + i.y) + i.x);
   vec4 j1 = permute( permute( permute( permute (
              i.w + vec4(i1.w, i2.w, i3.w, 1.0 ))
@@ -151,6 +151,17 @@ vec3 RotateAroundAxis(vec3 axis, vec3 vector, float angle) {
   return vector + 2.0 * cross(cross(vector, q.xyz) + q.w * vector, q.xyz);
 }
 
+vec3 GetCloudDirection(vec3 normal) {
+  const vec3 orbit_rotation_axis = normalize(vec3(0.5, 0, -1.0));
+
+  vec2 p = normal.xz;
+  float z = 1.0 - length(p);
+  vec3 v = vec3(p, -sqrt(z));
+  v *= 8.0;
+
+  return RotateAroundAxis(orbit_rotation_axis, vec3(v.x, -v.z, v.y), scene_time * 0.001);
+}
+
 void main() {
   vec3 N = normalize(fragNormal);
   vec3 V = normalize(camera_position - fragPosition);
@@ -161,23 +172,16 @@ void main() {
   float NdotL = max(0.0, dot(N, L));
   float DdotL = max(0.0, dot(D, L));
 
-  vec2 p = N.xz;
-  float z = 1.0 - length(p);
-  vec3 v = vec3(p, -sqrt(z));
-  v *= 8.0;
-
-  const vec3 orbit_rotation_axis = normalize(vec3(0.5, 0, -1.0));
-  vec3 d = RotateAroundAxis(orbit_rotation_axis, vec3(v.x, -v.z, v.y), scene_time * 0.001);
+  vec3 d = GetCloudDirection(N);
 
   float t = scene_time * 0.001;
+  float c1 = snoise(vec4(d, t));
+  float c2 = snoise(vec4(d * 2.0, t));
+  float c3 = snoise(vec4(d * 4.0, t));
+  float c4 = snoise(vec4(d * 8.0, t));
+  float c5 = snoise(vec4(d * 32.0, t));
 
-  float clouds = (
-    snoise(vec4(d, t)) +
-    snoise(vec4(d * 2.0, t)) +
-    snoise(vec4(d * 4.0, t)) +
-    snoise(vec4(d * 8.0, t)) +
-    snoise(vec4(d * 32.0, t))
-  );
+  float clouds = c1 + c2 + c3 + c4 + c5;
 
   clouds = clamp(clouds, 0.0, 1.0);
   clouds *= clouds;
@@ -185,6 +189,16 @@ void main() {
   vec3 out_color = vec3(0.0);
 
   out_color += vec3(clouds);
+
+  vec3 d2 = GetCloudDirection(N * 1.02);
+  float c3_2 = snoise(vec4(d2 * 2.0, t));
+  float c4_2 = snoise(vec4(d2 * 8.0, t));
+  c3_2 = clamp(c3_2, 0.0, 1.0);
+  c4_2 = clamp(c4_2, 0.0, 1.0);
+
+  float shadow = (c3_2 + c4_2) * (1.0 - NdotV * 0.75);
+
+  out_color -= vec3(shadow) * 0.25;
 
   // Incidence
   out_color *= pow(NdotL, 1.0 / 3.0) + 0.2;

@@ -226,16 +226,19 @@ static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt)
   // Handle auto-prograde actions
   if (did_press_key(tKey::SHIFT)) {
     state.flight_mode = FlightMode::AUTO_PROGRADE;
+    state.ship_rotate_to_target_speed = 0.f;
   }
 
   // Handle auto-retrograde actions
   if (did_press_key(tKey::SPACE)) {
     state.flight_mode = FlightMode::AUTO_RETROGRADE;
+    state.ship_rotate_to_target_speed = 0.f;
   }
 
   // Handle auto-docking actions
   if (did_press_key(tKey::ENTER)) {
     AttemptDockingProcedure(state);
+    state.ship_rotate_to_target_speed = 0.f;
   }
 
   // Allow the ship to swivel quickly in automatic flight modes
@@ -243,7 +246,7 @@ static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt)
     state.flight_mode == FlightMode::AUTO_PROGRADE ||
     state.flight_mode == FlightMode::AUTO_RETROGRADE
   ) {
-    state.ship_rotate_to_target_speed += 5.f * dt;
+    state.ship_rotate_to_target_speed += 2.f * dt;
   }
 
   if (
@@ -384,7 +387,7 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
       state.target_camera_rotation,
       // @todo fix ship model orientation
       objects(meshes.hull)[0].rotation.opposite(),
-      10.f * dt
+      2.f * dt
     );
 
     camera_lerp_speed_factor = 3.f;
