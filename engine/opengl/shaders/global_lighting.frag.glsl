@@ -460,7 +460,7 @@ vec2 GetDenoisedTemporalData(float ssao, float shadow, float depth, vec2 tempora
   // @hack don't use the temporal UV coordinates for
   // objects close to the camera, e.g. the player ship.
   // This eliminates smearing/ghosting.
-  if (world_depth < 2000.0) {
+  if (world_depth < 1500.0) {
     temporal_uv = fragUv;
   }
 
@@ -561,7 +561,7 @@ void main() {
     vec3 earth_light_direction = vec3(0, 1.0, 0);
     vec3 earth_light_color = vec3(0.2, 0.5, 1.0) * 0.2;
  
-    out_color += GetDirectionalLightRadiance(earth_light_direction, earth_light_color, albedo, position, N, V, NdotV, mix(roughness, 0.8, 0.5), metalness, 0.0, 0.0, 1.0);
+    out_color += GetDirectionalLightRadiance(earth_light_direction, earth_light_color, albedo, position, N, V, NdotV, mix(roughness, 1.0, 0.5), metalness, 0.0, 0.0, 1.0);
   }
 
   // Ambient light (based on the primary directional light)

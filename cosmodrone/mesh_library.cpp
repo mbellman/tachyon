@@ -102,7 +102,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     .mesh_index = meshes.antenna_3,
     .defaults = {
       .scale = tVec3f(4000.f),
-      .color = tVec4f(1.f, 1.f, 1.f, 0.2f),
+      .color = tVec3f(1.f),
       .material = tVec4f(0.6f, 0, 0.1f, 0.2f)
     }
   });
