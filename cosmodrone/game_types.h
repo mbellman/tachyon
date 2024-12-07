@@ -136,7 +136,8 @@ namespace Cosmodrone {
     APPROACH_DECELERATION,
     APPROACH_ALIGNMENT,
     APPROACH,
-    DOCK
+    DOCKING,
+    DOCKED
   };
 
   struct FlightPathNode {

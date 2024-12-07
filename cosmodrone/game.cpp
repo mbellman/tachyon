@@ -406,7 +406,7 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
 
   UpdateViewDirections(tachyon, state);
 
-  state.ship_camera_distance = Lerpf(state.ship_camera_distance, state.ship_camera_distance_target, 10.f * dt);
+  state.ship_camera_distance = Lerpf(state.ship_camera_distance, state.ship_camera_distance_target, 5.f * dt);
 
   float ship_speed = state.ship_velocity.magnitude();
   float speed_zoom_ratio = ship_speed / (ship_speed + 5000.f);
@@ -573,14 +573,14 @@ static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
         auto docking_position = GetDockingPosition(tachyon, state);
         auto target_distance = (state.ship_position - docking_position).magnitude();
 
-        if (target_distance < 10000.f) {
-          state.auto_dock_stage = AutoDockStage::DOCK;
+        if (state.ship_velocity.magnitude() >= 1000.f && target_distance < 10000.f) {
+          state.auto_dock_stage = AutoDockStage::DOCKING;
         }
 
         break;
       }
 
-      case AutoDockStage::DOCK: {
+      case AutoDockStage::DOCKING: {
         auto docking_position = GetDockingPosition(tachyon, state);
         auto target_distance = (state.ship_position - docking_position).magnitude();
 
@@ -589,10 +589,22 @@ static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
           state.docking_target.rotation *
           Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI);
 
-        state.ship_rotate_to_target_speed = 0.4f;
+        state.ship_rotate_to_target_speed = 0.3f;
 
         if (target_distance < 2000.f) {
           state.ship_velocity *= (1.f - 0.5f * dt);
+        }
+
+        if (state.ship_velocity.magnitude() < 50.f) {
+          state.auto_dock_stage = AutoDockStage::DOCKED;
+          state.ship_velocity = 0.f;
+          state.ship_rotate_to_target_speed = 0.f;
+          state.ship_camera_distance_target = 30000.f;
+
+          state.target_camera_rotation =
+            Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.6f) *
+            Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI * 1.2f) *
+            state.docking_target.rotation.opposite();
         }
       }
     }
