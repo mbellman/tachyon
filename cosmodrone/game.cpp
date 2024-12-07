@@ -130,15 +130,20 @@ static tVec3f GetDockingPositionOffset(const State& state) {
   return tVec3f(0, -1.f, -1.f).unit();
 }
 
-static tVec3f GetDockingPosition(const State& state) {
-  const tObject& target = state.docking_target;
-  const Quaternion& target_rotation = state.docking_target.rotation;
-  tVec3f offset = GetDockingPositionOffset(state);
+static tVec3f GetDockingPosition(Tachyon* tachyon, const State& state) {
+  auto* target = get_original_object(state.docking_target);
 
-  offset *= target.scale;
+  if (target == nullptr) {
+    return tVec3f(0.f);
+  }
+
+  auto& target_rotation = target->rotation;
+  auto offset = GetDockingPositionOffset(state);
+
+  offset *= target->scale;
   offset = target_rotation.toMatrix4f() * offset;
 
-  return target.position + offset;
+  return target->position + offset;
 }
 
 static float GetTargetPositionAim(const State& state, const tVec3f& target_position) {
@@ -325,6 +330,7 @@ static void HandleAutopilot(Tachyon* tachyon, State& state, const float dt) {
 
         if (state.ship_velocity.magnitude() < 50.f) {
           state.auto_dock_stage = AutoDockStage::APPROACH_ALIGNMENT;
+          state.ship_rotate_to_target_speed = 0.f;
         }
       }
 
@@ -379,7 +385,7 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
     state.flight_mode == FlightMode::AUTO_RETROGRADE || (
       state.flight_mode == FlightMode::AUTO_DOCK &&
       state.auto_dock_stage == AutoDockStage::APPROACH_ALIGNMENT &&
-      GetTargetPositionAim(state, GetDockingPosition(state)) > 0.8f
+      GetTargetPositionAim(state, GetDockingPosition(tachyon, state)) > 0.8f
     )
   ) {
     // Gradually move the camera behind the player ship
@@ -545,7 +551,7 @@ static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
       }
 
       case AutoDockStage::APPROACH_ALIGNMENT: {
-        auto docking_position = GetDockingPosition(state);
+        auto docking_position = GetDockingPosition(tachyon, state);
         auto target_rotation = state.docking_target.rotation;
         auto forward = (docking_position - state.ship_position).unit();
         auto target_up = target_rotation.getUpDirection();
@@ -564,17 +570,30 @@ static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
       }
 
       case AutoDockStage::APPROACH: {
+        auto docking_position = GetDockingPosition(tachyon, state);
+        auto target_distance = (state.ship_position - docking_position).magnitude();
 
-        if (state.ship_velocity.magnitude() >= 500.f) {
-          auto& target = state.docking_target;
-          auto forward = target.rotation.getDirection();
-          auto up = target.rotation.getUpDirection();
-
-          // @todo fix ship model orientation
-          // target_ship_rotation = LookRotation(forward, up);
+        if (target_distance < 10000.f) {
+          state.auto_dock_stage = AutoDockStage::DOCK;
         }
 
         break;
+      }
+
+      case AutoDockStage::DOCK: {
+        auto docking_position = GetDockingPosition(tachyon, state);
+        auto target_distance = (state.ship_position - docking_position).magnitude();
+
+        target_ship_rotation =
+          // @todo use live object
+          state.docking_target.rotation *
+          Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI);
+
+        state.ship_rotate_to_target_speed = 0.4f;
+
+        if (target_distance < 2000.f) {
+          state.ship_velocity *= (1.f - 0.5f * dt);
+        }
       }
     }
   }

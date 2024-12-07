@@ -22,4 +22,4 @@ tObject& Tachyon_CreateObject(Tachyon* tachyon, uint16 mesh_index);
 void Tachyon_RemoveObject(Tachyon* tachyon, tObject& object);
 void Tachyon_RemoveAllObjects(Tachyon* tachyon, uint16 mesh_index);
 void Tachyon_CommitObject(Tachyon* tachyon, const tObject& object);
-tObject* Tachyon_GetOriginalObject(Tachyon* tachyon, tObject& object);
+tObject* Tachyon_GetOriginalObject(Tachyon* tachyon, const tObject& object);

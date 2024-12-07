@@ -135,7 +135,8 @@ namespace Cosmodrone {
   enum AutoDockStage {
     APPROACH_DECELERATION,
     APPROACH_ALIGNMENT,
-    APPROACH
+    APPROACH,
+    DOCK
   };
 
   struct FlightPathNode {

@@ -517,7 +517,7 @@ void Tachyon_CommitObject(Tachyon* tachyon, const tObject& object) {
   group.buffered = false;
 }
 
-tObject* Tachyon_GetOriginalObject(Tachyon* tachyon, tObject& object) {
+tObject* Tachyon_GetOriginalObject(Tachyon* tachyon, const tObject& object) {
   auto& group = tachyon->mesh_pack.mesh_records[object.mesh_index].group;
   auto index = group.id_to_index[object.object_id];
 
