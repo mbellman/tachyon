@@ -18,7 +18,9 @@ vec4 UnpackColor(uvec4 surface) {
 }
 
 void main() {
-  vec3 out_color = UnpackColor(fragSurface).rgb;
+  vec4 out_color = UnpackColor(fragSurface);
 
-  out_color_and_depth = vec4(out_color, 0.0);
+  out_color.rgb *= out_color.w;
+
+  out_color_and_depth = vec4(out_color.rgb, 0.0);
 }

@@ -71,7 +71,7 @@ static void HandleTargetInspector(Tachyon* tachyon, State& state, const float dt
     auto& preview = objects[0];
 
     preview.scale = 50.f;
-    preview.color = tVec3f(0.2f, 0.5f, 1.f);
+    preview.color = tVec4f(0.2f, 0.5f, 1.f, 1.f);
 
     preview.position =
       wedge.position +

@@ -428,8 +428,6 @@ static void HandleFlightArrows(Tachyon* tachyon, State& state, const float dt) {
     return;
   }
 
-  float speed_ratio = state.ship_velocity.magnitude() / 15000.f;
-
   // Reduce distance to next flight path node spawn
   state.flight_path_spawn_distance_remaining -= speed * dt;
 
@@ -440,6 +438,7 @@ static void HandleFlightArrows(Tachyon* tachyon, State& state, const float dt) {
   tVec3f left_offset = sideways * -750.f;
   tVec3f right_offset = sideways * 750.f;
 
+  // Reset arrows each frame
   for (auto& arrow : objects(meshes.hud_flight_arrow)) {
     arrow.scale = 0.f;
     arrow.rotation = LookRotation(state.ship_velocity_basis.forward, state.ship_rotation_basis.up);
@@ -447,6 +446,9 @@ static void HandleFlightArrows(Tachyon* tachyon, State& state, const float dt) {
     commit(arrow);
   }
 
+  float speed_ratio = state.ship_velocity.magnitude() / 15000.f;
+
+  // Recalculate/reposition visible arrows
   for (int32 i = flight_path.size() - 1; i >= 0; i--) {
     auto& node = flight_path[i];
     auto direction_to_ship = (state.ship_position - node.position).unit();
@@ -457,16 +459,31 @@ static void HandleFlightArrows(Tachyon* tachyon, State& state, const float dt) {
     // Determine the node's "progress" toward the ship, and blend between its original
     // spawn position and a position directly forward along the ship's trajectory.
     float target_distance = Lerpf(MAX_SPAWN_DISTANCE, node.spawn_distance, speed_ratio);
-    float progress = 1.f - node.distance / target_distance;
+    float alpha = 1.f - node.distance / target_distance;
     tVec3f velocity_position = state.ship_position + state.ship_velocity_basis.forward * node.distance;
 
-    node.position = Lerpf(node.spawn_position, velocity_position, progress);
+    node.position = Lerpf(node.spawn_position, velocity_position, alpha);
+
+    float velocity_alignment = tVec3f::dot(direction_to_ship, state.ship_velocity_basis.forward);
+    float forward_alignment = tVec3f::dot(direction_to_ship, state.ship_rotation_basis.forward);
 
     if (
-      node.distance < 500.f ||
-      tVec3f::dot(direction_to_ship, state.ship_velocity_basis.forward) > 0.f
+      node.distance <= 0.f ||
+      velocity_alignment > 0.f ||
+      forward_alignment > 0.f
     ) {
       flight_path.erase(flight_path.begin() + i);
+
+      continue;
+    }
+
+    float path_progress = 1.f - node.distance / node.spawn_distance;
+    float brightness = 1.f;
+    if (path_progress < 0.1f) brightness = path_progress / 0.1f;
+    if (path_progress > 0.8f) brightness = 1.f - (path_progress - 0.8f) / 0.2f;
+
+    if (forward_alignment > -0.1f) {
+      brightness *= (forward_alignment * -10.f);
     }
 
     auto& arrow_1 = objects(meshes.hud_flight_arrow)[i * 2];
@@ -476,7 +493,8 @@ static void HandleFlightArrows(Tachyon* tachyon, State& state, const float dt) {
     arrow_2.position = node.position + bottom_offset + right_offset;
 
     arrow_1.scale = arrow_2.scale = 200.f;
-    arrow_1.color = arrow_2.color = tVec4f(0.1f, 0.2f, 1.f, 1.f);
+    // @todo change color in auto-docking approach mode
+    arrow_1.color = arrow_2.color = tVec4f(0.1f, 0.2f, 1.f, brightness);
 
     commit(arrow_1);
     commit(arrow_2);
