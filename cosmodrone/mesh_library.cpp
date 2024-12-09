@@ -36,6 +36,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh(module_2);
   load_mesh(habitation_1);
   load_mesh(habitation_2);
+  load_mesh(habitation_3);
   load_mesh(silo_2);
   load_mesh(silo_3);
   load_mesh(silo_4);
@@ -155,6 +156,17 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
       .scale = tVec3f(6000.f),
       .color = tVec3f(1.f),
       .material = tVec4f(0.4f, 1.f, 0, 0)
+    }
+  });
+
+  placeable_mesh_assets.push_back({
+    .mesh_name = "habitation_3",
+    .mesh_index = meshes.habitation_3,
+    .placeholder = true,
+    .defaults = {
+      .scale = tVec3f(7000.f),
+      .color = tVec3f(1.f),
+      .material = tVec4f(0.6f, 0, 0, 0.6f)
     }
   });
 
@@ -453,6 +465,9 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
 
   load_mesh(habitation_1_windows);
 
+  load_mesh(habitation_3_core);
+  load_mesh(habitation_3_frame);
+
   load_mesh(module_2_core);
   load_mesh(module_2_frame);
 
@@ -569,6 +584,24 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .defaults {
         .color = tVec4f(0.2f, 0.2f, 0.2f, 1.f),
         .material = tVec4f(0.3f, 0, 1.f, 0)
+      }
+    },
+
+    // habitation_3,
+    {
+      .mesh_index = meshes.habitation_3_core,
+      .generated_from = meshes.habitation_3,
+      .defaults {
+        .color = tVec3f(1.f),
+        .material = tVec4f(0.6f, 0, 0, 0.3f)
+      }
+    },
+    {
+      .mesh_index = meshes.habitation_3_frame,
+      .generated_from = meshes.habitation_3,
+      .defaults {
+        .color = tVec3f(1.f, 0.7f, 0.2f),
+        .material = tVec4f(0.5f, 1.f, 0, 0)
       }
     },
 
@@ -811,6 +844,8 @@ void MeshLibrary::LoadMeshes(Tachyon* tachyon, State& state) {
 
     mesh(meshes.girder_1).shadow_cascade_ceiling = 3;
     mesh(meshes.grate_1).shadow_cascade_ceiling = 2;
+    mesh(meshes.habitation_3_frame).shadow_cascade_ceiling = 2;
+    mesh(meshes.silo_3_frame).shadow_cascade_ceiling = 1;
 
     // Disable shadows for the following meshes
     mesh(meshes.gas_flare_1).shadow_cascade_ceiling = 0;
