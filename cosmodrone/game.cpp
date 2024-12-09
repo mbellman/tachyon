@@ -173,13 +173,16 @@ static void AttemptDockingProcedure(State& state) {
   state.docking_target = target_object;
 }
 
+const static float MAX_SHIP_SPEED = 10000.f;
+const static float ACCELERATION = 2000.f;
+
 static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt) {
   bool is_issuing_control_action = false;
 
   // Handle forward thrust
   if (is_key_held(tKey::W)) {
-    state.ship_velocity -= state.ship_velocity_basis.forward * 1000.f * dt;
-    state.ship_velocity += state.ship_rotation_basis.forward * 1500.f * dt;
+    state.ship_velocity -= state.ship_velocity_basis.forward * (ACCELERATION * 0.7f) * dt;
+    state.ship_velocity += state.ship_rotation_basis.forward * ACCELERATION * dt;
 
     state.ship_rotate_to_target_speed += 5.f * dt;
     state.flight_mode = FlightMode::MANUAL_CONTROL;
@@ -188,7 +191,6 @@ static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt)
   }
 
   // Enforce maximum ship speed
-  const static float MAX_SHIP_SPEED = 15000.f;
   float ship_speed = state.ship_velocity.magnitude();
 
   if (ship_speed > MAX_SHIP_SPEED) {
@@ -294,6 +296,8 @@ static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt)
   }
 }
 
+const float AUTO_DOCK_APPROACH_SPEED_LIMIT = 2000.f;
+
 static void HandleAutopilot(Tachyon* tachyon, State& state, const float dt) {
   switch (state.flight_mode) {
     case FlightMode::AUTO_RETROGRADE: {
@@ -323,7 +327,7 @@ static void HandleAutopilot(Tachyon* tachyon, State& state, const float dt) {
         float alignment = tVec3f::dot(state.ship_rotation_basis.forward, state.ship_velocity_basis.forward.invert());
         if (alignment < 0.f) alignment = 0.f;
 
-        float deceleration_factor = Lerpf(0.f, 1000.f, alignment * alignment * alignment);
+        float deceleration_factor = Lerpf(0.f, 2000.f, alignment * alignment * alignment);
 
         state.ship_rotate_to_target_speed += 0.5f * dt;
         state.ship_velocity += state.ship_rotation_basis.forward * deceleration_factor * dt;
@@ -336,7 +340,7 @@ static void HandleAutopilot(Tachyon* tachyon, State& state, const float dt) {
 
       if (
         state.auto_dock_stage == AutoDockStage::APPROACH &&
-        state.ship_velocity.magnitude() < 1000.f
+        state.ship_velocity.magnitude() < AUTO_DOCK_APPROACH_SPEED_LIMIT
       ) {
         state.ship_velocity += state.ship_rotation_basis.forward * 1500.f * dt;
       }
@@ -446,7 +450,7 @@ static void HandleFlightArrows(Tachyon* tachyon, State& state, const float dt) {
     commit(arrow);
   }
 
-  float speed_ratio = state.ship_velocity.magnitude() / 15000.f;
+  float speed_ratio = state.ship_velocity.magnitude() / MAX_SHIP_SPEED;
 
   // Recalculate/reposition visible arrows
   for (int32 i = flight_path.size() - 1; i >= 0; i--) {
@@ -591,7 +595,7 @@ static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
         auto docking_position = GetDockingPosition(tachyon, state);
         auto target_distance = (state.ship_position - docking_position).magnitude();
 
-        if (state.ship_velocity.magnitude() >= 1000.f && target_distance < 10000.f) {
+        if (state.ship_velocity.magnitude() >= AUTO_DOCK_APPROACH_SPEED_LIMIT && target_distance < 10000.f) {
           state.auto_dock_stage = AutoDockStage::DOCKING;
         }
 
@@ -609,11 +613,13 @@ static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
 
         state.ship_rotate_to_target_speed = 0.3f;
 
-        if (target_distance < 2000.f) {
-          state.ship_velocity *= (1.f - 0.5f * dt);
+        if (target_distance < 5000.f) {
+          float speed = AUTO_DOCK_APPROACH_SPEED_LIMIT * (target_distance / 5000.f);
+
+          state.ship_velocity = state.ship_velocity_basis.forward * speed;
         }
 
-        if (state.ship_velocity.magnitude() < 50.f) {
+        if (target_distance < 250.f) {
           state.auto_dock_stage = AutoDockStage::DOCKED;
           state.ship_velocity = 0.f;
           state.ship_rotate_to_target_speed = 0.f;

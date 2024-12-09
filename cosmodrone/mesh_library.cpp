@@ -592,7 +592,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .mesh_index = meshes.habitation_3_core,
       .generated_from = meshes.habitation_3,
       .defaults {
-        .color = tVec3f(1.f),
+        .color = tVec3f(0.9f),
         .material = tVec4f(0.6f, 0, 0, 0.3f)
       }
     },
