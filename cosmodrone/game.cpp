@@ -559,7 +559,10 @@ static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
   // @todo move to HandleAutopilot()
   if (state.flight_mode == FlightMode::AUTO_RETROGRADE) {
     // @todo fix ship model orientation
-    target_ship_rotation = DirectionToQuaternion(state.ship_velocity_basis.forward);
+    target_ship_rotation = LookRotation(
+      state.ship_velocity_basis.forward,
+      state.ship_rotation_basis.up
+    );
   }
 
   // @todo move to HandleAutopilot()
