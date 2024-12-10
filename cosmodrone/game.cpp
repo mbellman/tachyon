@@ -1,3 +1,4 @@
+#include "cosmodrone/flight_system.h"
 #include "cosmodrone/game.h"
 #include "cosmodrone/game_editor.h"
 #include "cosmodrone/game_types.h"
@@ -174,18 +175,19 @@ static void AttemptDockingProcedure(State& state) {
 }
 
 const static float MAX_SHIP_SPEED = 10000.f;
-const static float ACCELERATION = 2000.f;
 
 static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt) {
   bool is_issuing_control_action = false;
 
   // Handle forward thrust
   if (is_key_held(tKey::W)) {
-    state.ship_velocity -= state.ship_velocity_basis.forward * (ACCELERATION * 0.7f) * dt;
-    state.ship_velocity += state.ship_rotation_basis.forward * ACCELERATION * dt;
+    FlightSystem::ControlledThrustForward(state, dt);
 
-    state.ship_rotate_to_target_speed += 5.f * dt;
-    state.flight_mode = FlightMode::MANUAL_CONTROL;
+    is_issuing_control_action = true;
+  }
+
+  if (is_key_held(tKey::S)) {
+    FlightSystem::PullUpward(state, dt);
 
     is_issuing_control_action = true;
   }
@@ -199,32 +201,27 @@ static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt)
 
   // Handle yaw manuevers
   if (is_key_held(tKey::A)) {
-    state.ship_rotate_to_target_speed += 5.f * dt;
-    state.flight_mode = FlightMode::MANUAL_CONTROL;
+    FlightSystem::YawLeft(state, dt);
 
     is_issuing_control_action = true;
   } else if (is_key_held(tKey::D)) {
-    state.ship_rotate_to_target_speed += 5.f * dt;
-    state.flight_mode = FlightMode::MANUAL_CONTROL;
+    FlightSystem::YawRight(state, dt);
 
     is_issuing_control_action = true;
   }
 
   // Handle roll maneuvers
   if (is_key_held(tKey::Q)) {
-    state.camera_roll_speed += dt;
-    state.ship_rotate_to_target_speed += 5.f * dt;
-    state.flight_mode = FlightMode::MANUAL_CONTROL;
+    FlightSystem::RollLeft(state, dt);
 
     is_issuing_control_action = true;
   } else if (is_key_held(tKey::E)) {
-    state.camera_roll_speed -= dt;
-    state.ship_rotate_to_target_speed += 5.f * dt;
-    state.flight_mode = FlightMode::MANUAL_CONTROL;
+    FlightSystem::RollRight(state, dt);
 
     is_issuing_control_action = true;
   }
 
+  // Clamp roll speed
   if (state.camera_roll_speed > 3.f) state.camera_roll_speed = 3.f;
   if (state.camera_roll_speed < -3.f) state.camera_roll_speed = -3.f;
 
@@ -296,13 +293,14 @@ static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt)
   }
 }
 
+const float AUTO_DOCK_APPROACH_SPEED = 1500.f;
 const float AUTO_DOCK_APPROACH_SPEED_LIMIT = 2000.f;
 
 static void HandleAutopilot(Tachyon* tachyon, State& state, const float dt) {
   switch (state.flight_mode) {
     case FlightMode::AUTO_RETROGRADE: {
       // Figure out how 'backward' the ship is pointed
-      float reverse_dot = tVec3f::dot(state.ship_rotation_basis.forward, state.ship_velocity.unit());
+      float reverse_dot = tVec3f::dot(state.ship_rotation_basis.forward, state.ship_velocity_basis.forward);
 
       if (reverse_dot < -0.f) {
         // Use the current speed to determine how much we need to accelerate in the opposite direction
@@ -312,10 +310,11 @@ static void HandleAutopilot(Tachyon* tachyon, State& state, const float dt) {
         // Increase acceleration the more the ship is aligned with the 'backward' vector
         float speed = acceleration * powf(-reverse_dot, 15.f);
 
-        state.ship_velocity += state.ship_rotation_basis.forward * speed * dt;
+        FlightSystem::ThrustForward(state, dt, speed);
       }
 
       if (state.ship_velocity.magnitude() < 200.f) {
+        // Restore manual control when sufficiently decelerated
         state.flight_mode = FlightMode::MANUAL_CONTROL;
       }
 
@@ -330,7 +329,8 @@ static void HandleAutopilot(Tachyon* tachyon, State& state, const float dt) {
         float deceleration_factor = Lerpf(0.f, 2000.f, alignment * alignment * alignment);
 
         state.ship_rotate_to_target_speed += 0.5f * dt;
-        state.ship_velocity += state.ship_rotation_basis.forward * deceleration_factor * dt;
+
+        FlightSystem::ThrustForward(state, dt, deceleration_factor);
 
         if (state.ship_velocity.magnitude() < 50.f) {
           state.auto_dock_stage = AutoDockStage::APPROACH_ALIGNMENT;
@@ -342,7 +342,7 @@ static void HandleAutopilot(Tachyon* tachyon, State& state, const float dt) {
         state.auto_dock_stage == AutoDockStage::APPROACH &&
         state.ship_velocity.magnitude() < AUTO_DOCK_APPROACH_SPEED_LIMIT
       ) {
-        state.ship_velocity += state.ship_rotation_basis.forward * 1500.f * dt;
+        FlightSystem::ThrustForward(state, dt, AUTO_DOCK_APPROACH_SPEED);
       }
     }
   }
@@ -395,7 +395,6 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
     // Gradually move the camera behind the player ship
     state.target_camera_rotation = Quaternion::slerp(
       state.target_camera_rotation,
-      // @todo fix ship model orientation
       objects(meshes.hull)[0].rotation.opposite(),
       2.f * dt
     );
@@ -543,7 +542,6 @@ static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
   auto& thrusters = objects(meshes.thrusters)[0];
   auto& trim = objects(meshes.trim)[0];
 
-  // @todo fix ship model orientation
   auto target_ship_rotation = camera.rotation.opposite();
 
   if (state.ship_velocity.magnitude() > 0.f) {
@@ -552,13 +550,11 @@ static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
 
   // @todo move to HandleAutopilot()
   if (state.flight_mode == FlightMode::AUTO_PROGRADE) {
-    // @todo fix ship model orientation
     target_ship_rotation = DirectionToQuaternion(state.ship_velocity_basis.forward.invert());
   }
 
   // @todo move to HandleAutopilot()
   if (state.flight_mode == FlightMode::AUTO_RETROGRADE) {
-    // @todo fix ship model orientation
     target_ship_rotation = LookRotation(
       state.ship_velocity_basis.forward,
       state.ship_rotation_basis.up
@@ -569,7 +565,6 @@ static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
   if (state.flight_mode == FlightMode::AUTO_DOCK) {
     switch (state.auto_dock_stage) {
       case AutoDockStage::APPROACH_DECELERATION: {
-        // @todo fix ship model orientation
         target_ship_rotation = DirectionToQuaternion(state.ship_velocity_basis.forward);
 
         break;
@@ -581,7 +576,6 @@ static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
         auto forward = (docking_position - state.ship_position).unit();
         auto target_up = target_rotation.getUpDirection();
 
-        // @todo fix ship model orientation
         target_ship_rotation = LookRotation(forward.invert(), target_up);
 
         if (GetTargetPositionAim(state, docking_position) > 0.99999f) {

@@ -552,7 +552,9 @@ void main() {
 
   // Primary directional light
   {
-    out_color += GetDirectionalLightRadiance(directional_light_direction, vec3(1.0), albedo, position, N, V, NdotV, roughness, metalness, clearcoat, subsurface, shadow);
+    vec3 primary_light_color = vec3(1.0);
+
+    out_color += GetDirectionalLightRadiance(directional_light_direction, primary_light_color, albedo, position, N, V, NdotV, roughness, metalness, clearcoat, subsurface, shadow);
   }
 
   // Earth bounce light
