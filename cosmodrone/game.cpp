@@ -187,6 +187,11 @@ static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt)
   }
 
   if (is_key_held(tKey::S)) {
+    if (did_press_key(tKey::S)) {
+      // Reset when pressing S to begin with
+      state.ship_rotate_to_target_speed = 0.f;
+    }
+
     FlightSystem::PullUpward(state, dt);
 
     is_issuing_control_action = true;
@@ -220,12 +225,6 @@ static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt)
 
     is_issuing_control_action = true;
   }
-
-  // Clamp roll speed
-  if (state.camera_roll_speed > 3.f) state.camera_roll_speed = 3.f;
-  if (state.camera_roll_speed < -3.f) state.camera_roll_speed = -3.f;
-
-  state.camera_roll_speed *= (1.f - dt);
 
   // Handle auto-prograde actions
   if (did_press_key(tKey::SHIFT)) {
@@ -272,7 +271,11 @@ static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt)
     float rotate_speed_factor = tVec3f::dot(state.ship_rotation_basis.forward, state.view_forward_direction);
     if (rotate_speed_factor < 0.f) rotate_speed_factor = 0.f;
 
-    rotate_speed_factor = powf(rotate_speed_factor, 20.f);
+    if (!is_key_held(tKey::S)) {
+      // Don't diminish the rotation speed when pulling upward,
+      // since this would affect the flight path
+      rotate_speed_factor = powf(rotate_speed_factor, 20.f);
+    }
 
     if (state.ship_rotate_to_target_speed > 1.f) {
       state.ship_rotate_to_target_speed = Lerpf(state.ship_rotate_to_target_speed, 1.f, 1.f - rotate_speed_factor);
@@ -353,9 +356,20 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
   auto& meshes = state.meshes;
   float camera_lerp_speed_factor = 10.f;
 
+  // Clamp roll speed
+  if (state.camera_roll_speed > 3.f) state.camera_roll_speed = 3.f;
+  if (state.camera_roll_speed < -3.f) state.camera_roll_speed = -3.f;
+
+  // Clamp pitch speed
+  if (state.camera_pitch_speed > 1.f) state.camera_pitch_speed = 1.f;
+  if (state.camera_pitch_speed < -1.f) state.camera_pitch_speed = -1.f;
+
+  state.camera_roll_speed *= (1.f - dt);
+  state.camera_pitch_speed *= (1.f - 2.f * dt);
+
   if (is_window_focused()) {
     Quaternion turn = (
-      Quaternion::fromAxisAngle(RIGHT_VECTOR, (float)tachyon->mouse_delta_y / 1000.f) *
+      Quaternion::fromAxisAngle(RIGHT_VECTOR, (float)tachyon->mouse_delta_y / 1000.f + state.camera_pitch_speed * dt) *
       Quaternion::fromAxisAngle(UP_VECTOR, (float)tachyon->mouse_delta_x / 1000.f) *
       Quaternion::fromAxisAngle(FORWARD_VECTOR, state.camera_roll_speed * dt)
     );
@@ -546,6 +560,11 @@ static void UpdateShip(Tachyon* tachyon, State& state, float dt) {
 
   if (state.ship_velocity.magnitude() > 0.f) {
     UpdateShipVelocityBasis(state);
+  }
+
+  if (is_key_held(tKey::S)) {
+    // Pitch ship slightly upward
+    target_ship_rotation = target_ship_rotation * Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 1.f);
   }
 
   // @todo move to HandleAutopilot()

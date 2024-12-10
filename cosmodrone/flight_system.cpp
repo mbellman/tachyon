@@ -9,9 +9,16 @@ void FlightSystem::ThrustForward(State& state, const float dt, const float rate)
 }
 
 void FlightSystem::ControlledThrustForward(State& state, const float dt) {
-  state.ship_velocity -= state.ship_velocity_basis.forward * (ACCELERATION * 0.7f) * dt;
+  float speed = state.ship_velocity.magnitude();
+  float fast_start_ratio = speed / 10000.f;
+  if (fast_start_ratio > 1.f) fast_start_ratio = 1.f;
+  fast_start_ratio = 1.f - fast_start_ratio;
 
-  ThrustForward(state, dt, ACCELERATION);
+  float proper_acceleration = ACCELERATION + fast_start_ratio * ACCELERATION;
+
+  state.ship_velocity -= state.ship_velocity_basis.forward * (proper_acceleration * 0.7f) * dt;
+
+  ThrustForward(state, dt, proper_acceleration);
 
   state.ship_rotate_to_target_speed += 5.f * dt;
   state.flight_mode = FlightMode::MANUAL_CONTROL;
@@ -40,7 +47,12 @@ void FlightSystem::YawRight(State& state, const float dt) {
 }
 
 void FlightSystem::PullUpward(State& state, const float dt) {
+  float speed = state.ship_velocity.magnitude();
 
+  state.camera_pitch_speed -= dt;
+  state.ship_velocity += state.ship_rotation_basis.up * speed * 0.5f * dt;
+  state.ship_velocity = state.ship_velocity.unit() * speed;
+  state.ship_rotate_to_target_speed += 0.5f * dt;
 }
 
 void FlightSystem::PitchDownward(State& state, const float dt) {
