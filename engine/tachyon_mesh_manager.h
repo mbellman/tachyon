@@ -23,3 +23,4 @@ void Tachyon_RemoveObject(Tachyon* tachyon, tObject& object);
 void Tachyon_RemoveAllObjects(Tachyon* tachyon, uint16 mesh_index);
 void Tachyon_CommitObject(Tachyon* tachyon, const tObject& object);
 tObject* Tachyon_GetOriginalObject(Tachyon* tachyon, const tObject& object);
+uint16 Tachyon_PivotObjectsByDistance(Tachyon* tachyon, tObjectGroup& group, uint16 start, const tCamera& camera, const float distance);

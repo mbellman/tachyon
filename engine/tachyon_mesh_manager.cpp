@@ -527,3 +527,45 @@ tObject* Tachyon_GetOriginalObject(Tachyon* tachyon, const tObject& object) {
 
   return &group.objects[index];
 }
+
+uint16 Tachyon_PivotObjectsByDistance(Tachyon* tachyon, tObjectGroup& group, uint16 start, const tCamera& camera, const float distance) {
+  uint16 current = start;
+  uint16 end = group.total_visible;
+
+  // Partition objects in a group in linear time, by distance from the camera.
+  // We independently count up and count down until our counters meet.
+  while (current < end) {
+    auto object_a = group.objects[current];
+    auto object_a_distance = (object_a.position - camera.position).magnitude();
+
+    if (object_a_distance <= distance) {
+      // If object A is already on the correct side of the pivot, keep counting up.
+      current++;
+    } else {
+      tObject object_b;
+      float object_b_distance;
+
+      // Count down until we find an object B on the wrong side of the pivot,
+      // and swap it with object A.
+      do {
+        object_b = group.objects[--end];
+        object_b_distance = (object_b.position - camera.position).magnitude();
+      } while (object_b_distance > distance && current < end);
+
+      if (current != end) {
+        std::swap(group.objects[current], group.objects[end]);
+        std::swap(group.matrices[current], group.matrices[end]);
+        std::swap(group.surfaces[current], group.surfaces[end]);
+        std::swap(group.id_to_index[object_a.object_id], group.id_to_index[object_b.object_id]);
+      }
+
+      if (object_b_distance > distance) {
+        current++;
+      }
+    }
+  }
+
+  group.buffered = false;
+
+  return current;
+}
