@@ -528,7 +528,7 @@ tObject* Tachyon_GetOriginalObject(Tachyon* tachyon, const tObject& object) {
   return &group.objects[index];
 }
 
-uint16 Tachyon_PivotObjectsByDistance(Tachyon* tachyon, tObjectGroup& group, uint16 start, const tCamera& camera, const float distance) {
+uint16 Tachyon_PartitionObjectsByDistance(Tachyon* tachyon, tObjectGroup& group, const uint16 start, const tCamera& camera, const float distance) {
   uint16 current = start;
   uint16 end = group.total_visible;
 
