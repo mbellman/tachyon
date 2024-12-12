@@ -63,6 +63,8 @@ namespace Cosmodrone {
       girder_6_core,
       girder_6_frame,
       habitation_1_windows,
+      habitation_2_body,
+      habitation_2_frame,
       habitation_3_core,
       habitation_3_frame,
       module_2_core,

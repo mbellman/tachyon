@@ -691,7 +691,7 @@ static void HandleSelectedObject(Tachyon* tachyon, State& state) {
   auto total_triangles = record.face_element_end - record.face_element_start;
   auto total_instances = record.group.total_active;
 
-  add_dev_label(mesh_name, "(" + std::to_string(total_instances) + " active)");
+  add_dev_label(mesh_name, "(" + std::to_string(total_instances) + " / " + std::to_string(record.group.total) + " active)");
   add_dev_label("Vertices", std::to_string(total_vertices) + " [" + std::to_string(total_vertices * total_instances) + "]");
   add_dev_label("Triangles", std::to_string(total_triangles) + " [" + std::to_string(total_triangles * total_instances) + "]");
   add_dev_label("Position", selected.position.toString());
