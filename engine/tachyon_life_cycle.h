@@ -3,10 +3,13 @@
 #include "engine/tachyon_aliases.h"
 #include "engine/tachyon_types.h"
 
+#define MAX_DT (1.f / 60.f)
+
 #define Tachyon_Loop(code)\
   while (Tachyon_IsRunning(tachyon)) {\
     Tachyon_StartFrame(tachyon);\
     float dt = tachyon->last_frame_time_in_microseconds / 1000000.f;\
+    if (dt > MAX_DT) dt = MAX_DT;\
     code;\
     Tachyon_EndFrame(tachyon);\
   }\

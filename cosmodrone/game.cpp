@@ -321,10 +321,11 @@ static void HandleAutopilot(Tachyon* tachyon, State& state, const float dt) {
 
     case FlightMode::AUTO_DOCK: {
       if (state.auto_dock_stage == AutoDockStage::APPROACH_DECELERATION) {
-        float alignment = tVec3f::dot(state.ship_rotation_basis.forward, state.ship_velocity_basis.forward.invert());
-        if (alignment < 0.f) alignment = 0.f;
+        float backward_alignment = tVec3f::dot(state.ship_rotation_basis.forward, state.ship_velocity_basis.forward.invert());
+        if (backward_alignment < 0.f) backward_alignment = 0.f;
 
-        float deceleration_factor = Lerpf(0.f, 2000.f, alignment * alignment * alignment);
+        float deceleration_alpha = backward_alignment * backward_alignment * backward_alignment;
+        float deceleration_factor = Lerpf(0.f, 2000.f, deceleration_alpha);
 
         state.ship_rotate_to_target_speed += 0.5f * dt;
 
@@ -592,11 +593,12 @@ static void HandlePlayerDrone(Tachyon* tachyon, State& state, const float dt) {
 
       case AutoDockStage::APPROACH_ALIGNMENT: {
         auto docking_position = GetDockingPosition(tachyon, state);
-        auto target_rotation = state.docking_target.rotation;
+        // @todo use live object
+        auto target_object_rotation = state.docking_target.rotation;
         auto forward = (docking_position - state.ship_position).unit();
-        auto target_up = target_rotation.getUpDirection();
+        auto target_object_up = target_object_rotation.getUpDirection();
 
-        target_rotation = LookRotation(forward.invert(), target_up);
+        target_rotation = LookRotation(forward.invert(), target_object_up);
 
         if (GetTargetPositionAim(state, docking_position) > 0.99999f) {
           state.auto_dock_stage = AutoDockStage::APPROACH;
