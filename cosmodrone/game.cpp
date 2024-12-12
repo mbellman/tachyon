@@ -186,17 +186,26 @@ static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt)
     is_issuing_control_action = true;
   }
 
-  if (is_key_held(tKey::S)) {
-    FlightSystem::PullUpward(state, dt);
-
-    is_issuing_control_action = true;
-  }
-
   // Enforce maximum ship speed
   float ship_speed = state.ship_velocity.magnitude();
 
   if (ship_speed > MAX_SHIP_SPEED) {
     state.ship_velocity = state.ship_velocity.unit() * MAX_SHIP_SPEED;
+  }
+
+  if (is_key_held(tKey::S)) {
+    // Handle pitch up
+    FlightSystem::ChangePitch(state, dt, 1.f);
+
+    is_issuing_control_action = true;
+  } else {
+    // Reduce pitch gradually
+    state.ship_pitch_factor *= (1.f - 5.f * dt);
+
+    // Prevent a long reduction tail and just snap to 0
+    if (abs(state.ship_pitch_factor) < 0.01f) {
+      state.ship_pitch_factor = 0.f;
+    }
   }
 
   // Handle yaw manuevers
@@ -263,17 +272,18 @@ static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt)
   // rotates the ship faster to keep up with the camera
   // (necessary to reduce motion sickness).
   {
-    float rotate_speed_factor = tVec3f::dot(state.ship_rotation_basis.forward, state.view_forward_direction);
-    if (rotate_speed_factor < 0.f) rotate_speed_factor = 0.f;
+    float forward_alignment = tVec3f::dot(state.ship_rotation_basis.forward, state.view_forward_direction);
+    if (forward_alignment < 0.f) forward_alignment = 0.f;
 
-    if (!is_key_held(tKey::S)) {
-      // Don't diminish the rotation speed when pulling upward,
-      // since this would affect the flight path
-      rotate_speed_factor = powf(rotate_speed_factor, 20.f);
-    }
+    if (state.ship_pitch_factor == 0.f) {
+      // Only do exponential tapering when not pitching.
+      // When pitching, we want to allow the rotate-to-target
+      // value to be mostly preserved.
+      forward_alignment = powf(forward_alignment, 20.f);
 
-    if (state.ship_rotate_to_target_speed > 1.f) {
-      state.ship_rotate_to_target_speed = Lerpf(state.ship_rotate_to_target_speed, 1.f, 1.f - rotate_speed_factor);
+      if (state.ship_rotate_to_target_speed > 1.f) {
+        state.ship_rotate_to_target_speed = Lerpf(state.ship_rotate_to_target_speed, 1.f, 1.f - forward_alignment);
+      }
     }
   }
 
@@ -305,6 +315,7 @@ static void HandleAutopilot(Tachyon* tachyon, State& state, const float dt) {
         float acceleration = state.ship_velocity.magnitude() / 2.f;
         if (acceleration > 5000.f) acceleration = 5000.f;
         if (acceleration < 500.f) acceleration = 500.f;
+
         // Increase acceleration the more the ship is aligned with the 'backward' vector
         float speed = acceleration * powf(-reverse_dot, 15.f);
 
@@ -405,15 +416,15 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
     );
   }
 
-  if (is_key_held(tKey::S)) {
+  if (state.ship_pitch_factor != 0.f) {
     auto new_target =
-      Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -20.f * dt) *
+      Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -20.f * state.ship_pitch_factor * dt) *
       objects(meshes.hull)[0].rotation.opposite();
 
     state.target_camera_rotation = Quaternion::slerp(
       state.target_camera_rotation,
       new_target,
-      2.f * dt
+      2.f * abs(state.ship_pitch_factor) * dt
     );
   }
 
@@ -563,10 +574,14 @@ static void HandlePlayerDrone(Tachyon* tachyon, State& state, const float dt) {
     UpdateShipVelocityBasis(state);
   }
 
-  if (is_key_held(tKey::S)) {
-    // Pitch ship slightly upward
-    target_rotation = target_rotation *
-      Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 50.f * dt);
+  if (state.ship_pitch_factor != 0.f) {
+    float angle_delta = 50.f * state.ship_pitch_factor * dt;
+
+    target_rotation =
+      target_rotation *
+      Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), angle_delta);
+
+    FlightSystem::HandlePitch(state, dt);
   }
 
   // @todo move to HandleAutopilot()

@@ -30,6 +30,7 @@ void FlightSystem::ControlledThrustForward(State& state, const float dt) {
   state.flight_mode = FlightMode::MANUAL_CONTROL;
 }
 
+// @todo combine Roll functions
 void FlightSystem::RollLeft(State& state, const float dt) {
   state.camera_roll_speed += dt;
   state.ship_rotate_to_target_speed += 5.f * dt;
@@ -42,6 +43,7 @@ void FlightSystem::RollRight(State& state, const float dt) {
   state.flight_mode = FlightMode::MANUAL_CONTROL;
 }
 
+// @todo combine Yaw functions
 void FlightSystem::YawLeft(State& state, const float dt) {
   state.ship_rotate_to_target_speed += 5.f * dt;
   state.flight_mode = FlightMode::MANUAL_CONTROL;
@@ -52,18 +54,22 @@ void FlightSystem::YawRight(State& state, const float dt) {
   state.flight_mode = FlightMode::MANUAL_CONTROL;
 }
 
-void FlightSystem::PullUpward(State& state, const float dt) {
-  float speed = state.ship_velocity.magnitude();
+void FlightSystem::ChangePitch(State& state, const float dt, const float pitch_change) {
+  state.ship_pitch_factor += pitch_change * dt;
+  if (state.ship_pitch_factor > 1.f) state.ship_pitch_factor = 1.f;
 
-  state.ship_velocity -= state.ship_velocity_basis.forward * 5.f * ACCELERATION * dt;
-
-  ThrustForward(state, dt, 10.f * ACCELERATION);
-
-  state.ship_velocity = state.ship_velocity.unit() * speed;
-  state.ship_rotate_to_target_speed += 5.f * dt;
   state.flight_mode = FlightMode::MANUAL_CONTROL;
 }
 
-void FlightSystem::PitchDownward(State& state, const float dt) {
+void FlightSystem::HandlePitch(State& state, const float dt) {
+  float ship_speed = state.ship_velocity.magnitude();
+  float slowdown_factor = 5.f * state.ship_pitch_factor * ACCELERATION;
+  float acceleration_factor = 20.f * state.ship_pitch_factor * ACCELERATION;
 
+  state.ship_velocity -= state.ship_velocity_basis.forward * slowdown_factor * dt;
+
+  ThrustForward(state, dt, acceleration_factor);
+
+  state.ship_velocity = state.ship_velocity.unit() * ship_speed;
+  state.ship_rotate_to_target_speed += 5.f * abs(state.ship_pitch_factor) * dt;
 }
