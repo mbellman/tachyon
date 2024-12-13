@@ -9,7 +9,7 @@ in vec2 fragUv;
 
 layout (location = 0) out vec3 out_color;
 
-const vec2 texel_size = 1.0 / vec2(1920.0, 1080.0);
+const vec2 TEXEL_SIZE = 1.0 / vec2(1920.0, 1080.0);
 
 void main() {
   vec4 color_and_depth = texture(in_color_and_depth, fragUv);
@@ -30,7 +30,7 @@ void main() {
       };
 
       for (int i = 0; i < 4; i++) {
-        vec2 uv = fragUv + blur * texel_size * offsets[i];
+        vec2 uv = fragUv + blur * TEXEL_SIZE * offsets[i];
 
         post_color += texture(in_color_and_depth, uv).rgb;
       }
@@ -45,9 +45,9 @@ void main() {
       const float intensity = 3.0;
 
       vec2 offset = intensity * (vec2(0.0) - 2.0 * (fragUv - 0.5));
-      float r = texture(in_color_and_depth, fragUv + texel_size * offset).r;
-      float g = texture(in_color_and_depth, fragUv + 0.5 * texel_size * offset).g;
-      float b = texture(in_color_and_depth, fragUv + 0.2 * texel_size * offset).b;
+      float r = texture(in_color_and_depth, fragUv + TEXEL_SIZE * offset).r;
+      float g = texture(in_color_and_depth, fragUv + 0.5 * TEXEL_SIZE * offset).g;
+      float b = texture(in_color_and_depth, fragUv + 0.2 * TEXEL_SIZE * offset).b;
 
       post_color += vec3(r, g, b);
       post_color /= 2.0;
