@@ -619,7 +619,7 @@ static void HandlePlayerDrone(Tachyon* tachyon, State& state, const float dt) {
           state.auto_dock_stage = AutoDockStage::APPROACH;
         } else {
           // @hack slow the ship down after deceleration
-          state.ship_velocity *= (1.f - dt);
+          state.ship_velocity *= (1.f - 5.f * dt);
         }
 
         break;
