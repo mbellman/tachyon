@@ -687,8 +687,9 @@ static void HandleSelectedObject(Tachyon* tachyon, State& state) {
 
   auto mesh_name = GetPlaceableMeshAssetByMeshIndex(selected.mesh_index).mesh_name;
   auto& record = tachyon->mesh_pack.mesh_records[selected.mesh_index];
-  auto total_vertices = record.vertex_end - record.vertex_start;
-  auto total_triangles = record.face_element_end - record.face_element_start;
+  // @todo properly count based on active LoDs
+  auto total_vertices = record.lod_1.vertex_end - record.lod_1.vertex_start;
+  auto total_triangles = record.lod_1.face_element_end - record.lod_1.face_element_start;
   auto total_instances = record.group.total_active;
 
   add_dev_label(mesh_name, "(" + std::to_string(total_instances) + " / " + std::to_string(record.group.total) + " active)");

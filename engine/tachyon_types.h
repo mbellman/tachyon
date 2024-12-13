@@ -122,11 +122,19 @@ enum tMeshType {
   WIREFRAME_MESH
 };
 
+struct tMeshGeometry {
+  uint32 vertex_start = 0;
+  uint32 vertex_end = 0;
+  uint32 face_element_start = 0;
+  uint32 face_element_end = 0;
+  uint16 base_instance = 0;
+  uint16 instance_count = 0;
+};
+
 struct tMeshRecord {
-  uint32 vertex_start;
-  uint32 vertex_end;
-  uint32 face_element_start;
-  uint32 face_element_end;
+  tMeshGeometry lod_1;
+  tMeshGeometry lod_2;
+  tMeshGeometry lod_3;
   uint16 mesh_index;
   uint8 shadow_cascade_ceiling = 4;
   tMeshType type = PBR_MESH;

@@ -28,6 +28,14 @@ enum Attachment {
   DIRECTIONAL_SHADOW_MAP_CASCADE_4 = 7
 };
 
+struct DrawElementsIndirectCommand {
+  GLuint count;
+  GLuint instanceCount;
+  GLuint firstIndex;
+  GLuint baseVertex;
+  GLuint baseInstance;
+};
+
 // --------------------------------------
 static void Tachyon_CheckError(const std::string& message) {
   GLenum error;
@@ -348,14 +356,6 @@ static void UpdateRendererContext(Tachyon* tachyon) {
   ctx.camera_position = camera.position;
 }
 
-struct DrawElementsIndirectCommand {
-  GLuint count;
-  GLuint instanceCount;
-  GLuint firstIndex;
-  GLuint baseVertex;
-  GLuint baseInstance;
-};
-
 static void RenderMeshesByType(Tachyon* tachyon, tMeshType type) {
   auto& renderer = get_renderer();
   auto& gl_mesh_pack = renderer.mesh_pack;
@@ -402,20 +402,23 @@ static void RenderMeshesByType(Tachyon* tachyon, tMeshType type) {
       continue;
     }
 
+    // @todo handle multiple LoDs
+    auto& geometry = record.lod_1;
+
     DrawElementsIndirectCommand command;
 
-    command.count = record.face_element_end - record.face_element_start;
-    command.firstIndex = record.face_element_start;
+    command.count = geometry.face_element_end - geometry.face_element_start;
+    command.firstIndex = geometry.face_element_start;
     command.instanceCount = record.group.total_visible;
     command.baseInstance = record.group.object_offset;
-    command.baseVertex = record.vertex_start;
+    command.baseVertex = geometry.vertex_start;
 
     commands.push_back(command);
 
     // @todo dev mode only
     {
       renderer.total_triangles += command.count * command.instanceCount;
-      renderer.total_vertices += (record.vertex_end - record.vertex_start) * command.instanceCount;
+      renderer.total_vertices += (geometry.vertex_end - geometry.vertex_start) * command.instanceCount;
       renderer.total_meshes_drawn++;
     }
   }
@@ -497,18 +500,22 @@ static void RenderShadowMaps(Tachyon* tachyon) {
       if (
         record.group.disabled ||
         record.group.total_visible == 0 ||
+        record.type != PBR_MESH ||
         record.shadow_cascade_ceiling <= cascade_index
       ) {
         continue;
       }
 
+      // @todo handle multiple LoDs
+      auto& geometry = record.lod_1;
+
       DrawElementsIndirectCommand command;
 
-      command.count = record.face_element_end - record.face_element_start;
-      command.firstIndex = record.face_element_start;
+      command.count = geometry.face_element_end - geometry.face_element_start;
+      command.firstIndex = geometry.face_element_start;
       command.instanceCount = record.group.total_visible;
       command.baseInstance = record.group.object_offset;
-      command.baseVertex = record.vertex_start;
+      command.baseVertex = geometry.vertex_start;
 
       commands.push_back(command);
     }

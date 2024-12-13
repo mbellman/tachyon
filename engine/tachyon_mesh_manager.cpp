@@ -367,21 +367,28 @@ tMesh Tachyon_CreateSphereMesh(uint8 divisions) {
   return mesh;
 }
 
+// @todo define overloads for 2 and 3-LoD variants
 uint16 Tachyon_AddMesh(Tachyon* tachyon, const tMesh& mesh, uint16 total) {
   auto& pack = tachyon->mesh_pack;
   tMeshRecord record;
+  tMeshGeometry geometry;
 
-  // Register the mesh vertex/face element bounds
-  record.vertex_start = pack.vertex_stream.size();
-  record.vertex_end = record.vertex_start + mesh.vertices.size();
+  // Track mesh geometry details
+  geometry.vertex_start = pack.vertex_stream.size();
+  geometry.vertex_end = geometry.vertex_start + mesh.vertices.size();
 
-  record.face_element_start = pack.face_element_stream.size();
-  record.face_element_end = record.face_element_start + mesh.face_elements.size();
+  geometry.face_element_start = pack.face_element_stream.size();
+  geometry.face_element_end = geometry.face_element_start + mesh.face_elements.size();
 
+  record.lod_1 = geometry;
   record.mesh_index = (uint16)pack.mesh_records.size();
 
   record.group.total = total;
-  record.group.id_to_index = new uint16[total];  // @todo deallocate (Tachyon_DestroyMesh()?)
+
+  // Manually allocate the mesh group's id -> index lookup table.
+  // Its object/matrix/surface arrays are just pointers into the
+  // global mesh pack's, so we need not worry about those.
+  record.group.id_to_index = new uint16[total];
 
   pack.mesh_records.push_back(record);
 
