@@ -182,7 +182,10 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
       if (tracker.selected_time != 0.f) {
         const static float animation_time = 0.3f;
 
-        Tachyon_DrawUIElement(tachyon, state.ui.selected_target_center, tracker.screen_x, tracker.screen_y);
+        Tachyon_DrawUIElement(tachyon, state.ui.selected_target_center, {
+          .screen_x = tracker.screen_x,
+          .screen_y = tracker.screen_y
+        });
 
         auto time_since_selected = state.current_game_time - tracker.selected_time;
         if (time_since_selected > animation_time) time_since_selected = animation_time;
@@ -212,7 +215,11 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
           int32 screen_x = tracker.screen_x + int32(offset.x * spread);
           int32 screen_y = tracker.screen_y + int32(offset.y * spread);
 
-          Tachyon_DrawUIElement(tachyon, state.ui.selected_target_corner, screen_x, screen_y, rotation);
+          Tachyon_DrawUIElement(tachyon, state.ui.selected_target_corner, {
+            .screen_x = screen_x,
+            .screen_y = screen_y,
+            .rotation = rotation
+          });
         }
       } else {
         int32 minimum_edge_distance = std::min({
@@ -229,9 +236,17 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
         if (alpha > 1.f) alpha = 1.f;
 
         if (tracker.object.mesh_index == state.meshes.antenna_3) {
-          Tachyon_DrawUIElement(tachyon, state.ui.target_indicator, tracker.screen_x, tracker.screen_y, 0.f, alpha);
+          Tachyon_DrawUIElement(tachyon, state.ui.target_indicator, {
+            .screen_x = tracker.screen_x,
+            .screen_y = tracker.screen_y,
+            .alpha = alpha
+          });
         } else if (tracker.object.mesh_index == state.meshes.zone_target) {
-          Tachyon_DrawUIElement(tachyon, state.ui.zone_target_indicator, tracker.screen_x, tracker.screen_y, 0.f, 1.f);
+          Tachyon_DrawUIElement(tachyon, state.ui.zone_target_indicator, {
+            .screen_x = tracker.screen_x,
+            .screen_y = tracker.screen_y,
+            .alpha = 1.f
+          });
         }
       }
     }

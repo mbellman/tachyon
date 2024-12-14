@@ -1,16 +1,20 @@
+#include <format>
+
 #include "cosmodrone/hud_system.h"
 #include "cosmodrone/target_system.h"
 
 using namespace Cosmodrone;
 
-static uint16 GetTargetInspectorMeshIndex(const uint16 source_mesh, const State& state) {
-  auto& meshes = state.meshes;
+static std::string QuaternionFloatToHex(const float value) {
+  float normalized = value * 0.5f + 0.5f;
+  uint8 value8 = uint8(normalized * 255.f);
+  auto formatted = std::format("{:X}", value8);
 
-  if (source_mesh == meshes.antenna_3) {
-    return meshes.antenna_3_wireframe;
+  if (formatted.size() == 1) {
+    formatted = "0" + formatted;
   }
 
-  return meshes.antenna_3_wireframe;
+  return formatted;
 }
 
 static void ResetTargetInspectorObjects(Tachyon* tachyon, State& state) {
@@ -24,34 +28,76 @@ static void ResetTargetInspectorObjects(Tachyon* tachyon, State& state) {
   remove_objects(meshes.antenna_3_wireframe);
 }
 
-static void UpdateTargetInspectorObject(Tachyon* tachyon, const State& state, const tVec3f& offset, const TargetTracker& tracker) {
+static uint16 GetTargetInspectorWireframeMeshIndex(const uint16 source_mesh, const State& state) {
+  auto& meshes = state.meshes;
+
+  if (source_mesh == meshes.antenna_3) {
+    return meshes.antenna_3_wireframe;
+  }
+
+  return meshes.antenna_3_wireframe;
+}
+
+static void HandleTargetInspectorWireframe(Tachyon* tachyon, const State& state, const tVec3f& offset, const TargetTracker& tracker) {
   auto& camera = tachyon->scene.camera;
-  auto target_mesh_index = GetTargetInspectorMeshIndex(tracker.object.mesh_index, state);
-  auto& objects = objects(target_mesh_index);
+  auto wireframe_mesh_index = GetTargetInspectorWireframeMeshIndex(tracker.object.mesh_index, state);
+  auto& objects = objects(wireframe_mesh_index);
   // @todo define an orthonormal view basis and precalculate this
   auto left = tVec3f::cross(state.view_forward_direction, state.view_up_direction).invert();
 
   if (objects.total_active == 0) {
-    create(target_mesh_index);
+    create(wireframe_mesh_index);
   }
 
-  auto& object = objects[0];
+  auto& wireframe = objects[0];
 
-  object.scale = 50.f;
-  object.color = tVec4f(0.2f, 0.5f, 1.f, 1.f);
+  wireframe.scale = 50.f;
+  wireframe.color = tVec4f(0.2f, 0.5f, 1.f, 1.f);
 
-  object.position =
+  wireframe.position =
     offset +
     state.view_forward_direction * 20.f +
     left * 40.f +
     state.view_up_direction * 110.f;
 
-  object.rotation =
+  wireframe.rotation =
     camera.rotation.opposite() *
     Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.5f * sinf(state.current_game_time * 0.5f)) *
     Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), state.current_game_time);
 
-  commit(object);
+  commit(wireframe);
+}
+
+static void HandleTargetInspectorStats(Tachyon* tachyon, const State& state, const TargetTracker& tracker) {
+  auto tracker_object = tracker.object;
+  auto wireframe_mesh_index = GetTargetInspectorWireframeMeshIndex(tracker.object.mesh_index, state);
+  auto& wireframe = objects(wireframe_mesh_index)[0];
+  auto rotation = wireframe.rotation * tracker_object.rotation;
+
+  auto rx = QuaternionFloatToHex(rotation.x);
+  auto ry = QuaternionFloatToHex(rotation.y);
+  auto rz = QuaternionFloatToHex(rotation.z);
+  auto rw = QuaternionFloatToHex(rotation.w);
+
+  // @temporary
+  // @todo determine proper name for target object
+  state.ui.target_name->string = "ANTENNA_3";
+  state.ui.target_orientation->string = rx + " " + ry + " " + rz + " " + rw;
+
+  int32 x = int32(tachyon->window_width * 0.85f);
+  int32 y = int32(tachyon->window_height * 0.4f);
+
+  Tachyon_DrawUIText(tachyon, state.ui.target_name, {
+    .screen_x = x,
+    .screen_y = y,
+    .color = tVec3f(0.4f, 0.8f, 1.f)
+  });
+
+  Tachyon_DrawUIText(tachyon, state.ui.target_orientation, {
+    .screen_x = x,
+    .screen_y = y + 30,
+    .color = tVec3f(0.4f, 0.8f, 1.f)
+  });
 }
 
 static void HandleOdometer(Tachyon* tachyon, State& state, const float dt) {
@@ -96,16 +142,8 @@ static void HandleTargetInspector(Tachyon* tachyon, State& state, const float dt
   auto* tracker = TargetSystem::GetSelectedTargetTracker(state);
 
   if (tracker != nullptr) {
-    UpdateTargetInspectorObject(tachyon, state, wedge.position, *tracker);
-
-    // @temporary
-    state.ui.target_name->string = "Antenna_3";
-
-    // @temporary
-    uint32 x = int32(tachyon->window_width * 0.85f);
-    uint32 y = int32(tachyon->window_height * 0.4f);
-
-    Tachyon_DrawUIText(tachyon, state.ui.target_name, x, y);
+    HandleTargetInspectorWireframe(tachyon, state, wedge.position, *tracker);
+    HandleTargetInspectorStats(tachyon, state, *tracker);
   } else {
     ResetTargetInspectorObjects(tachyon, state);
   }

@@ -54,5 +54,7 @@ void main() {
     }
   #endif
 
+  // post_color = mix(post_color, vec3(0.5, 0.6, 0.8), pow(color_and_depth.w, 300.0) * 0.25);
+
   out_color = post_color;
 }

@@ -769,7 +769,7 @@ void Cosmodrone::StartGame(Tachyon* tachyon) {
     state.ui.selected_target_corner = Tachyon_CreateUIElement("./cosmodrone/assets/ui/selected-target-corner.png");
     state.ui.selected_target_center = Tachyon_CreateUIElement("./cosmodrone/assets/ui/selected-target-center.png");
 
-    state.ui.target_name = Tachyon_CreateUIText("./fonts/CascadiaMonoNF.ttf", 24);
+    state.ui.target_name = Tachyon_CreateUIText("./fonts/CascadiaMonoNF.ttf", 26);
     state.ui.target_orientation = Tachyon_CreateUIText("./fonts/CascadiaMonoNF.ttf", 32);
   }
 }
