@@ -127,7 +127,7 @@ struct tMeshGeometry {
   uint32 vertex_end = 0;
   uint32 face_element_start = 0;
   uint32 face_element_end = 0;
-  uint16 base_instance = 0;
+  uint32 base_instance = 0;
   uint16 instance_count = 0;
 };
 

@@ -414,6 +414,62 @@ static void UpdateRendererContext(Tachyon* tachyon) {
   ctx.camera_position = camera.position;
 }
 
+static inline void SetupDrawElementsIndirectCommand(DrawElementsIndirectCommand& command, const tMeshGeometry& geometry) {
+  command.count = geometry.face_element_end - geometry.face_element_start;
+  command.firstIndex = geometry.face_element_start;
+  command.instanceCount = geometry.instance_count;
+  command.baseInstance = geometry.base_instance;
+  command.baseVertex = geometry.vertex_start;
+}
+
+static void AddDrawElementsIndirectCommands(std::vector<DrawElementsIndirectCommand>& commands, const tMeshRecord& record, uint32& triangle_count, uint32& vertex_count) {
+  auto& lod_1 = record.lod_1;
+  auto& lod_2 = record.lod_2;
+  auto& lod_3 = record.lod_3;
+
+  if (lod_1.instance_count > 0) {
+    DrawElementsIndirectCommand command;
+
+    SetupDrawElementsIndirectCommand(command, lod_1);
+
+    commands.push_back(command);
+
+    // @todo dev mode only
+    {
+      triangle_count += command.count * command.instanceCount;
+      vertex_count += (lod_1.vertex_end - lod_1.vertex_start) * command.instanceCount;
+    }
+  }
+
+  if (lod_2.instance_count > 0) {
+    DrawElementsIndirectCommand command;
+
+    SetupDrawElementsIndirectCommand(command, lod_2);
+
+    commands.push_back(command);
+
+    // @todo dev mode only
+    {
+      triangle_count += command.count * command.instanceCount;
+      vertex_count += (lod_2.vertex_end - lod_2.vertex_start) * command.instanceCount;
+    }
+  }
+
+  if (lod_3.instance_count > 0) {
+    DrawElementsIndirectCommand command;
+
+    SetupDrawElementsIndirectCommand(command, lod_3);
+
+    commands.push_back(command);
+
+    // @todo dev mode only
+    {
+      triangle_count += command.count * command.instanceCount;
+      vertex_count += (lod_3.vertex_end - lod_3.vertex_start) * command.instanceCount;
+    }
+  }
+}
+
 static void RenderMeshesByType(Tachyon* tachyon, tMeshType type) {
   auto& renderer = get_renderer();
   auto& gl_mesh_pack = renderer.mesh_pack;
@@ -460,23 +516,10 @@ static void RenderMeshesByType(Tachyon* tachyon, tMeshType type) {
       continue;
     }
 
-    // @todo handle multiple LoDs
-    auto& geometry = record.lod_1;
-
-    DrawElementsIndirectCommand command;
-
-    command.count = geometry.face_element_end - geometry.face_element_start;
-    command.firstIndex = geometry.face_element_start;
-    command.instanceCount = record.group.total_visible;
-    command.baseInstance = record.group.object_offset;
-    command.baseVertex = geometry.vertex_start;
-
-    commands.push_back(command);
+    AddDrawElementsIndirectCommands(commands, record, renderer.total_triangles, renderer.total_vertices);
 
     // @todo dev mode only
     {
-      renderer.total_triangles += command.count * command.instanceCount;
-      renderer.total_vertices += (geometry.vertex_end - geometry.vertex_start) * command.instanceCount;
       renderer.total_meshes_drawn++;
     }
   }
@@ -484,9 +527,7 @@ static void RenderMeshesByType(Tachyon* tachyon, tMeshType type) {
   glBindBuffer(GL_DRAW_INDIRECT_BUFFER, renderer.indirect_buffer);
   glBufferData(GL_DRAW_INDIRECT_BUFFER, commands.size() * sizeof(DrawElementsIndirectCommand), commands.data(), GL_DYNAMIC_DRAW);
 
-  // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, 0, commands.size(), 0);
-  // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
   // @todo dev mode only
   {
@@ -564,24 +605,7 @@ static void RenderShadowMaps(Tachyon* tachyon) {
         continue;
       }
 
-      // @todo handle multiple LoDs
-      auto& geometry = record.lod_1;
-
-      DrawElementsIndirectCommand command;
-
-      command.count = geometry.face_element_end - geometry.face_element_start;
-      command.firstIndex = geometry.face_element_start;
-      command.instanceCount = record.group.total_visible;
-      command.baseInstance = record.group.object_offset;
-      command.baseVertex = geometry.vertex_start;
-
-      commands.push_back(command);
-
-      // @todo dev mode only
-      {
-        renderer.total_triangles_by_cascade[cascade_index] += command.count * command.instanceCount;
-        renderer.total_vertices_by_cascade[cascade_index] += (geometry.vertex_end - geometry.vertex_start) * command.instanceCount;
-      }
+      AddDrawElementsIndirectCommands(commands, record, renderer.total_triangles_by_cascade[cascade_index], renderer.total_vertices_by_cascade[cascade_index]);
     }
 
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, renderer.indirect_buffer);

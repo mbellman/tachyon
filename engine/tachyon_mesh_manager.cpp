@@ -432,6 +432,10 @@ void Tachyon_InitializeObjects(Tachyon* tachyon) {
     record.group.matrices = &tachyon->matrices[object_offset];
     record.group.object_offset = object_offset;
 
+    record.lod_1.base_instance = object_offset;
+    record.lod_2.base_instance = object_offset;
+    record.lod_3.base_instance = object_offset;
+
     // Set mesh/object indexes on each object
     for (uint16 i = 0; i < record.group.total; i++) {
       auto& object = record.group[i];
@@ -446,7 +450,8 @@ void Tachyon_InitializeObjects(Tachyon* tachyon) {
 }
 
 tObject& Tachyon_CreateObject(Tachyon* tachyon, uint16 mesh_index) {
-  auto& group = tachyon->mesh_pack.mesh_records[mesh_index].group;
+  auto& record = tachyon->mesh_pack.mesh_records[mesh_index];
+  auto& group = record.group;
 
   if (group.total_visible >= group.total) {
     // @todo throw an error and exit
@@ -454,6 +459,11 @@ tObject& Tachyon_CreateObject(Tachyon* tachyon, uint16 mesh_index) {
 
   group.total_visible++;
   group.total_active++;
+
+  // Reset LoDs
+  record.lod_1.instance_count = group.total_visible;
+  record.lod_2.instance_count = 0;
+  record.lod_3.instance_count = 0;
 
   auto index = group.total_active - 1;
   auto& object = group[index];
@@ -475,7 +485,8 @@ tObject& Tachyon_CreateObject(Tachyon* tachyon, uint16 mesh_index) {
 }
 
 void Tachyon_RemoveObject(Tachyon* tachyon, tObject& object) {
-  auto& group = tachyon->mesh_pack.mesh_records[object.mesh_index].group;
+  auto& record = tachyon->mesh_pack.mesh_records[object.mesh_index];
+  auto& group = record.group;
 
   if (group.total_active == 0) {
     // @todo throw an error?
@@ -507,19 +518,30 @@ void Tachyon_RemoveObject(Tachyon* tachyon, tObject& object) {
   group.total_active--;
 
   if (removed_index < group.total_visible) {
-    // If the removed index is within the visible objects set,
+    // If the removed index is within the visible objects range,
     // truncate that by 1 too
     group.total_visible--;
   }
+
+  // Reset LoDs
+  record.lod_1.instance_count = group.total_visible;
+  record.lod_2.instance_count = 0;
+  record.lod_3.instance_count = 0;
 
   group.buffered = false;
 }
 
 void Tachyon_RemoveAllObjects(Tachyon* tachyon, uint16 mesh_index) {
-  auto& group = tachyon->mesh_pack.mesh_records[mesh_index].group;
+  auto& record = tachyon->mesh_pack.mesh_records[mesh_index];
+  auto& group = record.group;
 
   group.total_active = 0;
   group.total_visible = 0;
+
+  // Reset LoDs
+  record.lod_1.instance_count = 0;
+  record.lod_2.instance_count = 0;
+  record.lod_3.instance_count = 0;
 }
 
 void Tachyon_CommitObject(Tachyon* tachyon, const tObject& object) {
