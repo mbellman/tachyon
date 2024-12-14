@@ -8,7 +8,8 @@ std::string Tachyon_GetFileContents(const char* path) {
   std::ifstream file(path);
 
   if (file.fail()) {
-    // @todo print warning/show error dialog
+    printf("[Tachyon_GetFileContents] Failed to load file: %s\n", path);
+
     return "";
   }
 

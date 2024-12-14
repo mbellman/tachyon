@@ -81,7 +81,7 @@ Tachyon* Tachyon_Init() {
   auto* tachyon = new Tachyon;
 
   // @todo dev mode only
-  tachyon->developer_overlay_font = TTF_OpenFont("./fonts/OpenSans-Regular.ttf", 20);
+  tachyon->developer_overlay_font = TTF_OpenFont("./fonts/CascadiaMonoNF.ttf", 20);
 
   return tachyon;
 }

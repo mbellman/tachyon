@@ -170,6 +170,50 @@ tMat4f CreateCascadedLightMatrix(uint8 cascade, const tVec3f& light_direction, c
   return (projection_matrix * view_matrix).transpose();
 }
 // --------------------------------------
+static void CreateRenderBuffers(Tachyon* tachyon) {
+  auto& renderer = get_renderer();
+  auto& g_buffer = renderer.g_buffer;
+  auto& accumulation_buffer_a = renderer.accumulation_buffer_a;
+  auto& accumulation_buffer_b = renderer.accumulation_buffer_b;
+  auto& directional_shadow_map = renderer.directional_shadow_map;
+  int w, h;
+
+  SDL_GL_GetDrawableSize(tachyon->sdl_window, &w, &h);
+
+  g_buffer.init();
+  g_buffer.setSize(w, h);
+  g_buffer.addColorAttachment(ColorFormat::RGBA, G_BUFFER_NORMALS_AND_DEPTH);
+  g_buffer.addColorAttachment(ColorFormat::RGBA8UI, G_BUFFER_COLOR_AND_MATERIAL);
+  g_buffer.addDepthStencilAttachment();
+  g_buffer.bindColorAttachments();
+
+  accumulation_buffer_a.init();
+  accumulation_buffer_a.setSize(w, h);
+  accumulation_buffer_a.addColorAttachment(ColorFormat::RGBA, ACCUMULATION_COLOR_AND_DEPTH);
+  accumulation_buffer_a.addColorAttachment(ColorFormat::RGBA, ACCUMULATION_TEMPORAL_DATA);
+  g_buffer.shareDepthStencilAttachment(accumulation_buffer_a);
+  accumulation_buffer_a.bindColorAttachments();
+
+  accumulation_buffer_b.init();
+  accumulation_buffer_b.setSize(w, h);
+  accumulation_buffer_b.addColorAttachment(ColorFormat::RGBA, ACCUMULATION_COLOR_AND_DEPTH);
+  accumulation_buffer_b.addColorAttachment(ColorFormat::RGBA, ACCUMULATION_TEMPORAL_DATA);
+  g_buffer.shareDepthStencilAttachment(accumulation_buffer_b);
+  accumulation_buffer_b.bindColorAttachments();
+
+  directional_shadow_map.init();
+  directional_shadow_map.setSize(2048, 2048);
+  directional_shadow_map.addColorAttachment(ColorFormat::R, DIRECTIONAL_SHADOW_MAP_CASCADE_1);
+  directional_shadow_map.addColorAttachment(ColorFormat::R, DIRECTIONAL_SHADOW_MAP_CASCADE_2);
+  directional_shadow_map.addColorAttachment(ColorFormat::R, DIRECTIONAL_SHADOW_MAP_CASCADE_3);
+  directional_shadow_map.addColorAttachment(ColorFormat::R, DIRECTIONAL_SHADOW_MAP_CASCADE_4);
+  directional_shadow_map.addDepthAttachment();
+  directional_shadow_map.bindColorAttachments();
+
+  tachyon->window_width = w;
+  tachyon->window_height = h;
+}
+// --------------------------------------
 
 static void RenderScreenQuad(Tachyon* tachyon) {
   auto& renderer = get_renderer();
@@ -239,11 +283,17 @@ static void HandleDevModeInputs(Tachyon* tachyon) {
   if (did_press_key(tKey::V)) {
     auto swap_interval = SDL_GL_GetSwapInterval();
 
+    std::string message =
+      std::string("[Tachyon] V-Sync ") +
+      (swap_interval ? "disabled" : "enabled");
+
     SDL_GL_SetSwapInterval(swap_interval ? 0 : 1);
+
+    add_console_message(message, tVec3f(1.f));
   }
 }
 
-static void HandleDeveloperTools(Tachyon* tachyon) {
+static void RenderDebugLabels(Tachyon* tachyon) {
   auto& renderer = get_renderer();
   auto& ctx = renderer.ctx;
 
@@ -268,16 +318,24 @@ static void HandleDeveloperTools(Tachyon* tachyon) {
     std::vector<std::string> labels = {
       "View: " + std::string(renderer.show_g_buffer_view ? "G-BUFFER" : "DEFAULT"),
       "Resolution: " + String(ctx.w) + " x " + String(ctx.h),
-      "Running time: " + String(tachyon->running_time),
+      "V-Sync: " + std::string(SDL_GL_GetSwapInterval() ? "ON" : "OFF"),
+      "GPU Memory: " + String(used_gpu_memory) + "MB / " + String(total_gpu_memory) + "MB",
       "Render time: " + String(renderer.last_render_time_in_microseconds) + "us (" + String(render_fps) + "fps)",
       "Frame time: " + String(tachyon->last_frame_time_in_microseconds) + "us (" + String(frame_fps) + "fps)",
-      "GPU: " + String(used_gpu_memory) + " / " + String(total_gpu_memory) + "MB",
-      "V-Sync: " + std::string(SDL_GL_GetSwapInterval() ? "ON" : "OFF"),
-      "Triangles: " + String(renderer.total_triangles),
-      "Vertices: " + String(renderer.total_vertices),
       "Meshes: " + String(renderer.total_meshes_drawn),
+      "Triangles: " + String(renderer.total_triangles),
+      "  (Cascade 0): " + String(renderer.total_triangles_by_cascade[0]),
+      "  (Cascade 1): " + String(renderer.total_triangles_by_cascade[1]),
+      "  (Cascade 2): " + String(renderer.total_triangles_by_cascade[2]),
+      "  (Cascade 3): " + String(renderer.total_triangles_by_cascade[3]),
+      "Vertices: " + String(renderer.total_vertices),
+      "  (Cascade 0): " + String(renderer.total_vertices_by_cascade[0]),
+      "  (Cascade 1): " + String(renderer.total_vertices_by_cascade[1]),
+      "  (Cascade 2): " + String(renderer.total_vertices_by_cascade[2]),
+      "  (Cascade 3): " + String(renderer.total_vertices_by_cascade[3]),
       "Point lights: " + String(tachyon->point_lights.size()),
-      "Draw calls: " + String(renderer.total_draw_calls)
+      "Draw calls: " + String(renderer.total_draw_calls),
+      "Running time: " + String(tachyon->running_time)
     };
 
     // Engine labels
@@ -286,7 +344,7 @@ static void HandleDeveloperTools(Tachyon* tachyon) {
     for (auto& label : labels) {
       RenderText(tachyon, tachyon->developer_overlay_font, label.c_str(), 10, y_offset, ctx.w, tVec3f(1.f), tVec4f(0.f));
 
-      y_offset += 25;
+      y_offset += 22;
     }
 
     y_offset += 25;
@@ -297,7 +355,7 @@ static void HandleDeveloperTools(Tachyon* tachyon) {
 
       RenderText(tachyon, tachyon->developer_overlay_font, full_label.c_str(), 10, y_offset, ctx.w, tVec3f(1.f), tVec4f(0.2f, 0.2f, 1.f, 0.4f));
 
-      y_offset += 30;
+      y_offset += 24;
     }
   }
 
@@ -518,6 +576,12 @@ static void RenderShadowMaps(Tachyon* tachyon) {
       command.baseVertex = geometry.vertex_start;
 
       commands.push_back(command);
+
+      // @todo dev mode only
+      {
+        renderer.total_triangles_by_cascade[cascade_index] += command.count * command.instanceCount;
+        renderer.total_vertices_by_cascade[cascade_index] += (geometry.vertex_end - geometry.vertex_start) * command.instanceCount;
+      }
     }
 
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, renderer.indirect_buffer);
@@ -797,50 +861,6 @@ static void RenderGBufferView(Tachyon* tachyon) {
   RenderScreenQuad(tachyon);
 }
 
-static void CreateRenderBuffers(Tachyon* tachyon) {
-  auto& renderer = get_renderer();
-  auto& g_buffer = renderer.g_buffer;
-  auto& accumulation_buffer_a = renderer.accumulation_buffer_a;
-  auto& accumulation_buffer_b = renderer.accumulation_buffer_b;
-  auto& directional_shadow_map = renderer.directional_shadow_map;
-  int w, h;
-
-  SDL_GL_GetDrawableSize(tachyon->sdl_window, &w, &h);
-
-  g_buffer.init();
-  g_buffer.setSize(w, h);
-  g_buffer.addColorAttachment(ColorFormat::RGBA, G_BUFFER_NORMALS_AND_DEPTH);
-  g_buffer.addColorAttachment(ColorFormat::RGBA8UI, G_BUFFER_COLOR_AND_MATERIAL);
-  g_buffer.addDepthStencilAttachment();
-  g_buffer.bindColorAttachments();
-
-  accumulation_buffer_a.init();
-  accumulation_buffer_a.setSize(w, h);
-  accumulation_buffer_a.addColorAttachment(ColorFormat::RGBA, ACCUMULATION_COLOR_AND_DEPTH);
-  accumulation_buffer_a.addColorAttachment(ColorFormat::RGBA, ACCUMULATION_TEMPORAL_DATA);
-  g_buffer.shareDepthStencilAttachment(accumulation_buffer_a);
-  accumulation_buffer_a.bindColorAttachments();
-
-  accumulation_buffer_b.init();
-  accumulation_buffer_b.setSize(w, h);
-  accumulation_buffer_b.addColorAttachment(ColorFormat::RGBA, ACCUMULATION_COLOR_AND_DEPTH);
-  accumulation_buffer_b.addColorAttachment(ColorFormat::RGBA, ACCUMULATION_TEMPORAL_DATA);
-  g_buffer.shareDepthStencilAttachment(accumulation_buffer_b);
-  accumulation_buffer_b.bindColorAttachments();
-
-  directional_shadow_map.init();
-  directional_shadow_map.setSize(2048, 2048);
-  directional_shadow_map.addColorAttachment(ColorFormat::R, DIRECTIONAL_SHADOW_MAP_CASCADE_1);
-  directional_shadow_map.addColorAttachment(ColorFormat::R, DIRECTIONAL_SHADOW_MAP_CASCADE_2);
-  directional_shadow_map.addColorAttachment(ColorFormat::R, DIRECTIONAL_SHADOW_MAP_CASCADE_3);
-  directional_shadow_map.addColorAttachment(ColorFormat::R, DIRECTIONAL_SHADOW_MAP_CASCADE_4);
-  directional_shadow_map.addDepthAttachment();
-  directional_shadow_map.bindColorAttachments();
-
-  tachyon->window_width = w;
-  tachyon->window_height = h;
-}
-
 void Tachyon_OpenGL_InitRenderer(Tachyon* tachyon) {
   auto* renderer = new tOpenGLRenderer;
 
@@ -927,9 +947,18 @@ void Tachyon_OpenGL_RenderScene(Tachyon* tachyon) {
   }
 
   // @todo dev mode only
+  // Reset counters
   {
     renderer.total_triangles = 0;
     renderer.total_vertices = 0;
+    renderer.total_triangles_by_cascade[0] = 0;
+    renderer.total_triangles_by_cascade[1] = 0;
+    renderer.total_triangles_by_cascade[2] = 0;
+    renderer.total_triangles_by_cascade[3] = 0;
+    renderer.total_vertices_by_cascade[0] = 0;
+    renderer.total_vertices_by_cascade[1] = 0;
+    renderer.total_vertices_by_cascade[2] = 0;
+    renderer.total_vertices_by_cascade[3] = 0;
     renderer.total_meshes_drawn = 0;
     renderer.total_draw_calls = 0;
   }
@@ -969,7 +998,7 @@ void Tachyon_OpenGL_RenderScene(Tachyon* tachyon) {
 
   // @todo dev mode only
   if (tachyon->show_developer_tools) {
-    HandleDeveloperTools(tachyon);
+    RenderDebugLabels(tachyon);
   } else {
     auto frame_fps = uint32(1000000.f / (float)tachyon->last_frame_time_in_microseconds);
     auto label = std::to_string(frame_fps) + "fps";

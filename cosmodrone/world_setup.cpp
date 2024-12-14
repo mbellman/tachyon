@@ -54,6 +54,9 @@ static void LoadWorldData(Tachyon* tachyon, State& state) {
       auto mesh_name = line.substr(1);
 
       mesh_asset = GetMeshAssetByName(mesh_name);
+
+      // @temporary
+      printf("Loading objects: %s\n", mesh_name.c_str());
     } else {
       auto parts = SplitString(line, ",");
       auto& object = create(mesh_asset->mesh_index);

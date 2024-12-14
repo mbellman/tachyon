@@ -154,6 +154,13 @@ tMesh Tachyon_LoadMesh(const char* path, const tVec3f& axis_factors) {
     }
   }
 
+  // @temporary
+  if (mesh.vertices.size() == 0 || mesh.face_elements.size() == 0) {
+    printf("[Tachyon_LoadMesh] No vertices for mesh: %s\n", path);
+  } else {
+    printf("[Tachyon_LoadMesh] Loaded mesh: %s\n", path);
+  }
+
   return mesh;
 }
 

@@ -586,15 +586,12 @@ static void HandlePlayerDrone(Tachyon* tachyon, State& state, const float dt) {
 
   // @todo move to HandleAutopilot()
   if (state.flight_mode == FlightMode::AUTO_PROGRADE) {
-    target_rotation = DirectionToQuaternion(state.ship_velocity_basis.forward.invert());
+    target_rotation = LookRotation(state.ship_velocity_basis.forward.invert(), state.ship_rotation_basis.up);
   }
 
   // @todo move to HandleAutopilot()
   if (state.flight_mode == FlightMode::AUTO_RETROGRADE) {
-    target_rotation = LookRotation(
-      state.ship_velocity_basis.forward,
-      state.ship_rotation_basis.up
-    );
+    target_rotation = LookRotation(state.ship_velocity_basis.forward, state.ship_rotation_basis.up);
   }
 
   // @todo move to HandleAutopilot()
@@ -653,7 +650,9 @@ static void HandlePlayerDrone(Tachyon* tachyon, State& state, const float dt) {
           state.ship_velocity = state.ship_velocity_basis.forward * speed;
         }
 
-        if (target_distance < 250.f) {
+        // @todo @bug Ensure we never miss the target;
+        // this seems to happen every so often!
+        if (target_distance < 300.f) {
           state.auto_dock_stage = AutoDockStage::DOCKED;
           state.ship_velocity = 0.f;
           state.ship_rotate_to_target_speed = 0.f;
