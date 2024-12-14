@@ -827,15 +827,32 @@ static void RenderPost(Tachyon* tachyon) {
 }
 
 static void RenderUIElements(Tachyon* tachyon) {
+  auto& renderer = get_renderer();
+  auto& ctx = renderer.ctx;
+
   for (auto& command : tachyon->ui_draw_commands) {
-    auto* surface = command.ui_element->surface;
+    SDL_Surface* surface = nullptr;
+
+    if (command.ui_element != nullptr) {
+      surface = command.ui_element->surface;
+    } else if (command.ui_text != nullptr) {
+      auto& text = *command.ui_text;
+      auto string = text.string;
+
+      surface = TTF_RenderText_Blended_Wrapped(text.font, text.string.c_str(), { 255, 255, 255 }, ctx.w);
+    }
+
     auto half_w = surface->w >> 1;
     auto half_h = surface->h >> 1;
     auto x = command.screen_x - half_w;
     auto y = command.screen_y - half_h;
 
     // @todo batch render common surfaces
-    RenderSurface(tachyon, surface, x, y, surface->w, surface->h, command.rotation, tVec4f(tVec3f(1.f), command.alpha), tVec4f(0.f));
+    RenderSurface(tachyon, surface, x, y, surface->w, surface->h, command.rotation, tVec4f(command.color, command.alpha), tVec4f(0.f));
+
+    if (command.ui_text != nullptr) {
+      SDL_FreeSurface(surface);
+    }
   }
 }
 

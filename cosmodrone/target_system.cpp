@@ -93,7 +93,7 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
     }
   }
 
-  // Draw target trackers
+  // Recalculate/redraw
   {
     uint16 center_x = uint16(tachyon->window_width >> 1);
     uint16 center_y = uint16(tachyon->window_height >> 1);

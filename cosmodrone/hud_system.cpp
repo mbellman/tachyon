@@ -97,6 +97,15 @@ static void HandleTargetInspector(Tachyon* tachyon, State& state, const float dt
 
   if (tracker != nullptr) {
     UpdateTargetInspectorObject(tachyon, state, wedge.position, *tracker);
+
+    // @temporary
+    state.ui.target_name->string = "Antenna_3";
+
+    // @temporary
+    uint32 x = int32(tachyon->window_width * 0.85f);
+    uint32 y = int32(tachyon->window_height * 0.4f);
+
+    Tachyon_DrawUIText(tachyon, state.ui.target_name, x, y);
   } else {
     ResetTargetInspectorObjects(tachyon, state);
   }

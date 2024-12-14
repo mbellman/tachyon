@@ -165,8 +165,15 @@ struct tUIElement {
   SDL_Surface* surface = nullptr;
 };
 
+struct tUIText {
+  TTF_Font* font = nullptr;
+  std::string string;
+};
+
 struct tUIDrawCommand {
   const tUIElement* ui_element = nullptr;
+  const tUIText* ui_text = nullptr;
+  tVec3f color = tVec3f(1.f);
   int32 screen_x = 0;
   int32 screen_y = 0;
   float rotation = 0.f;

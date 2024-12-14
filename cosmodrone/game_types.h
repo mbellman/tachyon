@@ -191,6 +191,9 @@ namespace Cosmodrone {
       tUIElement* zone_target_indicator = nullptr;
       tUIElement* selected_target_corner = nullptr;
       tUIElement* selected_target_center = nullptr;
+
+      tUIText* target_name = nullptr;
+      tUIText* target_orientation = nullptr;
     } ui;
 
     // @todo dev mode only
