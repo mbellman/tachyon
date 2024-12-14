@@ -342,7 +342,7 @@ static void RenderDebugLabels(Tachyon* tachyon) {
     int32 y_offset = 10;
 
     for (auto& label : labels) {
-      RenderText(tachyon, tachyon->developer_overlay_font, label.c_str(), 10, y_offset, ctx.w, tVec3f(1.f), tVec4f(0.f));
+      RenderText(tachyon, tachyon->developer_overlay_font, label.c_str(), 10, y_offset, ctx.w, tVec3f(1.f), tVec4f(0.f, 0.f, 0.f, 0.6f));
 
       y_offset += 22;
     }
