@@ -814,6 +814,22 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
   TargetSystem::HandleTargetTrackers(tachyon, state, dt);
   WorldBehavior::UpdateWorld(tachyon, state, dt);
 
+  // @todo factor
+  {
+    auto s = Tachyon_GetMicroseconds();
+
+    // @todo process one mesh per frame
+    Tachyon_UseLodByDistance(tachyon, meshes.girder_1, 100000.f);
+    Tachyon_UseLodByDistance(tachyon, meshes.girder_2, 80000.f);
+    Tachyon_UseLodByDistance(tachyon, meshes.girder_3, 80000.f);
+    Tachyon_UseLodByDistance(tachyon, meshes.grate_1, 50000.f);
+
+    auto t = Tachyon_GetMicroseconds() - s;
+
+    // @todo dev mode only
+    add_dev_label("LoDs", std::to_string(t) + "us");
+  }
+
   // @todo dev mode only
   if (tachyon->show_developer_tools) {
     UpdateShipDebugVectors(tachyon, state);

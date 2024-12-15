@@ -24,6 +24,14 @@ static void LoadShipPartMeshes(Tachyon* tachyon, State& state) {
 static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   #define load_mesh(__name) meshes.__name = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/" #__name ".obj"), 5000)
 
+  #define load_mesh_with_2_lods(__name) meshes.__name =\
+    Tachyon_AddMesh(\
+      tachyon,\
+      Tachyon_LoadMesh("./cosmodrone/assets/station-parts/" #__name ".obj"),\
+      Tachyon_LoadMesh("./cosmodrone/assets/station-parts/" #__name "_lod_2.obj"),\
+      5000\
+    )
+
   auto& meshes = state.meshes;
 
   meshes.zone_target = Tachyon_AddMesh(tachyon, Tachyon_CreateSphereMesh(16), 100);
@@ -51,13 +59,13 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh(gate_tower_1);
   load_mesh(solar_panel_1);
   load_mesh(solar_panel_2);
-  load_mesh(girder_1);
-  load_mesh(girder_2);
-  load_mesh(girder_3);
+  load_mesh_with_2_lods(girder_1);
+  load_mesh_with_2_lods(girder_2);
+  load_mesh_with_2_lods(girder_3);
   load_mesh(girder_4);
   load_mesh(girder_5);
   load_mesh(girder_6);
-  load_mesh(grate_1);
+  load_mesh_with_2_lods(grate_1);
   load_mesh(grate_2);
   load_mesh(track_1);
   load_mesh(light_1);

@@ -389,7 +389,6 @@ uint16 Tachyon_AddMesh(Tachyon* tachyon, const tMesh& mesh, uint16 total) {
 
   record.lod_1 = geometry;
   record.mesh_index = (uint16)pack.mesh_records.size();
-
   record.group.total = total;
 
   // Manually allocate the mesh group's id -> index lookup table.
@@ -407,6 +406,69 @@ uint16 Tachyon_AddMesh(Tachyon* tachyon, const tMesh& mesh, uint16 total) {
   for (auto& element : mesh.face_elements) {
     pack.face_element_stream.push_back(element);
   }
+
+  return record.mesh_index;
+}
+
+uint16 Tachyon_AddMesh(Tachyon* tachyon, const tMesh& mesh_lod_1, const tMesh& mesh_lod_2, uint16 total) {
+  auto& pack = tachyon->mesh_pack;
+  tMeshRecord record;
+
+  // LoD 1
+  {
+    auto& mesh = mesh_lod_1;
+    tMeshGeometry geometry;
+
+    geometry.vertex_start = pack.vertex_stream.size();
+    geometry.vertex_end = geometry.vertex_start + mesh.vertices.size();
+
+    geometry.face_element_start = pack.face_element_stream.size();
+    geometry.face_element_end = geometry.face_element_start + mesh.face_elements.size();
+
+    record.lod_1 = geometry;
+
+    // Add vertices/face elements to the main stream
+    for (auto& vertex : mesh.vertices) {
+      pack.vertex_stream.push_back(vertex);
+    }
+
+    for (auto& element : mesh.face_elements) {
+      pack.face_element_stream.push_back(element);
+    }
+  }
+
+  // LoD 2
+  {
+    auto& mesh = mesh_lod_2;
+    tMeshGeometry geometry;
+
+    geometry.vertex_start = pack.vertex_stream.size();
+    geometry.vertex_end = geometry.vertex_start + mesh.vertices.size();
+
+    geometry.face_element_start = pack.face_element_stream.size();
+    geometry.face_element_end = geometry.face_element_start + mesh.face_elements.size();
+
+    record.lod_2 = geometry;
+
+    // Add vertices/face elements to the main stream
+    for (auto& vertex : mesh.vertices) {
+      pack.vertex_stream.push_back(vertex);
+    }
+
+    for (auto& element : mesh.face_elements) {
+      pack.face_element_stream.push_back(element);
+    }
+  }
+
+  record.mesh_index = (uint16)pack.mesh_records.size();
+  record.group.total = total;
+
+  // Manually allocate the mesh group's id -> index lookup table.
+  // Its object/matrix/surface arrays are just pointers into the
+  // global mesh pack's, so we need not worry about those.
+  record.group.id_to_index = new uint16[total];
+
+  pack.mesh_records.push_back(record);
 
   return record.mesh_index;
 }
@@ -564,7 +626,8 @@ tObject* Tachyon_GetOriginalObject(Tachyon* tachyon, const tObject& object) {
   return &group.objects[index];
 }
 
-uint16 Tachyon_PartitionObjectsByDistance(Tachyon* tachyon, tObjectGroup& group, const uint16 start, const tCamera& camera, const float distance) {
+uint16 Tachyon_PartitionObjectsByDistance(Tachyon* tachyon, tObjectGroup& group, const uint16 start, const float distance) {
+  auto& camera = tachyon->scene.camera;
   uint16 current = start;
   uint16 end = group.total_visible;
 
@@ -595,7 +658,7 @@ uint16 Tachyon_PartitionObjectsByDistance(Tachyon* tachyon, tObjectGroup& group,
         std::swap(group.id_to_index[object_a.object_id], group.id_to_index[object_b.object_id]);
       }
 
-      if (object_b_distance > distance) {
+      if (object_b_distance > distance && current != end) {
         current++;
       }
     }
@@ -604,4 +667,15 @@ uint16 Tachyon_PartitionObjectsByDistance(Tachyon* tachyon, tObjectGroup& group,
   group.buffered = false;
 
   return current;
+}
+
+void Tachyon_UseLodByDistance(Tachyon* tachyon, const uint16 mesh_index, const float distance) {
+  auto& record = tachyon->mesh_pack.mesh_records[mesh_index];
+  auto& group = record.group;
+  auto pivot = Tachyon_PartitionObjectsByDistance(tachyon, group, 0, distance);
+
+  record.lod_1.instance_count = pivot;
+
+  record.lod_2.base_instance = record.lod_1.base_instance + pivot;
+  record.lod_2.instance_count = group.total_visible - pivot;
 }
