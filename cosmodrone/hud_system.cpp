@@ -68,6 +68,20 @@ static void HandleTargetInspectorWireframe(Tachyon* tachyon, const State& state,
   commit(wireframe);
 }
 
+// @todo move to engine
+inline float Lerpf(float a, float b, float alpha) {
+  return a + (b - a) * alpha;
+}
+
+// @todo move to engine
+inline tVec3f Lerpf(const tVec3f& a, const tVec3f& b, const float alpha) {
+  return tVec3f(
+    Lerpf(a.x, b.x, alpha),
+    Lerpf(a.y, b.y, alpha),
+    Lerpf(a.z, b.z, alpha)
+  );
+}
+
 static void HandleTargetInspectorStats(Tachyon* tachyon, const State& state, const TargetTracker& tracker) {
   auto tracker_object = tracker.object;
   auto wireframe_mesh_index = GetTargetInspectorWireframeMeshIndex(tracker.object.mesh_index, state);
@@ -87,16 +101,20 @@ static void HandleTargetInspectorStats(Tachyon* tachyon, const State& state, con
   int32 x = int32(tachyon->window_width * 0.85f);
   int32 y = int32(tachyon->window_height * 0.4f);
 
+  float int_part;
+  auto name_alpha = 1.f - modf(state.current_game_time * 0.6f, &int_part);
+  auto name_color = Lerpf(tVec3f(0.3f, 0.7f, 1.f), tVec3f(0.9f, 1.f, 1.f), name_alpha);
+
   Tachyon_DrawUIText(tachyon, state.ui.target_name, {
     .screen_x = x,
     .screen_y = y,
-    .color = tVec3f(0.4f, 0.8f, 1.f)
+    .color = name_color
   });
 
   Tachyon_DrawUIText(tachyon, state.ui.target_orientation, {
     .screen_x = x,
     .screen_y = y + 30,
-    .color = tVec3f(0.4f, 0.8f, 1.f)
+    .color = tVec3f(0.3f, 0.7f, 1.f)
   });
 }
 
