@@ -107,6 +107,10 @@ ObjLoader::ObjLoader(const char* path) {
 
     nextLine();
   }
+
+  if (vertices.size() == 0 || faces.size() == 0) {
+    printf("[ObjLoader] No data read from file: %s\n", path);
+  }
 }
 
 ObjLoader::~ObjLoader() {

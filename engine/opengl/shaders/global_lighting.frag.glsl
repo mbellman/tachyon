@@ -181,7 +181,7 @@ float GetAverageShadowFactor(sampler2D shadow_map, vec3 light_space_position) {
     vec2(noise(7.0 + t), noise(8.0 + t)),
   };
 
-  const float bias = 0.001;
+  const float bias = 0.0005;
   float shadow_factor = 0.0;
 
   for (int i = 0; i < 5; i++) {
@@ -460,7 +460,7 @@ vec2 GetDenoisedTemporalData(float ssao, float shadow, float depth, vec2 tempora
   // @hack don't use the temporal UV coordinates for
   // objects close to the camera, e.g. the player ship.
   // This eliminates smearing/ghosting.
-  if (world_depth < 1500.0) {
+  if (world_depth < 2500.0) {
     temporal_uv = fragUv;
   }
 

@@ -393,7 +393,7 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
         state.ship_camera_distance_target += 1000.f;
       } else if (did_wheel_up()) {
         state.ship_camera_distance_target -= 1000.f;
-        if (state.ship_camera_distance_target < 1200.f) state.ship_camera_distance_target = 1200.f;
+        if (state.ship_camera_distance_target < 1800.f) state.ship_camera_distance_target = 1800.f;
       }
     }
 
@@ -442,7 +442,7 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
   float camera_radius = state.ship_camera_distance + 250.f * speed_zoom_ratio;
 
   camera.fov = 45.f + 10.f * speed_zoom_ratio;
-  camera.position = state.ship_position - state.view_forward_direction * camera_radius + state.view_up_direction * 300.f;
+  camera.position = state.ship_position - state.view_forward_direction * camera_radius + state.view_up_direction * 500.f;
 }
 
 // @todo move to HUDSystem
@@ -771,6 +771,7 @@ void Cosmodrone::StartGame(Tachyon* tachyon) {
 
     state.ui.target_name = Tachyon_CreateUIText("./fonts/CascadiaMonoNF.ttf", 26);
     state.ui.target_orientation = Tachyon_CreateUIText("./fonts/CascadiaMonoNF.ttf", 32);
+    state.ui.target_orientation_highlight = Tachyon_CreateUIText("./fonts/CascadiaMonoNF.ttf", 32);
   }
 }
 
@@ -814,6 +815,12 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
   TargetSystem::HandleTargetTrackers(tachyon, state, dt);
   WorldBehavior::UpdateWorld(tachyon, state, dt);
 
+  // @todo dev mode only
+  if (tachyon->show_developer_tools) {
+    UpdateShipDebugVectors(tachyon, state);
+    ShowDevLabels(tachyon, state);
+  }
+
   // @todo factor
   {
     auto s = Tachyon_GetMicroseconds();
@@ -824,15 +831,13 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
     Tachyon_UseLodByDistance(tachyon, meshes.girder_3, 80000.f);
     Tachyon_UseLodByDistance(tachyon, meshes.grate_1, 50000.f);
 
+    Tachyon_UseLodByDistance(tachyon, meshes.girder_4_frame, 100000.f);
+    Tachyon_UseLodByDistance(tachyon, meshes.silo_3_body, 100000.f);
+    Tachyon_UseLodByDistance(tachyon, meshes.silo_3_frame, 100000.f);
+
     auto t = Tachyon_GetMicroseconds() - s;
 
     // @todo dev mode only
-    add_dev_label("LoDs", std::to_string(t) + "us");
-  }
-
-  // @todo dev mode only
-  if (tachyon->show_developer_tools) {
-    UpdateShipDebugVectors(tachyon, state);
-    ShowDevLabels(tachyon, state);
+    add_dev_label("HandleLevelsOfDetail", std::to_string(t) + "us");
   }
 }

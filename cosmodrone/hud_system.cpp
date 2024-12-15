@@ -114,7 +114,15 @@ static void HandleTargetInspectorStats(Tachyon* tachyon, const State& state, con
   Tachyon_DrawUIText(tachyon, state.ui.target_orientation, {
     .screen_x = x,
     .screen_y = y + 30,
-    .color = tVec3f(0.3f, 0.7f, 1.f)
+    .color = tVec3f(0.7f, 0.5f, 1.f)
+  });
+
+  state.ui.target_orientation_highlight->string = rx;
+
+  Tachyon_DrawUIText(tachyon, state.ui.target_orientation_highlight, {
+    .screen_x = x - 84,
+    .screen_y = y + 30,
+    .color = tVec3f(0.7f, 7.f, 1.f)
   });
 }
 

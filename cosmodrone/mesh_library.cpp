@@ -453,6 +453,14 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
 static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
   #define load_mesh(__name) meshes.__name = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/generated/" #__name ".obj"), 5000)
 
+  #define load_mesh_with_2_lods(__name) meshes.__name =\
+    Tachyon_AddMesh(\
+      tachyon,\
+      Tachyon_LoadMesh("./cosmodrone/assets/station-parts/generated/" #__name ".obj"),\
+      Tachyon_LoadMesh("./cosmodrone/assets/station-parts/generated/" #__name "_lod_2.obj"),\
+      5000\
+    )
+
   auto& meshes = state.meshes;
 
   meshes.gas_flare_1 = Tachyon_AddMesh(tachyon, Tachyon_CreateSphereMesh(16), 100);
@@ -460,14 +468,14 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
   load_mesh(antenna_2_frame);
   load_mesh(antenna_2_receivers);
 
-  load_mesh(silo_3_body);
-  load_mesh(silo_3_frame);
+  load_mesh_with_2_lods(silo_3_body);
+  load_mesh_with_2_lods(silo_3_frame);
 
   load_mesh(silo_6_body);
   load_mesh(silo_6_frame);
 
   load_mesh(girder_4_core);
-  load_mesh(girder_4_frame);
+  load_mesh_with_2_lods(girder_4_frame);
 
   load_mesh(girder_6_core);
   load_mesh(girder_6_frame);
