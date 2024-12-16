@@ -861,9 +861,9 @@ static void RenderUIElements(Tachyon* tachyon) {
       surface = command.ui_element->surface;
     } else if (command.ui_text != nullptr) {
       auto& text = *command.ui_text;
-      auto string = text.string;
+      auto& string = command.options.string;
 
-      surface = TTF_RenderText_Blended_Wrapped(text.font, text.string.c_str(), { 255, 255, 255 }, ctx.w);
+      surface = TTF_RenderText_Blended_Wrapped(text.font, string.c_str(), { 255, 255, 255 }, ctx.w);
     }
 
     if (surface == nullptr) {

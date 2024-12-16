@@ -15,7 +15,6 @@ tUIText* Tachyon_CreateUIText(const char* font_file_path, const int font_size) {
   auto* text = new tUIText;
 
   text->font = TTF_OpenFont(font_file_path, font_size);
-  text->string = "";
 
   return text;
 }

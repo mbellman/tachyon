@@ -93,11 +93,6 @@ static void HandleTargetInspectorStats(Tachyon* tachyon, const State& state, con
   auto rz = QuaternionFloatToHex(rotation.z);
   auto rw = QuaternionFloatToHex(rotation.w);
 
-  // @temporary
-  // @todo determine proper name for target object
-  state.ui.target_name->string = "ANTENNA_3";
-  state.ui.target_orientation->string = rx + " " + ry + " " + rz + " " + rw;
-
   int32 x = int32(tachyon->window_width * 0.85f);
   int32 y = int32(tachyon->window_height * 0.4f);
 
@@ -105,24 +100,27 @@ static void HandleTargetInspectorStats(Tachyon* tachyon, const State& state, con
   auto name_alpha = 1.f - modf(state.current_game_time * 0.6f, &int_part);
   auto name_color = Lerpf(tVec3f(0.3f, 0.7f, 1.f), tVec3f(0.9f, 1.f, 1.f), name_alpha);
 
-  Tachyon_DrawUIText(tachyon, state.ui.target_name, {
+  Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_26, {
     .screen_x = x,
     .screen_y = y,
-    .color = name_color
+    .color = name_color,
+    // @temporary
+    // @todo determine proper name for target object
+    .string = "ANTENNA_3"
   });
 
-  Tachyon_DrawUIText(tachyon, state.ui.target_orientation, {
+  Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_32, {
     .screen_x = x,
     .screen_y = y + 30,
-    .color = tVec3f(0.7f, 0.5f, 1.f)
+    .color = tVec3f(0.7f, 0.5f, 1.f),
+    .string = rx + " " + ry + " " + rz + " " + rw
   });
 
-  state.ui.target_orientation_highlight->string = rx;
-
-  Tachyon_DrawUIText(tachyon, state.ui.target_orientation_highlight, {
+  Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_32, {
     .screen_x = x - 84,
     .screen_y = y + 30,
-    .color = tVec3f(0.7f, 7.f, 1.f)
+    .color = tVec3f(0.7f, 7.f, 1.f),
+    .string = rx
   });
 }
 

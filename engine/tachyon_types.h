@@ -167,7 +167,6 @@ struct tUIElement {
 
 struct tUIText {
   TTF_Font* font = nullptr;
-  std::string string;
 };
 
 struct tUIDrawCommandOptions {
@@ -176,6 +175,7 @@ struct tUIDrawCommandOptions {
   float rotation = 0.f;
   tVec3f color = tVec3f(1.f);
   float alpha = 1.f;
+  std::string string = "";
 };
 
 struct tUIDrawCommand {

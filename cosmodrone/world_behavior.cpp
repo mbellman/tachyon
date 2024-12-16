@@ -80,7 +80,7 @@ static void UpdateSpaceElevator(Tachyon* tachyon, State& state) {
   commit(elevator);
 }
 
-static inline void UpdateRotator(Tachyon* tachyon, const State& state, const float dt, const uint16 mesh_index, const float rate) {
+static inline void UpdateRotatorObjects(Tachyon* tachyon, const State& state, const float dt, const uint16 mesh_index, const float rate) {
   for_dynamic_objects(mesh_index, {
     auto axis = initial.rotation.getUpDirection();
 
@@ -93,17 +93,17 @@ static inline void UpdateRotator(Tachyon* tachyon, const State& state, const flo
 static void UpdateRotators(Tachyon* tachyon, State& state, const float dt) {
   auto& meshes = state.meshes;
 
-  UpdateRotator(tachyon, state, dt, meshes.elevator_torus_1, 0.2f);
-  UpdateRotator(tachyon, state, dt, meshes.elevator_torus_1_frame, -0.1f);
+  UpdateRotatorObjects(tachyon, state, dt, meshes.elevator_torus_1, 0.2f);
+  UpdateRotatorObjects(tachyon, state, dt, meshes.elevator_torus_1_frame, -0.1f);
 
-  UpdateRotator(tachyon, state, dt, meshes.station_torus_1, 0.05f);
+  UpdateRotatorObjects(tachyon, state, dt, meshes.station_torus_1, 0.05f);
 
-  UpdateRotator(tachyon, state, dt, meshes.station_torus_2_body, 0.05f);
-  UpdateRotator(tachyon, state, dt, meshes.station_torus_2_supports, 0.05f);
-  UpdateRotator(tachyon, state, dt, meshes.station_torus_2_frame, 0.05f);
+  UpdateRotatorObjects(tachyon, state, dt, meshes.station_torus_2_body, 0.05f);
+  UpdateRotatorObjects(tachyon, state, dt, meshes.station_torus_2_supports, 0.05f);
+  UpdateRotatorObjects(tachyon, state, dt, meshes.station_torus_2_frame, 0.05f);
 
-  UpdateRotator(tachyon, state, dt, meshes.station_torus_3_body, 0.08f);
-  UpdateRotator(tachyon, state, dt, meshes.station_torus_3_frame, 0.08f);
+  UpdateRotatorObjects(tachyon, state, dt, meshes.station_torus_3_body, 0.08f);
+  UpdateRotatorObjects(tachyon, state, dt, meshes.station_torus_3_frame, 0.08f);
 }
 
 static void UpdateLocalEntities(Tachyon* tachyon, State& state, const float dt) {
@@ -124,6 +124,7 @@ static void UpdateLocalEntities(Tachyon* tachyon, State& state, const float dt) 
 
   float y = elevator_car.position.y + 20000.f * dt;
 
+  // @temporary
   if (y > 400000.f) {
     y = -50000.f;
   }
