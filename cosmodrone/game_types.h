@@ -159,7 +159,8 @@ namespace Cosmodrone {
 
     float current_game_time = 0.f;
 
-    Quaternion target_camera_rotation = Quaternion(1.f, 0, 0, 0);
+    Quaternion target_ship_rotation;
+    Quaternion target_camera_rotation;
     FlightMode flight_mode = FlightMode::MANUAL_CONTROL;
 
     tVec3f view_forward_direction;

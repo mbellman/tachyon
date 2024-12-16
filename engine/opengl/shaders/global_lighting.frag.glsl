@@ -129,7 +129,7 @@ vec3 GetDirectionalLightRadiance(
   float subsurface,
   float shadow_factor
 ) {
-  vec3 L = -normalize(light_direction);
+  vec3 L = -light_direction;
   vec3 H = normalize(V + L);
 
   float NdotH = max(dot(N, H), 0.0);
@@ -506,11 +506,10 @@ vec2 GetDenoisedTemporalData(float ssao, float shadow, float depth, vec2 tempora
 void main() {
   vec4 frag_normal_and_depth = texture(in_normal_and_depth, fragUv);
   vec3 position = GetWorldPosition(frag_normal_and_depth.w, fragUv, inverse_projection_matrix, inverse_view_matrix);
+  vec3 D = normalize(position - camera_position);
 
   if (frag_normal_and_depth.w == 1.0) {
-    vec3 direction = normalize(position - camera_position);
-
-    out_color_and_depth = vec4(GetSkyColor(direction), frag_normal_and_depth.w);
+    out_color_and_depth = vec4(GetSkyColor(D), frag_normal_and_depth.w);
     out_temporal_data = vec4(0, 0, 0, 1.0);
 
     return;
@@ -525,6 +524,8 @@ void main() {
   Material material = UnpackMaterial(frag_color_and_material);
 
   vec3 V = normalize(camera_position - position);
+  vec3 L = normalize(directional_light_direction);
+
   float NdotV = max(dot(N, V), 0.0);
 
   float roughness = material.roughness;
@@ -554,16 +555,25 @@ void main() {
 
   // Primary directional light
   {
-    vec3 primary_light_color = vec3(1.0);
+    const vec3 primary_light_color = vec3(1.0);
 
-    out_color += GetDirectionalLightRadiance(directional_light_direction, primary_light_color, albedo, position, N, V, NdotV, roughness, metalness, clearcoat, subsurface, shadow);
+    out_color += GetDirectionalLightRadiance(L, primary_light_color, albedo, position, N, V, NdotV, roughness, metalness, clearcoat, subsurface, shadow);
+  }
+
+  // Anti-light
+  {
+    const vec3 light_color = vec3(0.2, 0.3, 1.0);
+    float depth_input = max(0.99, frag_normal_and_depth.w);
+    float intensity = 0.25 * (1.0 - pow(depth_input, 200.0));
+
+    out_color += GetDirectionalLightRadiance(-L, light_color * intensity, albedo, position, N, V, NdotV, 1.0, metalness, 0.0, subsurface, 1.0);
   }
 
   // Earth bounce light
   // @todo make customizable
   {
-    vec3 earth_light_direction = vec3(0, 1.0, 0);
-    vec3 earth_light_color = vec3(0.2, 0.5, 1.0) * 0.2;
+    const vec3 earth_light_direction = vec3(0, 1.0, 0);
+    const vec3 earth_light_color = vec3(0.2, 0.5, 1.0) * 0.2;
  
     out_color += GetDirectionalLightRadiance(earth_light_direction, earth_light_color, albedo, position, N, V, NdotV, mix(roughness, 1.0, 0.5), metalness, 0.0, 0.0, 1.0);
   }
@@ -571,7 +581,6 @@ void main() {
   // Ambient light (based on the primary directional light)
   // @todo cleanup
   {
-    vec3 L = normalize(directional_light_direction);
     float NdotL = max(dot(N, L), 0.0);
 
     out_color += albedo * vec3(0.1, 0.2, 0.3) * (0.005 + 0.02 * (1.0 - NdotL));

@@ -107,6 +107,17 @@ static void InitializeLevel(Tachyon* tachyon, State& state) {
     create(meshes.hud_wedge);
   }
 
+  // @todo define as a default
+  state.target_ship_rotation = (
+    Quaternion(1.f, 0, 0, 0) *
+    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_HALF_PI) *
+    Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -t_HALF_PI)
+  );
+  // @todo define as a default
+  state.target_camera_rotation = camera.rotation = Quaternion(0.52f, 0.48f, -0.52f, -0.48f);
+  // @todo define as a default
+  state.ship_position = tVec3f(-2500.f, 120000.f, -29000.f);
+
   // @todo improve ship part handling
   {
     auto& hull = create(meshes.hull);
@@ -128,22 +139,13 @@ static void InitializeLevel(Tachyon* tachyon, State& state) {
     trim.material = tVec4f(0.2f, 1.f, 0, 0);
 
     // @todo define as a default
-    hull.rotation = streams.rotation = thrusters.rotation = trim.rotation = (
-      Quaternion(1.f, 0, 0, 0) *
-      Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_HALF_PI) *
-      Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -t_HALF_PI)
-    );
+    hull.rotation = streams.rotation = thrusters.rotation = trim.rotation = state.target_ship_rotation;
 
     commit(hull);
     commit(streams);
     commit(thrusters);
     commit(trim);
   }
-
-  // @todo define as a default
-  state.target_camera_rotation = camera.rotation = Quaternion(0.53f, 0.47f, -0.53f, -0.47f);
-  // @todo define as a default
-  state.ship_position = tVec3f(-2500.f, 120000.f, -29000.f);
 
   LoadWorldData(tachyon, state);
 }

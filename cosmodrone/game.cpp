@@ -11,6 +11,7 @@
 
 using namespace Cosmodrone;
 
+// @todo move to constants
 const static auto FORWARD_VECTOR = tVec3f(0, 0, -1.f);
 const static auto UP_VECTOR = tVec3f(0, 1.f, 0);
 const static auto RIGHT_VECTOR = tVec3f(1.f, 0, 0);
@@ -19,12 +20,12 @@ const static auto RIGHT_VECTOR = tVec3f(1.f, 0, 0);
 static State state;
 
 // @todo move to engine
-inline float Lerpf(float a, float b, float alpha) {
+static inline float Lerpf(float a, float b, float alpha) {
   return a + (b - a) * alpha;
 }
 
 // @todo move to engine
-inline tVec3f Lerpf(const tVec3f& a, const tVec3f& b, const float alpha) {
+static inline tVec3f Lerpf(const tVec3f& a, const tVec3f& b, const float alpha) {
   return tVec3f(
     Lerpf(a.x, b.x, alpha),
     Lerpf(a.y, b.y, alpha),
@@ -124,37 +125,7 @@ static void UpdateViewDirections(Tachyon* tachyon, State& state) {
   );
 }
 
-static tVec3f GetDockingPositionOffset(const State& state) {
-  if (state.docking_target.mesh_index == state.meshes.antenna_3) {
-    return tVec3f(0, -1.f, -1.f).unit() * 0.7f;
-  }
-
-  return tVec3f(0, -1.f, -1.f).unit();
-}
-
-static tVec3f GetDockingPosition(Tachyon* tachyon, const State& state) {
-  auto* target = get_original_object(state.docking_target);
-
-  if (target == nullptr) {
-    return tVec3f(0.f);
-  }
-
-  auto& target_rotation = target->rotation;
-  auto offset = GetDockingPositionOffset(state);
-
-  offset *= target->scale;
-  offset = target_rotation.toMatrix4f() * offset;
-
-  return target->position + offset;
-}
-
-static float GetTargetPositionAim(const State& state, const tVec3f& target_position) {
-  auto forward = state.ship_rotation_basis.forward;
-  auto ship_to_target = (target_position - state.ship_position).unit();
-
-  return tVec3f::dot(forward, ship_to_target);
-}
-
+// @todo move to Autopilot
 static void AttemptDockingProcedure(State& state) {
   auto* tracker = TargetSystem::GetSelectedTargetTracker(state);
 
@@ -302,63 +273,6 @@ static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt)
   }
 }
 
-const float AUTO_DOCK_APPROACH_SPEED = 1500.f;
-const float AUTO_DOCK_APPROACH_SPEED_LIMIT = 2000.f;
-
-static void HandleAutopilot(Tachyon* tachyon, State& state, const float dt) {
-  switch (state.flight_mode) {
-    case FlightMode::AUTO_RETROGRADE: {
-      // Figure out how 'backward' the ship is pointed
-      float reverse_dot = tVec3f::dot(state.ship_rotation_basis.forward, state.ship_velocity_basis.forward);
-
-      if (reverse_dot < -0.f) {
-        // Use the current speed to determine how much we need to accelerate in the opposite direction
-        float acceleration = state.ship_velocity.magnitude() / 2.f;
-        if (acceleration > 5000.f) acceleration = 5000.f;
-        if (acceleration < 500.f) acceleration = 500.f;
-
-        // Increase acceleration the more the ship is aligned with the 'backward' vector
-        float speed = acceleration * powf(-reverse_dot, 15.f);
-
-        FlightSystem::ThrustForward(state, dt, speed);
-      }
-
-      if (state.ship_velocity.magnitude() < 200.f) {
-        // Restore manual control when sufficiently decelerated
-        state.flight_mode = FlightMode::MANUAL_CONTROL;
-      }
-
-      break;
-    }
-
-    case FlightMode::AUTO_DOCK: {
-      if (state.auto_dock_stage == AutoDockStage::APPROACH_DECELERATION) {
-        float backward_alignment = tVec3f::dot(state.ship_rotation_basis.forward, state.ship_velocity_basis.forward.invert());
-        if (backward_alignment < 0.f) backward_alignment = 0.f;
-
-        float deceleration_alpha = backward_alignment * backward_alignment * backward_alignment;
-        float deceleration_factor = Lerpf(0.f, 2000.f, deceleration_alpha);
-
-        state.ship_rotate_to_target_speed += 0.5f * dt;
-
-        FlightSystem::ThrustForward(state, dt, deceleration_factor);
-
-        if (state.ship_velocity.magnitude() < 50.f) {
-          state.auto_dock_stage = AutoDockStage::APPROACH_ALIGNMENT;
-          state.ship_rotate_to_target_speed = 0.f;
-        }
-      }
-
-      if (
-        state.auto_dock_stage == AutoDockStage::APPROACH &&
-        state.ship_velocity.magnitude() < AUTO_DOCK_APPROACH_SPEED_LIMIT
-      ) {
-        FlightSystem::ThrustForward(state, dt, AUTO_DOCK_APPROACH_SPEED);
-      }
-    }
-  }
-}
-
 static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
   auto& camera = tachyon->scene.camera;
   auto& meshes = state.meshes;
@@ -406,7 +320,7 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
     state.flight_mode == FlightMode::AUTO_RETROGRADE || (
       state.flight_mode == FlightMode::AUTO_DOCK &&
       state.auto_dock_stage == AutoDockStage::APPROACH_ALIGNMENT &&
-      GetTargetPositionAim(state, GetDockingPosition(tachyon, state)) > 0.5f
+      Autopilot::GetDockingAlignment(state, Autopilot::GetDockingPosition(tachyon, state)) > 0.5f
     )
   ) {
     // Gradually move the camera behind the player ship
@@ -569,107 +483,26 @@ static void HandlePlayerDrone(Tachyon* tachyon, State& state, const float dt) {
   auto& thrusters = objects(meshes.thrusters)[0];
   auto& trim = objects(meshes.trim)[0];
 
-  auto target_rotation = camera.rotation.opposite();
-
   if (state.ship_velocity.magnitude() > 0.f) {
     UpdateShipVelocityBasis(state);
   }
 
-  if (state.ship_pitch_factor != 0.f) {
-    float angle_delta = 50.f * state.ship_pitch_factor * dt;
+  if (!Autopilot::IsAutopilotActive(state)) {
+    state.target_ship_rotation = camera.rotation.opposite();
 
-    target_rotation =
-      target_rotation *
-      Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), angle_delta);
+    if (state.ship_pitch_factor != 0.f) {
+      float pitch_change = 50.f * state.ship_pitch_factor * dt;
 
-    FlightSystem::HandlePitch(state, dt);
-  }
+      state.target_ship_rotation =
+        state.target_ship_rotation *
+        Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), pitch_change);
 
-  // @todo move to HandleAutopilot()
-  if (state.flight_mode == FlightMode::AUTO_PROGRADE) {
-    target_rotation = LookRotation(state.ship_velocity_basis.forward.invert(), state.ship_rotation_basis.up);
-  }
-
-  // @todo move to HandleAutopilot()
-  if (state.flight_mode == FlightMode::AUTO_RETROGRADE) {
-    target_rotation = LookRotation(state.ship_velocity_basis.forward, state.ship_rotation_basis.up);
-  }
-
-  // @todo move to HandleAutopilot()
-  if (state.flight_mode == FlightMode::AUTO_DOCK) {
-    switch (state.auto_dock_stage) {
-      case AutoDockStage::APPROACH_DECELERATION: {
-        target_rotation = DirectionToQuaternion(state.ship_velocity_basis.forward);
-
-        break;
-      }
-
-      case AutoDockStage::APPROACH_ALIGNMENT: {
-        auto docking_position = GetDockingPosition(tachyon, state);
-        // @todo use live object
-        auto target_object_rotation = state.docking_target.rotation;
-        auto forward = (docking_position - state.ship_position).unit();
-        auto target_object_up = target_object_rotation.getUpDirection();
-
-        target_rotation = LookRotation(forward.invert(), target_object_up);
-
-        if (GetTargetPositionAim(state, docking_position) > 0.99999f) {
-          state.auto_dock_stage = AutoDockStage::APPROACH;
-        } else {
-          // @hack slow the ship down after deceleration
-          state.ship_velocity *= (1.f - 5.f * dt);
-        }
-
-        break;
-      }
-
-      case AutoDockStage::APPROACH: {
-        auto docking_position = GetDockingPosition(tachyon, state);
-        auto target_distance = (state.ship_position - docking_position).magnitude();
-
-        if (state.ship_velocity.magnitude() >= AUTO_DOCK_APPROACH_SPEED_LIMIT && target_distance < 10000.f) {
-          state.auto_dock_stage = AutoDockStage::DOCKING;
-        }
-
-        break;
-      }
-
-      case AutoDockStage::DOCKING: {
-        auto docking_position = GetDockingPosition(tachyon, state);
-        auto target_distance = (state.ship_position - docking_position).magnitude();
-
-        target_rotation =
-          // @todo use live object
-          state.docking_target.rotation *
-          Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI);
-
-        state.ship_rotate_to_target_speed = 0.3f;
-
-        if (target_distance < 5000.f) {
-          float speed = AUTO_DOCK_APPROACH_SPEED_LIMIT * (target_distance / 5000.f);
-
-          state.ship_velocity = state.ship_velocity_basis.forward * speed;
-        }
-
-        // @todo @bug Ensure we never miss the target;
-        // this seems to happen every so often!
-        if (target_distance < 300.f) {
-          state.auto_dock_stage = AutoDockStage::DOCKED;
-          state.ship_velocity = 0.f;
-          state.ship_rotate_to_target_speed = 0.f;
-          state.ship_camera_distance_target = 30000.f;
-
-          state.target_camera_rotation =
-            Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.6f) *
-            Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI * 1.2f) *
-            state.docking_target.rotation.opposite();
-        }
-      }
+      FlightSystem::HandlePitch(state, dt);
     }
   }
 
   // @todo will nlerp work here?
-  auto rotation = Quaternion::slerp(hull.rotation, target_rotation, state.ship_rotate_to_target_speed * dt);
+  auto rotation = Quaternion::slerp(hull.rotation, state.target_ship_rotation, state.ship_rotate_to_target_speed * dt);
 
   hull.position = state.ship_position;
   streams.position = state.ship_position;
@@ -794,21 +627,19 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
   objects(meshes.cube).disabled = state.is_editor_active || !tachyon->show_developer_tools;
   objects(meshes.hud_flight_arrow).disabled = state.is_editor_active;
   objects(meshes.hud_wedge).disabled = state.is_editor_active;
+  objects(meshes.antenna_3_wireframe).disabled = state.is_editor_active;
 
   // @todo dev mode only
   if (state.is_editor_active) {
     Editor::HandleEditor(tachyon, state, dt);
 
     return;
+  } else {
+    objects(state.meshes.editor_guideline).disabled = true;
   }
-
-  // @todo dev mode only
-  objects(state.meshes.editor_guideline).disabled = true;
 
   HandleFlightControls(tachyon, state, dt);
 
-  // @todo defer to Autopilot::HandleAutopilot()
-  HandleAutopilot(tachyon, state, dt);
   Autopilot::HandleAutopilot(tachyon, state, dt);
 
   HandleFlightCamera(tachyon, state, dt);
