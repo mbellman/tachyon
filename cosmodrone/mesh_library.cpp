@@ -45,6 +45,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh(habitation_1);
   load_mesh(habitation_2);
   load_mesh(habitation_3);
+  load_mesh(habitation_4);
   load_mesh(silo_2);
   load_mesh(silo_3);
   load_mesh(silo_4);
@@ -177,6 +178,17 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
       .scale = tVec3f(7000.f),
       .color = tVec3f(1.f),
       .material = tVec4f(0.6f, 0, 0, 0.6f)
+    }
+  });
+
+  placeable_mesh_assets.push_back({
+    .mesh_name = "habitation_4",
+    .mesh_index = meshes.habitation_4,
+    .placeholder = true,
+    .defaults = {
+      .scale = tVec3f(6000.f),
+      .color = tVec3f(1.f),
+      .material = tVec4f(0.6f, 0, 0, 0.4f)
     }
   });
 
@@ -499,6 +511,9 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
   load_mesh(habitation_3_core);
   load_mesh(habitation_3_frame);
 
+  load_mesh(habitation_4_body);
+  load_mesh(habitation_4_core);
+
   load_mesh(module_2_core);
   load_mesh(module_2_frame);
 
@@ -653,6 +668,24 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .defaults {
         .color = tVec3f(1.f, 0.7f, 0.2f),
         .material = tVec4f(0.5f, 1.f, 0, 0)
+      }
+    },
+
+    // habitation_4
+    {
+      .mesh_index = meshes.habitation_4_body,
+      .generated_from = meshes.habitation_4,
+      .defaults {
+        .color = tVec3f(1.f),
+        .material = tVec4f(0.6f, 0, 0, 0.4f)
+      }
+    },
+    {
+      .mesh_index = meshes.habitation_4_core,
+      .generated_from = meshes.habitation_4,
+      .defaults {
+        .color = tVec3f(0.7f),
+        .material = tVec4f(0.4f, 0, 0, 0.2f)
       }
     },
 
