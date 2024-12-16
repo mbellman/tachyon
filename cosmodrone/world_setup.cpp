@@ -290,12 +290,19 @@ void WorldSetup::InitializeGameWorld(Tachyon* tachyon, State& state) {
 }
 
 void WorldSetup::StoreInitialObjects(Tachyon* tachyon, State& state) {
-  StoreInitialMeshObjects(tachyon, state.meshes.station_torus_1);
-  StoreInitialMeshObjects(tachyon, state.meshes.station_torus_2_body);
-  StoreInitialMeshObjects(tachyon, state.meshes.station_torus_2_supports);
-  StoreInitialMeshObjects(tachyon, state.meshes.station_torus_2_frame);
-  StoreInitialMeshObjects(tachyon, state.meshes.station_torus_3_body);
-  StoreInitialMeshObjects(tachyon, state.meshes.station_torus_3_frame);
+  auto& meshes = state.meshes;
+
+  StoreInitialMeshObjects(tachyon, meshes.elevator_torus_1);
+  StoreInitialMeshObjects(tachyon, meshes.elevator_torus_1_frame);
+
+  StoreInitialMeshObjects(tachyon, meshes.station_torus_1);
+
+  StoreInitialMeshObjects(tachyon, meshes.station_torus_2_body);
+  StoreInitialMeshObjects(tachyon, meshes.station_torus_2_supports);
+  StoreInitialMeshObjects(tachyon, meshes.station_torus_2_frame);
+
+  StoreInitialMeshObjects(tachyon, meshes.station_torus_3_body);
+  StoreInitialMeshObjects(tachyon, meshes.station_torus_3_frame);
 }
 
 void WorldSetup::RebuildGeneratedObjects(Tachyon* tachyon, State& state) {

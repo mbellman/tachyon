@@ -28,7 +28,7 @@ private:
   int getDelimiterOffset();
   bool isAtDelimiter();
   bool isAtEOL();
-  char nextChar();
+  int nextChar();
 };
 
 /**

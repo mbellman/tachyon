@@ -52,18 +52,20 @@ float Noise( vec3 P )
 }
 
 float Fire3D(vec3 p) {
+  const float speed = 1.0;
+
   float v = 0.0;
   vec3 line = normalize(basePosition - modelPosition);
 
   p *= 0.5;
 
-  v += Noise(p * 0.001 + line * scene_time * 1.0) * 0.5;
+  v += Noise(p * 0.001 + line * scene_time * speed * 1.0) * 0.5;
   p *= 2.0;
-  v += Noise(p * 0.001 + line * scene_time * 2.0) * 0.3;
+  v += Noise(p * 0.001 + line * scene_time * speed * 2.0) * 0.3;
   p *= 2.0;
-  v += Noise(p * 0.001 + line * scene_time * 3.0) * 0.2;
+  v += Noise(p * 0.001 + line * scene_time * speed * 3.0) * 0.2;
   p *= 2.0;
-  v += Noise(p * 0.001 + line * scene_time * 4.0) * 0.1;
+  v += Noise(p * 0.001 + line * scene_time * speed * 4.0) * 0.1;
 
   float f = fract(v);
   v *= f;

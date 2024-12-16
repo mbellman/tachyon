@@ -171,6 +171,8 @@ int GetCascadeIndex(float depth) {
 
 float GetAverageShadowFactor(sampler2D shadow_map, vec3 light_space_position) {
   const vec2 texel_size = 1.0 / vec2(2048.0);
+  const float spread = 2.0;
+
   float t = fract(running_time);
 
   const vec2[] offsets = {
@@ -181,11 +183,11 @@ float GetAverageShadowFactor(sampler2D shadow_map, vec3 light_space_position) {
     vec2(noise(7.0 + t), noise(8.0 + t)),
   };
 
-  const float bias = 0.0005;
+  const float bias = 0.001;
   float shadow_factor = 0.0;
 
   for (int i = 0; i < 5; i++) {
-    vec4 shadow_sample = texture(shadow_map, light_space_position.xy + 2.0 * offsets[i] * texel_size);
+    vec4 shadow_sample = texture(shadow_map, light_space_position.xy + spread * offsets[i] * texel_size);
 
     if (shadow_sample.r >= light_space_position.z - bias) {
       shadow_factor += 1.0;

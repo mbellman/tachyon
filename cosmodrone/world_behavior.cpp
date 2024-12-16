@@ -80,68 +80,30 @@ static void UpdateSpaceElevator(Tachyon* tachyon, State& state) {
   commit(elevator);
 }
 
+static inline void UpdateRotator(Tachyon* tachyon, const State& state, const float dt, const uint16 mesh_index, const float rate) {
+  for_dynamic_objects(mesh_index, {
+    auto axis = initial.rotation.getUpDirection();
+
+    object.rotation = Quaternion::fromAxisAngle(axis, state.current_game_time * rate) * initial.rotation;
+
+    commit(object);
+  });
+}
+
 static void UpdateRotators(Tachyon* tachyon, State& state, const float dt) {
   auto& meshes = state.meshes;
 
-  {
-    for_dynamic_objects(meshes.station_torus_1, {
-      auto axis = initial.rotation.getUpDirection();
+  UpdateRotator(tachyon, state, dt, meshes.elevator_torus_1, 0.2f);
+  UpdateRotator(tachyon, state, dt, meshes.elevator_torus_1_frame, -0.1f);
 
-      object.rotation = Quaternion::fromAxisAngle(axis, state.current_game_time * 0.05f) * initial.rotation;
+  UpdateRotator(tachyon, state, dt, meshes.station_torus_1, 0.05f);
 
-      commit(object);
-    });
-  }
+  UpdateRotator(tachyon, state, dt, meshes.station_torus_2_body, 0.05f);
+  UpdateRotator(tachyon, state, dt, meshes.station_torus_2_supports, 0.05f);
+  UpdateRotator(tachyon, state, dt, meshes.station_torus_2_frame, 0.05f);
 
-  {
-    for_dynamic_objects(meshes.station_torus_2_body, {
-      auto axis = initial.rotation.getUpDirection();
-
-      object.rotation = Quaternion::fromAxisAngle(axis, state.current_game_time * 0.05f) * initial.rotation;
-
-      commit(object);
-    });
-  }
-
-  {
-    for_dynamic_objects(meshes.station_torus_2_supports, {
-      auto axis = initial.rotation.getUpDirection();
-
-      object.rotation = Quaternion::fromAxisAngle(axis, state.current_game_time * 0.05f) * initial.rotation;
-
-      commit(object);
-    });
-  }
-
-  {
-    for_dynamic_objects(meshes.station_torus_2_frame, {
-      auto axis = initial.rotation.getUpDirection();
-
-      object.rotation = Quaternion::fromAxisAngle(axis, state.current_game_time * 0.05f) * initial.rotation;
-
-      commit(object);
-    });
-  }
-
-  {
-    for_dynamic_objects(meshes.station_torus_3_body, {
-      auto axis = initial.rotation.getUpDirection();
-
-      object.rotation = Quaternion::fromAxisAngle(axis, state.current_game_time * 0.08f) * initial.rotation;
-
-      commit(object);
-    });
-  }
-
-  {
-    for_dynamic_objects(meshes.station_torus_3_frame, {
-      auto axis = initial.rotation.getUpDirection();
-
-      object.rotation = Quaternion::fromAxisAngle(axis, state.current_game_time * 0.08f) * initial.rotation;
-
-      commit(object);
-    });
-  }
+  UpdateRotator(tachyon, state, dt, meshes.station_torus_3_body, 0.08f);
+  UpdateRotator(tachyon, state, dt, meshes.station_torus_3_frame, 0.08f);
 }
 
 static void UpdateLocalEntities(Tachyon* tachyon, State& state, const float dt) {

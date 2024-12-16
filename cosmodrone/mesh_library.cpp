@@ -51,6 +51,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh(silo_5);
   load_mesh(silo_6);
   load_mesh(torus_1);
+  load_mesh(elevator_torus_1);
   load_mesh(station_torus_1);
   load_mesh(station_torus_2);
   load_mesh(station_torus_3);
@@ -234,6 +235,16 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   placeable_mesh_assets.push_back({
     .mesh_name = "torus_1",
     .mesh_index = meshes.torus_1
+  });
+
+  placeable_mesh_assets.push_back({
+    .mesh_name = "elevator_torus_1",
+    .mesh_index = meshes.elevator_torus_1,
+    .defaults = {
+      .scale = tVec3f(10000.f),
+      .color = tVec3f(1.f),
+      .material = tVec4f(0.6f, 0, 0, 0.3f)
+    }
   });
 
   placeable_mesh_assets.push_back({
@@ -494,6 +505,8 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
   load_mesh(solar_panel_2_cells);
   load_mesh(solar_panel_2_frame);
 
+  load_mesh(elevator_torus_1_frame);
+
   load_mesh(station_torus_2_body);
   load_mesh(station_torus_2_supports);
   load_mesh(station_torus_2_frame);
@@ -670,6 +683,16 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .generated_from = meshes.solar_panel_2,
       .defaults = {
         .material = tVec4f(0.3f, 1.f, 0, 0)
+      }
+    },
+
+    // elevator_torus_1_frame
+    {
+      .mesh_index = meshes.elevator_torus_1_frame,
+      .generated_from = meshes.elevator_torus_1,
+      .defaults = {
+        .color = tVec3f(0.8f),
+        .material = tVec4f(1.f, 0, 0, 0.2f)
       }
     },
 
