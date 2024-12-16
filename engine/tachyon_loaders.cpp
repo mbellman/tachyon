@@ -8,10 +8,10 @@ void AbstractLoader::fillBufferUntil(const std::string& end) {
 
   setChunkDelimiter(end);
 
-  char c;
+  int c;
 
   while (!isAtDelimiter() && !isAtEOL() && (c = nextChar()) != EOF) {
-    buffer += c;
+    buffer += (char)c;
   }
 
   if (c == EOF) {
@@ -57,7 +57,7 @@ void AbstractLoader::load(const char* filePath) {
   isLoading = true;
 }
 
-char AbstractLoader::nextChar() {
+int AbstractLoader::nextChar() {
   return fgetc(file);
 }
 
