@@ -5,6 +5,20 @@
 
 using namespace Cosmodrone;
 
+// @todo move to engine
+inline float Lerpf(float a, float b, float alpha) {
+  return a + (b - a) * alpha;
+}
+
+// @todo move to engine
+inline tVec3f Lerpf(const tVec3f& a, const tVec3f& b, const float alpha) {
+  return tVec3f(
+    Lerpf(a.x, b.x, alpha),
+    Lerpf(a.y, b.y, alpha),
+    Lerpf(a.z, b.z, alpha)
+  );
+}
+
 static std::string QuaternionFloatToHex(const float value) {
   float normalized = value * 0.5f + 0.5f;
   uint8 value8 = uint8(normalized * 255.f);
@@ -68,20 +82,6 @@ static void HandleTargetInspectorWireframe(Tachyon* tachyon, const State& state,
   commit(wireframe);
 }
 
-// @todo move to engine
-inline float Lerpf(float a, float b, float alpha) {
-  return a + (b - a) * alpha;
-}
-
-// @todo move to engine
-inline tVec3f Lerpf(const tVec3f& a, const tVec3f& b, const float alpha) {
-  return tVec3f(
-    Lerpf(a.x, b.x, alpha),
-    Lerpf(a.y, b.y, alpha),
-    Lerpf(a.z, b.z, alpha)
-  );
-}
-
 static void HandleTargetInspectorStats(Tachyon* tachyon, const State& state, const TargetTracker& tracker) {
   auto tracker_object = tracker.object;
   auto wireframe_mesh_index = GetTargetInspectorWireframeMeshIndex(tracker.object.mesh_index, state);
@@ -96,32 +96,51 @@ static void HandleTargetInspectorStats(Tachyon* tachyon, const State& state, con
   int32 x = int32(tachyon->window_width * 0.85f);
   int32 y = int32(tachyon->window_height * 0.4f);
 
-  float int_part;
-  auto name_alpha = 1.f - modf(state.current_game_time * 0.6f, &int_part);
-  auto name_color = Lerpf(tVec3f(0.3f, 0.7f, 1.f), tVec3f(0.9f, 1.f, 1.f), name_alpha);
+  // Target object name
+  {
+    float int_part;
+    auto name_alpha = 1.f - modf(state.current_game_time * 0.6f, &int_part);
+    auto name_color = Lerpf(tVec3f(0.3f, 0.7f, 1.f), tVec3f(0.9f, 1.f, 1.f), name_alpha);
 
-  Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_26, {
-    .screen_x = x,
-    .screen_y = y,
-    .color = name_color,
-    // @temporary
-    // @todo determine proper name for target object
-    .string = "ANTENNA_3"
-  });
+    Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_26, {
+      .screen_x = x,
+      .screen_y = y,
+      .color = name_color,
+      // @temporary
+      // @todo determine proper name for target object
+      .string = "ANTENNA_3"
+    });
+  }
 
-  Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_32, {
-    .screen_x = x,
-    .screen_y = y + 30,
-    .color = tVec3f(0.7f, 0.5f, 1.f),
-    .string = rx + " " + ry + " " + rz + " " + rw
-  });
+  // Rotation hex values (purely stylistic)
+  {
+    Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_32, {
+      .screen_x = x,
+      .screen_y = y + 30,
+      .color = tVec3f(0.7f, 0.4f, 1.f),
+      .string = rx + " " + ry + " " + rz + " " + rw
+    });
+  }
 
-  Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_32, {
-    .screen_x = x - 84,
-    .screen_y = y + 30,
-    .color = tVec3f(0.7f, 7.f, 1.f),
-    .string = rx
-  });
+  // Highlight each rotation hex value (purely stylistic)
+  {
+    const static std::vector<int8> cycle_indexes = { 3, 0, 2, 1, 1, 3, 2, 0, 1, 2, 0, 3, 1, 2 };
+    int8 cycle_index = cycle_indexes[int32(state.current_game_time * 3.f) % cycle_indexes.size()];
+    int32 highlight_x = x - 85 + cycle_index * 57;
+
+    auto& highlight_text =
+      cycle_index == 0 ? rx :
+      cycle_index == 1 ? ry :
+      cycle_index == 2 ? rz :
+      cycle_index == 3 ? rw : rx;
+
+    Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_32, {
+      .screen_x = highlight_x,
+      .screen_y = y + 30,
+      .color = tVec3f(0.7f, 7.f, 1.f),
+      .string = highlight_text
+    });
+  }
 }
 
 static void HandleOdometer(Tachyon* tachyon, State& state, const float dt) {
