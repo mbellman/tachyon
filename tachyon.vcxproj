@@ -114,6 +114,7 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="cosmodrone\autopilot.h" />
     <ClInclude Include="cosmodrone\flight_system.h" />
     <ClInclude Include="cosmodrone\game.h" />
     <ClInclude Include="cosmodrone\game_editor.h" />
@@ -233,6 +234,7 @@
     <ClInclude Include="external\SDL_ttf\include\SDL_ttf.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="cosmodrone\autopilot.cpp" />
     <ClCompile Include="cosmodrone\flight_system.cpp" />
     <ClCompile Include="cosmodrone\game.cpp" />
     <ClCompile Include="cosmodrone\game_editor.cpp" />

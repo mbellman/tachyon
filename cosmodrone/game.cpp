@@ -1,3 +1,4 @@
+#include "cosmodrone/autopilot.h"
 #include "cosmodrone/flight_system.h"
 #include "cosmodrone/game.h"
 #include "cosmodrone/game_editor.h"
@@ -805,7 +806,11 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
   objects(state.meshes.editor_guideline).disabled = true;
 
   HandleFlightControls(tachyon, state, dt);
+
+  // @todo defer to Autopilot::HandleAutopilot()
   HandleAutopilot(tachyon, state, dt);
+  Autopilot::HandleAutopilot(tachyon, state, dt);
+
   HandleFlightCamera(tachyon, state, dt);
   HandleFlightArrows(tachyon, state, dt);
   HandlePlayerDrone(tachyon, state, dt);
