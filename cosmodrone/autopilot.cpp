@@ -36,66 +36,6 @@ static Quaternion DirectionToQuaternion(const tVec3f& direction) {
   );
 }
 
-/**
- * Adapted from https://forum.playcanvas.com/t/quaternion-from-direction-vector/6369/3
- *
- * @todo move to engine
- */
-static Quaternion LookRotation(const tVec3f& forward, const tVec3f& up) {
-  auto vector = forward;
-  auto vector2 = tVec3f::cross(up, vector).unit();
-  auto vector3 = tVec3f::cross(vector, vector2);
-  auto m00 = vector2.x;
-  auto m01 = vector2.y;
-  auto m02 = vector2.z;
-  auto m10 = vector3.x;
-  auto m11 = vector3.y;
-  auto m12 = vector3.z;
-  auto m20 = vector.x;
-  auto m21 = vector.y;
-  auto m22 = vector.z;
-
-  auto num8 = (m00 + m11) + m22;
-  Quaternion quaternion;
-  if (num8 > 0.f)
-  {
-      auto num = sqrtf(num8 + 1.f);
-      quaternion.w = num * 0.5f;
-      num = 0.5f / num;
-      quaternion.x = (m12 - m21) * num;
-      quaternion.y = (m20 - m02) * num;
-      quaternion.z = (m01 - m10) * num;
-      return quaternion;
-  }
-  if ((m00 >= m11) && (m00 >= m22))
-  {
-      auto num7 = sqrtf(((1.f + m00) - m11) - m22);
-      auto num4 = 0.5f / num7;
-      quaternion.x = 0.5f * num7;
-      quaternion.y = (m01 + m10) * num4;
-      quaternion.z = (m02 + m20) * num4;
-      quaternion.w = (m12 - m21) * num4;
-      return quaternion;
-  }
-  if (m11 > m22)
-  {
-      auto num6 = sqrtf(((1.f + m11) - m00) - m22);
-      auto num3 = 0.5f / num6;
-      quaternion.x = (m10 + m01) * num3;
-      quaternion.y = 0.5f * num6;
-      quaternion.z = (m21 + m12) * num3;
-      quaternion.w = (m20 - m02) * num3;
-      return quaternion;
-  }
-  auto num5 = sqrtf(((1.f + m22) - m00) - m11);
-  auto num2 = 0.5f / num5;
-  quaternion.x = (m20 + m02) * num2;
-  quaternion.y = (m21 + m12) * num2;
-  quaternion.z = 0.5f * num5;
-  quaternion.w = (m01 - m10) * num2;
-  return quaternion;
-}
-
 static tVec3f GetDockingPositionOffset(const State& state) {
   if (state.docking_target.mesh_index == state.meshes.antenna_3) {
     return tVec3f(0, -1.f, -1.f).unit() * 0.7f;
@@ -159,11 +99,11 @@ void Autopilot::HandleAutopilot(Tachyon* tachyon, State& state, const float dt) 
   }
 
   if (state.flight_mode == FlightMode::AUTO_PROGRADE) {
-    state.target_ship_rotation = LookRotation(state.ship_velocity_basis.forward.invert(), state.ship_rotation_basis.up);
+    state.target_ship_rotation = Quaternion::FromDirection(state.ship_velocity_basis.forward.invert(), state.ship_rotation_basis.up);
   }
 
   if (state.flight_mode == FlightMode::AUTO_RETROGRADE) {
-    state.target_ship_rotation = LookRotation(state.ship_velocity_basis.forward, state.ship_rotation_basis.up);
+    state.target_ship_rotation = Quaternion::FromDirection(state.ship_velocity_basis.forward, state.ship_rotation_basis.up);
   }
 
   if (state.flight_mode == FlightMode::AUTO_DOCK) {
@@ -181,7 +121,7 @@ void Autopilot::HandleAutopilot(Tachyon* tachyon, State& state, const float dt) 
         auto forward = (docking_position - state.ship_position).unit();
         auto target_object_up = target_object_rotation.getUpDirection();
 
-        state.target_ship_rotation = LookRotation(forward.invert(), target_object_up);
+        state.target_ship_rotation = Quaternion::FromDirection(forward.invert(), target_object_up);
 
         if (GetDockingAlignment(state, docking_position) > 0.99999f) {
           state.auto_dock_stage = AutoDockStage::APPROACH;
