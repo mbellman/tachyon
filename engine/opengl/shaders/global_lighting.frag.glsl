@@ -372,7 +372,10 @@ vec3 GetSkyColor(vec3 sky_direction) {
   space_color += vec3(bg_noise3) * vec3(1.0, 0.2, 0.6) * 0.1 * (2.0 * pow(abs(sky_direction.y), 3.0));
 
   float earth_dot = max(0.0, dot(sky_direction, vec3(0, -1.0, 0)));
+  // Increase space color intensity near the earth/sun
   space_color *= 1.0 + pow(earth_dot, 5.0) + pow(sun_dot, 10.0);
+  // Avoid awkward color bleeding between space/sun color
+  space_color = mix(space_color, vec3(0.0), pow(sun_dot, 50.0));
 
   float stars_x = atan(bg_direction.x, bg_direction.z) + 3.141592;
   float stars_y = atan(length(bg_direction.xz), bg_direction.y);

@@ -152,6 +152,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   placeable_mesh_assets.push_back({
     .mesh_name = "habitation_1",
     .mesh_index = meshes.habitation_1,
+    .placeholder = true,
     .defaults = {
       .scale = tVec3f(6000.f),
       .color = tVec3f(1.f),
@@ -503,7 +504,9 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
   load_mesh(girder_6_core);
   load_mesh(girder_6_frame);
 
-  load_mesh(habitation_1_windows);
+  load_mesh_with_2_lods(habitation_1_core);
+  load_mesh_with_2_lods(habitation_1_frame);
+  load_mesh_with_2_lods(habitation_1_insulation);
 
   load_mesh(habitation_2_body);
   load_mesh(habitation_2_frame);
@@ -627,11 +630,27 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
 
     // habitation_1,
     {
-      .mesh_index = meshes.habitation_1_windows,
+      .mesh_index = meshes.habitation_1_core,
       .generated_from = meshes.habitation_1,
       .defaults {
-        .color = tVec4f(0.2f, 0.2f, 0.2f, 1.f),
-        .material = tVec4f(0.3f, 0, 1.f, 0)
+        .color = tVec3f(1.f),
+        .material = tVec4f(0.4f, 0.5f, 0, 0.4f)
+      }
+    },
+    {
+      .mesh_index = meshes.habitation_1_frame,
+      .generated_from = meshes.habitation_1,
+      .defaults {
+        .color = tVec3f(1.f, 0.9f, 0.8f),
+        .material = tVec4f(0.2f, 1.f, 0, 0)
+      }
+    },
+    {
+      .mesh_index = meshes.habitation_1_insulation,
+      .generated_from = meshes.habitation_1,
+      .defaults {
+        .color = tVec3f(1.f),
+        .material = tVec4f(0.2f, 0.7f, 0, 0)
       }
     },
 
@@ -947,6 +966,8 @@ void MeshLibrary::LoadMeshes(Tachyon* tachyon, State& state) {
     mesh(meshes.hud_wedge).shadow_cascade_ceiling = 0;
     mesh(meshes.planet).shadow_cascade_ceiling = 0;
     mesh(meshes.space_elevator).shadow_cascade_ceiling = 0;
+    mesh(meshes.habitation_1_frame).shadow_cascade_ceiling = 0;
+    mesh(meshes.habitation_1_insulation).shadow_cascade_ceiling = 0;
 
     // @todo dev mode only
     mesh(meshes.editor_guideline).shadow_cascade_ceiling = 0;
