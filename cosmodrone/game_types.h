@@ -73,6 +73,7 @@ namespace Cosmodrone {
       habitation_3_frame,
       habitation_4_body,
       habitation_4_core,
+      habitation_4_frame,
       module_2_core,
       module_2_frame,
       solar_panel_2_cells,

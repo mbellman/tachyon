@@ -95,6 +95,7 @@ static void UpdateRotators(Tachyon* tachyon, State& state, const float dt) {
 
   UpdateRotatorObjects(tachyon, state, dt, meshes.habitation_4_body, 0.15f);
   UpdateRotatorObjects(tachyon, state, dt, meshes.habitation_4_core, 0.15f);
+  UpdateRotatorObjects(tachyon, state, dt, meshes.habitation_4_frame, 0.15f);
 
   UpdateRotatorObjects(tachyon, state, dt, meshes.elevator_torus_1, 0.2f);
   UpdateRotatorObjects(tachyon, state, dt, meshes.elevator_torus_1_frame, -0.1f);

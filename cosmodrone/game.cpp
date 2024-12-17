@@ -610,8 +610,8 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
 
     Tachyon_UseLodByDistance(tachyon, meshes.girder_4_frame, 100000.f);
 
-    Tachyon_UseLodByDistance(tachyon, meshes.silo_3_body, 100000.f);
-    Tachyon_UseLodByDistance(tachyon, meshes.silo_3_frame, 100000.f);
+    Tachyon_UseLodByDistance(tachyon, meshes.silo_3_body, 80000.f);
+    Tachyon_UseLodByDistance(tachyon, meshes.silo_3_frame, 80000.f);
 
     Tachyon_UseLodByDistance(tachyon, meshes.habitation_1_core, 80000.f);
     Tachyon_UseLodByDistance(tachyon, meshes.habitation_1_frame, 80000.f);

@@ -516,6 +516,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
 
   load_mesh(habitation_4_body);
   load_mesh(habitation_4_core);
+  load_mesh(habitation_4_frame);
 
   load_mesh(module_2_core);
   load_mesh(module_2_frame);
@@ -704,7 +705,15 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .generated_from = meshes.habitation_4,
       .defaults {
         .color = tVec3f(0.7f),
-        .material = tVec4f(0.4f, 0, 0, 0.2f)
+        .material = tVec4f(0.4f, 0.5f, 0, 0.2f)
+      }
+    },
+    {
+      .mesh_index = meshes.habitation_4_frame,
+      .generated_from = meshes.habitation_4,
+      .defaults {
+        .color = tVec3f(1.f),
+        .material = tVec4f(0.2f, 1.f, 0, 0)
       }
     },
 
@@ -743,8 +752,8 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .mesh_index = meshes.elevator_torus_1_frame,
       .generated_from = meshes.elevator_torus_1,
       .defaults = {
-        .color = tVec3f(0.8f),
-        .material = tVec4f(1.f, 0, 0, 0.2f)
+        .color = tVec3f(1.f, 0.2f, 0.3f),
+        .material = tVec4f(1.f, 0, 0, 0.4f)
       }
     },
 
