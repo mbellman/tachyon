@@ -311,6 +311,7 @@ void WorldSetup::StoreInitialObjects(Tachyon* tachyon, State& state) {
   StoreInitialMeshObjects(tachyon, meshes.habitation_4_core);
   StoreInitialMeshObjects(tachyon, meshes.habitation_4_frame);
   StoreInitialMeshObjects(tachyon, meshes.habitation_4_panels);
+  StoreInitialMeshObjects(tachyon, meshes.habitation_4_lights);
 }
 
 void WorldSetup::RebuildGeneratedObjects(Tachyon* tachyon, State& state) {
