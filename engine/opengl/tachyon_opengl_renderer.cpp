@@ -436,7 +436,7 @@ static void AddDrawElementsIndirectCommands(std::vector<DrawElementsIndirectComm
 
     // @todo dev mode only
     {
-      triangle_count += command.count * command.instanceCount;
+      triangle_count += (command.count / 3) * command.instanceCount;
       vertex_count += (lod_1.vertex_end - lod_1.vertex_start) * command.instanceCount;
     }
   }
@@ -450,7 +450,7 @@ static void AddDrawElementsIndirectCommands(std::vector<DrawElementsIndirectComm
 
     // @todo dev mode only
     {
-      triangle_count += command.count * command.instanceCount;
+      triangle_count += (command.count / 3) * command.instanceCount;
       vertex_count += (lod_2.vertex_end - lod_2.vertex_start) * command.instanceCount;
     }
   }
@@ -464,7 +464,7 @@ static void AddDrawElementsIndirectCommands(std::vector<DrawElementsIndirectComm
 
     // @todo dev mode only
     {
-      triangle_count += command.count * command.instanceCount;
+      triangle_count += (command.count / 3) * command.instanceCount;
       vertex_count += (lod_3.vertex_end - lod_3.vertex_start) * command.instanceCount;
     }
   }

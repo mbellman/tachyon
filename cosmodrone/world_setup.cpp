@@ -319,6 +319,7 @@ void WorldSetup::StoreInitialObjects(Tachyon* tachyon, State& state) {
 void WorldSetup::RebuildGeneratedObjects(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
+  // Disable placeholder meshes
   for (auto& asset : MeshLibrary::GetPlaceableMeshAssets()) {
     if (asset.placeholder) {
       objects(asset.mesh_index).disabled = true;

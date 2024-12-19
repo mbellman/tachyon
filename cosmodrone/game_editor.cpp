@@ -686,15 +686,69 @@ static void HandleSelectedObject(Tachyon* tachyon, State& state) {
   commit(selected);
 
   auto mesh_name = GetPlaceableMeshAssetByMeshIndex(selected.mesh_index).mesh_name;
+  auto generated_meshes = MeshLibrary::GetGeneratedMeshAssets();
   auto& record = tachyon->mesh_pack.mesh_records[selected.mesh_index];
   // @todo properly count based on active LoDs
   auto total_vertices = record.lod_1.vertex_end - record.lod_1.vertex_start;
-  auto total_triangles = record.lod_1.face_element_end - record.lod_1.face_element_start;
+  auto total_triangles = (record.lod_1.face_element_end - record.lod_1.face_element_start) / 3;
   auto total_instances = record.group.total_active;
+
+  uint32 total_lod_2_vertices = 0;
+  uint32 total_lod_2_triangles = 0;
+  uint32 total_lod_3_vertices = 0;
+  uint32 total_lod_3_triangles = 0;
+
+  for (auto& asset : generated_meshes) {
+    if (asset.generated_from == selected.mesh_index) {
+      auto& mesh = mesh(asset.mesh_index);
+      auto& lod_2 = mesh.lod_2;
+      auto& lod_3 = mesh.lod_3;
+
+      total_lod_2_vertices += lod_2.vertex_end - lod_2.vertex_start;
+      total_lod_2_triangles += (lod_2.face_element_end - lod_2.face_element_start) / 3;
+
+      total_lod_3_vertices += lod_3.vertex_end - lod_3.vertex_start;
+      total_lod_3_triangles += (lod_3.face_element_end - lod_3.face_element_start) / 3;
+    }
+  }
+
+  if (total_lod_2_vertices == 0) {
+    total_lod_2_vertices = record.lod_2.vertex_end - record.lod_2.vertex_start;
+  }
+
+  if (total_lod_3_vertices == 0) {
+    total_lod_3_vertices = record.lod_3.vertex_end - record.lod_3.vertex_start;
+  }
+
+  if (total_lod_2_triangles == 0) {
+    total_lod_2_triangles = (record.lod_2.face_element_end - record.lod_2.face_element_start) / 3;
+  }
+
+  if (total_lod_3_triangles == 0) {
+    total_lod_3_triangles = (record.lod_3.face_element_end - record.lod_3.face_element_start) / 3;
+  }
 
   add_dev_label(mesh_name, "(" + std::to_string(total_instances) + " / " + std::to_string(record.group.total) + " active)");
   add_dev_label("Vertices", std::to_string(total_vertices) + " [" + std::to_string(total_vertices * total_instances) + "]");
+
+  if (total_lod_2_vertices > 0) {
+    add_dev_label("  (LoD 2)", std::to_string(total_lod_2_vertices) + " [" + std::to_string(total_lod_2_vertices * total_instances) + "]");
+  }
+
+  if (total_lod_3_vertices > 0) {
+    add_dev_label("  (LoD 3)", std::to_string(total_lod_3_vertices) + " [" + std::to_string(total_lod_3_vertices * total_instances) + "]");
+  }
+
   add_dev_label("Triangles", std::to_string(total_triangles) + " [" + std::to_string(total_triangles * total_instances) + "]");
+
+  if (total_lod_2_triangles > 0) {
+    add_dev_label("  (LoD 2)", std::to_string(total_lod_2_triangles) + " [" + std::to_string(total_lod_2_triangles * total_instances) + "]");
+  }
+
+  if (total_lod_3_triangles > 0) {
+    add_dev_label("  (LoD 3)", std::to_string(total_lod_3_triangles) + " [" + std::to_string(total_lod_3_triangles * total_instances) + "]");
+  }
+
   add_dev_label("Position", selected.position.toString());
   add_dev_label("Rotation", selected.rotation.toString());
 }
@@ -746,15 +800,13 @@ static void HandleGuidelines(Tachyon* tachyon, State& state) {
   }
 }
 
-static void UseGeneratedObjectPlaceholders(Tachyon* tachyon, State& state) {
-  auto& meshes = state.meshes;
-
-  // Disable generated meshes
+static void DisableGeneratedMeshes(Tachyon* tachyon) {
   for (auto& asset : MeshLibrary::GetGeneratedMeshAssets()) {
     objects(asset.mesh_index).disabled = true;
   }
+}
 
-  // Enable placeholder meshes
+static void EnablePlaceholderMeshes(Tachyon* tachyon) {
   for (auto& asset : MeshLibrary::GetPlaceableMeshAssets()) {
     if (asset.placeholder) {
       objects(asset.mesh_index).disabled = false;
@@ -810,7 +862,8 @@ void Editor::EnableEditor(Tachyon* tachyon, State& state) {
 
   objects(state.meshes.editor_guideline).disabled = false;
 
-  UseGeneratedObjectPlaceholders(tachyon, state);
+  DisableGeneratedMeshes(tachyon);
+  EnablePlaceholderMeshes(tachyon);
   ResetInitialObjects(tachyon);
 
   tachyon->show_developer_tools = true;
