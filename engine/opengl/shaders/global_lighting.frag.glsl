@@ -360,7 +360,7 @@ vec3 GetSkyColor(vec3 sky_direction) {
   float bg_noise = simplex_noise(sky_direction.xy);
   bg_noise = clamp(bg_noise, 0.0, 1.0);
 
-  float bg_noise2 = simplex_noise(sky_direction.xz);
+  float bg_noise2 = simplex_noise(sky_direction.zx * sky_direction.zy + sky_direction.zz);
   bg_noise2 = clamp(bg_noise2, 0.0, 1.0);
 
   float bg_noise3 = simplex_noise((sky_direction.xy * sky_direction.zy + sky_direction.xz) * vec2(1.0, 3.0));

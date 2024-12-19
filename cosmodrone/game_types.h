@@ -36,8 +36,6 @@ namespace Cosmodrone {
       station_torus_2,
       station_torus_3,
       station_base,
-      spire_fortress,
-      gate_tower_1,
       solar_panel_1,
       solar_panel_2,
       girder_1,
@@ -52,6 +50,11 @@ namespace Cosmodrone {
       light_1,
       light_2,
       light_3,
+
+      // Large objects
+      spire_fortress,
+      gate_tower_1,
+      upper_facility,
 
       // Generated station parts
       antenna_2_frame,
