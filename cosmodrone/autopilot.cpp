@@ -49,18 +49,17 @@ void Autopilot::HandleAutopilot(Tachyon* tachyon, State& state, const float dt) 
   switch (state.flight_mode) {
     case FlightMode::AUTO_RETROGRADE: {
       // Figure out how 'backward' the ship is pointed
-      float reverse_dot = tVec3f::dot(state.ship_rotation_basis.forward, state.ship_velocity_basis.forward);
+      float reverse_dot = tVec3f::dot(state.ship_rotation_basis.forward, state.retrograde_direction);
 
       if (reverse_dot < -0.f) {
         // Use the current speed to determine how much we need to accelerate in the opposite direction
         float acceleration = state.ship_velocity.magnitude() / 2.f;
-        if (acceleration > 5000.f) acceleration = 5000.f;
-        if (acceleration < 500.f) acceleration = 500.f;
+        if (acceleration > 10000.f) acceleration = 10000.f;
+        if (acceleration < 1000.f) acceleration = 1000.f;
 
-        // Increase acceleration the more the ship is aligned with the 'backward' vector
-        float speed = acceleration * powf(-reverse_dot, 15.f);
-
-        FlightSystem::ThrustForward(state, dt, speed);
+        if (reverse_dot < -0.99999f) {
+          FlightSystem::ThrustForward(state, dt, acceleration);
+        }
       }
 
       if (state.ship_velocity.magnitude() < 200.f) {
@@ -103,7 +102,8 @@ void Autopilot::HandleAutopilot(Tachyon* tachyon, State& state, const float dt) 
   }
 
   if (state.flight_mode == FlightMode::AUTO_RETROGRADE) {
-    state.target_ship_rotation = Quaternion::FromDirection(state.ship_velocity_basis.forward, state.ship_rotation_basis.up);
+    state.target_ship_rotation = Quaternion::FromDirection(state.retrograde_direction, state.ship_rotation_basis.up);
+    state.ship_rotate_to_target_speed += 5.f * dt;
   }
 
   if (state.flight_mode == FlightMode::AUTO_DOCK) {

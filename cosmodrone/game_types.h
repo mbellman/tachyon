@@ -179,8 +179,12 @@ namespace Cosmodrone {
     Quaternion target_ship_rotation;
     Quaternion target_camera_rotation;
     float target_camera_fov = 45.f;
+
     FlightMode flight_mode = FlightMode::MANUAL_CONTROL;
 
+    tVec3f retrograde_direction;
+
+    // @todo make these an orthonormal basis
     tVec3f view_forward_direction;
     tVec3f view_up_direction;
 

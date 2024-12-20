@@ -151,6 +151,10 @@ static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt)
   // Handle auto-retrograde actions
   if (did_press_key(tKey::SPACE)) {
     state.flight_mode = FlightMode::AUTO_RETROGRADE;
+    // @todo define the retrograde direction correctly (as the anti-vector of velocity).
+    // We're doing this for now because of quirks with the player drone model, which should
+    // probably be correctly oriented.
+    state.retrograde_direction = state.ship_velocity_basis.forward;
     state.ship_rotate_to_target_speed = 0.f;
   }
 
@@ -165,7 +169,7 @@ static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt)
     state.flight_mode == FlightMode::AUTO_PROGRADE ||
     state.flight_mode == FlightMode::AUTO_RETROGRADE
   ) {
-    state.ship_rotate_to_target_speed += 2.f * dt;
+    state.ship_rotate_to_target_speed += 0.01f * dt;
   }
 
   if (
@@ -175,26 +179,27 @@ static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt)
     state.ship_rotate_to_target_speed += 1.f * dt;
   }
 
-  // Allow the ship to rotate to the camera orientation faster
-  // the closer it is to the camera view's forward direction.
-  // Rotate-to-camera speed values > 1 are reduced the more
-  // the camera is pointed away from the ship direction.
-  // This prevents rolling from being used as an exploit to
-  // turn the ship around more quickly, since rolling ordinarily
-  // rotates the ship faster to keep up with the camera
-  // (necessary to reduce motion sickness).
+  // Some complicated logic to ensure that the ship can rotate faster
+  // when pointing forward along our view direction, but takes longer
+  // to rotate to a totally different view direction. We don't want
+  // the ship swinging around rapidly and allowing comically fast
+  // turning under normal manual control circumstances. Only applies
+  // during manual control; all bets are off in autopilot because
+  // autopilot routines need direct control over ship/camera rotation.
   {
-    float forward_alignment = tVec3f::dot(state.ship_rotation_basis.forward, state.view_forward_direction);
-    if (forward_alignment < 0.f) forward_alignment = 0.f;
+    if (!Autopilot::IsAutopilotActive(state)) {
+      float forward_alignment = tVec3f::dot(state.ship_rotation_basis.forward, state.view_forward_direction);
+      if (forward_alignment < 0.f) forward_alignment = 0.f;
 
-    if (state.ship_pitch_factor == 0.f) {
-      // Only do exponential tapering when not pitching.
-      // When pitching, we want to allow the rotate-to-target
-      // value to be mostly preserved.
-      forward_alignment = powf(forward_alignment, 20.f);
+      if (state.ship_pitch_factor == 0.f) {
+        // Only do exponential tapering when not pitching.
+        // When pitching, we want to allow the rotate-to-target
+        // value to be mostly preserved.
+        forward_alignment = powf(forward_alignment, 20.f);
 
-      if (state.ship_rotate_to_target_speed > 1.f) {
-        state.ship_rotate_to_target_speed = Lerpf(state.ship_rotate_to_target_speed, 1.f, 1.f - forward_alignment);
+        if (state.ship_rotate_to_target_speed > 1.f) {
+          state.ship_rotate_to_target_speed = Lerpf(state.ship_rotate_to_target_speed, 1.f, 1.f - forward_alignment);
+        }
       }
     }
   }

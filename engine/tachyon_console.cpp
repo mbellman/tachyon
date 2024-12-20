@@ -18,6 +18,18 @@ void Tachyon_AddConsoleMessage(const std::string& message, const tVec3f& color) 
   }
 }
 
+void Tachyon_Log(const std::string& message) {
+  Tachyon_AddConsoleMessage(message, tVec3f(1.f));
+}
+
+void Tachyon_Log(const float value) {
+  Tachyon_AddConsoleMessage(std::to_string(value), tVec3f(1.f));
+}
+
+void Tachyon_Log(const tVec3f& vector) {
+  Tachyon_AddConsoleMessage(vector.toString(), tVec3f(1.f));
+}
+
 const std::vector<tConsoleMessage>& Tachyon_GetConsoleMessages() {
   return console_messages;
 }
