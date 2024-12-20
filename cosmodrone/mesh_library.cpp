@@ -813,7 +813,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .mesh_index = meshes.elevator_torus_1_frame,
       .generated_from = meshes.elevator_torus_1,
       .defaults = {
-        .color = tVec3f(1.f, 0.6f, 0.6f),
+        .color = tVec3f(1.f, 0.3f, 0.3f),
         .material = tVec4f(0.8f, 0, 0, 0.2f)
       }
     },

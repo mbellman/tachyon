@@ -214,7 +214,7 @@ static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt)
     !is_issuing_control_action &&
     (tachyon->mouse_delta_x != 0 || tachyon->mouse_delta_y != 0)
   ) {
-    state.ship_rotate_to_target_speed *= (1.f - 5.f * dt);
+    state.ship_rotate_to_target_speed *= (1.f - 10.f * dt);
   }
 }
 

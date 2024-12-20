@@ -218,7 +218,10 @@ void main() {
     // Add a copper/reddish tint near the light/dark boundary
     edge_color = mix(edge_color, vec3(1.0, 0.7, 0.5), 1.0 - abs(dot(N, L)));
 
-    out_color += edge_color * pow(1.0 - NdotV, 10.0) * pow(1.0 - NdotL, 20.0);
+    float edge_factor = pow(1.0 - NdotV, 10.0);
+    float light_factor = pow(1.0 - NdotL, 20.0);
+
+    out_color += edge_color * edge_factor * light_factor;
   }
 
   // Sunrise/sunset
