@@ -290,14 +290,15 @@ static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
 
   UpdateViewDirections(tachyon, state);
 
-  state.ship_camera_distance = Lerpf(state.ship_camera_distance, state.ship_camera_distance_target, 5.f * dt);
 
   float ship_speed = state.ship_velocity.magnitude();
   float speed_zoom_ratio = ship_speed / (ship_speed + 5000.f);
-  float camera_radius = state.ship_camera_distance + 250.f * speed_zoom_ratio;
 
-  camera.fov = 45.f + 10.f * speed_zoom_ratio;
-  camera.position = state.ship_position - state.view_forward_direction * camera_radius + state.view_up_direction * 500.f;
+  state.ship_camera_distance = Lerpf(state.ship_camera_distance, state.ship_camera_distance_target + 250.f * speed_zoom_ratio, 5.f * dt);
+  state.target_camera_fov = 45.f + 10.f * speed_zoom_ratio;
+
+  camera.fov = Lerpf(camera.fov, state.target_camera_fov, dt);
+  camera.position = state.ship_position - state.view_forward_direction * state.ship_camera_distance + state.view_up_direction * 500.f;
 }
 
 // @todo move to HUDSystem

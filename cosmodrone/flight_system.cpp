@@ -19,7 +19,7 @@ void FlightSystem::ControlledThrustForward(State& state, const float dt) {
   // Slow down along existing the velocity vector,
   // proportional to directional change
   float forward_alignment = tVec3f::dot(state.ship_rotation_basis.forward, state.ship_velocity_basis.forward);
-  float slowdown_factor = 2.f * (1.f - std::max(0.f, forward_alignment));
+  float slowdown_factor = 4.f * (1.f - std::max(0.f, forward_alignment));
 
   state.ship_velocity -= state.ship_velocity_basis.forward * slowdown_factor * proper_acceleration * dt;
 
