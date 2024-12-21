@@ -66,24 +66,26 @@ static void UpdateViewDirections(Tachyon* tachyon, State& state) {
 }
 
 // @todo move to Autopilot
-static void AttemptDockingProcedure(State& state) {
+static bool AttemptDockingProcedure(State& state) {
   auto* tracker = TargetSystem::GetSelectedTargetTracker(state);
 
   if (tracker == nullptr) {
-    return;
+    return false;
   }
 
   auto& target_object = tracker->object;
   auto& ship_position = state.ship_position;
   auto target_distance = (target_object.position - ship_position).magnitude();
 
-  if (target_distance > 80000.f) {
-    return;
+  if (target_distance > 100000.f) {
+    return false;
   }
 
   state.flight_mode = FlightMode::AUTO_DOCK;
   state.auto_dock_stage = AutoDockStage::APPROACH_DECELERATION;
   state.docking_target = target_object;
+
+  return true;
 }
 
 const static float MAX_SHIP_SPEED = 15000.f;
@@ -160,16 +162,13 @@ static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt)
 
   // Handle auto-docking actions
   if (did_press_key(tKey::ENTER)) {
-    AttemptDockingProcedure(state);
-    state.ship_rotate_to_target_speed = 0.f;
-  }
-
-  // Allow the ship to swivel quickly in automatic flight modes
-  if (
-    state.flight_mode == FlightMode::AUTO_PROGRADE ||
-    state.flight_mode == FlightMode::AUTO_RETROGRADE
-  ) {
-    state.ship_rotate_to_target_speed += 0.01f * dt;
+    if (AttemptDockingProcedure(state)) {
+      state.ship_rotate_to_target_speed = 0.f;
+      // @todo define the retrograde direction correctly (as the anti-vector of velocity).
+      // We're doing this for now because of quirks with the player drone model, which should
+      // probably be correctly oriented.
+      state.retrograde_direction = state.ship_velocity_basis.forward;
+    }
   }
 
   if (
