@@ -137,6 +137,9 @@ static void StoreShaderUniforms(tOpenGLShaders& shaders) {
   store_shader_uniform(post, offset_and_scale);
   store_shader_uniform(post, rotation);
   store_shader_uniform(post, in_color_and_depth);
+  store_shader_uniform(post, inverse_projection_matrix);
+  store_shader_uniform(post, inverse_view_matrix);
+  store_shader_uniform(post, camera_position);
 
   store_shader_uniform(surface, offset_and_scale);
   store_shader_uniform(surface, rotation);

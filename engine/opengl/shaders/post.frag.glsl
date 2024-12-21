@@ -4,12 +4,32 @@
 #define ENABLE_CHROMATIC_ABERRATION 1
 
 uniform sampler2D in_color_and_depth;
+uniform mat4 inverse_projection_matrix;
+uniform mat4 inverse_view_matrix;
+uniform vec3 camera_position;
 
 in vec2 fragUv;
 
 layout (location = 0) out vec3 out_color;
 
 const vec2 TEXEL_SIZE = 1.0 / vec2(1920.0, 1080.0);
+
+/**
+ * Reconstructs a fragment's world position from depth,
+ * using the inverse projection/view matrices to transform
+ * the fragment coordinates back into world space.
+ */
+vec3 GetWorldPosition(float depth, vec2 frag_uv, mat4 inverse_projection, mat4 inverse_view) {
+  float z = depth * 2.0 - 1.0;
+  vec4 clip = vec4(frag_uv * 2.0 - 1.0, z, 1.0);
+  vec4 view_position = inverse_projection * clip;
+
+  view_position /= view_position.w;
+
+  vec4 world_position = inverse_view * view_position;
+
+  return world_position.xyz;
+}
 
 void main() {
   vec4 color_and_depth = texture(in_color_and_depth, fragUv);
@@ -54,7 +74,10 @@ void main() {
     }
   #endif
 
-  // post_color = mix(post_color, vec3(0.6, 0.8, 1.0), 1.0 * pow(color_and_depth.w, 200.0));
+  vec3 position = GetWorldPosition(color_and_depth.w, fragUv, inverse_projection_matrix, inverse_view_matrix);
+  vec3 D = normalize(position - camera_position);
+
+  // post_color = mix(post_color, vec3(0.6, 0.8, 1.0), 0.4 * pow(color_and_depth.w, 200.0));
 
   out_color = post_color;
 }

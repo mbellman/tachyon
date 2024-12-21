@@ -846,6 +846,9 @@ static void RenderPost(Tachyon* tachyon) {
   SetShaderVec4f(locations.offset_and_scale, { 0.f, 0.f, 1.f, 1.f });
   SetShaderFloat(locations.rotation, 0.f);
   SetShaderInt(locations.in_color_and_depth, ACCUMULATION_COLOR_AND_DEPTH);
+  SetShaderMat4f(locations.inverse_projection_matrix, ctx.inverse_projection_matrix);
+  SetShaderMat4f(locations.inverse_view_matrix, ctx.inverse_view_matrix);
+  SetShaderVec3f(locations.camera_position, ctx.camera_position);
 
   RenderScreenQuad(tachyon);
 }

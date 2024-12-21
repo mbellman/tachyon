@@ -567,7 +567,7 @@ void main() {
     out_color += GetDirectionalLightRadiance(L, primary_light_color, albedo, position, N, V, NdotV, roughness, metalness, clearcoat, subsurface, shadow);
   }
 
-  // Anti-light (for visibility in dark areas)
+  // Anti-light (for improved visibility in dark areas)
   {
     const vec3 light_color = vec3(0.2, 0.3, 1.0);
     float depth_input = max(0.99, frag_normal_and_depth.w);

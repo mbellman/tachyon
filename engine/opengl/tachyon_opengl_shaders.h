@@ -95,7 +95,10 @@ struct tUniformLocations {
   uniform_locations(
     offset_and_scale,
     rotation,
-    in_color_and_depth
+    in_color_and_depth,
+    inverse_projection_matrix,
+    inverse_view_matrix,
+    camera_position
   ) post;
 
   uniform_locations(
