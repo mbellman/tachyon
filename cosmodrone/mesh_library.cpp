@@ -489,6 +489,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   placeable_mesh_assets.push_back({
     .mesh_name = "arch_1",
     .mesh_index = meshes.arch_1,
+    .placeholder = true,
     .defaults = {
       .scale = tVec3f(1500000.f),
       .color = tVec3f(1.f),
@@ -578,6 +579,10 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
 
   load_mesh(light_3_base);
   load_mesh(light_3_bulb);
+
+  load_mesh(arch_1_body);
+  load_mesh(arch_1_frame);
+  load_mesh(arch_1_details);
 
   generated_mesh_assets = {
     // antenna_2
@@ -917,6 +922,32 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       }
     },
 
+    // arch_1
+    {
+      .mesh_index = meshes.arch_1_body,
+      .generated_from = meshes.arch_1,
+      .defaults {
+        .color = tVec3f(0.7f),
+        .material = tVec4f(0.8f, 0, 0, 0.4f)
+      }
+    },
+    {
+      .mesh_index = meshes.arch_1_frame,
+      .generated_from = meshes.arch_1,
+      .defaults {
+        .color = tVec3f(0.8f),
+        .material = tVec4f(0.3f, 1.f, 0, 0)
+      }
+    },
+    {
+      .mesh_index = meshes.arch_1_details,
+      .generated_from = meshes.arch_1,
+      .defaults {
+        .color = tVec3f(0.5f),
+        .material = tVec4f(0.8f, 0, 0, 0.2f)
+      }
+    },
+
     // gas_flare_1,
     {
       .mesh_index = meshes.gas_flare_1,
@@ -926,7 +957,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
         .scale = tVec3f(6000.f, 18000.f, 6000.f),
         .color = tVec4f(1.f, 0.2f, 0.1f, 0.8f)
       }
-    }
+    },
   };
 }
 

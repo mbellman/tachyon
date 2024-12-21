@@ -60,6 +60,11 @@ namespace Cosmodrone {
       arch_1,
       upper_facility,
 
+      // Generated large objects
+      arch_1_body,
+      arch_1_frame,
+      arch_1_details,
+
       // Generated station parts
       antenna_2_frame,
       antenna_2_receivers,
