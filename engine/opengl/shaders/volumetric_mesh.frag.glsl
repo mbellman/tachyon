@@ -216,12 +216,41 @@ void main() {
     );
 
     // Add a copper/reddish tint near the light/dark boundary
-    edge_color = mix(edge_color, vec3(1.0, 0.7, 0.5), 1.0 - abs(dot(N, L)));
+    edge_color = mix(edge_color, vec3(1.0, 0.6, 0.4), 1.0 - abs(dot(N, L)));
 
-    float edge_factor = pow(1.0 - NdotV, 10.0);
-    float light_factor = pow(1.0 - NdotL, 20.0);
+    // Our goal here is to have a rim of light which gradually intensifies
+    // as we move toward the glancing edge of the atmosphere, and then rapidly
+    // falls off.
+    //
+    // edge_alpha is a range over [0 - 1] representing progress toward the glancing edge.
+    //
+    // edge_falloff_threshold is the point within the range at which the light intensity
+    // should peak, and then start falling off.
+    float edge_alpha = 1.0 - NdotV;
+    float edge_falloff_threshold = 0.82;
 
-    out_color += edge_color * edge_factor * light_factor;
+    // We use this to recover a [0 - 1] blend value for the region past
+    // the falloff threshold.
+    float edge_falloff_threshold_multiplier = 1.0 / (1.0 - edge_falloff_threshold);
+
+    float edge_factor =
+      edge_alpha < edge_falloff_threshold
+        ? mix(0.0, 1.0, edge_alpha / edge_falloff_threshold)
+        : mix(1.0, 0.0, edge_falloff_threshold_multiplier * (edge_alpha - edge_falloff_threshold));
+
+    // Exponentially dampen the light intensity
+    edge_factor *= edge_factor;
+    edge_factor *= edge_factor;
+
+    if (edge_alpha < edge_falloff_threshold) {
+      edge_factor *= edge_factor;
+      edge_factor *= edge_factor;
+    }
+
+    // Reduce the light intensity on the far side of the atmosphere from the sun
+    float sunlight_factor = 1.0 - abs(dot(N, L));
+
+    out_color += edge_color * edge_factor * sunlight_factor;
   }
 
   // Sunrise/sunset
