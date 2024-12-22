@@ -356,8 +356,7 @@ vec3 GetSkyColor(vec3 sky_direction) {
   const vec3 orbit_rotation_axis = normalize(vec3(0.5, 0, -1.0));
   vec3 bg_direction = RotateAroundAxis(orbit_rotation_axis, sky_direction, scene_time * 0.001);
 
-  // @todo make this hold a 
-  float bg_noise = simplex_noise(sky_direction.xy);
+  float bg_noise = simplex_noise((sky_direction.xy + sky_direction.yz) * 1.0);
   bg_noise = clamp(bg_noise, 0.0, 1.0);
 
   float bg_noise2 = simplex_noise(sky_direction.zx * sky_direction.zy + sky_direction.zz);
@@ -367,7 +366,8 @@ vec3 GetSkyColor(vec3 sky_direction) {
   bg_noise3 = clamp(bg_noise3, 0.0, 1.0);
 
   vec3 space_color = vec3(0);
-  space_color += vec3(bg_noise) * vec3(1.0, 0.5, 1.0) * 0.2;
+
+  space_color += vec3(bg_noise) * mix(vec3(1.0), vec3(0.0, 0.5, 1.0), bg_noise) * 0.1;
   space_color += vec3(bg_noise2) * vec3(0.0, 0.75, 1.0) * 0.1;
   space_color += vec3(bg_noise3) * vec3(1.0, 0.2, 0.6) * 0.1 * (2.0 * pow(abs(sky_direction.y), 3.0));
 
@@ -381,8 +381,8 @@ vec3 GetSkyColor(vec3 sky_direction) {
   float stars_y = atan(length(bg_direction.xz), bg_direction.y);
 
   float stars_noise =
-    simplex_noise(vec2(stars_x, stars_y) * 200.0) *
-    simplex_noise(vec2(stars_x, stars_y) * 185.0);
+    simplex_noise(vec2(stars_x, stars_y) * 100.0) *
+    simplex_noise(vec2(stars_x, stars_y) * 60.0);
 
   stars_noise = clamp(stars_noise, 0.0, 1.0);
   stars_noise = pow(stars_noise, 15.0) * 50.0;
@@ -583,14 +583,6 @@ void main() {
     const vec3 earth_light_color = vec3(0.2, 0.5, 1.0) * 0.2;
  
     out_color += GetDirectionalLightRadiance(earth_light_direction, earth_light_color, albedo, position, N, V, NdotV, mix(roughness, 1.0, 0.5), metalness, 0.0, 0.0, 1.0);
-  }
-
-  // Ambient light (based on the primary directional light)
-  // @todo cleanup
-  {
-    float NdotL = max(dot(N, L), 0.0);
-
-    out_color += albedo * vec3(0.1, 0.2, 0.3) * (0.005 + 0.02 * (1.0 - NdotL));
   }
 
   // Reflections
