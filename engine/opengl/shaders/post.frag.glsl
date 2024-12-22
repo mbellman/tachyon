@@ -7,6 +7,7 @@ uniform sampler2D in_color_and_depth;
 uniform mat4 inverse_projection_matrix;
 uniform mat4 inverse_view_matrix;
 uniform vec3 camera_position;
+uniform vec3 primary_light_direction;
 
 in vec2 fragUv;
 
@@ -56,10 +57,17 @@ const vec3[] fog_volume_positions = {
   vec3(10000.0, 270000.0, 36000.0),
 };
 
-float GetVolumetricLightStrength(float depth, vec3 direction) {
+vec4 GetVolumetricFogColorAndThickness(float depth, vec3 direction) {
+  const vec3 light_fog_color = vec3(0.3, 0.7, 1.0);
+  const vec3 dark_fog_color = vec3(0.2, 0.1, 0.3);
+
+  float sun_dot = max(0.0, dot(direction, -primary_light_direction));
+
   vec3 sample_position = camera_position + direction * noise(1.0) * 1000.0;
   float step_length = 10000.0;
-  float strength = 1.0;
+
+  vec3 color = vec3(0.0);
+  float thickness = 0.0;
 
   for (int i = 0; i < 25; i++) {
     sample_position += direction * step_length;
@@ -69,14 +77,20 @@ float GetVolumetricLightStrength(float depth, vec3 direction) {
     }
 
     for (int i = 0; i < 4; i++) {
-      float volume_distance = length(sample_position - fog_volume_positions[i]);
-      float distance_ratio = min(1.0, volume_distance / 100000.0);
+      vec3 volume_to_sample = sample_position - fog_volume_positions[i];
+      float volume_distance = length(volume_to_sample);
+      vec3 sample_direction = volume_to_sample / volume_distance;
+      float distance_ratio = min(1.0, volume_distance / 150000.0);
+      float NdotL = max(0.0, dot(sample_direction, -primary_light_direction));
 
-      strength *= 1.0 - 0.05 * (1.0 - distance_ratio);
+      color += mix(dark_fog_color, light_fog_color, NdotL);
+      thickness += 0.0004 * (1.0 - distance_ratio);
     }
   }
 
-  return strength;
+  color = mix(color, light_fog_color * 200.0, pow(sun_dot, 100.0));
+
+  return vec4(color, thickness);
 }
 
 void main() {
@@ -125,13 +139,10 @@ void main() {
   vec3 position = GetWorldPosition(color_and_depth.w, fragUv, inverse_projection_matrix, inverse_view_matrix);
   vec3 D = normalize(position - camera_position);
   float world_depth = GetWorldDepth(color_and_depth.w, 500.0, 10000000.0);
-  float volumetric_light_strength = GetVolumetricLightStrength(world_depth, D);
 
-  vec3 inner_fog_color = vec3(0.6, 0.6, 1.0);
-  vec3 outer_fog_color = vec3(0.0, 0.1, 0.2);
-  vec3 fog_color = mix(inner_fog_color, outer_fog_color, volumetric_light_strength);
+  vec4 volumetric_fog = GetVolumetricFogColorAndThickness(world_depth, D);
 
-  post_color = mix(fog_color, post_color, volumetric_light_strength);
+  post_color = mix(post_color, volumetric_fog.rgb, volumetric_fog.w);
 
   out_color = post_color;
 }

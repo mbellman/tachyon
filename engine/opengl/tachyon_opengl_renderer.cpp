@@ -849,6 +849,7 @@ static void RenderPost(Tachyon* tachyon) {
   SetShaderMat4f(locations.inverse_projection_matrix, ctx.inverse_projection_matrix);
   SetShaderMat4f(locations.inverse_view_matrix, ctx.inverse_view_matrix);
   SetShaderVec3f(locations.camera_position, ctx.camera_position);
+  SetShaderVec3f(locations.primary_light_direction, tachyon->scene.directional_light_direction);
 
   RenderScreenQuad(tachyon);
 }
