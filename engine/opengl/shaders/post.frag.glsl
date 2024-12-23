@@ -59,7 +59,7 @@ const vec3[] fog_volume_positions = {
 
 vec4 GetVolumetricFogColorAndThickness(float depth, vec3 direction) {
   const vec3 light_fog_color = vec3(0.3, 0.7, 1.0);
-  const vec3 dark_fog_color = vec3(0.2, 0.1, 0.3);
+  const vec3 dark_fog_color = vec3(0.1, 0.0, 0.2);
 
   float sun_dot = max(0.0, dot(direction, -primary_light_direction));
 

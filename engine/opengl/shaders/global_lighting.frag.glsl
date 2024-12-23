@@ -585,6 +585,14 @@ void main() {
     out_color += GetDirectionalLightRadiance(earth_light_direction, earth_light_color, albedo, position, N, V, NdotV, mix(roughness, 1.0, 0.5), metalness, 0.0, 0.0, 1.0);
   }
 
+  // Ambient light (based on the primary directional light)
+  // @todo cleanup
+  {
+    float NdotL = max(dot(N, L), 0.0);
+
+    out_color += albedo * vec3(0.1, 0.2, 0.3) * (0.005 + 0.02 * (1.0 - NdotL));
+  }
+
   // Reflections
   {
     vec3 R = reflect(-V, N);
