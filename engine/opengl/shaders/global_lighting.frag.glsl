@@ -356,8 +356,8 @@ vec3 GetSkyColor(vec3 sky_direction) {
   const vec3 orbit_rotation_axis = normalize(vec3(0.5, 0, -1.0));
   vec3 bg_direction = RotateAroundAxis(orbit_rotation_axis, sky_direction, scene_time * 0.001);
 
-  // float bg_noise = simplex_noise((sky_direction.xy + sky_direction.yz) * 1.0);
-  // bg_noise = clamp(bg_noise, 0.0, 1.0);
+  float bg_noise = simplex_noise((sky_direction.xy + sky_direction.yz) * 1.0);
+  bg_noise = clamp(bg_noise, 0.0, 1.0);
 
   float bg_noise2 = simplex_noise(sky_direction.zx * sky_direction.zy + sky_direction.zz);
   bg_noise2 = clamp(bg_noise2, 0.0, 1.0);
@@ -367,7 +367,7 @@ vec3 GetSkyColor(vec3 sky_direction) {
 
   vec3 space_color = vec3(0);
 
-  // space_color += vec3(bg_noise) * mix(vec3(1.0), vec3(0.0, 0.5, 1.0), bg_noise) * 0.0;
+  space_color += vec3(bg_noise) * mix(vec3(1.0), vec3(0.0, 0.5, 1.0), bg_noise) * 0.1;
   space_color += vec3(bg_noise2) * vec3(0.0, 0.75, 1.0) * 0.1;
   space_color += vec3(bg_noise3) * vec3(1.0, 0.2, 0.6) * 0.1 * (2.0 * pow(abs(sky_direction.y), 3.0));
 
@@ -590,7 +590,7 @@ void main() {
   {
     float NdotL = max(dot(N, L), 0.0);
 
-    out_color += albedo * vec3(0.1, 0.2, 0.3) * (0.005 + 0.02 * (1.0 - NdotL));
+    out_color += albedo * vec3(0.1, 0.2, 0.5) * (0.005 + 0.02 * (1.0 - NdotL));
   }
 
   // Reflections

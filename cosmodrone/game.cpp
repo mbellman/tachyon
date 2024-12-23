@@ -610,12 +610,18 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
     auto s = Tachyon_GetMicroseconds();
 
     // @todo process one mesh per frame
+    Tachyon_UseLodByDistance(tachyon, meshes.antenna_1, 70000.f);
+
     Tachyon_UseLodByDistance(tachyon, meshes.girder_1, 100000.f);
     Tachyon_UseLodByDistance(tachyon, meshes.girder_2, 80000.f);
     Tachyon_UseLodByDistance(tachyon, meshes.girder_3, 80000.f);
-    Tachyon_UseLodByDistance(tachyon, meshes.grate_1, 50000.f);
-
     Tachyon_UseLodByDistance(tachyon, meshes.girder_4_frame, 100000.f);
+    Tachyon_UseLodByDistance(tachyon, meshes.girder_5, 100000.f);
+
+    Tachyon_UseLodByDistance(tachyon, meshes.mega_girder_1, 200000.f);
+
+    Tachyon_UseLodByDistance(tachyon, meshes.grate_1, 50000.f);
+    Tachyon_UseLodByDistance(tachyon, meshes.grate_2, 100000.f);
 
     Tachyon_UseLodByDistance(tachyon, meshes.silo_2, 80000.f);
 

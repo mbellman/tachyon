@@ -36,7 +36,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
 
   meshes.zone_target = Tachyon_AddMesh(tachyon, Tachyon_CreateSphereMesh(16), 100);
 
-  load_mesh(antenna_1);
+  load_mesh_with_2_lods(antenna_1);
   load_mesh(antenna_2);
   load_mesh(antenna_3);
   load_mesh(radio_tower_1);
@@ -65,11 +65,11 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh_with_2_lods(girder_2);
   load_mesh_with_2_lods(girder_3);
   load_mesh(girder_4);
-  load_mesh(girder_5);
+  load_mesh_with_2_lods(girder_5);
   load_mesh(girder_6);
-  load_mesh(mega_girder_1);
+  load_mesh_with_2_lods(mega_girder_1);
   load_mesh_with_2_lods(grate_1);
-  load_mesh(grate_2);
+  load_mesh_with_2_lods(grate_2);
   load_mesh(track_1);
   load_mesh(light_1);
   load_mesh(light_2);
