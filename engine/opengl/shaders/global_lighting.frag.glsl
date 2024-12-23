@@ -381,8 +381,8 @@ vec3 GetSkyColor(vec3 sky_direction) {
   float stars_y = atan(length(bg_direction.xz), bg_direction.y);
 
   float stars_noise =
-    simplex_noise(vec2(stars_x, stars_y) * 100.0) *
-    simplex_noise(vec2(stars_x, stars_y) * 60.0);
+    simplex_noise(vec2(stars_x, stars_y) * 130.0) *
+    simplex_noise(vec2(stars_x, stars_y) * 100.0);
 
   stars_noise = clamp(stars_noise, 0.0, 1.0);
   stars_noise = pow(stars_noise, 15.0) * 50.0;

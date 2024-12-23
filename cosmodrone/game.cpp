@@ -90,7 +90,7 @@ static bool AttemptDockingProcedure(State& state) {
 
 const static float MAX_SHIP_SPEED = 15000.f;
 
-static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt) {
+static void HandleControls(Tachyon* tachyon, State& state, const float dt) {
   bool is_issuing_control_action = false;
 
   // Handle forward thrust
@@ -162,7 +162,9 @@ static void HandleFlightControls(Tachyon* tachyon, State& state, const float dt)
 
   // Handle auto-docking actions
   if (did_press_key(tKey::ENTER)) {
-    if (AttemptDockingProcedure(state)) {
+    if (Autopilot::IsDocked(state)) {
+      Autopilot::Undock(tachyon, state);
+    } else if (AttemptDockingProcedure(state)) {
       state.ship_rotate_to_target_speed = 0.f;
       // @todo define the retrograde direction correctly (as the anti-vector of velocity).
       // We're doing this for now because of quirks with the player drone model, which should
@@ -585,7 +587,7 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
     objects(state.meshes.editor_guideline).disabled = true;
   }
 
-  HandleFlightControls(tachyon, state, dt);
+  HandleControls(tachyon, state, dt);
 
   Autopilot::HandleAutopilot(tachyon, state, dt);
 

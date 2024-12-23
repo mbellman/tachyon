@@ -180,6 +180,13 @@ bool Autopilot::IsAutopilotActive(const State& state) {
   return state.flight_mode != FlightMode::MANUAL_CONTROL;
 }
 
+bool Autopilot::IsDocked(const State& state) {
+  return (
+    state.flight_mode == FlightMode::AUTO_DOCK &&
+    state.auto_dock_stage == AutoDockStage::DOCKED
+  );
+}
+
 tVec3f Autopilot::GetDockingPosition(Tachyon* tachyon, const State& state) {
   auto* target = get_original_object(state.docking_target);
 
@@ -201,4 +208,23 @@ float Autopilot::GetDockingAlignment(const State& state, const tVec3f& docking_p
   auto ship_to_target = (docking_position - state.ship_position).unit();
 
   return tVec3f::dot(forward, ship_to_target);
+}
+
+void Autopilot::Undock(Tachyon* tachyon, State& state) {
+  auto* docked_target = get_original_object(state.docking_target);
+
+  if (docked_target == nullptr) {
+    return;
+  }
+
+  auto& hull = objects(state.meshes.hull)[0];
+
+  state.flight_mode = FlightMode::MANUAL_CONTROL;
+  state.ship_camera_distance_target = 1800.f;
+  state.target_camera_rotation = hull.rotation.opposite();
+
+  state.ship_velocity = (
+    state.ship_rotation_basis.forward.invert() * 5.f +
+    state.ship_rotation_basis.up
+  ).unit() * 500.f;
 }
