@@ -64,15 +64,17 @@ vec4 GetVolumetricFogColorAndThickness(float depth, vec3 direction) {
   float sun_dot = max(0.0, dot(direction, -primary_light_direction));
 
   vec3 sample_position = camera_position + direction * noise(1.0) * 1000.0;
-  float step_length = 10000.0;
+  float step_length = 15000.0;
 
   vec3 color = vec3(0.0);
   float thickness = 0.0;
 
-  for (int i = 0; i < 25; i++) {
+  for (int i = 0; i < 15; i++) {
     sample_position += direction * step_length;
 
-    if (length(sample_position - camera_position) > depth) {
+    float camera_to_sample_distance = length(sample_position - camera_position);
+
+    if (camera_to_sample_distance > depth) {
       thickness *= 0.5;
 
       break;
@@ -86,7 +88,7 @@ vec4 GetVolumetricFogColorAndThickness(float depth, vec3 direction) {
       float NdotL = max(0.0, dot(sample_direction, -primary_light_direction));
 
       color += mix(dark_fog_color, light_fog_color, NdotL);
-      thickness += 0.0004 * (1.0 - distance_ratio);
+      thickness += 0.001 * (1.0 - distance_ratio);
     }
   }
 

@@ -578,7 +578,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
   load_mesh(light_2_bulb);
 
   load_mesh(light_3_base);
-  load_mesh(light_3_bulb);
+  load_mesh_with_2_lods(light_3_bulb);
 
   load_mesh(arch_1_body);
   load_mesh(arch_1_frame);
@@ -1064,9 +1064,19 @@ void MeshLibrary::LoadMeshes(Tachyon* tachyon, State& state) {
     auto& records = tachyon->mesh_pack.mesh_records;
     auto& meshes = state.meshes;
 
+    mesh(meshes.grate_2).shadow_cascade_ceiling = 3;
     mesh(meshes.girder_1).shadow_cascade_ceiling = 3;
+    mesh(meshes.girder_4_frame).shadow_cascade_ceiling = 3;
+    mesh(meshes.antenna_1).shadow_cascade_ceiling = 3;
+    mesh(meshes.antenna_2_frame).shadow_cascade_ceiling = 3;
+    mesh(meshes.silo_6_pipes).shadow_cascade_ceiling = 3;
+    mesh(meshes.solar_panel_2_frame).shadow_cascade_ceiling = 3;
+
     mesh(meshes.grate_1).shadow_cascade_ceiling = 2;
     mesh(meshes.habitation_3_frame).shadow_cascade_ceiling = 2;
+    mesh(meshes.light_3_base).shadow_cascade_ceiling = 2;
+    mesh(meshes.light_3_bulb).shadow_cascade_ceiling = 2;
+
     mesh(meshes.silo_3_frame).shadow_cascade_ceiling = 1;
 
     // Disable shadows for the following meshes
