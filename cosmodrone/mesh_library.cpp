@@ -1,4 +1,5 @@
 #include "cosmodrone/mesh_library.h"
+#include "cosmodrone/vehicles.h"
 
 using namespace Cosmodrone;
 
@@ -1032,6 +1033,8 @@ static void LoadDebugMeshes(Tachyon* tachyon, State& state) {
 void MeshLibrary::LoadMeshes(Tachyon* tachyon, State& state) {
   // @todo dev mode only
   auto start_time = Tachyon_GetMicroseconds();
+
+  Vehicles::LoadVehicleMeshes(tachyon);
 
   LoadShipPartMeshes(tachyon, state);
   LoadPlaceableMeshes(tachyon, state);

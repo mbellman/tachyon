@@ -2,6 +2,7 @@
 #include <vector>
 
 #include "cosmodrone/mesh_library.h"
+#include "cosmodrone/vehicles.h"
 #include "cosmodrone/world_setup.h"
 
 using namespace Cosmodrone;
@@ -285,12 +286,14 @@ static void RebuildLightSources(Tachyon* tachyon, State& state) {
 void WorldSetup::InitializeGameWorld(Tachyon* tachyon, State& state) {
   InitializeLevel(tachyon, state);
 
-  // @todo dev mode only
-  CreateDebugMeshes(tachyon, state);
-  CreateEditorGuidelines(tachyon, state);
+  Vehicles::InitVehicles(tachyon, state);
 
   RebuildGeneratedObjects(tachyon, state);
   StoreInitialObjects(tachyon, state);
+
+  // @todo dev mode only
+  CreateDebugMeshes(tachyon, state);
+  CreateEditorGuidelines(tachyon, state);
 }
 
 void WorldSetup::StoreInitialObjects(Tachyon* tachyon, State& state) {

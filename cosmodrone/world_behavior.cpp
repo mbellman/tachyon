@@ -1,4 +1,5 @@
 #include "cosmodrone/world_behavior.h"
+#include "cosmodrone/vehicles.h"
 
 #define for_dynamic_objects(__mesh_index, code)\
   auto& initial_objects = objects(__mesh_index).initial_objects;\
@@ -154,7 +155,7 @@ static void UpdateGasFlareLights(Tachyon* tachyon, State& state, const float dt)
 }
 
 void WorldBehavior::UpdateWorld(Tachyon* tachyon, State& state, const float dt) {
-  // Game time cycle-dependent entities
+  // Do these first so they can be updated in editor mode when changing game time
   UpdateCelestialBodies(tachyon, state);
   UpdateSpaceElevator(tachyon, state);
 
@@ -165,7 +166,8 @@ void WorldBehavior::UpdateWorld(Tachyon* tachyon, State& state, const float dt) 
 
   state.current_game_time += dt;
 
-  // Game time cycle-independent entities
+  Vehicles::UpdateVehicles(tachyon, state, dt);
+
   UpdateRotators(tachyon, state, dt);
   UpdateLocalEntities(tachyon, state, dt);
   UpdateGasFlareLights(tachyon, state, dt);
