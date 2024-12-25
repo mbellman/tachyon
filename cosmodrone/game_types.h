@@ -11,6 +11,9 @@ namespace Cosmodrone {
       thrusters,
       trim,
 
+      // NPC drone parts
+      npc_drone_1,
+
       // Spawn meshes
       zone_target,
 

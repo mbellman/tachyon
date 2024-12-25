@@ -23,14 +23,14 @@ static void LoadShipPartMeshes(Tachyon* tachyon, State& state) {
 }
 
 static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
-  #define load_mesh(__name) meshes.__name = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/" #__name ".obj"), 5000)
+  #define load_mesh(__name) meshes.__name = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/" #__name ".obj"), 3000)
 
   #define load_mesh_with_2_lods(__name) meshes.__name =\
     Tachyon_AddMesh(\
       tachyon,\
       Tachyon_LoadMesh("./cosmodrone/assets/station-parts/" #__name ".obj"),\
       Tachyon_LoadMesh("./cosmodrone/assets/station-parts/" #__name "_lod_2.obj"),\
-      5000\
+      3000\
     )
 
   auto& meshes = state.meshes;
@@ -510,14 +510,14 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
 }
 
 static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
-  #define load_mesh(__name) meshes.__name = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/generated/" #__name ".obj"), 5000)
+  #define load_mesh(__name) meshes.__name = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/generated/" #__name ".obj"), 3000)
 
   #define load_mesh_with_2_lods(__name) meshes.__name =\
     Tachyon_AddMesh(\
       tachyon,\
       Tachyon_LoadMesh("./cosmodrone/assets/station-parts/generated/" #__name ".obj"),\
       Tachyon_LoadMesh("./cosmodrone/assets/station-parts/generated/" #__name "_lod_2.obj"),\
-      5000\
+      3000\
     )
 
   auto& meshes = state.meshes;
@@ -1034,7 +1034,7 @@ void MeshLibrary::LoadMeshes(Tachyon* tachyon, State& state) {
   // @todo dev mode only
   auto start_time = Tachyon_GetMicroseconds();
 
-  Vehicles::LoadVehicleMeshes(tachyon);
+  Vehicles::LoadVehicleMeshes(tachyon, state);
 
   LoadShipPartMeshes(tachyon, state);
   LoadPlaceableMeshes(tachyon, state);

@@ -4,7 +4,7 @@
 
 namespace Cosmodrone {
   namespace Vehicles {
-    void LoadVehicleMeshes(Tachyon* tachyon);
+    void LoadVehicleMeshes(Tachyon* tachyon, State& state);
     void InitVehicles(Tachyon* tachyon, State& state);
     void UpdateVehicles(Tachyon* tachyon, State& state, const float dt);
   }
