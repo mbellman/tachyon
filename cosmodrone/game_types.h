@@ -179,6 +179,14 @@ namespace Cosmodrone {
     float spawn_distance;
   };
 
+  struct Vehicle {
+    tObject object;
+    tVec3f position;
+    tVec3f direction;
+    float speed;
+    uint32 light_index;
+  };
+
   struct State {
     MeshIds meshes;
 
@@ -217,6 +225,8 @@ namespace Cosmodrone {
     std::vector<FlightPathNode> incoming_flight_path;
 
     std::vector<uint32> gas_flare_light_indexes;
+
+    std::vector<Vehicle> vehicles;
 
     // @todo move to UI/UISystem
     struct {

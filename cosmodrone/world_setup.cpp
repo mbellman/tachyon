@@ -286,10 +286,10 @@ static void RebuildLightSources(Tachyon* tachyon, State& state) {
 void WorldSetup::InitializeGameWorld(Tachyon* tachyon, State& state) {
   InitializeLevel(tachyon, state);
 
-  Vehicles::InitVehicles(tachyon, state);
-
   RebuildGeneratedObjects(tachyon, state);
   StoreInitialObjects(tachyon, state);
+
+  Vehicles::InitVehicles(tachyon, state);
 
   // @todo dev mode only
   CreateDebugMeshes(tachyon, state);
