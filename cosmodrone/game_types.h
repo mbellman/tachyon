@@ -228,10 +228,11 @@ namespace Cosmodrone {
 
     std::vector<Vehicle> vehicles;
 
-    // @todo move to UI/UISystem
-    tVec2f reticle_offset;
-    tVec2f target_reticle_offset;
+    tVec2f flight_reticle_offset;
+    tVec2f flight_target_reticle_offset;
+    float flight_reticle_rotation = 0.f;
 
+    // @todo move to UI/UISystem
     struct {
       tUIElement* reticle = nullptr;
       tUIElement* target_indicator = nullptr;

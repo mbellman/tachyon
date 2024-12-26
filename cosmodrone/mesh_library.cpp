@@ -650,8 +650,8 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .mesh_index = meshes.girder_4_core,
       .generated_from = meshes.girder_4,
       .defaults = {
-        .color = tVec3f(1.f),
-        .material = tVec4f(0.8f, 1.f, 0, 0.5f)
+        .color = tVec3f(0.8f),
+        .material = tVec4f(0.7f, 1.f, 0, 0)
       }
     },
     {

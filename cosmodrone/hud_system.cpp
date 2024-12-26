@@ -143,21 +143,29 @@ static void HandleTargetInspectorStats(Tachyon* tachyon, const State& state, con
   }
 }
 
-static void HandleReticle(Tachyon* tachyon, State& state, const float dt) {
-  // Lag when panning the camera
-  if (is_window_focused()) {
-    state.target_reticle_offset.x -= (float)tachyon->mouse_delta_x / 600.f;
-    state.target_reticle_offset.y -= (float)tachyon->mouse_delta_y / 600.f;
+static void HandleFlightReticle(Tachyon* tachyon, State& state, const float dt) {
+  auto& target_offset = state.flight_target_reticle_offset;
+  auto& offset = state.flight_reticle_offset;
+  auto& rotation = state.flight_reticle_rotation;
+
+  // Lag when panning the camera/rotating
+  {
+    if (is_window_focused()) {
+      target_offset.x -= (float)tachyon->mouse_delta_x / 1000.f;
+      target_offset.y -= (float)tachyon->mouse_delta_y / 1000.f;
+    }
+
+    rotation -= 0.02f * state.camera_roll_speed;
   }
 
   // Draw the reticle
   {
-    auto screen_x = (int32)roundf(tachyon->window_width / 2.f + state.reticle_offset.x * 500.f);
-    auto screen_y = (int32)roundf(tachyon->window_height / 2.f + state.reticle_offset.y * 500.f);
+    auto screen_x = (int32)roundf(tachyon->window_width / 2.f + offset.x * 500.f);
+    auto screen_y = (int32)roundf(tachyon->window_height / 2.f + offset.y * 500.f);
 
     auto alpha = 1.f - sqrtf(
-      state.reticle_offset.x * state.reticle_offset.x +
-      state.reticle_offset.y * state.reticle_offset.y
+      offset.x * offset.x +
+      offset.y * offset.y
     );
 
     if (alpha < 0.5f) alpha = 0.5f;
@@ -165,17 +173,19 @@ static void HandleReticle(Tachyon* tachyon, State& state, const float dt) {
     Tachyon_DrawUIElement(tachyon, state.ui.reticle, {
       .screen_x = screen_x,
       .screen_y = screen_y,
+      .rotation = rotation,
       .alpha = alpha
     });
   }
 
-  // Drift toward the center of the screen
+  // Drift toward the center of the screen/stop roll
   {
-    state.target_reticle_offset.x *= 1.f - 4.f * dt;
-    state.target_reticle_offset.y *= 1.f - 4.f * dt;
+    target_offset.x *= 1.f - 4.f * dt;
+    target_offset.y *= 1.f - 4.f * dt;
+    rotation *= 1.f - 4.f * dt;
 
-    state.reticle_offset.x = Lerpf(state.reticle_offset.x, state.target_reticle_offset.x, 30.f * dt);
-    state.reticle_offset.y = Lerpf(state.reticle_offset.y, state.target_reticle_offset.y, 30.f * dt);
+    offset.x = Lerpf(offset.x, target_offset.x, 30.f * dt);
+    offset.y = Lerpf(offset.y, target_offset.y, 30.f * dt);
   }
 }
 
@@ -229,7 +239,7 @@ static void HandleTargetInspector(Tachyon* tachyon, State& state, const float dt
 }
 
 void HUDSystem::HandleHUD(Tachyon* tachyon, State& state, const float dt) {
-  HandleReticle(tachyon, state, dt);
+  HandleFlightReticle(tachyon, state, dt);
   HandleOdometer(tachyon, state, dt);
   HandleTargetInspector(tachyon, state, dt);
 }
