@@ -219,7 +219,7 @@ static void HandleControls(Tachyon* tachyon, State& state, const float dt) {
   }
 }
 
-static void HandleFlightCamera(Tachyon* tachyon, State& state, const float dt) {
+static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
   auto& camera = tachyon->scene.camera;
   auto& meshes = state.meshes;
   float camera_lerp_speed_factor = 10.f;
@@ -547,6 +547,7 @@ void Cosmodrone::StartGame(Tachyon* tachyon) {
 
   // @todo UI::Initialize()
   {
+    state.ui.reticle = Tachyon_CreateUIElement("./cosmodrone/assets/ui/reticle.png");
     state.ui.target_indicator = Tachyon_CreateUIElement("./cosmodrone/assets/ui/target.png");
     state.ui.zone_target_indicator = Tachyon_CreateUIElement("./cosmodrone/assets/ui/zone-target.png");
     state.ui.selected_target_corner = Tachyon_CreateUIElement("./cosmodrone/assets/ui/selected-target-corner.png");
@@ -591,7 +592,7 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
 
   Autopilot::HandleAutopilot(tachyon, state, dt);
 
-  HandleFlightCamera(tachyon, state, dt);
+  HandleCamera(tachyon, state, dt);
   HandleFlightArrows(tachyon, state, dt);
   HandlePlayerDrone(tachyon, state, dt);
 

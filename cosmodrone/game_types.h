@@ -229,7 +229,11 @@ namespace Cosmodrone {
     std::vector<Vehicle> vehicles;
 
     // @todo move to UI/UISystem
+    tVec2f reticle_offset;
+    tVec2f target_reticle_offset;
+
     struct {
+      tUIElement* reticle = nullptr;
       tUIElement* target_indicator = nullptr;
       tUIElement* zone_target_indicator = nullptr;
       tUIElement* selected_target_corner = nullptr;
