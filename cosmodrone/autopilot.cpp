@@ -105,6 +105,7 @@ void Autopilot::HandleAutopilot(Tachyon* tachyon, State& state, const float dt) 
   if (state.flight_mode == FlightMode::AUTO_DOCK) {
     switch (state.auto_dock_stage) {
       case AutoDockStage::APPROACH_DECELERATION: {
+        // @todo use Quaternion::FromDirection()
         state.target_ship_rotation = DirectionToQuaternion(state.ship_velocity_basis.forward);
         state.ship_rotate_to_target_speed += 4.f * dt;
 

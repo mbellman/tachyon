@@ -65,7 +65,7 @@ void Vehicles::InitVehicles(Tachyon* tachyon, State& state) {
     point_lights.push_back({
       .position = drone.position,
       .radius = 2000.f,
-      .color = tVec3f(0.1f, 0.2f, 1.f),
+      .color = tVec3f(1.f, 0.2f, 1.f),
       .power = 1.f
     });
 
@@ -90,10 +90,18 @@ void Vehicles::UpdateVehicles(Tachyon* tachyon, State& state, const float dt) {
     {
       float angle = state.current_game_time * 0.05f + (float)vehicle.object.object_id;
 
+      if (vehicle.object.object_id % 2 == 0) {
+        angle *= -1.f;
+      }
+
       object.position.x = 120000.f * cosf(angle);
       object.position.z = 120000.f * sinf(angle);
 
-      object.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -angle + t_PI);
+      if (vehicle.object.object_id % 2 == 0) {
+        object.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -angle);
+      } else {
+        object.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -angle + t_PI);
+      }
     }
 
     light.position =
