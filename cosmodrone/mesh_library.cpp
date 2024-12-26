@@ -6,7 +6,6 @@ using namespace Cosmodrone;
 static std::vector<MeshAsset> placeable_mesh_assets;
 static std::vector<MeshAsset> generated_mesh_assets;
 
-// @bug once in a while, meshes don't load in at the beginning! figure this out
 static void LoadShipPartMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
@@ -819,8 +818,8 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .mesh_index = meshes.elevator_torus_1_frame,
       .generated_from = meshes.elevator_torus_1,
       .defaults = {
-        .color = tVec3f(1.f, 0.3f, 0.3f),
-        .material = tVec4f(0.8f, 0, 0, 0.2f)
+        .color = tVec3f(1.f, 0.5f, 0.5f),
+        .material = tVec4f(0.4f, 1.f, 0, 0.2f)
       }
     },
 

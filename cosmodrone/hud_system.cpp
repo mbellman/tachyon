@@ -180,8 +180,8 @@ static void HandleFlightReticle(Tachyon* tachyon, State& state, const float dt) 
 
   // Drift toward the center of the screen/stop roll
   {
-    target_offset.x *= 1.f - 4.f * dt;
-    target_offset.y *= 1.f - 4.f * dt;
+    target_offset.x *= 1.f - 2.f * dt;
+    target_offset.y *= 1.f - 2.f * dt;
     rotation *= 1.f - 4.f * dt;
 
     offset.x = Lerpf(offset.x, target_offset.x, 30.f * dt);

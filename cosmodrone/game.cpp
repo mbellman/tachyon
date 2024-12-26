@@ -111,6 +111,8 @@ static void HandleControls(Tachyon* tachyon, State& state, const float dt) {
     // Handle pitch up
     FlightSystem::ChangePitch(state, dt, 1.f);
 
+    state.flight_target_reticle_offset.y += state.ship_pitch_factor * dt;
+
     is_issuing_control_action = true;
   } else {
     // Reduce pitch gradually
@@ -126,9 +128,13 @@ static void HandleControls(Tachyon* tachyon, State& state, const float dt) {
   if (is_key_held(tKey::A)) {
     FlightSystem::YawLeft(state, dt);
 
+    state.flight_target_reticle_offset.x += dt;
+
     is_issuing_control_action = true;
   } else if (is_key_held(tKey::D)) {
     FlightSystem::YawRight(state, dt);
+
+    state.flight_target_reticle_offset.x -= dt;
 
     is_issuing_control_action = true;
   }
@@ -295,7 +301,6 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
   camera.rotation = Quaternion::slerp(camera.rotation, state.target_camera_rotation, camera_lerp_alpha);
 
   UpdateViewDirections(tachyon, state);
-
 
   float ship_speed = state.ship_velocity.magnitude();
   float speed_zoom_ratio = ship_speed / (ship_speed + 5000.f);
@@ -578,6 +583,7 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
   objects(meshes.hud_flight_arrow).disabled = state.is_editor_active;
   objects(meshes.hud_wedge).disabled = state.is_editor_active;
   objects(meshes.antenna_3_wireframe).disabled = state.is_editor_active;
+  objects(meshes.npc_drone_1).disabled = state.is_editor_active;
 
   // @todo dev mode only
   if (state.is_editor_active) {

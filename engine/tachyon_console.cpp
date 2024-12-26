@@ -30,6 +30,10 @@ void Tachyon_Log(const tVec3f& vector) {
   Tachyon_AddConsoleMessage(vector.toString(), tVec3f(1.f));
 }
 
+void Tachyon_Log(const Quaternion& q) {
+  Tachyon_AddConsoleMessage(q.toString(), tVec3f(1.f));
+}
+
 const std::vector<tConsoleMessage>& Tachyon_GetConsoleMessages() {
   return console_messages;
 }
