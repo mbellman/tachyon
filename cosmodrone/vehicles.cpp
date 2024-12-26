@@ -61,7 +61,6 @@ void Vehicles::InitVehicles(Tachyon* tachyon, State& state) {
 
     commit(drone);
 
-    // @todo make sure npc drone lights get restored when exiting the game editor
     point_lights.push_back({
       .position = drone.position,
       .radius = 2000.f,

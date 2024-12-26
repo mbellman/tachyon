@@ -3,6 +3,7 @@
 
 #include "cosmodrone/game_editor.h"
 #include "cosmodrone/mesh_library.h"
+#include "cosmodrone/vehicles.h"
 #include "cosmodrone/world_behavior.h"
 #include "cosmodrone/world_setup.h"
 
@@ -892,6 +893,7 @@ void Editor::DisableEditor(Tachyon* tachyon, State& state) {
 
   WorldSetup::RebuildGeneratedObjects(tachyon, state);
   WorldSetup::StoreInitialObjects(tachyon, state);
+  Vehicles::InitVehicles(tachyon, state);
 
   state.is_editor_active = false;
 
