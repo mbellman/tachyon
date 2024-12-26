@@ -542,12 +542,14 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
   load_mesh_with_2_lods(habitation_1_core);
   load_mesh_with_2_lods(habitation_1_frame);
   load_mesh_with_2_lods(habitation_1_insulation);
+  load_mesh(habitation_1_lights);
 
   load_mesh(habitation_2_body);
   load_mesh(habitation_2_frame);
 
   load_mesh(habitation_3_core);
   load_mesh_with_2_lods(habitation_3_frame);
+  load_mesh(habitation_3_lights);
 
   load_mesh(habitation_4_body);
   load_mesh(habitation_4_core);
@@ -685,7 +687,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .generated_from = meshes.habitation_1,
       .defaults {
         .color = tVec3f(1.f),
-        .material = tVec4f(0.4f, 0.5f, 0, 0.4f)
+        .material = tVec4f(0.6f, 0.5f, 0, 0.4f)
       }
     },
     {
@@ -693,7 +695,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .generated_from = meshes.habitation_1,
       .defaults {
         .color = tVec3f(1.f, 0.9f, 0.8f),
-        .material = tVec4f(0.2f, 1.f, 0, 0)
+        .material = tVec4f(0.4f, 1.f, 0, 0)
       }
     },
     {
@@ -702,6 +704,14 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .defaults {
         .color = tVec3f(1.f),
         .material = tVec4f(0.2f, 0.7f, 0, 0)
+      }
+    },
+    {
+      .mesh_index = meshes.habitation_1_lights,
+      .generated_from = meshes.habitation_1,
+      .defaults {
+        .color = tVec4f(1.f, 0.9f, 0.9f, 1.f),
+        .material = tVec4f(1., 0, 0, 0)
       }
     },
 
@@ -738,6 +748,14 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .defaults {
         .color = tVec3f(1.f, 0.7f, 0.2f),
         .material = tVec4f(0.5f, 1.f, 0, 0)
+      }
+    },
+    {
+      .mesh_index = meshes.habitation_3_lights,
+      .generated_from = meshes.habitation_3,
+      .defaults {
+        .color = tVec4f(1.f, 0.9f, 0.9f, 1.f),
+        .material = tVec4f(1., 0, 0, 0)
       }
     },
 
@@ -1102,6 +1120,8 @@ void MeshLibrary::LoadMeshes(Tachyon* tachyon, State& state) {
       mesh(meshes.light_2_bulb).shadow_cascade_ceiling = 0;
       mesh(meshes.habitation_1_frame).shadow_cascade_ceiling = 0;
       mesh(meshes.habitation_1_insulation).shadow_cascade_ceiling = 0;
+      mesh(meshes.habitation_1_lights).shadow_cascade_ceiling = 0;
+      mesh(meshes.habitation_3_lights).shadow_cascade_ceiling = 0;
       mesh(meshes.habitation_4_panels).shadow_cascade_ceiling = 0;
       mesh(meshes.habitation_4_lights).shadow_cascade_ceiling = 0;
       mesh(meshes.station_torus_3_lights).shadow_cascade_ceiling = 0;
