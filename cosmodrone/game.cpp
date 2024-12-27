@@ -553,6 +553,7 @@ void Cosmodrone::StartGame(Tachyon* tachyon) {
   // @todo UI::Initialize()
   {
     state.ui.reticle = Tachyon_CreateUIElement("./cosmodrone/assets/ui/reticle.png");
+    state.ui.dot = Tachyon_CreateUIElement("./cosmodrone/assets/ui/dot.png");
     state.ui.target_indicator = Tachyon_CreateUIElement("./cosmodrone/assets/ui/target.png");
     state.ui.zone_target_indicator = Tachyon_CreateUIElement("./cosmodrone/assets/ui/zone-target.png");
     state.ui.selected_target_corner = Tachyon_CreateUIElement("./cosmodrone/assets/ui/selected-target-corner.png");
@@ -602,8 +603,8 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
   HandleFlightArrows(tachyon, state, dt);
   HandlePlayerDrone(tachyon, state, dt);
 
-  HUDSystem::HandleHUD(tachyon, state, dt);
   TargetSystem::HandleTargetTrackers(tachyon, state, dt);
+  HUDSystem::HandleHUD(tachyon, state, dt);
   WorldBehavior::UpdateWorld(tachyon, state, dt);
 
   // @todo dev mode only

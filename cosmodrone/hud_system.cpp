@@ -143,6 +143,20 @@ static void HandleTargetInspectorStats(Tachyon* tachyon, const State& state, con
   }
 }
 
+struct Vec2i {
+  int32 x = 0;
+  int32 y = 0;
+};
+
+static Vec2i GetFlightReticleCoordinates(Tachyon* tachyon, const State& state) {
+  auto& offset = state.flight_reticle_offset;
+
+  auto screen_x = (int32)roundf(tachyon->window_width / 2.f + offset.x * 500.f);
+  auto screen_y = (int32)roundf(tachyon->window_height / 2.f + offset.y * 500.f);
+
+  return Vec2i(screen_x, screen_y);
+}
+
 static void HandleFlightReticle(Tachyon* tachyon, State& state, const float dt) {
   auto& target_offset = state.flight_target_reticle_offset;
   auto& offset = state.flight_reticle_offset;
@@ -155,13 +169,12 @@ static void HandleFlightReticle(Tachyon* tachyon, State& state, const float dt) 
       target_offset.y -= (float)tachyon->mouse_delta_y / 1000.f;
     }
 
-    rotation -= 0.02f * state.camera_roll_speed;
+    rotation -= state.camera_roll_speed * dt;
   }
 
   // Draw the reticle
   {
-    auto screen_x = (int32)roundf(tachyon->window_width / 2.f + offset.x * 500.f);
-    auto screen_y = (int32)roundf(tachyon->window_height / 2.f + offset.y * 500.f);
+    auto coords = GetFlightReticleCoordinates(tachyon, state);
 
     auto alpha = 1.f - sqrtf(
       offset.x * offset.x +
@@ -171,8 +184,8 @@ static void HandleFlightReticle(Tachyon* tachyon, State& state, const float dt) 
     if (alpha < 0.5f) alpha = 0.5f;
 
     Tachyon_DrawUIElement(tachyon, state.ui.reticle, {
-      .screen_x = screen_x,
-      .screen_y = screen_y,
+      .screen_x = coords.x,
+      .screen_y = coords.y,
       .rotation = rotation,
       .alpha = alpha
     });
@@ -186,6 +199,34 @@ static void HandleFlightReticle(Tachyon* tachyon, State& state, const float dt) 
 
     offset.x = Lerpf(offset.x, target_offset.x, 30.f * dt);
     offset.y = Lerpf(offset.y, target_offset.y, 30.f * dt);
+  }
+}
+
+static void HandleTargetLine(Tachyon* tachyon, State& state, const float dt) {
+  auto* target = TargetSystem::GetSelectedTargetTracker(state);
+
+  if (target == nullptr) {
+    return;
+  }
+
+  Vec2i start = GetFlightReticleCoordinates(tachyon, state);
+  Vec2i end = Vec2i(target->screen_x, target->screen_y);
+
+  float dx = float(end.x - start.x);
+  float dy = float(end.y - start.y);
+  float distance = sqrtf(dx*dx + dy*dy);
+  uint8 total_dots = uint8(distance / 50.f);
+  tVec2f direction = tVec2f(dx / distance, dy / distance);
+
+  for (uint8 i = 1; i < total_dots; i++) {
+    float progress = float(i) / float(total_dots);
+    auto screen_x = start.x + int32(direction.x * progress * distance);
+    auto screen_y = start.y + int32(direction.y * progress * distance);
+
+    Tachyon_DrawUIElement(tachyon, state.ui.dot, {
+      .screen_x = screen_x,
+      .screen_y = screen_y
+    });
   }
 }
 
@@ -240,6 +281,7 @@ static void HandleTargetInspector(Tachyon* tachyon, State& state, const float dt
 
 void HUDSystem::HandleHUD(Tachyon* tachyon, State& state, const float dt) {
   HandleFlightReticle(tachyon, state, dt);
+  HandleTargetLine(tachyon, state, dt);
   HandleOdometer(tachyon, state, dt);
   HandleTargetInspector(tachyon, state, dt);
 }

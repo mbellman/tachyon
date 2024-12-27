@@ -237,6 +237,7 @@ namespace Cosmodrone {
     // @todo move to UI/UISystem
     struct {
       tUIElement* reticle = nullptr;
+      tUIElement* dot = nullptr;
       tUIElement* target_indicator = nullptr;
       tUIElement* zone_target_indicator = nullptr;
       tUIElement* selected_target_corner = nullptr;
