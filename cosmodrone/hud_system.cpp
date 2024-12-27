@@ -215,17 +215,19 @@ static void HandleTargetLine(Tachyon* tachyon, State& state, const float dt) {
   float dx = float(end.x - start.x);
   float dy = float(end.y - start.y);
   float distance = sqrtf(dx*dx + dy*dy);
-  uint8 total_dots = uint8(distance / 50.f);
+  uint8 total_dots = uint8(distance / 25.f);
   tVec2f direction = tVec2f(dx / distance, dy / distance);
 
   for (uint8 i = 1; i < total_dots; i++) {
     float progress = float(i) / float(total_dots);
     auto screen_x = start.x + int32(direction.x * progress * distance);
     auto screen_y = start.y + int32(direction.y * progress * distance);
+    float alpha = 0.5f * sinf(-state.current_game_time * 10.f + progress * t_TAU) + 0.5f;
 
     Tachyon_DrawUIElement(tachyon, state.ui.dot, {
       .screen_x = screen_x,
-      .screen_y = screen_y
+      .screen_y = screen_y,
+      .alpha = alpha
     });
   }
 }
