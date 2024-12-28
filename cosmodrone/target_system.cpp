@@ -95,8 +95,8 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
 
   // Recalculate/redraw
   {
-    uint16 center_x = uint16(tachyon->window_width >> 1);
-    uint16 center_y = uint16(tachyon->window_height >> 1);
+    auto center_x = int32(tachyon->window_width >> 1);
+    auto center_y = int32(tachyon->window_height >> 1);
     float closest_distance_to_center = std::numeric_limits<float>::max();
     float closest_relative_distance = std::numeric_limits<float>::max();
     tObject selected_target;
@@ -120,8 +120,8 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
       clip_position.y *= 0.5f;
       clip_position.y += 0.5f;
 
-      auto screen_x = uint16(tachyon->window_width - clip_position.x * tachyon->window_width);
-      auto screen_y = uint16(clip_position.y * tachyon->window_height);
+      auto screen_x = int32(tachyon->window_width - clip_position.x * tachyon->window_width);
+      auto screen_y = int32(clip_position.y * tachyon->window_height);
 
       tracker.screen_x = screen_x;
       tracker.screen_y = screen_y;
@@ -138,7 +138,10 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
       // assuming its object is closer than the closest relative distance threshold
       if (
         relative_distance < closest_relative_distance &&
-        center_distance < closest_distance_to_center
+        center_distance < closest_distance_to_center &&
+        // @temporary
+        // @todo come up with a different scheme for targeting zone targets
+        tracker.object.mesh_index != state.meshes.zone_target
       ) {
         closest_distance_to_center = center_distance;
         selected_target = tracker.object;
@@ -147,7 +150,10 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
       // Prioritize closer target objects
       if (
         relative_distance < 20000.f &&
-        relative_distance < closest_relative_distance
+        relative_distance < closest_relative_distance &&
+        // @temporary
+        // @todo come up with a different scheme for targeting zone targets
+        tracker.object.mesh_index != state.meshes.zone_target
       ) {
         closest_relative_distance = relative_distance;
         selected_target = tracker.object;

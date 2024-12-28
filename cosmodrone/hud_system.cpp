@@ -203,6 +203,8 @@ static void HandleFlightReticle(Tachyon* tachyon, State& state, const float dt) 
 }
 
 static void HandleTargetLine(Tachyon* tachyon, State& state, const float dt) {
+  const static float STEP_SIZE = 50.f;
+
   auto* target = TargetSystem::GetSelectedTargetTracker(state);
 
   if (target == nullptr) {
@@ -215,25 +217,25 @@ static void HandleTargetLine(Tachyon* tachyon, State& state, const float dt) {
   float dx = float(end.x - start.x);
   float dy = float(end.y - start.y);
   float distance = sqrtf(dx*dx + dy*dy);
-  uint8 total_dots = uint8(distance / 50.f);
+  uint8 total_dots = uint8(distance / STEP_SIZE);
   tVec2f direction = tVec2f(dx / distance, dy / distance);
 
   // Make the arrows move toward the target
   float int_part;
-  float fract = modf(state.current_game_time * 2.f, &int_part);
+  float offset_alpha = modf(state.current_game_time * 2.f, &int_part);
 
   Vec2i offset = {
-    int32(direction.x * fract * 50.f),
-    int32(direction.y * fract * 50.f)
+    int32(direction.x * offset_alpha * STEP_SIZE),
+    int32(direction.y * offset_alpha * STEP_SIZE)
   };
 
   for (uint8 i = 1; i < total_dots; i++) {
     float float_i = float(i);
-    float progress = float_i / float(total_dots);
-    auto screen_x = offset.x + start.x + int32(direction.x * 50.f * float_i);
-    auto screen_y = offset.y + start.y + int32(direction.y * 50.f * float_i);
+    auto screen_x = offset.x + start.x + int32(direction.x * STEP_SIZE * float_i);
+    auto screen_y = offset.y + start.y + int32(direction.y * STEP_SIZE * float_i);
     float rotation = atan2f(direction.y, direction.x) + t_HALF_PI;
-    float alpha = sinf(progress * t_PI);
+    float index_ratio = float_i / float(total_dots);
+    float alpha = sinf(index_ratio * t_PI);
 
     Tachyon_DrawUIElement(tachyon, state.ui.dot, {
       .screen_x = screen_x,
