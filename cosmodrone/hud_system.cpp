@@ -216,9 +216,9 @@ static void HandleTargetLine(Tachyon* tachyon, State& state, const float dt) {
 
   float dx = float(end.x - start.x);
   float dy = float(end.y - start.y);
-  float distance = sqrtf(dx*dx + dy*dy);
-  uint8 total_dots = uint8(distance / STEP_SIZE);
-  tVec2f direction = tVec2f(dx / distance, dy / distance);
+  float screen_distance = sqrtf(dx*dx + dy*dy);
+  uint8 total_dots = uint8(screen_distance / STEP_SIZE);
+  tVec2f direction = tVec2f(dx / screen_distance, dy / screen_distance);
 
   // Make the arrows move toward the target
   float int_part;
@@ -242,6 +242,27 @@ static void HandleTargetLine(Tachyon* tachyon, State& state, const float dt) {
       .screen_y = screen_y,
       .rotation = rotation,
       .alpha = alpha
+    });
+  }
+
+  // Draw details under the selected target.
+  // @todo this should be done in a HandleSelectedTargetIndicator() function
+  {
+    auto* live_object = get_original_object(target->object);
+    float target_distance = (live_object->position - state.ship_position).magnitude();
+    uint32 distance_in_meters = uint32(target_distance / 1000.f);
+
+    // Show the distance indicator on the top or bottom of the target indicator
+    // depending on whether the indicator is clipped on the bottom screen edge
+    int32 screen_y =
+      target->screen_y > tachyon->window_height - 80
+        ? target->screen_y - 65
+        : target->screen_y + 60;
+
+    Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_26, {
+      .screen_x = target->screen_x,
+      .screen_y = screen_y,
+      .string = std::to_string(distance_in_meters) + "m"
     });
   }
 }
