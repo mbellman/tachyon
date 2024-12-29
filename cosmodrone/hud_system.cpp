@@ -274,7 +274,11 @@ static void HandleOdometer(Tachyon* tachyon, State& state, const float dt) {
   // @todo define an orthonormal view basis and precalculate this
   auto left = tVec3f::cross(state.view_forward_direction, state.view_up_direction).invert();
 
-  wedge.position = camera.position + state.view_forward_direction * 550.f + left * (200.f + camera.fov * 3.f);
+  wedge.position =
+    camera.position +
+    state.view_forward_direction * 550.f +
+    left * (0.f + camera.fov * 7.f);
+
   wedge.scale = 150.f + camera.fov * 1.8f;
   wedge.color = tVec4f(0.1f, 0.2f, 1.f, 1.f);
 
@@ -294,7 +298,7 @@ static void HandleTargetInspector(Tachyon* tachyon, State& state, const float dt
   wedge.position =
     camera.position +
     state.view_forward_direction * 550.f -
-    left * (200.f + camera.fov * 3.f);
+    left * (0.f + camera.fov * 7.f);
 
   wedge.scale = 150.f + camera.fov * 1.8f;
   wedge.color = tVec4f(0.1f, 0.2f, 1.f, 1.f);

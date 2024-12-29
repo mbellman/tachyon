@@ -132,11 +132,11 @@ static void InitializeLevel(Tachyon* tachyon, State& state) {
     hull.material = tVec4f(0.1f, 0, 0.2f, 0.5f);
 
     streams.scale = 600.f;
-    streams.material = tVec4f(0.5f, 0.5f, 0.5f, 0.2f);
+    streams.material = tVec4f(0.4f, 0.5f, 0, 0.2f);
 
     thrusters.scale = 600.f;
     thrusters.color = tVec3f(0.1f);
-    thrusters.material = tVec4f(0.8f, 0, 0, 0.2f);
+    thrusters.material = tVec4f(0.4f, 0, 0, 0.2f);
 
     trim.scale = 600.f;
     trim.material = tVec4f(0.2f, 1.f, 0, 0);
