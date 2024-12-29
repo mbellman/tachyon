@@ -127,6 +127,7 @@ static void InitializeLevel(Tachyon* tachyon, State& state) {
     auto& streams = create(meshes.streams);
     auto& thrusters = create(meshes.thrusters);
     auto& trim = create(meshes.trim);
+    auto& jets = create(meshes.jets);
 
     hull.scale = 600.f;
     hull.material = tVec4f(0.1f, 0, 0.2f, 0.5f);
@@ -141,13 +142,20 @@ static void InitializeLevel(Tachyon* tachyon, State& state) {
     trim.scale = 600.f;
     trim.material = tVec4f(0.2f, 1.f, 0, 0);
 
-    // @todo define as a default
-    hull.rotation = streams.rotation = thrusters.rotation = trim.rotation = state.target_ship_rotation;
+    jets.scale = 600.f;
+    jets.color = tVec4f(0.1f, 0.2f, 1.f, 1.f);
+
+    hull.rotation =
+    streams.rotation =
+    thrusters.rotation =
+    trim.rotation =
+    jets.rotation = state.target_ship_rotation;
 
     commit(hull);
     commit(streams);
     commit(thrusters);
     commit(trim);
+    commit(jets);
   }
 
   LoadWorldData(tachyon, state);

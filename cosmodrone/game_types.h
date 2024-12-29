@@ -10,6 +10,7 @@ namespace Cosmodrone {
       streams,
       thrusters,
       trim,
+      jets,
 
       // NPC drone parts
       npc_drone_1,
@@ -213,6 +214,7 @@ namespace Cosmodrone {
     float ship_pitch_factor = 0.f;
     float ship_camera_distance = 1800.f;
     float ship_camera_distance_target = 1800.f;
+    float jets_intensity = 0.f;
 
     OrthonormalBasis ship_rotation_basis;
     OrthonormalBasis ship_velocity_basis;

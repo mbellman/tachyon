@@ -14,11 +14,16 @@ static void LoadShipPartMeshes(Tachyon* tachyon, State& state) {
   auto streams_mesh = Tachyon_LoadMesh("./cosmodrone/assets/drone/streams.obj");
   auto thrusters_mesh = Tachyon_LoadMesh("./cosmodrone/assets/drone/thrusters.obj");
   auto trim_mesh = Tachyon_LoadMesh("./cosmodrone/assets/drone/trim.obj");
+  auto jets_mesh = Tachyon_LoadMesh("./cosmodrone/assets/drone/jets.obj");
 
   meshes.hull = Tachyon_AddMesh(tachyon, hull_mesh, 1);
   meshes.streams = Tachyon_AddMesh(tachyon, streams_mesh, 1);
   meshes.thrusters = Tachyon_AddMesh(tachyon, thrusters_mesh, 1);
   meshes.trim = Tachyon_AddMesh(tachyon, trim_mesh, 1);
+  meshes.jets = Tachyon_AddMesh(tachyon, jets_mesh, 1);
+
+  // @todo use GLOW_MESH once the shader is ready
+  mesh(meshes.jets).type = tMeshType::WIREFRAME_MESH;
 }
 
 static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {

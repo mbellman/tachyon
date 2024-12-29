@@ -6,6 +6,8 @@ const static float ACCELERATION = 2000.f;
 
 void FlightSystem::ThrustForward(State& state, const float dt, const float rate) {
   state.ship_velocity += state.ship_rotation_basis.forward * rate * dt;
+
+  state.jets_intensity += 3.f * dt;
 }
 
 void FlightSystem::ControlledThrustForward(State& state, const float dt) {
@@ -75,6 +77,9 @@ void FlightSystem::HandlePitch(State& state, const float dt) {
   state.ship_velocity -= state.ship_velocity_basis.forward * slowdown_factor * dt;
 
   ThrustForward(state, dt, acceleration_factor);
+
+  state.jets_intensity -= 3.f * dt;
+  state.jets_intensity += 10.f * state.ship_pitch_factor * dt;
 
   state.ship_velocity = state.ship_velocity.unit() * ship_speed;
   state.ship_rotate_to_target_speed += 5.f * abs(state.ship_pitch_factor) * dt;

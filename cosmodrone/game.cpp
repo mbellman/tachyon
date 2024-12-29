@@ -434,6 +434,7 @@ static void HandlePlayerDrone(Tachyon* tachyon, State& state, const float dt) {
   auto& streams = objects(meshes.streams)[0];
   auto& thrusters = objects(meshes.thrusters)[0];
   auto& trim = objects(meshes.trim)[0];
+  auto& jets = objects(meshes.jets)[0];
 
   if (state.ship_velocity.magnitude() > 0.f) {
     UpdateShipVelocityBasis(state);
@@ -456,17 +457,34 @@ static void HandlePlayerDrone(Tachyon* tachyon, State& state, const float dt) {
   // @todo will nlerp work here?
   auto rotation = Quaternion::slerp(hull.rotation, state.target_ship_rotation, state.ship_rotate_to_target_speed * dt);
 
-  hull.position = state.ship_position;
-  streams.position = state.ship_position;
-  thrusters.position = state.ship_position;
-  trim.position = state.ship_position;
+  hull.position =
+  streams.position =
+  thrusters.position =
+  trim.position =
+  jets.position = state.ship_position;
 
-  hull.rotation = streams.rotation = thrusters.rotation = trim.rotation = rotation;
+  hull.rotation =
+  streams.rotation =
+  thrusters.rotation =
+  trim.rotation =
+  jets.rotation =
+  rotation;
+
+  // Gradually taper jets intensity/update visibility
+  {
+    state.jets_intensity *= 1.f - 3.f * dt;
+
+    if (state.jets_intensity < 0.f) state.jets_intensity = 0.f;
+    if (state.jets_intensity > 1.f) state.jets_intensity = 1.f;
+
+    jets.color = tVec4f(0.1f, 0.2f, 1.f, state.jets_intensity);
+  }
 
   commit(hull);
   commit(streams);
   commit(thrusters);
   commit(trim);
+  commit(jets);
 
   state.ship_rotation_basis.forward = rotation.getDirection();
   state.ship_rotation_basis.up = rotation.getUpDirection();
