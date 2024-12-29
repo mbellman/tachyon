@@ -124,14 +124,14 @@ tMat4f CreateCascadedLightMatrix(uint8 cascade, const tVec3f& light_direction, c
   tMat4f camera_view_projection = camera_projection * camera_view;
   tMat4f inverse_camera_view_projection = camera_view_projection.inverse();
 
-  for (uint32 i = 0; i < 8; i++) {
+  for (uint8 i = 0; i < 8; i++) {
     corners[i] = (inverse_camera_view_projection * tVec4f(corners[i], 1.f)).homogenize();
   }
 
   // Calculate world space frustum center/centroid
   tVec3f frustum_center;
 
-  for (uint32 i = 0; i < 8; i++) {
+  for (uint8 i = 0; i < 8; i++) {
     frustum_center += corners[i];
   }
 
@@ -140,7 +140,7 @@ tMat4f CreateCascadedLightMatrix(uint8 cascade, const tVec3f& light_direction, c
   // Calculate the radius of a sphere encapsulating the frustum
   float radius = 0.0f;
 
-  for (uint32 i = 0; i < 8; i++) {
+  for (uint8 i = 0; i < 8; i++) {
     radius = std::max(radius, (frustum_center - corners[i]).magnitude());
   }
 
@@ -229,7 +229,7 @@ static void RenderScreenQuad(Tachyon* tachyon) {
   }
 }
 
-static void RenderSurface(Tachyon* tachyon, SDL_Surface* surface, int32 x, int32 y, uint32 w, uint32 h, float rotation, const tVec4f& color, const tVec4f& background) {
+static void RenderSurface(Tachyon* tachyon, SDL_Surface* surface, int32 x, int32 y, int32 w, int32 h, float rotation, const tVec4f& color, const tVec4f& background) {
   auto& renderer = get_renderer();
   auto& ctx = renderer.ctx;
   auto& shader = renderer.shaders.surface;
@@ -243,6 +243,7 @@ static void RenderSurface(Tachyon* tachyon, SDL_Surface* surface, int32 x, int32
 
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, renderer.screen_quad_texture);
+  // @todo bind static surfaces to unique texture IDs; don't do this every frame
   glTexImage2D(GL_TEXTURE_2D, 0, format, surface->w, surface->h, 0, format, GL_UNSIGNED_BYTE, surface->pixels);
 
   glDisable(GL_CULL_FACE);
@@ -363,7 +364,7 @@ static void RenderDebugLabels(Tachyon* tachyon) {
   {
     auto now = Tachyon_GetMicroseconds();
     auto& console_messages = Tachyon_GetConsoleMessages();
-    uint32 y_offset = renderer.ctx.h - console_messages.size() * 30 - 10;
+    int32 y_offset = renderer.ctx.h - console_messages.size() * 30 - 10;
 
     for (auto& console_message : console_messages) {
       auto& message = console_message.message;

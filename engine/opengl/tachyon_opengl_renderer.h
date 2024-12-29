@@ -16,7 +16,7 @@ struct tOpenGLRenderer {
   tOpenGLMeshPack mesh_pack;
 
   struct tOpenGLRendererContext {
-    uint32 w, h;
+    int32 w, h;
 
     tMat4f view_matrix;
     tMat4f projection_matrix;

@@ -186,8 +186,8 @@ struct tUIDrawCommand {
 
 struct Tachyon {
   SDL_Window* sdl_window = nullptr;
-  uint32 window_width;
-  uint32 window_height;
+  int32 window_width;
+  int32 window_height;
   TachyonRenderBackend render_backend = TachyonRenderBackend::OPENGL;
   void* renderer = nullptr;
   float running_time = 0.f;
