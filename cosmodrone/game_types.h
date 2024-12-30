@@ -58,6 +58,9 @@ namespace Cosmodrone {
       // Mega parts
       mega_girder_1,
 
+      // Background elements
+      background_ship_1,
+
       // Large objects
       spire_fortress,
       gate_tower_1,

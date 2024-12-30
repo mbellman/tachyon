@@ -82,6 +82,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh(gas_flare_1_spawn);
   load_mesh(arch_1);
   load_mesh(upper_facility);
+  load_mesh(background_ship_1);
 
   // @todo refactor
   placeable_mesh_assets.push_back({
@@ -511,6 +512,16 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
       .material = tVec4f(0.2f, 1.f, 0, 0)
     }
   });
+
+  placeable_mesh_assets.push_back({
+    .mesh_name = "background_ship_1",
+    .mesh_index = meshes.background_ship_1,
+    .defaults = {
+      .scale = tVec3f(100000.f),
+      .color = tVec3f(1.f),
+      .material = tVec4f(0.9f, 0, 0, 0.2f)
+    }
+  });
 }
 
 static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
@@ -824,7 +835,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .mesh_index = meshes.solar_panel_2_cells,
       .generated_from = meshes.solar_panel_2,
       .defaults = {
-        .color = 0x44F1,
+        .color = 0x22F1,
         .material = tVec4f(0.2f, 1.f, 0.3f, 1.f) 
       }
     },
@@ -832,7 +843,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .mesh_index = meshes.solar_panel_2_frame,
       .generated_from = meshes.solar_panel_2,
       .defaults = {
-        .material = tVec4f(0.3f, 1.f, 0, 0)
+        .material = tVec4f(0.6f, 1.f, 0, 0)
       }
     },
 

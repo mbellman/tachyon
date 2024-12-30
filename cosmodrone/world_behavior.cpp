@@ -31,9 +31,9 @@ static void UpdateCelestialBodies(Tachyon* tachyon, State& state) {
     auto& earth = objects(meshes.planet)[0];
     auto& atmosphere = objects(meshes.earth_atmosphere)[0];
 
-    earth.position = camera.position + tVec3f(0, -4000000.f, 0);
+    earth.position = camera.position + tVec3f(0, -5000000.f, 0);
     earth.color = tVec3f(0.1f, 0.2f, 1.f);
-    earth.scale = tVec3f(1500000.f);
+    earth.scale = tVec3f(2000000.f);
     earth.material = tVec4f(0.4f, 0, 1.f, 0.3);
 
     atmosphere.position = earth.position;
@@ -73,8 +73,8 @@ static void UpdateSpaceElevator(Tachyon* tachyon, State& state) {
   float current_angle = t_PI * 1.5f + state.current_game_time * orbital_rate;
   auto& elevator = objects(meshes.space_elevator)[0];
 
-  elevator.position = camera.position + tVec3f(0, -4000000.f, 0);
-  elevator.scale = tVec3f(1500000.f);
+  elevator.position = camera.position + tVec3f(0, -5000000.f, 0);
+  elevator.scale = tVec3f(2000000.f);
   elevator.rotation = base_rotation * Quaternion::fromAxisAngle(orbit_rotation_axis, current_angle);
   elevator.material = tVec4f(0.3f, 0.8f, 0, 0);
 
