@@ -87,7 +87,6 @@ namespace Cosmodrone {
       habitation_1_core,
       habitation_1_frame,
       habitation_1_insulation,
-      habitation_1_lights,
       habitation_2_body,
       habitation_2_frame,
       habitation_3_core,
