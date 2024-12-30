@@ -875,11 +875,17 @@ static void RenderUIElements(Tachyon* tachyon) {
       continue;
     }
 
-    auto half_w = surface->w >> 1;
-    auto half_h = surface->h >> 1;
     auto& options = command.options;
-    auto x = options.screen_x - half_w;
-    auto y = options.screen_y - half_h;
+    auto x = options.screen_x;
+    auto y = options.screen_y;
+
+    if (options.centered) {
+      auto half_w = surface->w >> 1;
+      auto half_h = surface->h >> 1;
+
+      x -= half_w;
+      y -= half_h;
+    }
 
     // @todo batch render common surfaces
     RenderSurface(tachyon, surface, x, y, surface->w, surface->h, options.rotation, tVec4f(options.color, options.alpha), tVec4f(0.f));

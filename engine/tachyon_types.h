@@ -172,6 +172,7 @@ struct tUIText {
 struct tUIDrawCommandOptions {
   int32 screen_x = 0;
   int32 screen_y = 0;
+  bool centered = true;
   float rotation = 0.f;
   tVec3f color = tVec3f(1.f);
   float alpha = 1.f;

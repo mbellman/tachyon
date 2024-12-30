@@ -248,6 +248,7 @@ namespace Cosmodrone {
       tUIElement* selected_target_corner = nullptr;
       tUIElement* selected_target_center = nullptr;
 
+      tUIText* cascadia_mono_22 = nullptr;
       tUIText* cascadia_mono_26 = nullptr;
       tUIText* cascadia_mono_32 = nullptr;
     } ui;

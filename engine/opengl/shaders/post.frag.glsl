@@ -126,7 +126,7 @@ void main() {
   #if ENABLE_CHROMATIC_ABERRATION
     // Chromatic aberration
     {
-      const float intensity = 3.0;
+      const float intensity = 4.0;
 
       vec2 offset = intensity * (vec2(0.0) - 2.0 * (fragUv - 0.5));
       float r = texture(in_color_and_depth, fragUv + TEXEL_SIZE * offset).r;
@@ -138,13 +138,22 @@ void main() {
     }
   #endif
 
-  vec3 position = GetWorldPosition(color_and_depth.w, fragUv, inverse_projection_matrix, inverse_view_matrix);
-  vec3 D = normalize(position - camera_position);
-  float world_depth = GetWorldDepth(color_and_depth.w, 500.0, 10000000.0);
+  // Volumetric fog
+  {
+    vec3 position = GetWorldPosition(color_and_depth.w, fragUv, inverse_projection_matrix, inverse_view_matrix);
+    vec3 D = normalize(position - camera_position);
+    float world_depth = GetWorldDepth(color_and_depth.w, 500.0, 10000000.0);
+    vec4 volumetric_fog = GetVolumetricFogColorAndThickness(world_depth, D);
 
-  vec4 volumetric_fog = GetVolumetricFogColorAndThickness(world_depth, D);
+    post_color = mix(post_color, volumetric_fog.rgb, volumetric_fog.w);
+  }
 
-  post_color = mix(post_color, volumetric_fog.rgb, volumetric_fog.w);
+  // Vignette
+  {
+    float vignette_factor = fragUv.x < 0.75 ? 0.0 : (fragUv.x - 0.75) * 4.0;
+
+    post_color = mix(post_color, post_color * vec3(0.1, 0.1, 0.4), vignette_factor);
+  }
 
   out_color = post_color;
 }
