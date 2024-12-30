@@ -109,10 +109,10 @@ static void HandleTargetInspectorStats(Tachyon* tachyon, const State& state, con
   }
 
   // Display rotation hex values (purely stylistic)
-    auto rx = QuaternionFloatToHex(rotation.x);
-    auto ry = QuaternionFloatToHex(rotation.y);
-    auto rz = QuaternionFloatToHex(rotation.z);
-    auto rw = QuaternionFloatToHex(rotation.w);
+  auto rx = QuaternionFloatToHex(rotation.x);
+  auto ry = QuaternionFloatToHex(rotation.y);
+  auto rz = QuaternionFloatToHex(rotation.z);
+  auto rw = QuaternionFloatToHex(rotation.w);
 
   {
     Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_32, {
