@@ -103,9 +103,6 @@ static void InitializeLevel(Tachyon* tachyon, State& state) {
     for (uint8 i = 0; i < 16; i++) {
       create(meshes.hud_flight_arrow);
     }
-
-    create(meshes.hud_wedge);
-    create(meshes.hud_wedge);
   }
 
   // @todo define as a default

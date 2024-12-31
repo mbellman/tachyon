@@ -1026,13 +1026,10 @@ static void LoadEntityMeshes(Tachyon* tachyon, State& state) {
   // HUD
   {
     auto flight_arrow = Tachyon_LoadMesh("./cosmodrone/assets/flight_arrow.obj");
-    auto wedge = Tachyon_LoadMesh("./cosmodrone/assets/hud_wedge.obj");
 
     meshes.hud_flight_arrow = Tachyon_AddMesh(tachyon, flight_arrow, 16);
-    meshes.hud_wedge = Tachyon_AddMesh(tachyon, wedge, 2);
 
     mesh(meshes.hud_flight_arrow).type = WIREFRAME_MESH;
-    mesh(meshes.hud_wedge).type = WIREFRAME_MESH;
   }
 }
 
@@ -1110,14 +1107,6 @@ void MeshLibrary::LoadMeshes(Tachyon* tachyon, State& state) {
 
     // Disable shadows for the following meshes
     {
-      // Effects
-      mesh(meshes.gas_flare_1).shadow_cascade_ceiling = 0;
-
-      // HUD meshes
-      mesh(meshes.hud_flight_arrow).shadow_cascade_ceiling = 0;
-      mesh(meshes.hud_wedge).shadow_cascade_ceiling = 0;
-      mesh(meshes.antenna_3_wireframe).shadow_cascade_ceiling = 0;
-
       // Background meshes
       mesh(meshes.planet).shadow_cascade_ceiling = 0;
       mesh(meshes.space_elevator).shadow_cascade_ceiling = 0;

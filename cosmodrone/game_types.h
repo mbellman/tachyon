@@ -126,7 +126,6 @@ namespace Cosmodrone {
       gas_flare_1,
 
       // HUD,
-      hud_wedge,
       hud_flight_arrow,
 
       // Background elements

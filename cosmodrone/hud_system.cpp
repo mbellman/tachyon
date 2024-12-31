@@ -268,21 +268,21 @@ static void HandleTargetInspectorStats(Tachyon* tachyon, const State& state, con
   auto& wireframe = objects(wireframe_mesh_index)[0];
   auto rotation = wireframe.rotation * tracker_object.rotation;
 
-  int32 x = int32(tachyon->window_width * 0.85f);
+  int32 x = int32(tachyon->window_width * 0.86f);
   int32 y = int32(tachyon->window_height * 0.38f);
 
   // Display target object name
   {
     float int_part;
-    auto name_alpha = 1.f - modf(state.current_game_time * 0.6f, &int_part);
-    auto name_color = Lerpf(tVec3f(0.3f, 0.7f, 1.f), tVec3f(0.9f, 1.f, 1.f), name_alpha);
+    auto name_color_blend_factor = 1.f - modf(state.current_game_time * 0.6f, &int_part);
+    auto name_color = Lerpf(tVec3f(0.3f, 0.7f, 1.f), tVec3f(0.9f, 1.f, 1.f), name_color_blend_factor);
 
     Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_26, {
       .screen_x = x,
       .screen_y = y,
       .centered = false,
       .color = name_color,
-      .alpha = 0.75f + 0.25f * name_alpha,
+      .alpha = 0.75f + 0.25f * name_color_blend_factor,
       // @temporary
       // @todo determine proper name for target object
       .string = "ANTENNA_3"
@@ -409,7 +409,7 @@ static void HandleTargetInspector(Tachyon* tachyon, State& state, const float dt
   auto offset_position =
     camera.position +
     state.view_forward_direction * 550.f -
-    left * (0.f + camera.fov * 7.5f);
+    left * camera.fov * 7.75f;
 
   auto* tracker = TargetSystem::GetSelectedTargetTracker(state);
 

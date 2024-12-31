@@ -25,17 +25,6 @@ static inline tVec3f Lerpf(const tVec3f& a, const tVec3f& b, const float alpha) 
   );
 }
 
-// @todo remove in favor of LookRotation()
-static Quaternion DirectionToQuaternion(const tVec3f& direction) {
-  auto yaw = atan2f(direction.x, direction.z);
-  auto pitch = atan2f(direction.xz().magnitude(), direction.y) - t_HALF_PI;
-
-  return (
-    Quaternion::fromAxisAngle(UP_VECTOR, yaw) *
-    Quaternion::fromAxisAngle(RIGHT_VECTOR, pitch)
-  );
-}
-
 static tVec3f GetDockingPositionOffset(const State& state) {
   if (state.docking_target.mesh_index == state.meshes.antenna_3) {
     return tVec3f(0, -1.f, -1.f).unit() * 0.7f;
@@ -44,18 +33,18 @@ static tVec3f GetDockingPositionOffset(const State& state) {
   return tVec3f(0, -1.f, -1.f).unit();
 }
 
-static void DecelerateRetrograde(State& state, const float dt, const float factor) {
+static void DecelerateRetrograde(State& state, const float dt) {
   // Figure out how 'backward' the ship is pointed
   float reverse_dot = tVec3f::dot(state.ship_rotation_basis.forward, state.retrograde_direction);
 
   // Only decelerate when sufficiently reversed, to minimize curving
   if (reverse_dot < -0.9999f) {
     // Decelerate proportional to current speed, with clamping
-    float acceleration = state.ship_velocity.magnitude() / 2.f;
-    if (acceleration > 10000.f) acceleration = 10000.f;
-    if (acceleration < 1000.f) acceleration = 1000.f;
+    float deceleration = state.ship_velocity.magnitude();
+    if (deceleration > 10000.f) deceleration = 10000.f;
+    if (deceleration < 1000.f) deceleration = 1000.f;
 
-    FlightSystem::ThrustForward(state, dt, acceleration * factor);
+    FlightSystem::ThrustForward(state, dt, deceleration);
   }
 }
 
@@ -63,7 +52,7 @@ static void DecelerateRetrograde(State& state, const float dt, const float facto
 void Autopilot::HandleAutopilot(Tachyon* tachyon, State& state, const float dt) {
   switch (state.flight_mode) {
     case FlightMode::AUTO_RETROGRADE: {
-      DecelerateRetrograde(state, dt, 1.f);
+      DecelerateRetrograde(state, dt);
 
       if (state.ship_velocity.magnitude() < 200.f) {
         // Restore manual control when sufficiently decelerated
@@ -75,7 +64,7 @@ void Autopilot::HandleAutopilot(Tachyon* tachyon, State& state, const float dt) 
 
     case FlightMode::AUTO_DOCK: {
       if (state.auto_dock_stage == AutoDockStage::APPROACH_DECELERATION) {
-        DecelerateRetrograde(state, dt, 2.f);
+        DecelerateRetrograde(state, dt);
 
         if (state.ship_velocity.magnitude() < 50.f) {
           state.auto_dock_stage = AutoDockStage::APPROACH_ALIGNMENT;
@@ -105,8 +94,7 @@ void Autopilot::HandleAutopilot(Tachyon* tachyon, State& state, const float dt) 
   if (state.flight_mode == FlightMode::AUTO_DOCK) {
     switch (state.auto_dock_stage) {
       case AutoDockStage::APPROACH_DECELERATION: {
-        // @todo use Quaternion::FromDirection()
-        state.target_ship_rotation = DirectionToQuaternion(state.ship_velocity_basis.forward);
+        state.target_ship_rotation = Quaternion::FromDirection(state.retrograde_direction, state.ship_rotation_basis.up);
         state.ship_rotate_to_target_speed += 4.f * dt;
 
         break;

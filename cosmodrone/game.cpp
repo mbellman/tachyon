@@ -90,7 +90,7 @@ static bool AttemptDockingProcedure(State& state) {
 
 const static float MAX_SHIP_SPEED = 15000.f;
 
-static void HandleControls(Tachyon* tachyon, State& state, const float dt) {
+static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
   bool is_issuing_control_action = false;
 
   // Handle forward thrust
@@ -222,7 +222,11 @@ static void HandleControls(Tachyon* tachyon, State& state, const float dt) {
   if (
     state.flight_mode == FlightMode::MANUAL_CONTROL &&
     !is_issuing_control_action &&
-    (tachyon->mouse_delta_x != 0 || tachyon->mouse_delta_y != 0)
+    (tachyon->mouse_delta_x != 0 || tachyon->mouse_delta_y != 0) &&
+    // Only do this when the camera isn't behind the ship.
+    // It looks a little odd when the ship suddenly stops
+    // drifting while the camera is following it.
+    tVec3f::dot(state.view_forward_direction, state.ship_rotation_basis.forward) < 0.8f
   ) {
     state.ship_rotate_to_target_speed *= (1.f - 10.f * dt);
   }
@@ -626,9 +630,9 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
   // @todo dev mode only
   objects(meshes.cube).disabled = state.is_editor_active || !tachyon->show_developer_tools;
   objects(meshes.hud_flight_arrow).disabled = state.is_editor_active;
-  objects(meshes.hud_wedge).disabled = state.is_editor_active;
-  objects(meshes.antenna_3_wireframe).disabled = state.is_editor_active;
   objects(meshes.npc_drone_1).disabled = state.is_editor_active;
+  objects(meshes.drone_wireframe).disabled = state.is_editor_active;
+  objects(meshes.antenna_3_wireframe).disabled = state.is_editor_active;
 
   // @todo dev mode only
   if (state.is_editor_active) {
@@ -639,7 +643,7 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
     objects(state.meshes.editor_guideline).disabled = true;
   }
 
-  HandleControls(tachyon, state, dt);
+  HandleInputs(tachyon, state, dt);
 
   Autopilot::HandleAutopilot(tachyon, state, dt);
 
