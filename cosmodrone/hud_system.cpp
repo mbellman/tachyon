@@ -19,231 +19,42 @@ inline tVec3f Lerpf(const tVec3f& a, const tVec3f& b, const float alpha) {
   );
 }
 
-static std::string QuaternionFloatToHex(const float value) {
-  float normalized = value * 0.5f + 0.5f;
-  uint8 value8 = uint8(normalized * 255.f);
-  auto formatted = std::format("{:X}", value8);
-
-  if (formatted.size() == 1) {
-    formatted = "0" + formatted;
-  }
-
-  return formatted;
-}
-
-static void ResetTargetInspectorObjects(Tachyon* tachyon, State& state) {
-  #define remove_objects(mesh_index)\
-    if (objects(mesh_index).total_active > 0) {\
-      remove(objects(mesh_index)[0]);\
-    }\
-
+static void HandleDroneInspector(Tachyon* tachyon, State& state, const float dt) {
   auto& meshes = state.meshes;
-
-  remove_objects(meshes.antenna_3_wireframe);
-}
-
-static uint16 GetTargetInspectorWireframeMeshIndex(const uint16 source_mesh, const State& state) {
-  auto& meshes = state.meshes;
-
-  if (source_mesh == meshes.antenna_3) {
-    return meshes.antenna_3_wireframe;
-  }
-
-  return meshes.antenna_3_wireframe;
-}
-
-static void HandleTargetInspectorWireframe(Tachyon* tachyon, const State& state, const tVec3f& offset, const TargetTracker& tracker) {
   auto& camera = tachyon->scene.camera;
-  auto wireframe_mesh_index = GetTargetInspectorWireframeMeshIndex(tracker.object.mesh_index, state);
-  auto& objects = objects(wireframe_mesh_index);
   // @todo define an orthonormal view basis and precalculate this
   auto left = tVec3f::cross(state.view_forward_direction, state.view_up_direction).invert();
 
-  if (objects.total_active == 0) {
-    create(wireframe_mesh_index);
-  }
-
-  auto& wireframe = objects[0];
-
-  wireframe.scale = 50.f;
-  wireframe.color = tVec4f(0.2f, 0.5f, 1.f, 1.f);
-
-  wireframe.position =
-    offset +
-    state.view_forward_direction * 20.f +
-    left * 40.f +
-    state.view_up_direction * 110.f;
-
-  wireframe.rotation =
-    camera.rotation.opposite() *
-    Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.5f * sinf(state.current_game_time * 0.5f)) *
-    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), state.current_game_time);
-
-  commit(wireframe);
-}
-
-static float GetTextAlpha(const float duration) {
-  auto clamped = std::clamp(duration * 1.2f, 0.f, 1.f);
-
-  if (clamped < 0.05f || (clamped > 0.1f && clamped < 0.15f)) {
-    return 0.f;
-  }
-
-  return std::min(clamped * 3.f, 1.f);
-}
-
-static std::string GetCondensedFloatString(const float value) {
-  auto formatted = std::format("{:.2f}", value);
-
-  if (formatted[0] == '0') {
-    formatted.erase(0, 1);
-  }
-
-  if (formatted[0] == '-' && formatted[1] == '0') {
-    formatted.erase(1, 1);
-  }
-
-  return formatted;
-}
-
-static void HandleTargetInspectorStats(Tachyon* tachyon, const State& state, const TargetTracker& tracker) {
-  auto selection_duration = state.current_game_time - tracker.selected_time;
-  auto tracker_object = tracker.object;
-  auto wireframe_mesh_index = GetTargetInspectorWireframeMeshIndex(tracker.object.mesh_index, state);
-  auto& wireframe = objects(wireframe_mesh_index)[0];
-  auto rotation = wireframe.rotation * tracker_object.rotation;
-
-  int32 x = int32(tachyon->window_width * 0.82f);
-  int32 y = int32(tachyon->window_height * 0.39f);
-
-  // Display target object name
-  {
-    float int_part;
-    auto name_alpha = 1.f - modf(state.current_game_time * 0.6f, &int_part);
-    auto name_color = Lerpf(tVec3f(0.3f, 0.7f, 1.f), tVec3f(0.9f, 1.f, 1.f), name_alpha);
-
-    Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_26, {
-      .screen_x = x,
-      .screen_y = y,
-      .centered = false,
-      .color = name_color,
-      // @temporary
-      // @todo determine proper name for target object
-      .string = "ANTENNA_3"
-    });
-  }
-
-  // Display rotation hex values (purely stylistic)
-  auto rx = QuaternionFloatToHex(rotation.x);
-  auto ry = QuaternionFloatToHex(rotation.y);
-  auto rz = QuaternionFloatToHex(rotation.z);
-  auto rw = QuaternionFloatToHex(rotation.w);
+  auto offset_position =
+    camera.position +
+    state.view_forward_direction * 550.f +
+    left * (0.f + camera.fov * 7.5f);
 
   {
-    Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_32, {
-      .screen_x = x,
-      .screen_y = y + 30,
-      .centered = false,
-      .color = tVec3f(0.7f, 0.1f, 1.f),
-      .string = rx + " " + ry + " " + rz + " " + rw
-    });
-  }
-
-  // Highlight each rotation hex value (purely stylistic)
-  {
-    const static std::vector<int8> cycle_indexes = { 3, 0, 2, 1, 1, 3, 2, 0, 1, 2, 0, 3, 1, 2 };
-    int8 cycle_index = cycle_indexes[int32(state.current_game_time * 3.f) % cycle_indexes.size()];
-    int32 highlight_x = x + cycle_index * 57;
-
-    auto& highlight_text =
-      cycle_index == 0 ? rx :
-      cycle_index == 1 ? ry :
-      cycle_index == 2 ? rz :
-      cycle_index == 3 ? rw : rx;
-
-    Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_32, {
-      .screen_x = highlight_x,
-      .screen_y = y + 30,
-      .centered = false,
-      .color = tVec3f(0.7f, 7.f, 1.f),
-      .alpha = GetTextAlpha(selection_duration - 0.1f),
-      .string = highlight_text
-    });
-  }
-
-  // Display additional stats/details
-  {
-    auto& stats = state.target_stats;
-
-    {
-      auto distance_string =
-        "DIST(m). +" +
-        std::to_string(stats.distance_in_meters) +
-        ";";
-
-      Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_20, {
-        .screen_x = x,
-        .screen_y = y + 70,
-        .centered = false,
-        .color = tVec3f(0.1f, 1.f, 0.7f),
-        .alpha = GetTextAlpha(selection_duration - 0.2f),
-        .string = distance_string
-      });
+    if (objects(meshes.drone_wireframe).total_active == 0) {
+      create(meshes.drone_wireframe);
     }
 
-    {
-      auto direction_string =
-        "DIR(N). " +
-        GetCondensedFloatString(stats.unit_direction.x) +
-        GetCondensedFloatString(stats.unit_direction.y) +
-        GetCondensedFloatString(stats.unit_direction.z) +
-        ";";
+    auto& wireframe = objects(meshes.drone_wireframe)[0];
 
-      Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_20, {
-        .screen_x = x,
-        .screen_y = y + 100,
-        .centered = false,
-        .color = tVec3f(0.1f, 1.f, 0.7f),
-        .alpha = GetTextAlpha(selection_duration - 0.3f),
-        .string = direction_string
-      });
-    }
+    wireframe.scale = 60.f;
+    wireframe.color = tVec4f(0.2f, 0.5f, 1.f, 1.f);
 
-    {
-      auto screen_coordinates_string =
-        "S.COORD. " +
-        std::to_string(tracker.screen_x) + " " +
-        std::to_string(tracker.screen_y) +
-        ";";
+    wireframe.position =
+      offset_position +
+      state.view_forward_direction * 20.f -
+      state.view_up_direction * (80.f + 2.f * camera.fov);
 
-      Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_20, {
-        .screen_x = x,
-        .screen_y = y + 130,
-        .centered = false,
-        .color = tVec3f(0.1f, 1.f, 0.7f),
-        .alpha = GetTextAlpha(selection_duration - 0.4f),
-        .string = screen_coordinates_string
-      });
-    }
+    wireframe.rotation =
+      camera.rotation.opposite() *
+      Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.2f * sinf(state.current_game_time * 0.25f)) *
+      Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), state.current_game_time * 0.5f);
 
-    {
-      auto relative_velocity_string =
-        "R-VEL. " +
-        GetCondensedFloatString(stats.relative_velocity) +
-        "m/s\x00b2;";
-
-      Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_20, {
-        .screen_x = x,
-        .screen_y = y + 160,
-        .centered = false,
-        .color = tVec3f(0.1f, 1.f, 0.7f),
-        .alpha = GetTextAlpha(selection_duration - 0.5f),
-        .string = relative_velocity_string
-      });
-    }
+    commit(wireframe);
   }
 }
 
+// @todo move to engine?
 struct Vec2i {
   int32 x = 0;
   int32 y = 0;
@@ -364,76 +175,246 @@ static void HandleTargetLine(Tachyon* tachyon, State& state, const float dt) {
   }
 }
 
-static void HandleDroneInspector(Tachyon* tachyon, State& state, const float dt) {
+static void ResetTargetInspectorObjects(Tachyon* tachyon, State& state) {
+  #define remove_objects(mesh_index)\
+    if (objects(mesh_index).total_active > 0) {\
+      remove(objects(mesh_index)[0]);\
+    }\
+
   auto& meshes = state.meshes;
+
+  remove_objects(meshes.antenna_3_wireframe);
+}
+
+static uint16 GetTargetInspectorWireframeMeshIndex(const uint16 source_mesh, const State& state) {
+  auto& meshes = state.meshes;
+
+  if (source_mesh == meshes.antenna_3) {
+    return meshes.antenna_3_wireframe;
+  }
+
+  return meshes.antenna_3_wireframe;
+}
+
+static void HandleTargetInspectorWireframe(Tachyon* tachyon, const State& state, const tVec3f& offset_position, const TargetTracker& tracker) {
   auto& camera = tachyon->scene.camera;
-  auto& wedge = objects(meshes.hud_wedge)[0];
+  auto wireframe_mesh_index = GetTargetInspectorWireframeMeshIndex(tracker.object.mesh_index, state);
+  auto& objects = objects(wireframe_mesh_index);
   // @todo define an orthonormal view basis and precalculate this
   auto left = tVec3f::cross(state.view_forward_direction, state.view_up_direction).invert();
 
-  wedge.position =
-    camera.position +
-    state.view_forward_direction * 550.f +
-    left * (0.f + camera.fov * 7.5f);
+  if (objects.total_active == 0) {
+    create(wireframe_mesh_index);
+  }
 
-  wedge.scale = 150.f + camera.fov * 1.8f;
-  wedge.color = tVec4f(0.1f, 0.2f, 1.f, 1.f);
+  auto& wireframe = objects[0];
 
-  wedge.rotation =
+  wireframe.scale = 50.f;
+  wireframe.color = tVec4f(0.5f, 0.8f, 1.f, 1.f);
+
+  wireframe.position =
+    offset_position +
+    state.view_forward_direction * 20.f +
+    state.view_up_direction * (80.f + camera.fov);
+
+  wireframe.rotation =
     camera.rotation.opposite() *
-    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI * 1.3f);
+    Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.5f * sinf(state.current_game_time * 0.5f)) *
+    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), state.current_game_time);
 
-  commit(wedge);
+  commit(wireframe);
+}
+
+static std::string QuaternionFloatToHex(const float value) {
+  float normalized = value * 0.5f + 0.5f;
+  uint8 value8 = uint8(normalized * 255.f);
+  auto formatted = std::format("{:X}", value8);
+
+  if (formatted.size() == 1) {
+    formatted = "0" + formatted;
+  }
+
+  return formatted;
+}
+
+static float GetTextAlpha(const float text_age) {
+  auto clamped = std::clamp(text_age * 1.2f, 0.f, 1.f);
+
+  if (clamped < 0.05f || (clamped > 0.1f && clamped < 0.15f)) {
+    return 0.f;
+  }
+
+  return std::min(clamped * 3.f, 1.f);
+}
+
+static std::string GetCondensedFloatString(const float value) {
+  auto formatted = std::format("{:.2f}", value);
+
+  if (formatted[0] == '0') {
+    formatted.erase(0, 1);
+  }
+
+  if (formatted[0] == '-' && formatted[1] == '0') {
+    formatted.erase(1, 1);
+  }
+
+  return formatted;
+}
+
+static void HandleTargetInspectorStats(Tachyon* tachyon, const State& state, const TargetTracker& tracker) {
+  auto time_since_selected = state.current_game_time - tracker.selected_time;
+  auto tracker_object = tracker.object;
+  auto wireframe_mesh_index = GetTargetInspectorWireframeMeshIndex(tracker.object.mesh_index, state);
+  auto& wireframe = objects(wireframe_mesh_index)[0];
+  auto rotation = wireframe.rotation * tracker_object.rotation;
+
+  int32 x = int32(tachyon->window_width * 0.85f);
+  int32 y = int32(tachyon->window_height * 0.38f);
+
+  // Display target object name
+  {
+    float int_part;
+    auto name_alpha = 1.f - modf(state.current_game_time * 0.6f, &int_part);
+    auto name_color = Lerpf(tVec3f(0.3f, 0.7f, 1.f), tVec3f(0.9f, 1.f, 1.f), name_alpha);
+
+    Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_26, {
+      .screen_x = x,
+      .screen_y = y,
+      .centered = false,
+      .color = name_color,
+      .alpha = 0.75f + 0.25f * name_alpha,
+      // @temporary
+      // @todo determine proper name for target object
+      .string = "ANTENNA_3"
+    });
+  }
+
+  // Display rotation hex values (purely stylistic)
+  auto rx = QuaternionFloatToHex(rotation.x);
+  auto ry = QuaternionFloatToHex(rotation.y);
+  auto rz = QuaternionFloatToHex(rotation.z);
+  auto rw = QuaternionFloatToHex(rotation.w);
 
   {
-    if (objects(meshes.drone_wireframe).total_active == 0) {
-      create(meshes.drone_wireframe);
+    Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_32, {
+      .screen_x = x,
+      .screen_y = y + 30,
+      .centered = false,
+      .color = tVec3f(0.7f, 0.1f, 1.f),
+      .alpha = 0.8f,
+      .string = rx + " " + ry + " " + rz + " " + rw
+    });
+  }
+
+  // Highlight each rotation hex value (purely stylistic)
+  {
+    const static std::vector<int8> cycle_indexes = { 3, 0, 2, 1, 1, 3, 2, 0, 1, 2, 0, 3, 1, 2 };
+    int8 cycle_index = cycle_indexes[int32(state.current_game_time * 3.f) % cycle_indexes.size()];
+    int32 highlight_x = x + cycle_index * 57;
+
+    auto& highlight_text =
+      cycle_index == 0 ? rx :
+      cycle_index == 1 ? ry :
+      cycle_index == 2 ? rz :
+      cycle_index == 3 ? rw : rx;
+
+    Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_32, {
+      .screen_x = highlight_x,
+      .screen_y = y + 30,
+      .centered = false,
+      .color = tVec3f(0.7f, 7.f, 1.f),
+      .alpha = GetTextAlpha(time_since_selected - 0.1f),
+      .string = highlight_text
+    });
+  }
+
+  // Display additional stats/details
+  {
+    auto& stats = state.target_stats;
+
+    {
+      auto distance_string =
+        "DIST(m). +" +
+        std::to_string(stats.distance_in_meters) +
+        ";";
+
+      Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_20, {
+        .screen_x = x,
+        .screen_y = y + 70,
+        .centered = false,
+        .color = tVec3f(0.1f, 1.f, 0.7f),
+        .alpha = GetTextAlpha(time_since_selected - 0.2f),
+        .string = distance_string
+      });
     }
 
-    auto& wireframe = objects(meshes.drone_wireframe)[0];
+    {
+      auto direction_string =
+        "DIR(N). " +
+        GetCondensedFloatString(stats.unit_direction.x) +
+        GetCondensedFloatString(stats.unit_direction.y) +
+        GetCondensedFloatString(stats.unit_direction.z) +
+        ";";
 
-    wireframe.scale = 60.f;
-    wireframe.color = tVec4f(0.2f, 0.5f, 1.f, 1.f);
+      Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_20, {
+        .screen_x = x,
+        .screen_y = y + 100,
+        .centered = false,
+        .color = tVec3f(0.1f, 1.f, 0.7f),
+        .alpha = GetTextAlpha(time_since_selected - 0.3f),
+        .string = direction_string
+      });
+    }
 
-    wireframe.position =
-      wedge.position +
-      state.view_forward_direction * 20.f +
-      left * -40.f +
-      state.view_up_direction * 150.f;
+    {
+      auto screen_coordinates_string =
+        "S.COORD. " +
+        std::to_string(tracker.screen_x) + " " +
+        std::to_string(tracker.screen_y) +
+        ";";
 
-    wireframe.rotation =
-      camera.rotation.opposite() *
-      Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), state.current_game_time);
+      Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_20, {
+        .screen_x = x,
+        .screen_y = y + 130,
+        .centered = false,
+        .color = tVec3f(0.1f, 1.f, 0.7f),
+        .alpha = GetTextAlpha(time_since_selected - 0.4f),
+        .string = screen_coordinates_string
+      });
+    }
 
-    commit(wireframe);
+    {
+      auto relative_velocity_string =
+        "R-VEL. " +
+        GetCondensedFloatString(stats.relative_velocity) +
+        "m/s\x00b2;";
+
+      Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_20, {
+        .screen_x = x,
+        .screen_y = y + 160,
+        .centered = false,
+        .color = tVec3f(0.1f, 1.f, 0.7f),
+        .alpha = GetTextAlpha(time_since_selected - 0.5f),
+        .string = relative_velocity_string
+      });
+    }
   }
 }
 
 static void HandleTargetInspector(Tachyon* tachyon, State& state, const float dt) {
   auto& meshes = state.meshes;
   auto& camera = tachyon->scene.camera;
-  auto& wedge = objects(meshes.hud_wedge)[1];
   auto left = tVec3f::cross(state.view_forward_direction, state.view_up_direction).invert();
 
-  wedge.position =
+  auto offset_position =
     camera.position +
     state.view_forward_direction * 550.f -
     left * (0.f + camera.fov * 7.5f);
 
-  wedge.scale = 150.f + camera.fov * 1.8f;
-  wedge.color = tVec4f(0.1f, 0.2f, 1.f, 1.f);
-
-  wedge.rotation =
-    camera.rotation.opposite() *
-    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -t_PI * 1.3f) *
-    Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), t_PI);
-
-  commit(wedge);
-
   auto* tracker = TargetSystem::GetSelectedTargetTracker(state);
 
   if (tracker != nullptr) {
-    HandleTargetInspectorWireframe(tachyon, state, wedge.position, *tracker);
+    HandleTargetInspectorWireframe(tachyon, state, offset_position, *tracker);
     HandleTargetInspectorStats(tachyon, state, *tracker);
   } else {
     ResetTargetInspectorObjects(tachyon, state);
