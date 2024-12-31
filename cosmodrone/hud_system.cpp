@@ -144,7 +144,7 @@ static void HandleTargetInspectorStats(Tachyon* tachyon, const State& state, con
       .screen_x = x,
       .screen_y = y + 30,
       .centered = false,
-      .color = tVec3f(0.8f, 0.2f, 1.f),
+      .color = tVec3f(0.7f, 0.1f, 1.f),
       .string = rx + " " + ry + " " + rz + " " + rw
     });
   }
@@ -176,7 +176,10 @@ static void HandleTargetInspectorStats(Tachyon* tachyon, const State& state, con
     auto& stats = state.target_stats;
 
     {
-      auto distance_string = "DIST(M). +" + std::to_string(stats.distance_in_meters) + "m;";
+      auto distance_string =
+        "DIST(m). +" +
+        std::to_string(stats.distance_in_meters) +
+        ";";
 
       Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_20, {
         .screen_x = x,
@@ -208,9 +211,10 @@ static void HandleTargetInspectorStats(Tachyon* tachyon, const State& state, con
 
     {
       auto screen_coordinates_string =
-        "C.COORD. " +
+        "S.COORD. " +
         std::to_string(tracker.screen_x) + " " +
-        std::to_string(tracker.screen_y) + ";";
+        std::to_string(tracker.screen_y) +
+        ";";
 
       Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_20, {
         .screen_x = x,
@@ -223,13 +227,18 @@ static void HandleTargetInspectorStats(Tachyon* tachyon, const State& state, con
     }
 
     {
+      auto relative_velocity_string =
+        "R-VEL. " +
+        GetCondensedFloatString(stats.relative_velocity) +
+        "m/s\x00b2;";
+
       Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_20, {
         .screen_x = x,
         .screen_y = y + 160,
         .centered = false,
         .color = tVec3f(0.1f, 1.f, 0.7f),
         .alpha = GetTextAlpha(selection_duration - 0.5f),
-        .string = "R-VEL. " + GetCondensedFloatString(stats.relative_velocity) + "m/s\x00b2;"
+        .string = relative_velocity_string
       });
     }
   }

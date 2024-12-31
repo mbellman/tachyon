@@ -12,6 +12,8 @@ void FlightSystem::ThrustForward(State& state, const float dt, const float rate)
 
 void FlightSystem::ControlledThrustForward(State& state, const float dt) {
   float speed = state.ship_velocity.magnitude();
+
+  // Go faster when starting acceleration
   float fast_start_ratio = speed / 4000.f;
   if (fast_start_ratio > 1.f) fast_start_ratio = 1.f;
   fast_start_ratio = 1.f - fast_start_ratio;
@@ -20,19 +22,31 @@ void FlightSystem::ControlledThrustForward(State& state, const float dt) {
 
   // Slow down along existing the velocity vector,
   // proportional to directional change
-  float forward_alignment = tVec3f::dot(state.ship_rotation_basis.forward, state.ship_velocity_basis.forward);
-  float slowdown_factor = 3.f * (1.f - std::max(0.f, forward_alignment));
+  {
+    float forward_alignment = tVec3f::dot(state.ship_rotation_basis.forward, state.ship_velocity_basis.forward);
+    if (forward_alignment < 0.f) forward_alignment = 0.f;
 
-  state.ship_velocity -= state.ship_velocity_basis.forward * slowdown_factor * proper_acceleration * dt;
+    float slowdown_factor = 3.f * (1.f - forward_alignment);
+
+    state.ship_velocity -= state.ship_velocity_basis.forward * slowdown_factor * proper_acceleration * dt;
+  }
 
   float view_alignment = std::max(0.f, tVec3f::dot(state.ship_rotation_basis.forward, state.view_forward_direction));
 
-  view_alignment *= view_alignment;
-  view_alignment *= view_alignment;
-  view_alignment *= view_alignment;
-
   // Accelerate along the ship forward direction
-  ThrustForward(state, dt, proper_acceleration * view_alignment);
+  ThrustForward(state, dt, proper_acceleration * powf(view_alignment, 3.f));
+
+  // Bias the drone trajectory toward its forward direction
+  // as it aligns with the view forward. This makes it easier
+  // to aim without needing to counteract drift.
+  {
+    float updated_speed = state.ship_velocity.magnitude();
+
+    state.ship_velocity = (
+      state.ship_velocity.unit() +
+      state.ship_rotation_basis.forward * view_alignment * 0.0025f
+    ).unit() * updated_speed;
+  }
 
   state.controlled_thrust_duration += dt;
   state.ship_rotate_to_target_speed += 5.f * dt;
