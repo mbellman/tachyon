@@ -82,8 +82,13 @@ static bool AttemptDockingProcedure(State& state) {
   }
 
   state.flight_mode = FlightMode::AUTO_DOCK;
-  state.auto_dock_stage = AutoDockStage::APPROACH_DECELERATION;
   state.docking_target = target_object;
+
+  if (state.ship_velocity.magnitude() < 2000.f) {
+    state.auto_dock_stage = AutoDockStage::APPROACH_ALIGNMENT;
+  } else {
+    state.auto_dock_stage = AutoDockStage::APPROACH_DECELERATION;
+  }
 
   return true;
 }
