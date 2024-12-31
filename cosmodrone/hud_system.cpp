@@ -82,7 +82,32 @@ static void HandleTargetInspectorWireframe(Tachyon* tachyon, const State& state,
   commit(wireframe);
 }
 
+static float GetTextAlpha(const float duration) {
+  auto clamped = std::clamp(duration * 1.2f, 0.f, 1.f);
+
+  if (clamped < 0.05f || (clamped > 0.1f && clamped < 0.15f)) {
+    return 0.f;
+  }
+
+  return std::min(clamped * 3.f, 1.f);
+}
+
+static std::string GetCondensedFloatString(const float value) {
+  auto formatted = std::format("{:.2f}", value);
+
+  if (formatted[0] == '0') {
+    formatted.erase(0, 1);
+  }
+
+  if (formatted[0] == '-' && formatted[1] == '0') {
+    formatted.erase(1, 1);
+  }
+
+  return formatted;
+}
+
 static void HandleTargetInspectorStats(Tachyon* tachyon, const State& state, const TargetTracker& tracker) {
+  auto selection_duration = state.current_game_time - tracker.selected_time;
   auto tracker_object = tracker.object;
   auto wireframe_mesh_index = GetTargetInspectorWireframeMeshIndex(tracker.object.mesh_index, state);
   auto& wireframe = objects(wireframe_mesh_index)[0];
@@ -119,7 +144,7 @@ static void HandleTargetInspectorStats(Tachyon* tachyon, const State& state, con
       .screen_x = x,
       .screen_y = y + 30,
       .centered = false,
-      .color = tVec3f(0.8f, 0.5f, 1.f),
+      .color = tVec3f(0.8f, 0.2f, 1.f),
       .string = rx + " " + ry + " " + rz + " " + rw
     });
   }
@@ -141,47 +166,72 @@ static void HandleTargetInspectorStats(Tachyon* tachyon, const State& state, con
       .screen_y = y + 30,
       .centered = false,
       .color = tVec3f(0.7f, 7.f, 1.f),
+      .alpha = GetTextAlpha(selection_duration - 0.1f),
       .string = highlight_text
     });
   }
 
   // Display additional stats/details
   {
-    Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_22, {
-      .screen_x = x,
-      .screen_y = y + 70,
-      .centered = false,
-      .color = tVec3f(0.1f, 1.f, 0.7f),
-      // @temporary
-      .string = "DIS; (AE-35);"
-    });
+    auto& stats = state.target_stats;
 
-    Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_22, {
-      .screen_x = x,
-      .screen_y = y + 100,
-      .centered = false,
-      .color = tVec3f(0.1f, 1.f, 0.7f),
-      // @temporary
-      .string = "INJ. .0045+ RAD.;"
-    });
+    {
+      auto distance_string = "DIST(M). +" + std::to_string(stats.distance_in_meters) + "m;";
 
-    Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_22, {
-      .screen_x = x,
-      .screen_y = y + 130,
-      .centered = false,
-      .color = tVec3f(0.1f, 1.f, 0.7f),
-      // @temporary
-      .string = "229D; SECURE;"
-    });
+      Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_20, {
+        .screen_x = x,
+        .screen_y = y + 70,
+        .centered = false,
+        .color = tVec3f(0.1f, 1.f, 0.7f),
+        .alpha = GetTextAlpha(selection_duration - 0.2f),
+        .string = distance_string
+      });
+    }
 
-    Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_22, {
-      .screen_x = x,
-      .screen_y = y + 160,
-      .centered = false,
-      .color = tVec3f(0.1f, 1.f, 0.7f),
-      // @temporary
-      .string = "VIS.CO-ORD. +.0046"
-    });
+    {
+      auto direction_string =
+        "DIR(N). " +
+        GetCondensedFloatString(stats.unit_direction.x) +
+        GetCondensedFloatString(stats.unit_direction.y) +
+        GetCondensedFloatString(stats.unit_direction.z) +
+        ";";
+
+      Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_20, {
+        .screen_x = x,
+        .screen_y = y + 100,
+        .centered = false,
+        .color = tVec3f(0.1f, 1.f, 0.7f),
+        .alpha = GetTextAlpha(selection_duration - 0.3f),
+        .string = direction_string
+      });
+    }
+
+    {
+      auto screen_coordinates_string =
+        "C.COORD. " +
+        std::to_string(tracker.screen_x) + " " +
+        std::to_string(tracker.screen_y) + ";";
+
+      Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_20, {
+        .screen_x = x,
+        .screen_y = y + 130,
+        .centered = false,
+        .color = tVec3f(0.1f, 1.f, 0.7f),
+        .alpha = GetTextAlpha(selection_duration - 0.4f),
+        .string = screen_coordinates_string
+      });
+    }
+
+    {
+      Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_20, {
+        .screen_x = x,
+        .screen_y = y + 160,
+        .centered = false,
+        .color = tVec3f(0.1f, 1.f, 0.7f),
+        .alpha = GetTextAlpha(selection_duration - 0.5f),
+        .string = "R-VEL. " + GetCondensedFloatString(stats.relative_velocity) + "m/s\x00b2;"
+      });
+    }
   }
 }
 
@@ -247,14 +297,14 @@ static void HandleFlightReticle(Tachyon* tachyon, State& state, const float dt) 
 static void HandleTargetLine(Tachyon* tachyon, State& state, const float dt) {
   const static float STEP_SIZE = 50.f;
 
-  auto* target = TargetSystem::GetSelectedTargetTracker(state);
+  auto* tracker = TargetSystem::GetSelectedTargetTracker(state);
 
-  if (target == nullptr) {
+  if (tracker == nullptr) {
     return;
   }
 
   Vec2i start = GetFlightReticleCoordinates(tachyon, state);
-  Vec2i end = Vec2i(target->screen_x, target->screen_y);
+  Vec2i end = Vec2i(tracker->screen_x, tracker->screen_y);
 
   float dx = float(end.x - start.x);
   float dy = float(end.y - start.y);
@@ -290,21 +340,17 @@ static void HandleTargetLine(Tachyon* tachyon, State& state, const float dt) {
   // Draw details under the selected target.
   // @todo this should be done in a HandleSelectedTargetIndicator() function
   {
-    auto* live_object = get_original_object(target->object);
-    float target_distance = (live_object->position - state.ship_position).magnitude();
-    uint32 distance_in_meters = uint32(target_distance / 1000.f);
-
     // Show the distance indicator on the top or bottom of the target indicator
     // depending on whether the indicator is clipped on the bottom screen edge
     int32 screen_y =
-      target->screen_y > tachyon->window_height - 80
-        ? target->screen_y - 65
-        : target->screen_y + 60;
+      tracker->screen_y > tachyon->window_height - 80
+        ? tracker->screen_y - 65
+        : tracker->screen_y + 60;
 
     Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_26, {
-      .screen_x = target->screen_x,
+      .screen_x = tracker->screen_x,
       .screen_y = screen_y,
-      .string = std::to_string(distance_in_meters) + "m"
+      .string = std::to_string(state.target_stats.distance_in_meters) + "m"
     });
   }
 }
@@ -363,8 +409,8 @@ static void HandleTargetInspector(Tachyon* tachyon, State& state, const float dt
 }
 
 void HUDSystem::HandleHUD(Tachyon* tachyon, State& state, const float dt) {
+  HandleOdometer(tachyon, state, dt);
   HandleFlightReticle(tachyon, state, dt);
   HandleTargetLine(tachyon, state, dt);
-  HandleOdometer(tachyon, state, dt);
   HandleTargetInspector(tachyon, state, dt);
 }

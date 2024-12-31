@@ -34,7 +34,7 @@ static void UpdateCelestialBodies(Tachyon* tachyon, State& state) {
     earth.position = camera.position + tVec3f(0, -5000000.f, 0);
     earth.color = tVec3f(0.1f, 0.2f, 1.f);
     earth.scale = tVec3f(2000000.f);
-    earth.material = tVec4f(0.4f, 0, 1.f, 0.3);
+    earth.material = tVec4f(0.4f, 0.f, 1.f, 0.3);
 
     atmosphere.position = earth.position;
     atmosphere.scale = earth.scale * 1.015f;

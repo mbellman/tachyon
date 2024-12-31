@@ -114,7 +114,7 @@ static void HandleControls(Tachyon* tachyon, State& state, const float dt) {
     // Handle pitch up
     FlightSystem::ChangePitch(state, dt, 1.f);
 
-    state.flight_target_reticle_offset.y += state.ship_pitch_factor * dt;
+    state.flight_target_reticle_offset.y += 0.4f * state.ship_pitch_factor * dt;
 
     is_issuing_control_action = true;
   } else {
@@ -602,7 +602,7 @@ void Cosmodrone::StartGame(Tachyon* tachyon) {
     state.ui.selected_target_corner = Tachyon_CreateUIElement("./cosmodrone/assets/ui/selected-target-corner.png");
     state.ui.selected_target_center = Tachyon_CreateUIElement("./cosmodrone/assets/ui/selected-target-center.png");
 
-    state.ui.cascadia_mono_22 = Tachyon_CreateUIText("./fonts/CascadiaMonoNF.ttf", 22);
+    state.ui.cascadia_mono_20 = Tachyon_CreateUIText("./fonts/CascadiaMonoNF.ttf", 20);
     state.ui.cascadia_mono_26 = Tachyon_CreateUIText("./fonts/CascadiaMonoNF.ttf", 26);
     state.ui.cascadia_mono_32 = Tachyon_CreateUIText("./fonts/CascadiaMonoNF.ttf", 32);
   }
@@ -648,6 +648,7 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
   HandleDrone(tachyon, state, dt);
 
   TargetSystem::HandleTargetTrackers(tachyon, state, dt);
+  TargetSystem::UpdateTargetStats(tachyon, state);
   HUDSystem::HandleHUD(tachyon, state, dt);
   WorldBehavior::UpdateWorld(tachyon, state, dt);
 

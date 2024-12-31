@@ -169,6 +169,12 @@ namespace Cosmodrone {
     float center_distance = 0.f;
   };
 
+  struct TargetStats {
+    uint32 distance_in_meters;
+    tVec3f unit_direction;
+    float relative_velocity;
+  };
+
   enum AutoDockStage {
     APPROACH_DECELERATION,
     APPROACH_ALIGNMENT,
@@ -224,6 +230,7 @@ namespace Cosmodrone {
     OrthonormalBasis ship_velocity_basis;
 
     std::vector<TargetTracker> on_screen_target_trackers;
+    TargetStats target_stats;
     AutoDockStage auto_dock_stage;
     tObject docking_target;
     tVec3f docking_position;
@@ -249,7 +256,7 @@ namespace Cosmodrone {
       tUIElement* selected_target_corner = nullptr;
       tUIElement* selected_target_center = nullptr;
 
-      tUIText* cascadia_mono_22 = nullptr;
+      tUIText* cascadia_mono_20 = nullptr;
       tUIText* cascadia_mono_26 = nullptr;
       tUIText* cascadia_mono_32 = nullptr;
     } ui;

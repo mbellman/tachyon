@@ -891,6 +891,10 @@ void Editor::DisableEditor(Tachyon* tachyon, State& state) {
   objects(state.meshes.editor_rotation).disabled = true;
   objects(state.meshes.editor_scale).disabled = true;
 
+  // Reset target trackers to avoid stale references
+  // if objects are deleted in the editor
+  state.on_screen_target_trackers.clear();
+
   WorldSetup::RebuildGeneratedObjects(tachyon, state);
   WorldSetup::StoreInitialObjects(tachyon, state);
   Vehicles::InitVehicles(tachyon, state);

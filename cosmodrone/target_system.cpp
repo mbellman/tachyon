@@ -260,6 +260,24 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
   }
 }
 
+void TargetSystem::UpdateTargetStats(Tachyon* tachyon, State& state) {
+  auto* target = TargetSystem::GetSelectedTargetTracker(state);
+
+  if (target == nullptr) {
+    return;
+  }
+
+  auto& stats = state.target_stats;
+  auto* live_object = get_original_object(target->object);
+  float target_distance = (live_object->position - state.ship_position).magnitude();
+
+  stats.distance_in_meters = uint32(target_distance / 1000.f);
+  stats.unit_direction = (live_object->position - state.ship_position).unit();
+  // @todo compute proper relative velocity (as well as + or - depending on
+  // whether we're approaching/receding from the target)
+  stats.relative_velocity = state.ship_velocity.magnitude() / 1000.f;
+}
+
 const TargetTracker* TargetSystem::GetSelectedTargetTracker(State& state) {
   for (auto& tracker : state.on_screen_target_trackers) {
     if (tracker.selected_time != 0.f) {
