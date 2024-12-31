@@ -364,7 +364,7 @@ static void HandleTargetLine(Tachyon* tachyon, State& state, const float dt) {
   }
 }
 
-static void HandleOdometer(Tachyon* tachyon, State& state, const float dt) {
+static void HandleDroneInspector(Tachyon* tachyon, State& state, const float dt) {
   auto& meshes = state.meshes;
   auto& camera = tachyon->scene.camera;
   auto& wedge = objects(meshes.hud_wedge)[0];
@@ -384,6 +384,29 @@ static void HandleOdometer(Tachyon* tachyon, State& state, const float dt) {
     Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI * 1.3f);
 
   commit(wedge);
+
+  {
+    if (objects(meshes.drone_wireframe).total_active == 0) {
+      create(meshes.drone_wireframe);
+    }
+
+    auto& wireframe = objects(meshes.drone_wireframe)[0];
+
+    wireframe.scale = 60.f;
+    wireframe.color = tVec4f(0.2f, 0.5f, 1.f, 1.f);
+
+    wireframe.position =
+      wedge.position +
+      state.view_forward_direction * 20.f +
+      left * -40.f +
+      state.view_up_direction * 150.f;
+
+    wireframe.rotation =
+      camera.rotation.opposite() *
+      Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), state.current_game_time);
+
+    commit(wireframe);
+  }
 }
 
 static void HandleTargetInspector(Tachyon* tachyon, State& state, const float dt) {
@@ -418,7 +441,7 @@ static void HandleTargetInspector(Tachyon* tachyon, State& state, const float dt
 }
 
 void HUDSystem::HandleHUD(Tachyon* tachyon, State& state, const float dt) {
-  HandleOdometer(tachyon, state, dt);
+  HandleDroneInspector(tachyon, state, dt);
   HandleFlightReticle(tachyon, state, dt);
   HandleTargetLine(tachyon, state, dt);
   HandleTargetInspector(tachyon, state, dt);

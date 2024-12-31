@@ -115,7 +115,8 @@ namespace Cosmodrone {
       light_3_base,
       light_3_bulb,
 
-      // Target inspector meshes
+      // HUD wireframe meshes
+      drone_wireframe,
       antenna_3_wireframe,
 
       // Entities
