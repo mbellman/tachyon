@@ -553,7 +553,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
   load_mesh_with_2_lods(girder_4_frame);
 
   load_mesh(girder_6_core);
-  load_mesh(girder_6_frame);
+  load_mesh_with_2_lods(girder_6_frame);
 
   load_mesh_with_2_lods(habitation_1_core);
   load_mesh_with_2_lods(habitation_1_frame);
