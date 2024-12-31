@@ -34,6 +34,7 @@ void FlightSystem::ControlledThrustForward(State& state, const float dt) {
   // Accelerate along the ship forward direction
   ThrustForward(state, dt, proper_acceleration * view_alignment);
 
+  state.controlled_thrust_duration += dt;
   state.ship_rotate_to_target_speed += 5.f * dt;
   state.flight_mode = FlightMode::MANUAL_CONTROL;
 }
@@ -64,6 +65,7 @@ void FlightSystem::YawRight(State& state, const float dt) {
 
 void FlightSystem::ChangePitch(State& state, const float dt, const float pitch_change) {
   state.ship_pitch_factor += pitch_change * dt;
+  if (state.ship_pitch_factor < -1.f) state.ship_pitch_factor = -1.f;
   if (state.ship_pitch_factor > 1.f) state.ship_pitch_factor = 1.f;
 
   state.flight_mode = FlightMode::MANUAL_CONTROL;
@@ -79,7 +81,7 @@ void FlightSystem::HandlePitch(State& state, const float dt) {
   ThrustForward(state, dt, acceleration_factor);
 
   state.jets_intensity -= 3.f * dt;
-  state.jets_intensity += 10.f * state.ship_pitch_factor * dt;
+  state.jets_intensity += 10.f * std::abs(state.ship_pitch_factor) * dt;
 
   state.ship_velocity = state.ship_velocity.unit() * ship_speed;
   state.ship_rotate_to_target_speed += 5.f * abs(state.ship_pitch_factor) * dt;

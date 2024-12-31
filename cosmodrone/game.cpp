@@ -98,6 +98,9 @@ static void HandleControls(Tachyon* tachyon, State& state, const float dt) {
     FlightSystem::ControlledThrustForward(state, dt);
 
     is_issuing_control_action = true;
+  } else {
+    // Reset duration when not holding forward
+    state.controlled_thrust_duration = 0.f;
   }
 
   // Enforce maximum ship speed
@@ -304,9 +307,31 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
 
   float ship_speed = state.ship_velocity.magnitude();
   float speed_zoom_ratio = ship_speed / (ship_speed + 5000.f);
+  float boost_intensity;
+
+  // Handle thruster boost effect
+  {
+    state.camera_boost_intensity += 10.f * state.controlled_thrust_duration * dt;
+    state.camera_boost_intensity *= 1.f - 10.f * dt;
+    if (state.camera_boost_intensity > 1.f) state.camera_boost_intensity = 1.f;
+
+    boost_intensity =
+      state.camera_boost_intensity < 0.4f
+        ? sqrtf(state.camera_boost_intensity * 2.5f)
+        : 1.f;
+
+    if (!is_key_held(tKey::W)) {
+      boost_intensity = 0.f;
+    }
+  }
+
+  state.target_camera_fov =
+    45.f +
+    10.f * speed_zoom_ratio +
+    5.f * boost_intensity +
+    5.f * state.ship_pitch_factor;
 
   state.ship_camera_distance = Lerpf(state.ship_camera_distance, state.ship_camera_distance_target + 250.f * speed_zoom_ratio, 5.f * dt);
-  state.target_camera_fov = 45.f + 10.f * speed_zoom_ratio;
 
   camera.fov = Lerpf(camera.fov, state.target_camera_fov, dt);
   camera.position = state.ship_position - state.view_forward_direction * state.ship_camera_distance + state.view_up_direction * 500.f;
@@ -426,7 +451,7 @@ static void UpdateShipVelocityBasis(State& state) {
   state.ship_velocity_basis.sideways = sideways;
 }
 
-static void HandlePlayerDrone(Tachyon* tachyon, State& state, const float dt) {
+static void HandleDrone(Tachyon* tachyon, State& state, const float dt) {
   auto& camera = tachyon->scene.camera;
   auto& meshes = state.meshes;
 
@@ -620,7 +645,7 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
 
   HandleCamera(tachyon, state, dt);
   HandleFlightArrows(tachyon, state, dt);
-  HandlePlayerDrone(tachyon, state, dt);
+  HandleDrone(tachyon, state, dt);
 
   TargetSystem::HandleTargetTrackers(tachyon, state, dt);
   HUDSystem::HandleHUD(tachyon, state, dt);

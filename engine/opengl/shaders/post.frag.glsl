@@ -153,7 +153,10 @@ void main() {
     const vec3 vignette_color = vec3(0.1, 0.3, 0.4);
     float vignette_factor = fragUv.x < 0.75 ? 0.0 : (fragUv.x - 0.75) * 4.0;
 
+    // Tweak the gradation
     vignette_factor = mix(vignette_factor, 1.0, vignette_factor);
+    vignette_factor = mix(vignette_factor, 1.0, vignette_factor);
+    vignette_factor *= vignette_factor;
 
     post_color = mix(post_color, post_color * vignette_color, vignette_factor);
   }

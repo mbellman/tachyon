@@ -200,6 +200,8 @@ namespace Cosmodrone {
     Quaternion target_ship_rotation;
     Quaternion target_camera_rotation;
     float target_camera_fov = 45.f;
+    float controlled_thrust_duration = 0.f;
+    float camera_boost_intensity = 0.f;
 
     FlightMode flight_mode = FlightMode::MANUAL_CONTROL;
 
