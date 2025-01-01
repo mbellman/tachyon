@@ -442,7 +442,10 @@ static void AddDrawElementsIndirectCommands(std::vector<DrawElementsIndirectComm
     }
   }
 
-  if (lod_2.instance_count > 0) {
+  if (
+    lod_2.instance_count > 0 &&
+    (lod_2.vertex_end > lod_2.vertex_start)
+  ) {
     DrawElementsIndirectCommand command;
 
     SetupDrawElementsIndirectCommand(command, lod_2);
@@ -456,7 +459,10 @@ static void AddDrawElementsIndirectCommands(std::vector<DrawElementsIndirectComm
     }
   }
 
-  if (lod_3.instance_count > 0) {
+  if (
+    lod_3.instance_count > 0 &&
+    (lod_3.vertex_end > lod_3.vertex_start)
+  ) {
     DrawElementsIndirectCommand command;
 
     SetupDrawElementsIndirectCommand(command, lod_3);

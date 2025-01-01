@@ -26,3 +26,4 @@ void Tachyon_CommitObject(Tachyon* tachyon, const tObject& object);
 tObject* Tachyon_GetOriginalObject(Tachyon* tachyon, const tObject& object);
 uint16 Tachyon_PartitionObjectsByDistance(Tachyon* tachyon, tObjectGroup& group, const uint16 start, const float distance);
 void Tachyon_UseLodByDistance(Tachyon* tachyon, const uint16 mesh_index, const float distance);
+void Tachyon_UseLodByDistance(Tachyon* tachyon, const uint16 mesh_index, const float distance, const float distance2);

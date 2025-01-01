@@ -671,19 +671,15 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
   {
     auto s = Tachyon_GetMicroseconds();
 
-    // @todo process one mesh per frame
-    Tachyon_UseLodByDistance(tachyon, meshes.antenna_1, 70000.f);
-
-    Tachyon_UseLodByDistance(tachyon, meshes.girder_1, 120000.f);
+    // @todo process groups of meshes per frame
     Tachyon_UseLodByDistance(tachyon, meshes.girder_2, 80000.f);
     Tachyon_UseLodByDistance(tachyon, meshes.girder_3, 80000.f);
-    Tachyon_UseLodByDistance(tachyon, meshes.girder_4_frame, 100000.f);
     Tachyon_UseLodByDistance(tachyon, meshes.girder_5, 100000.f);
     Tachyon_UseLodByDistance(tachyon, meshes.girder_6_frame, 150000.f);
 
     Tachyon_UseLodByDistance(tachyon, meshes.mega_girder_1, 200000.f);
 
-    Tachyon_UseLodByDistance(tachyon, meshes.grate_1, 50000.f);
+    Tachyon_UseLodByDistance(tachyon, meshes.grate_1, 50000.f, 150000.f);
     Tachyon_UseLodByDistance(tachyon, meshes.grate_2, 100000.f);
 
     Tachyon_UseLodByDistance(tachyon, meshes.silo_2, 80000.f);
@@ -692,11 +688,17 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
     Tachyon_UseLodByDistance(tachyon, meshes.silo_3_frame, 80000.f);
 
     Tachyon_UseLodByDistance(tachyon, meshes.habitation_1_core, 80000.f);
-    Tachyon_UseLodByDistance(tachyon, meshes.habitation_1_frame, 80000.f);
     Tachyon_UseLodByDistance(tachyon, meshes.habitation_1_insulation, 80000.f);
-    Tachyon_UseLodByDistance(tachyon, meshes.habitation_3_frame, 40000.f);
 
-    Tachyon_UseLodByDistance(tachyon, meshes.light_3_bulb, 20000.f);
+    // Use LoD 3 on the following meshes, which lack geometry for LoD 3.
+    // This effectively distance-culls them at the second distance threshold,
+    // since we do not render LoDs without geometry.
+    Tachyon_UseLodByDistance(tachyon, meshes.antenna_1, 70000.f, 120000.f);
+    Tachyon_UseLodByDistance(tachyon, meshes.girder_1, 120000.f, 180000.f);
+    Tachyon_UseLodByDistance(tachyon, meshes.girder_4_frame, 100000.f, 200000.f);
+    Tachyon_UseLodByDistance(tachyon, meshes.habitation_1_frame, 80000.f, 120000.f);
+    Tachyon_UseLodByDistance(tachyon, meshes.habitation_3_frame, 40000.f, 120000.f);
+    Tachyon_UseLodByDistance(tachyon, meshes.light_3_bulb, 20000.f, 100000.f);
 
     auto t = Tachyon_GetMicroseconds() - s;
 

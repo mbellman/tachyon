@@ -669,6 +669,9 @@ uint16 Tachyon_PartitionObjectsByDistance(Tachyon* tachyon, tObjectGroup& group,
   return current;
 }
 
+/**
+ * @todo description
+ */
 void Tachyon_UseLodByDistance(Tachyon* tachyon, const uint16 mesh_index, const float distance) {
   auto& record = tachyon->mesh_pack.mesh_records[mesh_index];
   auto& group = record.group;
@@ -678,4 +681,22 @@ void Tachyon_UseLodByDistance(Tachyon* tachyon, const uint16 mesh_index, const f
 
   record.lod_2.base_instance = record.lod_1.base_instance + pivot;
   record.lod_2.instance_count = group.total_visible - pivot;
+}
+
+/**
+ * @todo description
+ */
+void Tachyon_UseLodByDistance(Tachyon* tachyon, const uint16 mesh_index, const float distance, const float distance2) {
+  auto& record = tachyon->mesh_pack.mesh_records[mesh_index];
+  auto& group = record.group;
+  auto pivot = Tachyon_PartitionObjectsByDistance(tachyon, group, 0, distance);
+  auto pivot2 = Tachyon_PartitionObjectsByDistance(tachyon, group, pivot, distance2);
+
+  record.lod_1.instance_count = pivot;
+
+  record.lod_2.base_instance = record.lod_1.base_instance + pivot;
+  record.lod_2.instance_count = pivot2 - pivot;
+
+  record.lod_3.base_instance = record.lod_1.base_instance + pivot2;
+  record.lod_3.instance_count = group.total_visible - pivot2;
 }
