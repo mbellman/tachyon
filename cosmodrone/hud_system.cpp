@@ -1,5 +1,6 @@
 #include <format>
 
+#include "cosmodrone/autopilot.h"
 #include "cosmodrone/hud_system.h"
 #include "cosmodrone/target_system.h"
 
@@ -423,7 +424,11 @@ static void HandleTargetInspector(Tachyon* tachyon, State& state, const float dt
 
 void HUDSystem::HandleHUD(Tachyon* tachyon, State& state, const float dt) {
   HandleDroneInspector(tachyon, state, dt);
-  HandleFlightReticle(tachyon, state, dt);
-  HandleTargetLine(tachyon, state, dt);
+
+  if (!Autopilot::IsDoingDockingApproach(state)) {
+    HandleFlightReticle(tachyon, state, dt);
+    HandleTargetLine(tachyon, state, dt);
+  }
+
   HandleTargetInspector(tachyon, state, dt);
 }

@@ -1,5 +1,6 @@
 #include <algorithm>
 
+#include "cosmodrone/autopilot.h"
 #include "cosmodrone/target_system.h"
 
 using namespace Cosmodrone;
@@ -181,6 +182,11 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
         tracker.selected_time = state.current_game_time;
         tracker.deselected_time = 0.f;
       }
+    }
+
+    // @todo remove this once we move tracker drawing into TargetSystem
+    if (Autopilot::IsDoingDockingApproach(state)) {
+      return;
     }
 
     // Draw trackers

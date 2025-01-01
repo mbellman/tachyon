@@ -201,6 +201,10 @@ bool Autopilot::IsAutopilotActive(const State& state) {
   return state.flight_mode != FlightMode::MANUAL_CONTROL;
 }
 
+bool Autopilot::IsDoingDockingApproach(const State& state) {
+  return state.flight_mode == FlightMode::AUTO_DOCK && state.auto_dock_stage >= AutoDockStage::APPROACH;
+}
+
 bool Autopilot::IsDocked(const State& state) {
   return (
     state.flight_mode == FlightMode::AUTO_DOCK &&
