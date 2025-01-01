@@ -234,6 +234,9 @@ namespace Cosmodrone {
     AutoDockStage auto_dock_stage;
     tObject docking_target;
     tVec3f docking_position;
+    Quaternion initial_docking_camera_rotation;
+    float initial_docking_camera_distance;
+    float initial_docking_ship_distance;
 
     uint8 flight_arrow_cycle_step = 0;
     float flight_path_spawn_distance_remaining = 100.f;

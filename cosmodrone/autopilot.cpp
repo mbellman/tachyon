@@ -48,8 +48,32 @@ static void DecelerateRetrograde(State& state, const float dt) {
   }
 }
 
+static void HandleDockingApproachCamera(Tachyon* tachyon, State& state, tObject& target, float docking_distance) {
+  // @todo cache this when we start the docking stage
+  auto docked_camera_rotation =
+    Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.6f) *
+    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI * 1.2f) *
+    target.rotation.opposite();
+
+  auto camera_blend = powf(1.f - docking_distance / state.initial_docking_ship_distance, 2.f);
+
+  tachyon->scene.camera.rotation = state.target_camera_rotation = Quaternion::slerp(
+    state.initial_docking_camera_rotation,
+    docked_camera_rotation,
+    camera_blend
+  );
+
+  state.ship_camera_distance = state.ship_camera_distance_target = Lerpf(
+    state.initial_docking_camera_distance,
+    30000.f,
+    camera_blend
+  );
+}
+
 // @todo Clean/split this function up. Too much being managed here.
 void Autopilot::HandleAutopilot(Tachyon* tachyon, State& state, const float dt) {
+  auto& camera = tachyon->scene.camera;
+
   switch (state.flight_mode) {
     case FlightMode::AUTO_RETROGRADE: {
       DecelerateRetrograde(state, dt);
@@ -111,6 +135,10 @@ void Autopilot::HandleAutopilot(Tachyon* tachyon, State& state, const float dt) 
 
         if (GetDockingAlignment(state, docking_position) > 0.99999f) {
           state.auto_dock_stage = AutoDockStage::APPROACH;
+
+          state.initial_docking_camera_rotation = camera.rotation;
+          state.initial_docking_camera_distance = state.ship_camera_distance;
+          state.initial_docking_ship_distance = (docking_position - state.ship_position).magnitude();
         } else {
           // @hack slow the ship down after deceleration
           state.ship_velocity *= (1.f - 5.f * dt);
@@ -120,10 +148,16 @@ void Autopilot::HandleAutopilot(Tachyon* tachyon, State& state, const float dt) 
       }
 
       case AutoDockStage::APPROACH: {
+        auto& target = *get_original_object(state.docking_target);
         auto docking_position = GetDockingPosition(tachyon, state);
         auto docking_distance = (state.ship_position - docking_position).magnitude();
 
-        if (state.ship_velocity.magnitude() >= AUTO_DOCK_APPROACH_SPEED_LIMIT && docking_distance < 10000.f) {
+        HandleDockingApproachCamera(tachyon, state, target, docking_distance);
+
+        if (
+          state.ship_velocity.magnitude() >= AUTO_DOCK_APPROACH_SPEED_LIMIT &&
+          docking_distance < 10000.f
+        ) {
           state.auto_dock_stage = AutoDockStage::DOCKING;
         }
 
@@ -133,14 +167,18 @@ void Autopilot::HandleAutopilot(Tachyon* tachyon, State& state, const float dt) 
       case AutoDockStage::DOCKING: {
         auto docking_position = GetDockingPosition(tachyon, state);
         auto docking_distance = (state.ship_position - docking_position).magnitude();
+        auto& target = *get_original_object(state.docking_target);
 
+        HandleDockingApproachCamera(tachyon, state, target, docking_distance);
+
+        // Rotate the ship into the final docking position
         state.target_ship_rotation =
-          // @todo use live object
-          state.docking_target.rotation *
+          target.rotation *
           Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI);
 
         state.ship_rotate_to_target_speed = 0.3f;
 
+        // Slow down as we make the final approach
         if (docking_distance < 5000.f) {
           float speed = AUTO_DOCK_APPROACH_SPEED_LIMIT * (docking_distance / 5000.f);
 
@@ -153,12 +191,6 @@ void Autopilot::HandleAutopilot(Tachyon* tachyon, State& state, const float dt) 
           state.auto_dock_stage = AutoDockStage::DOCKED;
           state.ship_velocity = 0.f;
           state.ship_rotate_to_target_speed = 0.f;
-          state.ship_camera_distance_target = 30000.f;
-
-          state.target_camera_rotation =
-            Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.6f) *
-            Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI * 1.2f) *
-            state.docking_target.rotation.opposite();
         }
       }
     }
