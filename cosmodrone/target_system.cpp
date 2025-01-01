@@ -168,12 +168,6 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
 
     // Update tracker selection
     for (auto& tracker : state.on_screen_target_trackers) {
-      if (tracker.object == state.previous_selected_target_tracker.object) {
-        // Sync the previous selected tracker coordinates
-        state.previous_selected_target_tracker.screen_x = tracker.screen_x;
-        state.previous_selected_target_tracker.screen_y = tracker.screen_y;
-      }
-
       if (
         tracker.object != selected_target &&
         tracker.selected_time != 0.f
@@ -182,8 +176,6 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
         // if they are not for the selected target object
         tracker.selected_time = 0.f;
         tracker.deselected_time = state.current_game_time;
-
-        state.previous_selected_target_tracker = tracker;
       }
 
       if (
@@ -250,17 +242,11 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
         }
 
         // Draw focus indicator
-        float transition_alpha = std::min(1.f, 4.f * (state.current_game_time - tracker.selected_time));
-        transition_alpha = -(cosf(t_PI * transition_alpha) - 1.f) / 2.f;
-
-        int32 focus_x = (int32)Lerpf(state.previous_selected_target_tracker.screen_x, (float)tracker.screen_x, transition_alpha);
-        int32 focus_y = (int32)Lerpf(state.previous_selected_target_tracker.screen_y, (float)tracker.screen_y, transition_alpha);
-
         Tachyon_DrawUIElement(tachyon, state.ui.target_focus, {
-          .screen_x = focus_x,
-          .screen_y = focus_y,
+          .screen_x = tracker.screen_x,
+          .screen_y = tracker.screen_y,
           .rotation = 2.f * state.current_game_time,
-          .alpha = 0.8f + 0.2f * sinf(state.current_game_time * t_TAU)
+          .alpha = (0.8f + 0.2f * sinf(state.current_game_time * t_TAU))
         });
       } else {
         // Draw unselected trackers

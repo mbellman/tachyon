@@ -238,7 +238,6 @@ namespace Cosmodrone {
 
     TargetStats target_stats;
     std::vector<TargetTracker> on_screen_target_trackers;
-    TargetTracker previous_selected_target_tracker;
 
     uint8 flight_arrow_cycle_step = 0;
     float flight_path_spawn_distance_remaining = 100.f;
