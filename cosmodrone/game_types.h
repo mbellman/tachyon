@@ -210,9 +210,16 @@ namespace Cosmodrone {
     float camera_boost_intensity = 0.f;
 
     FlightMode flight_mode = FlightMode::MANUAL_CONTROL;
+    AutoDockStage auto_dock_stage;
+
+    tObject docking_target;
+    tVec3f docking_position;
+
+    Quaternion initial_docking_camera_rotation;
+    float initial_docking_camera_distance;
+    float initial_docking_ship_distance;
 
     tVec3f retrograde_direction;
-
     // @todo make these an orthonormal basis
     tVec3f view_forward_direction;
     tVec3f view_up_direction;
@@ -229,14 +236,9 @@ namespace Cosmodrone {
     OrthonormalBasis ship_rotation_basis;
     OrthonormalBasis ship_velocity_basis;
 
-    std::vector<TargetTracker> on_screen_target_trackers;
     TargetStats target_stats;
-    AutoDockStage auto_dock_stage;
-    tObject docking_target;
-    tVec3f docking_position;
-    Quaternion initial_docking_camera_rotation;
-    float initial_docking_camera_distance;
-    float initial_docking_ship_distance;
+    std::vector<TargetTracker> on_screen_target_trackers;
+    TargetTracker previous_selected_target_tracker;
 
     uint8 flight_arrow_cycle_step = 0;
     float flight_path_spawn_distance_remaining = 100.f;
@@ -250,11 +252,12 @@ namespace Cosmodrone {
     tVec2f flight_target_reticle_offset;
     float flight_reticle_rotation = 0.f;
 
-    // @todo move to UI/UISystem
+    // @todo move to hud_system.cpp
     struct {
       tUIElement* reticle = nullptr;
       tUIElement* dot = nullptr;
       tUIElement* target_indicator = nullptr;
+      tUIElement* target_focus = nullptr;
       tUIElement* zone_target_indicator = nullptr;
       tUIElement* selected_target_corner = nullptr;
       tUIElement* selected_target_center = nullptr;

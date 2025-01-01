@@ -727,7 +727,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .mesh_index = meshes.habitation_2_body,
       .generated_from = meshes.habitation_2,
       .defaults {
-        .color = tVec3f(1.f),
+        .color = tVec3f(0.2f, 0.4f, 1.f),
         .material = tVec4f(0.4f, 1.f, 0, 0)
       }
     },
@@ -1099,6 +1099,7 @@ void MeshLibrary::LoadMeshes(Tachyon* tachyon, State& state) {
     mesh(meshes.solar_panel_2_frame).shadow_cascade_ceiling = 3;
 
     mesh(meshes.grate_1).shadow_cascade_ceiling = 2;
+    mesh(meshes.habitation_2_frame).shadow_cascade_ceiling = 2;
     mesh(meshes.habitation_3_frame).shadow_cascade_ceiling = 2;
     mesh(meshes.light_3_base).shadow_cascade_ceiling = 2;
     mesh(meshes.light_3_bulb).shadow_cascade_ceiling = 2;

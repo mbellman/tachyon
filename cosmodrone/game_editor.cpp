@@ -191,6 +191,7 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
   // Handle WASD controls
   {
     const float move_speed =
+      (is_key_held(tKey::SPACE) && is_key_held(tKey::SHIFT)) ? 1000000.f :
       editor.use_high_speed_camera_movement ? 300000.f :
       is_key_held(tKey::SPACE) ? 50000.f :
       2000.f;
