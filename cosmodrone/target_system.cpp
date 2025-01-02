@@ -61,12 +61,23 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
     for (auto& object : objects(state.meshes.antenna_3)) {
       auto camera_to_object = object.position - camera.position;
       auto object_direction = camera_to_object.unit();
+      auto target_dot = tVec3f::dot(object_direction, state.view_forward_direction);
 
       if (
         camera_to_object.magnitude() > MAX_TARGET_DISTANCE ||
-        tVec3f::dot(object_direction, state.view_forward_direction) < 0.8f
+        target_dot < 0.8f
       ) {
-        if (IsTrackingObject(state, object)) {
+        if (
+          IsTrackingObject(state, object) &&
+          // Perform a special check to avoid un-tracking docking targets
+          // when they go offscreen while auto-docking, provided they are
+          // still technically in front of the camera.
+          !(
+            state.flight_mode == FlightMode::AUTO_DOCK &&
+            object == state.docking_target &&
+            target_dot > 0.f
+          )
+        ) {
           StopTrackingObject(state, object);
         }
 
@@ -129,6 +140,12 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
       auto screen_x = int32(tachyon->window_width - clip_position.x * tachyon->window_width);
       auto screen_y = int32(clip_position.y * tachyon->window_height);
 
+      if (screen_x < 0) screen_x = 0;
+      if (screen_x > tachyon->window_width) screen_x = tachyon->window_width;
+
+      if (screen_y < 0) screen_y = 0;
+      if (screen_y > tachyon->window_height) screen_y = tachyon->window_height;
+
       tracker.screen_x = screen_x;
       tracker.screen_y = screen_y;
 
@@ -166,7 +183,12 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
       }
     }
 
-    // Update tracker selection
+    // In auto-dock mode, permanently keep the docking target selected
+    if (state.flight_mode == FlightMode::AUTO_DOCK) {
+      selected_target = state.docking_target;
+    }
+
+    // Update tracker selection (only when not auto-docking)
     for (auto& tracker : state.on_screen_target_trackers) {
       if (
         tracker.object != selected_target &&
