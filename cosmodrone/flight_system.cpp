@@ -14,11 +14,11 @@ void FlightSystem::ControlledThrustForward(State& state, const float dt) {
   float speed = state.ship_velocity.magnitude();
 
   // Go faster when starting acceleration
-  float fast_start_ratio = speed / 4000.f;
+  float fast_start_ratio = speed / 10000.f;
   if (fast_start_ratio > 1.f) fast_start_ratio = 1.f;
   fast_start_ratio = 1.f - fast_start_ratio;
 
-  float proper_acceleration = ACCELERATION + fast_start_ratio * ACCELERATION;
+  float proper_acceleration = ACCELERATION + 2.f * fast_start_ratio * ACCELERATION;
 
   // Slow down along existing the velocity vector,
   // proportional to directional change
@@ -40,11 +40,12 @@ void FlightSystem::ControlledThrustForward(State& state, const float dt) {
   // as it aligns with the view forward. This makes it easier
   // to aim without needing to counteract drift.
   {
+    const float bias = 0.0035f;
     float updated_speed = state.ship_velocity.magnitude();
 
     state.ship_velocity = (
       state.ship_velocity.unit() +
-      state.ship_rotation_basis.forward * view_alignment * 0.0025f
+      state.ship_rotation_basis.forward * view_alignment * bias
     ).unit() * updated_speed;
   }
 

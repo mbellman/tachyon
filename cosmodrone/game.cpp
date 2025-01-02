@@ -240,7 +240,6 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
 static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
   auto& camera = tachyon->scene.camera;
   auto& meshes = state.meshes;
-  float camera_lerp_speed_factor = 10.f;
 
   // Clamp roll speed
   if (state.camera_roll_speed > 3.f) state.camera_roll_speed = 3.f;
@@ -303,14 +302,11 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
     state.target_camera_rotation = Quaternion::slerp(
       state.target_camera_rotation,
       new_target,
-      abs(state.ship_pitch_factor) * dt
+      4.f * abs(state.ship_pitch_factor) * dt
     );
   }
 
-  float camera_lerp_alpha = camera_lerp_speed_factor * dt;
-  if (camera_lerp_alpha > 1.f) camera_lerp_alpha = 1.f;
-
-  camera.rotation = Quaternion::slerp(camera.rotation, state.target_camera_rotation, camera_lerp_alpha);
+  camera.rotation = Quaternion::slerp(camera.rotation, state.target_camera_rotation, 5.f * dt);
 
   UpdateViewDirections(tachyon, state);
 

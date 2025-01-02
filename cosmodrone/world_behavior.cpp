@@ -118,7 +118,7 @@ static void UpdateRotators(Tachyon* tachyon, State& state, const float dt) {
     for_dynamic_objects(meshes.arch_1_body, {
       auto axis = initial.rotation.getUpDirection();
       auto offset = initial.position.y * 0.00001f;
-      auto rate = 0.02f * sinf(initial.position.y);
+      auto rate = 0.01f * sinf(initial.position.y);
 
       object.rotation = Quaternion::fromAxisAngle(axis, offset + state.current_game_time * rate) * initial.rotation;
 
@@ -130,7 +130,7 @@ static void UpdateRotators(Tachyon* tachyon, State& state, const float dt) {
     for_dynamic_objects(meshes.arch_1_details, {
       auto axis = initial.rotation.getUpDirection();
       auto offset = initial.position.y * 0.00001f;
-      auto rate = 0.02f * sinf(initial.position.y);
+      auto rate = 0.01f * sinf(initial.position.y);
 
       object.rotation = Quaternion::fromAxisAngle(axis, offset + state.current_game_time * rate) * initial.rotation;
 
@@ -142,7 +142,7 @@ static void UpdateRotators(Tachyon* tachyon, State& state, const float dt) {
     for_dynamic_objects(meshes.arch_1_frame, {
       auto axis = initial.rotation.getUpDirection();
       auto offset = initial.position.y * 0.00001f;
-      auto rate = 0.02f * sinf(initial.position.y);
+      auto rate = 0.01f * sinf(initial.position.y);
 
       object.rotation = Quaternion::fromAxisAngle(axis, offset + state.current_game_time * rate) * initial.rotation;
 
