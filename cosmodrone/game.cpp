@@ -124,7 +124,7 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
     is_issuing_control_action = true;
   } else {
     // Reduce pitch gradually
-    state.ship_pitch_factor *= (1.f - 5.f * dt);
+    state.ship_pitch_factor *= (1.f - 2.f * dt);
 
     // Prevent a long reduction tail and just snap to 0
     if (abs(state.ship_pitch_factor) < 0.01f) {
@@ -297,13 +297,13 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
 
   if (state.ship_pitch_factor != 0.f) {
     auto new_target =
-      Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -20.f * state.ship_pitch_factor * dt) *
+      Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -10.f * state.ship_pitch_factor * dt) *
       objects(meshes.hull)[0].rotation.opposite();
 
     state.target_camera_rotation = Quaternion::slerp(
       state.target_camera_rotation,
       new_target,
-      2.f * abs(state.ship_pitch_factor) * dt
+      abs(state.ship_pitch_factor) * dt
     );
   }
 
@@ -479,7 +479,7 @@ static void HandleDrone(Tachyon* tachyon, State& state, const float dt) {
     state.target_ship_rotation = camera.rotation.opposite();
 
     if (state.ship_pitch_factor != 0.f) {
-      float pitch_change = 50.f * state.ship_pitch_factor * dt;
+      float pitch_change = 0.5f * state.ship_pitch_factor;
 
       state.target_ship_rotation =
         state.target_ship_rotation *
