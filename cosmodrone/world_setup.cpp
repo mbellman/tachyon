@@ -322,6 +322,10 @@ void WorldSetup::StoreInitialObjects(Tachyon* tachyon, State& state) {
   StoreInitialMeshObjects(tachyon, meshes.habitation_4_frame);
   StoreInitialMeshObjects(tachyon, meshes.habitation_4_panels);
   StoreInitialMeshObjects(tachyon, meshes.habitation_4_lights);
+
+  StoreInitialMeshObjects(tachyon, meshes.arch_1_body);
+  StoreInitialMeshObjects(tachyon, meshes.arch_1_details);
+  StoreInitialMeshObjects(tachyon, meshes.arch_1_frame);
 }
 
 void WorldSetup::RebuildGeneratedObjects(Tachyon* tachyon, State& state) {

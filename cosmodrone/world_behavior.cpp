@@ -112,6 +112,43 @@ static void UpdateRotators(Tachyon* tachyon, State& state, const float dt) {
   UpdateRotatorObjects(tachyon, state, dt, meshes.station_torus_3_body, 0.08f);
   UpdateRotatorObjects(tachyon, state, dt, meshes.station_torus_3_frame, 0.08f);
   UpdateRotatorObjects(tachyon, state, dt, meshes.station_torus_3_lights, 0.08f);
+
+  // @todo refactor
+  {
+    for_dynamic_objects(meshes.arch_1_body, {
+      auto axis = initial.rotation.getUpDirection();
+      auto offset = initial.position.y * 0.00001f;
+      auto rate = 0.02f * sinf(initial.position.y);
+
+      object.rotation = Quaternion::fromAxisAngle(axis, offset + state.current_game_time * rate) * initial.rotation;
+
+      commit(object);
+    });
+  }
+
+  {
+    for_dynamic_objects(meshes.arch_1_details, {
+      auto axis = initial.rotation.getUpDirection();
+      auto offset = initial.position.y * 0.00001f;
+      auto rate = 0.02f * sinf(initial.position.y);
+
+      object.rotation = Quaternion::fromAxisAngle(axis, offset + state.current_game_time * rate) * initial.rotation;
+
+      commit(object);
+    });
+  }
+
+  {
+    for_dynamic_objects(meshes.arch_1_frame, {
+      auto axis = initial.rotation.getUpDirection();
+      auto offset = initial.position.y * 0.00001f;
+      auto rate = 0.02f * sinf(initial.position.y);
+
+      object.rotation = Quaternion::fromAxisAngle(axis, offset + state.current_game_time * rate) * initial.rotation;
+
+      commit(object);
+    });
+  }
 }
 
 static void UpdateLocalEntities(Tachyon* tachyon, State& state, const float dt) {
