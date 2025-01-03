@@ -63,22 +63,28 @@ vec4 GetVolumetricFogColorAndThickness(float depth, vec3 direction) {
 
   float sun_dot = max(0.0, dot(direction, -primary_light_direction));
 
-  vec3 sample_position = camera_position + direction * noise(1.0) * 1000.0;
-  float step_length = 15000.0;
-
+  const float step_length = 20000.0;
   vec3 color = vec3(0.0);
   float thickness = 0.0;
 
-  for (int i = 0; i < 15; i++) {
-    sample_position += direction * step_length;
+  for (int i = 0; i < 4; i++) {
+    float camera_to_volume_distance = length(fog_volume_positions[i] - camera_position);
 
-    float camera_to_sample_distance = length(sample_position - camera_position);
+    vec3 sample_position =
+      camera_position +
+      direction * camera_to_volume_distance -
+      direction * 150000.0 +
+      direction * noise(1.0) * 1000.0;
 
-    if (camera_to_sample_distance > depth) {
-      break;
-    }
+    for (int j = 0; j < 10; j++) {
+      sample_position += direction * step_length;
 
-    for (int i = 0; i < 4; i++) {
+      float camera_to_sample_distance = length(sample_position - camera_position);
+
+      if (camera_to_sample_distance > depth) {
+        break;
+      }
+
       vec3 volume_to_sample = sample_position - fog_volume_positions[i];
       float volume_distance = length(volume_to_sample);
       vec3 sample_direction = volume_to_sample / volume_distance;
@@ -86,11 +92,11 @@ vec4 GetVolumetricFogColorAndThickness(float depth, vec3 direction) {
       float NdotL = max(0.0, dot(sample_direction, -primary_light_direction));
 
       color += mix(dark_fog_color, light_fog_color, NdotL);
-      thickness += 0.001 * (1.0 - distance_ratio);
+      thickness += 0.002 * (1.0 - distance_ratio);
     }
   }
 
-  color = mix(color, light_fog_color * 120.0, pow(sun_dot, 50.0));
+  color = mix(color, light_fog_color * 60.0, pow(sun_dot, 50.0));
 
   return vec4(color, thickness);
 }
