@@ -326,6 +326,9 @@ void WorldSetup::StoreInitialObjects(Tachyon* tachyon, State& state) {
   StoreInitialMeshObjects(tachyon, meshes.arch_1_body);
   StoreInitialMeshObjects(tachyon, meshes.arch_1_details);
   StoreInitialMeshObjects(tachyon, meshes.arch_1_frame);
+
+  StoreInitialMeshObjects(tachyon, meshes.gate_tower_1);
+  StoreInitialMeshObjects(tachyon, meshes.background_ship_1);
 }
 
 void WorldSetup::RebuildGeneratedObjects(Tachyon* tachyon, State& state) {

@@ -93,7 +93,7 @@ static bool AttemptDockingProcedure(State& state) {
   return true;
 }
 
-const static float MAX_SHIP_SPEED = 15000.f;
+const static float MAX_SHIP_SPEED = 20000.f;
 
 static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
   bool is_issuing_control_action = false;
@@ -324,10 +324,6 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
       state.camera_boost_intensity < 0.4f
         ? sqrtf(state.camera_boost_intensity * 2.5f)
         : 1.f;
-
-    if (!is_key_held(tKey::W)) {
-      boost_intensity = 0.f;
-    }
   }
 
   state.target_camera_fov =

@@ -91,6 +91,18 @@ static inline void UpdateRotatorObjects(Tachyon* tachyon, const State& state, co
   });
 }
 
+static inline void UpdateRotatingArchPart(Tachyon* tachyon, const State& state, const float dt, uint16 mesh_index) {
+  for_dynamic_objects(mesh_index, {
+    auto axis = initial.rotation.getUpDirection();
+    auto offset = initial.position.y * 0.00001f;
+    auto rate = 0.01f * sinf(initial.position.y);
+
+    object.rotation = Quaternion::fromAxisAngle(axis, offset + state.current_game_time * rate) * initial.rotation;
+
+    commit(object);
+  });
+}
+
 static void UpdateRotators(Tachyon* tachyon, State& state, const float dt) {
   auto& meshes = state.meshes;
 
@@ -113,41 +125,11 @@ static void UpdateRotators(Tachyon* tachyon, State& state, const float dt) {
   UpdateRotatorObjects(tachyon, state, dt, meshes.station_torus_3_frame, 0.08f);
   UpdateRotatorObjects(tachyon, state, dt, meshes.station_torus_3_lights, 0.08f);
 
-  // @todo refactor
+  // Rotating arches
   {
-    for_dynamic_objects(meshes.arch_1_body, {
-      auto axis = initial.rotation.getUpDirection();
-      auto offset = initial.position.y * 0.00001f;
-      auto rate = 0.01f * sinf(initial.position.y);
-
-      object.rotation = Quaternion::fromAxisAngle(axis, offset + state.current_game_time * rate) * initial.rotation;
-
-      commit(object);
-    });
-  }
-
-  {
-    for_dynamic_objects(meshes.arch_1_details, {
-      auto axis = initial.rotation.getUpDirection();
-      auto offset = initial.position.y * 0.00001f;
-      auto rate = 0.01f * sinf(initial.position.y);
-
-      object.rotation = Quaternion::fromAxisAngle(axis, offset + state.current_game_time * rate) * initial.rotation;
-
-      commit(object);
-    });
-  }
-
-  {
-    for_dynamic_objects(meshes.arch_1_frame, {
-      auto axis = initial.rotation.getUpDirection();
-      auto offset = initial.position.y * 0.00001f;
-      auto rate = 0.01f * sinf(initial.position.y);
-
-      object.rotation = Quaternion::fromAxisAngle(axis, offset + state.current_game_time * rate) * initial.rotation;
-
-      commit(object);
-    });
+    UpdateRotatingArchPart(tachyon, state, dt, meshes.arch_1_body);
+    UpdateRotatingArchPart(tachyon, state, dt, meshes.arch_1_details);
+    UpdateRotatingArchPart(tachyon, state, dt, meshes.arch_1_frame);
   }
 }
 
@@ -155,30 +137,32 @@ static void UpdateLocalEntities(Tachyon* tachyon, State& state, const float dt) 
   auto& meshes = state.meshes;
   float scene_time = tachyon->scene.scene_time;
 
-  // @todo turn these into placeable entities
-  auto& elevator_car = objects(meshes.elevator_car_1)[0];
-  auto& elevator_car_frame = objects(meshes.elevator_car_1_frame)[0];
+  // @todo develop a more robust scheme for elevators/track vehicles
+  {
+    auto& elevator_car = objects(meshes.elevator_car_1)[0];
+    auto& elevator_car_frame = objects(meshes.elevator_car_1_frame)[0];
 
-  elevator_car.scale = elevator_car_frame.scale = tVec3f(12000.f);
-  elevator_car.rotation = elevator_car_frame.rotation = Quaternion(0.707f, -0.707f, 0, 0);
+    elevator_car.scale = elevator_car_frame.scale = tVec3f(12000.f);
+    elevator_car.rotation = elevator_car_frame.rotation = Quaternion(0.707f, -0.707f, 0, 0);
 
-  elevator_car.position.x = elevator_car_frame.position.x = 10065.f;
-  elevator_car.position.z = elevator_car_frame.position.z = 11148.f;
+    elevator_car.position.x = elevator_car_frame.position.x = 10065.f;
+    elevator_car.position.z = elevator_car_frame.position.z = 11148.f;
 
-  elevator_car_frame.material = tVec4f(0.4f, 1.f, 0, 0);
+    elevator_car_frame.material = tVec4f(0.4f, 1.f, 0, 0);
 
-  float y = elevator_car.position.y + 20000.f * dt;
+    float y = elevator_car.position.y + 20000.f * dt;
 
-  // @temporary
-  if (y > 400000.f) {
-    y = -50000.f;
+    // @temporary
+    if (y > 400000.f) {
+      y = -50000.f;
+    }
+
+    elevator_car.position.y = y;
+    elevator_car_frame.position.y = y;
+
+    commit(elevator_car);
+    commit(elevator_car_frame);
   }
-
-  elevator_car.position.y = y;
-  elevator_car_frame.position.y = y;
-
-  commit(elevator_car);
-  commit(elevator_car_frame);
 }
 
 static void UpdateGasFlareLights(Tachyon* tachyon, State& state, const float dt) {
@@ -188,6 +172,35 @@ static void UpdateGasFlareLights(Tachyon* tachyon, State& state, const float dt)
     auto power = 5.f * (0.5f * sinf(t) + 0.5f);
 
     light.power = power;
+  }
+}
+
+static void UpdateBackgroundEntities(Tachyon* tachyon, State& state, const float dt) {
+  auto& meshes = state.meshes;
+
+  {
+    for_dynamic_objects(meshes.gate_tower_1, {
+      object.position.y =
+        initial.position.y +
+        100000.f * sinf(state.current_game_time * 0.05f + initial.position.x * 0.001f);
+
+      commit(object);
+    });
+  }
+
+  {
+    for_dynamic_objects(meshes.background_ship_1, {
+      object.position.y =
+        initial.position.y +
+        30000.f * sinf(state.current_game_time * 0.1f + initial.position.x * 0.001f);
+
+      object.rotation =
+        Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 0.1f * sinf(state.current_game_time * 0.1f + initial.position.x * 0.01f)) *
+        Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.1f * sinf(state.current_game_time * 0.13f + initial.position.y * 0.01f)) *
+        initial.rotation;
+
+      commit(object);
+    });
   }
 }
 
@@ -208,4 +221,5 @@ void WorldBehavior::UpdateWorld(Tachyon* tachyon, State& state, const float dt) 
   UpdateRotators(tachyon, state, dt);
   UpdateLocalEntities(tachyon, state, dt);
   UpdateGasFlareLights(tachyon, state, dt);
+  UpdateBackgroundEntities(tachyon, state, dt);
 }
