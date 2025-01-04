@@ -86,13 +86,6 @@ static void RecreateStationDrones(Tachyon* tachyon, State& state) {
 
     commit(drone);
 
-    point_lights.push_back({
-      .position = drone.position,
-      .radius = 2000.f,
-      .color = tVec3f(1.f, 0.2f, 1.f),
-      .power = 1.f
-    });
-
     vehicles.push_back({
       .object = drone,
       // @temporary
@@ -100,17 +93,25 @@ static void RecreateStationDrones(Tachyon* tachyon, State& state) {
       // @temporary
       .target_position = tVec3f(0.f),
       .speed = 5000.f,
-      .light_index = uint32(point_lights.size() - 1)
+      .light_indexes_offset = uint32(point_lights.size())
+    });
+
+    point_lights.push_back({
+      .position = drone.position,
+      .radius = 2000.f,
+      .color = tVec3f(1.f, 0.2f, 1.f),
+      .power = 1.f
     });
   }
 }
 
 static void RecreateFlyingShips(Tachyon* tachyon, State& state) {
+  auto& point_lights = tachyon->point_lights;
   auto& meshes = state.meshes;
   auto& vehicles = state.vehicles;
 
   for (auto& node : state.vehicle_network) {
-    uint32 spawn_total = node.connected_nodes.size() * 5;
+    uint32 spawn_total = node.connected_nodes.size() * 4;
 
     for (uint32 i = 0; i < spawn_total; i++) {
       auto& ship = create(meshes.flying_ship_1);
@@ -118,17 +119,37 @@ static void RecreateFlyingShips(Tachyon* tachyon, State& state) {
       auto& target_node = node.connected_nodes[target_node_index];
       float progress = Tachyon_GetRandom();
 
-      ship.position = Lerpf(node.position, target_node.position, progress);
+      tVec3f offset = tVec3f(
+        Tachyon_GetRandom(0.f, 40000.f),
+        Tachyon_GetRandom(0.f, 40000.f),
+        Tachyon_GetRandom(0.f, 40000.f)
+      );
+
+      ship.position = Lerpf(node.position, target_node.position, progress) + offset;
       ship.scale = 8000.f;
 
       commit(ship);
 
-      Vehicle vehicle;
-      vehicle.object = ship;
-      vehicle.spawn_position = node.position;
-      vehicle.target_position = target_node.position;
+      vehicles.push_back({
+        .object = ship,
+        .spawn_position = node.position + offset,
+        .target_position = target_node.position + offset,
+        .light_indexes_offset = uint32(point_lights.size())
+      });
 
-      vehicles.push_back(vehicle);
+      point_lights.push_back({
+        .position = ship.position,
+        .radius = 2000.f,
+        .color = tVec3f(0.2f, 0.6f, 1.f),
+        .power = 2.f
+      });
+
+      point_lights.push_back({
+        .position = ship.position,
+        .radius = 2000.f,
+        .color = tVec3f(0.2f, 0.6f, 1.f),
+        .power = 2.f
+      });
     }
   }
 }
@@ -145,7 +166,7 @@ void Vehicles::LoadVehicleMeshes(Tachyon* tachyon, State& state) {
   meshes.flying_ship_1 = Tachyon_AddMesh(
     tachyon,
     Tachyon_LoadMesh("./cosmodrone/assets/npc-ships/flying_ship_1.obj"),
-    500
+    1000
   );
 }
 
@@ -177,6 +198,7 @@ void Vehicles::InitVehicles(Tachyon* tachyon, State& state) {
 }
 
 void Vehicles::UpdateVehicles(Tachyon* tachyon, State& state, const float dt) {
+  auto start = Tachyon_GetMicroseconds();
   auto& point_lights = tachyon->point_lights;
 
   for (auto& vehicle : state.vehicles) {
@@ -199,6 +221,12 @@ void Vehicles::UpdateVehicles(Tachyon* tachyon, State& state, const float dt) {
       } else {
         object.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -angle + t_PI);
       }
+
+      auto& light = point_lights[vehicle.light_indexes_offset];
+
+      light.position =
+        object.position +
+        object.rotation.getUpDirection() * 500.f;
     }
 
     // Flying ships
@@ -211,18 +239,39 @@ void Vehicles::UpdateVehicles(Tachyon* tachyon, State& state, const float dt) {
         object.position = vehicle.spawn_position;
       }
 
-      object.position += direction * 10000.f * dt;
+      object.position += direction * 25000.f * dt;
       object.rotation = DirectionToQuaternion(direction);
-    }
 
-    if (vehicle.light_index > 0) {
-      auto& light = point_lights[vehicle.light_index];
+      auto& light1 = point_lights[vehicle.light_indexes_offset];
+      auto& light2 = point_lights[vehicle.light_indexes_offset + 1];
+      auto matrix = object.rotation.toMatrix4f();
 
-      light.position =
+      float light_ratio = distance / 2000000.f;
+      if (light_ratio > 1.f) light_ratio = 1.f;
+      light_ratio *= light_ratio;
+
+      light1.position =
         object.position +
-        object.rotation.getUpDirection() * 500.f;
+        matrix.transformVec3f(tVec3f(-0.2f, 0, -0.95f) * object.scale);
+
+      light2.position =
+        object.position +
+        matrix.transformVec3f(tVec3f(0.2f, 0, -0.95f) * object.scale);
+
+      light1.power =
+      light2.power =
+      1.f + 50.f * light_ratio;
+
+      light1.radius =
+      light2.radius =
+      1000.f + 20000.f * light_ratio;
     }
 
     commit(object);
   }
+
+  auto t = Tachyon_GetMicroseconds() - start;
+
+  // @todo dev mode only
+  add_dev_label("UpdateVehicles", std::to_string(t) + "us");
 }

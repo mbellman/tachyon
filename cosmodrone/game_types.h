@@ -197,7 +197,7 @@ namespace Cosmodrone {
     tVec3f spawn_position;
     tVec3f target_position;
     float speed = 0.f;
-    uint32 light_index = 0;
+    uint32 light_indexes_offset = 0;
   };
 
   struct VehicleNode {

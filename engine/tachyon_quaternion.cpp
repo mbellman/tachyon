@@ -182,10 +182,10 @@ tVec3f Quaternion::getLeftDirection() const {
 
 tMat4f Quaternion::toMatrix4f() const {
   return {
-    1 - 2 * y * y - 2 * z * z, 2 * x * y - 2 * z * w, 2 * x * z + 2 * y * w, 0.0f,
-    2 * x * y + 2 * z * w, 1 - 2 * x * x - 2 * z * z, 2 * y * z - 2 * x * w, 0.0f,
-    2 * x * z - 2 * y * w, 2 * y * z + 2 * x * w, 1 - 2 * x * x - 2 * y * y, 0.0f,
-    0.0f, 0.0f, 0.0f, 1.0f
+    1 - 2 * y * y - 2 * z * z, 2 * x * y - 2 * z * w, 2 * x * z + 2 * y * w, 0.f,
+    2 * x * y + 2 * z * w, 1 - 2 * x * x - 2 * z * z, 2 * y * z - 2 * x * w, 0.f,
+    2 * x * z - 2 * y * w, 2 * y * z + 2 * x * w, 1 - 2 * x * x - 2 * y * y, 0.f,
+    0.f, 0.f, 0.f, 1.f
   };
 }
 
