@@ -31,6 +31,7 @@ static void HandleDroneInspector(Tachyon* tachyon, State& state, const float dt)
     state.view_forward_direction * 550.f +
     left * (0.f + camera.fov * 7.5f);
 
+  // Drone wireframe
   {
     if (objects(meshes.drone_wireframe).total_active == 0) {
       create(meshes.drone_wireframe);
@@ -38,20 +39,43 @@ static void HandleDroneInspector(Tachyon* tachyon, State& state, const float dt)
 
     auto& wireframe = objects(meshes.drone_wireframe)[0];
 
-    wireframe.scale = 60.f;
+    wireframe.scale = 1.5f * camera.fov;
     wireframe.color = tVec4f(0.2f, 0.5f, 1.f, 1.f);
 
     wireframe.position =
       offset_position +
       state.view_forward_direction * 20.f -
-      state.view_up_direction * (80.f + 2.f * camera.fov);
+      state.view_up_direction * (20.f + 3.f * camera.fov);
 
     wireframe.rotation =
       camera.rotation.opposite() *
-      Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.2f * sinf(state.current_game_time * 0.25f)) *
+      Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.04f * sinf(state.current_game_time * 0.25f)) *
       Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), state.current_game_time * 0.5f);
 
     commit(wireframe);
+  }
+
+  // Drone details
+  {
+    int32 x = int32(tachyon->window_width * 0.04f);
+    int32 y = int32(tachyon->window_height * 0.92f);
+
+    Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_26, {
+      .screen_x = x,
+      .screen_y = y,
+      .centered = false,
+      .color = tVec3f(0.1f, 1.f, 0.7f),
+      .string = "C.DRONE-IV 7a."
+    });
+
+    Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_20, {
+      .screen_x = x,
+      .screen_y = y + 34,
+      .centered = false,
+      .color = tVec3f(0.1f, 1.f, 0.7f),
+      .alpha = 0.8f + 0.2f * sinf(state.current_game_time * 2.f),
+      .string = "RANK. [C];"
+    });
   }
 }
 
@@ -197,8 +221,22 @@ static uint16 GetTargetInspectorWireframeMeshIndex(const uint16 source_mesh, con
   return meshes.antenna_3_wireframe;
 }
 
+static float GetWireframeAlpha(const float age) {
+  auto clamped = std::clamp(age * 1.2f, 0.f, 1.f);
+
+  if (
+    clamped < 0.1f ||
+    (clamped > 0.2f && clamped < 0.3f)
+  ) {
+    return 0.f;
+  }
+
+  return std::min(clamped * 3.f, 1.f);
+}
+
 static void HandleTargetInspectorWireframe(Tachyon* tachyon, const State& state, const tVec3f& offset_position, const TargetTracker& tracker) {
   auto& camera = tachyon->scene.camera;
+  auto time_since_selected = state.current_game_time - tracker.selected_time;
   auto wireframe_mesh_index = GetTargetInspectorWireframeMeshIndex(tracker.object.mesh_index, state);
   auto& objects = objects(wireframe_mesh_index);
   // @todo define an orthonormal view basis and precalculate this
@@ -211,7 +249,7 @@ static void HandleTargetInspectorWireframe(Tachyon* tachyon, const State& state,
   auto& wireframe = objects[0];
 
   wireframe.scale = 50.f;
-  wireframe.color = tVec4f(0.5f, 0.8f, 1.f, 1.f);
+  wireframe.color = tVec4f(0.5f, 0.8f, 1.f, 1.f) * GetWireframeAlpha(time_since_selected - 0.2f);
 
   wireframe.position =
     offset_position +

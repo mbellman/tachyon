@@ -113,6 +113,15 @@ std::string tVec3f::toString() const {
   return std::format("x: {:.3f}, y: {:.3f}, z: {:.3f}", x, y, z);
 }
 
+tVec4f tVec4f::operator*(const tVec4f& v) const {
+  return {
+    x * v.x,
+    y * v.y,
+    z * v.z,
+    w * v.w
+  };
+}
+
 tVec3f tVec4f::homogenize() const {
   return {
     x / w,

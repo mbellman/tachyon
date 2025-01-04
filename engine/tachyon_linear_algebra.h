@@ -51,6 +51,8 @@ struct tVec4f {
   tVec4f(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {};
   tVec4f(const tVec3f& v, float w): x(v.x), y(v.y), z(v.z), w(w) {};
 
+  tVec4f operator*(const tVec4f& v) const;
+
   tVec3f homogenize() const;
 };
 
