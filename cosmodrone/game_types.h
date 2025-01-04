@@ -12,11 +12,13 @@ namespace Cosmodrone {
       trim,
       jets,
 
-      // NPC drone parts
+      // NPC drones/ships
       npc_drone_1,
+      flying_car_1,
 
-      // Spawn meshes
+      // Marker/spawn meshes
       zone_target,
+      vehicle_target,
 
       // Station parts
       antenna_1,
@@ -192,10 +194,15 @@ namespace Cosmodrone {
 
   struct Vehicle {
     tObject object;
+    tVec3f spawn_position;
+    tVec3f target_position;
+    float speed = 0.f;
+    uint32 light_index = 0;
+  };
+
+  struct VehicleNode {
     tVec3f position;
-    tVec3f direction;
-    float speed;
-    uint32 light_index;
+    std::vector<VehicleNode> connected_nodes;
   };
 
   struct State {
@@ -245,6 +252,7 @@ namespace Cosmodrone {
 
     std::vector<uint32> gas_flare_light_indexes;
 
+    std::vector<VehicleNode> vehicle_network;
     std::vector<Vehicle> vehicles;
 
     tVec2f flight_reticle_offset;

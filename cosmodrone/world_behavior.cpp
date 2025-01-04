@@ -182,7 +182,7 @@ static void UpdateBackgroundEntities(Tachyon* tachyon, State& state, const float
     for_dynamic_objects(meshes.gate_tower_1, {
       object.position.y =
         initial.position.y +
-        100000.f * sinf(state.current_game_time * 0.05f + initial.position.x * 0.001f);
+        150000.f * sinf(state.current_game_time * 0.05f + initial.position.x * 0.001f);
 
       commit(object);
     });
@@ -192,7 +192,7 @@ static void UpdateBackgroundEntities(Tachyon* tachyon, State& state, const float
     for_dynamic_objects(meshes.background_ship_1, {
       object.position.y =
         initial.position.y +
-        30000.f * sinf(state.current_game_time * 0.1f + initial.position.x * 0.001f);
+        50000.f * sinf(state.current_game_time * 0.1f + initial.position.x * 0.001f);
 
       object.rotation =
         Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 0.1f * sinf(state.current_game_time * 0.1f + initial.position.x * 0.01f)) *

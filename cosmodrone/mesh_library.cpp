@@ -40,6 +40,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   meshes.zone_target = Tachyon_AddMesh(tachyon, Tachyon_CreateSphereMesh(16), 100);
+  meshes.vehicle_target = Tachyon_AddMesh(tachyon, Tachyon_CreateSphereMesh(16), 100);
 
   load_mesh_with_2_lods(antenna_1);
   load_mesh(antenna_2);
@@ -93,6 +94,17 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
       .scale = tVec3f(3000.f),
       .color = tVec4f(1.f, 1.f, 0.1f, 0.2f),
       .material = tVec4f(0.6f, 0, 0, 0)
+    }
+  });
+
+  placeable_mesh_assets.push_back({
+    .mesh_name = "vehicle_target",
+    .mesh_index = meshes.vehicle_target,
+    .placeholder = true,
+    .defaults = {
+      .scale = tVec3f(3000.f),
+      .color = tVec4f(0.4f, 1.f, 0.1f, 0.2f),
+      .material = tVec4f(1.f, 0, 0, 0)
     }
   });
 
