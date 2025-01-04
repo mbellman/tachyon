@@ -629,7 +629,7 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
   // @todo dev mode only
   objects(meshes.cube).disabled = state.is_editor_active || !tachyon->show_developer_tools;
   objects(meshes.hud_flight_arrow).disabled = state.is_editor_active;
-  objects(meshes.npc_drone_1).disabled = state.is_editor_active;
+  objects(meshes.station_drone_1).disabled = state.is_editor_active;
   objects(meshes.drone_wireframe).disabled = state.is_editor_active;
   objects(meshes.antenna_3_wireframe).disabled = state.is_editor_active;
 

@@ -13,8 +13,8 @@ namespace Cosmodrone {
       jets,
 
       // NPC drones/ships
-      npc_drone_1,
-      flying_car_1,
+      station_drone_1,
+      flying_ship_1,
 
       // Marker/spawn meshes
       zone_target,
