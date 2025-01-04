@@ -22,6 +22,14 @@ void Tachyon_Log(const std::string& message) {
   Tachyon_AddConsoleMessage(message, tVec3f(1.f));
 }
 
+void Tachyon_Log(const int value) {
+  Tachyon_AddConsoleMessage(std::to_string(value), tVec3f(1.f));
+}
+
+void Tachyon_Log(const size_t value) {
+  Tachyon_Log((int)value);
+}
+
 void Tachyon_Log(const float value) {
   Tachyon_AddConsoleMessage(std::to_string(value), tVec3f(1.f));
 }

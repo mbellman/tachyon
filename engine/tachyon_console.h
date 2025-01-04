@@ -18,6 +18,8 @@ struct tConsoleMessage {
 
 void Tachyon_AddConsoleMessage(const std::string& message, const tVec3f& color);
 void Tachyon_Log(const std::string& message);
+void Tachyon_Log(const int value);
+void Tachyon_Log(const size_t value);
 void Tachyon_Log(const float value);
 void Tachyon_Log(const tVec3f& vector);
 void Tachyon_Log(const Quaternion& q);
