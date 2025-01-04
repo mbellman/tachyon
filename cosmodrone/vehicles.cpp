@@ -111,7 +111,7 @@ static void RecreateFlyingShips(Tachyon* tachyon, State& state) {
   auto& vehicles = state.vehicles;
 
   for (auto& node : state.vehicle_network) {
-    uint32 spawn_total = node.connected_nodes.size() * 4;
+    uint32 spawn_total = node.connected_nodes.size() * 3;
 
     for (uint32 i = 0; i < spawn_total; i++) {
       auto& ship = create(meshes.flying_ship_1);
