@@ -18,6 +18,7 @@ tMesh Tachyon_CreateCubeMesh();
 tMesh Tachyon_CreateSphereMesh(uint8 divisions);
 uint16 Tachyon_AddMesh(Tachyon* tachyon, const tMesh& mesh, uint16 total);
 uint16 Tachyon_AddMesh(Tachyon* tachyon, const tMesh& mesh, const tMesh& mesh2, uint16 total);
+uint16 Tachyon_AddMesh(Tachyon* tachyon, const tMesh& mesh, const tMesh& mesh2, const tMesh& mesh3, uint16 total);
 void Tachyon_InitializeObjects(Tachyon* tachyon);
 tObject& Tachyon_CreateObject(Tachyon* tachyon, uint16 mesh_index);
 void Tachyon_RemoveObject(Tachyon* tachyon, tObject& object);

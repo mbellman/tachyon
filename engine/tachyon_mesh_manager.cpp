@@ -73,6 +73,28 @@ static void ComputeTangents(tMesh& mesh) {
   }
 }
 
+static void AddLevelOfDetail(Tachyon* tachyon, tMeshRecord& record, const tMesh& mesh_lod, tMeshGeometry& target_lod) {
+  auto& pack = tachyon->mesh_pack;
+  tMeshGeometry geometry;
+
+  geometry.vertex_start = pack.vertex_stream.size();
+  geometry.vertex_end = geometry.vertex_start + mesh_lod.vertices.size();
+
+  geometry.face_element_start = pack.face_element_stream.size();
+  geometry.face_element_end = geometry.face_element_start + mesh_lod.face_elements.size();
+
+  target_lod = geometry;
+
+  // Add vertices/face elements to the main stream
+  for (auto& vertex : mesh_lod.vertices) {
+    pack.vertex_stream.push_back(vertex);
+  }
+
+  for (auto& element : mesh_lod.face_elements) {
+    pack.face_element_stream.push_back(element);
+  }
+}
+
 // @todo compute vertex normals + tangents when not defined in the obj file
 tMesh Tachyon_LoadMesh(const char* path, const tVec3f& axis_factors) {
   tMesh mesh;
@@ -374,7 +396,6 @@ tMesh Tachyon_CreateSphereMesh(uint8 divisions) {
   return mesh;
 }
 
-// @todo define overloads for 2 and 3-LoD variants
 uint16 Tachyon_AddMesh(Tachyon* tachyon, const tMesh& mesh, uint16 total) {
   auto& pack = tachyon->mesh_pack;
   tMeshRecord record;
@@ -414,51 +435,29 @@ uint16 Tachyon_AddMesh(Tachyon* tachyon, const tMesh& mesh_lod_1, const tMesh& m
   auto& pack = tachyon->mesh_pack;
   tMeshRecord record;
 
-  // LoD 1
-  {
-    auto& mesh = mesh_lod_1;
-    tMeshGeometry geometry;
+  AddLevelOfDetail(tachyon, record, mesh_lod_1, record.lod_1);
+  AddLevelOfDetail(tachyon, record, mesh_lod_2, record.lod_2);
 
-    geometry.vertex_start = pack.vertex_stream.size();
-    geometry.vertex_end = geometry.vertex_start + mesh.vertices.size();
+  record.mesh_index = (uint16)pack.mesh_records.size();
+  record.group.total = total;
 
-    geometry.face_element_start = pack.face_element_stream.size();
-    geometry.face_element_end = geometry.face_element_start + mesh.face_elements.size();
+  // Manually allocate the mesh group's id -> index lookup table.
+  // Its object/matrix/surface arrays are just pointers into the
+  // global mesh pack's, so we need not worry about those.
+  record.group.id_to_index = new uint16[total];
 
-    record.lod_1 = geometry;
+  pack.mesh_records.push_back(record);
 
-    // Add vertices/face elements to the main stream
-    for (auto& vertex : mesh.vertices) {
-      pack.vertex_stream.push_back(vertex);
-    }
+  return record.mesh_index;
+}
 
-    for (auto& element : mesh.face_elements) {
-      pack.face_element_stream.push_back(element);
-    }
-  }
+uint16 Tachyon_AddMesh(Tachyon* tachyon, const tMesh& mesh_lod_1, const tMesh& mesh_lod_2, const tMesh& mesh_lod_3, uint16 total) {
+  auto& pack = tachyon->mesh_pack;
+  tMeshRecord record;
 
-  // LoD 2
-  {
-    auto& mesh = mesh_lod_2;
-    tMeshGeometry geometry;
-
-    geometry.vertex_start = pack.vertex_stream.size();
-    geometry.vertex_end = geometry.vertex_start + mesh.vertices.size();
-
-    geometry.face_element_start = pack.face_element_stream.size();
-    geometry.face_element_end = geometry.face_element_start + mesh.face_elements.size();
-
-    record.lod_2 = geometry;
-
-    // Add vertices/face elements to the main stream
-    for (auto& vertex : mesh.vertices) {
-      pack.vertex_stream.push_back(vertex);
-    }
-
-    for (auto& element : mesh.face_elements) {
-      pack.face_element_stream.push_back(element);
-    }
-  }
+  AddLevelOfDetail(tachyon, record, mesh_lod_1, record.lod_1);
+  AddLevelOfDetail(tachyon, record, mesh_lod_2, record.lod_2);
+  AddLevelOfDetail(tachyon, record, mesh_lod_3, record.lod_3);
 
   record.mesh_index = (uint16)pack.mesh_records.size();
   record.group.total = total;
