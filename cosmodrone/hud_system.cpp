@@ -52,7 +52,17 @@ static void HandleDroneInspector(Tachyon* tachyon, State& state, const float dt)
       Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.04f * sinf(state.current_game_time * 0.25f)) *
       Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), state.current_game_time * 0.5f);
 
+    // @experimental
+    if (state.photo_mode) {
+      wireframe.scale = 0.f;
+    }
+
     commit(wireframe);
+  }
+
+  // @experimental
+  if (state.photo_mode) {
+    return;
   }
 
   // Drone details
@@ -249,7 +259,11 @@ static void HandleTargetInspectorWireframe(Tachyon* tachyon, const State& state,
   auto& wireframe = objects[0];
 
   wireframe.scale = 50.f;
-  wireframe.color = tVec4f(0.5f, 0.8f, 1.f, 1.f) * GetWireframeAlpha(time_since_selected - 0.2f);
+
+  wireframe.color = tVec4f(
+    tVec3f(0.5f, 0.8f, 1.f),
+    GetWireframeAlpha(time_since_selected - 0.2f)
+  );
 
   wireframe.position =
     offset_position +
@@ -260,6 +274,11 @@ static void HandleTargetInspectorWireframe(Tachyon* tachyon, const State& state,
     camera.rotation.opposite() *
     Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.5f * sinf(state.current_game_time * 0.5f)) *
     Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), state.current_game_time);
+
+  // @experimental
+  if (state.photo_mode) {
+    wireframe.scale = 0.f;
+  }
 
   commit(wireframe);
 }
@@ -340,7 +359,7 @@ static void HandleTargetInspectorStats(Tachyon* tachyon, const State& state, con
       .screen_y = y + 30,
       .centered = false,
       .color = tVec3f(0.7f, 0.1f, 1.f),
-      .alpha = 0.8f,
+      .alpha = GetTextAlpha(time_since_selected),
       .string = rx + " " + ry + " " + rz + " " + rw
     });
   }
@@ -454,7 +473,11 @@ static void HandleTargetInspector(Tachyon* tachyon, State& state, const float dt
 
   if (tracker != nullptr) {
     HandleTargetInspectorWireframe(tachyon, state, offset_position, *tracker);
-    HandleTargetInspectorStats(tachyon, state, *tracker);
+
+    // @experimental
+    if (!state.photo_mode) {
+      HandleTargetInspectorStats(tachyon, state, *tracker);
+    }
   } else {
     ResetTargetInspectorObjects(tachyon, state);
   }
@@ -463,7 +486,11 @@ static void HandleTargetInspector(Tachyon* tachyon, State& state, const float dt
 void HUDSystem::HandleHUD(Tachyon* tachyon, State& state, const float dt) {
   HandleDroneInspector(tachyon, state, dt);
 
-  if (!Autopilot::IsDoingDockingApproach(state)) {
+  if (
+    !Autopilot::IsDoingDockingApproach(state) &&
+    // @experimental
+    !state.photo_mode
+  ) {
     HandleFlightReticle(tachyon, state, dt);
     HandleTargetLine(tachyon, state, dt);
   }

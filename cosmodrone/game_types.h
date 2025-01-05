@@ -262,6 +262,8 @@ namespace Cosmodrone {
     tVec2f flight_target_reticle_offset;
     float flight_reticle_rotation = 0.f;
 
+    bool photo_mode = false;
+
     // @todo move to hud_system.cpp
     struct {
       tUIElement* reticle = nullptr;

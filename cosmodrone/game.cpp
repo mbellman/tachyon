@@ -187,6 +187,13 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
     }
   }
 
+  if (did_press_key(tKey::F)) {
+    state.photo_mode = !state.photo_mode;
+  }
+
+  // @todo How does any of the below have to do with inputs? Why is it here?
+  // This stuff should be moved to HandleDrone() or some intermediate step.
+
   if (
     state.flight_mode == FlightMode::AUTO_DOCK &&
     state.auto_dock_stage < AutoDockStage::APPROACH
@@ -420,6 +427,11 @@ static void HandleFlightArrows(Tachyon* tachyon, State& state, const float dt) {
     // @todo change color in auto-docking approach mode
     arrow_1.color = arrow_2.color = tVec4f(0.1f, 0.2f, 1.f, brightness);
 
+    // @experimental
+    if (state.photo_mode) {
+      arrow_1.scale = arrow_2.scale = 0.f;
+    }
+
     commit(arrow_1);
     commit(arrow_2);
   }
@@ -497,6 +509,12 @@ static void HandleDrone(Tachyon* tachyon, State& state, const float dt) {
   trim.rotation =
   jets.rotation =
   rotation;
+
+  hull.scale =
+  streams.scale =
+  thrusters.scale =
+  trim.scale =
+  jets.scale = state.photo_mode ? 0.f : 600.f;
 
   // Gradually taper jets intensity/update visibility
   {

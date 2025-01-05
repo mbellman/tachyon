@@ -216,6 +216,11 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
       return;
     }
 
+    // @experimental
+    if (state.photo_mode) {
+      return;
+    }
+
     // Draw trackers
     // @todo move to hud_system.cpp
     for (auto& tracker : state.on_screen_target_trackers) {
