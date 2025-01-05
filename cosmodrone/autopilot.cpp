@@ -55,6 +55,7 @@ static void HandleDockingApproachCamera(Tachyon* tachyon, State& state, tObject&
     Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI * 1.2f) *
     target.rotation.opposite();
 
+  // @todo use ease-in-out
   auto camera_blend = powf(1.f - docking_distance / state.initial_docking_ship_distance, 2.f);
 
   tachyon->scene.camera.rotation = state.target_camera_rotation = Quaternion::slerp(
