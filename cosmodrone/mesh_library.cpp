@@ -1141,12 +1141,12 @@ void MeshLibrary::LoadMeshes(Tachyon* tachyon, State& state) {
     mesh(meshes.antenna_4_base).shadow_cascade_ceiling = 3;
     mesh(meshes.antenna_4_dish).shadow_cascade_ceiling = 3;
     mesh(meshes.silo_6_pipes).shadow_cascade_ceiling = 3;
+    mesh(meshes.solar_panel_2_frame).shadow_cascade_ceiling = 3;
 
     mesh(meshes.grate_1).shadow_cascade_ceiling = 2;
     mesh(meshes.habitation_3_frame).shadow_cascade_ceiling = 2;
     mesh(meshes.light_3_base).shadow_cascade_ceiling = 2;
     mesh(meshes.light_3_bulb).shadow_cascade_ceiling = 2;
-    mesh(meshes.solar_panel_2_frame).shadow_cascade_ceiling = 2;
 
     mesh(meshes.silo_3_frame).shadow_cascade_ceiling = 1;
 
