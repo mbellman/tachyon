@@ -304,6 +304,8 @@ void WorldSetup::InitializeGameWorld(Tachyon* tachyon, State& state) {
 void WorldSetup::StoreInitialObjects(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
+  StoreInitialMeshObjects(tachyon, meshes.antenna_4_dish);
+
   StoreInitialMeshObjects(tachyon, meshes.elevator_torus_1);
   StoreInitialMeshObjects(tachyon, meshes.elevator_torus_1_frame);
 

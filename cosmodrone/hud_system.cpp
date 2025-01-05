@@ -74,7 +74,7 @@ static void HandleDroneInspector(Tachyon* tachyon, State& state, const float dt)
       .centered = false,
       .color = tVec3f(0.1f, 1.f, 0.7f),
       .alpha = 0.8f + 0.2f * sinf(state.current_game_time * 2.f),
-      .string = "RANK. [C];"
+      .string = "RANK. [D];"
     });
   }
 }

@@ -24,6 +24,7 @@ namespace Cosmodrone {
       antenna_1,
       antenna_2,
       antenna_3,
+      antenna_4,
       radio_tower_1,
       module_1,
       module_2,
@@ -77,6 +78,8 @@ namespace Cosmodrone {
       // Generated station parts
       antenna_2_frame,
       antenna_2_receivers,
+      antenna_4_base,
+      antenna_4_dish,
       silo_3_body,
       silo_3_frame,
       silo_6_body,

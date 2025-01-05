@@ -91,6 +91,25 @@ static inline void UpdateRotatorObjects(Tachyon* tachyon, const State& state, co
   });
 }
 
+static inline void UpdateRotatorObjectsVariable(Tachyon* tachyon, const State& state, const float dt, const uint16 mesh_index, const float rate) {
+  for_dynamic_objects(mesh_index, {
+    auto axis = initial.rotation.getUpDirection();
+
+    auto offset =
+      initial.position.x * 0.005f +
+      initial.position.y * 0.005f +
+      initial.position.z * 0.005f;
+
+    auto adjusted_rate = rate * (initial.object_id % 2 == 0 ? -1.f : 1.f);
+
+    object.rotation =
+      Quaternion::fromAxisAngle(axis, offset + state.current_game_time * adjusted_rate) *
+      initial.rotation;
+
+    commit(object);
+  });
+}
+
 static inline void UpdateRotatingArchPart(Tachyon* tachyon, const State& state, const float dt, uint16 mesh_index) {
   for_dynamic_objects(mesh_index, {
     auto axis = initial.rotation.getUpDirection();
@@ -124,6 +143,8 @@ static void UpdateRotators(Tachyon* tachyon, State& state, const float dt) {
   UpdateRotatorObjects(tachyon, state, dt, meshes.station_torus_3_body, 0.08f);
   UpdateRotatorObjects(tachyon, state, dt, meshes.station_torus_3_frame, 0.08f);
   UpdateRotatorObjects(tachyon, state, dt, meshes.station_torus_3_lights, 0.08f);
+
+  UpdateRotatorObjectsVariable(tachyon, state, dt, meshes.antenna_4_dish, 0.5f);
 
   // Rotating arches
   {

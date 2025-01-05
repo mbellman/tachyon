@@ -335,6 +335,8 @@ vec3 RotateAroundAxis(vec3 axis, vec3 vector, float angle) {
   return vector + 2.0 * cross(cross(vector, q.xyz) + q.w * vector, q.xyz);
 }
 
+const vec3 ORBITAL_AXIS = normalize(vec3(0.5, 0, -1.0));
+
 // @todo allow game-specific definitions
 vec3 GetSkyColor(vec3 sky_direction) {
   vec3 sun_direction = -directional_light_direction;
@@ -353,8 +355,7 @@ vec3 GetSkyColor(vec3 sky_direction) {
   vec3 planet_atmosphere_color = mix(vec3(0), planet_atmosphere_base_color, planet_atmosphere_alpha);
 
   // @todo cleanup
-  const vec3 orbit_rotation_axis = normalize(vec3(0.5, 0, -1.0));
-  vec3 bg_direction = RotateAroundAxis(orbit_rotation_axis, sky_direction, scene_time * 0.001);
+  vec3 bg_direction = RotateAroundAxis(ORBITAL_AXIS, sky_direction, scene_time * 0.001);
 
   float bg_noise = simplex_noise((sky_direction.xy + sky_direction.yz) * 1.0);
   bg_noise = clamp(bg_noise, 0.0, 1.0);
@@ -575,9 +576,10 @@ void main() {
   {
     const vec3 light_color = vec3(0.2, 0.3, 1.0);
     float depth_input = max(0.99, frag_normal_and_depth.w);
+    vec3 direction = RotateAroundAxis(ORBITAL_AXIS, L, 3.141592 * 0.6);
     float intensity = 0.25 * (1.0 - pow(depth_input, 200.0));
 
-    out_color += GetDirectionalLightRadiance(-L, light_color * intensity, albedo, position, N, V, NdotV, 1.0, metalness, 0.0, subsurface, 1.0);
+    out_color += GetDirectionalLightRadiance(direction, light_color * intensity, albedo, position, N, V, NdotV, 1.0, metalness, 0.0, subsurface, 1.0);
   }
 
   // Earth bounce light

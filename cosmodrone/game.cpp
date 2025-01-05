@@ -279,8 +279,9 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
   }
 
   if (
-    state.flight_mode == FlightMode::AUTO_PROGRADE ||
-    state.flight_mode == FlightMode::AUTO_RETROGRADE || (
+    state.flight_mode == FlightMode::AUTO_PROGRADE || (
+      state.flight_mode == FlightMode::AUTO_RETROGRADE
+    ) || (
       state.flight_mode == FlightMode::AUTO_DOCK &&
       state.auto_dock_stage == AutoDockStage::APPROACH_ALIGNMENT &&
       Autopilot::GetDockingAlignment(state, Autopilot::GetDockingPosition(tachyon, state)) > 0.5f
@@ -290,7 +291,7 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
     state.target_camera_rotation = Quaternion::slerp(
       state.target_camera_rotation,
       objects(meshes.hull)[0].rotation.opposite(),
-      2.f * dt
+      0.85f * dt
     );
   }
 

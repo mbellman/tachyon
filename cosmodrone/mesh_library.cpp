@@ -45,6 +45,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh_with_2_lods(antenna_1);
   load_mesh(antenna_2);
   load_mesh(antenna_3);
+  load_mesh(antenna_4);
   load_mesh(radio_tower_1);
   load_mesh(module_1);
   load_mesh(module_2);
@@ -134,6 +135,17 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     .mesh_index = meshes.antenna_3,
     .defaults = {
       .scale = tVec3f(4000.f),
+      .color = tVec3f(1.f),
+      .material = tVec4f(0.6f, 0, 0.1f, 0.4f)
+    }
+  });
+
+  placeable_mesh_assets.push_back({
+    .mesh_name = "antenna_4",
+    .mesh_index = meshes.antenna_4,
+    .placeholder = true,
+    .defaults = {
+      .scale = tVec3f(2000.f),
       .color = tVec3f(1.f),
       .material = tVec4f(0.6f, 0, 0.1f, 0.2f)
     }
@@ -554,6 +566,9 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
   load_mesh(antenna_2_frame);
   load_mesh(antenna_2_receivers);
 
+  load_mesh(antenna_4_base);
+  load_mesh(antenna_4_dish);
+
   load_mesh_with_2_lods(silo_3_body);
   load_mesh_with_2_lods(silo_3_frame);
 
@@ -627,6 +642,22 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .generated_from = meshes.antenna_2,
       .defaults = {
         .material = tVec4f(0.9f, 0, 0, 0.2f)
+      }
+    },
+
+    // antenna_4
+    {
+      .mesh_index = meshes.antenna_4_base,
+      .generated_from = meshes.antenna_4,
+      .defaults = {
+        .material = tVec4f(1.f, 0.5f, 0, 0.2f)
+      }
+    },
+    {
+      .mesh_index = meshes.antenna_4_dish,
+      .generated_from = meshes.antenna_4,
+      .defaults = {
+        .material = tVec4f(0.5f, 0, 0, 0.4f)
       }
     },
 
