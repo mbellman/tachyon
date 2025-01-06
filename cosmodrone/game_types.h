@@ -1,5 +1,7 @@
 #pragma once
 
+#define USE_PROCEDURAL_GENERATION 1
+
 #include "engine/tachyon.h"
 
 namespace Cosmodrone {
@@ -120,6 +122,9 @@ namespace Cosmodrone {
       light_2_bulb,
       light_3_base,
       light_3_bulb,
+
+      // Procedural meshes
+      procedural_track_1,
 
       // HUD wireframe meshes
       drone_wireframe,

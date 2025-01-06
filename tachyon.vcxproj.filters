@@ -375,6 +375,9 @@
     <ClInclude Include="engine\tachyon_random.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="cosmodrone\procedural_generation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -456,6 +459,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="engine\tachyon_random.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cosmodrone\procedural_generation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

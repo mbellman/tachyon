@@ -5,9 +5,9 @@
 
 namespace Cosmodrone {
   struct MeshAsset {
-    std::string mesh_name;
-    uint16 mesh_index;
-    uint16 generated_from;
+    std::string mesh_name = "";
+    uint16 mesh_index = 0;
+    uint16 generated_from = 0;
     bool placeholder = false;
     bool moving = false;
 
@@ -23,5 +23,6 @@ namespace Cosmodrone {
     void LoadMeshes(Tachyon* tachyon, State& state);
     const std::vector<MeshAsset>& GetPlaceableMeshAssets();
     const std::vector<MeshAsset>& GetGeneratedMeshAssets();
+    const MeshAsset& FindMeshAsset(uint16 mesh_index);
   }
 }

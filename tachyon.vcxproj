@@ -121,6 +121,7 @@
     <ClInclude Include="cosmodrone\game_types.h" />
     <ClInclude Include="cosmodrone\hud_system.h" />
     <ClInclude Include="cosmodrone\mesh_library.h" />
+    <ClInclude Include="cosmodrone\procedural_generation.h" />
     <ClInclude Include="cosmodrone\target_system.h" />
     <ClInclude Include="cosmodrone\vehicles.h" />
     <ClInclude Include="cosmodrone\world_behavior.h" />
@@ -242,6 +243,7 @@
     <ClCompile Include="cosmodrone\game_editor.cpp" />
     <ClCompile Include="cosmodrone\hud_system.cpp" />
     <ClCompile Include="cosmodrone\mesh_library.cpp" />
+    <ClCompile Include="cosmodrone\procedural_generation.cpp" />
     <ClCompile Include="cosmodrone\target_system.cpp" />
     <ClCompile Include="cosmodrone\vehicles.cpp" />
     <ClCompile Include="cosmodrone\world_behavior.cpp" />

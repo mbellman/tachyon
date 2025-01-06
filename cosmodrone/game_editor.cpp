@@ -135,7 +135,11 @@ static void SaveWorldData(Tachyon* tachyon) {
     }
   }
 
-  Tachyon_WriteFileContents("./cosmodrone/data/world.txt", data);
+  #if USE_PROCEDURAL_GENERATION == 1
+    Tachyon_WriteFileContents("./cosmodrone/data/world_2.txt", data);
+  #else
+    Tachyon_WriteFileContents("./cosmodrone/data/world2.txt", data);
+  #endif
 
   auto save_time = Tachyon_GetMicroseconds() - start;
   auto message = std::format("Saved world data in {}us", save_time);

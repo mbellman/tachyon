@@ -1,4 +1,5 @@
 #include "cosmodrone/mesh_library.h"
+#include "cosmodrone/procedural_generation.h"
 #include "cosmodrone/vehicles.h"
 
 using namespace Cosmodrone;
@@ -1114,6 +1115,7 @@ void MeshLibrary::LoadMeshes(Tachyon* tachyon, State& state) {
   auto start_time = Tachyon_GetMicroseconds();
 
   Vehicles::LoadVehicleMeshes(tachyon, state);
+  ProceduralGeneration::LoadMeshes(tachyon, state);
 
   LoadShipPartMeshes(tachyon, state);
   LoadPlaceableMeshes(tachyon, state);
@@ -1198,4 +1200,20 @@ const std::vector<MeshAsset>& MeshLibrary::GetPlaceableMeshAssets() {
 
 const std::vector<MeshAsset>& MeshLibrary::GetGeneratedMeshAssets() {
   return generated_mesh_assets;
+}
+
+const MeshAsset& MeshLibrary::FindMeshAsset(uint16 mesh_index) {
+  for (auto& asset : placeable_mesh_assets) {
+    if (asset.mesh_index == mesh_index) {
+      return asset;
+    }
+  }
+
+  for (auto& asset : generated_mesh_assets) {
+    if (asset.mesh_index == mesh_index) {
+      return asset;
+    }
+  }
+
+  return MeshAsset();
 }

@@ -2,6 +2,7 @@
 #include <vector>
 
 #include "cosmodrone/mesh_library.h"
+#include "cosmodrone/procedural_generation.h"
 #include "cosmodrone/vehicles.h"
 #include "cosmodrone/world_setup.h"
 
@@ -37,9 +38,9 @@ static const MeshAsset* GetMeshAssetByName(const std::string& mesh_name) {
   return nullptr;
 }
 
-static void LoadWorldData(Tachyon* tachyon, State& state) {
+static void LoadWorldData(Tachyon* tachyon, State& state, const std::string& file) {
   auto start_time = Tachyon_GetMicroseconds();
-  auto data = Tachyon_GetFileContents("./cosmodrone/data/world.txt");
+  auto data = Tachyon_GetFileContents(file.c_str());
   auto lines = SplitString(data, "\n");
 
   const MeshAsset* mesh_asset;
@@ -156,7 +157,11 @@ static void InitializeLevel(Tachyon* tachyon, State& state) {
     commit(jets);
   }
 
-  LoadWorldData(tachyon, state);
+  #if USE_PROCEDURAL_GENERATION == 1
+    LoadWorldData(tachyon, state, "./cosmodrone/data/world_2.txt");
+  #else
+    LoadWorldData(tachyon, state, "./cosmodrone/data/world.txt");
+  #endif
 }
 
 static void CreateDebugMeshes(Tachyon* tachyon, State& state) {
@@ -410,6 +415,10 @@ void WorldSetup::RebuildGeneratedObjects(Tachyon* tachyon, State& state) {
 
     objects(asset.mesh_index).disabled = false;
   }
+
+  #if USE_PROCEDURAL_GENERATION == 1
+    ProceduralGeneration::GenerateWorld(tachyon, state);
+  #endif
 
   RebuildLightSources(tachyon, state);
   RebuildBeacons(tachyon, state);
