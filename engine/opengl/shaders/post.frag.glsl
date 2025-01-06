@@ -73,7 +73,7 @@ vec4 GetVolumetricFogColorAndThickness(float depth, vec3 direction) {
       camera_position +
       direction * camera_to_volume_distance -
       direction * 150000.0 +
-      direction * noise(1.0) * 5000.0;
+      direction * noise(1.0) * 2000.0;
 
     float resolution_alpha = clamp(camera_to_volume_distance / 2000000.0, 0.0, 1.0);
     int total_steps = int(mix(10.0, 5.0, resolution_alpha));

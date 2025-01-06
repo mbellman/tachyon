@@ -81,6 +81,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh(light_1);
   load_mesh(light_2);
   load_mesh(light_3);
+  load_mesh(charge_pad);
   load_mesh(gas_flare_1_spawn);
   load_mesh(arch_1);
   load_mesh(upper_facility);
@@ -503,6 +504,15 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
       .scale = tVec3f(1000.f),
       .color = tVec4f(1.f, 0.9f, 0.8f, 1.f),
       .material = tVec4f(1.f, 0, 1.f, 1.f)
+    }
+  });
+
+  placeable_mesh_assets.push_back({
+    .mesh_name = "charge_pad",
+    .mesh_index = meshes.charge_pad,
+    .defaults = {
+      .scale = tVec3f(2000.f),
+      .material = tVec4f(0.6f, 0.5f, 0, 0.1f)
     }
   });
 
@@ -1069,10 +1079,13 @@ static void LoadEntityMeshes(Tachyon* tachyon, State& state) {
   // HUD
   {
     auto flight_arrow = Tachyon_LoadMesh("./cosmodrone/assets/flight_arrow.obj");
+    auto beacon = Tachyon_LoadMesh("./cosmodrone/assets/beacon.obj");
 
     meshes.hud_flight_arrow = Tachyon_AddMesh(tachyon, flight_arrow, 16);
+    meshes.beacon = Tachyon_AddMesh(tachyon, beacon, 500);
 
     mesh(meshes.hud_flight_arrow).type = WIREFRAME_MESH;
+    mesh(meshes.beacon).type = WIREFRAME_MESH;
   }
 }
 

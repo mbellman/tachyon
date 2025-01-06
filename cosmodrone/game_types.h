@@ -57,6 +57,7 @@ namespace Cosmodrone {
       light_1,
       light_2,
       light_3,
+      charge_pad,
 
       // Mega parts
       mega_girder_1,
@@ -132,6 +133,7 @@ namespace Cosmodrone {
 
       // HUD,
       hud_flight_arrow,
+      beacon,
 
       // Background elements
       planet,
@@ -208,6 +210,12 @@ namespace Cosmodrone {
     std::vector<VehicleNode> connected_nodes;
   };
 
+  struct Beacon {
+    tObject source_object;
+    tObject beacon_1;
+    tObject beacon_2;
+  };
+
   struct State {
     MeshIds meshes;
 
@@ -252,6 +260,8 @@ namespace Cosmodrone {
     uint8 flight_arrow_cycle_step = 0;
     float flight_path_spawn_distance_remaining = 100.f;
     std::vector<FlightPathNode> incoming_flight_path;
+
+    std::vector<Beacon> beacons;
 
     std::vector<uint32> gas_flare_light_indexes;
 

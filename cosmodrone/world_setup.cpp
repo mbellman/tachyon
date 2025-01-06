@@ -112,8 +112,9 @@ static void InitializeLevel(Tachyon* tachyon, State& state) {
     Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -t_HALF_PI) *
     Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), -t_HALF_PI)
   );
+
   // @todo define as a default
-  state.ship_position = tVec3f(9000.f, 116000.f, -26000.f);
+  state.ship_position = tVec3f(9000.f, 116000.f, -24000.f);
 
   // Set the initial camera behind the player drone
   state.target_camera_rotation = camera.rotation = state.target_ship_rotation.opposite();
@@ -288,6 +289,48 @@ static void RebuildLightSources(Tachyon* tachyon, State& state) {
   }
 }
 
+static void RebuildBeacons(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
+  state.beacons.clear();
+
+  remove_all(meshes.beacon);
+
+  // @todo factor
+  for (auto& object : objects(meshes.antenna_3)) {
+    Beacon beacon;
+    beacon.beacon_1 = create(meshes.beacon);
+    beacon.beacon_2 = create(meshes.beacon);
+    beacon.source_object = object;
+
+    beacon.beacon_1.rotation = object.rotation;
+    beacon.beacon_2.rotation = object.rotation;
+    beacon.beacon_1.scale = 2000.f;
+    beacon.beacon_2.scale = 2000.f;
+    beacon.beacon_1.color = tVec4f(1.f, 0.5f, 0.2f, 1.f);
+    beacon.beacon_2.color = tVec4f(1.f, 0.5f, 0.2f, 1.f);
+
+    state.beacons.push_back(beacon);
+  }
+
+  // @todo factor
+  for (auto& object : objects(meshes.charge_pad)) {
+    Beacon beacon;
+    beacon.beacon_1 = create(meshes.beacon);
+    beacon.beacon_2 = create(meshes.beacon);
+    beacon.source_object = object;
+
+    beacon.beacon_1.rotation = object.rotation;
+    beacon.beacon_2.rotation = object.rotation;
+    beacon.beacon_1.scale = 2000.f;
+    beacon.beacon_2.scale = 2000.f;
+    beacon.beacon_1.color = tVec4f(1.f, 0.5f, 0.2f, 1.f);
+    beacon.beacon_2.color = tVec4f(1.f, 0.5f, 0.2f, 1.f);
+
+    state.beacons.push_back(beacon);
+  }
+}
+
 void WorldSetup::InitializeGameWorld(Tachyon* tachyon, State& state) {
   InitializeLevel(tachyon, state);
 
@@ -369,4 +412,5 @@ void WorldSetup::RebuildGeneratedObjects(Tachyon* tachyon, State& state) {
   }
 
   RebuildLightSources(tachyon, state);
+  RebuildBeacons(tachyon, state);
 }

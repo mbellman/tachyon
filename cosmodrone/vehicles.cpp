@@ -62,7 +62,7 @@ static void RecreateStationDrones(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
   auto& vehicles = state.vehicles;
 
-  for (uint8 i = 0; i < 75; i++) {
+  for (uint8 i = 0; i < 50; i++) {
     auto& drone = create(meshes.station_drone_1);
 
     // @temporary
@@ -75,7 +75,7 @@ static void RecreateStationDrones(Tachyon* tachyon, State& state) {
 
       drone.position = tVec3f(
         Tachyon_GetRandom(-200000.f, 200000.f),
-        Tachyon_GetRandom(-100000.f, 400000.f),
+        Tachyon_GetRandom(-300000.f, 400000.f),
         Tachyon_GetRandom(-200000.f, 200000.f)
       );
 

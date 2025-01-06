@@ -20,6 +20,28 @@ inline tVec3f Lerpf(const tVec3f& a, const tVec3f& b, const float alpha) {
   );
 }
 
+static void HandleBeacons(Tachyon* tachyon, State& state) {
+  for (auto& beacon : state.beacons) {
+    auto source_position = Autopilot::GetDockingPosition(tachyon, state, beacon.source_object);
+    // @todo use live object
+    auto direction = beacon.source_object.rotation.getUpDirection();
+
+    beacon.beacon_1.position =
+      source_position +
+      direction * (2000.f * fmodf(state.current_game_time, 2.f));
+
+    beacon.beacon_2.position =
+      source_position +
+      direction * (2000.f * fmodf(state.current_game_time + 1.f, 2.f));
+
+    beacon.beacon_1.rotation = beacon.source_object.rotation;
+    beacon.beacon_2.rotation = beacon.source_object.rotation;
+
+    commit(beacon.beacon_1);
+    commit(beacon.beacon_2);
+  }
+}
+
 static void HandleDroneInspector(Tachyon* tachyon, State& state, const float dt) {
   auto& meshes = state.meshes;
   auto& camera = tachyon->scene.camera;
@@ -484,6 +506,7 @@ static void HandleTargetInspector(Tachyon* tachyon, State& state, const float dt
 }
 
 void HUDSystem::HandleHUD(Tachyon* tachyon, State& state, const float dt) {
+  HandleBeacons(tachyon, state);
   HandleDroneInspector(tachyon, state, dt);
 
   if (

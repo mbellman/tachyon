@@ -91,7 +91,7 @@ static inline void UpdateRotatorObjects(Tachyon* tachyon, const State& state, co
   });
 }
 
-static inline void UpdateRotatorObjectsVariable(Tachyon* tachyon, const State& state, const float dt, const uint16 mesh_index, const float rate) {
+static inline void UpdateRotatorObjectsWithVariation(Tachyon* tachyon, const State& state, const float dt, const uint16 mesh_index, const float rate) {
   for_dynamic_objects(mesh_index, {
     auto axis = initial.rotation.getUpDirection();
 
@@ -144,7 +144,7 @@ static void UpdateRotators(Tachyon* tachyon, State& state, const float dt) {
   UpdateRotatorObjects(tachyon, state, dt, meshes.station_torus_3_frame, 0.08f);
   UpdateRotatorObjects(tachyon, state, dt, meshes.station_torus_3_lights, 0.08f);
 
-  UpdateRotatorObjectsVariable(tachyon, state, dt, meshes.antenna_4_dish, 0.5f);
+  UpdateRotatorObjectsWithVariation(tachyon, state, dt, meshes.antenna_4_dish, 0.5f);
 
   // Rotating arches
   {
@@ -154,7 +154,7 @@ static void UpdateRotators(Tachyon* tachyon, State& state, const float dt) {
   }
 }
 
-static void UpdateLocalEntities(Tachyon* tachyon, State& state, const float dt) {
+static void UpdateTrackVehicles(Tachyon* tachyon, State& state, const float dt) {
   auto& meshes = state.meshes;
   float scene_time = tachyon->scene.scene_time;
 
@@ -240,7 +240,7 @@ void WorldBehavior::UpdateWorld(Tachyon* tachyon, State& state, const float dt) 
   Vehicles::UpdateVehicles(tachyon, state, dt);
 
   UpdateRotators(tachyon, state, dt);
-  UpdateLocalEntities(tachyon, state, dt);
+  UpdateTrackVehicles(tachyon, state, dt);
   UpdateGasFlareLights(tachyon, state, dt);
   UpdateBackgroundEntities(tachyon, state, dt);
 }

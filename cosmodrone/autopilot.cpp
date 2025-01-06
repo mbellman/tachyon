@@ -25,12 +25,16 @@ static inline tVec3f Lerpf(const tVec3f& a, const tVec3f& b, const float alpha) 
   );
 }
 
-static tVec3f GetDockingPositionOffset(const State& state) {
-  if (state.docking_target.mesh_index == state.meshes.antenna_3) {
+static tVec3f GetDockingPositionOffset(const uint16 mesh_index, const State& state) {
+  if (mesh_index == state.meshes.antenna_3) {
     return tVec3f(0, -1.f, -1.f).unit() * 0.7f;
   }
 
   return tVec3f(0, -1.f, -1.f).unit();
+}
+
+static tVec3f GetDockingPositionOffset(const State& state) {
+  return GetDockingPositionOffset(state.docking_target.mesh_index, state);
 }
 
 static void DecelerateRetrograde(State& state, const float dt) {
@@ -222,6 +226,22 @@ tVec3f Autopilot::GetDockingPosition(Tachyon* tachyon, const State& state) {
 
   auto& target_rotation = target->rotation;
   auto offset = GetDockingPositionOffset(state);
+
+  offset *= target->scale;
+  offset = target_rotation.toMatrix4f() * offset;
+
+  return target->position + offset;
+}
+
+tVec3f Autopilot::GetDockingPosition(Tachyon* tachyon, const State& state, const tObject& object) {
+  auto* target = get_original_object(object);
+
+  if (target == nullptr) {
+    return tVec3f(0.f);
+  }
+
+  auto& target_rotation = target->rotation;
+  auto offset = GetDockingPositionOffset(object.mesh_index, state);
 
   offset *= target->scale;
   offset = target_rotation.toMatrix4f() * offset;
