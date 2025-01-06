@@ -163,7 +163,7 @@ static void UpdateTrackVehicles(Tachyon* tachyon, State& state, const float dt) 
     auto& elevator_car = objects(meshes.elevator_car_1)[0];
     auto& elevator_car_frame = objects(meshes.elevator_car_1_frame)[0];
 
-    elevator_car.scale = elevator_car_frame.scale = tVec3f(12000.f);
+    elevator_car.scale = elevator_car_frame.scale = 25000.f;
     elevator_car.rotation = elevator_car_frame.rotation = Quaternion(0.707f, -0.707f, 0, 0);
 
     elevator_car.position.x = elevator_car_frame.position.x = 10065.f;

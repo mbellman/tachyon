@@ -20,19 +20,52 @@ inline tVec3f Lerpf(const tVec3f& a, const tVec3f& b, const float alpha) {
   );
 }
 
+static float GetBeaconAlpha(const float progress) {
+  auto p = progress;
+
+  // Normalize from 2 -> 1
+  p *= 0.5f;
+
+  p = sqrtf(sinf(p * t_PI));
+
+  return p;
+}
+
 static void HandleBeacons(Tachyon* tachyon, State& state) {
   for (auto& beacon : state.beacons) {
     auto source_position = Autopilot::GetDockingPosition(tachyon, state, beacon.source_object);
     // @todo use live object
     auto direction = beacon.source_object.rotation.getUpDirection();
+    auto beacon_1_progress = fmodf(state.current_game_time, 2.f);
+    auto beacon_2_progress = fmodf(state.current_game_time + 1.f, 2.f);
+
+    tVec3f beacon_color;
+
+    if (beacon.source_object.mesh_index == state.meshes.antenna_3) {
+      beacon_color = tVec3f(1.f, 0.5f, 0.2f);
+    } else if (beacon.source_object.mesh_index == state.meshes.charge_pad) {
+      beacon_color = tVec3f(0.2f, 1.f, 0.5f);
+    }
 
     beacon.beacon_1.position =
-      source_position +
-      direction * (2000.f * fmodf(state.current_game_time, 2.f));
+      source_position -
+      direction * 500.f +
+      direction * 1500.f * beacon_1_progress;
+
+    beacon.beacon_1.color = tVec4f(
+      beacon_color,
+      GetBeaconAlpha(beacon_1_progress)
+    );
 
     beacon.beacon_2.position =
-      source_position +
-      direction * (2000.f * fmodf(state.current_game_time + 1.f, 2.f));
+      source_position -
+      direction * 500.f +
+      direction * 1500.f * beacon_2_progress;
+
+    beacon.beacon_2.color = tVec4f(
+      beacon_color,
+      GetBeaconAlpha(beacon_2_progress)
+    );
 
     beacon.beacon_1.rotation = beacon.source_object.rotation;
     beacon.beacon_2.rotation = beacon.source_object.rotation;

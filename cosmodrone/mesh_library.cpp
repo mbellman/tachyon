@@ -288,7 +288,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     .mesh_name = "elevator_torus_1",
     .mesh_index = meshes.elevator_torus_1,
     .defaults = {
-      .scale = tVec3f(10000.f),
+      .scale = tVec3f(15000.f),
       .color = tVec3f(1.f),
       .material = tVec4f(0.6f, 0, 0, 0.3f)
     }

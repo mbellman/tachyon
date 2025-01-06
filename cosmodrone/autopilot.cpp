@@ -30,7 +30,7 @@ static tVec3f GetDockingPositionOffset(const uint16 mesh_index, const State& sta
     return tVec3f(0, -1.f, -1.f).unit() * 0.7f;
   }
 
-  return tVec3f(0, -1.f, -1.f).unit();
+  return tVec3f(0.f);
 }
 
 static tVec3f GetDockingPositionOffset(const State& state) {

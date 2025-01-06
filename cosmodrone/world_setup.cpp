@@ -305,8 +305,8 @@ static void RebuildBeacons(Tachyon* tachyon, State& state) {
 
     beacon.beacon_1.rotation = object.rotation;
     beacon.beacon_2.rotation = object.rotation;
-    beacon.beacon_1.scale = 2000.f;
-    beacon.beacon_2.scale = 2000.f;
+    beacon.beacon_1.scale = 1500.f;
+    beacon.beacon_2.scale = 1500.f;
     beacon.beacon_1.color = tVec4f(1.f, 0.5f, 0.2f, 1.f);
     beacon.beacon_2.color = tVec4f(1.f, 0.5f, 0.2f, 1.f);
 
@@ -322,8 +322,8 @@ static void RebuildBeacons(Tachyon* tachyon, State& state) {
 
     beacon.beacon_1.rotation = object.rotation;
     beacon.beacon_2.rotation = object.rotation;
-    beacon.beacon_1.scale = 2000.f;
-    beacon.beacon_2.scale = 2000.f;
+    beacon.beacon_1.scale = 1500.f;
+    beacon.beacon_2.scale = 1500.f;
     beacon.beacon_1.color = tVec4f(1.f, 0.5f, 0.2f, 1.f);
     beacon.beacon_2.color = tVec4f(1.f, 0.5f, 0.2f, 1.f);
 
