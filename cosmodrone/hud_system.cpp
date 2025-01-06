@@ -42,7 +42,7 @@ static void HandleBeacons(Tachyon* tachyon, State& state) {
     tVec3f beacon_color;
 
     if (beacon.source_object.mesh_index == state.meshes.antenna_3) {
-      beacon_color = tVec3f(1.f, 0.5f, 0.2f);
+      beacon_color = tVec3f(1.f, 0.8f, 0.2f);
     } else if (beacon.source_object.mesh_index == state.meshes.charge_pad) {
       beacon_color = tVec3f(0.2f, 1.f, 0.5f);
     }
