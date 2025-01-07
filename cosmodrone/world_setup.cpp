@@ -96,8 +96,8 @@ static void InitializeLevel(Tachyon* tachyon, State& state) {
   // create(meshes.space_elevator);
 
   // Local elevator car
-  create(meshes.elevator_car_1);
-  create(meshes.elevator_car_1_frame);
+  // create(meshes.elevator_car_1);
+  // create(meshes.elevator_car_1_frame);
 
   // HUD
   {

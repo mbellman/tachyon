@@ -120,6 +120,7 @@
     <ClInclude Include="cosmodrone\game_editor.h" />
     <ClInclude Include="cosmodrone\game_types.h" />
     <ClInclude Include="cosmodrone\hud_system.h" />
+    <ClInclude Include="cosmodrone\mesh_ids.h" />
     <ClInclude Include="cosmodrone\mesh_library.h" />
     <ClInclude Include="cosmodrone\procedural_generation.h" />
     <ClInclude Include="cosmodrone\target_system.h" />

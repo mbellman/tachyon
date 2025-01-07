@@ -576,7 +576,7 @@ void main() {
   {
     const vec3 light_color = vec3(0.2, 0.3, 1.0);
     float depth_input = max(0.99, frag_normal_and_depth.w);
-    vec3 direction = RotateAroundAxis(ORBITAL_AXIS, L, 3.141592 * 0.6);
+    vec3 direction = -L;
     float intensity = 0.25 * (1.0 - pow(depth_input, 200.0));
 
     out_color += GetDirectionalLightRadiance(direction, light_color * intensity, albedo, position, N, V, NdotV, 1.0, metalness, 0.0, subsurface, 1.0);

@@ -6,7 +6,7 @@ using namespace Cosmodrone;
 #define load_mesh(__mesh_entry, __file, __total)\
   __mesh_entry = Tachyon_AddMesh(\
     tachyon,\
-    Tachyon_LoadMesh("./cosmodrone/assets/station-parts/" __file ".obj"),\
+    Tachyon_LoadMesh("./cosmodrone/assets" __file),\
     __total\
   )
 
@@ -45,6 +45,24 @@ static void GenerateElevator(Tachyon* tachyon, State& state) {
     track.rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), t_HALF_PI);
 
     commit(track);
+  }
+}
+
+static void GenerateElevatorCars(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
+  for (int32 i = 0; i < 4; i++) {
+    auto& car = create(meshes.elevator_car);
+
+    car.scale = 3000.f;
+    car.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_HALF_PI + i * t_HALF_PI);
+
+    car.position =
+      car.rotation.toMatrix4f().transformVec3f(tVec3f(0, 0, -1.f)) * 4000.f;
+
+    car.material = tVec4f(0.2f, 1.f, 0, 0);
+
+    commit(car);
   }
 }
 
@@ -88,13 +106,19 @@ static void GenerateElevatorToruses(Tachyon* tachyon, State& state) {
 
     for (int32 i = 1; i <= 2; i++) {
       auto& torus = create(meshes.station_torus_2);
+      auto& torus2 = create(meshes.station_torus_2);
 
       torus.position = tVec3f(0, 50000.f + i * -2000000.f, 0);
+      torus2.position = torus.position * -1.f;
 
       apply_scale(torus, asset);
+      apply_scale(torus2, asset);
+
       apply_surface(torus, asset);
+      apply_surface(torus2, asset);
 
       commit(torus);
+      commit(torus2);
     }
   }
 
@@ -126,13 +150,13 @@ static void GenerateElevatorToruses(Tachyon* tachyon, State& state) {
   {
     auto& asset = MeshLibrary::FindMeshAsset(meshes.elevator_torus_1);
 
-    for (int32 i = 1; i < 8; i++) {
+    for (int32 i = 0; i < 8; i++) {
       auto& torus = create(meshes.elevator_torus_1);
       auto& torus2 = create(meshes.elevator_torus_1);
       float interval = i % 2 == 0 ? -300000.f : -400000.f;
 
-      torus.position = tVec3f(0, i * interval, 0);
-      torus2.position = torus.position * -1.f;
+      torus.position = tVec3f(0, i * interval - 150000.f, 0);
+      torus2.position = torus.position * -1.f + tVec3f(0, 300000.f, 0);
 
       apply_scale(torus, asset);
       apply_scale(torus2, asset);
@@ -167,10 +191,12 @@ static void GenerateElevatorToruses(Tachyon* tachyon, State& state) {
 void ProceduralGeneration::LoadMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
-  load_mesh(meshes.procedural_track_1, "track_1", 500);
+  load_mesh(meshes.procedural_track_1, "/station-parts/track_1.obj", 500);
+  load_mesh(meshes.elevator_car, "/elevator_car.obj", 20);
 }
 
 void ProceduralGeneration::GenerateWorld(Tachyon* tachyon, State& state) {
   GenerateElevator(tachyon, state);
+  GenerateElevatorCars(tachyon, state);
   GenerateElevatorToruses(tachyon, state);
 }
