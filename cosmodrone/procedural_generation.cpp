@@ -51,16 +51,17 @@ static void GenerateElevator(Tachyon* tachyon, State& state) {
 static void GenerateElevatorCars(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
+  remove_all(meshes.elevator_car);
+
   for (int32 i = 0; i < 4; i++) {
     auto& car = create(meshes.elevator_car);
 
     car.scale = 3000.f;
     car.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_HALF_PI + i * t_HALF_PI);
-
-    car.position =
-      car.rotation.toMatrix4f().transformVec3f(tVec3f(0, 0, -1.f)) * 4000.f;
-
     car.material = tVec4f(0.2f, 1.f, 0, 0);
+
+    car.position = car.rotation.toMatrix4f().transformVec3f(tVec3f(0, 0, -1.f)) * 4000.f;
+    car.position.y = Tachyon_GetRandom(-50000.f, 50000.f);
 
     commit(car);
   }
@@ -100,9 +101,11 @@ static void GenerateStationTorus3(Tachyon* tachyon, const State& state, const tV
 static void GenerateElevatorToruses(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
-  // station_torus_1
+  // station_torus_2
   {
     auto& asset = MeshLibrary::FindMeshAsset(meshes.station_torus_2);
+
+    remove_all(meshes.station_torus_2);
 
     for (int32 i = 1; i <= 2; i++) {
       auto& torus = create(meshes.station_torus_2);
@@ -149,6 +152,8 @@ static void GenerateElevatorToruses(Tachyon* tachyon, State& state) {
   // elevator_torus_1
   {
     auto& asset = MeshLibrary::FindMeshAsset(meshes.elevator_torus_1);
+
+    remove_all(meshes.elevator_torus_1);
 
     for (int32 i = 0; i < 8; i++) {
       auto& torus = create(meshes.elevator_torus_1);

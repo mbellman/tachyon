@@ -515,7 +515,12 @@ tObject& Tachyon_CreateObject(Tachyon* tachyon, uint16 mesh_index) {
   auto& group = record.group;
 
   if (group.total_visible >= group.total) {
-    // @todo throw an error and exit
+    // @todo show the mesh name + limit
+    printf("[Tachyon_CreateObject] Fatal Error: Too many objects created for mesh %d\n", mesh_index);
+
+    // @todo SDL_ShowSimpleMessageBox(...);
+
+    exit(0);
   }
 
   group.total_visible++;
