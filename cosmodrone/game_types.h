@@ -122,6 +122,7 @@ namespace Cosmodrone {
       light_2_bulb,
       light_3_base,
       light_3_bulb,
+      track_1_frame,
 
       // Procedural meshes
       procedural_track_1,

@@ -900,7 +900,7 @@ void Editor::DisableEditor(Tachyon* tachyon, State& state) {
   // if objects are deleted in the editor
   state.on_screen_target_trackers.clear();
 
-  WorldSetup::RebuildGeneratedObjects(tachyon, state);
+  WorldSetup::RebuildWorld(tachyon, state);
   WorldSetup::StoreInitialObjects(tachyon, state);
   Vehicles::InitVehicles(tachyon, state);
 

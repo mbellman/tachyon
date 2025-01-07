@@ -93,7 +93,7 @@ static void InitializeLevel(Tachyon* tachyon, State& state) {
   create(meshes.earth_atmosphere);
 
   // Background space elevator
-  create(meshes.space_elevator);
+  // create(meshes.space_elevator);
 
   // Local elevator car
   create(meshes.elevator_car_1);
@@ -336,12 +336,45 @@ static void RebuildBeacons(Tachyon* tachyon, State& state) {
   }
 }
 
+static void DisablePlaceholderMeshes(Tachyon* tachyon) {
+  for (auto& asset : MeshLibrary::GetPlaceableMeshAssets()) {
+    if (asset.placeholder) {
+      objects(asset.mesh_index).disabled = true;
+    }
+  }
+}
+
+static void RebuildGeneratedObjects(Tachyon* tachyon) {
+  for (auto& asset : MeshLibrary::GetGeneratedMeshAssets()) {
+    for (auto& base : objects(asset.generated_from)) {
+      auto& piece = create(asset.mesh_index);
+
+      piece.position = base.position;
+
+      if (asset.defaults.scale.x == 1000.f) {
+        piece.scale = base.scale;
+      } else {
+        piece.scale = asset.defaults.scale;
+      }
+
+      piece.rotation = base.rotation;
+
+      piece.color = asset.defaults.color;
+      piece.material = asset.defaults.material;
+
+      commit(piece);
+    }
+
+    objects(asset.mesh_index).disabled = false;
+  }
+}
+
 void WorldSetup::InitializeGameWorld(Tachyon* tachyon, State& state) {
   InitializeLevel(tachyon, state);
-
-  RebuildGeneratedObjects(tachyon, state);
+  RebuildWorld(tachyon, state);
   StoreInitialObjects(tachyon, state);
 
+  // @todo can this be called in RebuildWorld()?
   Vehicles::InitVehicles(tachyon, state);
 
   // @todo dev mode only
@@ -381,44 +414,19 @@ void WorldSetup::StoreInitialObjects(Tachyon* tachyon, State& state) {
   StoreInitialMeshObjects(tachyon, meshes.background_ship_1);
 }
 
-void WorldSetup::RebuildGeneratedObjects(Tachyon* tachyon, State& state) {
+void WorldSetup::RebuildWorld(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
-
-  // Disable placeholder meshes
-  for (auto& asset : MeshLibrary::GetPlaceableMeshAssets()) {
-    if (asset.placeholder) {
-      objects(asset.mesh_index).disabled = true;
-    }
-  }
 
   for (auto& asset : MeshLibrary::GetGeneratedMeshAssets()) {
     remove_all(asset.mesh_index);
-
-    for (auto& base : objects(asset.generated_from)) {
-      auto& piece = create(asset.mesh_index);
-
-      piece.position = base.position;
-
-      if (asset.defaults.scale.x == 1000.f) {
-        piece.scale = base.scale;
-      } else {
-        piece.scale = asset.defaults.scale;
-      }
-
-      piece.rotation = base.rotation;
-
-      piece.color = asset.defaults.color;
-      piece.material = asset.defaults.material;
-
-      commit(piece);
-    }
-
-    objects(asset.mesh_index).disabled = false;
   }
 
   #if USE_PROCEDURAL_GENERATION == 1
     ProceduralGeneration::GenerateWorld(tachyon, state);
   #endif
+
+  DisablePlaceholderMeshes(tachyon);
+  RebuildGeneratedObjects(tachyon);
 
   RebuildLightSources(tachyon, state);
   RebuildBeacons(tachyon, state);

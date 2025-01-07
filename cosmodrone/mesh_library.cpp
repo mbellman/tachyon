@@ -289,7 +289,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     .mesh_name = "elevator_torus_1",
     .mesh_index = meshes.elevator_torus_1,
     .defaults = {
-      .scale = tVec3f(15000.f),
+      .scale = tVec3f(25000.f),
       .color = tVec3f(1.f),
       .material = tVec4f(0.6f, 0, 0, 0.3f)
     }
@@ -299,7 +299,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     .mesh_name = "station_torus_1",
     .mesh_index = meshes.station_torus_1,
     .defaults = {
-      .scale = tVec3f(100000.f),
+      .scale = tVec3f(150000.f),
       .color = tVec3f(1.f),
       .material = tVec4f(1.f, 0, 0.1f, 0.3f)
     }
@@ -321,7 +321,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     .mesh_index = meshes.station_torus_3,
     .placeholder = true,
     .defaults = {
-      .scale = tVec3f(30000.f),
+      .scale = tVec3f(35000.f),
       .color = tVec3f(1.f),
       .material = tVec4f(1.f, 0, 0.1f, 0.2f)
     }
@@ -639,6 +639,8 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
   load_mesh(arch_1_frame);
   load_mesh(arch_1_details);
 
+  load_mesh(track_1_frame);
+
   generated_mesh_assets = {
     // antenna_2
     {
@@ -905,7 +907,10 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
     // station_torus_2
     {
       .mesh_index = meshes.station_torus_2_body,
-      .generated_from = meshes.station_torus_2
+      .generated_from = meshes.station_torus_2,
+      .defaults = {
+        .material = tVec4f(0.7f, 0, 0, 0.2f)
+      }
     },
     {
       .mesh_index = meshes.station_torus_2_supports,
@@ -928,7 +933,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .mesh_index = meshes.station_torus_3_body,
       .generated_from = meshes.station_torus_3,
       .defaults = {
-        .material = tVec4f(1.f, 0, 0, 0.2f)
+        .material = tVec4f(0.7f, 0, 0, 0.2f)
       }
     },
     {
@@ -1024,6 +1029,15 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .defaults {
         .color = tVec3f(0.5f),
         .material = tVec4f(0.8f, 0, 0, 0.2f)
+      }
+    },
+
+    // track_1
+    {
+      .mesh_index = meshes.track_1_frame,
+      .generated_from = meshes.procedural_track_1,
+      .defaults = {
+        .material = tVec4f(0.4f, 1.f, 0, 0)
       }
     },
 
@@ -1202,6 +1216,7 @@ const std::vector<MeshAsset>& MeshLibrary::GetGeneratedMeshAssets() {
   return generated_mesh_assets;
 }
 
+// @todo optimize
 const MeshAsset& MeshLibrary::FindMeshAsset(uint16 mesh_index) {
   for (auto& asset : placeable_mesh_assets) {
     if (asset.mesh_index == mesh_index) {

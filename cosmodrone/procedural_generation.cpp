@@ -26,7 +26,7 @@ static void GenerateElevator(Tachyon* tachyon, State& state) {
   remove_all(meshes.procedural_track_1);
 
   // Down
-  for (int32 i = 0; i < 150; i++) {
+  for (int32 i = 0; i < 250; i++) {
     auto& track = create(meshes.procedural_track_1);
 
     track.position = tVec3f(0, i * -24000.f, 0);
@@ -48,37 +48,118 @@ static void GenerateElevator(Tachyon* tachyon, State& state) {
   }
 }
 
+static void GenerateStationTorus3(Tachyon* tachyon, const State& state, const tVec3f& position) {
+  auto& meshes = state.meshes;
+
+  // @todo optimize
+  auto& torus_asset = MeshLibrary::FindMeshAsset(meshes.station_torus_3);
+  auto& body_asset = MeshLibrary::FindMeshAsset(meshes.station_torus_3_body);
+  auto& frame_asset = MeshLibrary::FindMeshAsset(meshes.station_torus_3_frame);
+  auto& lights_asset = MeshLibrary::FindMeshAsset(meshes.station_torus_3_lights);
+
+  auto& body = create(meshes.station_torus_3_body);
+  auto& frame = create(meshes.station_torus_3_frame);
+  auto& lights = create(meshes.station_torus_3_lights);
+
+  body.position =
+  frame.position =
+  lights.position =
+    position;
+
+  apply_scale(body, torus_asset);
+  apply_scale(frame, torus_asset);
+  apply_scale(lights, torus_asset);
+
+  apply_surface(body, body_asset);
+  apply_surface(frame, frame_asset);
+  apply_surface(lights, lights_asset);
+
+  commit(body);
+  commit(frame);
+  commit(lights);
+}
+
 static void GenerateElevatorToruses(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
+  // station_torus_1
+  {
+    auto& asset = MeshLibrary::FindMeshAsset(meshes.station_torus_2);
+
+    for (int32 i = 1; i <= 2; i++) {
+      auto& torus = create(meshes.station_torus_2);
+
+      torus.position = tVec3f(0, 50000.f + i * -2000000.f, 0);
+
+      apply_scale(torus, asset);
+      apply_surface(torus, asset);
+
+      commit(torus);
+    }
+  }
+
   // station_torus_3
   {
-    auto& torus_asset = MeshLibrary::FindMeshAsset(meshes.station_torus_3);
-    auto& body_asset = MeshLibrary::FindMeshAsset(meshes.station_torus_3_body);
-    auto& frame_asset = MeshLibrary::FindMeshAsset(meshes.station_torus_3_frame);
-    auto& lights_asset = MeshLibrary::FindMeshAsset(meshes.station_torus_3_lights);
+    auto positions = {
+      tVec3f(0, -300000.f, 0),
+      tVec3f(0, -500000.f, 0),
 
-    for (int32 i = 0; i < 10; i++) {
-      auto& body = create(meshes.station_torus_3_body);
-      auto& frame = create(meshes.station_torus_3_frame);
-      auto& lights = create(meshes.station_torus_3_lights);
+      tVec3f(0, -1700000.f, 0),
+      tVec3f(0, -1900000.f, 0),
 
-      body.position =
-      frame.position =
-      lights.position =
-        tVec3f(0, i * -300000.f, 0);
+      tVec3f(0, -3700000.f, 0),
+      tVec3f(0, -4100000.f, 0),
 
-      apply_scale(body, torus_asset);
-      apply_scale(frame, torus_asset);
-      apply_scale(lights, torus_asset);
+      tVec3f(0, -4700000.f, 0),
+      tVec3f(0, -4900000.f, 0)
+    };
 
-      apply_surface(body, body_asset);
-      apply_surface(frame, frame_asset);
-      apply_surface(lights, lights_asset);
+    for (int32 i = 0; i < 8; i++) {
+      auto& position = *(positions.begin() + i);
 
-      commit(body);
-      commit(frame);
-      commit(lights);
+      GenerateStationTorus3(tachyon, state, position);
+      GenerateStationTorus3(tachyon, state, tVec3f(0, 250000.f, 0) + position * -1.f);
+    }
+  }
+
+  // elevator_torus_1
+  {
+    auto& asset = MeshLibrary::FindMeshAsset(meshes.elevator_torus_1);
+
+    for (int32 i = 1; i < 8; i++) {
+      auto& torus = create(meshes.elevator_torus_1);
+      auto& torus2 = create(meshes.elevator_torus_1);
+      float interval = i % 2 == 0 ? -300000.f : -400000.f;
+
+      torus.position = tVec3f(0, i * interval, 0);
+      torus2.position = torus.position * -1.f;
+
+      apply_scale(torus, asset);
+      apply_scale(torus2, asset);
+
+      apply_surface(torus, asset);
+      apply_surface(torus, asset);
+
+      commit(torus);
+      commit(torus2);
+    }
+
+    for (int32 i = 14; i < 20; i++) {
+      auto& torus = create(meshes.elevator_torus_1);
+      auto& torus2 = create(meshes.elevator_torus_1);
+      float interval = i % 2 == 0 ? -300000.f : -400000.f;
+
+      torus.position = tVec3f(0, i * interval, 0);
+      torus2.position = torus.position * -1.f;
+
+      apply_scale(torus, asset);
+      apply_scale(torus2, asset);
+
+      apply_surface(torus, asset);
+      apply_surface(torus2, asset);
+
+      commit(torus);
+      commit(torus2);
     }
   }
 }

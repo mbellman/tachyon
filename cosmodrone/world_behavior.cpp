@@ -31,9 +31,9 @@ static void UpdateCelestialBodies(Tachyon* tachyon, State& state) {
     auto& earth = objects(meshes.planet)[0];
     auto& atmosphere = objects(meshes.earth_atmosphere)[0];
 
-    earth.position = camera.position + tVec3f(0, -5000000.f, 0);
+    earth.position = camera.position + tVec3f(0, -8000000.f, 0);
     earth.color = tVec3f(0.1f, 0.2f, 1.f);
-    earth.scale = tVec3f(1700000.f);
+    earth.scale = tVec3f(2500000.f);
     earth.material = tVec4f(0.4f, 0.f, 1.f, 0.3);
 
     atmosphere.position = earth.position;
@@ -74,7 +74,7 @@ static void UpdateSpaceElevator(Tachyon* tachyon, State& state) {
   auto& elevator = objects(meshes.space_elevator)[0];
 
   elevator.position = camera.position + tVec3f(0, -5000000.f, 0);
-  elevator.scale = tVec3f(2000000.f);
+  elevator.scale = tVec3f(1700000.f);
   elevator.rotation = base_rotation * Quaternion::fromAxisAngle(orbit_rotation_axis, current_angle);
   elevator.material = tVec4f(0.3f, 0.8f, 0, 0);
 
@@ -228,7 +228,7 @@ static void UpdateBackgroundEntities(Tachyon* tachyon, State& state, const float
 void WorldBehavior::UpdateWorld(Tachyon* tachyon, State& state, const float dt) {
   // Do these first so they can be updated in editor mode when changing game time
   UpdateCelestialBodies(tachyon, state);
-  UpdateSpaceElevator(tachyon, state);
+  // UpdateSpaceElevator(tachyon, state);
 
   // @todo dev mode only
   if (state.is_editor_active) {
