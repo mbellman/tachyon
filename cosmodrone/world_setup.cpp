@@ -2,6 +2,7 @@
 #include <vector>
 
 #include "cosmodrone/mesh_library.h"
+#include "cosmodrone/object_behavior.h"
 #include "cosmodrone/procedural_generation.h"
 #include "cosmodrone/vehicles.h"
 #include "cosmodrone/world_setup.h"
@@ -81,7 +82,7 @@ static void LoadWorldData(Tachyon* tachyon, State& state, const std::string& fil
   add_console_message("Loaded world data in " + std::to_string(load_time) + "us", tVec3f(1.f));
 }
 
-static void InitializeLevel(Tachyon* tachyon, State& state) {
+static void InitLevel(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
   auto& meshes = state.meshes;
 
@@ -229,16 +230,6 @@ static void CreateEditorGuidelines(Tachyon* tachyon, State& state) {
   }
 }
 
-static inline void StoreInitialMeshObjects(Tachyon* tachyon, uint16 mesh_index) {
-  auto& group = objects(mesh_index);
-
-  group.initial_objects.clear();
-
-  for (auto& object : group) {
-    group.initial_objects.push_back(object);
-  }
-}
-
 static void RebuildLightSources(Tachyon* tachyon, State& state) {
   auto& point_lights = tachyon->point_lights;
 
@@ -369,49 +360,15 @@ static void RebuildGeneratedObjects(Tachyon* tachyon) {
   }
 }
 
-void WorldSetup::InitializeGameWorld(Tachyon* tachyon, State& state) {
-  InitializeLevel(tachyon, state);
+void WorldSetup::InitWorld(Tachyon* tachyon, State& state) {
+  InitLevel(tachyon, state);
   RebuildWorld(tachyon, state);
-  StoreInitialObjects(tachyon, state);
-
-  // @todo can this be called in RebuildWorld()?
-  Vehicles::InitVehicles(tachyon, state);
 
   // @todo dev mode only
-  CreateDebugMeshes(tachyon, state);
-  CreateEditorGuidelines(tachyon, state);
-}
-
-void WorldSetup::StoreInitialObjects(Tachyon* tachyon, State& state) {
-  auto& meshes = state.meshes;
-
-  StoreInitialMeshObjects(tachyon, meshes.antenna_4_dish);
-
-  StoreInitialMeshObjects(tachyon, meshes.elevator_torus_1);
-  StoreInitialMeshObjects(tachyon, meshes.elevator_torus_1_frame);
-
-  StoreInitialMeshObjects(tachyon, meshes.station_torus_1);
-
-  StoreInitialMeshObjects(tachyon, meshes.station_torus_2_body);
-  StoreInitialMeshObjects(tachyon, meshes.station_torus_2_supports);
-  StoreInitialMeshObjects(tachyon, meshes.station_torus_2_frame);
-
-  StoreInitialMeshObjects(tachyon, meshes.station_torus_3_body);
-  StoreInitialMeshObjects(tachyon, meshes.station_torus_3_frame);
-  StoreInitialMeshObjects(tachyon, meshes.station_torus_3_lights);
-
-  StoreInitialMeshObjects(tachyon, meshes.habitation_4_body);
-  StoreInitialMeshObjects(tachyon, meshes.habitation_4_core);
-  StoreInitialMeshObjects(tachyon, meshes.habitation_4_frame);
-  StoreInitialMeshObjects(tachyon, meshes.habitation_4_panels);
-  StoreInitialMeshObjects(tachyon, meshes.habitation_4_lights);
-
-  StoreInitialMeshObjects(tachyon, meshes.arch_1_body);
-  StoreInitialMeshObjects(tachyon, meshes.arch_1_details);
-  StoreInitialMeshObjects(tachyon, meshes.arch_1_frame);
-
-  StoreInitialMeshObjects(tachyon, meshes.gate_tower_1);
-  StoreInitialMeshObjects(tachyon, meshes.background_ship_1);
+  {
+    CreateDebugMeshes(tachyon, state);
+    CreateEditorGuidelines(tachyon, state);
+  }
 }
 
 void WorldSetup::RebuildWorld(Tachyon* tachyon, State& state) {
@@ -430,4 +387,7 @@ void WorldSetup::RebuildWorld(Tachyon* tachyon, State& state) {
 
   RebuildLightSources(tachyon, state);
   RebuildBeacons(tachyon, state);
+
+  ObjectBehavior::InitObjects(tachyon, state);
+  Vehicles::InitVehicles(tachyon, state);
 }
