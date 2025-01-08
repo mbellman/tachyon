@@ -99,14 +99,14 @@ void ObjectBehavior::InitObjects(Tachyon* tachyon, State& state) {
     meshes.gate_tower_1,
     meshes.background_ship_1,
 
-    meshes.elevator_car
+    meshes.procedural_elevator_car
   });
 }
 
 void ObjectBehavior::UpdateObjects(Tachyon* tachyon, State& state, const float dt) {
   auto& meshes = state.meshes;
 
-  for_dynamic_objects(meshes.elevator_car, {
+  for_dynamic_objects(meshes.procedural_elevator_car, {
     auto direction =
       object.object_id % 2 == 0
         ? 1.f
@@ -115,8 +115,8 @@ void ObjectBehavior::UpdateObjects(Tachyon* tachyon, State& state, const float d
     object.position.y += 25000.f * dt * direction;
 
     // @temporary
-    if (std::abs(object.position.y - state.ship_position.y) > 1000000.f) {
-      object.position.y = state.ship_position.y + 999999.f * -direction;
+    if (std::abs(object.position.y - state.ship_position.y) > 1500000.f) {
+      object.position.y = state.ship_position.y + 1499999.f * -direction;
     }
 
     commit(object);

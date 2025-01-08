@@ -123,6 +123,7 @@ namespace Cosmodrone {
       track_1_frame,
 
       // Procedural meshes
+      procedural_elevator_car,
       procedural_track_1,
 
       // HUD wireframe meshes
@@ -130,7 +131,6 @@ namespace Cosmodrone {
       antenna_3_wireframe,
 
       // Entities
-      elevator_car,
       elevator_car_1,
       elevator_car_1_frame,
       gas_flare_1_spawn,

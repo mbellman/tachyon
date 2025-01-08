@@ -7,7 +7,7 @@
 #define mesh(__mesh_index) tachyon->mesh_pack.mesh_records[__mesh_index]
 #define objects(__mesh_index) tachyon->mesh_pack.mesh_records[__mesh_index].group
 #define create(__mesh_index) Tachyon_CreateObject(tachyon, __mesh_index)
-#define remove(__object) Tachyon_RemoveObject(tachyon, __object)
+#define remove(...) Tachyon_RemoveObject(tachyon, __VA_ARGS__)
 #define remove_all(__mesh_index) Tachyon_RemoveAllObjects(tachyon, __mesh_index);
 #define commit(__object) Tachyon_CommitObject(tachyon, __object)
 #define get_original_object(__object) Tachyon_GetOriginalObject(tachyon, __object)
@@ -21,6 +21,7 @@ uint16 Tachyon_AddMesh(Tachyon* tachyon, const tMesh& mesh, const tMesh& mesh2, 
 uint16 Tachyon_AddMesh(Tachyon* tachyon, const tMesh& mesh, const tMesh& mesh2, const tMesh& mesh3, uint16 total);
 void Tachyon_InitializeObjects(Tachyon* tachyon);
 tObject& Tachyon_CreateObject(Tachyon* tachyon, uint16 mesh_index);
+void Tachyon_RemoveObject(Tachyon* tachyon, uint16 mesh_index, uint16 object_id);
 void Tachyon_RemoveObject(Tachyon* tachyon, tObject& object);
 void Tachyon_RemoveAllObjects(Tachyon* tachyon, uint16 mesh_index);
 void Tachyon_CommitObject(Tachyon* tachyon, const tObject& object);

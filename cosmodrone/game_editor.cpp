@@ -4,6 +4,7 @@
 #include "cosmodrone/game_editor.h"
 #include "cosmodrone/mesh_library.h"
 #include "cosmodrone/object_behavior.h"
+#include "cosmodrone/procedural_generation.h"
 #include "cosmodrone/vehicles.h"
 #include "cosmodrone/world_behavior.h"
 #include "cosmodrone/world_setup.h"
@@ -834,6 +835,8 @@ static void ResetInitialObjects(Tachyon* tachyon) {
 
       commit(original);
     }
+
+    record.group.initial_objects.clear();
   }
 }
 
@@ -872,6 +875,8 @@ void Editor::EnableEditor(Tachyon* tachyon, State& state) {
   DisableGeneratedMeshes(tachyon);
   EnablePlaceholderMeshes(tachyon);
   ResetInitialObjects(tachyon);
+
+  ProceduralGeneration::RemoveAutoPlacedObjects(tachyon, state);
 
   tachyon->show_developer_tools = true;
   tachyon->use_high_visibility_mode = true;

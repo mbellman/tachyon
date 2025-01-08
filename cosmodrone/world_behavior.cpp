@@ -2,16 +2,6 @@
 #include "cosmodrone/world_behavior.h"
 #include "cosmodrone/vehicles.h"
 
-#define for_dynamic_objects(__mesh_index, code)\
-  auto& initial_objects = objects(__mesh_index).initial_objects;\
-  for (auto& initial : initial_objects) {\
-    auto* original = get_original_object(initial);\
-    if (original != nullptr) {\
-      auto& object = *original;\
-      code\
-    }\
-  }\
-
 using namespace Cosmodrone;
 
 const static float orbital_rate = 0.001f;

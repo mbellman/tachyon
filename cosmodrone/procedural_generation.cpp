@@ -23,6 +23,20 @@ using namespace Cosmodrone;
 #define apply(__object, __asset, __property)\
   __object.__property = __asset.defaults.__property
 
+static AutoPlacedObjectList& GetAutoPlacedObjectList(State& state, const uint16 mesh_index) {
+  for (auto& list : state.auto_placed_object_lists) {
+    if (list.mesh_index == mesh_index) {
+      return list;
+    }
+  }
+
+  state.auto_placed_object_lists.push_back({
+    .mesh_index = mesh_index
+  });
+
+  return state.auto_placed_object_lists.back();
+}
+
 static void GenerateElevator(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
@@ -54,17 +68,21 @@ static void GenerateElevator(Tachyon* tachyon, State& state) {
 static void GenerateElevatorCars(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
-  remove_all(meshes.elevator_car);
+  remove_all(meshes.procedural_elevator_car);
 
   for (int32 i = 0; i < TOTAL_ELEVATOR_CARS; i++) {
-    auto& car = create(meshes.elevator_car);
+    auto& car = create(meshes.procedural_elevator_car);
+    auto rotation_angle = t_HALF_PI + (i % 4) * t_HALF_PI;
 
     car.scale = 3000.f;
-    car.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_HALF_PI + (i % 4) * t_HALF_PI);
+    car.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), rotation_angle);
     car.material = tVec4f(0.2f, 1.f, 0, 0);
 
     car.position = car.rotation.toMatrix4f().transformVec3f(tVec3f(0, 0, -1.f)) * 4000.f;
-    car.position.y = 300000.f * floorf(i / 4.f) + Tachyon_GetRandom(-100000.f, 100000.f);
+
+    car.position.y =
+      400000.f * floorf(i / 4.f) +
+      Tachyon_GetRandom(-100000.f, 100000.f);
 
     commit(car);
   }
@@ -107,8 +125,7 @@ static void GenerateElevatorToruses(Tachyon* tachyon, State& state) {
   // station_torus_2
   {
     auto& asset = MeshLibrary::FindMeshAsset(meshes.station_torus_2);
-
-    remove_all(meshes.station_torus_2);
+    auto& list = GetAutoPlacedObjectList(state, meshes.station_torus_2);
 
     for (int32 i = 1; i <= 2; i++) {
       auto& torus = create(meshes.station_torus_2);
@@ -125,10 +142,14 @@ static void GenerateElevatorToruses(Tachyon* tachyon, State& state) {
 
       commit(torus);
       commit(torus2);
+
+      list.object_ids.push_back(torus.object_id);
+      list.object_ids.push_back(torus2.object_id);
     }
   }
 
   // station_torus_3
+  // @todo use actual station_torus_3 mesh
   {
     auto positions = {
       tVec3f(0, -300000.f, 0),
@@ -155,8 +176,7 @@ static void GenerateElevatorToruses(Tachyon* tachyon, State& state) {
   // elevator_torus_1
   {
     auto& asset = MeshLibrary::FindMeshAsset(meshes.elevator_torus_1);
-
-    remove_all(meshes.elevator_torus_1);
+    auto& list = GetAutoPlacedObjectList(state, meshes.elevator_torus_1);
 
     for (int32 i = 0; i < 8; i++) {
       auto& torus = create(meshes.elevator_torus_1);
@@ -174,6 +194,9 @@ static void GenerateElevatorToruses(Tachyon* tachyon, State& state) {
 
       commit(torus);
       commit(torus2);
+
+      list.object_ids.push_back(torus.object_id);
+      list.object_ids.push_back(torus2.object_id);
     }
 
     for (int32 i = 14; i < 20; i++) {
@@ -192,6 +215,9 @@ static void GenerateElevatorToruses(Tachyon* tachyon, State& state) {
 
       commit(torus);
       commit(torus2);
+
+      list.object_ids.push_back(torus.object_id);
+      list.object_ids.push_back(torus2.object_id);
     }
   }
 }
@@ -200,7 +226,17 @@ void ProceduralGeneration::LoadMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   load_mesh(meshes.procedural_track_1, "/station-parts/track_1.obj", TOTAL_TRACK_PIECES);
-  load_mesh(meshes.elevator_car, "/elevator_car.obj", TOTAL_ELEVATOR_CARS);
+  load_mesh(meshes.procedural_elevator_car, "/elevator_car.obj", TOTAL_ELEVATOR_CARS);
+}
+
+void ProceduralGeneration::RemoveAutoPlacedObjects(Tachyon* tachyon, State& state) {
+  for (auto& list : state.auto_placed_object_lists) {
+    for (auto& object_id : list.object_ids) {
+      remove(list.mesh_index, object_id);
+    }
+  }
+
+  state.auto_placed_object_lists.clear();
 }
 
 void ProceduralGeneration::GenerateWorld(Tachyon* tachyon, State& state) {

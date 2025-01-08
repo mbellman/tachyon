@@ -550,8 +550,8 @@ tObject& Tachyon_CreateObject(Tachyon* tachyon, uint16 mesh_index) {
   return object;
 }
 
-void Tachyon_RemoveObject(Tachyon* tachyon, tObject& object) {
-  auto& record = tachyon->mesh_pack.mesh_records[object.mesh_index];
+void Tachyon_RemoveObject(Tachyon* tachyon, uint16 mesh_index, uint16 object_id) {
+  auto& record = tachyon->mesh_pack.mesh_records[mesh_index];
   auto& group = record.group;
 
   if (group.total_active == 0) {
@@ -559,7 +559,7 @@ void Tachyon_RemoveObject(Tachyon* tachyon, tObject& object) {
     return;
   }
 
-  uint16 removed_id = object.object_id;
+  uint16 removed_id = object_id;
   uint16 removed_index = group.id_to_index[removed_id];
   uint16 last_active_index = group.total_active - 1;
 
@@ -595,6 +595,10 @@ void Tachyon_RemoveObject(Tachyon* tachyon, tObject& object) {
   record.lod_3.instance_count = 0;
 
   group.buffered = false;
+}
+
+void Tachyon_RemoveObject(Tachyon* tachyon, tObject& object) {
+  Tachyon_RemoveObject(tachyon, object.mesh_index, object.object_id);
 }
 
 void Tachyon_RemoveAllObjects(Tachyon* tachyon, uint16 mesh_index) {
