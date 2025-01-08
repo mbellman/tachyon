@@ -1,6 +1,9 @@
 #include "cosmodrone/procedural_generation.h"
 #include "cosmodrone/mesh_library.h"
 
+constexpr static uint16 TOTAL_TRACK_PIECES = 500;
+constexpr static uint16 TOTAL_ELEVATOR_CARS = 12;
+
 using namespace Cosmodrone;
 
 #define load_mesh(__mesh_entry, __file, __total)\
@@ -53,15 +56,15 @@ static void GenerateElevatorCars(Tachyon* tachyon, State& state) {
 
   remove_all(meshes.elevator_car);
 
-  for (int32 i = 0; i < 4; i++) {
+  for (int32 i = 0; i < TOTAL_ELEVATOR_CARS; i++) {
     auto& car = create(meshes.elevator_car);
 
     car.scale = 3000.f;
-    car.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_HALF_PI + i * t_HALF_PI);
+    car.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_HALF_PI + (i % 4) * t_HALF_PI);
     car.material = tVec4f(0.2f, 1.f, 0, 0);
 
     car.position = car.rotation.toMatrix4f().transformVec3f(tVec3f(0, 0, -1.f)) * 4000.f;
-    car.position.y = Tachyon_GetRandom(-50000.f, 50000.f);
+    car.position.y = 300000.f * floorf(i / 4.f) + Tachyon_GetRandom(-100000.f, 100000.f);
 
     commit(car);
   }
@@ -196,8 +199,8 @@ static void GenerateElevatorToruses(Tachyon* tachyon, State& state) {
 void ProceduralGeneration::LoadMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
-  load_mesh(meshes.procedural_track_1, "/station-parts/track_1.obj", 500);
-  load_mesh(meshes.elevator_car, "/elevator_car.obj", 20);
+  load_mesh(meshes.procedural_track_1, "/station-parts/track_1.obj", TOTAL_TRACK_PIECES);
+  load_mesh(meshes.elevator_car, "/elevator_car.obj", TOTAL_ELEVATOR_CARS);
 }
 
 void ProceduralGeneration::GenerateWorld(Tachyon* tachyon, State& state) {

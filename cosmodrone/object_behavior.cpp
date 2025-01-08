@@ -107,13 +107,16 @@ void ObjectBehavior::UpdateObjects(Tachyon* tachyon, State& state, const float d
   auto& meshes = state.meshes;
 
   for_dynamic_objects(meshes.elevator_car, {
-    auto direction = object.object_id % 2 == 0 ? 1.f : -1.f;
+    auto direction =
+      object.object_id % 2 == 0
+        ? 1.f
+        : -1.f;
 
     object.position.y += 25000.f * dt * direction;
 
     // @temporary
-    if (std::abs(object.position.y - state.ship_position.y) > 500000.f) {
-      object.position.y = state.ship_position.y + 499999.f * -direction;
+    if (std::abs(object.position.y - state.ship_position.y) > 1000000.f) {
+      object.position.y = state.ship_position.y + 999999.f * -direction;
     }
 
     commit(object);
