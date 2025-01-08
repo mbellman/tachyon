@@ -1,6 +1,6 @@
 #pragma once
 
-#define USE_PROCEDURAL_GENERATION 1
+#define USE_PROCEDURAL_GENERATION 0
 
 #include "engine/tachyon.h"
 #include "cosmodrone/mesh_ids.h"
@@ -69,6 +69,11 @@ namespace Cosmodrone {
     tObject source_object;
     tObject beacon_1;
     tObject beacon_2;
+  };
+
+  struct ManualObjectRecords {
+    uint16 mesh_index;
+    std::vector<uint16> object_ids;
   };
 
   struct State {
@@ -143,6 +148,8 @@ namespace Cosmodrone {
       tUIText* cascadia_mono_26 = nullptr;
       tUIText* cascadia_mono_32 = nullptr;
     } ui;
+
+    std::vector<ManualObjectRecords> manual_objects;
 
     // @todo dev mode only
     bool is_editor_active = false;

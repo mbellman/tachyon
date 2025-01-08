@@ -112,7 +112,7 @@ static inline std::string Serialize(const Quaternion& quaternion) {
   );
 }
 
-static void SaveWorldData(Tachyon* tachyon) {
+static void SaveWorldData(Tachyon* tachyon, State& state) {
   auto start = Tachyon_GetMicroseconds();
   auto& placeable_meshes = MeshLibrary::GetPlaceableMeshAssets();
   std::string data = "";
@@ -139,7 +139,7 @@ static void SaveWorldData(Tachyon* tachyon) {
   #if USE_PROCEDURAL_GENERATION == 1
     Tachyon_WriteFileContents("./cosmodrone/data/world_2.txt", data);
   #else
-    Tachyon_WriteFileContents("./cosmodrone/data/world2.txt", data);
+    Tachyon_WriteFileContents("./cosmodrone/data/world.txt", data);
   #endif
 
   auto save_time = Tachyon_GetMicroseconds() - start;
@@ -404,7 +404,7 @@ enum Direction {
   UP, RIGHT, LEFT, DOWN
 };
 
-static void CopySelectedObject(Tachyon* tachyon, Direction direction) {
+static void CopySelectedObject(Tachyon* tachyon, State& state, Direction direction) {
   auto& camera = tachyon->scene.camera;
   auto& selected = *get_original_object(editor.selected_object);
   auto& copy = create(selected.mesh_index);
@@ -440,7 +440,7 @@ static void CopySelectedObject(Tachyon* tachyon, Direction direction) {
   editor.selected_object = copy;
 
   // Save when objects are copied
-  SaveWorldData(tachyon);
+  SaveWorldData(tachyon, state);
 }
 
 // @todo improve accuracy using collision planes/scale
@@ -514,23 +514,23 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
       editor.is_object_picker_active = false;
 
       // Save when objects are deleted
-      SaveWorldData(tachyon);
+      SaveWorldData(tachyon, state);
     }
 
     if (did_press_key(tKey::ARROW_LEFT)) {
-      CopySelectedObject(tachyon, LEFT);
+      CopySelectedObject(tachyon, state, LEFT);
     }
 
     if (did_press_key(tKey::ARROW_RIGHT)) {
-      CopySelectedObject(tachyon, RIGHT);
+      CopySelectedObject(tachyon, state, RIGHT);
     }
 
     if (did_press_key(tKey::ARROW_UP)) {
-      CopySelectedObject(tachyon, UP);
+      CopySelectedObject(tachyon, state, UP);
     }
 
     if (did_press_key(tKey::ARROW_DOWN)) {
-      CopySelectedObject(tachyon, DOWN);
+      CopySelectedObject(tachyon, state, DOWN);
     }
 
     // @temporary
@@ -687,7 +687,7 @@ static void HandleSelectedObject(Tachyon* tachyon, State& state) {
     editor.is_object_picker_active = false;
 
     // Save when deselecting an object
-    SaveWorldData(tachyon);
+    SaveWorldData(tachyon, state);
   }
 
   commit(selected);
