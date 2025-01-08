@@ -167,8 +167,8 @@ static void HandleFlightReticle(Tachyon* tachyon, State& state, const float dt) 
   // Lag when panning the camera/rotating
   {
     if (is_window_focused()) {
-      target_offset.x -= (float)tachyon->mouse_delta_x / 1000.f;
-      target_offset.y -= (float)tachyon->mouse_delta_y / 1000.f;
+      target_offset.x -= (float)tachyon->mouse_delta_x / 2000.f;
+      target_offset.y -= (float)tachyon->mouse_delta_y / 2000.f;
     }
 
     rotation -= state.camera_roll_speed * dt;
@@ -199,8 +199,8 @@ static void HandleFlightReticle(Tachyon* tachyon, State& state, const float dt) 
     target_offset.y *= 1.f - 2.f * dt;
     rotation *= 1.f - 4.f * dt;
 
-    offset.x = Lerpf(offset.x, target_offset.x, 30.f * dt);
-    offset.y = Lerpf(offset.y, target_offset.y, 30.f * dt);
+    offset.x = Lerpf(offset.x, target_offset.x, 20.f * dt);
+    offset.y = Lerpf(offset.y, target_offset.y, 20.f * dt);
   }
 }
 

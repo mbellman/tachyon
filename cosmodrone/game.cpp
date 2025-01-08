@@ -314,7 +314,7 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
     );
   }
 
-  camera.rotation = Quaternion::slerp(camera.rotation, state.target_camera_rotation, 5.f * dt);
+  camera.rotation = Quaternion::slerp(camera.rotation, state.target_camera_rotation, 3.f * dt);
 
   UpdateViewDirections(tachyon, state);
 
