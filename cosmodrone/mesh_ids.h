@@ -44,6 +44,7 @@ namespace Cosmodrone {
       station_torus_3,
       station_torus_4,
       station_platform_1,
+      station_cylinder_1,
       station_base,
       solar_panel_1,
       solar_panel_2,

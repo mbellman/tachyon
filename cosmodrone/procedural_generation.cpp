@@ -152,7 +152,7 @@ static void GenerateElevatorToruses(Tachyon* tachyon, State& state) {
   // @todo use actual station_torus_3 mesh
   {
     auto positions = {
-      tVec3f(0, -300000.f, 0),
+      tVec3f(0, -380000.f, 0),
       tVec3f(0, -500000.f, 0),
 
       tVec3f(0, -1700000.f, 0),
@@ -178,7 +178,7 @@ static void GenerateElevatorToruses(Tachyon* tachyon, State& state) {
     auto& asset = MeshLibrary::FindMeshAsset(meshes.elevator_torus_1);
     auto& list = GetAutoPlacedObjectList(state, meshes.elevator_torus_1);
 
-    for (int32 i = 0; i < 8; i++) {
+    for (int32 i = 1; i < 8; i++) {
       auto& torus = create(meshes.elevator_torus_1);
       auto& torus2 = create(meshes.elevator_torus_1);
       float interval = i % 2 == 0 ? -300000.f : -400000.f;
