@@ -64,6 +64,8 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh(station_torus_1);
   load_mesh(station_torus_2);
   load_mesh(station_torus_3);
+  load_mesh(station_torus_4);
+  load_mesh(station_platform_1);
   load_mesh(station_base);
   load_mesh(spire_fortress);
   load_mesh(gate_tower_1);
@@ -322,6 +324,27 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     .placeholder = true,
     .defaults = {
       .scale = tVec3f(35000.f),
+      .color = tVec3f(1.f),
+      .material = tVec4f(1.f, 0, 0.1f, 0.2f)
+    }
+  });
+
+  placeable_mesh_assets.push_back({
+    .mesh_name = "station_torus_4",
+    .mesh_index = meshes.station_torus_4,
+    .placeholder = true,
+    .defaults = {
+      .scale = tVec3f(100000.f),
+      .color = tVec3f(1.f),
+      .material = tVec4f(1.f, 0, 0.1f, 0.2f)
+    }
+  });
+
+  placeable_mesh_assets.push_back({
+    .mesh_name = "station_platform_1",
+    .mesh_index = meshes.station_platform_1,
+    .defaults = {
+      .scale = tVec3f(100000.f),
       .color = tVec3f(1.f),
       .material = tVec4f(1.f, 0, 0.1f, 0.2f)
     }
@@ -625,6 +648,9 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
   load_mesh(station_torus_3_body);
   load_mesh(station_torus_3_frame);
   load_mesh(station_torus_3_lights);
+
+  load_mesh(station_torus_4_body);
+  load_mesh(station_torus_4_frame);
 
   load_mesh(light_1_base);
   load_mesh(light_1_bulb);
@@ -949,6 +975,22 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .defaults = {
         .color = tVec4f(1.f, 0.9f, 0.9f, 1.f),
         .material = tVec4f(1., 0, 0, 0)
+      }
+    },
+
+    // station_torus_4
+    {
+      .mesh_index = meshes.station_torus_4_body,
+      .generated_from = meshes.station_torus_4,
+      .defaults = {
+        .material = tVec4f(0.9f, 0, 0, 0.2f)
+      }
+    },
+    {
+      .mesh_index = meshes.station_torus_4_frame,
+      .generated_from = meshes.station_torus_4,
+      .defaults = {
+        .material = tVec4f(0.4f, 1.f, 0, 0)
       }
     },
 

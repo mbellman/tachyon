@@ -82,7 +82,7 @@ static void GenerateElevatorCars(Tachyon* tachyon, State& state) {
 
     car.position.y =
       400000.f * floorf(i / 4.f) +
-      Tachyon_GetRandom(-100000.f, 100000.f);
+      Tachyon_GetRandom(-50000.f, 50000.f);
 
     commit(car);
   }
