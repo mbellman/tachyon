@@ -57,52 +57,53 @@ static void RebuildVehicleNetwork(Tachyon* tachyon, State& state) {
   }
 }
 
+// @todo rewrite this
 static void RecreateStationDrones(Tachyon* tachyon, State& state) {
-  auto& point_lights = tachyon->point_lights;
-  auto& meshes = state.meshes;
-  auto& vehicles = state.vehicles;
+  // auto& point_lights = tachyon->point_lights;
+  // auto& meshes = state.meshes;
+  // auto& vehicles = state.vehicles;
 
-  for (uint8 i = 0; i < 50; i++) {
-    auto& drone = create(meshes.station_drone_1);
+  // for (uint8 i = 0; i < 50; i++) {
+  //   auto& drone = create(meshes.station_drone_1);
 
-    // @temporary
-    {
-      tVec3f direction = tVec3f(
-        Tachyon_GetRandom(-1.f, 1.f),
-        Tachyon_GetRandom(-1.f, 1.f),
-        Tachyon_GetRandom(-1.f, 1.f)
-      ).unit();
+  //   // @temporary
+  //   {
+  //     tVec3f direction = tVec3f(
+  //       Tachyon_GetRandom(-1.f, 1.f),
+  //       Tachyon_GetRandom(-1.f, 1.f),
+  //       Tachyon_GetRandom(-1.f, 1.f)
+  //     ).unit();
 
-      drone.position = tVec3f(
-        Tachyon_GetRandom(-200000.f, 200000.f),
-        Tachyon_GetRandom(-300000.f, 400000.f),
-        Tachyon_GetRandom(-200000.f, 200000.f)
-      );
+  //     drone.position = tVec3f(
+  //       Tachyon_GetRandom(-200000.f, 200000.f),
+  //       Tachyon_GetRandom(-300000.f, 400000.f),
+  //       Tachyon_GetRandom(-200000.f, 200000.f)
+  //     );
 
-      drone.rotation = DirectionToQuaternion(direction.invert());
-    }
+  //     drone.rotation = DirectionToQuaternion(direction.invert());
+  //   }
 
-    drone.scale = 1000.f;
+  //   drone.scale = 1000.f;
 
-    commit(drone);
+  //   commit(drone);
 
-    vehicles.push_back({
-      .object = drone,
-      // @temporary
-      .spawn_position = tVec3f(0.f),
-      // @temporary
-      .target_position = tVec3f(0.f),
-      .speed = 5000.f,
-      .light_indexes_offset = uint32(point_lights.size())
-    });
+  //   vehicles.push_back({
+  //     .object = drone,
+  //     // @temporary
+  //     .spawn_position = tVec3f(0.f),
+  //     // @temporary
+  //     .target_position = tVec3f(0.f),
+  //     .speed = 5000.f,
+  //     .light_indexes_offset = uint32(point_lights.size())
+  //   });
 
-    point_lights.push_back({
-      .position = drone.position,
-      .radius = 2000.f,
-      .color = tVec3f(1.f, 0.2f, 1.f),
-      .power = 1.f
-    });
-  }
+  //   point_lights.push_back({
+  //     .position = drone.position,
+  //     .radius = 2000.f,
+  //     .color = tVec3f(1.f, 0.2f, 1.f),
+  //     .power = 1.f
+  //   });
+  // }
 }
 
 static void RecreateFlyingShips(Tachyon* tachyon, State& state) {
@@ -186,7 +187,7 @@ void Vehicles::InitVehicles(Tachyon* tachyon, State& state) {
   }
 
   RebuildVehicleNetwork(tachyon, state);
-  RecreateStationDrones(tachyon, state);
+  // RecreateStationDrones(tachyon, state);
   RecreateFlyingShips(tachyon, state);
 
   // @todo dev mode only

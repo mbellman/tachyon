@@ -86,6 +86,8 @@ void ObjectBehavior::InitObjects(Tachyon* tachyon, State& state) {
     meshes.station_torus_3_frame,
     meshes.station_torus_3_lights,
 
+    meshes.station_cylinder_torus,
+
     meshes.habitation_4_body,
     meshes.habitation_4_core,
     meshes.habitation_4_frame,
@@ -106,6 +108,7 @@ void ObjectBehavior::InitObjects(Tachyon* tachyon, State& state) {
 void ObjectBehavior::UpdateObjects(Tachyon* tachyon, State& state, const float dt) {
   auto& meshes = state.meshes;
 
+  // @todo factor
   for_dynamic_objects(meshes.procedural_elevator_car, {
     auto direction =
       object.object_id % 2 == 0
@@ -141,6 +144,8 @@ void ObjectBehavior::UpdateObjects(Tachyon* tachyon, State& state, const float d
   UpdateRotator(tachyon, state, dt, meshes.station_torus_3_body, 0.08f);
   UpdateRotator(tachyon, state, dt, meshes.station_torus_3_frame, 0.08f);
   UpdateRotator(tachyon, state, dt, meshes.station_torus_3_lights, 0.08f);
+
+  UpdateRotator(tachyon, state, dt, meshes.station_cylinder_torus, 0.1f);
 
   UpdateRotatorWithVariation(tachyon, state, dt, meshes.antenna_4_dish, 0.5f);
 

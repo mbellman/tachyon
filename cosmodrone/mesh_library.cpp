@@ -663,6 +663,9 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
   load_mesh(station_torus_4_body);
   load_mesh(station_torus_4_frame);
 
+  load_mesh(station_cylinder_torus);
+  load_mesh(platform_frame);
+
   load_mesh(light_1_base);
   load_mesh(light_1_bulb);
 
@@ -1002,6 +1005,20 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .generated_from = meshes.station_torus_4,
       .defaults = {
         .material = tVec4f(0.4f, 1.f, 0, 0)
+      }
+    },
+
+    // station_cylinder_1
+    {
+      .mesh_index = meshes.station_cylinder_torus,
+      .generated_from = meshes.station_cylinder_1
+    },
+    {
+      .mesh_index = meshes.platform_frame,
+      .generated_from = meshes.station_cylinder_1,
+      .defaults {
+        .color = tVec3f(1.f, 0.3f, 0.1f),
+        .material = tVec4f(0.5f, 0, 0, 0.6f)
       }
     },
 
