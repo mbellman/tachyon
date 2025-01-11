@@ -1,7 +1,7 @@
 #include "cosmodrone/procedural_generation.h"
 #include "cosmodrone/mesh_library.h"
 
-constexpr static uint16 TOTAL_TRACK_PIECES = 500;
+constexpr static uint16 TOTAL_TRACK_PIECES = 600;
 constexpr static uint16 TOTAL_ELEVATOR_CARS = 12;
 
 using namespace Cosmodrone;
@@ -43,7 +43,7 @@ static void GenerateElevator(Tachyon* tachyon, State& state) {
   remove_all(meshes.procedural_track_1);
 
   // Down
-  for (int32 i = 0; i < 250; i++) {
+  for (int32 i = 0; i < 300; i++) {
     auto& track = create(meshes.procedural_track_1);
 
     track.position = tVec3f(0, i * -24000.f, 0);
@@ -54,7 +54,7 @@ static void GenerateElevator(Tachyon* tachyon, State& state) {
   }
 
   // Up
-  for (int32 i = 1; i < 200; i++) {
+  for (int32 i = 1; i < 300; i++) {
     auto& track = create(meshes.procedural_track_1);
 
     track.position = tVec3f(0, i * 24000.f, 0);

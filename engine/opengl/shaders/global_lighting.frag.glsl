@@ -355,11 +355,20 @@ float GetSunGlareFactor(vec3 sky_direction) {
   float vertical_spike = max(0.0, 1.0 - 2.0 * abs(fragUv.x - sun_coords.x));
   float horizontal_spike = max(0.0, 1.0 - 2.0 * abs(fragUv.y - sun_coords.y));
 
-  glare_factor += pow(vertical_spike, 20.0);
-  glare_factor += pow(horizontal_spike, 20.0);
-  glare_factor *= pow(sun_dot, 15.0);
+  vec2 sun_offset = fragUv - sun_coords.xy;
+
+  // Aspect ratio correction
+  sun_offset.x *= (1920.0 / 1080.0);
+
+  float diagonal_spike = max(0.0, 1.0 - abs(abs(sun_offset.x) - abs(sun_offset.y)));
+
+  glare_factor += 2.0 * pow(vertical_spike, 50.0);
+  glare_factor += 2.0 * pow(horizontal_spike, 50.0);
+  glare_factor += pow(diagonal_spike, 15.0);
+  glare_factor *= 2.0 * pow(sun_dot, 15.0);
+  glare_factor *= 1.0 - pow(sun_dot, 70.0);
   glare_factor *= pow(sun_view_dot, 30.0);
-  glare_factor *= 0.2;
+  glare_factor *= 0.1;
 
   return glare_factor;
 }

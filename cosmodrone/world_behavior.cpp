@@ -22,9 +22,9 @@ static void UpdateCelestialBodies(Tachyon* tachyon, State& state) {
     auto& earth = objects(meshes.planet)[0];
     auto& atmosphere = objects(meshes.earth_atmosphere)[0];
 
-    earth.position = camera.position + tVec3f(0, -8000000.f, 0);
+    earth.position = camera.position + tVec3f(0, -1E7f, 0);
     earth.color = tVec3f(0.1f, 0.2f, 1.f);
-    earth.scale = tVec3f(2500000.f);
+    earth.scale = tVec3f(3200000.f);
     earth.material = tVec4f(0.4f, 0.f, 1.f, 0.3);
 
     atmosphere.position = earth.position;
