@@ -99,7 +99,7 @@ vec4 GetVolumetricFogColorAndThickness(float depth, vec3 direction) {
     }
   }
 
-  color = mix(color, light_fog_color * 60.0, pow(sun_dot, 50.0));
+  color = mix(color, light_fog_color * 20.0, pow(sun_dot, 50.0));
 
   return vec4(color, thickness);
 }

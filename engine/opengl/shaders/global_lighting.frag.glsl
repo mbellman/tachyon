@@ -337,8 +337,35 @@ vec3 RotateAroundAxis(vec3 axis, vec3 vector, float angle) {
 
 const vec3 ORBITAL_AXIS = normalize(vec3(0.5, 0, -1.0));
 
-// @todo allow game-specific definitions
-vec3 GetSkyColor(vec3 sky_direction) {
+float GetSunGlareFactor(vec3 sky_direction) {
+  vec3 sun_direction = -directional_light_direction;
+
+  vec3 view_direction = -1.0 * vec3(view_matrix[0][2], view_matrix[1][2], view_matrix[2][2]);
+  float sun_dot = max(dot(sun_direction, sky_direction), 0.0);
+  float sun_view_dot = max(0.0, dot(sun_direction, view_direction));
+  float glare_factor = sun_view_dot;
+
+  mat3 m_view = mat3(view_matrix);
+  vec4 sun_coords = projection_matrix * vec4(m_view * sun_direction, 1.0);
+
+  sun_coords /= sun_coords.w;
+  sun_coords.xy *= 0.5;
+  sun_coords.xy += 0.5;
+
+  float vertical_spike = max(0.0, 1.0 - 2.0 * abs(fragUv.x - sun_coords.x));
+  float horizontal_spike = max(0.0, 1.0 - 2.0 * abs(fragUv.y - sun_coords.y));
+
+  glare_factor += pow(vertical_spike, 20.0);
+  glare_factor += pow(horizontal_spike, 20.0);
+  glare_factor *= pow(sun_dot, 15.0);
+  glare_factor *= pow(sun_view_dot, 30.0);
+  glare_factor *= 0.2;
+
+  return glare_factor;
+}
+
+// @todo allow game-specific implementation
+vec3 GetSkyColor(vec3 sky_direction, float sun_glare_factor) {
   vec3 sun_direction = -directional_light_direction;
   vec3 planet_direction = vec3(0, -1, 0);
 
@@ -347,10 +374,15 @@ vec3 GetSkyColor(vec3 sky_direction) {
   float sun_alpha = clamp(pow(sun_dot, 250) * 2.0, 0.0, 1.1);
   vec3 sun_color = mix(vec3(0), sun_base_color, sun_alpha);
 
+  // Additional glow
+  sun_color += vec3(1.0, 0.7, 0.3) * pow(sun_dot, 50.0) * (1.0 - pow(sun_dot, 100.0));
+  // Glare
+  sun_color += vec3(1.0, 0.5, 0.0) * sun_glare_factor;
+
   float planet_dot = max(dot(planet_direction, sky_direction), 0.0);
   vec3 planet_atmosphere_base_color = mix(vec3(0.0, 0.1, 1.0), vec3(0.5, 0.7, 0.9), pow(planet_dot, 20));
   planet_atmosphere_base_color = mix(planet_atmosphere_base_color, vec3(1, 0.9, 0.6), pow(sun_dot, 20));
-  float planet_atmosphere_sunlight_factor = 0.2 + 0.8 * pow(sun_dot, 10);
+  float planet_atmosphere_sunlight_factor = 0.4 + 0.6 * pow(sun_dot, 10);
   float planet_atmosphere_alpha = clamp(pow(planet_dot, 40) * 8.0, 0, 1) * planet_atmosphere_sunlight_factor;
   vec3 planet_atmosphere_color = mix(vec3(0), planet_atmosphere_base_color, planet_atmosphere_alpha);
 
@@ -399,7 +431,7 @@ vec3 GetSkyColor(vec3 sky_direction) {
 }
 
 vec3 GetReflectionColor(vec3 R) {
-  return GetSkyColor(R);
+  return GetSkyColor(R, 0.0);
 }
 
 const vec3[] ssao_sample_points = {
@@ -519,9 +551,10 @@ void main() {
   vec4 frag_normal_and_depth = texture(in_normal_and_depth, fragUv);
   vec3 position = GetWorldPosition(frag_normal_and_depth.w, fragUv, inverse_projection_matrix, inverse_view_matrix);
   vec3 D = normalize(position - camera_position);
+  float sun_glare_factor = GetSunGlareFactor(D);
 
   if (frag_normal_and_depth.w == 1.0) {
-    out_color_and_depth = vec4(GetSkyColor(D), frag_normal_and_depth.w);
+    out_color_and_depth = vec4(GetSkyColor(D, sun_glare_factor), frag_normal_and_depth.w);
     out_temporal_data = vec4(0, 0, 0, 1.0);
 
     return;
@@ -564,6 +597,11 @@ void main() {
   shadow = clamp(shadow, 0.0, 1.0);
 
   vec3 out_color = vec3(0.0);
+
+  // Sun glare
+  {
+    out_color += vec3(1.0, 0.0, 0.0) * sun_glare_factor * sun_glare_factor;
+  }
 
   // Primary directional light
   {
