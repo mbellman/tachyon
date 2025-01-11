@@ -51,10 +51,10 @@ float noise(float seed) {
 }
 
 const vec3[] fog_volume_positions = {
-  vec3(5000.0, 100000.0, 100000.0),
-  vec3(75000.0, 90000.0, 40000.0),
-  vec3(10000.0, 200000.0, 10000.0),
-  vec3(10000.0, 270000.0, 36000.0),
+  vec3(35000.0, -160000.0, 10000.0),
+  vec3(50000.0, -170000.0, 20000.0),
+  vec3(20000.0, -190000.0, -55000.0),
+  vec3(-20000.0, -200000.0, -30000.0),
 };
 
 vec4 GetVolumetricFogColorAndThickness(float depth, vec3 direction) {
@@ -91,7 +91,7 @@ vec4 GetVolumetricFogColorAndThickness(float depth, vec3 direction) {
       vec3 volume_to_sample = sample_position - fog_volume_positions[i];
       float volume_distance = length(volume_to_sample);
       vec3 sample_direction = volume_to_sample / volume_distance;
-      float distance_ratio = min(1.0, volume_distance / 150000.0);
+      float distance_ratio = min(1.0, volume_distance / 100000.0);
       float NdotL = max(0.0, dot(sample_direction, -primary_light_direction));
 
       color += mix(dark_fog_color, light_fog_color, NdotL);

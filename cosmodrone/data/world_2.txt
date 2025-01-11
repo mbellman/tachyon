@@ -28,7 +28,7 @@
 @station_torus_3
 @station_torus_4
 @station_platform_1
-@station_cylinder_1
+@platform
 -1.789,-224099.125,4.517,1.000,0.000,0.000,0.000,65520
 @station_base
 @spire_fortress

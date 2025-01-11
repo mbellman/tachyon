@@ -66,7 +66,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh(station_torus_3);
   load_mesh(station_torus_4);
   load_mesh(station_platform_1);
-  load_mesh(station_cylinder_1);
+  load_mesh(platform);
   load_mesh(station_base);
   load_mesh(spire_fortress);
   load_mesh(gate_tower_1);
@@ -352,8 +352,8 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   });
 
   placeable_mesh_assets.push_back({
-    .mesh_name = "station_cylinder_1",
-    .mesh_index = meshes.station_cylinder_1,
+    .mesh_name = "platform",
+    .mesh_index = meshes.platform,
     .defaults = {
       .scale = tVec3f(75000.f),
       .color = tVec3f(1.f),
@@ -663,8 +663,9 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
   load_mesh(station_torus_4_body);
   load_mesh(station_torus_4_frame);
 
-  load_mesh(station_cylinder_torus);
+  load_mesh(platform_torus);
   load_mesh(platform_frame);
+  load_mesh(platform_supports);
 
   load_mesh(light_1_base);
   load_mesh(light_1_bulb);
@@ -1008,17 +1009,25 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       }
     },
 
-    // station_cylinder_1
+    // platform
     {
-      .mesh_index = meshes.station_cylinder_torus,
-      .generated_from = meshes.station_cylinder_1
+      .mesh_index = meshes.platform_torus,
+      .generated_from = meshes.platform
     },
     {
       .mesh_index = meshes.platform_frame,
-      .generated_from = meshes.station_cylinder_1,
+      .generated_from = meshes.platform,
       .defaults {
         .color = tVec3f(1.f, 0.3f, 0.1f),
         .material = tVec4f(0.5f, 0, 0, 0.6f)
+      }
+    },
+    {
+      .mesh_index = meshes.platform_supports,
+      .generated_from = meshes.platform,
+      .defaults {
+        .color = tVec3f(1.f),
+        .material = tVec4f(0.7f, 1.f, 0, 0)
       }
     },
 
