@@ -440,6 +440,7 @@ static void CopySelectedObject(Tachyon* tachyon, State& state, Direction directi
   if (
     copy.mesh_index == state.meshes.girder_1 ||
     copy.mesh_index == state.meshes.girder_2 ||
+    copy.mesh_index == state.meshes.girder_3 ||
     copy.mesh_index == state.meshes.girder_4 ||
     copy.mesh_index == state.meshes.girder_5 ||
     copy.mesh_index == state.meshes.radio_tower_1
