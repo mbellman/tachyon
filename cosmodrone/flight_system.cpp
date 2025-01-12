@@ -70,11 +70,14 @@ void FlightSystem::RollRight(State& state, const float dt) {
 // @todo combine Yaw functions
 void FlightSystem::YawLeft(State& state, const float dt) {
   state.ship_rotate_to_target_speed += 5.f * dt;
+  state.camera_yaw_speed += 5.f * dt;
   state.flight_mode = FlightMode::MANUAL_CONTROL;
 }
 
+// @todo combine Yaw functions
 void FlightSystem::YawRight(State& state, const float dt) {
   state.ship_rotate_to_target_speed += 5.f * dt;
+  state.camera_yaw_speed += 5.f * dt;
   state.flight_mode = FlightMode::MANUAL_CONTROL;
 }
 

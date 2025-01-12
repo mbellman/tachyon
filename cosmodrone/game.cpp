@@ -136,13 +136,13 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
   if (is_key_held(tKey::A)) {
     FlightSystem::YawLeft(state, dt);
 
-    state.flight_target_reticle_offset.x += dt;
+    state.flight_target_reticle_offset.x += 0.7f * state.camera_yaw_speed * dt;
 
     is_issuing_control_action = true;
   } else if (is_key_held(tKey::D)) {
     FlightSystem::YawRight(state, dt);
 
-    state.flight_target_reticle_offset.x -= dt;
+    state.flight_target_reticle_offset.x -= 0.7f * state.camera_yaw_speed * dt;
 
     is_issuing_control_action = true;
   }
@@ -253,6 +253,7 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
   if (state.camera_roll_speed < -3.f) state.camera_roll_speed = -3.f;
 
   state.camera_roll_speed *= (1.f - dt);
+  state.camera_yaw_speed *= (1.f - 5.f * dt);
 
   if (is_window_focused()) {
     Quaternion turn = (
@@ -266,9 +267,14 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
     // Swiveling
     {
       if (is_key_held(tKey::A)) {
-        state.target_camera_rotation = state.target_camera_rotation * Quaternion::fromAxisAngle(state.ship_rotation_basis.up, -1.f * dt);
+        state.target_camera_rotation =
+          state.target_camera_rotation *
+          Quaternion::fromAxisAngle(state.ship_rotation_basis.up, -state.camera_yaw_speed * dt);
+
       } else if (is_key_held(tKey::D)) {
-        state.target_camera_rotation = state.target_camera_rotation * Quaternion::fromAxisAngle(state.ship_rotation_basis.up, 1.f * dt);
+        state.target_camera_rotation =
+          state.target_camera_rotation *
+          Quaternion::fromAxisAngle(state.ship_rotation_basis.up, state.camera_yaw_speed * dt);
       }
     }
 
