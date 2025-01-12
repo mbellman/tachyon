@@ -354,6 +354,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   placeable_mesh_assets.push_back({
     .mesh_name = "platform",
     .mesh_index = meshes.platform,
+    .placeholder = true,
     .defaults = {
       .scale = tVec3f(75000.f),
       .color = tVec3f(1.f),
@@ -663,6 +664,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
   load_mesh(station_torus_4_body);
   load_mesh(station_torus_4_frame);
 
+  load_mesh(platform_body);
   load_mesh(platform_torus);
   load_mesh(platform_frame);
   load_mesh(platform_supports);
@@ -1010,6 +1012,10 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
     },
 
     // platform
+    {
+      .mesh_index = meshes.platform_body,
+      .generated_from = meshes.platform
+    },
     {
       .mesh_index = meshes.platform_torus,
       .generated_from = meshes.platform

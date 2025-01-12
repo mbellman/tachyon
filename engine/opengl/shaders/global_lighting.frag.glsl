@@ -345,17 +345,17 @@ float GetSunGlareFactor(vec3 sky_direction) {
   float sun_view_dot = max(0.0, dot(sun_direction, view_direction));
   float glare_factor = sun_view_dot;
 
-  mat3 m_view = mat3(view_matrix);
-  vec4 sun_coords = projection_matrix * vec4(m_view * sun_direction, 1.0);
+  mat3 view_matrix3 = mat3(view_matrix);
+  vec4 sun_screen_position = projection_matrix * vec4(view_matrix3 * sun_direction, 1.0);
 
-  sun_coords /= sun_coords.w;
-  sun_coords.xy *= 0.5;
-  sun_coords.xy += 0.5;
+  sun_screen_position /= sun_screen_position.w;
+  sun_screen_position.xy *= 0.5;
+  sun_screen_position.xy += 0.5;
 
-  float vertical_spike = max(0.0, 1.0 - 2.0 * abs(fragUv.x - sun_coords.x));
-  float horizontal_spike = max(0.0, 1.0 - 2.0 * abs(fragUv.y - sun_coords.y));
+  float vertical_spike = max(0.0, 1.0 - 2.0 * abs(fragUv.x - sun_screen_position.x));
+  float horizontal_spike = max(0.0, 1.0 - 2.0 * abs(fragUv.y - sun_screen_position.y));
 
-  vec2 sun_offset = fragUv - sun_coords.xy;
+  vec2 sun_offset = fragUv - sun_screen_position.xy;
 
   // Aspect ratio correction
   sun_offset.x *= (1920.0 / 1080.0);
@@ -366,7 +366,7 @@ float GetSunGlareFactor(vec3 sky_direction) {
   glare_factor += 2.0 * pow(horizontal_spike, 50.0);
   glare_factor += pow(diagonal_spike, 15.0);
   glare_factor *= 2.0 * pow(sun_dot, 15.0);
-  glare_factor *= 1.0 - pow(sun_dot, 70.0);
+  glare_factor *= 1.0 - pow(sun_dot, 50.0);
   glare_factor *= pow(sun_view_dot, 30.0);
   glare_factor *= 0.1;
 

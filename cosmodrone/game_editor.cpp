@@ -434,7 +434,30 @@ static void CopySelectedObject(Tachyon* tachyon, State& state, Direction directi
     })
   }
 
-  copy.position = selected.position + axis * copy.scale;
+  tVec3f move_distance = copy.scale;
+
+  // @temporary
+  if (
+    copy.mesh_index == state.meshes.girder_1 ||
+    copy.mesh_index == state.meshes.girder_2 ||
+    copy.mesh_index == state.meshes.girder_4 ||
+    copy.mesh_index == state.meshes.girder_5 ||
+    copy.mesh_index == state.meshes.radio_tower_1
+  ) {
+    move_distance *= 2.f;
+  }
+
+  // @temporary
+  if (copy.mesh_index == state.meshes.silo_3) {
+    move_distance *= 2.05f;
+  }
+
+  // @temporary
+  if (copy.mesh_index == state.meshes.silo_2) {
+    move_distance *= 1.5f;
+  }
+
+  copy.position = selected.position + axis * move_distance;
 
   commit(copy);
 

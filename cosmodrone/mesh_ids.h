@@ -119,6 +119,7 @@ namespace Cosmodrone {
       station_torus_3_lights,
       station_torus_4_body,
       station_torus_4_frame,
+      platform_body,
       platform_torus,
       platform_frame,
       platform_supports,
