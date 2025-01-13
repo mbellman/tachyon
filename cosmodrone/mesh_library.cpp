@@ -68,7 +68,6 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh(station_platform_1);
   load_mesh(platform);
   load_mesh(station_base);
-  load_mesh(spire_fortress);
   load_mesh(gate_tower_1);
   load_mesh(solar_panel_1);
   load_mesh(solar_panel_2);
@@ -86,9 +85,9 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh(light_2);
   load_mesh(light_3);
   load_mesh(charge_pad);
+  load_mesh(fighter);
   load_mesh(gas_flare_1_spawn);
   load_mesh(arch_1);
-  load_mesh(upper_facility);
   load_mesh(background_ship_1);
 
   // @todo refactor
@@ -373,16 +372,6 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   });
 
   placeable_mesh_assets.push_back({
-    .mesh_name = "spire_fortress",
-    .mesh_index = meshes.spire_fortress,
-    .defaults = {
-      .scale = tVec3f(400000.f),
-      .color = tVec3f(1.f),
-      .material = tVec4f(0.3f, 1.f, 0, 0)
-    }
-  });
-
-  placeable_mesh_assets.push_back({
     .mesh_name = "gate_tower_1",
     .mesh_index = meshes.gate_tower_1,
     .defaults = {
@@ -553,6 +542,15 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   });
 
   placeable_mesh_assets.push_back({
+    .mesh_name = "fighter",
+    .mesh_index = meshes.fighter,
+    .defaults = {
+      .scale = tVec3f(5000.f),
+      .material = tVec4f(0.6f, 0, 0, 0)
+    }
+  });
+
+  placeable_mesh_assets.push_back({
     .mesh_name = "gas_flare_1_spawn",
     .mesh_index = meshes.gas_flare_1_spawn,
     .placeholder = true,
@@ -570,16 +568,6 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
       .scale = tVec3f(1500000.f),
       .color = tVec3f(1.f),
       .material = tVec4f(0.9f, 0, 0, 0.3f)
-    }
-  });
-
-  placeable_mesh_assets.push_back({
-    .mesh_name = "upper_facility",
-    .mesh_index = meshes.upper_facility,
-    .defaults = {
-      .scale = tVec3f(1000000.f),
-      .color = tVec3f(1.f),
-      .material = tVec4f(0.2f, 1.f, 0, 0)
     }
   });
 

@@ -455,7 +455,7 @@ static void CopySelectedObject(Tachyon* tachyon, State& state, Direction directi
 
   // @temporary
   if (copy.mesh_index == state.meshes.silo_2) {
-    move_distance *= 1.5f;
+    move_distance *= 1.4f;
   }
 
   copy.position = selected.position + axis * move_distance;

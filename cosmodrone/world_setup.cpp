@@ -112,11 +112,11 @@ static void InitLevel(Tachyon* tachyon, State& state) {
     Quaternion(1.f, 0, 0, 0) *
     Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_HALF_PI) *
     Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -t_HALF_PI) *
-    Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), -t_HALF_PI)
+    Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), 0)
   );
 
   // @todo define as a default
-  state.ship_position = tVec3f(0.f, 116000.f, -24000.f);
+  state.ship_position = tVec3f(-9500.f, 115000.f, 0.f);
 
   // Set the initial camera behind the player drone
   state.target_camera_rotation = camera.rotation = state.target_ship_rotation.opposite();

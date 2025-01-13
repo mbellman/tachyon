@@ -86,6 +86,7 @@ void Autopilot::HandleAutopilot(Tachyon* tachyon, State& state, const float dt) 
       if (state.ship_velocity.magnitude() < 200.f) {
         // Restore manual control when sufficiently decelerated
         state.flight_mode = FlightMode::MANUAL_CONTROL;
+        state.ship_rotate_to_target_speed = 0.f;
       }
 
       break;

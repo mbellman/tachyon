@@ -292,9 +292,8 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
   }
 
   if (
-    state.flight_mode == FlightMode::AUTO_PROGRADE || (
-      state.flight_mode == FlightMode::AUTO_RETROGRADE
-    ) || (
+    state.flight_mode == FlightMode::AUTO_PROGRADE ||
+    state.flight_mode == FlightMode::AUTO_RETROGRADE || (
       state.flight_mode == FlightMode::AUTO_DOCK &&
       state.auto_dock_stage == AutoDockStage::APPROACH_ALIGNMENT &&
       Autopilot::GetDockingAlignment(state, Autopilot::GetDockingPosition(tachyon, state)) > 0.5f

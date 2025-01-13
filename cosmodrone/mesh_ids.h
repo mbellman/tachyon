@@ -61,6 +61,7 @@ namespace Cosmodrone {
       light_2,
       light_3,
       charge_pad,
+      fighter,
 
       // Mega parts
       mega_girder_1,
@@ -69,10 +70,8 @@ namespace Cosmodrone {
       background_ship_1,
 
       // Large objects
-      spire_fortress,
       gate_tower_1,
       arch_1,
-      upper_facility,
 
       // Generated large objects
       arch_1_body,

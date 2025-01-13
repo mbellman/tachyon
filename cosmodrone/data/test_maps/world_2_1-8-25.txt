@@ -50,7 +50,6 @@
 @station_platform_1
 -39.977,-240652.109,-12.115,1.000,0.000,0.000,0.000,65520
 @station_base
-@spire_fortress
 @gate_tower_1
 @solar_panel_1
 @solar_panel_2
