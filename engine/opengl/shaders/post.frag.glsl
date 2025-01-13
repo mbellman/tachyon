@@ -85,7 +85,7 @@ vec4 GetVolumetricFogColorAndThickness(float depth, vec3 direction) {
       float camera_to_sample_distance = length(sample_position - camera_position);
 
       if (camera_to_sample_distance > depth) {
-        break;
+        thickness *= 0.8;
       }
 
       vec3 volume_to_sample = sample_position - fog_volume_positions[i];
