@@ -44,7 +44,7 @@ static void LoadWorldData(Tachyon* tachyon, State& state, const std::string& fil
   auto data = Tachyon_GetFileContents(file.c_str());
   auto lines = SplitString(data, "\n");
 
-  const MeshAsset* mesh_asset;
+  const MeshAsset* mesh_asset = nullptr;
 
   for (uint32 i = 0; i < lines.size(); i++) {
     auto& line = lines[i];
@@ -60,7 +60,7 @@ static void LoadWorldData(Tachyon* tachyon, State& state, const std::string& fil
 
       // @temporary
       printf("Loading objects: %s\n", mesh_name.c_str());
-    } else {
+    } else if (mesh_asset != nullptr) {
       auto parts = SplitString(line, ",");
       auto& object = create(mesh_asset->mesh_index);
 

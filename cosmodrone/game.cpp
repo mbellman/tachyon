@@ -19,20 +19,6 @@ const static auto RIGHT_VECTOR = tVec3f(1.f, 0, 0);
 // @todo pass into StartGame() and RunGame() from main.cpp
 static State state;
 
-// @todo move to engine
-static inline float Lerpf(float a, float b, float alpha) {
-  return a + (b - a) * alpha;
-}
-
-// @todo move to engine
-static inline tVec3f Lerpf(const tVec3f& a, const tVec3f& b, const float alpha) {
-  return tVec3f(
-    Lerpf(a.x, b.x, alpha),
-    Lerpf(a.y, b.y, alpha),
-    Lerpf(a.z, b.z, alpha)
-  );
-}
-
 // @todo remove in favor of LookRotation()
 static Quaternion DirectionToQuaternion(const tVec3f& direction) {
   auto yaw = atan2f(direction.x, direction.z);
@@ -220,7 +206,7 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
         forward_alignment = powf(forward_alignment, 20.f);
 
         if (state.ship_rotate_to_target_speed > 1.f) {
-          state.ship_rotate_to_target_speed = Lerpf(state.ship_rotate_to_target_speed, 1.f, 1.f - forward_alignment);
+          state.ship_rotate_to_target_speed = Tachyon_Lerpf(state.ship_rotate_to_target_speed, 1.f, 1.f - forward_alignment);
         }
       }
     }
@@ -345,9 +331,9 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
     5.f * boost_intensity +
     5.f * state.ship_pitch_factor;
 
-  state.ship_camera_distance = Lerpf(state.ship_camera_distance, state.ship_camera_distance_target + 250.f * speed_zoom_ratio, 5.f * dt);
+  state.ship_camera_distance = Tachyon_Lerpf(state.ship_camera_distance, state.ship_camera_distance_target + 250.f * speed_zoom_ratio, 5.f * dt);
 
-  camera.fov = Lerpf(camera.fov, state.target_camera_fov, dt);
+  camera.fov = Tachyon_Lerpf(camera.fov, state.target_camera_fov, dt);
   camera.position = state.ship_position - state.view_forward_direction * state.ship_camera_distance + state.view_up_direction * 500.f;
 }
 
@@ -393,11 +379,11 @@ static void HandleFlightArrows(Tachyon* tachyon, State& state, const float dt) {
     // Gradually curve nodes onto the updated flight path as it changes in real-time.
     // Determine the node's "progress" toward the ship, and blend between its original
     // spawn position and a position directly forward along the ship's trajectory.
-    float target_distance = Lerpf(MAX_SPAWN_DISTANCE, node.spawn_distance, speed_ratio);
+    float target_distance = Tachyon_Lerpf(MAX_SPAWN_DISTANCE, node.spawn_distance, speed_ratio);
     float alpha = 1.f - node.distance / target_distance;
     tVec3f velocity_position = state.ship_position + state.ship_velocity_basis.forward * node.distance;
 
-    node.position = Lerpf(node.spawn_position, velocity_position, alpha);
+    node.position = tVec3f::lerp(node.spawn_position, velocity_position, alpha);
 
     float velocity_alignment = tVec3f::dot(direction_to_ship, state.ship_velocity_basis.forward);
     float forward_alignment = tVec3f::dot(direction_to_ship, state.ship_rotation_basis.forward);
@@ -445,7 +431,7 @@ static void HandleFlightArrows(Tachyon* tachyon, State& state, const float dt) {
   if (state.flight_path_spawn_distance_remaining <= 0.f) {
     FlightPathNode node;
 
-    node.spawn_distance = Lerpf(MIN_SPAWN_DISTANCE, MAX_SPAWN_DISTANCE, speed_ratio);
+    node.spawn_distance = Tachyon_Lerpf(MIN_SPAWN_DISTANCE, MAX_SPAWN_DISTANCE, speed_ratio);
     node.position = state.ship_position + state.ship_velocity_basis.forward * node.spawn_distance;
     node.spawn_position = node.position;
     node.distance = node.spawn_distance;

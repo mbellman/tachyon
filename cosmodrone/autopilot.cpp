@@ -11,20 +11,6 @@ const static auto RIGHT_VECTOR = tVec3f(1.f, 0, 0);
 const static float AUTO_DOCK_APPROACH_SPEED = 1500.f;
 const static float AUTO_DOCK_APPROACH_SPEED_LIMIT = 2000.f;
 
-// @todo move to engine
-static inline float Lerpf(float a, float b, float alpha) {
-  return a + (b - a) * alpha;
-}
-
-// @todo move to engine
-static inline tVec3f Lerpf(const tVec3f& a, const tVec3f& b, const float alpha) {
-  return tVec3f(
-    Lerpf(a.x, b.x, alpha),
-    Lerpf(a.y, b.y, alpha),
-    Lerpf(a.z, b.z, alpha)
-  );
-}
-
 // @todo move to utilities
 static tVec3f GetDockingPositionOffset(const uint16 mesh_index, const State& state) {
   auto& meshes = state.meshes;
@@ -76,7 +62,7 @@ static void HandleDockingApproachCamera(Tachyon* tachyon, State& state, tObject&
     camera_blend
   );
 
-  state.ship_camera_distance = state.ship_camera_distance_target = Lerpf(
+  state.ship_camera_distance = state.ship_camera_distance_target = Tachyon_Lerpf(
     state.initial_docking_camera_distance,
     30000.f,
     camera_blend

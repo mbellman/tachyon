@@ -384,6 +384,9 @@
     <ClInclude Include="cosmodrone\object_behavior.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="engine\tachyon_easing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -471,6 +474,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cosmodrone\object_behavior.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\tachyon_easing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

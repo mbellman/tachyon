@@ -7,20 +7,6 @@ const static auto FORWARD_VECTOR = tVec3f(0, 0, -1.f);
 const static auto UP_VECTOR = tVec3f(0, 1.f, 0);
 const static auto RIGHT_VECTOR = tVec3f(1.f, 0, 0);
 
-// @todo move to engine
-static inline float Lerpf(float a, float b, float alpha) {
-  return a + (b - a) * alpha;
-}
-
-// @todo move to engine
-static inline tVec3f Lerpf(const tVec3f& a, const tVec3f& b, const float alpha) {
-  return tVec3f(
-    Lerpf(a.x, b.x, alpha),
-    Lerpf(a.y, b.y, alpha),
-    Lerpf(a.z, b.z, alpha)
-  );
-}
-
 // @todo remove in favor of LookRotation()
 static Quaternion DirectionToQuaternion(const tVec3f& direction) {
   auto yaw = atan2f(direction.x, direction.z);
@@ -126,7 +112,7 @@ static void RecreateFlyingShips(Tachyon* tachyon, State& state) {
         Tachyon_GetRandom(0.f, 40000.f)
       );
 
-      ship.position = Lerpf(node.position, target_node.position, progress) + offset;
+      ship.position = tVec3f::lerp(node.position, target_node.position, progress) + offset;
       ship.scale = 8000.f;
 
       commit(ship);

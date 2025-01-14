@@ -4,6 +4,7 @@
 
 #include "engine/tachyon_aliases.h"
 #include "engine/tachyon_constants.h"
+#include "engine/tachyon_easing.h"
 #include "engine/tachyon_linear_algebra.h"
 #include "engine/tachyon_quaternion.h"
 
@@ -77,6 +78,14 @@ tVec3f tVec3f::cross(const tVec3f& v1, const tVec3f& v2) {
 
 float tVec3f::dot(const tVec3f& v1, const tVec3f& v2) {
   return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+}
+
+tVec3f tVec3f::lerp(const tVec3f& v1, const tVec3f& v2, const float alpha) {
+  return {
+    Tachyon_Lerpf(v1.x, v2.x, alpha),
+    Tachyon_Lerpf(v1.y, v2.y, alpha),
+    Tachyon_Lerpf(v1.z, v2.z, alpha)
+  };
 }
 
 tVec3f tVec3f::invert() const {

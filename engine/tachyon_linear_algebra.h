@@ -30,6 +30,7 @@ struct tVec3f {
 
   static tVec3f cross(const tVec3f& v1, const tVec3f& v2);
   static float dot(const tVec3f& v1, const tVec3f& v2);
+  static tVec3f lerp(const tVec3f& v1, const tVec3f& v2, const float alpha);
 
   tVec3f invert() const;
   float magnitude() const;

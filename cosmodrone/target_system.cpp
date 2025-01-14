@@ -7,11 +7,6 @@ using namespace Cosmodrone;
 
 const static float MAX_TARGET_DISTANCE = 200000.f;
 
-// @todo move to engine
-static inline float Lerpf(float a, float b, float alpha) {
-  return a + (b - a) * alpha;
-}
-
 static bool IsTrackingObject(State& state, const tObject& object) {
   for (auto& tracker : state.on_screen_target_trackers) {
     if (tracker.object == object) {

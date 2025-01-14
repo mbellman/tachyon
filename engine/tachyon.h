@@ -2,6 +2,7 @@
 
 #include "engine/tachyon_console.h"
 #include "engine/tachyon_constants.h"
+#include "engine/tachyon_easing.h"
 #include "engine/tachyon_file_helpers.h"
 #include "engine/tachyon_input.h"
 #include "engine/tachyon_life_cycle.h"

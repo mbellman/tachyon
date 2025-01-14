@@ -137,6 +137,7 @@
     <ClInclude Include="engine\tachyon_camera.h" />
     <ClInclude Include="engine\tachyon_console.h" />
     <ClInclude Include="engine\tachyon_constants.h" />
+    <ClInclude Include="engine\tachyon_easing.h" />
     <ClInclude Include="engine\tachyon_file_helpers.h" />
     <ClInclude Include="engine\tachyon_input.h" />
     <ClInclude Include="engine\tachyon_life_cycle.h" />
@@ -257,6 +258,7 @@
     <ClCompile Include="engine\opengl\tachyon_opengl_shaders.cpp" />
     <ClCompile Include="engine\tachyon_camera.cpp" />
     <ClCompile Include="engine\tachyon_console.cpp" />
+    <ClCompile Include="engine\tachyon_easing.cpp" />
     <ClCompile Include="engine\tachyon_file_helpers.cpp" />
     <ClCompile Include="engine\tachyon_input.cpp" />
     <ClCompile Include="engine\tachyon_life_cycle.cpp" />

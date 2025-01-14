@@ -7,20 +7,6 @@
 
 using namespace Cosmodrone;
 
-// @todo move to engine
-inline float Lerpf(float a, float b, float alpha) {
-  return a + (b - a) * alpha;
-}
-
-// @todo move to engine
-inline tVec3f Lerpf(const tVec3f& a, const tVec3f& b, const float alpha) {
-  return tVec3f(
-    Lerpf(a.x, b.x, alpha),
-    Lerpf(a.y, b.y, alpha),
-    Lerpf(a.z, b.z, alpha)
-  );
-}
-
 static float GetBeaconAlpha(const float progress) {
   auto p = progress;
 
@@ -201,8 +187,8 @@ static void HandleFlightReticle(Tachyon* tachyon, State& state, const float dt) 
     target_offset.y *= 1.f - 2.f * dt;
     rotation *= 1.f - 4.f * dt;
 
-    offset.x = Lerpf(offset.x, target_offset.x, 20.f * dt);
-    offset.y = Lerpf(offset.y, target_offset.y, 20.f * dt);
+    offset.x = Tachyon_Lerpf(offset.x, target_offset.x, 20.f * dt);
+    offset.y = Tachyon_Lerpf(offset.y, target_offset.y, 20.f * dt);
   }
 }
 
@@ -390,7 +376,7 @@ static void HandleTargetInspectorStats(Tachyon* tachyon, const State& state, con
   {
     float int_part;
     auto name_color_blend_factor = 1.f - modf(state.current_game_time * 0.6f, &int_part);
-    auto name_color = Lerpf(tVec3f(0.3f, 0.7f, 1.f), tVec3f(0.9f, 1.f, 1.f), name_color_blend_factor);
+    auto name_color = tVec3f::lerp(tVec3f(0.3f, 0.7f, 1.f), tVec3f(0.9f, 1.f, 1.f), name_color_blend_factor);
 
     Tachyon_DrawUIText(tachyon, state.ui.cascadia_mono_26, {
       .screen_x = x,
