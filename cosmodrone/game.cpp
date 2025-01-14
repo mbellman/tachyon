@@ -489,7 +489,7 @@ static void HandleDrone(Tachyon* tachyon, State& state, const float dt) {
     state.target_ship_rotation = camera.rotation.opposite();
 
     if (state.ship_pitch_factor != 0.f) {
-      float pitch_change = 0.2f * state.ship_pitch_factor;
+      float pitch_change = 0.3f * state.ship_pitch_factor;
 
       state.target_ship_rotation =
         state.target_ship_rotation *

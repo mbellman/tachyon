@@ -443,6 +443,7 @@ static void CopySelectedObject(Tachyon* tachyon, State& state, Direction directi
     copy.mesh_index == state.meshes.girder_3 ||
     copy.mesh_index == state.meshes.girder_4 ||
     copy.mesh_index == state.meshes.girder_5 ||
+    copy.mesh_index == state.meshes.silo_7 ||
     copy.mesh_index == state.meshes.radio_tower_1
   ) {
     move_distance *= 2.f;
