@@ -387,6 +387,9 @@
     <ClInclude Include="engine\tachyon_easing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="cosmodrone\beacons.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -477,6 +480,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="engine\tachyon_easing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cosmodrone\beacons.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

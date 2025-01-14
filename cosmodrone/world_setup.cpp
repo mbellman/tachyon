@@ -1,6 +1,7 @@
 #include <string>
 #include <vector>
 
+#include "cosmodrone/beacons.h"
 #include "cosmodrone/mesh_library.h"
 #include "cosmodrone/object_behavior.h"
 #include "cosmodrone/procedural_generation.h"
@@ -230,7 +231,8 @@ static void CreateEditorGuidelines(Tachyon* tachyon, State& state) {
   }
 }
 
-static void RebuildLightSources(Tachyon* tachyon, State& state) {
+// @todo lights.cpp
+static void InitLights(Tachyon* tachyon, State& state) {
   auto& point_lights = tachyon->point_lights;
 
   state.gas_flare_light_indexes.clear();
@@ -282,38 +284,6 @@ static void RebuildLightSources(Tachyon* tachyon, State& state) {
     });
 
     state.gas_flare_light_indexes.push_back(point_lights.size() - 1);
-  }
-}
-
-static void RebuildBeacons(Tachyon* tachyon, State& state) {
-  auto& meshes = state.meshes;
-
-  const static std::vector<uint16> beacon_mesh_indexes = {
-    meshes.antenna_3,
-    meshes.charge_pad,
-    meshes.fighter
-  };
-
-  state.beacons.clear();
-
-  remove_all(meshes.beacon);
-
-  for (auto mesh_index : beacon_mesh_indexes) {
-    for (auto& object : objects(mesh_index)) {
-      Beacon beacon;
-      beacon.beacon_1 = create(meshes.beacon);
-      beacon.beacon_2 = create(meshes.beacon);
-      beacon.source_object = object;
-
-      beacon.beacon_1.rotation = object.rotation;
-      beacon.beacon_2.rotation = object.rotation;
-      beacon.beacon_1.scale = 1500.f;
-      beacon.beacon_2.scale = 1500.f;
-      beacon.beacon_1.color = tVec4f(1.f, 0.5f, 0.2f, 1.f);
-      beacon.beacon_2.color = tVec4f(1.f, 0.5f, 0.2f, 1.f);
-
-      state.beacons.push_back(beacon);
-    }
   }
 }
 
@@ -375,9 +345,9 @@ void WorldSetup::RebuildWorld(Tachyon* tachyon, State& state) {
   DisablePlaceholderMeshes(tachyon);
   RebuildGeneratedObjects(tachyon);
 
-  RebuildLightSources(tachyon, state);
-  RebuildBeacons(tachyon, state);
+  InitLights(tachyon, state);
 
+  Beacons::InitBeacons(tachyon, state);
   ObjectBehavior::InitObjects(tachyon, state);
   Vehicles::InitVehicles(tachyon, state);
 }
