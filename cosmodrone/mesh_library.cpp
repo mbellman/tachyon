@@ -767,15 +767,15 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .generated_from = meshes.silo_7,
       .defaults = {
         .color = tVec3f(1.f, 0.8f, 0.6f),
-        .material = tVec4f(1.f, 0, 0, 0)
+        .material = tVec4f(1.f, 0, 0, 0.2f)
       }
     },
     {
       .mesh_index = meshes.silo_7_frame,
       .generated_from = meshes.silo_7,
       .defaults = {
-        .color = tVec3f(1.f, 0.6f, 0.6f),
-        .material = tVec4f(0.9f, 1.f, 0, 0)
+        .color = tVec3f(0.6f),
+        .material = tVec4f(0.1f, 0, 0, 0.2f)
       }
     },
 

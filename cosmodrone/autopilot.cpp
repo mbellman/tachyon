@@ -25,14 +25,22 @@ static inline tVec3f Lerpf(const tVec3f& a, const tVec3f& b, const float alpha) 
   );
 }
 
+// @todo move to utilities
 static tVec3f GetDockingPositionOffset(const uint16 mesh_index, const State& state) {
-  if (mesh_index == state.meshes.antenna_3) {
+  auto& meshes = state.meshes;
+
+  if (mesh_index == meshes.antenna_3) {
     return tVec3f(0, -1.f, -1.f).unit() * 0.7f;
+  }
+
+  if (mesh_index == meshes.fighter) {
+    return tVec3f(0, 0.25f, 0);
   }
 
   return tVec3f(0.f);
 }
 
+// @todo move to utilities
 static tVec3f GetDockingPositionOffset(const State& state) {
   return GetDockingPositionOffset(state.docking_target.mesh_index, state);
 }

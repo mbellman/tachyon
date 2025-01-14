@@ -288,42 +288,32 @@ static void RebuildLightSources(Tachyon* tachyon, State& state) {
 static void RebuildBeacons(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
+  const static std::vector<uint16> beacon_mesh_indexes = {
+    meshes.antenna_3,
+    meshes.charge_pad,
+    meshes.fighter
+  };
+
   state.beacons.clear();
 
   remove_all(meshes.beacon);
 
-  // @todo factor
-  for (auto& object : objects(meshes.antenna_3)) {
-    Beacon beacon;
-    beacon.beacon_1 = create(meshes.beacon);
-    beacon.beacon_2 = create(meshes.beacon);
-    beacon.source_object = object;
+  for (auto mesh_index : beacon_mesh_indexes) {
+    for (auto& object : objects(mesh_index)) {
+      Beacon beacon;
+      beacon.beacon_1 = create(meshes.beacon);
+      beacon.beacon_2 = create(meshes.beacon);
+      beacon.source_object = object;
 
-    beacon.beacon_1.rotation = object.rotation;
-    beacon.beacon_2.rotation = object.rotation;
-    beacon.beacon_1.scale = 1500.f;
-    beacon.beacon_2.scale = 1500.f;
-    beacon.beacon_1.color = tVec4f(1.f, 0.5f, 0.2f, 1.f);
-    beacon.beacon_2.color = tVec4f(1.f, 0.5f, 0.2f, 1.f);
+      beacon.beacon_1.rotation = object.rotation;
+      beacon.beacon_2.rotation = object.rotation;
+      beacon.beacon_1.scale = 1500.f;
+      beacon.beacon_2.scale = 1500.f;
+      beacon.beacon_1.color = tVec4f(1.f, 0.5f, 0.2f, 1.f);
+      beacon.beacon_2.color = tVec4f(1.f, 0.5f, 0.2f, 1.f);
 
-    state.beacons.push_back(beacon);
-  }
-
-  // @todo factor
-  for (auto& object : objects(meshes.charge_pad)) {
-    Beacon beacon;
-    beacon.beacon_1 = create(meshes.beacon);
-    beacon.beacon_2 = create(meshes.beacon);
-    beacon.source_object = object;
-
-    beacon.beacon_1.rotation = object.rotation;
-    beacon.beacon_2.rotation = object.rotation;
-    beacon.beacon_1.scale = 1500.f;
-    beacon.beacon_2.scale = 1500.f;
-    beacon.beacon_1.color = tVec4f(1.f, 0.5f, 0.2f, 1.f);
-    beacon.beacon_2.color = tVec4f(1.f, 0.5f, 0.2f, 1.f);
-
-    state.beacons.push_back(beacon);
+      state.beacons.push_back(beacon);
+    }
   }
 }
 
