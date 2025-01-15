@@ -53,44 +53,52 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
 
   // Manage tracker instances
   {
-    for (auto& object : objects(state.meshes.antenna_3)) {
-      auto camera_to_object = object.position - camera.position;
-      auto object_direction = camera_to_object.unit();
-      auto target_dot = tVec3f::dot(object_direction, state.view_forward_direction);
+    static std::vector<uint16> standard_docking_target_meshes = {
+      state.meshes.antenna_3,
+      state.meshes.fighter
+    };
 
-      if (
-        camera_to_object.magnitude() > MAX_TARGET_DISTANCE ||
-        target_dot < 0.8f
-      ) {
+    for (auto mesh_index : standard_docking_target_meshes) {
+      for (auto& object : objects(mesh_index)) {
+        auto camera_to_object = object.position - camera.position;
+        auto object_direction = camera_to_object.unit();
+        auto target_dot = tVec3f::dot(object_direction, state.view_forward_direction);
+
         if (
-          IsTrackingObject(state, object) &&
-          // Perform a special check to avoid un-tracking docking targets
-          // when they go offscreen while auto-docking, provided they are
-          // still technically in front of the camera.
-          !(
-            state.flight_mode == FlightMode::AUTO_DOCK &&
-            object == state.docking_target &&
-            target_dot > 0.f
-          )
+          camera_to_object.magnitude() > MAX_TARGET_DISTANCE ||
+          target_dot < 0.8f
         ) {
-          StopTrackingObject(state, object);
+          if (
+            IsTrackingObject(state, object) &&
+            // Perform a special check to avoid un-tracking docking targets
+            // when they go offscreen while auto-docking, provided they are
+            // still technically in front of the camera.
+            !(
+              state.flight_mode == FlightMode::AUTO_DOCK &&
+              object == state.docking_target &&
+              target_dot > 0.f
+            )
+          ) {
+            StopTrackingObject(state, object);
+          }
+
+          continue;
         }
 
-        continue;
-      }
-
-      if (!IsTrackingObject(state, object)) {
-        StartTrackingObject(state, object);
+        if (!IsTrackingObject(state, object)) {
+          StartTrackingObject(state, object);
+        }
       }
     }
 
     for (auto& object : objects(state.meshes.zone_target)) {
       auto camera_to_object = object.position - camera.position;
       auto object_direction = camera_to_object.unit();
+      auto target_dot = tVec3f::dot(object_direction, state.view_forward_direction);
 
       if (
         camera_to_object.magnitude() > 5000000.f ||
-        tVec3f::dot(object_direction, state.view_forward_direction) < 0.8f
+        target_dot < 0.8f
       ) {
         if (IsTrackingObject(state, object)) {
           StopTrackingObject(state, object);

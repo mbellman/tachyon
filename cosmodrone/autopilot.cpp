@@ -31,6 +31,35 @@ static tVec3f GetDockingPositionOffset(const State& state) {
   return GetDockingPositionOffset(state.docking_target.mesh_index, state);
 }
 
+// @todo move to utilities
+static Quaternion GetDockedRotation(const State& state, const uint16 mesh_index) {
+  auto& meshes = state.meshes;
+
+  if (mesh_index == meshes.antenna_3) {
+    return Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI);
+  }
+
+  return Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 0.f);
+}
+
+// @todo move to utilities
+static Quaternion GetDockedCameraRotation(const State& state, const tObject& target) {
+  auto& meshes = state.meshes;
+
+  if (target.mesh_index == meshes.antenna_3) {
+    return (
+      Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.6f) *
+      Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI * 1.2f) *
+      target.rotation.opposite()
+    );
+  }
+
+  return (
+    Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.3f) *
+    target.rotation.opposite()
+  );
+}
+
 static void DecelerateRetrograde(State& state, const float dt) {
   // Figure out how 'backward' the ship is pointed
   float reverse_dot = tVec3f::dot(state.ship_rotation_basis.forward, state.retrograde_direction);
@@ -48,10 +77,7 @@ static void DecelerateRetrograde(State& state, const float dt) {
 
 static void HandleDockingApproachCamera(Tachyon* tachyon, State& state, tObject& target, float docking_distance) {
   // @todo cache this when we start the docking stage
-  auto docked_camera_rotation =
-    Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.6f) *
-    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI * 1.2f) *
-    target.rotation.opposite();
+  auto docked_camera_rotation = GetDockedCameraRotation(state, target);
 
   // @todo use ease-in-out
   auto camera_blend = powf(1.f - docking_distance / state.initial_docking_ship_distance, 2.f);
@@ -174,7 +200,7 @@ void Autopilot::HandleAutopilot(Tachyon* tachyon, State& state, const float dt) 
         // Rotate the ship into the final docking position
         state.target_ship_rotation =
           target.rotation *
-          Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI);
+          GetDockedRotation(state, state.docking_target.mesh_index);
 
         state.ship_rotate_to_target_speed = 0.3f;
 
