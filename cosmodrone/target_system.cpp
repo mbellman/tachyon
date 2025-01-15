@@ -293,17 +293,17 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
         if (alpha < 0.f) alpha = 0.f;
         if (alpha > 1.f) alpha = 1.f;
 
-        if (tracker.object.mesh_index == state.meshes.antenna_3) {
-          Tachyon_DrawUIElement(tachyon, state.ui.target_indicator, {
-            .screen_x = tracker.screen_x,
-            .screen_y = tracker.screen_y,
-            .alpha = alpha
-          });
-        } else if (tracker.object.mesh_index == state.meshes.zone_target) {
+        if (tracker.object.mesh_index == state.meshes.zone_target) {
           Tachyon_DrawUIElement(tachyon, state.ui.zone_target_indicator, {
             .screen_x = tracker.screen_x,
             .screen_y = tracker.screen_y,
             .alpha = 1.f
+          });
+        } else {
+          Tachyon_DrawUIElement(tachyon, state.ui.target_indicator, {
+            .screen_x = tracker.screen_x,
+            .screen_y = tracker.screen_y,
+            .alpha = alpha
           });
         }
       }

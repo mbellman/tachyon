@@ -306,12 +306,26 @@ static std::string GetCondensedFloatString(const float value) {
   return formatted;
 }
 
+static std::string GetTargetName(const State& state, const tObject& target) {
+  auto& meshes = state.meshes;
+
+  if (target.mesh_index == meshes.antenna_3) {
+    return "ANTENNA_3";
+  }
+
+  if (target.mesh_index == meshes.fighter) {
+    return "FIGHTER";
+  }
+
+  return "UNKNOWN";
+}
+
 static void HandleTargetInspectorStats(Tachyon* tachyon, const State& state, const TargetTracker& tracker) {
   auto time_since_selected = state.current_game_time - tracker.selected_time;
-  auto tracker_object = tracker.object;
+  auto target = tracker.object;
   auto wireframe_mesh_index = GetTargetInspectorWireframeMeshIndex(tracker.object.mesh_index, state);
   auto& wireframe = objects(wireframe_mesh_index)[0];
-  auto rotation = wireframe.rotation * tracker_object.rotation;
+  auto rotation = wireframe.rotation * target.rotation;
 
   int32 x = int32(tachyon->window_width * 0.86f);
   int32 y = int32(tachyon->window_height * 0.38f);
@@ -328,9 +342,7 @@ static void HandleTargetInspectorStats(Tachyon* tachyon, const State& state, con
       .centered = false,
       .color = name_color,
       .alpha = 0.75f + 0.25f * name_color_blend_factor,
-      // @temporary
-      // @todo determine proper name for target object
-      .string = "ANTENNA_3"
+      .string = GetTargetName(state, target)
     });
   }
 
