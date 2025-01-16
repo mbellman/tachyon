@@ -50,9 +50,10 @@ float noise(float seed) {
   return 2.0 * (fract(sin(dot(gl_FragCoord.xy * 0.01, vec2(12.9898, 78.233))) * seed * 43758.545312) - 0.5);
 }
 
+// @todo allow positions + size to be defined externally
 const vec3[] fog_volume_positions = {
-  vec3(35000.0, -160000.0, 10000.0),
-  vec3(50000.0, -170000.0, 20000.0),
+  vec3(35000.0, -160000.0, 70000.0),
+  vec3(50000.0, -170000.0, 100000.0),
   vec3(20000.0, -190000.0, -55000.0),
   vec3(-20000.0, -200000.0, -30000.0),
 };

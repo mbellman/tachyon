@@ -774,8 +774,8 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .mesh_index = meshes.silo_7_frame,
       .generated_from = meshes.silo_7,
       .defaults = {
-        .color = tVec3f(0.8f, 0.4f, 0.3f),
-        .material = tVec4f(0.2f, 1.f, 0, 0.3f)
+        .color = tVec3f(0.8f),
+        .material = tVec4f(0.7f, 1.f, 0, 0)
       }
     },
 
@@ -784,7 +784,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .mesh_index = meshes.girder_4_core,
       .generated_from = meshes.girder_4,
       .defaults = {
-        .color = tVec3f(0.8f),
+        .color = tVec3f(0.6f),
         .material = tVec4f(0.7f, 1.f, 0, 0)
       }
     },
@@ -1033,7 +1033,10 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
     // platform
     {
       .mesh_index = meshes.platform_body,
-      .generated_from = meshes.platform
+      .generated_from = meshes.platform,
+      .defaults = {
+        .material = tVec4f(1.f, 0, 0, 0.1f)
+      }
     },
     {
       .mesh_index = meshes.platform_torus,

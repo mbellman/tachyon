@@ -92,6 +92,13 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
   } else {
     // Reset duration when not holding forward
     state.controlled_thrust_duration = 0.f;
+
+    if (
+      state.flight_mode == FlightMode::MANUAL_CONTROL &&
+      state.ship_velocity.magnitude() > 500.f
+    ) {
+      state.ship_velocity *= 1.f - 0.1f * dt;
+    }
   }
 
   // Enforce maximum ship speed
