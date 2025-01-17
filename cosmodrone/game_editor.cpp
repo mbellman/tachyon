@@ -30,6 +30,8 @@ struct EditorState {
 
   bool is_object_picker_active = false;
   uint16 object_picker_index = 0;
+  float object_picker_cycle_speed = 0.f;
+  float last_object_picker_cycle_time = 0.f;
 
   bool use_modified_action = false;
   float running_angle_x = 0.f;
@@ -237,37 +239,60 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
   camera.rotation = Quaternion::slerp(camera.rotation, camera.orientation.toQuaternion(), slerp_alpha);
 }
 
-static void HandleObjectPickerInputs(Tachyon* tachyon) {
+static void CycleObjectPickerLeft(int16 max) {
+  if (editor.object_picker_index == 0) {
+    editor.object_picker_index = max;
+  } else {
+    editor.object_picker_index--;
+  }
+}
+
+static void CycleObjectPickerRight(int16 max) {
+  if (editor.object_picker_index == max) {
+    editor.object_picker_index = 0;
+  } else {
+    editor.object_picker_index++;
+  }
+}
+
+static void HandleObjectPickerInputs(Tachyon* tachyon, const float dt) {
   auto& placeable_meshes = MeshLibrary::GetPlaceableMeshAssets();
   auto max = placeable_meshes.size() - 1;
 
   if (did_press_key(tKey::Q)) {
-    // Cycle object picker left
-    if (editor.object_picker_index == 0) {
-      editor.object_picker_index = max;
-    } else {
-      editor.object_picker_index--;
-    }
+    CycleObjectPickerLeft(max);
   }
 
   if (did_press_key(tKey::E)) {
-    // Cycle object picker right
-    if (editor.object_picker_index == max) {
-      editor.object_picker_index = 0;
-    } else {
-      editor.object_picker_index++;
+    CycleObjectPickerRight(max);
+  }
+
+  float time_since_last_cycle = tachyon->running_time - editor.last_object_picker_cycle_time;
+
+  if (is_key_held(tKey::Q)) {
+    editor.object_picker_cycle_speed -= 5.f * dt;
+
+    if (time_since_last_cycle > 1.f / abs(editor.object_picker_cycle_speed)) {
+      CycleObjectPickerLeft(max);
+    }
+  }
+
+  if (is_key_held(tKey::E)) {
+    editor.object_picker_cycle_speed += 5.f * dt;
+
+    if (time_since_last_cycle > 1.f / abs(editor.object_picker_cycle_speed)) {
+      CycleObjectPickerRight(max);
     }
   }
 }
 
 static void RenderObjectPickerList(Tachyon* tachyon) {
-  for (int16 i = -5; i < 5; i++) {
-    float alpha = 1.f - abs(i) / 6.f;
-    alpha *= alpha;
+  for (int16 i = -10; i < 10; i++) {
+    float alpha = powf(1.f - abs(i) / 11.f, 5.f);
 
     Tachyon_DrawUIText(tachyon, editor.editor_font, {
-      .screen_x = tachyon->window_width - 200,
-      .screen_y = 150 + i * 25,
+      .screen_x = tachyon->window_width - 300,
+      .screen_y = tachyon->window_height / 2 + i * 25,
       .centered = false,
       .alpha = alpha,
       .string = GetPlaceableMeshAssetByPickerIndexOffset(i).mesh_name
@@ -302,6 +327,8 @@ static void HandleObjectPickerCycleChange(Tachyon* tachyon) {
 
   editor.selected_object = selected;
   editor.is_object_selected = true;
+
+  editor.last_object_picker_cycle_time = tachyon->running_time;
 }
 
 static void HandleActionTypeCycleChange(Tachyon* tachyon, int8 change) {
@@ -545,12 +572,21 @@ static void MaybeSelectObject(Tachyon* tachyon) {
 }
 
 static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
+  auto initial_object_picker_index = editor.object_picker_index;
+
   if (editor.is_object_picker_active) {
-    HandleObjectPickerInputs(tachyon);
+    HandleObjectPickerInputs(tachyon, dt);
   }
 
-  if (did_press_key(tKey::Q) || did_press_key(tKey::E)) {
+  if (
+    did_press_key(tKey::Q) || did_press_key(tKey::E) ||
+    editor.object_picker_index != initial_object_picker_index
+  ) {
     HandleObjectPickerCycleChange(tachyon);
+  }
+
+  if (!is_key_held(tKey::Q) && !is_key_held(tKey::E)) {
+    editor.object_picker_cycle_speed *= 1.f - 5.f * dt;
   }
 
   if (did_wheel_down()) {
