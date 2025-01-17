@@ -26,6 +26,8 @@ enum ActionType {
 };
 
 struct EditorState {
+  tUIText* editor_font = nullptr;
+
   bool is_object_picker_active = false;
   uint16 object_picker_index = 0;
 
@@ -58,6 +60,23 @@ static const MeshAsset& GetPlaceableMeshAssetByMeshIndex(uint16 mesh_index) {
   }
 
   return placeable_meshes[0];
+}
+
+static const MeshAsset& GetPlaceableMeshAssetByPickerIndexOffset(int16 offset) {
+  auto& placeable_meshes = MeshLibrary::GetPlaceableMeshAssets();
+  auto max_index = int16(placeable_meshes.size() - 1);
+  int16 signed_index = (int16)editor.object_picker_index;
+  int16 target_index = signed_index + offset;
+
+  if (target_index < 0) {
+    target_index = max_index + target_index + 1;
+  }
+
+  if (target_index > max_index) {
+    target_index = (target_index - max_index) - 1;
+  }
+
+  return placeable_meshes[target_index];
 }
 
 static tVec3f GetMostSimilarGlobalAxis(const tVec3f& vector) {
@@ -238,6 +257,21 @@ static void HandleObjectPickerInputs(Tachyon* tachyon) {
     } else {
       editor.object_picker_index++;
     }
+  }
+}
+
+static void RenderObjectPickerList(Tachyon* tachyon) {
+  for (int16 i = -5; i < 5; i++) {
+    float alpha = 1.f - abs(i) / 6.f;
+    alpha *= alpha;
+
+    Tachyon_DrawUIText(tachyon, editor.editor_font, {
+      .screen_x = tachyon->window_width - 200,
+      .screen_y = 150 + i * 25,
+      .centered = false,
+      .alpha = alpha,
+      .string = GetPlaceableMeshAssetByPickerIndexOffset(i).mesh_name
+    });
   }
 }
 
@@ -721,6 +755,7 @@ static void HandleSelectedObject(Tachyon* tachyon, State& state) {
 
   commit(selected);
 
+  // @todo factor -> RenderMeshStats()
   auto mesh_name = GetPlaceableMeshAssetByMeshIndex(selected.mesh_index).mesh_name;
   auto generated_meshes = MeshLibrary::GetGeneratedMeshAssets();
   auto& record = tachyon->mesh_pack.mesh_records[selected.mesh_index];
@@ -872,11 +907,17 @@ void Editor::InitializeEditor(Tachyon* tachyon, State& state) {
   create(state.meshes.editor_position);
   create(state.meshes.editor_rotation);
   create(state.meshes.editor_scale);
+
+  editor.editor_font = Tachyon_CreateUIText("./fonts/CascadiaMonoNF.ttf", 20);
 }
 
 void Editor::HandleEditor(Tachyon* tachyon, State& state, const float dt) {
   HandleCamera(tachyon, state, dt);
   HandleInputs(tachyon, state, dt);
+
+  if (editor.is_object_picker_active) {
+    RenderObjectPickerList(tachyon);
+  }
 
   if (editor.is_object_selected) {
     HandleSelectedObject(tachyon, state);
