@@ -73,12 +73,14 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh(solar_panel_1);
   load_mesh(solar_panel_2);
   load_mesh_with_2_lods(girder_1);
+  load_mesh(girder_1b);
   load_mesh_with_2_lods(girder_2);
   load_mesh_with_2_lods(girder_3);
   load_mesh(girder_4);
   load_mesh_with_2_lods(girder_5);
   load_mesh(girder_6);
   load_mesh(beam_1);
+  load_mesh(beam_2);
   load_mesh_with_2_lods(mega_girder_1);
   load_mesh_with_2_lods(grate_1);
   load_mesh_with_2_lods(grate_2);
@@ -413,8 +415,16 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     .mesh_index = meshes.girder_1,
     .defaults = {
       .scale = tVec3f(2000.f),
-      .color = tVec3f(1.f),
       .material = tVec4f(0.4f, 1.f, 0, 0)
+    }
+  });
+
+  placeable_mesh_assets.push_back({
+    .mesh_name = "girder_1b",
+    .mesh_index = meshes.girder_1b,
+    .defaults = {
+      .scale = tVec3f(2000.f),
+      .material = tVec4f(1.f, 1.f, 0, 0)
     }
   });
 
@@ -475,6 +485,17 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     .mesh_index = meshes.beam_1,
     .defaults = {
       .scale = tVec3f(5000.f),
+      .material = tVec4f(0.8f, 0, 0, 0.1f)
+    }
+  });
+
+  placeable_mesh_assets.push_back({
+    .mesh_name = "beam_2",
+    .mesh_index = meshes.beam_2,
+    .placeholder = true,
+    .defaults = {
+      .scale = tVec3f(10000.f),
+      .color = tVec3f(1.f, 0.5f, 0.4f),
       .material = tVec4f(0.8f, 0, 0, 0.1f)
     }
   });
@@ -638,6 +659,9 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
 
   load_mesh(girder_6_core);
   load_mesh_with_2_lods(girder_6_frame);
+
+  load_mesh(beam_2_core);
+  load_mesh(beam_2_frame);
 
   load_mesh_with_2_lods(habitation_1_core);
   load_mesh_with_2_lods(habitation_1_frame);
@@ -821,6 +845,23 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .generated_from = meshes.girder_6,
       .defaults = {
         .material = tVec4f(0.4f, 1.f, 0, 0)
+      }
+    },
+
+    // beam_2
+    {
+      .mesh_index = meshes.beam_2_core,
+      .generated_from = meshes.beam_2,
+      .defaults = {
+        .color = tVec3f(1.f, 0.3f, 0.2f),
+        .material = tVec4f(0.8f, 0, 0, 0.1f)
+      }
+    },
+    {
+      .mesh_index = meshes.beam_2_frame,
+      .generated_from = meshes.beam_2,
+      .defaults = {
+        .material = tVec4f(0.9f, 0, 0, 0.1f)
       }
     },
 
