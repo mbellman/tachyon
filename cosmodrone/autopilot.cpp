@@ -1,5 +1,5 @@
 #include "cosmodrone/autopilot.h"
-#include "cosmodrone/flight_system.h"
+#include "cosmodrone/drone_flight_system.h"
 
 using namespace Cosmodrone;
 
@@ -71,7 +71,7 @@ static void DecelerateRetrograde(State& state, const float dt) {
     if (deceleration > 10000.f) deceleration = 10000.f;
     if (deceleration < 1000.f) deceleration = 1000.f;
 
-    FlightSystem::ThrustForward(state, dt, deceleration);
+    DroneFlightSystem::ThrustForward(state, dt, deceleration);
   }
 }
 
@@ -126,7 +126,7 @@ void Autopilot::HandleAutopilot(Tachyon* tachyon, State& state, const float dt) 
         state.auto_dock_stage == AutoDockStage::APPROACH &&
         state.ship_velocity.magnitude() < AUTO_DOCK_APPROACH_SPEED_LIMIT
       ) {
-        FlightSystem::ThrustForward(state, dt, AUTO_DOCK_APPROACH_SPEED);
+        DroneFlightSystem::ThrustForward(state, dt, AUTO_DOCK_APPROACH_SPEED);
       }
     }
   }

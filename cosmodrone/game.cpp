@@ -1,5 +1,5 @@
 #include "cosmodrone/autopilot.h"
-#include "cosmodrone/flight_system.h"
+#include "cosmodrone/drone_flight_system.h"
 #include "cosmodrone/game.h"
 #include "cosmodrone/game_editor.h"
 #include "cosmodrone/game_types.h"
@@ -86,7 +86,7 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
 
   // Handle forward thrust
   if (is_key_held(tKey::W)) {
-    FlightSystem::ControlledThrustForward(state, dt);
+    DroneFlightSystem::ControlledThrustForward(state, dt);
 
     is_issuing_control_action = true;
   } else {
@@ -103,7 +103,7 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
 
   if (is_key_held(tKey::S)) {
     // Handle pitch up
-    FlightSystem::ChangePitch(state, dt, 1.f);
+    DroneFlightSystem::ChangePitch(state, dt, 1.f);
 
     state.flight_target_reticle_offset.y += 0.4f * state.ship_pitch_factor * dt;
 
@@ -120,13 +120,13 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
 
   // Handle yaw manuevers
   if (is_key_held(tKey::A)) {
-    FlightSystem::YawLeft(state, dt);
+    DroneFlightSystem::YawLeft(state, dt);
 
     state.flight_target_reticle_offset.x += 0.7f * state.camera_yaw_speed * dt;
 
     is_issuing_control_action = true;
   } else if (is_key_held(tKey::D)) {
-    FlightSystem::YawRight(state, dt);
+    DroneFlightSystem::YawRight(state, dt);
 
     state.flight_target_reticle_offset.x -= 0.7f * state.camera_yaw_speed * dt;
 
@@ -135,11 +135,11 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
 
   // Handle roll maneuvers
   if (is_key_held(tKey::Q)) {
-    FlightSystem::RollLeft(state, dt);
+    DroneFlightSystem::RollLeft(state, dt);
 
     is_issuing_control_action = true;
   } else if (is_key_held(tKey::E)) {
-    FlightSystem::RollRight(state, dt);
+    DroneFlightSystem::RollRight(state, dt);
 
     is_issuing_control_action = true;
   }
@@ -481,7 +481,7 @@ static void HandleDrone(Tachyon* tachyon, State& state, const float dt) {
         state.target_ship_rotation *
         Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), pitch_change);
 
-      FlightSystem::HandlePitch(state, dt);
+      DroneFlightSystem::HandlePitch(state, dt);
     }
   }
 

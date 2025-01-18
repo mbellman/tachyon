@@ -1,16 +1,16 @@
-#include "cosmodrone/flight_system.h"
+#include "cosmodrone/drone_flight_system.h"
 
 using namespace Cosmodrone;
 
 const static float ACCELERATION = 2000.f;
 
-void FlightSystem::ThrustForward(State& state, const float dt, const float rate) {
+void DroneFlightSystem::ThrustForward(State& state, const float dt, const float rate) {
   state.ship_velocity += state.ship_rotation_basis.forward * rate * dt;
 
   state.jets_intensity += 3.f * dt;
 }
 
-void FlightSystem::ControlledThrustForward(State& state, const float dt) {
+void DroneFlightSystem::ControlledThrustForward(State& state, const float dt) {
   float speed = state.ship_velocity.magnitude();
 
   // Go faster when starting acceleration
@@ -55,33 +55,33 @@ void FlightSystem::ControlledThrustForward(State& state, const float dt) {
 }
 
 // @todo combine Roll functions
-void FlightSystem::RollLeft(State& state, const float dt) {
+void DroneFlightSystem::RollLeft(State& state, const float dt) {
   state.camera_roll_speed += dt;
   state.ship_rotate_to_target_speed += 5.f * dt;
   state.flight_mode = FlightMode::MANUAL_CONTROL;
 }
 
-void FlightSystem::RollRight(State& state, const float dt) {
+void DroneFlightSystem::RollRight(State& state, const float dt) {
   state.camera_roll_speed -= dt;
   state.ship_rotate_to_target_speed += 5.f * dt;
   state.flight_mode = FlightMode::MANUAL_CONTROL;
 }
 
 // @todo combine Yaw functions
-void FlightSystem::YawLeft(State& state, const float dt) {
+void DroneFlightSystem::YawLeft(State& state, const float dt) {
   state.ship_rotate_to_target_speed += 5.f * dt;
   state.camera_yaw_speed += 5.f * dt;
   state.flight_mode = FlightMode::MANUAL_CONTROL;
 }
 
 // @todo combine Yaw functions
-void FlightSystem::YawRight(State& state, const float dt) {
+void DroneFlightSystem::YawRight(State& state, const float dt) {
   state.ship_rotate_to_target_speed += 5.f * dt;
   state.camera_yaw_speed += 5.f * dt;
   state.flight_mode = FlightMode::MANUAL_CONTROL;
 }
 
-void FlightSystem::ChangePitch(State& state, const float dt, const float pitch_change) {
+void DroneFlightSystem::ChangePitch(State& state, const float dt, const float pitch_change) {
   state.ship_pitch_factor += pitch_change * dt;
   if (state.ship_pitch_factor < -1.f) state.ship_pitch_factor = -1.f;
   if (state.ship_pitch_factor > 1.f) state.ship_pitch_factor = 1.f;
@@ -89,7 +89,7 @@ void FlightSystem::ChangePitch(State& state, const float dt, const float pitch_c
   state.flight_mode = FlightMode::MANUAL_CONTROL;
 }
 
-void FlightSystem::HandlePitch(State& state, const float dt) {
+void DroneFlightSystem::HandlePitch(State& state, const float dt) {
   float ship_speed = state.ship_velocity.magnitude();
   float slowdown_factor = 5.f * state.ship_pitch_factor * ACCELERATION;
   float acceleration_factor = 20.f * state.ship_pitch_factor * ACCELERATION;

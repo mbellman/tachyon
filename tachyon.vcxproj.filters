@@ -363,9 +363,6 @@
     <ClInclude Include="cosmodrone\hud_system.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="cosmodrone\flight_system.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="cosmodrone\autopilot.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -388,6 +385,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cosmodrone\beacons.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cosmodrone\drone_flight_system.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -461,9 +461,6 @@
     <ClCompile Include="cosmodrone\hud_system.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cosmodrone\flight_system.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="cosmodrone\autopilot.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -483,6 +480,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cosmodrone\beacons.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cosmodrone\drone_flight_system.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
