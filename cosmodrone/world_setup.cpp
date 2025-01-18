@@ -285,6 +285,8 @@ static void InitLights(Tachyon* tachyon, State& state) {
       .color = tVec3f(1.f, 0.6f, 0.2f),
       .power = 1.f
     });
+
+    state.blinking_light_indexes.push_back(point_lights.size() - 1);
   }
 
   for (auto& flare : objects(state.meshes.gas_flare_1_spawn)) {

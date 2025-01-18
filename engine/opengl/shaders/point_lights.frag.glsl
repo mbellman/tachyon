@@ -107,7 +107,7 @@ void main() {
   vec3 L = light_to_surface / light_distance;
 
   out_color += GetPointLightRadiance(position, light_distance, N, L);
-  out_color += light.color * GetGlowFactor(position);
+  out_color += light.color * GetGlowFactor(position) * min(1.0, light.power);
   // out_color += light.color * 0.2;
 
   out_color_and_depth = vec4(out_color, 0);

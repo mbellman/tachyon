@@ -125,6 +125,7 @@ namespace Cosmodrone {
     std::vector<Beacon> beacons;
 
     std::vector<uint32> gas_flare_light_indexes;
+    std::vector<uint32> blinking_light_indexes;
 
     std::vector<VehicleNode> vehicle_network;
     std::vector<Vehicle> vehicles;

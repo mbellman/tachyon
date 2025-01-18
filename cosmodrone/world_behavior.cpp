@@ -73,11 +73,23 @@ static void UpdateSpaceElevator(Tachyon* tachyon, State& state) {
   // commit(elevator);
 }
 
-static void UpdateGasFlareLights(Tachyon* tachyon, State& state, const float dt) {
+// @todo lights.cpp
+static void UpdateGasFlareLights(Tachyon* tachyon, State& state) {
   for (auto light_index : state.gas_flare_light_indexes) {
     auto& light = tachyon->point_lights[light_index];
     auto t = state.current_game_time * 0.5f + light.position.x;
     auto power = 5.f * (0.5f * sinf(t) + 0.5f);
+
+    light.power = power;
+  }
+}
+
+// @todo lights.cpp
+static void UpdateBlinkingLights(Tachyon* tachyon, State& state) {
+  for (auto light_index : state.blinking_light_indexes) {
+    auto& light = tachyon->point_lights[light_index];
+    auto power = 0.5f * sinf(state.current_game_time * 3.f + light.position.x * 0.03f) + 0.5f;
+    power = powf(power, 5.f);
 
     light.power = power;
   }
@@ -98,5 +110,6 @@ void WorldBehavior::UpdateWorld(Tachyon* tachyon, State& state, const float dt) 
   Vehicles::UpdateVehicles(tachyon, state, dt);
   ObjectBehavior::UpdateObjects(tachyon, state, dt);
 
-  UpdateGasFlareLights(tachyon, state, dt);
+  UpdateGasFlareLights(tachyon, state);
+  UpdateBlinkingLights(tachyon, state);
 }

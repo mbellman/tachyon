@@ -152,8 +152,8 @@ static void GenerateElevatorToruses(Tachyon* tachyon, State& state) {
   // @todo use actual station_torus_3 mesh
   {
     auto positions = {
-      tVec3f(0, -380000.f, 0),
-      tVec3f(0, -500000.f, 0),
+      tVec3f(0, -650000.f, 0),
+      tVec3f(0, -1000000.f, 0),
 
       tVec3f(0, -1700000.f, 0),
       tVec3f(0, -1900000.f, 0),
