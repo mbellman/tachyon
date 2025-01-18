@@ -65,6 +65,7 @@ namespace Cosmodrone {
       light_1,
       light_2,
       light_3,
+      light_4,
       charge_pad,
       fighter,
 
@@ -137,6 +138,8 @@ namespace Cosmodrone {
       light_2_bulb,
       light_3_base,
       light_3_bulb,
+      light_4_base,
+      light_4_bulb,
       track_1_frame,
 
       // Procedural meshes

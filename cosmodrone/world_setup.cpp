@@ -270,7 +270,19 @@ static void InitLights(Tachyon* tachyon, State& state) {
     point_lights.push_back({
       .position = bulb.position + offset,
       .radius = 7000.f,
-      .color = tVec3f(0.5, 1.f, 0.8f),
+      .color = tVec3f(0.5f, 1.f, 0.8f),
+      .power = 1.f
+    });
+  }
+
+  for (auto& bulb : objects(state.meshes.light_4_bulb)) {
+    tVec3f offset = bulb.rotation.toMatrix4f() * tVec3f(0.f, 0.1f, 0);
+    offset *= bulb.scale;
+
+    point_lights.push_back({
+      .position = bulb.position + offset,
+      .radius = 5000.f,
+      .color = tVec3f(1.f, 0.6f, 0.2f),
       .power = 1.f
     });
   }

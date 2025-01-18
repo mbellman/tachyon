@@ -89,6 +89,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh(light_1);
   load_mesh(light_2);
   load_mesh(light_3);
+  load_mesh(light_4);
   load_mesh(charge_pad);
   load_mesh(fighter);
   load_mesh(gas_flare_1_spawn);
@@ -582,6 +583,17 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   });
 
   placeable_mesh_assets.push_back({
+    .mesh_name = "light_4",
+    .mesh_index = meshes.light_4,
+    .placeholder = true,
+    .defaults = {
+      .scale = tVec3f(2000.f),
+      .color = tVec4f(1.f, 0.9f, 0.8f, 1.f),
+      .material = tVec4f(1.f, 0, 0, 1.f)
+    }
+  });
+
+  placeable_mesh_assets.push_back({
     .mesh_name = "charge_pad",
     .mesh_index = meshes.charge_pad,
     .defaults = {
@@ -720,6 +732,9 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
 
   load_mesh(light_3_base);
   load_mesh_with_2_lods(light_3_bulb);
+
+  load_mesh(light_4_base);
+  load_mesh(light_4_bulb);
 
   load_mesh(arch_1_body);
   load_mesh(arch_1_frame);
@@ -1168,6 +1183,23 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .generated_from = meshes.light_3,
       .defaults = {
         .color = tVec4f(1.f, 0.8f, 0.6f, 1.f),
+        .material = tVec4f(1.f, 0, 0, 0)
+      }
+    },
+
+    // light_4
+    {
+      .mesh_index = meshes.light_4_base,
+      .generated_from = meshes.light_4,
+      .defaults = {
+        .material = tVec4f(0.7f, 1.f, 0, 0)
+      }
+    },
+    {
+      .mesh_index = meshes.light_4_bulb,
+      .generated_from = meshes.light_4,
+      .defaults = {
+        .color = tVec4f(1.f, 0.6f, 0.2f, 1.f),
         .material = tVec4f(1.f, 0, 0, 0)
       }
     },
