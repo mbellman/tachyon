@@ -18,6 +18,10 @@ void Tachyon_AddConsoleMessage(const std::string& message, const tVec3f& color) 
   }
 }
 
+void Tachyon_Log(const char* message) {
+  Tachyon_AddConsoleMessage(message, tVec3f(1.f));
+}
+
 void Tachyon_Log(const std::string& message) {
   Tachyon_AddConsoleMessage(message, tVec3f(1.f));
 }
@@ -32,6 +36,10 @@ void Tachyon_Log(const size_t value) {
 
 void Tachyon_Log(const float value) {
   Tachyon_AddConsoleMessage(std::to_string(value), tVec3f(1.f));
+}
+
+void Tachyon_Log(const bool value) {
+  Tachyon_AddConsoleMessage(value ? "true" : "false", tVec3f(1.f));
 }
 
 void Tachyon_Log(const tVec3f& vector) {

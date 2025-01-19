@@ -52,7 +52,7 @@ namespace Cosmodrone {
     float spawn_distance;
   };
 
-  struct Vehicle {
+  struct BackgroundVehicle {
     tObject object;
     tVec3f spawn_position;
     tVec3f target_position;
@@ -60,9 +60,9 @@ namespace Cosmodrone {
     uint32 light_indexes_offset = 0;
   };
 
-  struct VehicleNode {
+  struct VehicleNetworkNode {
     tVec3f position;
-    std::vector<VehicleNode> connected_nodes;
+    std::vector<VehicleNetworkNode> connected_nodes;
   };
 
   struct Beacon {
@@ -127,8 +127,13 @@ namespace Cosmodrone {
     std::vector<uint32> gas_flare_light_indexes;
     std::vector<uint32> blinking_light_indexes;
 
-    std::vector<VehicleNode> vehicle_network;
-    std::vector<Vehicle> vehicles;
+    std::vector<VehicleNetworkNode> vehicle_network;
+    std::vector<BackgroundVehicle> vehicles;
+
+    bool is_piloting_vehicle = false;
+    // @todo this will eventually have to be a struct
+    // representing all parts of the vehicle + other properties
+    tObject piloted_vehicle;
 
     tVec2f flight_reticle_offset;
     tVec2f flight_target_reticle_offset;

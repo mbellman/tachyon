@@ -22,9 +22,9 @@ static void RebuildVehicleNetwork(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
   auto& network = state.vehicle_network;
 
-  // Store the network nodes
+  // Create a network node for each vehicle target object
   for (auto& target : objects(meshes.vehicle_target)) {
-    VehicleNode node;
+    VehicleNetworkNode node;
 
     node.position = target.position;
 

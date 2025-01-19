@@ -657,6 +657,16 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
 
   Autopilot::HandleAutopilot(tachyon, state, dt);
 
+  // @todo factor
+  if (Autopilot::IsDocked(state) && !state.is_piloting_vehicle) {
+    if (state.docking_target.mesh_index == meshes.fighter) {
+      state.is_piloting_vehicle = true;
+      state.piloted_vehicle = state.docking_target;
+    }
+  } else if (!Autopilot::IsDocked(state) && state.is_piloting_vehicle) {
+    state.is_piloting_vehicle = false;
+  }
+
   HandleCamera(tachyon, state, dt);
   HandleFlightArrows(tachyon, state, dt);
   HandleDrone(tachyon, state, dt);
