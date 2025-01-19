@@ -1,5 +1,6 @@
 #include "cosmodrone/autopilot.h"
 #include "cosmodrone/drone_flight_system.h"
+#include "cosmodrone/flight_system_delegator.h"
 #include "cosmodrone/game.h"
 #include "cosmodrone/game_editor.h"
 #include "cosmodrone/game_types.h"
