@@ -1,4 +1,4 @@
-#include "cosmodrone/vehicles.h"
+#include "cosmodrone/background_vehicles.h"
 
 using namespace Cosmodrone;
 
@@ -141,7 +141,7 @@ static void RecreateFlyingShips(Tachyon* tachyon, State& state) {
   }
 }
 
-void Vehicles::LoadVehicleMeshes(Tachyon* tachyon, State& state) {
+void BackgroundVehicles::LoadVehicleMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   meshes.station_drone_1 = Tachyon_AddMesh(
@@ -157,7 +157,7 @@ void Vehicles::LoadVehicleMeshes(Tachyon* tachyon, State& state) {
   );
 }
 
-void Vehicles::InitVehicles(Tachyon* tachyon, State& state) {
+void BackgroundVehicles::InitVehicles(Tachyon* tachyon, State& state) {
   auto& point_lights = tachyon->point_lights;
   auto& vehicles = state.vehicles;
   auto& network = state.vehicle_network;
@@ -184,7 +184,7 @@ void Vehicles::InitVehicles(Tachyon* tachyon, State& state) {
   }
 }
 
-void Vehicles::UpdateVehicles(Tachyon* tachyon, State& state, const float dt) {
+void BackgroundVehicles::UpdateVehicles(Tachyon* tachyon, State& state, const float dt) {
   auto start = Tachyon_GetMicroseconds();
   auto& point_lights = tachyon->point_lights;
 

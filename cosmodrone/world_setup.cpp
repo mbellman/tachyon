@@ -1,11 +1,11 @@
 #include <string>
 #include <vector>
 
+#include "cosmodrone/background_vehicles.h"
 #include "cosmodrone/beacons.h"
 #include "cosmodrone/mesh_library.h"
 #include "cosmodrone/object_behavior.h"
 #include "cosmodrone/procedural_generation.h"
-#include "cosmodrone/vehicles.h"
 #include "cosmodrone/world_setup.h"
 
 using namespace Cosmodrone;
@@ -363,5 +363,5 @@ void WorldSetup::RebuildWorld(Tachyon* tachyon, State& state) {
 
   Beacons::InitBeacons(tachyon, state);
   ObjectBehavior::InitObjects(tachyon, state);
-  Vehicles::InitVehicles(tachyon, state);
+  BackgroundVehicles::InitVehicles(tachyon, state);
 }

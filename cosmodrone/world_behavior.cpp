@@ -1,6 +1,6 @@
+#include "cosmodrone/background_vehicles.h"
 #include "cosmodrone/object_behavior.h"
 #include "cosmodrone/world_behavior.h"
-#include "cosmodrone/vehicles.h"
 
 using namespace Cosmodrone;
 
@@ -107,7 +107,7 @@ void WorldBehavior::UpdateWorld(Tachyon* tachyon, State& state, const float dt) 
 
   state.current_game_time += dt;
 
-  Vehicles::UpdateVehicles(tachyon, state, dt);
+  BackgroundVehicles::UpdateVehicles(tachyon, state, dt);
   ObjectBehavior::UpdateObjects(tachyon, state, dt);
 
   UpdateGasFlareLights(tachyon, state);

@@ -1,6 +1,6 @@
+#include "cosmodrone/background_vehicles.h"
 #include "cosmodrone/mesh_library.h"
 #include "cosmodrone/procedural_generation.h"
-#include "cosmodrone/vehicles.h"
 
 using namespace Cosmodrone;
 
@@ -1326,7 +1326,7 @@ void MeshLibrary::LoadMeshes(Tachyon* tachyon, State& state) {
   // @todo dev mode only
   auto start_time = Tachyon_GetMicroseconds();
 
-  Vehicles::LoadVehicleMeshes(tachyon, state);
+  BackgroundVehicles::LoadVehicleMeshes(tachyon, state);
   ProceduralGeneration::LoadMeshes(tachyon, state);
 
   LoadShipPartMeshes(tachyon, state);

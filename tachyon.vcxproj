@@ -115,6 +115,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="cosmodrone\autopilot.h" />
+    <ClInclude Include="cosmodrone\background_vehicles.h" />
     <ClInclude Include="cosmodrone\beacons.h" />
     <ClInclude Include="cosmodrone\drone_flight_system.h" />
     <ClInclude Include="cosmodrone\flight_system_delegator.h" />
@@ -127,7 +128,6 @@
     <ClInclude Include="cosmodrone\object_behavior.h" />
     <ClInclude Include="cosmodrone\procedural_generation.h" />
     <ClInclude Include="cosmodrone\target_system.h" />
-    <ClInclude Include="cosmodrone\vehicles.h" />
     <ClInclude Include="cosmodrone\world_behavior.h" />
     <ClInclude Include="cosmodrone\world_setup.h" />
     <ClInclude Include="engine\opengl\tachyon_opengl_framebuffer.h" />
@@ -243,6 +243,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cosmodrone\autopilot.cpp" />
+    <ClCompile Include="cosmodrone\background_vehicles.cpp" />
     <ClCompile Include="cosmodrone\beacons.cpp" />
     <ClCompile Include="cosmodrone\drone_flight_system.cpp" />
     <ClCompile Include="cosmodrone\flight_system_delegator.cpp" />
@@ -253,7 +254,6 @@
     <ClCompile Include="cosmodrone\object_behavior.cpp" />
     <ClCompile Include="cosmodrone\procedural_generation.cpp" />
     <ClCompile Include="cosmodrone\target_system.cpp" />
-    <ClCompile Include="cosmodrone\vehicles.cpp" />
     <ClCompile Include="cosmodrone\world_behavior.cpp" />
     <ClCompile Include="cosmodrone\world_setup.cpp" />
     <ClCompile Include="engine\opengl\tachyon_opengl_framebuffer.cpp" />

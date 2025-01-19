@@ -5,7 +5,6 @@
 #include "cosmodrone/mesh_library.h"
 #include "cosmodrone/object_behavior.h"
 #include "cosmodrone/procedural_generation.h"
-#include "cosmodrone/vehicles.h"
 #include "cosmodrone/world_behavior.h"
 #include "cosmodrone/world_setup.h"
 

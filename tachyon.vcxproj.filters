@@ -366,9 +366,6 @@
     <ClInclude Include="cosmodrone\autopilot.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="cosmodrone\vehicles.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="engine\tachyon_random.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -391,6 +388,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cosmodrone\flight_system_delegator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cosmodrone\background_vehicles.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -467,9 +467,6 @@
     <ClCompile Include="cosmodrone\autopilot.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cosmodrone\vehicles.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="engine\tachyon_random.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -489,6 +486,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cosmodrone\flight_system_delegator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cosmodrone\background_vehicles.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
