@@ -222,11 +222,37 @@ static void GenerateElevatorToruses(Tachyon* tachyon, State& state) {
   }
 }
 
+static void GenerateElevatorTrackFrames(Tachyon* tachyon, const State& state) {
+  auto& meshes = state.meshes;
+
+  remove_all(meshes.procedural_track_supports_1);
+
+  const static float spin_cycle[] = {
+    0.f,
+    t_TAU * (1.f / 6.f)
+  };
+
+  for (int32 i = 0; i < 100; i++) {
+    auto& frame = create(meshes.procedural_track_supports_1);
+    float spin = spin_cycle[i % 2];
+
+    frame.scale = 12000.f;
+    frame.position.y = 3500000.f + i * -70000.f;
+    frame.material = tVec4f(0.7f, 1.f, 0, 0);
+    frame.rotation =
+      Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), spin) *
+      Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), t_HALF_PI);
+
+    commit(frame);
+  }
+}
+
 void ProceduralGeneration::LoadMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   load_mesh(meshes.procedural_track_1, "/station-parts/track_1.obj", TOTAL_TRACK_PIECES);
   load_mesh(meshes.procedural_elevator_car, "/elevator_car.obj", TOTAL_ELEVATOR_CARS);
+  load_mesh(meshes.procedural_track_supports_1, "./track_supports_1.obj", 1000);
 }
 
 void ProceduralGeneration::RemoveAutoPlacedObjects(Tachyon* tachyon, State& state) {
@@ -243,4 +269,5 @@ void ProceduralGeneration::GenerateWorld(Tachyon* tachyon, State& state) {
   GenerateElevator(tachyon, state);
   GenerateElevatorCars(tachyon, state);
   GenerateElevatorToruses(tachyon, state);
+  GenerateElevatorTrackFrames(tachyon, state);
 }
