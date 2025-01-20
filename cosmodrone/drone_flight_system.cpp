@@ -72,6 +72,7 @@ void DroneFlightSystem::YawLeft(State& state, const float dt) {
   state.ship_rotate_to_target_speed += 5.f * dt;
   state.camera_yaw_speed += 5.f * dt;
   state.flight_mode = FlightMode::MANUAL_CONTROL;
+  state.flight_target_reticle_offset.x += 0.7f * state.camera_yaw_speed * dt;
 }
 
 // @todo combine Yaw functions
@@ -79,14 +80,16 @@ void DroneFlightSystem::YawRight(State& state, const float dt) {
   state.ship_rotate_to_target_speed += 5.f * dt;
   state.camera_yaw_speed += 5.f * dt;
   state.flight_mode = FlightMode::MANUAL_CONTROL;
+  state.flight_target_reticle_offset.x -= 0.7f * state.camera_yaw_speed * dt;
 }
 
-void DroneFlightSystem::ChangePitch(State& state, const float dt, const float pitch_change) {
-  state.ship_pitch_factor += pitch_change * dt;
+void DroneFlightSystem::ChangePitch(State& state, const float dt, const float pitch_factor) {
+  state.ship_pitch_factor += pitch_factor * dt;
   if (state.ship_pitch_factor < -1.f) state.ship_pitch_factor = -1.f;
   if (state.ship_pitch_factor > 1.f) state.ship_pitch_factor = 1.f;
 
   state.flight_mode = FlightMode::MANUAL_CONTROL;
+  state.flight_target_reticle_offset.y += 0.4f * state.ship_pitch_factor * dt;
 }
 
 void DroneFlightSystem::HandlePitch(State& state, const float dt) {

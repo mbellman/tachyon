@@ -52,7 +52,7 @@ static void UpdateViewDirections(Tachyon* tachyon, State& state) {
   );
 }
 
-// @todo move to Autopilot
+// @todo move to autopilot.cpp
 static bool AttemptDockingProcedure(State& state) {
   auto* tracker = TargetSystem::GetSelectedTargetTracker(state);
 
@@ -102,11 +102,9 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
     state.ship_velocity = state.ship_velocity.unit() * MAX_SHIP_SPEED;
   }
 
+  // Handle pull-back actions
   if (is_key_held(tKey::S)) {
-    // Handle pitch up
-    DroneFlightSystem::ChangePitch(state, dt, 1.f);
-
-    state.flight_target_reticle_offset.y += 0.4f * state.ship_pitch_factor * dt;
+    FlightSystemDelegator::PullBack(state, dt, 1.f);
 
     is_issuing_control_action = true;
   } else {
@@ -119,50 +117,41 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
     }
   }
 
-  // Handle yaw manuevers
+  // Handle left/right actions
   if (is_key_held(tKey::A)) {
-    DroneFlightSystem::YawLeft(state, dt);
-
-    state.flight_target_reticle_offset.x += 0.7f * state.camera_yaw_speed * dt;
+    FlightSystemDelegator::Left(state, dt);
 
     is_issuing_control_action = true;
   } else if (is_key_held(tKey::D)) {
-    DroneFlightSystem::YawRight(state, dt);
-
-    state.flight_target_reticle_offset.x -= 0.7f * state.camera_yaw_speed * dt;
+    FlightSystemDelegator::Right(state, dt);
 
     is_issuing_control_action = true;
   }
 
-  // Handle roll maneuvers
+  // Handle roll actions
   if (is_key_held(tKey::Q)) {
-    DroneFlightSystem::RollLeft(state, dt);
+    FlightSystemDelegator::RollLeft(state, dt);
 
     is_issuing_control_action = true;
   } else if (is_key_held(tKey::E)) {
-    DroneFlightSystem::RollRight(state, dt);
+    FlightSystemDelegator::RollRight(state, dt);
 
     is_issuing_control_action = true;
   }
 
   // Handle auto-prograde actions
   if (did_press_key(tKey::SHIFT)) {
-    state.flight_mode = FlightMode::AUTO_PROGRADE;
-    state.ship_rotate_to_target_speed = 0.f;
+    FlightSystemDelegator::AutoPrograde(state, dt);
   }
 
-  // Handle auto-retrograde actions
+  // Handle auto-stop actions
   if (did_press_key(tKey::SPACE)) {
-    state.flight_mode = FlightMode::AUTO_RETROGRADE;
-    // @todo define the retrograde direction correctly (as the anti-vector of velocity).
-    // We're doing this for now because of quirks with the player drone model, which should
-    // probably be correctly oriented.
-    state.retrograde_direction = state.ship_velocity_basis.forward;
-    state.ship_rotate_to_target_speed = 0.f;
+    FlightSystemDelegator::AutoStop(state, dt);
   }
 
-  // Handle auto-docking actions
+  // Handle auto-dock/eject actions
   if (did_press_key(tKey::ENTER)) {
+    // @todo move to flight_system_delegator.cpp
     if (Autopilot::IsDocked(state)) {
       Autopilot::Undock(tachyon, state);
     } else if (AttemptDockingProcedure(state)) {
