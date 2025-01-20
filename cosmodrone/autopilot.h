@@ -6,6 +6,7 @@ namespace Cosmodrone {
   namespace Autopilot {
     void HandleAutopilot(Tachyon* tachyon, State& state, const float dt);
     bool IsAutopilotActive(const State& state);
+    bool AttemptDockingProcedure(State& state);
     bool IsDoingDockingApproach(const State& state);
     bool IsDocked(const State& state);
     tVec3f GetDockingPosition(Tachyon* tachyon, const State& state);

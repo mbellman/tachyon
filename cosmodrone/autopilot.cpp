@@ -1,5 +1,6 @@
 #include "cosmodrone/autopilot.h"
 #include "cosmodrone/drone_flight_system.h"
+#include "cosmodrone/target_system.h"
 
 using namespace Cosmodrone;
 
@@ -227,6 +228,34 @@ bool Autopilot::IsAutopilotActive(const State& state) {
   return state.flight_mode != FlightMode::MANUAL_CONTROL;
 }
 
+bool Autopilot::AttemptDockingProcedure(State& state) {
+  auto* tracker = TargetSystem::GetSelectedTargetTracker(state);
+
+  if (tracker == nullptr) {
+    return false;
+  }
+
+  // @todo use live object
+  auto& target_object = tracker->object;
+  auto& ship_position = state.ship_position;
+  auto target_distance = (target_object.position - ship_position).magnitude();
+
+  if (target_distance > 100000.f) {
+    return false;
+  }
+
+  state.flight_mode = FlightMode::AUTO_DOCK;
+  state.docking_target = target_object;
+
+  if (state.ship_velocity.magnitude() < 2000.f) {
+    state.auto_dock_stage = AutoDockStage::APPROACH_ALIGNMENT;
+  } else {
+    state.auto_dock_stage = AutoDockStage::APPROACH_DECELERATION;
+  }
+
+  return true;
+}
+
 bool Autopilot::IsDoingDockingApproach(const State& state) {
   return state.flight_mode == FlightMode::AUTO_DOCK && state.auto_dock_stage >= AutoDockStage::APPROACH;
 }
@@ -277,6 +306,7 @@ float Autopilot::GetDockingAlignment(const State& state, const tVec3f& docking_p
   return tVec3f::dot(forward, ship_to_target);
 }
 
+// @todo we probably don't need Tachyon* for this
 void Autopilot::Undock(Tachyon* tachyon, State& state) {
   auto* docked_target = get_original_object(state.docking_target);
 
@@ -286,6 +316,7 @@ void Autopilot::Undock(Tachyon* tachyon, State& state) {
 
   auto& hull = objects(state.meshes.hull)[0];
 
+  state.flight_system = FlightSystem::DRONE;
   state.flight_mode = FlightMode::MANUAL_CONTROL;
   state.ship_camera_distance_target = 1800.f;
   state.target_camera_rotation = hull.rotation.opposite();

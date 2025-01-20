@@ -52,34 +52,6 @@ static void UpdateViewDirections(Tachyon* tachyon, State& state) {
   );
 }
 
-// @todo move to autopilot.cpp
-static bool AttemptDockingProcedure(State& state) {
-  auto* tracker = TargetSystem::GetSelectedTargetTracker(state);
-
-  if (tracker == nullptr) {
-    return false;
-  }
-
-  auto& target_object = tracker->object;
-  auto& ship_position = state.ship_position;
-  auto target_distance = (target_object.position - ship_position).magnitude();
-
-  if (target_distance > 100000.f) {
-    return false;
-  }
-
-  state.flight_mode = FlightMode::AUTO_DOCK;
-  state.docking_target = target_object;
-
-  if (state.ship_velocity.magnitude() < 2000.f) {
-    state.auto_dock_stage = AutoDockStage::APPROACH_ALIGNMENT;
-  } else {
-    state.auto_dock_stage = AutoDockStage::APPROACH_DECELERATION;
-  }
-
-  return true;
-}
-
 const static float MAX_SHIP_SPEED = 20000.f;
 
 static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
@@ -149,18 +121,9 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
     FlightSystemDelegator::AutoStop(state, dt);
   }
 
-  // Handle auto-dock/eject actions
+  // Handle auto-dock/undock actions
   if (did_press_key(tKey::ENTER)) {
-    // @todo move to flight_system_delegator.cpp
-    if (Autopilot::IsDocked(state)) {
-      Autopilot::Undock(tachyon, state);
-    } else if (AttemptDockingProcedure(state)) {
-      state.ship_rotate_to_target_speed = 0.f;
-      // @todo define the retrograde direction correctly (as the anti-vector of velocity).
-      // We're doing this for now because of quirks with the player drone model, which should
-      // probably be correctly oriented.
-      state.retrograde_direction = state.ship_velocity_basis.forward;
-    }
+    FlightSystemDelegator::DockOrUndock(tachyon, state, dt);
   }
 
   if (did_press_key(tKey::F)) {

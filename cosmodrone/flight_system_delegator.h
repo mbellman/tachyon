@@ -12,6 +12,6 @@ namespace Cosmodrone {
     void RollRight(State& state, const float dt);
     void AutoPrograde(State& state, const float dt);
     void AutoStop(State& state, const float dt);
-    void DockOrEject(State& state, const float dt);
+    void DockOrUndock(Tachyon* tachyon, State& state, const float dt);
   }
 }

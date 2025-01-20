@@ -1,3 +1,4 @@
+#include "cosmodrone/autopilot.h"
 #include "cosmodrone/drone_flight_system.h"
 #include "cosmodrone/flight_system_delegator.h"
 
@@ -85,6 +86,14 @@ void FlightSystemDelegator::AutoStop(State& state, const float dt) {
   }
 }
 
-void FlightSystemDelegator::DockOrEject(State& state, const float dt) {
-
+void FlightSystemDelegator::DockOrUndock(Tachyon* tachyon, State& state, const float dt) {
+  if (Autopilot::IsDocked(state)) {
+    Autopilot::Undock(tachyon, state);
+  } else if (Autopilot::AttemptDockingProcedure(state)) {
+    state.ship_rotate_to_target_speed = 0.f;
+    // @todo define the retrograde direction correctly (as the anti-vector of velocity).
+    // We're doing this for now because of quirks with the player drone model, which should
+    // probably be correctly oriented.
+    state.retrograde_direction = state.ship_velocity_basis.forward;
+  }
 }
