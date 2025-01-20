@@ -85,9 +85,9 @@ const static float MAX_SHIP_SPEED = 20000.f;
 static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
   bool is_issuing_control_action = false;
 
-  // Handle forward thrust
+  // Handle forward action
   if (is_key_held(tKey::W)) {
-    DroneFlightSystem::ControlledThrustForward(state, dt);
+    FlightSystemDelegator::Forward(state, dt);
 
     is_issuing_control_action = true;
   } else {
@@ -660,10 +660,12 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
   // @todo factor
   if (Autopilot::IsDocked(state) && !state.is_piloting_vehicle) {
     if (state.docking_target.mesh_index == meshes.fighter) {
+      state.flight_system = FlightSystem::FIGHTER;
       state.is_piloting_vehicle = true;
       state.piloted_vehicle = state.docking_target;
     }
   } else if (!Autopilot::IsDocked(state) && state.is_piloting_vehicle) {
+    state.flight_system = FlightSystem::DRONE;
     state.is_piloting_vehicle = false;
   }
 

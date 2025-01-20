@@ -1,11 +1,14 @@
+#include "cosmodrone/drone_flight_system.h"
 #include "cosmodrone/flight_system_delegator.h"
+
+#define is_flying(mode) (state.flight_system == FlightSystem::mode)
 
 using namespace Cosmodrone;
 
-// @todo
-
 void FlightSystemDelegator::Forward(State& state, const float dt) {
-
+  if (is_flying(DRONE)) {
+    DroneFlightSystem::ControlledThrustForward(state, dt);
+  }
 }
 
 void FlightSystemDelegator::Back(State& state, const float dt) {

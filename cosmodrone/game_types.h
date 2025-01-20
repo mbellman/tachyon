@@ -19,6 +19,19 @@ namespace Cosmodrone {
     AUTO_DOCK
   };
 
+  enum AutoDockStage {
+    APPROACH_DECELERATION,
+    APPROACH_ALIGNMENT,
+    APPROACH,
+    DOCKING,
+    DOCKED
+  };
+
+  enum FlightSystem {
+    DRONE,
+    FIGHTER
+  };
+
   struct TargetTracker {
     tObject object;
     float activated_time = 0.f;
@@ -35,14 +48,6 @@ namespace Cosmodrone {
     uint32 distance_in_meters;
     tVec3f unit_direction;
     float relative_velocity;
-  };
-
-  enum AutoDockStage {
-    APPROACH_DECELERATION,
-    APPROACH_ALIGNMENT,
-    APPROACH,
-    DOCKING,
-    DOCKED
   };
 
   struct FlightPathNode {
@@ -130,6 +135,7 @@ namespace Cosmodrone {
     std::vector<VehicleNetworkNode> vehicle_network;
     std::vector<BackgroundVehicle> vehicles;
 
+    FlightSystem flight_system = FlightSystem::DRONE;
     bool is_piloting_vehicle = false;
     // @todo this will eventually have to be a struct
     // representing all parts of the vehicle + other properties
