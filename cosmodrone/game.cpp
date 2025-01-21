@@ -6,6 +6,7 @@
 #include "cosmodrone/game_types.h"
 #include "cosmodrone/hud_system.h"
 #include "cosmodrone/mesh_library.h"
+#include "cosmodrone/piloting.h"
 #include "cosmodrone/target_system.h"
 #include "cosmodrone/world_behavior.h"
 #include "cosmodrone/world_setup.h"
@@ -608,18 +609,7 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
   HandleInputs(tachyon, state, dt);
 
   Autopilot::HandleAutopilot(tachyon, state, dt);
-
-  // @todo factor
-  if (Autopilot::IsDocked(state) && !state.is_piloting_vehicle) {
-    if (state.docking_target.mesh_index == meshes.fighter) {
-      state.flight_system = FlightSystem::FIGHTER;
-      state.is_piloting_vehicle = true;
-      state.piloted_vehicle = state.docking_target;
-    }
-  } else if (!Autopilot::IsDocked(state) && state.is_piloting_vehicle) {
-    state.flight_system = FlightSystem::DRONE;
-    state.is_piloting_vehicle = false;
-  }
+  Piloting::HandlePiloting(tachyon, state);
 
   HandleCamera(tachyon, state, dt);
   HandleFlightArrows(tachyon, state, dt);
