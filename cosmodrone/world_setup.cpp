@@ -236,6 +236,8 @@ static void InitLights(Tachyon* tachyon, State& state) {
   auto& point_lights = tachyon->point_lights;
 
   state.gas_flare_light_indexes.clear();
+  state.blinking_light_indexes.clear();
+
   // @todo only clear generated lights
   tachyon->point_lights.clear();
 
@@ -359,6 +361,7 @@ void WorldSetup::RebuildWorld(Tachyon* tachyon, State& state) {
   DisablePlaceholderMeshes(tachyon);
   RebuildGeneratedObjects(tachyon);
 
+  // @todo lights.cpp
   InitLights(tachyon, state);
 
   Beacons::InitBeacons(tachyon, state);

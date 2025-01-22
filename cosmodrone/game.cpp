@@ -69,6 +69,7 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
   }
 
   // Enforce maximum ship speed
+  // @todo do this somewhere else
   float ship_speed = state.ship_velocity.magnitude();
 
   if (ship_speed > MAX_SHIP_SPEED) {
