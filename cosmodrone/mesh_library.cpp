@@ -85,6 +85,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh_with_2_lods(mega_girder_1);
   load_mesh_with_2_lods(grate_1);
   load_mesh_with_2_lods(grate_2);
+  load_mesh(grate_3);
   load_mesh(track_1);
   load_mesh(light_1);
   load_mesh(light_2);
@@ -536,6 +537,15 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
       .scale = tVec3f(6000.f),
       .color = tVec3f(1.f, 0.2f, 0.1f),
       .material = tVec4f(0.5f, 0, 0, 0.6f)
+    }
+  });
+
+  placeable_mesh_assets.push_back({
+    .mesh_name = "grate_3",
+    .mesh_index = meshes.grate_3,
+    .defaults = {
+      .scale = tVec3f(4000.f),
+      .material = tVec4f(0.9f, 1.f, 0, 0)
     }
   });
 
@@ -1361,6 +1371,7 @@ void MeshLibrary::LoadMeshes(Tachyon* tachyon, State& state) {
     auto& meshes = state.meshes;
 
     mesh(meshes.grate_2).shadow_cascade_ceiling = 3;
+    mesh(meshes.grate_3).shadow_cascade_ceiling = 3;
     mesh(meshes.girder_1).shadow_cascade_ceiling = 3;
     mesh(meshes.girder_1b).shadow_cascade_ceiling = 3;
     mesh(meshes.girder_4_frame).shadow_cascade_ceiling = 3;

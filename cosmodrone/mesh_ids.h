@@ -61,6 +61,7 @@ namespace Cosmodrone {
       beam_2,
       grate_1,
       grate_2,
+      grate_3,
       track_1,
       light_1,
       light_2,
