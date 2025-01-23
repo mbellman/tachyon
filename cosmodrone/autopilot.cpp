@@ -246,6 +246,11 @@ bool Autopilot::AttemptDockingProcedure(State& state) {
 
   state.flight_mode = FlightMode::AUTO_DOCK;
   state.docking_target = target_object;
+  state.ship_rotate_to_target_speed = 0.f;
+  // @todo define the retrograde direction correctly (as the anti-vector of velocity).
+  // We're doing this for now because of quirks with the player drone model, which should
+  // probably be correctly oriented.
+  state.retrograde_direction = state.ship_velocity_basis.forward;
 
   if (state.ship_velocity.magnitude() < 2000.f) {
     state.auto_dock_stage = AutoDockStage::APPROACH_ALIGNMENT;

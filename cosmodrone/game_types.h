@@ -140,6 +140,7 @@ namespace Cosmodrone {
     // @todo this will eventually have to be a struct
     // representing all parts of the vehicle + other properties
     tObject piloted_vehicle;
+    float piloting_start_time = 0.f;
 
     tVec2f flight_reticle_offset;
     tVec2f flight_target_reticle_offset;

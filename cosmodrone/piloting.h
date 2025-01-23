@@ -4,6 +4,6 @@
 
 namespace Cosmodrone {
   namespace Piloting {
-    void HandlePiloting(Tachyon* tachyon, State& state);
+    void HandlePiloting(Tachyon* tachyon, State& state, const float dt);
   }
 }

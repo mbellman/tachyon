@@ -51,6 +51,17 @@ void Beacons::UpdateBeacons(Tachyon* tachyon, State& state) {
   };
 
   for (auto& beacon : state.beacons) {
+    if (state.is_piloting_vehicle && beacon.source_object == state.piloted_vehicle) {
+      // Disable beacons for actively piloted vehicles
+      beacon.beacon_1.scale = 0.f;
+      beacon.beacon_2.scale = 0.f;
+
+      commit(beacon.beacon_1);
+      commit(beacon.beacon_2);
+
+      continue;
+    }
+
     auto source_position = Autopilot::GetDockingPosition(tachyon, state, beacon.source_object);
     // @todo use live object
     auto direction = beacon.source_object.rotation.getUpDirection();
@@ -63,6 +74,8 @@ void Beacons::UpdateBeacons(Tachyon* tachyon, State& state) {
       direction * 500.f +
       direction * 3000.f * beacon_1_progress;
 
+    beacon.beacon_1.scale = 1500.f;
+
     beacon.beacon_1.color = tVec4f(
       beacon_color,
       GetBeaconAlpha(beacon_1_progress)
@@ -72,6 +85,8 @@ void Beacons::UpdateBeacons(Tachyon* tachyon, State& state) {
       source_position -
       direction * 500.f +
       direction * 3000.f * beacon_2_progress;
+
+    beacon.beacon_2.scale = 1500.f;
 
     beacon.beacon_2.color = tVec4f(
       beacon_color,

@@ -610,7 +610,7 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
   HandleInputs(tachyon, state, dt);
 
   Autopilot::HandleAutopilot(tachyon, state, dt);
-  Piloting::HandlePiloting(tachyon, state);
+  Piloting::HandlePiloting(tachyon, state, dt);
 
   HandleCamera(tachyon, state, dt);
   HandleFlightArrows(tachyon, state, dt);
