@@ -47,6 +47,7 @@ namespace Cosmodrone {
       station_platform_1,
       platform,
       base_1,
+      building_1,
       station_base,
       solar_panel_1,
       solar_panel_2,
