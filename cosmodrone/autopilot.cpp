@@ -143,6 +143,11 @@ void Autopilot::HandleAutopilot(Tachyon* tachyon, State& state, const float dt) 
   }
 
   if (state.flight_mode == FlightMode::AUTO_DOCK) {
+    auto& target = *get_original_object(state.docking_target);
+
+    // @todo allow us to reuse target for this, rather than getting it again, redundantly
+    state.docking_position = GetDockingPosition(tachyon, state);
+
     switch (state.auto_dock_stage) {
       case AutoDockStage::APPROACH_DECELERATION: {
         state.target_ship_rotation = Quaternion::FromDirection(state.retrograde_direction, state.ship_rotation_basis.up);
@@ -152,20 +157,18 @@ void Autopilot::HandleAutopilot(Tachyon* tachyon, State& state, const float dt) 
       }
 
       case AutoDockStage::APPROACH_ALIGNMENT: {
-        auto docking_position = GetDockingPosition(tachyon, state);
-        // @todo use live object
-        auto target_object_rotation = state.docking_target.rotation;
-        auto forward = (docking_position - state.ship_position).unit();
+        auto target_object_rotation = target.rotation;
+        auto forward = (state.docking_position - state.ship_position).unit();
         auto target_object_up = target_object_rotation.getUpDirection();
 
         state.target_ship_rotation = Quaternion::FromDirection(forward.invert(), target_object_up);
 
-        if (GetDockingAlignment(state, docking_position) > 0.99999f) {
+        if (GetDockingAlignment(state, state.docking_position) > 0.99999f) {
           state.auto_dock_stage = AutoDockStage::APPROACH;
 
           state.initial_docking_camera_rotation = camera.rotation;
           state.initial_docking_camera_distance = state.ship_camera_distance;
-          state.initial_docking_ship_distance = (docking_position - state.ship_position).magnitude();
+          state.initial_docking_ship_distance = (state.docking_position - state.ship_position).magnitude();
         } else {
           // @hack slow the ship down after deceleration
           state.ship_velocity *= (1.f - 5.f * dt);
@@ -175,9 +178,7 @@ void Autopilot::HandleAutopilot(Tachyon* tachyon, State& state, const float dt) 
       }
 
       case AutoDockStage::APPROACH: {
-        auto& target = *get_original_object(state.docking_target);
-        auto docking_position = GetDockingPosition(tachyon, state);
-        auto docking_distance = (state.ship_position - docking_position).magnitude();
+        auto docking_distance = (state.ship_position - state.docking_position).magnitude();
 
         HandleDockingApproachCamera(tachyon, state, target, docking_distance);
 
@@ -192,9 +193,7 @@ void Autopilot::HandleAutopilot(Tachyon* tachyon, State& state, const float dt) 
       }
 
       case AutoDockStage::DOCKING: {
-        auto docking_position = GetDockingPosition(tachyon, state);
-        auto docking_distance = (state.ship_position - docking_position).magnitude();
-        auto& target = *get_original_object(state.docking_target);
+        auto docking_distance = (state.ship_position - state.docking_position).magnitude();
 
         HandleDockingApproachCamera(tachyon, state, target, docking_distance);
 
@@ -263,6 +262,10 @@ bool Autopilot::AttemptDockingProcedure(State& state) {
 
 bool Autopilot::IsDoingDockingApproach(const State& state) {
   return state.flight_mode == FlightMode::AUTO_DOCK && state.auto_dock_stage >= AutoDockStage::APPROACH;
+}
+
+bool Autopilot::IsDoingDockingAlignment(const State& state) {
+  return state.flight_mode == FlightMode::AUTO_DOCK && state.auto_dock_stage == AutoDockStage::APPROACH_ALIGNMENT;
 }
 
 bool Autopilot::IsDocked(const State& state) {

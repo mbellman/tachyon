@@ -324,6 +324,10 @@ static void HandleFlightArrows(Tachyon* tachyon, State& state, const float dt) {
 
   float speed_ratio = state.ship_velocity.magnitude() / MAX_SHIP_SPEED;
 
+  tVec3f arrow_color = Autopilot::IsDoingDockingApproach(state)
+    ? tVec3f(1.f, 0.6f, 0.2f)
+    : tVec3f(0.1f, 0.2f, 1.f);
+
   // Recalculate/reposition visible arrows
   for (int32 i = flight_path.size() - 1; i >= 0; i--) {
     auto& node = flight_path[i];
@@ -347,7 +351,8 @@ static void HandleFlightArrows(Tachyon* tachyon, State& state, const float dt) {
       node.distance <= 0.f ||
       velocity_alignment > 0.f ||
       forward_alignment > 0.f ||
-      Autopilot::IsDoingDockingApproach(state)
+      Autopilot::IsDoingDockingAlignment(state) ||
+      state.is_piloting_vehicle
     ) {
       flight_path.erase(flight_path.begin() + i);
 
@@ -369,9 +374,11 @@ static void HandleFlightArrows(Tachyon* tachyon, State& state, const float dt) {
     arrow_1.position = node.position + bottom_offset + left_offset;
     arrow_2.position = node.position + bottom_offset + right_offset;
 
-    arrow_1.scale = arrow_2.scale = 200.f;
-    // @todo change color in auto-docking approach mode
-    arrow_1.color = arrow_2.color = tVec4f(0.1f, 0.2f, 1.f, brightness);
+    arrow_1.scale =
+    arrow_2.scale = 200.f;
+
+    arrow_1.color =
+    arrow_2.color = tVec4f(arrow_color, brightness);
 
     // @experimental
     if (state.photo_mode) {
@@ -442,6 +449,10 @@ static void HandleDrone(Tachyon* tachyon, State& state, const float dt) {
 
   // @todo will nlerp work here?
   auto rotation = Quaternion::slerp(hull.rotation, state.target_ship_rotation, state.ship_rotate_to_target_speed * dt);
+
+  if (Autopilot::IsDocked(state)) {
+    state.ship_position = tVec3f::lerp(state.ship_position, state.docking_position, dt);
+  }
 
   hull.position =
   streams.position =
