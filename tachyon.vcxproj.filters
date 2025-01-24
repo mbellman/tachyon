@@ -396,6 +396,9 @@
     <ClInclude Include="cosmodrone\piloting.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="cosmodrone\fighter_flight_system.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -495,6 +498,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cosmodrone\piloting.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cosmodrone\fighter_flight_system.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

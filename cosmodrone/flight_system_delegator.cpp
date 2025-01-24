@@ -1,5 +1,6 @@
 #include "cosmodrone/autopilot.h"
 #include "cosmodrone/drone_flight_system.h"
+#include "cosmodrone/fighter_flight_system.h"
 #include "cosmodrone/flight_system_delegator.h"
 
 #define is_flying(mode) (state.flight_system == FlightSystem::mode)
@@ -12,7 +13,7 @@ void FlightSystemDelegator::Forward(State& state, const float dt) {
   }
 
   if (state.flight_system == FlightSystem::FIGHTER) {
-    // @todo
+    FighterFlightSystem::ThrustForward(state, dt);
   }
 }
 
