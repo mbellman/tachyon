@@ -91,6 +91,7 @@ namespace Cosmodrone {
     float target_camera_fov = 45.f;
     float controlled_thrust_duration = 0.f;
     float camera_boost_intensity = 0.f;
+    float camera_up_distance = 500.f;
 
     FlightMode flight_mode = FlightMode::MANUAL_CONTROL;
     AutoDockStage auto_dock_stage;

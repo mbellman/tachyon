@@ -56,9 +56,20 @@ static Quaternion GetDockedCameraRotation(const State& state, const tObject& tar
   }
 
   return (
-    Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.3f) *
+    Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.2f) *
     target.rotation.opposite()
   );
+}
+
+// @todo move to utilities
+static float GetDockedCameraDistance(const State& state, const uint16 mesh_index) {
+  auto& meshes = state.meshes;
+
+  if (mesh_index == meshes.fighter) {
+    return 20000.f;
+  }
+
+  return 30000.f;
 }
 
 static void DecelerateRetrograde(State& state, const float dt) {
@@ -91,7 +102,7 @@ static void HandleDockingApproachCamera(Tachyon* tachyon, State& state, tObject&
 
   state.ship_camera_distance = state.ship_camera_distance_target = Tachyon_Lerpf(
     state.initial_docking_camera_distance,
-    30000.f,
+    GetDockedCameraDistance(state, state.docking_target.mesh_index),
     camera_blend
   );
 }

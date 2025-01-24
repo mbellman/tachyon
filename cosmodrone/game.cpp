@@ -185,6 +185,7 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
   }
 }
 
+// @todo camera_system.cpp
 static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
   auto& camera = tachyon->scene.camera;
   auto& meshes = state.meshes;
@@ -289,7 +290,17 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
   state.ship_camera_distance = Tachyon_Lerpf(state.ship_camera_distance, state.ship_camera_distance_target + 250.f * speed_zoom_ratio, 5.f * dt);
 
   camera.fov = Tachyon_Lerpf(camera.fov, state.target_camera_fov, dt);
-  camera.position = state.ship_position - state.view_forward_direction * state.ship_camera_distance + state.view_up_direction * 500.f;
+
+  if (state.flight_system == FlightSystem::FIGHTER) {
+    state.camera_up_distance = Tachyon_Lerpf(state.camera_up_distance, 3000.f, dt);
+  } else {
+    state.camera_up_distance = Tachyon_Lerpf(state.camera_up_distance, 500.f, dt);
+  }
+
+  camera.position =
+    state.ship_position -
+    state.view_forward_direction * state.ship_camera_distance +
+    state.view_up_direction * state.camera_up_distance;
 }
 
 // @todo move to HUDSystem
