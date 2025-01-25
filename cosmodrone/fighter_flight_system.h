@@ -4,6 +4,6 @@
 
 namespace Cosmodrone {
   namespace FighterFlightSystem {
-    void ThrustForward(State& state, const float dt);
+    void ControlledThrustForward(State& state, const float dt);
   }
 }

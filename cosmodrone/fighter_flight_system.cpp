@@ -2,6 +2,10 @@
 
 using namespace Cosmodrone;
 
-void FighterFlightSystem::ThrustForward(State& state, const float dt) {
-  // @todo
+const float ACCELERATION = 40000.f;
+
+void FighterFlightSystem::ControlledThrustForward(State& state, const float dt) {
+  state.ship_velocity += state.ship_rotation_basis.forward * ACCELERATION * dt;
+  state.ship_rotate_to_target_speed += dt;
+  state.flight_mode = FlightMode::MANUAL_CONTROL;
 }

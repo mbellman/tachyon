@@ -281,7 +281,7 @@ bool Autopilot::IsDoingDockingAlignment(const State& state) {
 
 bool Autopilot::IsDocked(const State& state) {
   return (
-    state.flight_mode == FlightMode::AUTO_DOCK &&
+    (state.flight_mode == FlightMode::AUTO_DOCK || state.is_piloting_vehicle) &&
     state.auto_dock_stage == AutoDockStage::DOCKED
   );
 }
@@ -325,7 +325,6 @@ float Autopilot::GetDockingAlignment(const State& state, const tVec3f& docking_p
   return tVec3f::dot(forward, ship_to_target);
 }
 
-// @todo we probably don't need Tachyon* for this
 void Autopilot::Undock(Tachyon* tachyon, State& state) {
   auto* docked_target = get_original_object(state.docking_target);
 
@@ -337,6 +336,7 @@ void Autopilot::Undock(Tachyon* tachyon, State& state) {
 
   state.flight_system = FlightSystem::DRONE;
   state.flight_mode = FlightMode::MANUAL_CONTROL;
+  state.is_piloting_vehicle = false;
   state.ship_camera_distance_target = 1800.f;
   state.target_camera_rotation = hull.rotation.opposite();
 

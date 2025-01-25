@@ -15,11 +15,6 @@ static void StartPiloting(State& state) {
   state.piloting_start_time = state.current_game_time;
 }
 
-static void StopPiloting(State& state) {
-  state.flight_system = FlightSystem::DRONE;
-  state.is_piloting_vehicle = false;
-}
-
 static void StartUpPilotedVehicle(Tachyon* tachyon, State& state, const float dt, const float duration) {
   auto up_direction = state.piloted_vehicle.rotation.getUpDirection();
   auto& vehicle = *get_original_object(state.piloted_vehicle);
@@ -44,8 +39,6 @@ void Piloting::HandlePiloting(Tachyon* tachyon, State& state, const float dt) {
 
         StartPiloting(state);
       }
-    } else if (!Autopilot::IsDocked(state) && state.is_piloting_vehicle) {
-      StopPiloting(state);
     }
   }
 
@@ -55,6 +48,22 @@ void Piloting::HandlePiloting(Tachyon* tachyon, State& state, const float dt) {
 
     if (state.is_piloting_vehicle && duration < START_UP_TIME) {
       StartUpPilotedVehicle(tachyon, state, dt, duration);
+    }
+  }
+
+  // Movement
+  {
+    if (state.is_piloting_vehicle) {
+      auto& vehicle = *get_original_object(state.piloted_vehicle);
+
+      vehicle.position += state.ship_velocity * dt;
+      vehicle.rotation = objects(meshes.hull)[0].rotation;
+
+      state.piloted_vehicle.position = vehicle.position;
+      state.docking_target.position = vehicle.position;
+      state.docking_position = Autopilot::GetDockingPosition(tachyon, state);
+
+      commit(vehicle);
     }
   }
 }

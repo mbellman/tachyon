@@ -32,6 +32,15 @@ static Quaternion DirectionToQuaternion(const tVec3f& direction) {
   );
 }
 
+// @todo move to utilities.cpp
+static float GetMaxShipSpeed(const State& state) {
+  if (state.flight_system == FlightSystem::FIGHTER) {
+    return 40000.f;
+  } else {
+    return 20000.f;
+  }
+}
+
 static void UpdateViewDirections(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
 
@@ -53,8 +62,6 @@ static void UpdateViewDirections(Tachyon* tachyon, State& state) {
   );
 }
 
-const static float MAX_SHIP_SPEED = 20000.f;
-
 static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
   bool is_issuing_control_action = false;
 
@@ -66,14 +73,10 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
   } else {
     // Reset duration when not holding forward
     state.controlled_thrust_duration = 0.f;
-  }
 
-  // Enforce maximum ship speed
-  // @todo do this somewhere else
-  float ship_speed = state.ship_velocity.magnitude();
-
-  if (ship_speed > MAX_SHIP_SPEED) {
-    state.ship_velocity = state.ship_velocity.unit() * MAX_SHIP_SPEED;
+    if (state.flight_system == FlightSystem::FIGHTER) {
+      state.ship_velocity *= 1.f - dt;
+    }
   }
 
   // Handle pull-back actions
@@ -164,6 +167,16 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
           state.ship_rotate_to_target_speed = Tachyon_Lerpf(state.ship_rotate_to_target_speed, 1.f, 1.f - forward_alignment);
         }
       }
+    }
+  }
+
+  // Enforce maximum ship speed
+  {
+    float ship_speed = state.ship_velocity.magnitude();
+    float max_ship_speed = GetMaxShipSpeed(state);
+
+    if (ship_speed > max_ship_speed) {
+      state.ship_velocity = state.ship_velocity.unit() * max_ship_speed;
     }
   }
 
@@ -333,7 +346,7 @@ static void HandleFlightArrows(Tachyon* tachyon, State& state, const float dt) {
     commit(arrow);
   }
 
-  float speed_ratio = state.ship_velocity.magnitude() / MAX_SHIP_SPEED;
+  float speed_ratio = state.ship_velocity.magnitude() / GetMaxShipSpeed(state);
 
   tVec3f arrow_color = Autopilot::IsDoingDockingApproach(state)
     ? tVec3f(1.f, 0.6f, 0.2f)

@@ -13,7 +13,7 @@ void FlightSystemDelegator::Forward(State& state, const float dt) {
   }
 
   if (state.flight_system == FlightSystem::FIGHTER) {
-    FighterFlightSystem::ThrustForward(state, dt);
+    FighterFlightSystem::ControlledThrustForward(state, dt);
   }
 }
 
