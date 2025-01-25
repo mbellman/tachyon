@@ -257,7 +257,7 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
     state.target_camera_rotation = Quaternion::slerp(
       state.target_camera_rotation,
       new_target,
-      4.f * abs(state.ship_pitch_factor) * dt
+      2.f * abs(state.ship_pitch_factor) * dt
     );
   }
 
