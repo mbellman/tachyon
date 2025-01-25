@@ -294,26 +294,37 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
         : 1.f;
   }
 
-  state.target_camera_fov =
-    45.f +
-    10.f * speed_zoom_ratio +
-    5.f * boost_intensity +
-    5.f * state.ship_pitch_factor;
+  // Set the field of view
+  {
+    state.target_camera_fov =
+      45.f +
+      10.f * speed_zoom_ratio +
+      5.f * boost_intensity +
+      5.f * state.ship_pitch_factor;
 
-  state.ship_camera_distance = Tachyon_Lerpf(state.ship_camera_distance, state.ship_camera_distance_target + 250.f * speed_zoom_ratio, 5.f * dt);
+    if (state.flight_system == FlightSystem::FIGHTER) {
+      // Bump up the FoV when flying fighter vehicles at high speed
+      state.target_camera_fov += 10.f * state.ship_velocity.magnitude() / GetMaxShipSpeed(state);
+    }
 
-  camera.fov = Tachyon_Lerpf(camera.fov, state.target_camera_fov, dt);
-
-  if (state.flight_system == FlightSystem::FIGHTER) {
-    state.camera_up_distance = Tachyon_Lerpf(state.camera_up_distance, 3000.f, dt);
-  } else {
-    state.camera_up_distance = Tachyon_Lerpf(state.camera_up_distance, 500.f, dt);
+    camera.fov = Tachyon_Lerpf(camera.fov, state.target_camera_fov, dt);
   }
 
-  camera.position =
-    state.ship_position -
-    state.view_forward_direction * state.ship_camera_distance +
-    state.view_up_direction * state.camera_up_distance;
+  // Set the camera position
+  {
+    state.ship_camera_distance = Tachyon_Lerpf(state.ship_camera_distance, state.ship_camera_distance_target + 250.f * speed_zoom_ratio, 5.f * dt);
+
+    if (state.flight_system == FlightSystem::FIGHTER) {
+      state.camera_up_distance = Tachyon_Lerpf(state.camera_up_distance, 3000.f, dt);
+    } else {
+      state.camera_up_distance = Tachyon_Lerpf(state.camera_up_distance, 500.f, dt);
+    }
+
+    camera.position =
+      state.ship_position -
+      state.view_forward_direction * state.ship_camera_distance +
+      state.view_up_direction * state.camera_up_distance;
+  }
 }
 
 // @todo move to HUDSystem

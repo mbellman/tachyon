@@ -66,7 +66,7 @@ static float GetDockedCameraDistance(const State& state, const uint16 mesh_index
   auto& meshes = state.meshes;
 
   if (mesh_index == meshes.fighter) {
-    return 20000.f;
+    return 15000.f;
   }
 
   return 30000.f;

@@ -42,28 +42,31 @@ void Piloting::HandlePiloting(Tachyon* tachyon, State& state, const float dt) {
     }
   }
 
-  // Start up sequence
-  {
-    auto duration = GetPilotingDuration(state);
-
-    if (state.is_piloting_vehicle && duration < START_UP_TIME) {
-      StartUpPilotedVehicle(tachyon, state, dt, duration);
-    }
+  if (!state.is_piloting_vehicle) {
+    return;
   }
 
-  // Movement
-  {
-    if (state.is_piloting_vehicle) {
-      auto& vehicle = *get_original_object(state.piloted_vehicle);
+  auto& vehicle = *get_original_object(state.piloted_vehicle);
+  auto duration = GetPilotingDuration(state);
 
-      vehicle.position += state.ship_velocity * dt;
-      vehicle.rotation = objects(meshes.hull)[0].rotation;
+  if (duration < START_UP_TIME) {
+    StartUpPilotedVehicle(tachyon, state, dt, duration);
 
-      state.piloted_vehicle.position = vehicle.position;
-      state.docking_target.position = vehicle.position;
-      state.docking_position = Autopilot::GetDockingPosition(tachyon, state);
-
-      commit(vehicle);
-    }
+    return;
   }
+
+  vehicle.position += state.ship_velocity * dt;
+  vehicle.rotation = objects(meshes.hull)[0].rotation;
+
+  state.flight_mode = FlightMode::MANUAL_CONTROL;
+  state.ship_rotate_to_target_speed = 3.f;
+
+  // Synchronize references (we probably shouldn't count on this)
+  state.piloted_vehicle.position = vehicle.position;
+  state.docking_target.position = vehicle.position;
+
+  state.ship_position =
+  state.docking_position = Autopilot::GetDockingPosition(tachyon, state);
+
+  commit(vehicle);
 }
