@@ -53,7 +53,7 @@ void FlightSystemDelegator::RollLeft(State& state, const float dt) {
   }
 
   if (state.flight_system == FlightSystem::FIGHTER) {
-    // @todo
+    FighterFlightSystem::RollLeft(state, dt);
   }
 }
 
@@ -63,7 +63,7 @@ void FlightSystemDelegator::RollRight(State& state, const float dt) {
   }
 
   if (state.flight_system == FlightSystem::FIGHTER) {
-    // @todo
+    FighterFlightSystem::RollRight(state, dt);
   }
 }
 

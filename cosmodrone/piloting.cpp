@@ -61,7 +61,7 @@ void Piloting::HandlePiloting(Tachyon* tachyon, State& state, const float dt) {
   vehicle.rotation = objects(meshes.hull)[0].rotation;
 
   state.flight_mode = FlightMode::MANUAL_CONTROL;
-  state.ship_rotate_to_target_speed = 3.f - 3.f * (speed / 50000.f);
+  state.ship_rotate_to_target_speed = 3.f - 3.f * (speed / 50000.f) + abs(state.camera_roll_speed);
 
   // Synchronize references
   state.piloted_vehicle.position =

@@ -386,8 +386,7 @@ static void HandleFlightArrows(Tachyon* tachyon, State& state, const float dt) {
       node.distance <= 0.f ||
       velocity_alignment > 0.f ||
       forward_alignment > 0.f ||
-      Autopilot::IsDoingDockingAlignment(state) ||
-      state.is_piloting_vehicle
+      Autopilot::IsDoingDockingAlignment(state)
     ) {
       flight_path.erase(flight_path.begin() + i);
 

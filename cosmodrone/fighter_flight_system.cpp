@@ -9,3 +9,13 @@ void FighterFlightSystem::ControlledThrustForward(State& state, const float dt) 
   state.ship_rotate_to_target_speed += dt;
   state.flight_mode = FlightMode::MANUAL_CONTROL;
 }
+
+void FighterFlightSystem::RollLeft(State& state, const float dt) {
+  state.camera_roll_speed += dt;
+  state.flight_mode = FlightMode::MANUAL_CONTROL;
+}
+
+void FighterFlightSystem::RollRight(State& state, const float dt) {
+  state.camera_roll_speed -= dt;
+  state.flight_mode = FlightMode::MANUAL_CONTROL;
+}
