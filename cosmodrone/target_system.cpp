@@ -66,6 +66,7 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
 
         if (
           camera_to_object.magnitude() > MAX_TARGET_DISTANCE ||
+          (state.is_piloting_vehicle && object == state.docking_target) ||
           target_dot < 0.8f
         ) {
           if (
