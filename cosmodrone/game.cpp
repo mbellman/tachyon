@@ -35,7 +35,7 @@ static Quaternion DirectionToQuaternion(const tVec3f& direction) {
 // @todo move to utilities.cpp
 static float GetMaxShipSpeed(const State& state) {
   if (state.flight_system == FlightSystem::FIGHTER) {
-    return 40000.f;
+    return 50000.f;
   } else {
     return 20000.f;
   }
@@ -74,7 +74,10 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
     // Reset duration when not holding forward
     state.controlled_thrust_duration = 0.f;
 
-    if (state.flight_system == FlightSystem::FIGHTER) {
+    if (
+      state.flight_system == FlightSystem::FIGHTER &&
+      state.ship_velocity.magnitude() > 500.f
+    ) {
       state.ship_velocity *= 1.f - dt;
     }
   }
