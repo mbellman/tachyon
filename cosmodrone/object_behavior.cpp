@@ -151,9 +151,9 @@ void ObjectBehavior::UpdateObjects(Tachyon* tachyon, State& state, const float d
 
   UpdateRotator(tachyon, state, dt, meshes.platform_torus, 0.1f);
 
-  UpdateRotator(tachyon, state, dt, meshes.floater_1_base, -0.08f);
-  UpdateRotator(tachyon, state, dt, meshes.floater_1_spokes, 0.08f);
-  UpdateRotator(tachyon, state, dt, meshes.floater_1_panels, 0.08f);
+  UpdateRotator(tachyon, state, dt, meshes.floater_1_base, -0.12f);
+  UpdateRotator(tachyon, state, dt, meshes.floater_1_spokes, 0.12f);
+  UpdateRotator(tachyon, state, dt, meshes.floater_1_panels, 0.12f);
 
   UpdateRotatorWithVariation(tachyon, state, dt, meshes.antenna_4_dish, 0.5f);
 
