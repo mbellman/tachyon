@@ -15,7 +15,8 @@ void Beacons::InitBeacons(Tachyon* tachyon, State& state) {
   const static std::vector<uint16> beacon_mesh_indexes = {
     meshes.antenna_3,
     meshes.charge_pad,
-    meshes.fighter
+    meshes.fighter,
+    meshes.floater_1
   };
 
   state.beacons.clear();
@@ -47,7 +48,8 @@ void Beacons::UpdateBeacons(Tachyon* tachyon, State& state) {
   static std::map<uint16, tVec3f> beacon_color_map = {
     { meshes.antenna_3, tVec3f(1.f, 0.6f, 0.2f) },
     { meshes.charge_pad, tVec3f(0.2f, 1.f, 0.5f) },
-    { meshes.fighter, tVec3f(1.f, 0.3f, 0.2f) }
+    { meshes.fighter, tVec3f(1.f, 0.3f, 0.2f) },
+    { meshes.floater_1, tVec3f(0.2f, 1.f, 0.5f) }
   };
 
   for (auto& beacon : state.beacons) {

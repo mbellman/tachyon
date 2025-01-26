@@ -55,7 +55,9 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
   {
     static std::vector<uint16> standard_docking_target_meshes = {
       state.meshes.antenna_3,
-      state.meshes.fighter
+      state.meshes.charge_pad,
+      state.meshes.fighter,
+      state.meshes.floater_1
     };
 
     for (auto mesh_index : standard_docking_target_meshes) {
@@ -160,6 +162,7 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
       float relative_distance = (object.position - state.ship_position).magnitude();
 
       tracker.center_distance = center_distance;
+      tracker.object_distance = relative_distance;
 
       // Try to select the target tracker closest to the center of the screen,
       // assuming its object is closer than the closest relative distance threshold
