@@ -84,6 +84,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh(beam_1);
   load_mesh(beam_2);
   load_mesh_with_2_lods(mega_girder_1);
+  load_mesh(mega_girder_2);
   load_mesh_with_2_lods(grate_1);
   load_mesh_with_2_lods(grate_2);
   load_mesh(grate_3);
@@ -527,6 +528,16 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
       .scale = tVec3f(50000.f),
       .color = tVec3f(1.f),
       .material = tVec4f(0.5f, 1.f, 0, 0)
+    }
+  });
+
+  placeable_mesh_assets.push_back({
+    .mesh_name = "mega_girder_2",
+    .mesh_index = meshes.mega_girder_2,
+    .defaults = {
+      .scale = tVec3f(15000.f),
+      .color = tVec3f(1.f, 0.4f, 0.1f),
+      .material = tVec4f(0.9f, 0, 0, 0.4f)
     }
   });
 
