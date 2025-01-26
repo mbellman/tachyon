@@ -94,6 +94,10 @@ void ObjectBehavior::InitObjects(Tachyon* tachyon, State& state) {
     meshes.habitation_4_panels,
     meshes.habitation_4_lights,
 
+    meshes.floater_1_base,
+    meshes.floater_1_spokes,
+    meshes.floater_1_panels,
+
     meshes.arch_1_body,
     meshes.arch_1_details,
     meshes.arch_1_frame,
@@ -146,6 +150,10 @@ void ObjectBehavior::UpdateObjects(Tachyon* tachyon, State& state, const float d
   UpdateRotator(tachyon, state, dt, meshes.station_torus_3_lights, 0.08f);
 
   UpdateRotator(tachyon, state, dt, meshes.platform_torus, 0.1f);
+
+  UpdateRotator(tachyon, state, dt, meshes.floater_1_base, -0.08f);
+  UpdateRotator(tachyon, state, dt, meshes.floater_1_spokes, 0.08f);
+  UpdateRotator(tachyon, state, dt, meshes.floater_1_panels, 0.08f);
 
   UpdateRotatorWithVariation(tachyon, state, dt, meshes.antenna_4_dish, 0.5f);
 

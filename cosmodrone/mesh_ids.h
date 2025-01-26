@@ -70,6 +70,7 @@ namespace Cosmodrone {
       light_4,
       charge_pad,
       fighter,
+      floater_1,
 
       // Mega parts
       mega_girder_1,
@@ -144,6 +145,11 @@ namespace Cosmodrone {
       light_4_base,
       light_4_bulb,
       track_1_frame,
+      floater_1_core,
+      floater_1_base,
+      floater_1_frame,
+      floater_1_spokes,
+      floater_1_panels,
 
       // Procedural meshes
       procedural_elevator_car,

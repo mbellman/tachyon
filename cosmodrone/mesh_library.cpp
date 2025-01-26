@@ -95,6 +95,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh(light_4);
   load_mesh(charge_pad);
   load_mesh(fighter);
+  load_mesh(floater_1);
   load_mesh(gas_flare_1_spawn);
   load_mesh(arch_1);
   load_mesh(background_ship_1);
@@ -643,6 +644,16 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   });
 
   placeable_mesh_assets.push_back({
+    .mesh_name = "floater_1",
+    .mesh_index = meshes.floater_1,
+    .placeholder = true,
+    .defaults = {
+      .scale = tVec3f(8000.f),
+      .material = tVec4f(0.6f, 0, 0, 0)
+    }
+  });
+
+  placeable_mesh_assets.push_back({
     .mesh_name = "gas_flare_1_spawn",
     .mesh_index = meshes.gas_flare_1_spawn,
     .placeholder = true,
@@ -773,6 +784,12 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
 
   load_mesh(track_1_frame);
 
+  load_mesh(floater_1_core);
+  load_mesh(floater_1_base);
+  load_mesh(floater_1_frame);
+  load_mesh(floater_1_spokes);
+  load_mesh(floater_1_panels);
+
   generated_mesh_assets = {
     // antenna_2
     {
@@ -854,7 +871,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .mesh_index = meshes.silo_7_core,
       .generated_from = meshes.silo_7,
       .defaults = {
-        .color = tVec3f(1.f, 0.8f, 0.6f),
+        .color = tVec3f(1.f, 0.6f, 0.5f),
         .material = tVec4f(1.f, 0, 0, 0.2f)
       }
     },
@@ -1267,6 +1284,41 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .generated_from = meshes.procedural_track_1,
       .defaults = {
         .material = tVec4f(0.4f, 1.f, 0, 0)
+      }
+    },
+
+    // floater_1
+    {
+      .mesh_index = meshes.floater_1_core,
+      .generated_from = meshes.floater_1,
+      .defaults = {
+        .material = tVec4f(0.9f, 0, 0, 0.3f)
+      }
+    },
+    {
+      .mesh_index = meshes.floater_1_base,
+      .generated_from = meshes.floater_1
+    },
+    {
+      .mesh_index = meshes.floater_1_frame,
+      .generated_from = meshes.floater_1,
+      .defaults = {
+        .material = tVec4f(0.2f, 1.f, 0, 0)
+      }
+    },
+    {
+      .mesh_index = meshes.floater_1_spokes,
+      .generated_from = meshes.floater_1,
+      .defaults = {
+        .material = tVec4f(0.6f, 1.f, 0, 0)
+      }
+    },
+    {
+      .mesh_index = meshes.floater_1_panels,
+      .generated_from = meshes.floater_1,
+      .defaults = {
+        .color = 0x44F1,
+        .material = tVec4f(0.2f, 1.f, 0.3f, 1.f)
       }
     },
 
