@@ -148,14 +148,23 @@ void main() {
     }
   #endif
 
-  // Volumetric fog
+  // Fog
   {
+    // Fog volumes
     vec3 position = GetWorldPosition(color_and_depth.w, fragUv, inverse_projection_matrix, inverse_view_matrix);
     vec3 D = normalize(position - camera_position);
+    float VdotD = max(0.0, -dot(D, primary_light_direction));
     float world_depth = GetWorldDepth(color_and_depth.w, 500.0, 10000000.0);
     vec4 volumetric_fog = GetVolumetricFogColorAndThickness(world_depth, D);
 
     post_color = mix(post_color, volumetric_fog.rgb, volumetric_fog.w);
+
+    // Depth fog
+    float depth_factor = 0.25 * pow(color_and_depth.w, 300.0);
+
+    post_color = mix(post_color, vec3(0.2, 0.4, 0.6), depth_factor);
+    post_color = mix(post_color, vec3(0.8, 0.9, 1.0), depth_factor * pow(VdotD, 10.0));
+    post_color = mix(post_color, vec3(2.0), depth_factor * pow(VdotD, 300.0));
   }
 
   // Vignette
