@@ -2,11 +2,15 @@
 
 using namespace Cosmodrone;
 
-const float ACCELERATION = 50000.f;
+const float ACCELERATION = 500000.f;
 
 void FighterFlightSystem::ControlledThrustForward(State& state, const float dt) {
-  state.ship_velocity += state.ship_rotation_basis.forward * ACCELERATION * dt;
+  if (state.controlled_thrust_duration > 1.f) {
+    state.ship_velocity += state.ship_rotation_basis.forward * ACCELERATION * dt;
+  }
+
   state.ship_rotate_to_target_speed += dt;
+  state.controlled_thrust_duration += dt;
   state.flight_mode = FlightMode::MANUAL_CONTROL;
 }
 

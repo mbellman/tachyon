@@ -78,7 +78,7 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
       state.flight_system == FlightSystem::FIGHTER &&
       state.ship_velocity.magnitude() > 500.f
     ) {
-      state.ship_velocity *= 1.f - dt;
+      state.ship_velocity *= 1.f - 2.f * dt;
     }
   }
 
@@ -295,6 +295,13 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
       state.camera_boost_intensity < 0.4f
         ? sqrtf(state.camera_boost_intensity * 2.5f)
         : 1.f;
+
+    if (state.is_piloting_vehicle) {
+      boost_intensity =
+        state.controlled_thrust_duration < 1.f
+          ? 3.f * state.controlled_thrust_duration
+          : 3.f;
+    }
   }
 
   // Set the field of view
@@ -310,7 +317,7 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
       state.target_camera_fov += 10.f * state.ship_velocity.magnitude() / GetMaxShipSpeed(state);
     }
 
-    camera.fov = Tachyon_Lerpf(camera.fov, state.target_camera_fov, dt);
+    camera.fov = Tachyon_Lerpf(camera.fov, state.target_camera_fov, 2.f * dt);
   }
 
   // Set the camera position
@@ -320,7 +327,7 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
     if (state.flight_system == FlightSystem::FIGHTER) {
       state.camera_up_distance = Tachyon_Lerpf(state.camera_up_distance, 3000.f, dt);
     } else {
-      state.camera_up_distance = Tachyon_Lerpf(state.camera_up_distance, 500.f, dt);
+      state.camera_up_distance = Tachyon_Lerpf(state.camera_up_distance, 500.f, 5.f * dt);
     }
 
     camera.position =
