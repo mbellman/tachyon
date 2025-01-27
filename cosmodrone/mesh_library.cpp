@@ -94,7 +94,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh(light_3);
   load_mesh(light_4);
   load_mesh(charge_pad);
-  load_mesh(fighter);
+  load_mesh(fighter_spawn);
   load_mesh(floater_1);
   load_mesh(gas_flare_1_spawn);
   load_mesh(arch_1);
@@ -635,11 +635,11 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   });
 
   placeable_mesh_assets.push_back({
-    .mesh_name = "fighter",
-    .mesh_index = meshes.fighter,
+    .mesh_name = "fighter_spawn",
+    .mesh_index = meshes.fighter_spawn,
+    .placeholder = true,
     .defaults = {
-      .scale = tVec3f(5000.f),
-      .material = tVec4f(0.6f, 0, 0, 0)
+      .scale = tVec3f(5000.f)
     }
   });
 
@@ -789,6 +789,8 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
   load_mesh(floater_1_frame);
   load_mesh(floater_1_spokes);
   load_mesh(floater_1_panels);
+
+  load_mesh(fighter);
 
   generated_mesh_assets = {
     // antenna_2
@@ -1319,6 +1321,15 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .defaults = {
         .color = 0x44F1,
         .material = tVec4f(0.2f, 1.f, 0.3f, 1.f)
+      }
+    },
+
+    // fighter
+    {
+      .mesh_index = meshes.fighter,
+      .generated_from = meshes.fighter_spawn,
+      .defaults = {
+        .material = tVec4f(0.9f, 0, 0, 0.2f)
       }
     },
 

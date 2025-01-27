@@ -1009,6 +1009,22 @@ void Editor::DisableEditor(Tachyon* tachyon, State& state) {
 
   WorldSetup::RebuildWorld(tachyon, state);
 
+  // @todo factor
+  if (state.is_piloting_vehicle) {
+    auto& new_vehicle = create(state.meshes.fighter);
+
+    state.docking_target.object_id =
+    state.piloted_vehicle.object_id = new_vehicle.object_id;
+
+    new_vehicle.position = state.piloted_vehicle.position;
+    new_vehicle.rotation = state.piloted_vehicle.rotation;
+    new_vehicle.scale = state.piloted_vehicle.scale;
+    new_vehicle.color = state.piloted_vehicle.color;
+    new_vehicle.material = state.piloted_vehicle.material;
+
+    commit(new_vehicle);
+  }
+
   // Reset target trackers to avoid stale references
   // if objects are deleted in the editor
   state.on_screen_target_trackers.clear();

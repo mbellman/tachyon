@@ -55,25 +55,28 @@ void Piloting::HandlePiloting(Tachyon* tachyon, State& state, const float dt) {
     return;
   }
 
-  auto speed = state.ship_velocity.magnitude();
+  // Control vehicle movement/position/rotation
+  {
+    auto speed = state.ship_velocity.magnitude();
 
-  vehicle.position += state.ship_velocity * dt;
-  vehicle.rotation = objects(meshes.hull)[0].rotation;
+    vehicle.position += state.ship_velocity * dt;
+    vehicle.rotation = objects(meshes.hull)[0].rotation;
 
-  state.flight_mode = FlightMode::MANUAL_CONTROL;
-  // @todo use max ship speed for the speed ratio
-  state.ship_rotate_to_target_speed = 3.f - 3.f * (speed / 60000.f) + abs(state.camera_roll_speed);
+    state.flight_mode = FlightMode::MANUAL_CONTROL;
+    // @todo use max ship speed for the speed ratio
+    state.ship_rotate_to_target_speed = 3.f - 3.f * (speed / 60000.f) + abs(state.camera_roll_speed);
 
-  // Synchronize references
-  state.piloted_vehicle.position =
-  state.docking_target.position = vehicle.position;
+    // Synchronize references
+    state.piloted_vehicle.position =
+    state.docking_target.position = vehicle.position;
 
-  state.piloted_vehicle.rotation =
-  state.docking_target.rotation = vehicle.rotation;
+    state.piloted_vehicle.rotation =
+    state.docking_target.rotation = vehicle.rotation;
 
-  // Lock drone to vehicle
-  state.ship_position =
-  state.docking_position = Autopilot::GetDockingPosition(tachyon, state);
+    // Lock drone to vehicle
+    state.ship_position =
+    state.docking_position = Autopilot::GetDockingPosition(tachyon, state);
 
-  commit(vehicle);
+    commit(vehicle);
+  }
 }

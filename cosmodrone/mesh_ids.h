@@ -69,7 +69,6 @@ namespace Cosmodrone {
       light_3,
       light_4,
       charge_pad,
-      fighter,
       floater_1,
 
       // Mega parts
@@ -150,6 +149,12 @@ namespace Cosmodrone {
       floater_1_frame,
       floater_1_spokes,
       floater_1_panels,
+
+      // Vehicle spawns
+      fighter_spawn,
+
+      // Vehicle parts
+      fighter,
 
       // Procedural meshes
       procedural_elevator_car,
