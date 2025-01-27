@@ -64,15 +64,16 @@ void Beacons::UpdateBeacons(Tachyon* tachyon, State& state) {
       continue;
     }
 
-    auto source_position = Autopilot::GetDockingPosition(tachyon, state, beacon.source_object);
-    // @todo use live object
-    auto direction = beacon.source_object.rotation.getUpDirection();
+    auto& source_object = *get_original_object(beacon.source_object);
+    // @optimize don't call get_original_object twice
+    auto docking_position = Autopilot::GetDockingPosition(tachyon, state, source_object);
+    auto direction = source_object.rotation.getUpDirection();
     auto beacon_1_progress = fmodf(state.current_game_time, 2.f) * 0.5f;
     auto beacon_2_progress = fmodf(state.current_game_time + 1.f, 2.f) * 0.5f;
-    auto& beacon_color = beacon_color_map[beacon.source_object.mesh_index];
+    auto& beacon_color = beacon_color_map[source_object.mesh_index];
 
     beacon.beacon_1.position =
-      source_position -
+      docking_position -
       direction * 500.f +
       direction * 3000.f * beacon_1_progress;
 
@@ -84,7 +85,7 @@ void Beacons::UpdateBeacons(Tachyon* tachyon, State& state) {
     );
 
     beacon.beacon_2.position =
-      source_position -
+      docking_position -
       direction * 500.f +
       direction * 3000.f * beacon_2_progress;
 
@@ -95,8 +96,8 @@ void Beacons::UpdateBeacons(Tachyon* tachyon, State& state) {
       GetBeaconAlpha(beacon_2_progress)
     );
 
-    beacon.beacon_1.rotation = beacon.source_object.rotation;
-    beacon.beacon_2.rotation = beacon.source_object.rotation;
+    beacon.beacon_1.rotation = source_object.rotation;
+    beacon.beacon_2.rotation = source_object.rotation;
 
     commit(beacon.beacon_1);
     commit(beacon.beacon_2);

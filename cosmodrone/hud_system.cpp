@@ -317,7 +317,7 @@ static std::string GetTargetName(const State& state, const tObject& target) {
     return "FIGHTER";
   }
 
-  return "UNKNOWN";
+  return "--UNNAMED--";
 }
 
 static void HandleTargetInspectorStats(Tachyon* tachyon, const State& state, const TargetTracker& tracker) {

@@ -130,7 +130,7 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
   }
 
   // Handle auto-dock/undock actions
-  if (did_press_key(tKey::ENTER) || did_left_click_up()) {
+  if (did_press_key(tKey::ENTER)) {
     FlightSystemDelegator::DockOrUndock(tachyon, state, dt);
   }
 
