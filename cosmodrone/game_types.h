@@ -100,8 +100,10 @@ namespace Cosmodrone {
     tObject docking_target;
     tVec3f docking_position;
 
-    Quaternion initial_docking_camera_rotation;
-    float initial_docking_camera_distance;
+    Quaternion initial_approach_camera_rotation;
+    Quaternion initial_docking_ship_rotation;
+    float initial_approach_camera_distance;
+    float initial_approach_ship_distance;
     float initial_docking_ship_distance;
 
     tVec3f retrograde_direction;

@@ -16,16 +16,26 @@ static void StartPiloting(State& state) {
 }
 
 static void StartUpPilotedVehicle(Tachyon* tachyon, State& state, const float dt, const float duration) {
+  auto& camera = tachyon->scene.camera;
   auto up_direction = state.piloted_vehicle.rotation.getUpDirection();
   auto& vehicle = *get_original_object(state.piloted_vehicle);
   float up_speed = sinf(t_PI * duration / START_UP_TIME) * 20000.f;
 
-  vehicle.position += up_direction * up_speed * dt;
+  // Launch vehicle/ship together
+  {
+    vehicle.position += up_direction * up_speed * dt;
 
-  state.ship_position += up_direction * up_speed * dt;
-  state.docking_position = Autopilot::GetDockingPosition(tachyon, state);
+    state.docking_position = Autopilot::GetDockingPosition(tachyon, state);
+    state.ship_position += up_direction * up_speed * dt;
+    state.ship_position = tVec3f::lerp(state.ship_position, state.docking_position, dt);
 
-  commit(vehicle);
+    commit(vehicle);
+  }
+
+  // Orient the camera directly behind the ship
+  {
+    state.target_camera_rotation = vehicle.rotation.opposite();
+  }
 }
 
 void Piloting::HandlePiloting(Tachyon* tachyon, State& state, const float dt) {

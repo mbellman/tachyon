@@ -9,7 +9,7 @@ float Tachyon_EaseInOutf(float t) {
     return 2.f * t * t;
   }
 
-  t *= 0.5f;
+  t -= 0.5f;
 
   return 2.f * t * (1.f - t) + 0.5f;
 }

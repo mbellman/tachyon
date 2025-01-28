@@ -134,6 +134,7 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
 
     // Calculate tracker screen coordinates
     for (auto& tracker : state.on_screen_target_trackers) {
+      // @todo use live object
       auto& object = tracker.object;
       tVec3f local_position = view_matrix * object.position;
       tVec3f clip_position = (projection_matrix * local_position) / local_position.z;

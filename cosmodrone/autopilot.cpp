@@ -102,16 +102,21 @@ static void HandleDockingApproachCamera(Tachyon* tachyon, State& state, tObject&
   auto docked_camera_rotation = GetDockedCameraRotation(state, target);
 
   // @todo use ease-in-out
-  auto camera_blend = powf(1.f - docking_distance / state.initial_docking_ship_distance, 2.f);
+  float camera_blend = powf(1.f - docking_distance / state.initial_approach_ship_distance, 2.f);
+  // Slightly increase the blend factor so we always hit the mark
+  camera_blend *= 1.1f;
+  if (camera_blend > 1.f) camera_blend = 1.f;
+
+  camera_blend = Tachyon_EaseInOutf(camera_blend);
 
   tachyon->scene.camera.rotation = state.target_camera_rotation = Quaternion::slerp(
-    state.initial_docking_camera_rotation,
+    state.initial_approach_camera_rotation,
     docked_camera_rotation,
     camera_blend
   );
 
   state.ship_camera_distance = state.ship_camera_distance_target = Tachyon_Lerpf(
-    state.initial_docking_camera_distance,
+    state.initial_approach_camera_distance,
     GetDockedCameraDistance(state, state.docking_target.mesh_index),
     camera_blend
   );
@@ -184,15 +189,16 @@ void Autopilot::HandleAutopilot(Tachyon* tachyon, State& state, const float dt) 
 
         state.target_ship_rotation = Quaternion::FromDirection(forward.invert(), target_object_up);
 
-        if (GetDockingAlignment(state, state.docking_position) > 0.99999f) {
+        if (GetDockingAlignment(state, state.docking_position) <= 0.99999f) {
+          // Slow the ship down as we align it
+          state.ship_velocity *= (1.f - 5.f * dt);
+        } else {
+          // Begin approach
           state.auto_dock_stage = AutoDockStage::APPROACH;
 
-          state.initial_docking_camera_rotation = camera.rotation;
-          state.initial_docking_camera_distance = state.ship_camera_distance;
-          state.initial_docking_ship_distance = (state.docking_position - state.ship_position).magnitude();
-        } else {
-          // @hack slow the ship down after deceleration
-          state.ship_velocity *= (1.f - 5.f * dt);
+          state.initial_approach_camera_rotation = camera.rotation;
+          state.initial_approach_camera_distance = state.ship_camera_distance;
+          state.initial_approach_ship_distance = (state.docking_position - state.ship_position).magnitude();
         }
 
         break;
@@ -207,7 +213,10 @@ void Autopilot::HandleAutopilot(Tachyon* tachyon, State& state, const float dt) 
           state.ship_velocity.magnitude() >= AUTO_DOCK_APPROACH_SPEED_LIMIT &&
           docking_distance < 10000.f
         ) {
+          // Begin final docking maneuver
           state.auto_dock_stage = AutoDockStage::DOCKING;
+          state.initial_docking_ship_rotation = objects(state.meshes.hull)[0].rotation;
+          state.initial_docking_ship_distance = docking_distance;
         }
 
         break;
@@ -223,18 +232,30 @@ void Autopilot::HandleAutopilot(Tachyon* tachyon, State& state, const float dt) 
           target.rotation *
           GetDockedRotation(state, state.docking_target.mesh_index);
 
-        state.ship_rotate_to_target_speed = 0.3f;
+        // Rotate the ship into docking position
+        {
+          float rotation_factor = 1.f - docking_distance / state.initial_docking_ship_distance;
+          // Slightly increase the rotation rate so we always hit the mark
+          rotation_factor *= 1.1f;
+          if (rotation_factor > 1.f) rotation_factor = 1.f;
+
+          auto& hull = objects(state.meshes.hull)[0];
+
+          hull.rotation = Quaternion::slerp(state.initial_docking_ship_rotation, state.target_ship_rotation, rotation_factor);
+        }
 
         // Slow down as we make the final approach
         if (docking_distance < 5000.f) {
           float speed = AUTO_DOCK_APPROACH_SPEED_LIMIT * (docking_distance / 5000.f);
 
+          // Slow the ship as it docks
           state.ship_velocity = state.ship_velocity_basis.forward * speed;
         }
 
         // @todo @bug Ensure we never miss the target;
-        // this seems to happen every so often!
+        // this seems to happen once in a blue moon!
         if (docking_distance < 300.f) {
+          // Dock the ship
           state.auto_dock_stage = AutoDockStage::DOCKED;
           state.ship_velocity = 0.f;
           state.ship_rotate_to_target_speed = 0.f;
@@ -255,7 +276,7 @@ bool Autopilot::AttemptDockingProcedure(State& state) {
     return false;
   }
 
-  // @todo use live object
+  // @todo use live object (or ensure tracker->object is always live)
   auto& target_object = tracker->object;
   auto& ship_position = state.ship_position;
   auto target_distance = (target_object.position - ship_position).magnitude();
@@ -272,7 +293,7 @@ bool Autopilot::AttemptDockingProcedure(State& state) {
   // probably be correctly oriented.
   state.retrograde_direction = state.ship_velocity_basis.forward;
 
-  if (state.ship_velocity.magnitude() < 2000.f) {
+  if (state.ship_velocity.magnitude() < 3000.f) {
     state.auto_dock_stage = AutoDockStage::APPROACH_ALIGNMENT;
   } else {
     state.auto_dock_stage = AutoDockStage::APPROACH_DECELERATION;
