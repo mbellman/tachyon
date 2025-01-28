@@ -237,7 +237,7 @@ static void InitLights(Tachyon* tachyon, State& state) {
   auto& point_lights = tachyon->point_lights;
 
   state.gas_flare_light_indexes.clear();
-  state.blinking_light_indexes.clear();
+  state.blinking_lights.clear();
 
   // @todo only clear generated lights
   tachyon->point_lights.clear();
@@ -289,7 +289,10 @@ static void InitLights(Tachyon* tachyon, State& state) {
       .power = 1.f
     });
 
-    state.blinking_light_indexes.push_back(point_lights.size() - 1);
+    state.blinking_lights.push_back({
+      .bulb = bulb,
+      .light_index = uint32(point_lights.size() - 1)
+    });
   }
 
   for (auto& flare : objects(state.meshes.gas_flare_1_spawn)) {

@@ -86,12 +86,16 @@ static void UpdateGasFlareLights(Tachyon* tachyon, State& state) {
 
 // @todo lights.cpp
 static void UpdateBlinkingLights(Tachyon* tachyon, State& state) {
-  for (auto light_index : state.blinking_light_indexes) {
-    auto& light = tachyon->point_lights[light_index];
+  for (auto& blinking_light : state.blinking_lights) {
+    auto& light = tachyon->point_lights[blinking_light.light_index];
+    auto& bulb = *get_original_object(blinking_light.bulb);
     auto power = 0.5f * sinf(state.current_game_time * 3.f + light.position.x * 0.03f) + 0.5f;
     power = powf(power, 5.f);
 
     light.power = power;
+    bulb.color = tVec4f(1.f, 0.5f, 0.2f, power);
+
+    commit(bulb);
   }
 }
 

@@ -77,6 +77,11 @@ namespace Cosmodrone {
     tObject beacon_2;
   };
 
+  struct BlinkingLight {
+    tObject bulb;
+    uint32 light_index;
+  };
+
   struct AutoPlacedObjectList {
     uint16 mesh_index;
     std::vector<uint16> object_ids;
@@ -134,7 +139,7 @@ namespace Cosmodrone {
     std::vector<Beacon> beacons;
 
     std::vector<uint32> gas_flare_light_indexes;
-    std::vector<uint32> blinking_light_indexes;
+    std::vector<BlinkingLight> blinking_lights;
 
     std::vector<VehicleNetworkNode> vehicle_network;
     std::vector<BackgroundVehicle> vehicles;
