@@ -173,6 +173,7 @@ namespace Cosmodrone {
 
       // HUD,
       hud_flight_arrow,
+      hud_flight_curve,
       beacon,
 
       // Background elements

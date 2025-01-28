@@ -338,9 +338,14 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
 }
 
 // @todo move to HUDSystem
-static void HandleFlightArrows(Tachyon* tachyon, State& state, const float dt) {
+static void HandleFlightGuides(Tachyon* tachyon, State& state, const float dt) {
   const static float MIN_SPAWN_DISTANCE = 5000.f;
-  const static float MAX_SPAWN_DISTANCE = 20000.f;
+
+  // @todo make a helper for this
+  const float max_spawn_distance =
+    state.is_piloting_vehicle
+      ? 100000.f :
+    20000.f;
 
   auto& meshes = state.meshes;
   float speed = state.ship_velocity.magnitude();
@@ -355,11 +360,8 @@ static void HandleFlightArrows(Tachyon* tachyon, State& state, const float dt) {
   // Move incoming flight path nodes toward the ship
   auto& flight_path = state.incoming_flight_path;
   tVec3f sideways = tVec3f::cross(state.ship_velocity_basis.forward, state.ship_rotation_basis.up).unit();
-  tVec3f bottom_offset = state.ship_rotation_basis.up * -750.f;
-  tVec3f left_offset = sideways * -750.f;
-  tVec3f right_offset = sideways * 750.f;
 
-  // Reset arrows each frame
+  // Reset guidance objects each frame
   for (auto& arrow : objects(meshes.hud_flight_arrow)) {
     arrow.scale = 0.f;
     arrow.rotation = Quaternion::FromDirection(state.ship_velocity_basis.forward, state.ship_rotation_basis.up);
@@ -367,11 +369,51 @@ static void HandleFlightArrows(Tachyon* tachyon, State& state, const float dt) {
     commit(arrow);
   }
 
+  for (auto& curve : objects(meshes.hud_flight_curve)) {
+    curve.scale = 0.f;
+    curve.rotation = Quaternion::FromDirection(state.ship_velocity_basis.forward, state.ship_rotation_basis.up);
+
+    commit(curve);
+  }
+
   float speed_ratio = state.ship_velocity.magnitude() / GetMaxShipSpeed(state);
 
-  tVec3f arrow_color = Autopilot::IsDoingDockingApproach(state)
-    ? tVec3f(1.f, 0.6f, 0.2f)
-    : tVec3f(0.1f, 0.2f, 1.f);
+  float brightness_factor =
+    state.is_piloting_vehicle ? (
+      speed_ratio > 0.5f ? 2.f * (speed_ratio - 0.5f) : 0.f
+    ) : 1.f;
+
+  // @todo make a helper for these
+  tVec3f guide_color =
+    Autopilot::IsDoingDockingApproach(state)
+      ? tVec3f(1.f, 0.6f, 0.2f) :
+    state.is_piloting_vehicle
+      ? tVec3f(1.f, 0.5f, 0.2f) :
+    tVec3f(0.1f, 0.2f, 1.f);
+
+  float guide_scale =
+    state.is_piloting_vehicle
+      ? 10000.f
+      : 200.f;
+
+  uint16 guide_mesh =
+    state.is_piloting_vehicle
+      ? meshes.hud_flight_curve
+      : meshes.hud_flight_arrow;
+
+  float guide_offset =
+    state.is_piloting_vehicle
+      ? 10000.f
+      : 750.f;
+
+  tVec3f bottom_offset = state.ship_rotation_basis.up * -guide_offset;
+
+  if (state.is_piloting_vehicle) {
+    bottom_offset = tVec3f(0.f);
+  }
+
+  tVec3f left_offset = sideways * -guide_offset;
+  tVec3f right_offset = sideways * guide_offset;
 
   // Recalculate/reposition visible arrows
   for (int32 i = flight_path.size() - 1; i >= 0; i--) {
@@ -383,7 +425,7 @@ static void HandleFlightArrows(Tachyon* tachyon, State& state, const float dt) {
     // Gradually curve nodes onto the updated flight path as it changes in real-time.
     // Determine the node's "progress" toward the ship, and blend between its original
     // spawn position and a position directly forward along the ship's trajectory.
-    float target_distance = Tachyon_Lerpf(MAX_SPAWN_DISTANCE, node.spawn_distance, speed_ratio);
+    float target_distance = Tachyon_Lerpf(max_spawn_distance, node.spawn_distance, speed_ratio);
     float alpha = 1.f - node.distance / target_distance;
     tVec3f velocity_position = state.ship_position + state.ship_velocity_basis.forward * node.distance;
 
@@ -396,6 +438,7 @@ static void HandleFlightArrows(Tachyon* tachyon, State& state, const float dt) {
       node.distance <= 0.f ||
       velocity_alignment > 0.f ||
       forward_alignment > 0.f ||
+      speed_ratio < 0.1f ||
       Autopilot::IsDoingDockingAlignment(state)
     ) {
       flight_path.erase(flight_path.begin() + i);
@@ -412,32 +455,36 @@ static void HandleFlightArrows(Tachyon* tachyon, State& state, const float dt) {
       brightness *= (forward_alignment * -10.f);
     }
 
-    auto& arrow_1 = objects(meshes.hud_flight_arrow)[i * 2];
-    auto& arrow_2 = objects(meshes.hud_flight_arrow)[i * 2 + 1];
+    brightness *= brightness_factor;
 
-    arrow_1.position = node.position + bottom_offset + left_offset;
-    arrow_2.position = node.position + bottom_offset + right_offset;
+    auto& guide_1 = objects(guide_mesh)[i * 2];
+    auto& guide_2 = objects(guide_mesh)[i * 2 + 1];
 
-    arrow_1.scale =
-    arrow_2.scale = 200.f;
+    guide_1.position = node.position + bottom_offset + left_offset;
+    guide_2.position = node.position + bottom_offset + right_offset;
 
-    arrow_1.color =
-    arrow_2.color = tVec4f(arrow_color, brightness);
+    guide_1.scale =
+    guide_2.scale = guide_scale;
+
+    guide_1.color =
+    guide_2.color = tVec4f(guide_color, brightness);
+
+    guide_2.rotation *= Quaternion::fromAxisAngle(state.ship_velocity_basis.forward, t_PI);
 
     // @experimental
     if (state.photo_mode) {
-      arrow_1.scale = arrow_2.scale = 0.f;
+      guide_1.scale = guide_2.scale = 0.f;
     }
 
-    commit(arrow_1);
-    commit(arrow_2);
+    commit(guide_1);
+    commit(guide_2);
   }
 
   // Add new flight path nodes
   if (state.flight_path_spawn_distance_remaining <= 0.f) {
     FlightPathNode node;
 
-    node.spawn_distance = Tachyon_Lerpf(MIN_SPAWN_DISTANCE, MAX_SPAWN_DISTANCE, speed_ratio);
+    node.spawn_distance = Tachyon_Lerpf(MIN_SPAWN_DISTANCE, max_spawn_distance, speed_ratio);
     node.position = state.ship_position + state.ship_velocity_basis.forward * node.spawn_distance;
     node.spawn_position = node.position;
     node.distance = node.spawn_distance;
@@ -649,6 +696,7 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
   // @todo dev mode only
   objects(meshes.cube).disabled = state.is_editor_active || !tachyon->show_developer_tools;
   objects(meshes.hud_flight_arrow).disabled = state.is_editor_active;
+  objects(meshes.hud_flight_curve).disabled = state.is_editor_active;
   objects(meshes.station_drone_1).disabled = state.is_editor_active;
   objects(meshes.drone_wireframe).disabled = state.is_editor_active;
   objects(meshes.antenna_3_wireframe).disabled = state.is_editor_active;
@@ -668,7 +716,7 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
   Piloting::HandlePiloting(tachyon, state, dt);
 
   HandleCamera(tachyon, state, dt);
-  HandleFlightArrows(tachyon, state, dt);
+  HandleFlightGuides(tachyon, state, dt);
   HandleDrone(tachyon, state, dt);
 
   TargetSystem::HandleTargetTrackers(tachyon, state, dt);

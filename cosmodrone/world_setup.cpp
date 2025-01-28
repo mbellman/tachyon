@@ -105,6 +105,7 @@ static void InitLevel(Tachyon* tachyon, State& state) {
   {
     for (uint8 i = 0; i < 16; i++) {
       create(meshes.hud_flight_arrow);
+      create(meshes.hud_flight_curve);
     }
   }
 

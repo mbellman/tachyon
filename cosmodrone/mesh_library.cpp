@@ -1386,12 +1386,15 @@ static void LoadEntityMeshes(Tachyon* tachyon, State& state) {
   // HUD
   {
     auto flight_arrow = Tachyon_LoadMesh("./cosmodrone/assets/flight_arrow.obj");
+    auto flight_curve = Tachyon_LoadMesh("./cosmodrone/assets/flight_curve.obj");
     auto beacon = Tachyon_LoadMesh("./cosmodrone/assets/beacon.obj");
 
     meshes.hud_flight_arrow = Tachyon_AddMesh(tachyon, flight_arrow, 16);
+    meshes.hud_flight_curve = Tachyon_AddMesh(tachyon, flight_curve, 16);
     meshes.beacon = Tachyon_AddMesh(tachyon, beacon, 500);
 
     mesh(meshes.hud_flight_arrow).type = WIREFRAME_MESH;
+    mesh(meshes.hud_flight_curve).type = WIREFRAME_MESH;
     mesh(meshes.beacon).type = WIREFRAME_MESH;
   }
 }
