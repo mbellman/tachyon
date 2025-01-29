@@ -482,19 +482,29 @@ static void HandleTargetInspector(Tachyon* tachyon, State& state, const float dt
   }
 }
 
+static void HandleAltitudeMeter(Tachyon* tachyon, State& state) {
+  Tachyon_DrawUIElement(tachyon, state.ui.left_meter, {
+    .screen_x = 80,
+    .screen_y = int32(tachyon->window_height / 2 - 25),
+    .alpha = 0.75f
+  });
+}
+
 void HUDSystem::HandleHUD(Tachyon* tachyon, State& state, const float dt) {
   Beacons::UpdateBeacons(tachyon, state);
  
   HandleDroneInspector(tachyon, state, dt);
+  HandleTargetInspector(tachyon, state, dt);
 
-  if (
-    !Autopilot::IsDoingDockingApproach(state) &&
-    // @experimental
-    !state.photo_mode
-  ) {
+  // @experimental
+  if (state.photo_mode) {
+    return;
+  }
+
+  HandleAltitudeMeter(tachyon, state);
+
+  if (!Autopilot::IsDoingDockingApproach(state)) {
     HandleFlightReticle(tachyon, state, dt);
     HandleTargetLine(tachyon, state, dt);
   }
-
-  HandleTargetInspector(tachyon, state, dt);
 }

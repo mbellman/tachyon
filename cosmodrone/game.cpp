@@ -381,7 +381,7 @@ static void HandleFlightGuides(Tachyon* tachyon, State& state, const float dt) {
   float brightness_factor =
     state.is_piloting_vehicle ? (
       speed_ratio > 0.5f ? 2.f * (speed_ratio - 0.5f) : 0.f
-    ) : 1.f;
+    ) : 0.5f;
 
   // @todo make a helper for these
   tVec3f guide_color =
@@ -389,7 +389,7 @@ static void HandleFlightGuides(Tachyon* tachyon, State& state, const float dt) {
       ? tVec3f(1.f, 0.6f, 0.2f) :
     state.is_piloting_vehicle
       ? tVec3f(1.f, 0.5f, 0.2f) :
-    tVec3f(0.1f, 0.2f, 1.f);
+    tVec3f(0.1f, 1.f, 0.7f);
 
   float guide_scale =
     state.is_piloting_vehicle
@@ -667,10 +667,12 @@ void Cosmodrone::StartGame(Tachyon* tachyon) {
     state.ui.reticle = Tachyon_CreateUIElement("./cosmodrone/assets/ui/reticle.png");
     state.ui.dot = Tachyon_CreateUIElement("./cosmodrone/assets/ui/dot.png");
     state.ui.target_indicator = Tachyon_CreateUIElement("./cosmodrone/assets/ui/target.png");
+    state.ui.mini_target_indicator = Tachyon_CreateUIElement("./cosmodrone/assets/ui/mini-target.png");
     state.ui.target_focus = Tachyon_CreateUIElement("./cosmodrone/assets/ui/target-focus.png");
     state.ui.zone_target_indicator = Tachyon_CreateUIElement("./cosmodrone/assets/ui/zone-target.png");
     state.ui.selected_target_corner = Tachyon_CreateUIElement("./cosmodrone/assets/ui/selected-target-corner.png");
     state.ui.selected_target_center = Tachyon_CreateUIElement("./cosmodrone/assets/ui/selected-target-center.png");
+    state.ui.left_meter = Tachyon_CreateUIElement("./cosmodrone/assets/ui/left-meter.png");
 
     state.ui.cascadia_mono_20 = Tachyon_CreateUIText("./fonts/CascadiaMonoNF.ttf", 20);
     state.ui.cascadia_mono_26 = Tachyon_CreateUIText("./fonts/CascadiaMonoNF.ttf", 26);

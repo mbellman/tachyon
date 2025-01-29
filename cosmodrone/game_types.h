@@ -162,10 +162,12 @@ namespace Cosmodrone {
       tUIElement* reticle = nullptr;
       tUIElement* dot = nullptr;
       tUIElement* target_indicator = nullptr;
+      tUIElement* mini_target_indicator = nullptr;
       tUIElement* target_focus = nullptr;
       tUIElement* zone_target_indicator = nullptr;
       tUIElement* selected_target_corner = nullptr;
       tUIElement* selected_target_center = nullptr;
+      tUIElement* left_meter = nullptr;
 
       tUIText* cascadia_mono_20 = nullptr;
       tUIText* cascadia_mono_26 = nullptr;

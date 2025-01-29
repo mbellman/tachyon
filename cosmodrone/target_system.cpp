@@ -5,7 +5,7 @@
 
 using namespace Cosmodrone;
 
-const static float MAX_TARGET_DISTANCE = 200000.f;
+const static float MAX_TARGET_DISTANCE = 400000.f;
 
 static bool IsTrackingObject(State& state, const tObject& object) {
   for (auto& tracker : state.on_screen_target_trackers) {
@@ -168,6 +168,7 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
       // Try to select the target tracker closest to the center of the screen,
       // assuming its object is closer than the closest relative distance threshold
       if (
+        relative_distance < 100000.f &&
         relative_distance < closest_relative_distance &&
         center_distance < closest_distance_to_center &&
         // @temporary
@@ -292,12 +293,6 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
           (int32)tachyon->window_height - tracker.screen_y
         });
 
-        float edge_distance_factor = (float)minimum_edge_distance / 200.f;
-        float world_distance_factor = 1.f - (tracker.object.position - camera.position).magnitude() / MAX_TARGET_DISTANCE;
-        float alpha = edge_distance_factor * world_distance_factor;
-        if (alpha < 0.f) alpha = 0.f;
-        if (alpha > 1.f) alpha = 1.f;
-
         if (tracker.object.mesh_index == state.meshes.zone_target) {
           Tachyon_DrawUIElement(tachyon, state.ui.zone_target_indicator, {
             .screen_x = tracker.screen_x,
@@ -305,7 +300,15 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
             .alpha = 1.f
           });
         } else {
-          Tachyon_DrawUIElement(tachyon, state.ui.target_indicator, {
+          float world_distance_factor = 1.f - (tracker.object.position - camera.position).magnitude() / MAX_TARGET_DISTANCE;
+          float edge_distance_factor = (float)minimum_edge_distance / 200.f;
+          if (edge_distance_factor > 1.f) edge_distance_factor = 1.f;
+
+          float alpha = world_distance_factor * edge_distance_factor;
+          if (alpha < 0.f) alpha = 0.f;
+          if (alpha > 1.f) alpha = 1.f;
+
+          Tachyon_DrawUIElement(tachyon, state.ui.mini_target_indicator, {
             .screen_x = tracker.screen_x,
             .screen_y = tracker.screen_y,
             .alpha = alpha
