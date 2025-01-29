@@ -105,5 +105,10 @@ void DroneFlightSystem::HandlePitch(State& state, const float dt) {
   state.jets_intensity += 10.f * std::abs(state.ship_pitch_factor) * dt;
 
   state.ship_velocity = state.ship_velocity.unit() * ship_speed;
+
+  state.target_ship_rotation =
+    state.target_ship_rotation *
+    Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.3f * state.ship_pitch_factor);
+
   state.ship_rotate_to_target_speed += 5.f * abs(state.ship_pitch_factor) * dt;
 }

@@ -277,7 +277,7 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
     );
   }
 
-  camera.rotation = Quaternion::slerp(camera.rotation, state.target_camera_rotation, 3.f * dt);
+  camera.rotation = Quaternion::slerp(camera.rotation, state.target_camera_rotation, 2.f * dt);
 
   UpdateViewDirections(tachyon, state);
 
@@ -299,7 +299,7 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
     if (state.is_piloting_vehicle) {
       boost_intensity =
         state.controlled_thrust_duration < 1.f
-          ? 3.f * state.controlled_thrust_duration
+          ? 2.f * state.controlled_thrust_duration
           : 3.f;
     }
   }
@@ -528,13 +528,7 @@ static void HandleDrone(Tachyon* tachyon, State& state, const float dt) {
     state.target_ship_rotation = camera.rotation.opposite();
 
     if (state.ship_pitch_factor != 0.f) {
-      float pitch_change = 0.3f * state.ship_pitch_factor;
-
-      state.target_ship_rotation =
-        state.target_ship_rotation *
-        Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), pitch_change);
-
-      DroneFlightSystem::HandlePitch(state, dt);
+      FlightSystemDelegator::HandlePitch(state, dt);
     }
   }
 

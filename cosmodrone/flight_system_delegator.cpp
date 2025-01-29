@@ -23,7 +23,7 @@ void FlightSystemDelegator::PullBack(State& state, const float dt, const float f
   }
 
   if (state.flight_system == FlightSystem::FIGHTER) {
-    // @todo
+    DroneFlightSystem::ChangePitch(state, dt, factor);
   }
 }
 
@@ -92,5 +92,15 @@ void FlightSystemDelegator::DockOrUndock(Tachyon* tachyon, State& state, const f
     Autopilot::Undock(tachyon, state);
   } else {
     Autopilot::AttemptDockingProcedure(state);
+  }
+}
+
+void FlightSystemDelegator::HandlePitch(State& state, const float dt) {
+  if (state.flight_system == FlightSystem::DRONE) {
+    DroneFlightSystem::HandlePitch(state, dt);
+  }
+
+  if (state.flight_system == FlightSystem::FIGHTER) {
+    FighterFlightSystem::HandlePitch(state, dt);
   }
 }
