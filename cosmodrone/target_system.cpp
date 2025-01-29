@@ -122,7 +122,9 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
     auto center_y = int32(tachyon->window_height >> 1);
     float closest_distance_to_center = std::numeric_limits<float>::max();
     float closest_relative_distance = std::numeric_limits<float>::max();
+    float max_selection_distance = state.is_piloting_vehicle ? 350000.f : 200000.f;
     tObject selected_target;
+
 
     tMat4f view_matrix = (
       camera.rotation.toMatrix4f() *
@@ -168,7 +170,7 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
       // Try to select the target tracker closest to the center of the screen,
       // assuming its object is closer than the closest relative distance threshold
       if (
-        relative_distance < 100000.f &&
+        relative_distance < max_selection_distance &&
         relative_distance < closest_relative_distance &&
         center_distance < closest_distance_to_center &&
         // @temporary
@@ -180,6 +182,7 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
       }
 
       // Prioritize closer target objects
+      // @todo make it so a close enough center distance still wins out
       if (
         relative_distance < 20000.f &&
         relative_distance < closest_relative_distance &&

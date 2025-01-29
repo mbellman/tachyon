@@ -482,11 +482,19 @@ static void HandleTargetInspector(Tachyon* tachyon, State& state, const float dt
   }
 }
 
-static void HandleAltitudeMeter(Tachyon* tachyon, State& state) {
-  Tachyon_DrawUIElement(tachyon, state.ui.left_meter, {
-    .screen_x = 80,
+static void HandleFlightMeter(Tachyon* tachyon, State& state) {
+  Tachyon_DrawUIElement(tachyon, state.ui.flight_meter, {
+    .screen_x = 180,
     .screen_y = int32(tachyon->window_height / 2 - 25),
-    .alpha = 0.75f
+    .alpha = 0.5f
+  });
+}
+
+static void HandlePlaneMeter(Tachyon* tachyon, State& state) {
+  Tachyon_DrawUIElement(tachyon, state.ui.plane_meter, {
+    .screen_x = int32(tachyon->window_width / 2),
+    .screen_y = 80,
+    .alpha = 0.25f
   });
 }
 
@@ -501,7 +509,8 @@ void HUDSystem::HandleHUD(Tachyon* tachyon, State& state, const float dt) {
     return;
   }
 
-  HandleAltitudeMeter(tachyon, state);
+  HandleFlightMeter(tachyon, state);
+  HandlePlaneMeter(tachyon, state);
 
   if (!Autopilot::IsDoingDockingApproach(state)) {
     HandleFlightReticle(tachyon, state, dt);

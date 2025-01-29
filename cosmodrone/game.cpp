@@ -672,7 +672,8 @@ void Cosmodrone::StartGame(Tachyon* tachyon) {
     state.ui.zone_target_indicator = Tachyon_CreateUIElement("./cosmodrone/assets/ui/zone-target.png");
     state.ui.selected_target_corner = Tachyon_CreateUIElement("./cosmodrone/assets/ui/selected-target-corner.png");
     state.ui.selected_target_center = Tachyon_CreateUIElement("./cosmodrone/assets/ui/selected-target-center.png");
-    state.ui.left_meter = Tachyon_CreateUIElement("./cosmodrone/assets/ui/left-meter.png");
+    state.ui.flight_meter = Tachyon_CreateUIElement("./cosmodrone/assets/ui/flight-meter.png");
+    state.ui.plane_meter = Tachyon_CreateUIElement("./cosmodrone/assets/ui/plane-meter.png");
 
     state.ui.cascadia_mono_20 = Tachyon_CreateUIText("./fonts/CascadiaMonoNF.ttf", 20);
     state.ui.cascadia_mono_26 = Tachyon_CreateUIText("./fonts/CascadiaMonoNF.ttf", 26);
