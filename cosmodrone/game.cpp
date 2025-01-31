@@ -73,13 +73,15 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
   } else {
     // Reset duration when not holding forward
     state.controlled_thrust_duration = 0.f;
+  }
 
-    if (
-      state.flight_system == FlightSystem::FIGHTER &&
-      state.ship_velocity.magnitude() > 500.f
-    ) {
-      state.ship_velocity *= 1.f - 2.f * dt;
-    }
+  // Slow the ship down when not fully accelerating in FIGHTER mode
+  if (
+    state.flight_system == FlightSystem::FIGHTER &&
+    state.controlled_thrust_duration < 1.f &&
+    state.ship_velocity.magnitude() > 500.f
+  ) {
+    state.ship_velocity *= 1.f - 1.5f * dt;
   }
 
   // Handle pull-back actions

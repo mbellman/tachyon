@@ -7,6 +7,21 @@
 
 using namespace Cosmodrone;
 
+// @todo move to utilities
+static uint16 GetTargetInspectorWireframeMeshIndex(const uint16 source_mesh, const State& state) {
+  auto& meshes = state.meshes;
+
+  if (source_mesh == meshes.antenna_3) {
+    return meshes.antenna_3_wireframe;
+  }
+
+  if (source_mesh == meshes.fighter_dock) {
+    return meshes.fighter_wireframe;
+  }
+
+  return meshes.antenna_3_wireframe;
+}
+
 static void HandleDroneInspector(Tachyon* tachyon, State& state, const float dt) {
   auto& meshes = state.meshes;
   auto& camera = tachyon->scene.camera;
@@ -197,7 +212,7 @@ static void HandleTargetLine(Tachyon* tachyon, State& state, const float dt) {
   }
 }
 
-static void ResetTargetInspectorObjects(Tachyon* tachyon, State& state) {
+static void RemoveAllTargetInspectorWireframes(Tachyon* tachyon, State& state) {
   #define remove_objects(mesh_index)\
     if (objects(mesh_index).total_active > 0) {\
       remove(objects(mesh_index)[0]);\
@@ -206,16 +221,22 @@ static void ResetTargetInspectorObjects(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   remove_objects(meshes.antenna_3_wireframe);
+  remove_objects(meshes.fighter_wireframe);
 }
 
-static uint16 GetTargetInspectorWireframeMeshIndex(const uint16 source_mesh, const State& state) {
+static void RemoveUnusedTargetInspectorWireframes(Tachyon* tachyon, const State& state, const TargetTracker& tracker) {
   auto& meshes = state.meshes;
 
-  if (source_mesh == meshes.antenna_3) {
-    return meshes.antenna_3_wireframe;
-  }
+  const auto mesh_indexes = {
+    meshes.antenna_3_wireframe,
+    meshes.fighter_wireframe
+  };
 
-  return meshes.antenna_3_wireframe;
+  for (auto mesh_index : mesh_indexes) {
+    if (tracker.object.mesh_index != mesh_index && objects(mesh_index).total_active > 0) {
+      remove(objects(mesh_index)[0]);
+    }
+  }
 }
 
 static float GetWireframeAlpha(const float age) {
@@ -475,6 +496,7 @@ static void HandleTargetInspector(Tachyon* tachyon, State& state, const float dt
   auto* tracker = TargetSystem::GetSelectedTargetTracker(state);
 
   if (tracker != nullptr) {
+    RemoveUnusedTargetInspectorWireframes(tachyon, state, *tracker);
     HandleTargetInspectorWireframe(tachyon, state, offset_position, *tracker);
 
     // @experimental
@@ -482,7 +504,7 @@ static void HandleTargetInspector(Tachyon* tachyon, State& state, const float dt
       HandleTargetInspectorStats(tachyon, state, *tracker);
     }
   } else {
-    ResetTargetInspectorObjects(tachyon, state);
+    RemoveAllTargetInspectorWireframes(tachyon, state);
   }
 }
 

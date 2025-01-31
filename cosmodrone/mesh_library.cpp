@@ -1361,7 +1361,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .mesh_index = meshes.fighter_thrusters,
       .generated_from = meshes.fighter_spawn,
       .defaults = {
-        .color = tVec3f(0.1f),
+        .color = tVec3f(0.3f),
         .material = tVec4f(1.f, 0, 0, 0.1f)
       }
     },
@@ -1383,9 +1383,11 @@ static void LoadTargetInspectorMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   meshes.antenna_3_wireframe = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/antenna_3.obj"), 1);
+  meshes.fighter_wireframe = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/fighter_spawn.obj"), 1);
   meshes.drone_wireframe = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/wireframes/drone.obj"), 1);
 
   mesh(meshes.antenna_3_wireframe).type = WIREFRAME_MESH;
+  mesh(meshes.fighter_wireframe).type = WIREFRAME_MESH;
   mesh(meshes.drone_wireframe).type = WIREFRAME_MESH;
 }
 
