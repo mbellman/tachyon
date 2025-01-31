@@ -310,11 +310,15 @@ static std::string GetTargetName(const State& state, const tObject& target) {
   auto& meshes = state.meshes;
 
   if (target.mesh_index == meshes.antenna_3) {
-    return "ANTENNA_3";
+    return "ANTENNA-3";
   }
 
   if (target.mesh_index == meshes.fighter_dock) {
     return "FIGHTER";
+  }
+
+  if (target.mesh_index == meshes.floater_1) {
+    return "R-SATELLITE";
   }
 
   return "--UNNAMED--";
