@@ -790,7 +790,10 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
   load_mesh(floater_1_spokes);
   load_mesh(floater_1_panels);
 
-  load_mesh(fighter);
+  load_mesh(fighter_core);
+  load_mesh(fighter_frame);
+  load_mesh(fighter_guns);
+  load_mesh(fighter_dock);
 
   generated_mesh_assets = {
     // antenna_2
@@ -1326,10 +1329,31 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
 
     // fighter
     {
-      .mesh_index = meshes.fighter,
+      .mesh_index = meshes.fighter_core,
       .generated_from = meshes.fighter_spawn,
       .defaults = {
         .material = tVec4f(0.9f, 0, 0, 0.2f)
+      }
+    },
+    {
+      .mesh_index = meshes.fighter_frame,
+      .generated_from = meshes.fighter_spawn,
+      .defaults = {
+        .material = tVec4f(1.f, 0.2f, 0, 0)
+      }
+    },
+    {
+      .mesh_index = meshes.fighter_guns,
+      .generated_from = meshes.fighter_spawn,
+      .defaults = {
+        .material = tVec4f(0.3f, 1.f, 0, 0)
+      }
+    },
+    {
+      .mesh_index = meshes.fighter_dock,
+      .generated_from = meshes.fighter_spawn,
+      .defaults = {
+        .material = tVec4f(1.f, 0.5f, 0, 0)
       }
     },
 

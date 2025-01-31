@@ -155,6 +155,10 @@ namespace Cosmodrone {
 
       // Vehicle parts
       fighter,
+      fighter_core,
+      fighter_frame,
+      fighter_dock,
+      fighter_guns,
 
       // Procedural meshes
       procedural_elevator_car,

@@ -371,4 +371,21 @@ void WorldSetup::RebuildWorld(Tachyon* tachyon, State& state) {
   Beacons::InitBeacons(tachyon, state);
   ObjectBehavior::InitObjects(tachyon, state);
   BackgroundVehicles::InitVehicles(tachyon, state);
+
+  // @todo factor and move to piloting.cpp
+  {
+    state.pilotable_vehicles.clear();
+
+    for (auto& dock : objects(meshes.fighter_dock)) {
+      auto& core = *objects(meshes.fighter_core).getById(dock.object_id);
+      auto& frame = *objects(meshes.fighter_frame).getById(dock.object_id);
+      auto& guns = *objects(meshes.fighter_guns).getById(dock.object_id);
+
+      PilotableVehicle vehicle;
+      vehicle.root_object = dock;
+      vehicle.parts = { core, frame, guns, dock };
+
+      state.pilotable_vehicles.push_back(vehicle);
+    }
+  }
 }

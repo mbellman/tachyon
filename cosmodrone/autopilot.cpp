@@ -20,7 +20,7 @@ static tVec3f GetDockingPositionOffset(const uint16 mesh_index, const State& sta
     return tVec3f(0, -1.f, -1.f).unit() * 0.7f;
   }
 
-  if (mesh_index == meshes.fighter) {
+  if (mesh_index == meshes.fighter_dock) {
     return tVec3f(0, 0.3f, 0.35f);
   }
 
@@ -75,7 +75,7 @@ static Quaternion GetDockedCameraRotation(const State& state, const tObject& tar
 static float GetDockedCameraDistance(const State& state, const uint16 mesh_index) {
   auto& meshes = state.meshes;
 
-  if (mesh_index == meshes.fighter) {
+  if (mesh_index == meshes.fighter_dock) {
     return 15000.f;
   }
 

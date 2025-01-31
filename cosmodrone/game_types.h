@@ -71,6 +71,13 @@ namespace Cosmodrone {
     std::vector<VehicleNetworkNode> connected_nodes;
   };
 
+  struct PilotableVehicle {
+    tObject root_object;
+    tVec3f position;
+    Quaternion rotation;
+    std::vector<tObject> parts;
+  };
+
   struct Beacon {
     tObject source_object;
     tObject beacon_1;
@@ -144,11 +151,11 @@ namespace Cosmodrone {
     std::vector<VehicleNetworkNode> vehicle_network;
     std::vector<BackgroundVehicle> vehicles;
 
+    std::vector<PilotableVehicle> pilotable_vehicles;
+    PilotableVehicle current_piloted_vehicle;
+
     FlightSystem flight_system = FlightSystem::DRONE;
     bool is_piloting_vehicle = false;
-    // @todo this will eventually have to be a struct
-    // representing all parts of the vehicle + other properties
-    tObject piloted_vehicle;
     float piloting_start_time = 0.f;
 
     tVec2f flight_reticle_offset;

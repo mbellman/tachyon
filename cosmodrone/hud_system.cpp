@@ -313,7 +313,7 @@ static std::string GetTargetName(const State& state, const tObject& target) {
     return "ANTENNA_3";
   }
 
-  if (target.mesh_index == meshes.fighter) {
+  if (target.mesh_index == meshes.fighter_dock) {
     return "FIGHTER";
   }
 
