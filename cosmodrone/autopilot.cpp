@@ -21,7 +21,7 @@ static tVec3f GetDockingPositionOffset(const uint16 mesh_index, const State& sta
   }
 
   if (mesh_index == meshes.fighter) {
-    return tVec3f(0, 0.25f, 0);
+    return tVec3f(0, 0.3f, 0.35f);
   }
 
   if (mesh_index == meshes.floater_1) {
