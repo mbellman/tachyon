@@ -322,7 +322,12 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
 
   // Set the camera position
   {
-    state.ship_camera_distance = Tachyon_Lerpf(state.ship_camera_distance, state.ship_camera_distance_target + 250.f * speed_zoom_ratio, 5.f * dt);
+    float target_distance =
+      state.ship_camera_distance_target +
+      250.f * speed_zoom_ratio +
+      (state.is_piloting_vehicle ? -6000.f * speed_zoom_ratio : 0.f);
+
+    state.ship_camera_distance = Tachyon_Lerpf(state.ship_camera_distance, target_distance, 5.f * dt);
 
     if (state.flight_system == FlightSystem::FIGHTER) {
       state.camera_up_distance = Tachyon_Lerpf(state.camera_up_distance, 3000.f, dt);

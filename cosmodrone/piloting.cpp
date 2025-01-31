@@ -51,11 +51,13 @@ static void StartUpPilotedVehicle(Tachyon* tachyon, State& state, const float dt
   // Launch vehicle/ship together
   {
     state.current_piloted_vehicle.position += up_direction * up_speed * dt;
+
+    UpdatePilotedVehicleParts(tachyon, state);
+
     state.docking_position = Autopilot::GetDockingPosition(tachyon, state);
     state.ship_position += up_direction * up_speed * dt;
     state.ship_position = tVec3f::lerp(state.ship_position, state.docking_position, dt);
 
-    UpdatePilotedVehicleParts(tachyon, state);
   }
 
   // Orient the camera directly behind the ship
