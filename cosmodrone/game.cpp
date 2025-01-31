@@ -430,8 +430,7 @@ static void HandleFlightGuides(Tachyon* tachyon, State& state, const float dt) {
     // Gradually curve nodes onto the updated flight path as it changes in real-time.
     // Determine the node's "progress" toward the ship, and blend between its original
     // spawn position and a position directly forward along the ship's trajectory.
-    float target_distance = Tachyon_Lerpf(max_spawn_distance, node.spawn_distance, speed_ratio);
-    float alpha = 1.f - node.distance / target_distance;
+    float alpha = 1.f - node.distance / node.spawn_distance;
     tVec3f velocity_position = state.ship_position + state.ship_velocity_basis.forward * node.distance;
 
     node.position = tVec3f::lerp(node.spawn_position, velocity_position, alpha);
