@@ -99,6 +99,21 @@ static void UpdateBlinkingLights(Tachyon* tachyon, State& state) {
   }
 }
 
+// @todo lights.cpp
+static void UpdateMovingLights(Tachyon* tachyon, State& state) {
+  for (auto& moving_light : state.moving_lights) {
+    auto& light = tachyon->point_lights[moving_light.light_index];
+    auto& bulb = *get_original_object(moving_light.light_object);
+
+    light.position = bulb.position;
+
+    if (bulb.mesh_index == state.meshes.station_drone_light) {
+      // @optimize
+      light.position = bulb.position + bulb.rotation.getDirection() * 2000.f;
+    }
+  }
+}
+
 void WorldBehavior::UpdateWorld(Tachyon* tachyon, State& state, const float dt) {
   // Do these first so they can be updated in editor mode when changing game time
   UpdateCelestialBodies(tachyon, state);
@@ -116,4 +131,5 @@ void WorldBehavior::UpdateWorld(Tachyon* tachyon, State& state, const float dt) 
 
   UpdateGasFlareLights(tachyon, state);
   UpdateBlinkingLights(tachyon, state);
+  UpdateMovingLights(tachyon, state);
 }

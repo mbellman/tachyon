@@ -98,6 +98,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh(floater_1);
   load_mesh(gas_flare_1_spawn);
   load_mesh(arch_1);
+  load_mesh(station_drone);
   load_mesh(background_ship_1);
 
   // @todo refactor
@@ -669,8 +670,17 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     .placeholder = true,
     .defaults = {
       .scale = tVec3f(1500000.f),
-      .color = tVec3f(1.f),
       .material = tVec4f(0.9f, 0, 0, 0.3f)
+    }
+  });
+
+  placeable_mesh_assets.push_back({
+    .mesh_name = "station_drone",
+    .mesh_index = meshes.station_drone,
+    .placeholder = true,
+    .defaults = {
+      .scale = tVec3f(2500.f),
+      .material = tVec4f(0.9f, 0, 0, 0.2f)
     }
   });
 
@@ -679,7 +689,6 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     .mesh_index = meshes.background_ship_1,
     .defaults = {
       .scale = tVec3f(100000.f),
-      .color = tVec3f(1.f),
       .material = tVec4f(0.9f, 0, 0, 0.2f)
     }
   });
@@ -783,6 +792,11 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
   load_mesh(arch_1_details);
 
   load_mesh(track_1_frame);
+
+  load_mesh(station_drone_core);
+  load_mesh(station_drone_frame);
+  load_mesh(station_drone_rotator);
+  load_mesh(station_drone_light);
 
   load_mesh(floater_1_core);
   load_mesh(floater_1_base);
@@ -1290,6 +1304,37 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .generated_from = meshes.procedural_track_1,
       .defaults = {
         .material = tVec4f(0.4f, 1.f, 0, 0)
+      }
+    },
+
+    // station_drone
+    {
+      .mesh_index = meshes.station_drone_core,
+      .generated_from = meshes.station_drone,
+      .defaults = {
+        .material = tVec4f(0.1f, 1.f, 0, 0)
+      }
+    },
+    {
+      .mesh_index = meshes.station_drone_frame,
+      .generated_from = meshes.station_drone,
+      .defaults = {
+        .material = tVec4f(0.6f, 0, 0, 0.2f)
+      }
+    },
+    {
+      .mesh_index = meshes.station_drone_rotator,
+      .generated_from = meshes.station_drone,
+      .defaults = {
+        .material = tVec4f(0.9f, 0, 0, 0.1f)
+      }
+    },
+    {
+      .mesh_index = meshes.station_drone_light,
+      .generated_from = meshes.station_drone,
+      .defaults = {
+        .color = tVec4f(0.1f, 0.6f, 1.f, 1.f),
+        .material = tVec4f(0.1f, 1.f, 0, 0)
       }
     },
 

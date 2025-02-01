@@ -13,7 +13,7 @@ namespace Cosmodrone {
       jets,
 
       // NPC drones/ships
-      station_drone_1,
+      station_drone,
       flying_ship_1,
 
       // Marker/spawn meshes
@@ -154,7 +154,10 @@ namespace Cosmodrone {
       fighter_spawn,
 
       // Vehicle parts
-      fighter,
+      station_drone_core,
+      station_drone_frame,
+      station_drone_rotator,
+      station_drone_light,
       fighter_core,
       fighter_frame,
       fighter_dock,

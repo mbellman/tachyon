@@ -67,6 +67,22 @@ static inline void UpdateRotatingArchPart(Tachyon* tachyon, const State& state, 
   });
 }
 
+static inline void UpdateStationDronePart(Tachyon* tachyon, const State& state, uint16 mesh_index) {
+  for_dynamic_objects(mesh_index, {
+    float center_distance = sqrtf(initial.position.x * initial.position.x + initial.position.z * initial.position.z);
+    float t = state.current_game_time * 0.1f + 2.f * float(initial.object_id);
+
+    object.position.x = center_distance * sinf(t);
+    object.position.z = center_distance * cosf(t);
+
+    float angle = -atan2f(object.position.z, object.position.x);
+
+    object.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), angle);
+
+    commit(object);
+  });
+}
+
 void ObjectBehavior::InitObjects(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
@@ -104,6 +120,11 @@ void ObjectBehavior::InitObjects(Tachyon* tachyon, State& state) {
 
     meshes.gate_tower_1,
     meshes.background_ship_1,
+
+    meshes.station_drone_core,
+    meshes.station_drone_frame,
+    meshes.station_drone_rotator,
+    meshes.station_drone_light,
 
     meshes.procedural_elevator_car
   });
@@ -186,6 +207,23 @@ void ObjectBehavior::UpdateObjects(Tachyon* tachyon, State& state, const float d
         Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 0.1f * sinf(state.current_game_time * 0.1f + initial.position.x * 0.01f)) *
         Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.1f * sinf(state.current_game_time * 0.13f + initial.position.y * 0.01f)) *
         initial.rotation;
+
+      commit(object);
+    });
+  }
+
+  // Station drones
+  {
+    UpdateStationDronePart(tachyon, state, meshes.station_drone_core);
+    UpdateStationDronePart(tachyon, state, meshes.station_drone_frame);
+    UpdateStationDronePart(tachyon, state, meshes.station_drone_rotator);
+    UpdateStationDronePart(tachyon, state, meshes.station_drone_light);
+
+    for_dynamic_objects(meshes.station_drone_rotator, {
+      // @optimize
+      tVec3f forward = object.rotation.getDirection();
+
+      object.rotation *= Quaternion::fromAxisAngle(forward, -state.current_game_time);
 
       commit(object);
     });

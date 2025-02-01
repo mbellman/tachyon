@@ -43,55 +43,6 @@ static void RebuildVehicleNetwork(Tachyon* tachyon, State& state) {
   }
 }
 
-// @todo rewrite this
-static void RecreateStationDrones(Tachyon* tachyon, State& state) {
-  // auto& point_lights = tachyon->point_lights;
-  // auto& meshes = state.meshes;
-  // auto& vehicles = state.vehicles;
-
-  // for (uint8 i = 0; i < 50; i++) {
-  //   auto& drone = create(meshes.station_drone_1);
-
-  //   // @temporary
-  //   {
-  //     tVec3f direction = tVec3f(
-  //       Tachyon_GetRandom(-1.f, 1.f),
-  //       Tachyon_GetRandom(-1.f, 1.f),
-  //       Tachyon_GetRandom(-1.f, 1.f)
-  //     ).unit();
-
-  //     drone.position = tVec3f(
-  //       Tachyon_GetRandom(-200000.f, 200000.f),
-  //       Tachyon_GetRandom(-300000.f, 400000.f),
-  //       Tachyon_GetRandom(-200000.f, 200000.f)
-  //     );
-
-  //     drone.rotation = DirectionToQuaternion(direction.invert());
-  //   }
-
-  //   drone.scale = 1000.f;
-
-  //   commit(drone);
-
-  //   vehicles.push_back({
-  //     .object = drone,
-  //     // @temporary
-  //     .spawn_position = tVec3f(0.f),
-  //     // @temporary
-  //     .target_position = tVec3f(0.f),
-  //     .speed = 5000.f,
-  //     .light_indexes_offset = uint32(point_lights.size())
-  //   });
-
-  //   point_lights.push_back({
-  //     .position = drone.position,
-  //     .radius = 2000.f,
-  //     .color = tVec3f(1.f, 0.2f, 1.f),
-  //     .power = 1.f
-  //   });
-  // }
-}
-
 static void RecreateFlyingShips(Tachyon* tachyon, State& state) {
   auto& point_lights = tachyon->point_lights;
   auto& meshes = state.meshes;
@@ -144,12 +95,6 @@ static void RecreateFlyingShips(Tachyon* tachyon, State& state) {
 void BackgroundVehicles::LoadVehicleMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
-  meshes.station_drone_1 = Tachyon_AddMesh(
-    tachyon,
-    Tachyon_LoadMesh("./cosmodrone/assets/npc-ships/station_drone_1.obj"),
-    200
-  );
-
   meshes.flying_ship_1 = Tachyon_AddMesh(
     tachyon,
     Tachyon_LoadMesh("./cosmodrone/assets/npc-ships/flying_ship_1.obj"),
@@ -168,12 +113,10 @@ void BackgroundVehicles::InitVehicles(Tachyon* tachyon, State& state) {
     vehicles.clear();
     network.clear();
 
-    remove_all(meshes.station_drone_1);
     remove_all(meshes.flying_ship_1);
   }
 
   RebuildVehicleNetwork(tachyon, state);
-  // RecreateStationDrones(tachyon, state);
   RecreateFlyingShips(tachyon, state);
 
   // @todo dev mode only
@@ -190,31 +133,6 @@ void BackgroundVehicles::UpdateVehicles(Tachyon* tachyon, State& state, const fl
 
   for (auto& vehicle : state.vehicles) {
     auto& object = *get_original_object(vehicle.object);
-
-    // @temporary
-    // Station drones
-    if (object.mesh_index == state.meshes.station_drone_1) {
-      float angle = state.current_game_time * 0.05f + (float)vehicle.object.object_id;
-
-      if (vehicle.object.object_id % 2 == 0) {
-        angle *= -1.f;
-      }
-
-      object.position.x = 120000.f * cosf(angle);
-      object.position.z = 120000.f * sinf(angle);
-
-      if (vehicle.object.object_id % 2 == 0) {
-        object.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -angle);
-      } else {
-        object.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -angle + t_PI);
-      }
-
-      auto& light = point_lights[vehicle.light_indexes_offset];
-
-      light.position =
-        object.position +
-        object.rotation.getUpDirection() * 500.f;
-    }
 
     // Flying ships
     if (object.mesh_index == state.meshes.flying_ship_1) {

@@ -279,7 +279,9 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
     );
   }
 
-  camera.rotation = Quaternion::slerp(camera.rotation, state.target_camera_rotation, 2.f * dt);
+  float rate = state.is_piloting_vehicle ? 1.5f : 2.f;
+
+  camera.rotation = Quaternion::slerp(camera.rotation, state.target_camera_rotation, rate * dt);
 
   UpdateViewDirections(tachyon, state);
 
@@ -700,7 +702,6 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
   objects(meshes.cube).disabled = state.is_editor_active || !tachyon->show_developer_tools;
   objects(meshes.hud_flight_arrow).disabled = state.is_editor_active;
   objects(meshes.hud_flight_curve).disabled = state.is_editor_active;
-  objects(meshes.station_drone_1).disabled = state.is_editor_active;
   objects(meshes.drone_wireframe).disabled = state.is_editor_active;
   objects(meshes.antenna_3_wireframe).disabled = state.is_editor_active;
 

@@ -238,6 +238,7 @@ static void InitLights(Tachyon* tachyon, State& state) {
 
   state.gas_flare_light_indexes.clear();
   state.blinking_lights.clear();
+  state.moving_lights.clear();
 
   // @todo only clear generated lights
   tachyon->point_lights.clear();
@@ -291,6 +292,20 @@ static void InitLights(Tachyon* tachyon, State& state) {
 
     state.blinking_lights.push_back({
       .bulb = bulb,
+      .light_index = uint32(point_lights.size() - 1)
+    });
+  }
+
+  for (auto& light : objects(state.meshes.station_drone_light)) {
+    point_lights.push_back({
+      .position = light.position,
+      .radius = 5000.f,
+      .color = tVec3f(0.2f, 0.5f, 1.f),
+      .power = 1.f
+    });
+
+    state.moving_lights.push_back({
+      .light_object = light,
       .light_index = uint32(point_lights.size() - 1)
     });
   }
