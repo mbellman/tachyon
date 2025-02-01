@@ -110,5 +110,5 @@ void DroneFlightSystem::HandlePitch(State& state, const float dt) {
     state.target_ship_rotation *
     Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.3f * state.ship_pitch_factor);
 
-  state.ship_rotate_to_target_speed += 5.f * abs(state.ship_pitch_factor) * dt;
+  state.ship_rotate_to_target_speed += 2.f * abs(state.ship_pitch_factor) * dt;
 }

@@ -70,7 +70,7 @@ static inline void UpdateRotatingArchPart(Tachyon* tachyon, const State& state, 
 static inline void UpdateStationDronePart(Tachyon* tachyon, const State& state, uint16 mesh_index) {
   for_dynamic_objects(mesh_index, {
     float center_distance = sqrtf(initial.position.x * initial.position.x + initial.position.z * initial.position.z);
-    float t = state.current_game_time * 0.1f + 2.f * float(initial.object_id);
+    float t = 10000.f * (state.current_game_time / center_distance) + 2.f * float(object.object_id);
 
     object.position.x = center_distance * sinf(t);
     object.position.z = center_distance * cosf(t);

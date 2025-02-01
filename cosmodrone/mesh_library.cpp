@@ -1177,7 +1177,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .mesh_index = meshes.platform_body,
       .generated_from = meshes.platform,
       .defaults = {
-        .material = tVec4f(1.f, 0, 0, 0.1f)
+        .material = tVec4f(1.f, 0, 0, 0.2f)
       }
     },
     {
