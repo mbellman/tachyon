@@ -165,7 +165,7 @@ void Autopilot::HandleAutopilot(Tachyon* tachyon, State& state, const float dt) 
 
   if (state.flight_mode == FlightMode::AUTO_RETROGRADE) {
     state.target_ship_rotation = Quaternion::FromDirection(state.retrograde_direction, state.ship_rotation_basis.up);
-    state.ship_rotate_to_target_speed += 4.f * dt;
+    state.ship_rotate_to_target_speed += 3.f * dt;
   }
 
   if (state.flight_mode == FlightMode::AUTO_DOCK) {
