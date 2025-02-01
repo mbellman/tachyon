@@ -15,6 +15,10 @@ static uint16 GetTargetInspectorWireframeMeshIndex(const uint16 source_mesh, con
     return meshes.antenna_3_wireframe;
   }
 
+  if (source_mesh == meshes.floater_1) {
+    return meshes.floater_1_wireframe;
+  }
+
   if (source_mesh == meshes.fighter_dock) {
     return meshes.fighter_wireframe;
   }
@@ -221,6 +225,7 @@ static void RemoveAllTargetInspectorWireframes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   remove_objects(meshes.antenna_3_wireframe);
+  remove_objects(meshes.floater_1_wireframe);
   remove_objects(meshes.fighter_wireframe);
 }
 
@@ -229,6 +234,7 @@ static void RemoveUnusedTargetInspectorWireframes(Tachyon* tachyon, const State&
 
   const auto mesh_indexes = {
     meshes.antenna_3_wireframe,
+    meshes.floater_1_wireframe,
     meshes.fighter_wireframe
   };
 

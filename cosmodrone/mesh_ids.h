@@ -169,6 +169,7 @@ namespace Cosmodrone {
       // HUD wireframe meshes
       drone_wireframe,
       antenna_3_wireframe,
+      floater_1_wireframe,
       fighter_wireframe,
 
       // Entities
