@@ -132,7 +132,7 @@ void BackgroundVehicles::UpdateVehicles(Tachyon* tachyon, State& state, const fl
   auto& point_lights = tachyon->point_lights;
 
   for (auto& vehicle : state.vehicles) {
-    auto& object = *get_original_object(vehicle.object);
+    auto& object = *get_live_object(vehicle.object);
 
     // Flying ships
     if (object.mesh_index == state.meshes.flying_ship_1) {

@@ -5,9 +5,9 @@
 #define for_dynamic_objects(__mesh_index, ...)\
   auto& initial_objects = objects(__mesh_index).initial_objects;\
   for (auto& initial : initial_objects) {\
-    auto* original = get_original_object(initial);\
-    if (original != nullptr) {\
-      auto& object = *original;\
+    auto* live = get_live_object(initial);\
+    if (live != nullptr) {\
+      auto& object = *live;\
       __VA_ARGS__\
     }\
   }\

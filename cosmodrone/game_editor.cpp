@@ -305,7 +305,7 @@ static void HandleObjectPickerCycleChange(Tachyon* tachyon) {
   tVec3f spawn_position = camera.position + camera.orientation.getDirection() * 4000.f;
 
   if (editor.is_object_picker_active && editor.is_object_selected) {
-    spawn_position = get_original_object(editor.selected_object)->position;
+    spawn_position = get_live_object(editor.selected_object)->position;
 
     remove(editor.selected_object);
   }
@@ -372,7 +372,7 @@ static void HandleRotationSnapping(float& running_angle, float& angle) {
 
 static void HandleSelectedObjectMouseAction(Tachyon* tachyon) {
   auto& camera = tachyon->scene.camera;
-  auto& selected = *get_original_object(editor.selected_object);
+  auto& selected = *get_live_object(editor.selected_object);
   auto is_horizontal_action = abs(tachyon->mouse_delta_x) > abs(tachyon->mouse_delta_y);
   auto camera_up = camera.orientation.getUpDirection();
   auto camera_right = camera.orientation.getRightDirection();
@@ -443,7 +443,7 @@ static void HandleSelectedObjectMouseAction(Tachyon* tachyon) {
 }
 
 static void ResetSelectedObject(Tachyon* tachyon) {
-  auto& selected = *get_original_object(editor.selected_object);
+  auto& selected = *get_live_object(editor.selected_object);
 
   switch (editor.action_type) {
     case(ActionType::ROTATE, {
@@ -467,7 +467,7 @@ enum Direction {
 
 static void CopySelectedObject(Tachyon* tachyon, State& state, Direction direction) {
   auto& camera = tachyon->scene.camera;
-  auto& selected = *get_original_object(editor.selected_object);
+  auto& selected = *get_live_object(editor.selected_object);
   auto& copy = create(selected.mesh_index);
 
   RestoreSelectedObject(tachyon, selected);
@@ -714,7 +714,7 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
 
 static void HandleSelectedObject(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
-  auto& selected = *get_original_object(editor.selected_object);
+  auto& selected = *get_live_object(editor.selected_object);
   bool should_flash = uint32(tachyon->running_time * 2.f) % 2;
 
   selected.color = editor.selected_object.color;
@@ -924,15 +924,15 @@ static void EnablePlaceholderMeshes(Tachyon* tachyon) {
 static void ResetInitialObjects(Tachyon* tachyon) {
   for (auto& record : tachyon->mesh_pack.mesh_records) {
     for (auto& initial : record.group.initial_objects) {
-      auto& original = *get_original_object(initial);
+      auto& live = *get_live_object(initial);
 
-      original.position = initial.position;
-      original.scale = initial.scale;
-      original.rotation = initial.rotation;
-      original.color = initial.color;
-      original.material = initial.material;
+      live.position = initial.position;
+      live.scale = initial.scale;
+      live.rotation = initial.rotation;
+      live.color = initial.color;
+      live.material = initial.material;
 
-      commit(original);
+      commit(live);
     }
 
     record.group.initial_objects.clear();
@@ -994,7 +994,7 @@ void Editor::DisableEditor(Tachyon* tachyon, State& state) {
     if (editor.is_object_picker_active) {
       remove(editor.selected_object);
     } else {
-      auto& selected = *get_original_object(editor.selected_object);
+      auto& selected = *get_live_object(editor.selected_object);
 
       RestoreSelectedObject(tachyon, selected);
     }

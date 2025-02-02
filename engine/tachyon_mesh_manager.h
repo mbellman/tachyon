@@ -10,7 +10,7 @@
 #define remove(...) Tachyon_RemoveObject(tachyon, __VA_ARGS__)
 #define remove_all(__mesh_index) Tachyon_RemoveAllObjects(tachyon, __mesh_index);
 #define commit(__object) Tachyon_CommitObject(tachyon, __object)
-#define get_original_object(__object) Tachyon_GetOriginalObject(tachyon, __object)
+#define get_live_object(__object) Tachyon_GetLiveObject(tachyon, __object)
 
 tMesh Tachyon_LoadMesh(const char* path, const tVec3f& axis_factors = tVec3f(1.f));
 tMesh Tachyon_CreatePlaneMesh();
@@ -25,7 +25,7 @@ void Tachyon_RemoveObject(Tachyon* tachyon, uint16 mesh_index, uint16 object_id)
 void Tachyon_RemoveObject(Tachyon* tachyon, tObject& object);
 void Tachyon_RemoveAllObjects(Tachyon* tachyon, uint16 mesh_index);
 void Tachyon_CommitObject(Tachyon* tachyon, const tObject& object);
-tObject* Tachyon_GetOriginalObject(Tachyon* tachyon, const tObject& object);
+tObject* Tachyon_GetLiveObject(Tachyon* tachyon, const tObject& object);
 uint16 Tachyon_PartitionObjectsByDistance(Tachyon* tachyon, tObjectGroup& group, const uint16 start, const float distance);
 void Tachyon_UseLodByDistance(Tachyon* tachyon, const uint16 mesh_index, const float distance);
 void Tachyon_UseLodByDistance(Tachyon* tachyon, const uint16 mesh_index, const float distance, const float distance2);

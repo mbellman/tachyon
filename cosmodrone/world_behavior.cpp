@@ -88,7 +88,7 @@ static void UpdateGasFlareLights(Tachyon* tachyon, State& state) {
 static void UpdateBlinkingLights(Tachyon* tachyon, State& state) {
   for (auto& blinking_light : state.blinking_lights) {
     auto& light = tachyon->point_lights[blinking_light.light_index];
-    auto& bulb = *get_original_object(blinking_light.bulb);
+    auto& bulb = *get_live_object(blinking_light.bulb);
     auto power = 0.5f * sinf(state.current_game_time * 3.f + light.position.x * 0.03f) + 0.5f;
     power = powf(power, 5.f);
 
@@ -103,7 +103,7 @@ static void UpdateBlinkingLights(Tachyon* tachyon, State& state) {
 static void UpdateMovingLights(Tachyon* tachyon, State& state) {
   for (auto& moving_light : state.moving_lights) {
     auto& light = tachyon->point_lights[moving_light.light_index];
-    auto& bulb = *get_original_object(moving_light.light_object);
+    auto& bulb = *get_live_object(moving_light.light_object);
 
     light.position = bulb.position;
 

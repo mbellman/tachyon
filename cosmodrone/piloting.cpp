@@ -15,7 +15,7 @@ static void StartPiloting(Tachyon* tachyon, State& state) {
 
   for (auto& vehicle : state.pilotable_vehicles) {
     if (vehicle.root_object == state.docking_target) {
-      auto& live = *get_original_object(vehicle.root_object);
+      auto& live = *get_live_object(vehicle.root_object);
 
       state.current_piloted_vehicle = vehicle;
       state.current_piloted_vehicle.position = live.position;
@@ -32,7 +32,7 @@ static void UpdatePilotedVehicleParts(Tachyon* tachyon, State& state) {
   auto& vehicle = state.current_piloted_vehicle;
 
   for (auto& part : vehicle.parts) {
-    auto& live = *get_original_object(part);
+    auto& live = *get_live_object(part);
 
     live.position = vehicle.position;
     live.rotation = vehicle.rotation;
@@ -43,7 +43,7 @@ static void UpdatePilotedVehicleParts(Tachyon* tachyon, State& state) {
 
 static void StartUpPilotedVehicle(Tachyon* tachyon, State& state, const float dt, const float duration) {
   auto& camera = tachyon->scene.camera;
-  auto& root = *get_original_object(state.current_piloted_vehicle.root_object);
+  auto& root = *get_live_object(state.current_piloted_vehicle.root_object);
   auto up_direction = root.rotation.getUpDirection();
   auto& vehicle = state.current_piloted_vehicle;
   float up_speed = sinf(t_PI * duration / START_UP_TIME) * 20000.f;

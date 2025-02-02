@@ -169,7 +169,7 @@ void Autopilot::HandleAutopilot(Tachyon* tachyon, State& state, const float dt) 
   }
 
   if (state.flight_mode == FlightMode::AUTO_DOCK) {
-    auto& target = *get_original_object(state.docking_target);
+    auto& target = *get_live_object(state.docking_target);
 
     // @todo allow us to reuse target for this, rather than getting it again, redundantly
     state.docking_position = GetDockingPosition(tachyon, state);
@@ -318,7 +318,7 @@ bool Autopilot::IsDocked(const State& state) {
 }
 
 tVec3f Autopilot::GetDockingPosition(Tachyon* tachyon, const State& state) {
-  auto* target = get_original_object(state.docking_target);
+  auto* target = get_live_object(state.docking_target);
 
   if (target == nullptr) {
     return tVec3f(0.f);
@@ -334,7 +334,7 @@ tVec3f Autopilot::GetDockingPosition(Tachyon* tachyon, const State& state) {
 }
 
 tVec3f Autopilot::GetDockingPosition(Tachyon* tachyon, const State& state, const tObject& object) {
-  auto* target = get_original_object(object);
+  auto* target = get_live_object(object);
 
   if (target == nullptr) {
     return tVec3f(0.f);
@@ -357,7 +357,7 @@ float Autopilot::GetDockingAlignment(const State& state, const tVec3f& docking_p
 }
 
 void Autopilot::Undock(Tachyon* tachyon, State& state) {
-  auto* docked_target = get_original_object(state.docking_target);
+  auto* docked_target = get_live_object(state.docking_target);
 
   if (docked_target == nullptr) {
     return;
