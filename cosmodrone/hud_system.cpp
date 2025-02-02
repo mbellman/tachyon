@@ -364,8 +364,8 @@ static std::string GetCondensedFloatString(const float value) {
 
 static void HandleTargetInspectorStats(Tachyon* tachyon, const State& state, const TargetTracker& tracker) {
   auto time_since_selected = state.current_game_time - tracker.selected_time;
-  auto target = tracker.object;
-  auto wireframe_mesh_index = GetTargetInspectorWireframeMeshIndex(tracker.object.mesh_index, state);
+  auto& target = tracker.object;
+  auto wireframe_mesh_index = GetTargetInspectorWireframeMeshIndex(target.mesh_index, state);
   auto& wireframe = objects(wireframe_mesh_index)[0];
   auto rotation = wireframe.rotation * target.rotation;
 

@@ -136,8 +136,11 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
 
     // Calculate tracker screen coordinates
     for (auto& tracker : state.on_screen_target_trackers) {
-      auto& object = *get_live_object(tracker.object);
-      tVec3f local_position = view_matrix * object.position;
+      // Synchronize tracker.object with the live object, so we
+      // only have to get its live version once per frame
+      tracker.object = *get_live_object(tracker.object);
+
+      tVec3f local_position = view_matrix * tracker.object.position;
       tVec3f clip_position = (projection_matrix * local_position) / local_position.z;
 
       clip_position.x *= 0.5f;
@@ -161,7 +164,7 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
       float dy = float(screen_y - center_y);
 
       float center_distance = sqrtf(dx*dx + dy*dy);
-      float relative_distance = (object.position - state.ship_position).magnitude();
+      float relative_distance = (tracker.object.position - state.ship_position).magnitude();
 
       tracker.center_distance = center_distance;
       tracker.object_distance = relative_distance;

@@ -276,17 +276,19 @@ bool Autopilot::AttemptDockingProcedure(State& state) {
     return false;
   }
 
-  // @todo use live object (or ensure tracker->object is always live)
-  auto& target_object = tracker->object;
+  auto& target = tracker->object;
   auto& ship_position = state.ship_position;
-  auto target_distance = (target_object.position - ship_position).magnitude();
+  auto target_distance = (target.position - ship_position).magnitude();
 
-  if (target_distance > 100000.f) {
+  if (
+    target_distance > 100000.f ||
+    target.mesh_index == state.meshes.station_drone_core
+  ) {
     return false;
   }
 
   state.flight_mode = FlightMode::AUTO_DOCK;
-  state.docking_target = target_object;
+  state.docking_target = target;
   state.ship_rotate_to_target_speed = 0.f;
   // @todo define the retrograde direction correctly (as the anti-vector of velocity).
   // We're doing this for now because of quirks with the player drone model, which should
