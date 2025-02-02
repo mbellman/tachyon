@@ -173,6 +173,7 @@ namespace Cosmodrone {
       drone_wireframe,
       antenna_3_wireframe,
       floater_1_wireframe,
+      station_drone_wireframe,
       fighter_wireframe,
 
       // Entities

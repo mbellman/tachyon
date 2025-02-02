@@ -1427,15 +1427,15 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
 static void LoadTargetInspectorMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
-  meshes.drone_wireframe = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/wireframes/drone.obj"), 1);
-  meshes.antenna_3_wireframe = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/antenna_3.obj"), 1);
-  meshes.floater_1_wireframe = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/floater_1.obj"), 1);
-  meshes.fighter_wireframe = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/fighter_spawn.obj"), 1);
+  #define load_wireframe(mesh_index, obj_path)\
+    mesh_index = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh(obj_path), 1);\
+    mesh(mesh_index).type = WIREFRAME_MESH\
 
-  mesh(meshes.drone_wireframe).type = WIREFRAME_MESH;
-  mesh(meshes.antenna_3_wireframe).type = WIREFRAME_MESH;
-  mesh(meshes.floater_1_wireframe).type = WIREFRAME_MESH;
-  mesh(meshes.fighter_wireframe).type = WIREFRAME_MESH;
+  load_wireframe(meshes.drone_wireframe, "./cosmodrone/assets/wireframes/drone.obj");
+  load_wireframe(meshes.antenna_3_wireframe, "./cosmodrone/assets/station-parts/antenna_3.obj");
+  load_wireframe(meshes.floater_1_wireframe, "./cosmodrone/assets/station-parts/floater_1.obj");
+  load_wireframe(meshes.station_drone_wireframe, "./cosmodrone/assets/station-parts/station_drone.obj");
+  load_wireframe(meshes.fighter_wireframe, "./cosmodrone/assets/station-parts/fighter_spawn.obj");
 }
 
 static void LoadBackgroundMeshes(Tachyon* tachyon, State& state) {

@@ -19,11 +19,38 @@ static uint16 GetTargetInspectorWireframeMeshIndex(const uint16 source_mesh, con
     return meshes.floater_1_wireframe;
   }
 
+  if (source_mesh == meshes.station_drone_core) {
+    return meshes.station_drone_wireframe;
+  }
+
   if (source_mesh == meshes.fighter_dock) {
     return meshes.fighter_wireframe;
   }
 
   return meshes.antenna_3_wireframe;
+}
+
+// @todo move to utilities
+static std::string GetTargetName(const State& state, const tObject& target) {
+  auto& meshes = state.meshes;
+
+  if (target.mesh_index == meshes.antenna_3) {
+    return "ANTENNA-3";
+  }
+
+  if (target.mesh_index == meshes.fighter_dock) {
+    return "FIGHTER";
+  }
+
+  if (target.mesh_index == meshes.floater_1) {
+    return "R-SATELLITE";
+  }
+
+  if (target.mesh_index == meshes.station_drone_core) {
+    return "S-DRONE";
+  }
+
+  return "--UNNAMED--";
 }
 
 static void HandleDroneInspector(Tachyon* tachyon, State& state, const float dt) {
@@ -226,6 +253,7 @@ static void RemoveAllTargetInspectorWireframes(Tachyon* tachyon, State& state) {
 
   remove_objects(meshes.antenna_3_wireframe);
   remove_objects(meshes.floater_1_wireframe);
+  remove_objects(meshes.station_drone_wireframe);
   remove_objects(meshes.fighter_wireframe);
 }
 
@@ -235,6 +263,7 @@ static void RemoveUnusedTargetInspectorWireframes(Tachyon* tachyon, const State&
   const auto mesh_indexes = {
     meshes.antenna_3_wireframe,
     meshes.floater_1_wireframe,
+    meshes.station_drone_wireframe,
     meshes.fighter_wireframe
   };
 
@@ -331,24 +360,6 @@ static std::string GetCondensedFloatString(const float value) {
   }
 
   return formatted;
-}
-
-static std::string GetTargetName(const State& state, const tObject& target) {
-  auto& meshes = state.meshes;
-
-  if (target.mesh_index == meshes.antenna_3) {
-    return "ANTENNA-3";
-  }
-
-  if (target.mesh_index == meshes.fighter_dock) {
-    return "FIGHTER";
-  }
-
-  if (target.mesh_index == meshes.floater_1) {
-    return "R-SATELLITE";
-  }
-
-  return "--UNNAMED--";
 }
 
 static void HandleTargetInspectorStats(Tachyon* tachyon, const State& state, const TargetTracker& tracker) {
