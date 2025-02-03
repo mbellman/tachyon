@@ -39,7 +39,7 @@ static std::string GetTargetName(const State& state, const tObject& target) {
   }
 
   if (target.mesh_index == meshes.fighter_dock) {
-    return "FIGHTER";
+    return "PEREGRINE";
   }
 
   if (target.mesh_index == meshes.floater_1) {
@@ -47,7 +47,7 @@ static std::string GetTargetName(const State& state, const tObject& target) {
   }
 
   if (target.mesh_index == meshes.station_drone_core) {
-    return "S-DRONE";
+    return "SENTINEL-A";
   }
 
   return "--UNNAMED--";

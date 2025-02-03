@@ -109,7 +109,7 @@ static void UpdateMovingLights(Tachyon* tachyon, State& state) {
 
     if (bulb.mesh_index == state.meshes.station_drone_light) {
       // @optimize
-      light.position = bulb.position + bulb.rotation.getDirection() * 2000.f;
+      light.position = bulb.position + bulb.rotation.getDirection() * 1500.f;
     }
   }
 }

@@ -199,7 +199,7 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
     // drifting while the camera is following it.
     tVec3f::dot(state.view_forward_direction, state.ship_rotation_basis.forward) < 0.95f
   ) {
-    state.ship_rotate_to_target_speed *= (1.f - 10.f * dt);
+    // state.ship_rotate_to_target_speed *= (1.f - 10.f * dt);
   }
 }
 
