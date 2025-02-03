@@ -47,6 +47,9 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh(antenna_2);
   load_mesh(antenna_3);
   load_mesh(antenna_4);
+  load_mesh(machine_1);
+  load_mesh(machine_2);
+  load_mesh(machine_3);
   load_mesh(radio_tower_1);
   load_mesh(module_1);
   load_mesh(module_2);
@@ -163,6 +166,33 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
       .scale = tVec3f(2000.f),
       .color = tVec3f(1.f),
       .material = tVec4f(0.6f, 0, 0.1f, 0.2f)
+    }
+  });
+
+  placeable_mesh_assets.push_back({
+    .mesh_name = "machine_1",
+    .mesh_index = meshes.machine_1,
+    .defaults = {
+      .scale = tVec3f(3000.f),
+      .material = tVec4f(1.f, 0, 0, 0.2f)
+    }
+  });
+
+  placeable_mesh_assets.push_back({
+    .mesh_name = "machine_2",
+    .mesh_index = meshes.machine_2,
+    .defaults = {
+      .scale = tVec3f(3000.f),
+      .material = tVec4f(1.f, 0, 0, 0.2f)
+    }
+  });
+
+  placeable_mesh_assets.push_back({
+    .mesh_name = "machine_3",
+    .mesh_index = meshes.machine_3,
+    .defaults = {
+      .scale = tVec3f(3000.f),
+      .material = tVec4f(1.f, 0, 0, 0.2f)
     }
   });
 

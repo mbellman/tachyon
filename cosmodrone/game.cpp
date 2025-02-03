@@ -35,7 +35,7 @@ static Quaternion DirectionToQuaternion(const tVec3f& direction) {
 // @todo move to utilities.cpp
 static float GetMaxShipSpeed(const State& state) {
   if (state.flight_system == FlightSystem::FIGHTER) {
-    return 50000.f;
+    return 100000.f;
   } else {
     return 20000.f;
   }
@@ -747,6 +747,8 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
 
     Tachyon_UseLodByDistance(tachyon, meshes.mega_girder_1, 200000.f);
 
+    Tachyon_UseLodByDistance(tachyon, meshes.antenna_1, 70000.f);
+
     Tachyon_UseLodByDistance(tachyon, meshes.grate_1, 50000.f, 150000.f);
     Tachyon_UseLodByDistance(tachyon, meshes.grate_2, 100000.f);
 
@@ -761,7 +763,6 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
     // Use LoD 3 on the following meshes, which lack geometry for LoD 3.
     // This effectively distance-culls them at the second distance threshold,
     // since we do not render LoDs without geometry.
-    Tachyon_UseLodByDistance(tachyon, meshes.antenna_1, 70000.f, 120000.f);
     Tachyon_UseLodByDistance(tachyon, meshes.girder_1, 120000.f, 180000.f);
     Tachyon_UseLodByDistance(tachyon, meshes.girder_4_frame, 70000.f, 200000.f);
     Tachyon_UseLodByDistance(tachyon, meshes.habitation_1_frame, 80000.f, 120000.f);

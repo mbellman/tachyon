@@ -104,7 +104,7 @@ void Piloting::HandlePiloting(Tachyon* tachyon, State& state, const float dt) {
 
     state.flight_mode = FlightMode::MANUAL_CONTROL;
     // @todo use max ship speed for the speed ratio
-    state.ship_rotate_to_target_speed = 3.f - 3.f * (speed / 60000.f) + abs(state.camera_roll_speed);
+    state.ship_rotate_to_target_speed = 3.f - 3.f * (speed / 110000.f) + abs(state.camera_roll_speed);
 
     // Lock drone to vehicle
     state.ship_position =
