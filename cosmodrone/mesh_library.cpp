@@ -1585,6 +1585,10 @@ void MeshLibrary::LoadMeshes(Tachyon* tachyon, State& state) {
     mesh(meshes.habitation_3_frame).shadow_cascade_ceiling = 2;
     mesh(meshes.light_3_base).shadow_cascade_ceiling = 2;
     mesh(meshes.light_3_bulb).shadow_cascade_ceiling = 2;
+    mesh(meshes.station_drone_core).shadow_cascade_ceiling = 2;
+    mesh(meshes.station_drone_frame).shadow_cascade_ceiling = 2;
+    mesh(meshes.station_drone_light).shadow_cascade_ceiling = 2;
+    mesh(meshes.station_drone_rotator).shadow_cascade_ceiling = 2;
 
     mesh(meshes.silo_3_frame).shadow_cascade_ceiling = 1;
 

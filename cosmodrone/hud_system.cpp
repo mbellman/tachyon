@@ -43,7 +43,7 @@ static std::string GetTargetName(const State& state, const tObject& target) {
   }
 
   if (target.mesh_index == meshes.floater_1) {
-    return "R-SATELLITE";
+    return "STARFLOWER";
   }
 
   if (target.mesh_index == meshes.station_drone_core) {
