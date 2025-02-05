@@ -88,6 +88,7 @@ void ObjectBehavior::InitObjects(Tachyon* tachyon, State& state) {
 
   StoreInitialMeshObjects(tachyon, {
     meshes.antenna_4_dish,
+    meshes.antenna_5_dish,
 
     meshes.elevator_torus_1,
     meshes.elevator_torus_1_frame,
@@ -150,7 +151,6 @@ void ObjectBehavior::UpdateObjects(Tachyon* tachyon, State& state, const float d
     commit(object);
   });
 
-
   UpdateRotator(tachyon, state, dt, meshes.habitation_4_body, 0.15f);
   UpdateRotator(tachyon, state, dt, meshes.habitation_4_core, 0.15f);
   UpdateRotator(tachyon, state, dt, meshes.habitation_4_frame, 0.15f);
@@ -172,11 +172,22 @@ void ObjectBehavior::UpdateObjects(Tachyon* tachyon, State& state, const float d
 
   UpdateRotator(tachyon, state, dt, meshes.platform_torus, 0.1f);
 
-  UpdateRotator(tachyon, state, dt, meshes.floater_1_base, -0.12f);
-  UpdateRotator(tachyon, state, dt, meshes.floater_1_spokes, 0.12f);
-  UpdateRotator(tachyon, state, dt, meshes.floater_1_panels, 0.12f);
+  UpdateRotator(tachyon, state, dt, meshes.floater_1_base, -0.2f);
+  UpdateRotator(tachyon, state, dt, meshes.floater_1_spokes, 0.2f);
+  UpdateRotator(tachyon, state, dt, meshes.floater_1_panels, 0.2f);
 
   UpdateRotatorWithVariation(tachyon, state, dt, meshes.antenna_4_dish, 0.5f);
+
+  // antenna_5
+  {
+    for_dynamic_objects(meshes.antenna_5_dish, {
+      object.rotation =
+        Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), sinf(state.current_game_time * 0.3f)) *
+        initial.rotation;
+
+      commit(object);
+    });
+  }
 
   // Rotating arches
   {

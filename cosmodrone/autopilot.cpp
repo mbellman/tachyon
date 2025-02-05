@@ -20,6 +20,10 @@ static tVec3f GetDockingPositionOffset(const uint16 mesh_index, const State& sta
     return tVec3f(0, -1.f, -1.f).unit() * 0.7f;
   }
 
+  if (mesh_index == meshes.antenna_5) {
+    return tVec3f(0, -1.f, -1.f).unit() * 0.8f;
+  }
+
   if (mesh_index == meshes.fighter_dock) {
     return tVec3f(0, 0.3f, 0.35f);
   }
@@ -42,6 +46,7 @@ static Quaternion GetDockedRotation(const State& state, const uint16 mesh_index)
 
   if (
     mesh_index == meshes.antenna_3 ||
+    mesh_index == meshes.antenna_5 ||
     mesh_index == meshes.floater_1
   ) {
     return Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI);
@@ -61,6 +66,14 @@ static Quaternion GetDockedCameraRotation(const State& state, const tObject& tar
     return (
       Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.6f) *
       Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI * 1.2f) *
+      target.rotation.opposite()
+    );
+  }
+
+  if (target.mesh_index == meshes.antenna_5) {
+    return (
+      Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.5f) *
+      Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI) *
       target.rotation.opposite()
     );
   }

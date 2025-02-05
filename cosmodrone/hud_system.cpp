@@ -38,6 +38,10 @@ static std::string GetTargetName(const State& state, const tObject& target) {
     return "ANTENNA-3";
   }
 
+  if (target.mesh_index == meshes.antenna_5) {
+    return "SENTRY RADAR";
+  }
+
   if (target.mesh_index == meshes.fighter_dock) {
     return "PEREGRINE";
   }
@@ -47,7 +51,7 @@ static std::string GetTargetName(const State& state, const tObject& target) {
   }
 
   if (target.mesh_index == meshes.station_drone_core) {
-    return "SENTINEL-A";
+    return "SENTINEL";
   }
 
   return "--UNNAMED--";

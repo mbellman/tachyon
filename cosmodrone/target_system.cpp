@@ -55,6 +55,7 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
   {
     static std::vector<uint16> standard_docking_target_meshes = {
       state.meshes.antenna_3,
+      state.meshes.antenna_5,
       state.meshes.charge_pad,
       state.meshes.fighter_dock,
       state.meshes.floater_1,
