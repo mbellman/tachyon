@@ -91,6 +91,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh_with_2_lods(grate_1);
   load_mesh_with_2_lods(grate_2);
   load_mesh(grate_3);
+  load_mesh(grate_4);
   load_mesh(track_1);
   load_mesh(light_1);
   load_mesh(light_2);
@@ -603,6 +604,16 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   });
 
   placeable_mesh_assets.push_back({
+    .mesh_name = "grate_4",
+    .mesh_index = meshes.grate_4,
+    .defaults = {
+      .scale = tVec3f(4000.f),
+      .color = tVec3f(0.2f),
+      .material = tVec4f(0.9f, 0.5f, 0.1f, 0.2f)
+    }
+  });
+
+  placeable_mesh_assets.push_back({
     .mesh_name = "track_1",
     .mesh_index = meshes.track_1,
     .defaults = {
@@ -763,6 +774,8 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
 
   load_mesh(beam_2_core);
   load_mesh(beam_2_frame);
+
+  load_mesh(grate_4_frame);
 
   load_mesh_with_2_lods(habitation_1_core);
   load_mesh_with_2_lods(habitation_1_frame);
@@ -983,6 +996,16 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .generated_from = meshes.beam_2,
       .defaults = {
         .material = tVec4f(0.9f, 0, 0, 0.1f)
+      }
+    },
+
+    // grate_4
+    {
+      .mesh_index = meshes.grate_4_frame,
+      .generated_from = meshes.grate_4,
+      .defaults = {
+        .color = tVec3f(1.f, 0.6f, 0.2f),
+        .material = tVec4f(0.8, 1.f, 0, 0)
       }
     },
 
