@@ -1574,6 +1574,7 @@ void MeshLibrary::LoadMeshes(Tachyon* tachyon, State& state) {
     mesh(meshes.girder_1).shadow_cascade_ceiling = 3;
     mesh(meshes.girder_1b).shadow_cascade_ceiling = 3;
     mesh(meshes.girder_4_frame).shadow_cascade_ceiling = 3;
+    mesh(meshes.machine_3).shadow_cascade_ceiling = 3;
     mesh(meshes.antenna_1).shadow_cascade_ceiling = 3;
     mesh(meshes.antenna_2_frame).shadow_cascade_ceiling = 3;
     mesh(meshes.antenna_4_base).shadow_cascade_ceiling = 3;
