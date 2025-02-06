@@ -127,7 +127,8 @@ void ObjectBehavior::InitObjects(Tachyon* tachyon, State& state) {
     meshes.station_drone_rotator,
     meshes.station_drone_light,
 
-    meshes.procedural_elevator_car
+    meshes.procedural_elevator_car,
+    meshes.procedural_elevator_car_light
   });
 }
 
@@ -135,21 +136,42 @@ void ObjectBehavior::UpdateObjects(Tachyon* tachyon, State& state, const float d
   auto& meshes = state.meshes;
 
   // @todo factor
-  for_dynamic_objects(meshes.procedural_elevator_car, {
-    auto direction =
-      object.object_id % 2 == 0
-        ? 1.f
-        : -1.f;
+  {
+    for_dynamic_objects(meshes.procedural_elevator_car, {
+      auto direction =
+        object.object_id % 2 == 0
+          ? 1.f
+          : -1.f;
 
-    object.position.y += 25000.f * dt * direction;
+      object.position.y += 25000.f * dt * direction;
 
-    // @temporary
-    if (std::abs(object.position.y - state.ship_position.y) > 1500000.f) {
-      object.position.y = state.ship_position.y + 1499999.f * -direction;
-    }
+      // @temporary
+      if (std::abs(object.position.y - state.ship_position.y) > 1000000.f) {
+        object.position.y = state.ship_position.y + 999999.f * -direction;
+      }
 
-    commit(object);
-  });
+      commit(object);
+    });
+  }
+
+  // @todo factor
+  {
+    for_dynamic_objects(meshes.procedural_elevator_car_light, {
+      auto direction =
+        object.object_id % 2 == 0
+          ? 1.f
+          : -1.f;
+
+      object.position.y += 25000.f * dt * direction;
+
+      // @temporary
+      if (std::abs(object.position.y - state.ship_position.y) > 1000000.f) {
+        object.position.y = state.ship_position.y + 999999.f * -direction;
+      }
+
+      commit(object);
+    });
+  }
 
   UpdateRotator(tachyon, state, dt, meshes.habitation_4_body, 0.15f);
   UpdateRotator(tachyon, state, dt, meshes.habitation_4_core, 0.15f);

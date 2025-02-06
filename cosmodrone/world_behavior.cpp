@@ -100,6 +100,7 @@ static void UpdateBlinkingLights(Tachyon* tachyon, State& state) {
 }
 
 // @todo lights.cpp
+// @todo handle multiple moving lights per object
 static void UpdateMovingLights(Tachyon* tachyon, State& state) {
   for (auto& moving_light : state.moving_lights) {
     auto& light = tachyon->point_lights[moving_light.light_index];
@@ -110,6 +111,13 @@ static void UpdateMovingLights(Tachyon* tachyon, State& state) {
     if (bulb.mesh_index == state.meshes.station_drone_light) {
       // @optimize
       light.position = bulb.position + bulb.rotation.getDirection() * 1500.f;
+    }
+
+    if (bulb.mesh_index == state.meshes.procedural_elevator_car_light) {
+      // @optimize
+      light.position =
+        bulb.position +
+        bulb.rotation.toMatrix4f() * (tVec3f(0, 1.f, -0.5f) * 3400.f);
     }
   }
 }

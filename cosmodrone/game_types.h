@@ -89,6 +89,7 @@ namespace Cosmodrone {
     uint32 light_index;
   };
 
+  // @todo handle multiple moving lights per object
   struct MovingLight {
     tObject light_object;
     uint32 light_index = 0;

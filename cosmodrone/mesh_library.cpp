@@ -1531,8 +1531,8 @@ static void LoadBackgroundMeshes(Tachyon* tachyon, State& state) {
 static void LoadEntityMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
-  // Elevator cars
-  // @todo make this a placeable mesh
+  // Elevator cars (old)
+  // @todo remove
   {
     auto elevator_car = Tachyon_LoadMesh("./cosmodrone/assets/elevator_car_1.obj");
     auto elevator_car_frame = Tachyon_LoadMesh("./cosmodrone/assets/elevator_car_1_frame.obj");

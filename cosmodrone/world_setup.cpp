@@ -94,13 +94,6 @@ static void InitLevel(Tachyon* tachyon, State& state) {
   // Earth atmosphere
   create(meshes.earth_atmosphere);
 
-  // Background space elevator
-  // create(meshes.space_elevator);
-
-  // Local elevator car
-  // create(meshes.elevator_car_1);
-  // create(meshes.elevator_car_1_frame);
-
   // HUD
   {
     for (uint8 i = 0; i < 16; i++) {
@@ -301,6 +294,20 @@ static void InitLights(Tachyon* tachyon, State& state) {
       .position = light.position,
       .radius = 5000.f,
       .color = tVec3f(0.2f, 0.5f, 1.f),
+      .power = 1.f
+    });
+
+    state.moving_lights.push_back({
+      .light_object = light,
+      .light_index = uint32(point_lights.size() - 1)
+    });
+  }
+
+  for (auto& light : objects(state.meshes.procedural_elevator_car_light)) {
+    point_lights.push_back({
+      .position = light.position,
+      .radius = 5000.f,
+      .color = tVec3f(1.f, 0.8f, 0.6f),
       .power = 1.f
     });
 

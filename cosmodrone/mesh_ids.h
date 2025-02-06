@@ -173,6 +173,7 @@ namespace Cosmodrone {
 
       // Procedural meshes
       procedural_elevator_car,
+      procedural_elevator_car_light,
       procedural_track_1,
       procedural_track_supports_1,
 
