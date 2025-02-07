@@ -54,8 +54,8 @@ float noise(float seed) {
 const vec3[] fog_volume_positions = {
   vec3(55000.0, -190000.0, 82000.0),
   vec3(32000.0, -170000.0, 30000.0),
-  vec3(-60000.0, -180000.0, 40000.0),
-  vec3(53000.0, -240000.0, 85000.0)
+  vec3(50000.0, -270000.0, 90000.0),
+  vec3(-60000.0, -170000.0, 40000.0)
 };
 
 vec4 GetVolumetricFogColorAndThickness(float depth, vec3 direction) {

@@ -49,6 +49,7 @@ static void GenerateElevator(Tachyon* tachyon, State& state) {
     track.position = tVec3f(0, i * -24000.f, 0);
     track.scale = 12000.f;
     track.rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), t_HALF_PI);
+    track.material = tVec4f(1.f, 0, 0, 0.2f);
 
     commit(track);
   }
@@ -60,6 +61,7 @@ static void GenerateElevator(Tachyon* tachyon, State& state) {
     track.position = tVec3f(0, i * 24000.f, 0);
     track.scale = 12000.f;
     track.rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), t_HALF_PI);
+    track.material = tVec4f(1.f, 0, 0, 0.2f);
 
     commit(track);
   }
