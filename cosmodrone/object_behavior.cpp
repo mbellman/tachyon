@@ -111,6 +111,11 @@ void ObjectBehavior::InitObjects(Tachyon* tachyon, State& state) {
     meshes.habitation_4_panels,
     meshes.habitation_4_lights,
 
+    meshes.solar_rotator_body,
+    meshes.solar_rotator_frame,
+    meshes.solar_rotator_panels,
+    meshes.solar_rotator_antennae,
+
     meshes.floater_1_base,
     meshes.floater_1_spokes,
     meshes.floater_1_panels,
@@ -179,6 +184,11 @@ void ObjectBehavior::UpdateObjects(Tachyon* tachyon, State& state, const float d
   UpdateRotator(tachyon, state, dt, meshes.habitation_4_panels, 0.15f);
   UpdateRotator(tachyon, state, dt, meshes.habitation_4_lights, 0.15f);
 
+  UpdateRotator(tachyon, state, dt, meshes.solar_rotator_body, 0.05f);
+  UpdateRotator(tachyon, state, dt, meshes.solar_rotator_frame, 0.05f);
+  UpdateRotator(tachyon, state, dt, meshes.solar_rotator_panels, 0.05f);
+  UpdateRotator(tachyon, state, dt, meshes.solar_rotator_antennae, 0.05f);
+
   UpdateRotator(tachyon, state, dt, meshes.elevator_torus_1, 0.2f);
   UpdateRotator(tachyon, state, dt, meshes.elevator_torus_1_frame, -0.1f);
 
@@ -192,7 +202,7 @@ void ObjectBehavior::UpdateObjects(Tachyon* tachyon, State& state, const float d
   UpdateRotator(tachyon, state, dt, meshes.station_torus_3_frame, 0.08f);
   UpdateRotator(tachyon, state, dt, meshes.station_torus_3_lights, 0.08f);
 
-  UpdateRotator(tachyon, state, dt, meshes.platform_torus, 0.1f);
+  UpdateRotator(tachyon, state, dt, meshes.platform_torus, 0.05f);
 
   UpdateRotator(tachyon, state, dt, meshes.floater_1_base, -0.2f);
   UpdateRotator(tachyon, state, dt, meshes.floater_1_spokes, 0.2f);
