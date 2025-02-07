@@ -304,9 +304,10 @@ static void RenderDebugLabels(Tachyon* tachyon) {
 
     GLint gpu_available = 0;
     GLint gpu_total = 0;
-    const char* vendor = (const char*)glGetString(GL_VENDOR);
+    const char* gpu_vendor = (const char*)glGetString(GL_VENDOR);
+    const char* gpu_name = (const char*)glGetString(GL_RENDERER);
 
-    if (strcmp(vendor, "NVIDIA Corporation") == 0) {
+    if (strcmp(gpu_vendor, "NVIDIA Corporation") == 0) {
       glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &gpu_available);
       glGetIntegerv(GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX, &gpu_total);
     }
@@ -320,6 +321,7 @@ static void RenderDebugLabels(Tachyon* tachyon) {
       "View: " + std::string(renderer.show_g_buffer_view ? "G-BUFFER" : "DEFAULT"),
       "Resolution: " + String(ctx.w) + " x " + String(ctx.h),
       "V-Sync: " + std::string(SDL_GL_GetSwapInterval() ? "ON" : "OFF"),
+      "GPU Name: " + std::string(gpu_name),
       "GPU Memory: " + String(used_gpu_memory) + "MB / " + String(total_gpu_memory) + "MB",
       "Render time: " + String(renderer.last_render_time_in_microseconds) + "us (" + String(render_fps) + "fps)",
       "Frame time: " + String(tachyon->last_frame_time_in_microseconds) + "us (" + String(frame_fps) + "fps)",
