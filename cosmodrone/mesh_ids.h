@@ -142,6 +142,7 @@ namespace Cosmodrone {
       platform_torus,
       platform_frame,
       platform_supports,
+      solar_rotator,
       light_1_base,
       light_1_bulb,
       light_2_base,
