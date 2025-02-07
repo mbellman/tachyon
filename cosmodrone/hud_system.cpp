@@ -55,7 +55,7 @@ static std::string GetTargetName(const State& state, const tObject& target) {
   }
 
   if (target.mesh_index == meshes.procedural_elevator_car) {
-    return "CONVEYOR";
+    return "CABLE CAR";
   }
 
   return "--UNNAMED--";
