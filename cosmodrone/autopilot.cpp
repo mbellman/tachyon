@@ -135,50 +135,26 @@ static void HandleDockingApproachCamera(Tachyon* tachyon, State& state, tObject&
   );
 }
 
-// @todo Clean/split this function up. Too much being managed here.
 void Autopilot::HandleAutopilot(Tachyon* tachyon, State& state, const float dt) {
   auto& camera = tachyon->scene.camera;
+  float ship_speed = state.ship_velocity.magnitude();
 
-  switch (state.flight_mode) {
-    case FlightMode::AUTO_RETROGRADE: {
-      DecelerateRetrograde(state, dt);
+  if (state.flight_mode == FlightMode::AUTO_RETROGRADE) {
+    DecelerateRetrograde(state, dt);
 
-      if (state.ship_velocity.magnitude() < 200.f) {
-        // Restore manual control when sufficiently decelerated
-        state.flight_mode = FlightMode::MANUAL_CONTROL;
-        state.ship_rotate_to_target_speed = 0.f;
-      }
+    state.target_ship_rotation = Quaternion::FromDirection(state.retrograde_direction, state.ship_rotation_basis.up);
+    state.ship_rotate_to_target_speed += 3.f * dt;
 
-      break;
-    }
-
-    case FlightMode::AUTO_DOCK: {
-      if (state.auto_dock_stage == AutoDockStage::APPROACH_DECELERATION) {
-        DecelerateRetrograde(state, dt);
-
-        if (state.ship_velocity.magnitude() < 50.f) {
-          state.auto_dock_stage = AutoDockStage::APPROACH_ALIGNMENT;
-          state.ship_rotate_to_target_speed = 0.f;
-        }
-      }
-
-      if (
-        state.auto_dock_stage == AutoDockStage::APPROACH &&
-        state.ship_velocity.magnitude() < AUTO_DOCK_APPROACH_SPEED_LIMIT
-      ) {
-        DroneFlightSystem::ThrustForward(state, dt, AUTO_DOCK_APPROACH_SPEED);
-      }
+    if (ship_speed < 200.f) {
+      // Restore manual control when sufficiently decelerated
+      state.flight_mode = FlightMode::MANUAL_CONTROL;
+      state.ship_rotate_to_target_speed = 0.f;
     }
   }
 
   if (state.flight_mode == FlightMode::AUTO_PROGRADE) {
     state.target_ship_rotation = Quaternion::FromDirection(state.ship_velocity_basis.forward.invert(), state.ship_rotation_basis.up);
     state.ship_rotate_to_target_speed += 4.f * dt;
-  }
-
-  if (state.flight_mode == FlightMode::AUTO_RETROGRADE) {
-    state.target_ship_rotation = Quaternion::FromDirection(state.retrograde_direction, state.ship_rotation_basis.up);
-    state.ship_rotate_to_target_speed += 3.f * dt;
   }
 
   if (state.flight_mode == FlightMode::AUTO_DOCK) {
@@ -189,8 +165,15 @@ void Autopilot::HandleAutopilot(Tachyon* tachyon, State& state, const float dt) 
 
     switch (state.auto_dock_stage) {
       case AutoDockStage::APPROACH_DECELERATION: {
+        DecelerateRetrograde(state, dt);
+
         state.target_ship_rotation = Quaternion::FromDirection(state.retrograde_direction, state.ship_rotation_basis.up);
         state.ship_rotate_to_target_speed += 4.f * dt;
+
+        if (ship_speed < 50.f) {
+          state.auto_dock_stage = AutoDockStage::APPROACH_ALIGNMENT;
+          state.ship_rotate_to_target_speed = 0.f;
+        }
 
         break;
       }
@@ -222,8 +205,12 @@ void Autopilot::HandleAutopilot(Tachyon* tachyon, State& state, const float dt) 
 
         HandleDockingApproachCamera(tachyon, state, target, docking_distance);
 
+        if (ship_speed < AUTO_DOCK_APPROACH_SPEED_LIMIT) {
+          DroneFlightSystem::ThrustForward(state, dt, AUTO_DOCK_APPROACH_SPEED);
+        }
+
         if (
-          state.ship_velocity.magnitude() >= AUTO_DOCK_APPROACH_SPEED_LIMIT &&
+          ship_speed >= AUTO_DOCK_APPROACH_SPEED_LIMIT &&
           docking_distance < 10000.f
         ) {
           // Begin final docking maneuver
