@@ -50,7 +50,7 @@ void DroneFlightSystem::ControlledThrustForward(State& state, const float dt) {
   }
 
   state.controlled_thrust_duration += dt;
-  state.ship_rotate_to_target_speed += 5.f * dt;
+  state.ship_rotate_to_target_speed += 5.f * (1.f - state.ship_pitch_factor) * dt;
   state.flight_mode = FlightMode::MANUAL_CONTROL;
 }
 
