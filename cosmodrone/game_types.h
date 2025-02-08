@@ -23,7 +23,7 @@ namespace Cosmodrone {
     APPROACH_DECELERATION,
     APPROACH_ALIGNMENT,
     APPROACH,
-    DOCKING,
+    DOCKING_CONNECTION,
     DOCKED
   };
 
