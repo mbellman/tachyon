@@ -9,8 +9,7 @@ const static auto FORWARD_VECTOR = tVec3f(0, 0, -1.f);
 const static auto UP_VECTOR = tVec3f(0, 1.f, 0);
 const static auto RIGHT_VECTOR = tVec3f(1.f, 0, 0);
 
-const static float AUTO_DOCK_APPROACH_SPEED = 1500.f;
-const static float AUTO_DOCK_APPROACH_SPEED_LIMIT = 2000.f;
+const static float AUTO_DOCK_APPROACH_ACCELERATION = 1500.f;
 
 // @todo move to utilities
 static tVec3f GetDockingPositionOffset(const uint16 mesh_index, const State& state) {
@@ -95,6 +94,15 @@ static float GetDockedCameraDistance(const State& state, const uint16 mesh_index
   return 30000.f;
 }
 
+// @todo move to utilities
+static inline float GetDockingApproachSpeedLimit(const State& state) {
+  float speed_limit = state.initial_approach_ship_distance / 15.f;
+  if (speed_limit < 2000.f) speed_limit = 2000.f;
+  if (speed_limit > 3500.f) speed_limit = 3500.f;
+
+  return speed_limit;
+}
+
 static void DecelerateRetrograde(State& state, const float dt) {
   // Figure out how 'backward' the ship is pointed
   float reverse_dot = tVec3f::dot(state.ship_rotation_basis.forward, state.retrograde_direction);
@@ -139,7 +147,7 @@ static void HandleDockingApproachDeceleration(Tachyon* tachyon, State& state, co
   DecelerateRetrograde(state, dt);
 
   state.target_ship_rotation = Quaternion::FromDirection(state.retrograde_direction, state.ship_rotation_basis.up);
-  state.ship_rotate_to_target_speed += 4.f * dt;
+  state.ship_rotate_to_target_speed += 6.f * dt;
 
   // Once we've decelerated enough, start approach alignment
   if (ship_speed < 50.f) {
@@ -173,17 +181,15 @@ static void HandleDockingApproachAlignment(Tachyon* tachyon, State& state, const
 static void HandleDockingApproach(Tachyon* tachyon, State& state, const float dt, const float ship_speed) {
   auto& target = *get_live_object(state.docking_target);
   auto docking_distance = (state.ship_position - state.docking_position).magnitude();
+  float speed_limit = GetDockingApproachSpeedLimit(state);
 
   HandleDockingApproachCamera(tachyon, state, target, docking_distance);
 
-  if (ship_speed < AUTO_DOCK_APPROACH_SPEED_LIMIT) {
-    DroneFlightSystem::ThrustForward(state, dt, AUTO_DOCK_APPROACH_SPEED);
+  if (ship_speed < speed_limit) {
+    DroneFlightSystem::ThrustForward(state, dt, AUTO_DOCK_APPROACH_ACCELERATION);
   }
 
-  if (
-    ship_speed >= AUTO_DOCK_APPROACH_SPEED_LIMIT &&
-    docking_distance < 10000.f
-  ) {
+  if (ship_speed >= speed_limit && docking_distance < 10000.f) {
     // Begin final docking maneuver
     state.auto_dock_stage = AutoDockStage::DOCKING_CONNECTION;
     state.initial_docking_ship_rotation = objects(state.meshes.hull)[0].rotation;
@@ -216,7 +222,8 @@ static void HandleDockingConnection(Tachyon* tachyon, State& state) {
 
   // Slow down as we make the final approach
   if (docking_distance < 5000.f) {
-    float speed = AUTO_DOCK_APPROACH_SPEED_LIMIT * (docking_distance / 5000.f);
+    float speed_limit = GetDockingApproachSpeedLimit(state);
+    float speed = speed_limit * (docking_distance / 5000.f);
 
     // Slow the ship as it docks
     state.ship_velocity = state.ship_velocity_basis.forward * speed;

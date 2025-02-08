@@ -312,9 +312,13 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
   {
     state.target_camera_fov =
       45.f +
-      10.f * speed_zoom_ratio +
       5.f * boost_intensity +
       5.f * state.ship_pitch_factor;
+
+    if (state.flight_mode != FlightMode::AUTO_DOCK || state.auto_dock_stage < AutoDockStage::APPROACH) {
+      // Increase FoV proportional to speed when not doing a docking auto-approach
+      state.target_camera_fov += 10.f * speed_zoom_ratio;
+    }
 
     if (state.flight_system == FlightSystem::FIGHTER) {
       // Bump up the FoV when flying fighter vehicles at high speed
