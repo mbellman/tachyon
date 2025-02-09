@@ -15,12 +15,12 @@ void FighterFlightSystem::ControlledThrustForward(State& state, const float dt) 
 }
 
 void FighterFlightSystem::RollLeft(State& state, const float dt) {
-  state.camera_roll_speed += dt;
+  state.camera_roll_speed += 4.f * dt;
   state.flight_mode = FlightMode::MANUAL_CONTROL;
 }
 
 void FighterFlightSystem::RollRight(State& state, const float dt) {
-  state.camera_roll_speed -= dt;
+  state.camera_roll_speed -= 4.f * dt;
   state.flight_mode = FlightMode::MANUAL_CONTROL;
 }
 
@@ -42,11 +42,10 @@ void FighterFlightSystem::HandlePitch(State& state, const float dt) {
 
   state.ship_velocity -= state.ship_velocity_basis.forward * slowdown_factor * dt;
   state.ship_velocity += state.view_forward_direction * ACCELERATION * dt;
+  state.ship_velocity = state.ship_velocity.unit() * ship_speed;
 
   state.jets_intensity -= 3.f * dt;
   state.jets_intensity += 10.f * std::abs(state.ship_pitch_factor) * dt;
-
-  state.ship_velocity = state.ship_velocity.unit() * ship_speed;
 
   state.target_ship_rotation =
     state.target_ship_rotation *

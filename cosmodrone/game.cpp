@@ -212,7 +212,9 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
   if (state.camera_roll_speed > 3.f) state.camera_roll_speed = 3.f;
   if (state.camera_roll_speed < -3.f) state.camera_roll_speed = -3.f;
 
-  state.camera_roll_speed *= (1.f - dt);
+  float roll_speed_dampening_factor = state.is_piloting_vehicle ? 3.f : 1.f;
+
+  state.camera_roll_speed *= (1.f - roll_speed_dampening_factor * dt);
   state.camera_yaw_speed *= (1.f - 5.f * dt);
 
   if (is_window_focused()) {
@@ -316,7 +318,7 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
       5.f * state.ship_pitch_factor;
 
     if (state.flight_mode != FlightMode::AUTO_DOCK || state.auto_dock_stage < AutoDockStage::APPROACH) {
-      // Increase FoV proportional to speed when not doing a docking auto-approach
+      // Increase FoV proportional to speed when not doing docking auto-approach
       state.target_camera_fov += 10.f * speed_zoom_ratio;
     }
 

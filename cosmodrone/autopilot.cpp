@@ -294,6 +294,8 @@ void Autopilot::HandleAutopilot(Tachyon* tachyon, State& state, const float dt) 
 
       case AutoDockStage::DOCKING_CONNECTION: {
         HandleDockingConnection(tachyon, state);
+
+        break;
       }
     }
   }
