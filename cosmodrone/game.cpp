@@ -297,16 +297,18 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
     state.camera_boost_intensity *= 1.f - 10.f * dt;
     if (state.camera_boost_intensity > 1.f) state.camera_boost_intensity = 1.f;
 
-    boost_intensity =
-      state.camera_boost_intensity < 0.4f
-        ? sqrtf(state.camera_boost_intensity * 2.5f)
-        : 1.f;
-
     if (state.is_piloting_vehicle) {
       boost_intensity =
+        state.controlled_thrust_duration < 0.25f
+          ? 12.f * state.controlled_thrust_duration :
         state.controlled_thrust_duration < 1.f
-          ? 2.f * state.controlled_thrust_duration
-          : 3.f;
+          ? 3.f :
+        5.f;
+    } else {
+      boost_intensity =
+        state.camera_boost_intensity < 0.4f
+          ? sqrtf(state.camera_boost_intensity * 2.5f)
+          : 1.f;
     }
   }
 
