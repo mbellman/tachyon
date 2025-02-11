@@ -531,6 +531,32 @@ static void UpdateShipVelocityBasis(State& state) {
   state.ship_velocity_basis.sideways = sideways;
 }
 
+static void ApplyShipBanking(Tachyon* tachyon, State& state) {
+  auto& hull = objects(state.meshes.hull)[0];
+  float banking_factor;
+
+  float left_dot = tVec3f::dot(hull.rotation.getDirection().invert(), state.target_ship_rotation.getLeftDirection());
+  if (left_dot < 0.f) left_dot = 0.f;
+
+  float right_dot = tVec3f::dot(hull.rotation.getDirection().invert(), state.target_ship_rotation.getLeftDirection().invert());
+  if (right_dot < 0.f) right_dot = 0.f;
+
+  if (abs(left_dot) > abs(right_dot)) {
+    banking_factor = left_dot;
+  } else {
+    banking_factor = -right_dot;
+  }
+
+  if (state.flight_system == FlightSystem::FIGHTER) {
+    // Increase the amount of banking when flying fighter ships
+    banking_factor *= 2.f;
+  }
+
+  state.target_ship_rotation =
+    state.target_ship_rotation *
+    Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), banking_factor);
+}
+
 static void HandleDrone(Tachyon* tachyon, State& state, const float dt) {
   auto& camera = tachyon->scene.camera;
   auto& meshes = state.meshes;
@@ -551,6 +577,8 @@ static void HandleDrone(Tachyon* tachyon, State& state, const float dt) {
     if (state.ship_pitch_factor != 0.f) {
       FlightSystemDelegator::HandlePitch(state, dt);
     }
+
+    ApplyShipBanking(tachyon, state);
   }
 
   // @todo will nlerp work here?
@@ -570,8 +598,7 @@ static void HandleDrone(Tachyon* tachyon, State& state, const float dt) {
   streams.rotation =
   thrusters.rotation =
   trim.rotation =
-  jets.rotation =
-  rotation;
+  jets.rotation = rotation;
 
   hull.scale =
   streams.scale =
