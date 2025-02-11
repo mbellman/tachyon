@@ -532,19 +532,20 @@ static void UpdateShipVelocityBasis(State& state) {
 }
 
 static void ApplyShipBanking(Tachyon* tachyon, State& state) {
-  auto& hull = objects(state.meshes.hull)[0];
+  tObject& hull = objects(state.meshes.hull)[0];
+  tVec3f target_left = state.target_ship_rotation.getLeftDirection();
   float banking_factor;
 
-  float left_dot = tVec3f::dot(hull.rotation.getDirection().invert(), state.target_ship_rotation.getLeftDirection());
+  float left_dot = tVec3f::dot(state.ship_rotation_basis.forward, target_left);
   if (left_dot < 0.f) left_dot = 0.f;
 
-  float right_dot = tVec3f::dot(hull.rotation.getDirection().invert(), state.target_ship_rotation.getLeftDirection().invert());
+  float right_dot = tVec3f::dot(state.ship_rotation_basis.forward, target_left.invert());
   if (right_dot < 0.f) right_dot = 0.f;
 
   if (abs(left_dot) > abs(right_dot)) {
-    banking_factor = left_dot;
+    banking_factor = -left_dot;
   } else {
-    banking_factor = -right_dot;
+    banking_factor = right_dot;
   }
 
   if (state.flight_system == FlightSystem::FIGHTER) {
