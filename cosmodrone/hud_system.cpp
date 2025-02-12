@@ -179,19 +179,30 @@ static void HandleFlightReticle(Tachyon* tachyon, State& state, const float dt) 
         .alpha = alpha
       });
     } else if (state.flight_system == FlightSystem::FIGHTER) {
-      Tachyon_DrawUIElement(tachyon, state.ui.fighter_reticle, {
+      Vec2i screen_center = {
+        .x = tachyon->window_width / 2,
+        .y = tachyon->window_height / 2
+      };
+
+      Tachyon_DrawUIElement(tachyon, state.ui.fighter_reticle_center, {
+        .screen_x = screen_center.x,
+        .screen_y = screen_center.y
+      });
+
+      Tachyon_DrawUIElement(tachyon, state.ui.fighter_reticle_frame, {
         .screen_x = coords.x,
         .screen_y = coords.y,
         .alpha = alpha
       });
 
       if (
-        (state.controlled_thrust_duration > 0.45f && state.controlled_thrust_duration < 0.55f) ||
-        (state.controlled_thrust_duration > 0.65f && state.controlled_thrust_duration < 0.75f)
+        (state.controlled_thrust_duration > 0.4f && state.controlled_thrust_duration < 0.5f) ||
+        (state.controlled_thrust_duration > 0.6f && state.controlled_thrust_duration < 0.7f) ||
+        (state.controlled_thrust_duration > 0.8f && state.controlled_thrust_duration < 0.9f)
       ) {
         Tachyon_DrawUIElement(tachyon, state.ui.fighter_reticle_blinker, {
-          .screen_x = coords.x,
-          .screen_y = coords.y
+          .screen_x = screen_center.x,
+          .screen_y = screen_center.y
         });
       }
     }

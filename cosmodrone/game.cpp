@@ -708,7 +708,8 @@ void Cosmodrone::StartGame(Tachyon* tachyon) {
   // @todo UI::Initialize()
   {
     state.ui.drone_reticle = Tachyon_CreateUIElement("./cosmodrone/assets/ui/drone-reticle.png");
-    state.ui.fighter_reticle = Tachyon_CreateUIElement("./cosmodrone/assets/ui/fighter-reticle.png");
+    state.ui.fighter_reticle_frame = Tachyon_CreateUIElement("./cosmodrone/assets/ui/fighter-reticle-frame.png");
+    state.ui.fighter_reticle_center = Tachyon_CreateUIElement("./cosmodrone/assets/ui/fighter-reticle-center.png");
     state.ui.fighter_reticle_blinker = Tachyon_CreateUIElement("./cosmodrone/assets/ui/fighter-reticle-blinker.png");
     state.ui.dot = Tachyon_CreateUIElement("./cosmodrone/assets/ui/dot.png");
     state.ui.target_indicator = Tachyon_CreateUIElement("./cosmodrone/assets/ui/target.png");

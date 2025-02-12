@@ -174,7 +174,8 @@ namespace Cosmodrone {
     // @todo move to ui_system.cpp
     struct {
       tUIElement* drone_reticle = nullptr;
-      tUIElement* fighter_reticle = nullptr;
+      tUIElement* fighter_reticle_frame = nullptr;
+      tUIElement* fighter_reticle_center = nullptr;
       tUIElement* fighter_reticle_blinker = nullptr;
       tUIElement* dot = nullptr;
       tUIElement* target_indicator = nullptr;
