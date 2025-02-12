@@ -171,12 +171,30 @@ static void HandleFlightReticle(Tachyon* tachyon, State& state, const float dt) 
 
     if (alpha < 0.5f) alpha = 0.5f;
 
-    Tachyon_DrawUIElement(tachyon, state.ui.reticle, {
-      .screen_x = coords.x,
-      .screen_y = coords.y,
-      .rotation = rotation,
-      .alpha = alpha
-    });
+    if (state.flight_system == FlightSystem::DRONE) {
+      Tachyon_DrawUIElement(tachyon, state.ui.drone_reticle, {
+        .screen_x = coords.x,
+        .screen_y = coords.y,
+        .rotation = rotation,
+        .alpha = alpha
+      });
+    } else if (state.flight_system == FlightSystem::FIGHTER) {
+      Tachyon_DrawUIElement(tachyon, state.ui.fighter_reticle, {
+        .screen_x = coords.x,
+        .screen_y = coords.y,
+        .alpha = alpha
+      });
+
+      if (
+        (state.controlled_thrust_duration > 0.45f && state.controlled_thrust_duration < 0.55f) ||
+        (state.controlled_thrust_duration > 0.65f && state.controlled_thrust_duration < 0.75f)
+      ) {
+        Tachyon_DrawUIElement(tachyon, state.ui.fighter_reticle_blinker, {
+          .screen_x = coords.x,
+          .screen_y = coords.y
+        });
+      }
+    }
   }
 
   // Drift toward the center of the screen/stop roll

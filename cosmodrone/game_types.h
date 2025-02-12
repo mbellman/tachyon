@@ -171,9 +171,11 @@ namespace Cosmodrone {
 
     bool photo_mode = false;
 
-    // @todo move to hud_system.cpp
+    // @todo move to ui_system.cpp
     struct {
-      tUIElement* reticle = nullptr;
+      tUIElement* drone_reticle = nullptr;
+      tUIElement* fighter_reticle = nullptr;
+      tUIElement* fighter_reticle_blinker = nullptr;
       tUIElement* dot = nullptr;
       tUIElement* target_indicator = nullptr;
       tUIElement* mini_target_indicator = nullptr;
