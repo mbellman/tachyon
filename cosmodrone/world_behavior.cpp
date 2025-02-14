@@ -19,7 +19,7 @@ static void UpdateCelestialBodies(Tachyon* tachyon, State& state) {
 
   // Earth
   {
-    auto& earth = objects(meshes.planet)[0];
+    auto& earth = objects(meshes.earth)[0];
     auto& atmosphere = objects(meshes.earth_atmosphere)[0];
 
     earth.position = camera.position + tVec3f(0, -1E7f, 0);
@@ -45,7 +45,7 @@ static void UpdateCelestialBodies(Tachyon* tachyon, State& state) {
     tachyon->scene.directional_light_direction = sunlight_direction;
     tachyon->scene.scene_time = state.current_game_time;
 
-    auto& moon = objects(meshes.planet)[1];
+    auto& moon = objects(meshes.moon)[0];
 
     moon.position = camera.position + unit_moon_position * moon_distance;
     moon.scale = tVec3f(moon_scale);

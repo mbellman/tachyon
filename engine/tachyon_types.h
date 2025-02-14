@@ -82,6 +82,7 @@ struct tObjectGroup {
   std::vector<tObject> initial_objects;
 
   tObject& operator [](uint16 index) {
+    // @todo assert index is in range
     return objects[index];
   }
 
@@ -138,6 +139,7 @@ struct tMeshRecord {
   uint16 mesh_index;
   uint8 shadow_cascade_ceiling = 4;
   tMeshType type = PBR_MESH;
+  std::string texture = "";
 
   tObjectGroup group;
 };

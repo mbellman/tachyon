@@ -520,7 +520,8 @@ static void RenderMeshesByType(Tachyon* tachyon, tMeshType type) {
     if (
       record.group.disabled ||
       record.group.total_visible == 0 ||
-      record.type != type
+      record.type != type ||
+      record.texture != ""
     ) {
       continue;
     }

@@ -1569,7 +1569,8 @@ static void LoadBackgroundMeshes(Tachyon* tachyon, State& state) {
   // @todo define a list of celestial bodies + properties
   auto planet_mesh = Tachyon_CreateSphereMesh(40);
 
-  meshes.planet = Tachyon_AddMesh(tachyon, planet_mesh, 2);
+  meshes.earth = Tachyon_AddMesh(tachyon, planet_mesh, 1);
+  meshes.moon = Tachyon_AddMesh(tachyon, planet_mesh, 1);
   meshes.earth_atmosphere = Tachyon_AddMesh(tachyon, planet_mesh, 1);
   meshes.space_elevator = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/space-elevator.obj"), 1);
 
@@ -1690,7 +1691,8 @@ void MeshLibrary::LoadMeshes(Tachyon* tachyon, State& state) {
     // Disable shadows for the following meshes
     {
       // Background meshes
-      mesh(meshes.planet).shadow_cascade_ceiling = 0;
+      mesh(meshes.earth).shadow_cascade_ceiling = 0;
+      mesh(meshes.moon).shadow_cascade_ceiling = 0;
       mesh(meshes.space_elevator).shadow_cascade_ceiling = 0;
 
       // Station parts

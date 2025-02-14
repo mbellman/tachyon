@@ -201,8 +201,9 @@ namespace Cosmodrone {
       beacon,
 
       // Background elements
-      planet,
-      space_elevator,
+      earth,
+      moon,
+      space_elevator, // @todo remove
 
       // Volumetrics
       earth_atmosphere,

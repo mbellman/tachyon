@@ -88,8 +88,8 @@ static void InitLevel(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   // Earth + Moon
-  create(meshes.planet);
-  create(meshes.planet);
+  create(meshes.earth);
+  create(meshes.moon);
 
   // Earth atmosphere
   create(meshes.earth_atmosphere);
