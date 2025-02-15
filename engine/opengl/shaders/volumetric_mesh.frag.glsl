@@ -174,7 +174,7 @@ void main() {
 
   vec3 d = GetCloudDirection(N);
 
-  float t = scene_time * 0.001;
+  float t = scene_time * 0.01;
   float c1 = snoise(vec4(d, t));
   float c2 = snoise(vec4(d * 2.0, t));
   float c3 = snoise(vec4(d * 4.0, t));
@@ -198,7 +198,10 @@ void main() {
 
   float shadow = (c3_2 + c4_2) * (1.0 - NdotV * 0.75);
 
-  out_color -= vec3(shadow) * 0.25;
+  out_color -= vec3(shadow) * 0.3;
+
+  // Haze
+  out_color += vec3(1.0) * pow(1.0 - NdotV, 2.0);
 
   // Incidence
   out_color *= pow(NdotL, 1.0 / 3.0) + 0.2;
