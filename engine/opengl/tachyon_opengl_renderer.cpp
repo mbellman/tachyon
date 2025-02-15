@@ -42,7 +42,7 @@ struct tOpenGLTexture {
   GLuint texture_id;
 };
 
-static std::map<std::string, tOpenGLTexture> textures;
+static std::map<std::string, tOpenGLTexture> texture_cache;
 
 // --------------------------------------
 static void Tachyon_CheckError(const std::string& message) {
@@ -223,7 +223,7 @@ static void CreateRenderBuffers(Tachyon* tachyon) {
 }
 
 static tOpenGLTexture& GetOpenGLTexture(const std::string& texture_path) {
-  if (textures.find(texture_path) == textures.end()) {
+  if (texture_cache.find(texture_path) == texture_cache.end()) {
     tOpenGLTexture gl_texture;
 
     SDL_Surface* surface = IMG_Load(texture_path.c_str());
@@ -245,10 +245,10 @@ static tOpenGLTexture& GetOpenGLTexture(const std::string& texture_path) {
 
     // @todo show an error if the texture couldn't be loaded
 
-    textures.emplace(texture_path, gl_texture);
+    texture_cache.emplace(texture_path, gl_texture);
   }
 
-  return textures[texture_path];
+  return texture_cache[texture_path];
 }
 // --------------------------------------
 

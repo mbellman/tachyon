@@ -28,8 +28,8 @@ static void UpdateCelestialBodies(Tachyon* tachyon, State& state) {
     earth.material = tVec4f(0.4f, 0.f, 1.f, 0.3);
 
     earth.rotation =
-      Quaternion::fromAxisAngle(orbit_rotation_axis, state.current_game_time * 0.001f) *
-      Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), t_HALF_PI);
+      Quaternion::fromAxisAngle(orbit_rotation_axis, 0.5f) *
+      Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), t_PI * 0.25f);
 
     atmosphere.position = earth.position;
     atmosphere.scale = earth.scale * 1.015f;
