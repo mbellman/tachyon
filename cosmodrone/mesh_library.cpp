@@ -23,8 +23,7 @@ static void LoadShipPartMeshes(Tachyon* tachyon, State& state) {
   meshes.trim = Tachyon_AddMesh(tachyon, trim_mesh, 1);
   meshes.jets = Tachyon_AddMesh(tachyon, jets_mesh, 1);
 
-  // @todo use GLOW_MESH once the shader is ready
-  mesh(meshes.jets).type = tMeshType::WIREFRAME_MESH;
+  mesh(meshes.jets).type = tMeshType::ION_THRUSTER_MESH;
 }
 
 static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {

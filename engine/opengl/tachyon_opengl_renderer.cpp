@@ -746,6 +746,19 @@ static void RenderPostMeshes(Tachyon* tachyon) {
     SetShaderFloat(locations.scene_time, scene.scene_time);
 
     RenderMeshesByType(tachyon, FIRE_MESH);
+  }
+
+  // Ion thrusters
+  {
+    auto& shader = renderer.shaders.ion_thruster_mesh;
+    auto& locations = renderer.shaders.locations.ion_thruster_mesh;
+
+    glUseProgram(shader.program);
+    SetShaderMat4f(locations.view_projection_matrix, ctx.view_projection_matrix);
+    SetShaderVec3f(locations.transform_origin, scene.transform_origin);
+    SetShaderFloat(locations.scene_time, scene.scene_time);
+
+    RenderMeshesByType(tachyon, ION_THRUSTER_MESH);
 
     glDepthMask(true);
   }

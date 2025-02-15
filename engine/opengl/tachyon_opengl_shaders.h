@@ -93,6 +93,12 @@ struct tUniformLocations {
   ) fire_mesh;
 
   uniform_locations(
+    view_projection_matrix,
+    transform_origin,
+    scene_time
+  ) ion_thruster_mesh;
+
+  uniform_locations(
     offset_and_scale,
     rotation,
     in_color_and_depth,
@@ -128,6 +134,7 @@ struct tOpenGLShaders {
   tOpenGLShader wireframe_mesh;
   tOpenGLShader volumetric_mesh;
   tOpenGLShader fire_mesh;
+  tOpenGLShader ion_thruster_mesh;
   tOpenGLShader post;
 
   tOpenGLShader surface;

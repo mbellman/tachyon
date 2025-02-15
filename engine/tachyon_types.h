@@ -119,7 +119,7 @@ enum tMeshType {
   // @todo rename ATMOSPHERE_MESH
   VOLUMETRIC_MESH,
   FIRE_MESH,
-  GLOW_MESH,
+  ION_THRUSTER_MESH,
   WIREFRAME_MESH
 };
 
