@@ -1629,6 +1629,7 @@ static void ApplyMeshTextures(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   mesh(meshes.earth).texture = "./cosmodrone/assets/textures/earth-albedo.png";
+  mesh(meshes.moon).texture = "./cosmodrone/assets/textures/moon-albedo.png";
 }
 
 void MeshLibrary::LoadMeshes(Tachyon* tachyon, State& state) {

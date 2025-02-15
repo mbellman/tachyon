@@ -7,6 +7,13 @@ using namespace Cosmodrone;
 const static float orbital_rate = 0.001f;
 const static tVec3f orbit_rotation_axis = tVec3f(0.5f, 0, -1.f).unit();
 
+const static Quaternion base_earth_rotation =
+  Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), t_PI * 0.25f);
+
+const static Quaternion base_moon_rotation =
+  Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), t_PI * 0.2f) *
+  Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), t_PI * 0.5f);
+
 static void UpdateCelestialBodies(Tachyon* tachyon, State& state) {
   static const tVec3f sun_direction = tVec3f(0, -1.f, 0).unit();
   static const tVec3f moon_direction = tVec3f(0, 1.f, 0.5f).unit();
@@ -29,7 +36,7 @@ static void UpdateCelestialBodies(Tachyon* tachyon, State& state) {
 
     earth.rotation =
       Quaternion::fromAxisAngle(orbit_rotation_axis, 0.5f) *
-      Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), t_PI * 0.25f);
+      base_earth_rotation;
 
     atmosphere.position = earth.position;
     atmosphere.scale = earth.scale * 1.015f;
@@ -55,6 +62,10 @@ static void UpdateCelestialBodies(Tachyon* tachyon, State& state) {
     moon.scale = tVec3f(moon_scale);
     moon.color = tVec3f(0.8f);
     moon.material = tVec4f(1.f, 0, 0, 0.1f);
+
+    moon.rotation =
+      Quaternion::fromAxisAngle(orbit_rotation_axis, state.current_game_time * orbital_rate) *
+      base_moon_rotation;
 
     commit(moon);
   }
