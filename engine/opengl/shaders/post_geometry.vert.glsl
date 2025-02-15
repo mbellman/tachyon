@@ -14,7 +14,7 @@ flat out uvec4 fragSurface;
 out vec3 fragPosition;
 out vec3 fragNormal;
 
-// Used in fire_mesh.frag.glsl
+// Used in fire/ion thruster frag shaders
 flat out vec3 modelPosition;
 flat out vec3 basePosition;
 flat out vec3 topPosition;

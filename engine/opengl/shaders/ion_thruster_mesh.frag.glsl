@@ -7,6 +7,7 @@ in vec3 fragNormal;
 in vec3 fragTangent;
 in vec3 fragBitangent;
 in vec2 fragUv;
+in vec3 vertPosition;
 
 layout (location = 0) out vec4 out_color_and_depth;
 
@@ -22,6 +23,10 @@ vec4 UnpackColor(uvec4 surface) {
 void main() {
   vec4 out_color = UnpackColor(fragSurface);
 
+  out_color *= (1.0 + 0.1 * sin(vertPosition.z * 20.0 - scene_time * 20.0));
+
+  out_color.rgb *= clamp(pow(1.0 / (vertPosition.z * 1.3), 30.0), 0.0, 2.0);
+  out_color.rgb *= out_color.w;
   out_color.rgb *= out_color.w;
 
   out_color_and_depth = vec4(out_color.rgb, 0.0);
