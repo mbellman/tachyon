@@ -26,7 +26,9 @@ struct tOpenGLShader {
 struct tUniformLocations {
   uniform_locations(
     view_projection_matrix,
-    transform_origin
+    transform_origin,
+    has_texture,
+    albedo_texture
   ) main_geometry;
 
   uniform_locations(

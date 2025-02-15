@@ -23,9 +23,13 @@ static void UpdateCelestialBodies(Tachyon* tachyon, State& state) {
     auto& atmosphere = objects(meshes.earth_atmosphere)[0];
 
     earth.position = camera.position + tVec3f(0, -1E7f, 0);
-    earth.color = tVec3f(0.1f, 0.2f, 1.f);
     earth.scale = tVec3f(3200000.f);
+    earth.color = tVec3f(0.1f, 0.2f, 1.f);
     earth.material = tVec4f(0.4f, 0.f, 1.f, 0.3);
+
+    earth.rotation =
+      Quaternion::fromAxisAngle(orbit_rotation_axis, state.current_game_time * 0.001f) *
+      Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), t_HALF_PI);
 
     atmosphere.position = earth.position;
     atmosphere.scale = earth.scale * 1.015f;

@@ -1,8 +1,10 @@
 #include <chrono>
 #include <map>
+#include <string>
 
 #include <glew.h>
 #include <SDL.h>
+#include <SDL_image.h>
 #include <SDL_opengl.h>
 #include <SDL_ttf.h>
 
@@ -35,6 +37,12 @@ struct DrawElementsIndirectCommand {
   GLuint baseVertex;
   GLuint baseInstance;
 };
+
+struct tOpenGLTexture {
+  GLuint texture_id;
+};
+
+static std::map<std::string, tOpenGLTexture> textures;
 
 // --------------------------------------
 static void Tachyon_CheckError(const std::string& message) {
@@ -212,6 +220,35 @@ static void CreateRenderBuffers(Tachyon* tachyon) {
 
   tachyon->window_width = w;
   tachyon->window_height = h;
+}
+
+static tOpenGLTexture& GetOpenGLTexture(const std::string& texture_path) {
+  if (textures.find(texture_path) == textures.end()) {
+    tOpenGLTexture gl_texture;
+
+    SDL_Surface* surface = IMG_Load(texture_path.c_str());
+
+    if (surface != 0) {
+      GLuint format = surface->format->BytesPerPixel == 4 ? GL_RGBA : GL_RGB;
+
+      glGenTextures(1, &gl_texture.texture_id);
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, gl_texture.texture_id);
+
+      glTexImage2D(GL_TEXTURE_2D, 0, format, surface->w, surface->h, 0, format, GL_UNSIGNED_BYTE, surface->pixels);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      glGenerateMipmap(GL_TEXTURE_2D);
+
+      SDL_FreeSurface(surface);
+    }
+
+    // @todo show an error if the texture couldn't be loaded
+
+    textures.emplace(texture_path, gl_texture);
+  }
+
+  return textures[texture_path];
 }
 // --------------------------------------
 
@@ -561,10 +598,44 @@ static void RenderPbrMeshes(Tachyon* tachyon) {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
   glUseProgram(shader.program);
+  SetShaderBool(locations.has_texture, false);
   SetShaderMat4f(locations.view_projection_matrix, ctx.view_projection_matrix);
   SetShaderVec3f(locations.transform_origin, tachyon->scene.transform_origin);
 
   RenderMeshesByType(tachyon, PBR_MESH);
+
+  SetShaderBool(locations.has_texture, true);
+  SetShaderInt(locations.albedo_texture, 0);
+
+  // @todo factor
+  for (auto& record : tachyon->mesh_pack.mesh_records) {
+    if (
+      !record.group.disabled &&
+      record.group.total_visible > 0 &&
+      record.type == PBR_MESH &&
+      record.texture != ""
+    ) {
+      auto& gl_texture = GetOpenGLTexture(record.texture);
+
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, gl_texture.texture_id);
+
+      // @todo avoid allocating + deleting each frame
+      std::vector<DrawElementsIndirectCommand> commands;
+
+      AddDrawElementsIndirectCommands(commands, record, renderer.total_triangles, renderer.total_vertices);
+
+      // glBindBuffer(GL_DRAW_INDIRECT_BUFFER, renderer.indirect_buffer);
+      glBufferData(GL_DRAW_INDIRECT_BUFFER, commands.size() * sizeof(DrawElementsIndirectCommand), commands.data(), GL_DYNAMIC_DRAW);
+
+      glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, 0, commands.size(), 0);
+
+      // @todo dev mode only
+      {
+        renderer.total_draw_calls += 1;
+      }
+    }
+  }
 }
 
 static void RenderShadowMaps(Tachyon* tachyon) {
@@ -1096,6 +1167,7 @@ void Tachyon_OpenGL_DestroyRenderer(Tachyon* tachyon) {
 
   glDeleteBuffers(1, &renderer.indirect_buffer);
   // @todo DestroyBuffers()
+  // @todo destroy textures
 
   Tachyon_OpenGL_DestroyShaders(renderer.shaders);
 

@@ -1573,6 +1573,7 @@ static void LoadBackgroundMeshes(Tachyon* tachyon, State& state) {
   meshes.earth_atmosphere = Tachyon_AddMesh(tachyon, planet_mesh, 1);
   meshes.space_elevator = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/space-elevator.obj"), 1);
 
+  mesh(meshes.earth).texture = "./cosmodrone/assets/textures/earth-albedo.png";
   mesh(meshes.earth_atmosphere).type = VOLUMETRIC_MESH;
 }
 

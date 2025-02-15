@@ -311,6 +311,7 @@ tMesh Tachyon_CreateSphereMesh(uint8 divisions) {
 
   // Top pole vertex
   pole1.position = tVec3f(0, 1.f, 0);
+  pole1.uv = tVec2f(0.f);
 
   vertices.push_back(pole1);
 
@@ -326,6 +327,7 @@ tMesh Tachyon_CreateSphereMesh(uint8 divisions) {
       tVertex vertex;
 
       vertex.position = tVec3f(x, y, z);
+      vertex.uv = tVec2f(1.f - float(j) / float(horizontal_divisions), y_progress);
 
       vertices.push_back(vertex);
     }
@@ -333,6 +335,7 @@ tMesh Tachyon_CreateSphereMesh(uint8 divisions) {
 
   // Bottom pole vertex
   pole2.position = tVec3f(0, -1.f, 0);
+  pole2.uv = tVec2f(1.f, 1.f);
 
   vertices.push_back(pole2);
 

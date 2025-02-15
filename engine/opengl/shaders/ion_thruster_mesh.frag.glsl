@@ -23,7 +23,7 @@ vec4 UnpackColor(uvec4 surface) {
 void main() {
   vec4 out_color = UnpackColor(fragSurface);
 
-  out_color *= (1.0 + 0.1 * sin(vertPosition.z * 20.0 - scene_time * 20.0));
+  out_color *= (1.0 + 0.1 * sin(vertPosition.z * 20.0 - scene_time * 10.0));
 
   out_color.rgb *= clamp(pow(1.0 / (vertPosition.z * 1.3), 30.0), 0.0, 2.0);
   out_color.rgb *= out_color.w;
