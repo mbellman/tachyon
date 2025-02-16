@@ -37,6 +37,10 @@ static void UpdatePilotedVehicleParts(Tachyon* tachyon, State& state) {
     live.position = vehicle.position;
     live.rotation = vehicle.rotation;
 
+    if (live == vehicle.parts.back()) {
+      live.color = tVec4f(1.f, 0.6f, 0.2f, state.jets_intensity);
+    }
+
     commit(live);
   }
 }

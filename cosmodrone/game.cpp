@@ -550,7 +550,9 @@ static void ApplyShipBanking(Tachyon* tachyon, State& state) {
 
   if (state.flight_system == FlightSystem::FIGHTER) {
     // Increase the amount of banking when flying fighter ships
-    banking_factor *= 2.f;
+    float speed_ratio = state.ship_velocity.magnitude() / GetMaxShipSpeed(state);
+
+    banking_factor *= (speed_ratio + 0.25f) * 2.f;
   }
 
   state.target_ship_rotation =

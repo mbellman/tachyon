@@ -71,6 +71,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh(station_torus_4);
   load_mesh(station_platform_1);
   load_mesh(platform);
+  load_mesh(carrier);
   load_mesh(solar_rotator);
   load_mesh(base_1);
   load_mesh(building_1);
@@ -418,6 +419,15 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     .placeholder = true,
     .defaults = {
       .scale = tVec3f(75000.f),
+      .material = tVec4f(0.9f, 0, 0, 0.2f)
+    }
+  });
+
+  placeable_mesh_assets.push_back({
+    .mesh_name = "carrier",
+    .mesh_index = meshes.carrier,
+    .defaults = {
+      .scale = tVec3f(60000.f),
       .material = tVec4f(0.9f, 0, 0, 0.2f)
     }
   });
@@ -879,6 +889,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
   load_mesh(fighter_dock);
   load_mesh(fighter_guns);
   load_mesh(fighter_thrusters);
+  load_mesh(fighter_jets);
 
   generated_mesh_assets = {
     // antenna_2
@@ -1522,6 +1533,15 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .defaults = {
         .color = tVec3f(0.3f),
         .material = tVec4f(1.f, 0, 0, 0.1f)
+      }
+    },
+    {
+      .mesh_index = meshes.fighter_jets,
+      .generated_from = meshes.fighter_spawn,
+      .defaults = {
+        .type = ION_THRUSTER_MESH,
+        .color = tVec4f(1.f, 0.6f, 0.1f, 0.f),
+        .material = tVec4f(1.f, 0, 0, 0)
       }
     },
 

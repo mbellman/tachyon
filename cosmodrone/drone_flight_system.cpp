@@ -6,7 +6,6 @@ const static float ACCELERATION = 2000.f;
 
 void DroneFlightSystem::ThrustForward(State& state, const float dt, const float rate) {
   state.ship_velocity += state.ship_rotation_basis.forward * rate * dt;
-
   state.jets_intensity += 3.f * dt;
 }
 

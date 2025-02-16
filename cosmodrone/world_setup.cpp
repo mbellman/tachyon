@@ -403,10 +403,11 @@ void WorldSetup::RebuildWorld(Tachyon* tachyon, State& state) {
       auto& frame = *objects(meshes.fighter_frame).getById(dock.object_id);
       auto& guns = *objects(meshes.fighter_guns).getById(dock.object_id);
       auto& thrusters = *objects(meshes.fighter_thrusters).getById(dock.object_id);
+      auto& jets = *objects(meshes.fighter_jets).getById(dock.object_id);
 
       PilotableVehicle vehicle;
       vehicle.root_object = dock;
-      vehicle.parts = { core, frame, guns, dock, thrusters };
+      vehicle.parts = { core, frame, guns, dock, thrusters, jets };
 
       state.pilotable_vehicles.push_back(vehicle);
     }

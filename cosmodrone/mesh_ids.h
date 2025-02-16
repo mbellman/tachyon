@@ -20,6 +20,10 @@ namespace Cosmodrone {
       zone_target,
       vehicle_target,
 
+      // Major station pieces
+      platform,
+      carrier,
+
       // Station parts
       antenna_1,
       antenna_2,
@@ -49,7 +53,6 @@ namespace Cosmodrone {
       station_torus_3,
       station_torus_4,
       station_platform_1,
-      platform,
       solar_rotator,
       base_1,
       building_1,
@@ -175,6 +178,7 @@ namespace Cosmodrone {
       fighter_dock,
       fighter_guns,
       fighter_thrusters,
+      fighter_jets,
 
       // Procedural meshes
       procedural_elevator_car,

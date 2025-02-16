@@ -252,7 +252,7 @@ static void GenerateElevatorTrackSupports(Tachyon* tachyon, const State& state) 
 
     supports.scale = 12000.f;
     supports.position.y = 8000000.f + i * -400000.f + offset_cycle[i % 5];
-    supports.material = tVec4f(0.7f, 1.f, 0, 0);
+    supports.material = tVec4f(0.8f, 0, 0, 0.1f);
     supports.rotation =
       Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), spin) *
       Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), t_HALF_PI);
@@ -266,7 +266,7 @@ static void GenerateElevatorTrackSupports(Tachyon* tachyon, const State& state) 
 
     supports.scale = 12000.f;
     supports.position.y = 8000000.f + i * -400000.f + 200000.f - offset_cycle[i % 5];
-    supports.material = tVec4f(0.7f, 1.f, 0, 0);
+    supports.material = tVec4f(0.8f, 0, 0, 0.1f);
     supports.rotation =
       Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), spin) *
       Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), t_HALF_PI);
