@@ -183,8 +183,13 @@ void main() {
 
   float clouds = c1 + c2 + c3 + c4 + c5;
 
-  clouds = clamp(clouds, 0.0, 1.0);
-  clouds *= clouds;
+  float density = clamp(
+    sin(N.x * 1.5 + N.z * 2.0 + N.y * 2.5) * clouds,
+    0.2,
+    1.0
+  );
+
+  clouds = clamp(clouds, 0.0, 1.0) * density;
 
   vec3 out_color = vec3(0.0);
 
@@ -198,10 +203,10 @@ void main() {
 
   float shadow = (c3_2 + c4_2) * (1.0 - NdotV * 0.75);
 
-  out_color -= vec3(shadow) * 0.3;
+  out_color -= vec3(shadow) * 0.3 * density;
 
   // Haze
-  out_color += vec3(1.0) * pow(1.0 - NdotV, 2.0);
+  out_color += vec3(2.0) * pow(1.0 - NdotV, 3.0);
 
   // Incidence
   out_color *= pow(NdotL, 1.0 / 3.0) + 0.2;
