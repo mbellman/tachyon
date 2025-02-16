@@ -181,6 +181,7 @@ namespace Cosmodrone {
       procedural_elevator_car_light,
       procedural_track_1,
       procedural_track_supports_1,
+      procedural_track_supports_2,
 
       // HUD wireframe meshes
       drone_wireframe,

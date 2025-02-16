@@ -1296,7 +1296,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .mesh_index = meshes.solar_rotator_body,
       .generated_from = meshes.solar_rotator,
       .defaults = {
-        .material = tVec4f(0.9f, 0, 0.1f, 0.2f)
+        .material = tVec4f(0.9f, 0, 0.1f, 0)
       }
     },
     {
