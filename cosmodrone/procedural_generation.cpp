@@ -279,6 +279,6 @@ void ProceduralGeneration::RemoveAutoPlacedObjects(Tachyon* tachyon, State& stat
 void ProceduralGeneration::GenerateWorld(Tachyon* tachyon, State& state) {
   GenerateElevator(tachyon, state);
   GenerateElevatorCars(tachyon, state);
-  GenerateElevatorToruses(tachyon, state);
-  GenerateElevatorTrackFrames(tachyon, state);
+  // GenerateElevatorToruses(tachyon, state);
+  // GenerateElevatorTrackFrames(tachyon, state);
 }
