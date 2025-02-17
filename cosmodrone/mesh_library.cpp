@@ -63,6 +63,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh(silo_5);
   load_mesh(silo_6);
   load_mesh(silo_7);
+  load_mesh(silo_8);
   load_mesh(torus_1);
   load_mesh(elevator_torus_1);
   load_mesh(station_torus_1);
@@ -342,6 +343,15 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     .placeholder = true,
     .defaults = {
       .scale = tVec3f(7000.f)
+    }
+  });
+
+  placeable_mesh_assets.push_back({
+    .mesh_name = "silo_8",
+    .mesh_index = meshes.silo_8,
+    .placeholder = true,
+    .defaults = {
+      .scale = tVec3f(20000.f)
     }
   });
 
@@ -799,6 +809,9 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
   load_mesh(silo_7_core);
   load_mesh(silo_7_frame);
 
+  load_mesh(silo_8_core);
+  load_mesh(silo_8_frame);
+
   load_mesh_with_2_lods(girder_4_core);
   load_mesh_with_2_lods(girder_4_frame);
 
@@ -992,6 +1005,22 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .defaults = {
         .color = tVec3f(0.8f),
         .material = tVec4f(0.7f, 1.f, 0, 0)
+      }
+    },
+
+    // silo_8
+    {
+      .mesh_index = meshes.silo_8_core,
+      .generated_from = meshes.silo_8,
+      .defaults = {
+        .material = tVec4f(0.9f, 0, 0, 0.3f)
+      }
+    },
+    {
+      .mesh_index = meshes.silo_8_frame,
+      .generated_from = meshes.silo_8,
+      .defaults = {
+        .material = tVec4f(1.f, 0, 0, 0)
       }
     },
 
@@ -1503,7 +1532,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .mesh_index = meshes.fighter_core,
       .generated_from = meshes.fighter_spawn,
       .defaults = {
-        .material = tVec4f(0.9f, 0, 0.2f, 0.2f)
+        .material = tVec4f(1.f, 0, 0.2f, 0.3f)
       }
     },
     {
