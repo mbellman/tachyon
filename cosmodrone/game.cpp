@@ -143,11 +143,12 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
   // @todo How does any of the below have to do with inputs? Why is it here?
   // This stuff should be moved to HandleDrone() or some intermediate step.
 
+  // @todo move to autopilot.cpp
   if (
     state.flight_mode == FlightMode::AUTO_DOCK &&
     state.auto_dock_stage < AutoDockStage::APPROACH
   ) {
-    state.ship_rotate_to_target_speed += 1.f * dt;
+    state.ship_rotate_to_target_speed += 2.f * dt;
   }
 
   // Some complicated logic to ensure that the ship can rotate faster
