@@ -169,6 +169,7 @@ namespace Cosmodrone {
 
       // Vehicle spawns
       fighter_spawn,
+      freight_spawn,
 
       // Vehicle parts
       station_drone_core,
@@ -195,6 +196,7 @@ namespace Cosmodrone {
       floater_1_wireframe,
       station_drone_wireframe,
       fighter_wireframe,
+      freight_wireframe,
 
       // Entities
       elevator_car_1,

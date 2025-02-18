@@ -102,6 +102,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh(light_4);
   load_mesh(charge_pad);
   load_mesh(fighter_spawn);
+  load_mesh(freight_spawn);
   load_mesh(floater_1);
   load_mesh(gas_flare_1_spawn);
   load_mesh(arch_1);
@@ -723,6 +724,15 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     .placeholder = true,
     .defaults = {
       .scale = tVec3f(5000.f)
+    }
+  });
+
+  placeable_mesh_assets.push_back({
+    .mesh_name = "freight_spawn",
+    .mesh_index = meshes.freight_spawn,
+    // .placeholder = true,
+    .defaults = {
+      .scale = tVec3f(8000.f)
     }
   });
 
@@ -1599,6 +1609,7 @@ static void LoadTargetInspectorMeshes(Tachyon* tachyon, State& state) {
   load_wireframe(meshes.floater_1_wireframe, "./cosmodrone/assets/station-parts/floater_1.obj");
   load_wireframe(meshes.station_drone_wireframe, "./cosmodrone/assets/station-parts/station_drone.obj");
   load_wireframe(meshes.fighter_wireframe, "./cosmodrone/assets/station-parts/fighter_spawn.obj");
+  load_wireframe(meshes.freight_wireframe, "./cosmodrone/assets/wireframes/freight.obj");
 }
 
 static void LoadBackgroundMeshes(Tachyon* tachyon, State& state) {
