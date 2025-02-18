@@ -1,6 +1,7 @@
 #include "cosmodrone/autopilot.h"
 #include "cosmodrone/drone_flight_system.h"
 #include "cosmodrone/target_system.h"
+#include "cosmodrone/utilities.h"
 
 using namespace Cosmodrone;
 
@@ -11,90 +12,6 @@ const static auto RIGHT_VECTOR = tVec3f(1.f, 0, 0);
 
 const static float AUTO_DOCK_APPROACH_ACCELERATION = 1500.f;
 
-// @todo move to utilities
-static tVec3f GetDockingPositionOffset(const uint16 mesh_index, const State& state) {
-  auto& meshes = state.meshes;
-
-  if (mesh_index == meshes.antenna_3) {
-    return tVec3f(0, -1.f, -1.f).unit() * 0.7f;
-  }
-
-  if (mesh_index == meshes.antenna_5) {
-    return tVec3f(0, -1.f, -1.f).unit() * 0.8f;
-  }
-
-  if (mesh_index == meshes.fighter_dock) {
-    return tVec3f(0, 0.3f, 0.35f);
-  }
-
-  if (mesh_index == meshes.floater_1) {
-    return tVec3f(0, 0.8f, 0);
-  }
-
-  return tVec3f(0.f);
-}
-
-// @todo move to utilities
-static tVec3f GetDockingPositionOffset(const State& state) {
-  return GetDockingPositionOffset(state.docking_target.mesh_index, state);
-}
-
-// @todo move to utilities
-static Quaternion GetDockedRotation(const State& state, const uint16 mesh_index) {
-  auto& meshes = state.meshes;
-
-  if (
-    mesh_index == meshes.antenna_3 ||
-    mesh_index == meshes.antenna_5 ||
-    mesh_index == meshes.floater_1
-  ) {
-    return Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI);
-  }
-
-  return Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 0.f);
-}
-
-// @todo move to utilities
-static Quaternion GetDockedCameraRotation(const State& state, const tObject& target) {
-  auto& meshes = state.meshes;
-
-  if (
-    target.mesh_index == meshes.antenna_3 ||
-    target.mesh_index == meshes.floater_1
-  ) {
-    return (
-      Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.6f) *
-      Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI * 1.2f) *
-      target.rotation.opposite()
-    );
-  }
-
-  if (target.mesh_index == meshes.antenna_5) {
-    return (
-      Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.5f) *
-      Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI) *
-      target.rotation.opposite()
-    );
-  }
-
-  return (
-    Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.2f) *
-    target.rotation.opposite()
-  );
-}
-
-// @todo move to utilities
-static float GetDockedCameraDistance(const State& state, const uint16 mesh_index) {
-  auto& meshes = state.meshes;
-
-  if (mesh_index == meshes.fighter_dock) {
-    return 15000.f;
-  }
-
-  return 30000.f;
-}
-
-// @todo move to utilities
 static inline float GetDockingApproachSpeedLimit(const State& state) {
   float speed_limit = state.initial_approach_ship_distance / 15.f;
   if (speed_limit < 2000.f) speed_limit = 2000.f;
@@ -120,7 +37,7 @@ static void DecelerateRetrograde(State& state, const float dt) {
 
 static void HandleDockingApproachCamera(Tachyon* tachyon, State& state, tObject& target, float docking_distance) {
   // @todo cache this when we start the docking stage
-  auto docked_camera_rotation = GetDockedCameraRotation(state, target);
+  auto docked_camera_rotation = Utilities::GetDockedCameraRotation(state, target);
 
   // @todo use ease-in-out
   float camera_blend = powf(1.f - docking_distance / state.initial_approach_ship_distance, 2.f);
@@ -138,7 +55,7 @@ static void HandleDockingApproachCamera(Tachyon* tachyon, State& state, tObject&
 
   state.ship_camera_distance = state.ship_camera_distance_target = Tachyon_Lerpf(
     state.initial_approach_camera_distance,
-    GetDockedCameraDistance(state, state.docking_target.mesh_index),
+    Utilities::GetDockedCameraDistance(state, state.docking_target.mesh_index),
     camera_blend
   );
 }
@@ -206,7 +123,7 @@ static void HandleDockingConnection(Tachyon* tachyon, State& state) {
   // Rotate the ship into the final docking position
   state.target_ship_rotation =
     target.rotation *
-    GetDockedRotation(state, state.docking_target.mesh_index);
+    Utilities::GetDockedRotation(state, state.docking_target.mesh_index);
 
   // Rotate the ship into docking position
   {
@@ -363,7 +280,7 @@ tVec3f Autopilot::GetDockingPosition(Tachyon* tachyon, const State& state) {
   }
 
   auto& target_rotation = target->rotation;
-  auto offset = GetDockingPositionOffset(state);
+  auto offset = Utilities::GetDockingPositionOffset(state);
 
   offset *= target->scale;
   offset = target_rotation.toMatrix4f() * offset;
@@ -379,7 +296,7 @@ tVec3f Autopilot::GetDockingPosition(Tachyon* tachyon, const State& state, const
   }
 
   auto& target_rotation = target->rotation;
-  auto offset = GetDockingPositionOffset(object.mesh_index, state);
+  auto offset = Utilities::GetDockingPositionOffset(state, object.mesh_index);
 
   offset *= target->scale;
   offset = target_rotation.toMatrix4f() * offset;

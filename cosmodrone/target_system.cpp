@@ -2,6 +2,7 @@
 
 #include "cosmodrone/autopilot.h"
 #include "cosmodrone/target_system.h"
+#include "cosmodrone/utilities.h"
 
 using namespace Cosmodrone;
 
@@ -53,15 +54,7 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
 
   // Manage tracker instances
   {
-    static std::vector<uint16> targetable_meshes = {
-      state.meshes.antenna_3,
-      state.meshes.antenna_5,
-      state.meshes.charge_pad,
-      state.meshes.fighter_dock,
-      state.meshes.floater_1,
-      state.meshes.station_drone_core,
-      state.meshes.procedural_elevator_car
-    };
+    auto& targetable_meshes = Utilities::GetTargetableMeshes(state);
 
     for (auto mesh_index : targetable_meshes) {
       for (auto& object : objects(mesh_index)) {
