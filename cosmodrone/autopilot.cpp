@@ -82,7 +82,7 @@ static void HandleDockingApproachAlignment(Tachyon* tachyon, State& state, const
 
   state.target_ship_rotation = Quaternion::FromDirection(forward.invert(), target_object_up);
 
-  if (Autopilot::GetDockingAlignment(state, state.docking_position) <= 0.99999f) {
+  if (Autopilot::GetDockingAlignment(state, state.docking_position) <= 0.999999f) {
     // Slow the ship down as we align it
     state.ship_velocity *= (1.f - 5.f * dt);
   } else {

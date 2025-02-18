@@ -235,20 +235,24 @@ static void RemoveAllTargetInspectorWireframes(Tachyon* tachyon, State& state) {
 
   auto& meshes = state.meshes;
 
+  // @todo get via a utility function
   remove_objects(meshes.antenna_3_wireframe);
   remove_objects(meshes.floater_1_wireframe);
   remove_objects(meshes.station_drone_wireframe);
   remove_objects(meshes.fighter_wireframe);
+  remove_objects(meshes.freight_wireframe);
 }
 
 static void RemoveUnusedTargetInspectorWireframes(Tachyon* tachyon, const State& state, const TargetTracker& tracker) {
   auto& meshes = state.meshes;
 
+  // @todo get via a utility function
   const auto mesh_indexes = {
     meshes.antenna_3_wireframe,
     meshes.floater_1_wireframe,
     meshes.station_drone_wireframe,
-    meshes.fighter_wireframe
+    meshes.fighter_wireframe,
+    meshes.freight_wireframe
   };
 
   for (auto mesh_index : mesh_indexes) {
@@ -285,7 +289,7 @@ static void HandleTargetInspectorWireframe(Tachyon* tachyon, const State& state,
 
   auto& wireframe = objects[0];
 
-  wireframe.scale = 50.f;
+  wireframe.scale = 1.1f * camera.fov;
 
   wireframe.color = tVec4f(
     tVec3f(0.5f, 0.8f, 1.f),

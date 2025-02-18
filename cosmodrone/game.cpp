@@ -526,8 +526,8 @@ static void UpdateShipVelocityBasis(State& state) {
 }
 
 static void ApplyShipBanking(Tachyon* tachyon, State& state) {
-  tObject& hull = objects(state.meshes.hull)[0];
-  tVec3f target_left = state.target_ship_rotation.getLeftDirection();
+  auto& hull = objects(state.meshes.hull)[0];
+  auto target_left = state.target_ship_rotation.getLeftDirection();
   float banking_factor;
 
   float left_dot = tVec3f::dot(state.ship_rotation_basis.forward, target_left);
@@ -548,6 +548,9 @@ static void ApplyShipBanking(Tachyon* tachyon, State& state) {
 
     banking_factor *= (speed_ratio + 0.25f) * 2.f;
   }
+
+  if (banking_factor > 1.5f) banking_factor = 1.5f;
+  if (banking_factor < -1.5f) banking_factor = -1.5f;
 
   state.target_ship_rotation =
     state.target_ship_rotation *
