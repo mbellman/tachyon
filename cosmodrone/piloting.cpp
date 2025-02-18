@@ -1,5 +1,6 @@
 #include "cosmodrone/autopilot.h"
 #include "cosmodrone/piloting.h"
+#include "cosmodrone/utilities.h"
 
 using namespace Cosmodrone;
 
@@ -108,8 +109,7 @@ void Piloting::HandlePiloting(Tachyon* tachyon, State& state, const float dt) {
 
     state.flight_mode = FlightMode::MANUAL_CONTROL;
 
-    // @todo use generic GetMaxShipSpeed()
-    float speed_ratio = speed / 100000.f;
+    float speed_ratio = speed / Utilities::GetMaxShipSpeed(state);
     float forward_dot = tVec3f::dot(state.view_forward_direction, state.ship_rotation_basis.forward);
 
     state.ship_rotate_to_target_speed = 2.5f * Tachyon_Lerpf(1.f, powf(forward_dot, 3.f), speed_ratio);

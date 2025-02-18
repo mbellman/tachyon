@@ -8,6 +8,7 @@
 #include "cosmodrone/mesh_library.h"
 #include "cosmodrone/piloting.h"
 #include "cosmodrone/target_system.h"
+#include "cosmodrone/utilities.h"
 #include "cosmodrone/world_behavior.h"
 #include "cosmodrone/world_setup.h"
 
@@ -30,15 +31,6 @@ static Quaternion DirectionToQuaternion(const tVec3f& direction) {
     Quaternion::fromAxisAngle(UP_VECTOR, yaw) *
     Quaternion::fromAxisAngle(RIGHT_VECTOR, pitch)
   );
-}
-
-// @todo move to utilities.cpp
-static float GetMaxShipSpeed(const State& state) {
-  if (state.flight_system == FlightSystem::FIGHTER) {
-    return 100000.f;
-  } else {
-    return 20000.f;
-  }
 }
 
 static void UpdateViewDirections(Tachyon* tachyon, State& state) {
@@ -179,7 +171,7 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
   // Enforce maximum ship speed
   {
     float ship_speed = state.ship_velocity.magnitude();
-    float max_ship_speed = GetMaxShipSpeed(state);
+    float max_ship_speed = Utilities::GetMaxShipSpeed(state);
 
     if (ship_speed > max_ship_speed) {
       state.ship_velocity = state.ship_velocity.unit() * max_ship_speed;
@@ -289,7 +281,7 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
   UpdateViewDirections(tachyon, state);
 
   float ship_speed = state.ship_velocity.magnitude();
-  float speed_ratio = ship_speed / GetMaxShipSpeed(state);
+  float speed_ratio = ship_speed / Utilities::GetMaxShipSpeed(state);
   float speed_zoom_ratio = ship_speed / (ship_speed + 5000.f);
   float boost_intensity;
 
@@ -400,7 +392,7 @@ static void HandleFlightGuides(Tachyon* tachyon, State& state, const float dt) {
     commit(curve);
   }
 
-  float speed_ratio = state.ship_velocity.magnitude() / GetMaxShipSpeed(state);
+  float speed_ratio = state.ship_velocity.magnitude() / Utilities::GetMaxShipSpeed(state);
 
   float brightness_factor =
     state.is_piloting_vehicle ? (
@@ -552,7 +544,7 @@ static void ApplyShipBanking(Tachyon* tachyon, State& state) {
 
   if (state.flight_system == FlightSystem::FIGHTER) {
     // Increase the amount of banking when flying fighter ships
-    float speed_ratio = state.ship_velocity.magnitude() / GetMaxShipSpeed(state);
+    float speed_ratio = state.ship_velocity.magnitude() / Utilities::GetMaxShipSpeed(state);
 
     banking_factor *= (speed_ratio + 0.25f) * 2.f;
   }

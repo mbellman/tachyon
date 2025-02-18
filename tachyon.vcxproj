@@ -130,6 +130,7 @@
     <ClInclude Include="cosmodrone\piloting.h" />
     <ClInclude Include="cosmodrone\procedural_generation.h" />
     <ClInclude Include="cosmodrone\target_system.h" />
+    <ClInclude Include="cosmodrone\utilities.h" />
     <ClInclude Include="cosmodrone\world_behavior.h" />
     <ClInclude Include="cosmodrone\world_setup.h" />
     <ClInclude Include="engine\opengl\tachyon_opengl_framebuffer.h" />
@@ -258,6 +259,7 @@
     <ClCompile Include="cosmodrone\piloting.cpp" />
     <ClCompile Include="cosmodrone\procedural_generation.cpp" />
     <ClCompile Include="cosmodrone\target_system.cpp" />
+    <ClCompile Include="cosmodrone\utilities.cpp" />
     <ClCompile Include="cosmodrone\world_behavior.cpp" />
     <ClCompile Include="cosmodrone\world_setup.cpp" />
     <ClCompile Include="engine\opengl\tachyon_opengl_framebuffer.cpp" />

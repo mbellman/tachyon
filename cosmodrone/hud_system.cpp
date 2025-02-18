@@ -4,62 +4,9 @@
 #include "cosmodrone/beacons.h"
 #include "cosmodrone/hud_system.h"
 #include "cosmodrone/target_system.h"
+#include "cosmodrone/utilities.h"
 
 using namespace Cosmodrone;
-
-// @todo move to utilities
-static uint16 GetTargetInspectorWireframeMeshIndex(const uint16 source_mesh, const State& state) {
-  auto& meshes = state.meshes;
-
-  if (source_mesh == meshes.antenna_3) {
-    return meshes.antenna_3_wireframe;
-  }
-
-  if (source_mesh == meshes.floater_1) {
-    return meshes.floater_1_wireframe;
-  }
-
-  if (source_mesh == meshes.station_drone_core) {
-    return meshes.station_drone_wireframe;
-  }
-
-  if (source_mesh == meshes.fighter_dock) {
-    return meshes.fighter_wireframe;
-  }
-
-  return meshes.antenna_3_wireframe;
-}
-
-// @todo move to utilities
-static std::string GetTargetName(const State& state, const tObject& target) {
-  auto& meshes = state.meshes;
-
-  if (target.mesh_index == meshes.antenna_3) {
-    return "ANTENNA-3";
-  }
-
-  if (target.mesh_index == meshes.antenna_5) {
-    return "SENTRY RADAR";
-  }
-
-  if (target.mesh_index == meshes.fighter_dock) {
-    return "PEREGRINE";
-  }
-
-  if (target.mesh_index == meshes.floater_1) {
-    return "STARFLOWER";
-  }
-
-  if (target.mesh_index == meshes.station_drone_core) {
-    return "SENTINEL";
-  }
-
-  if (target.mesh_index == meshes.procedural_elevator_car) {
-    return "CABLE CAR";
-  }
-
-  return "--UNNAMED--";
-}
 
 static void HandleDroneInspector(Tachyon* tachyon, State& state, const float dt) {
   auto& meshes = state.meshes;
@@ -327,7 +274,7 @@ static float GetWireframeAlpha(const float age) {
 static void HandleTargetInspectorWireframe(Tachyon* tachyon, const State& state, const tVec3f& offset_position, const TargetTracker& tracker) {
   auto& camera = tachyon->scene.camera;
   auto time_since_selected = state.current_game_time - tracker.selected_time;
-  auto wireframe_mesh_index = GetTargetInspectorWireframeMeshIndex(tracker.object.mesh_index, state);
+  auto wireframe_mesh_index = Utilities::GetTargetWireframeMesh(state, tracker.object.mesh_index);
   auto& objects = objects(wireframe_mesh_index);
   // @todo define an orthonormal view basis and precalculate this
   auto left = tVec3f::cross(state.view_forward_direction, state.view_up_direction).invert();
@@ -402,7 +349,7 @@ static std::string GetCondensedFloatString(const float value) {
 static void HandleTargetInspectorStats(Tachyon* tachyon, const State& state, const TargetTracker& tracker) {
   auto time_since_selected = state.current_game_time - tracker.selected_time;
   auto& target = tracker.object;
-  auto wireframe_mesh_index = GetTargetInspectorWireframeMeshIndex(target.mesh_index, state);
+  auto wireframe_mesh_index = Utilities::GetTargetWireframeMesh(state, target.mesh_index);
   auto& wireframe = objects(wireframe_mesh_index)[0];
   auto rotation = wireframe.rotation * target.rotation;
 
@@ -421,7 +368,7 @@ static void HandleTargetInspectorStats(Tachyon* tachyon, const State& state, con
       .centered = false,
       .color = name_color,
       .alpha = 0.75f + 0.25f * name_color_blend_factor,
-      .string = GetTargetName(state, target)
+      .string = Utilities::GetTargetName(state, target.mesh_index)
     });
   }
 
