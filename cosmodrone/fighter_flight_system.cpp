@@ -10,7 +10,7 @@ void FighterFlightSystem::ControlledThrustForward(State& state, const float dt) 
   }
 
   state.jets_intensity += 3.f * dt;
-  state.ship_rotate_to_target_speed += dt;
+  state.ship_rotate_to_target_speed += 3.f * dt;
   state.controlled_thrust_duration += dt;
   state.flight_mode = FlightMode::MANUAL_CONTROL;
 }

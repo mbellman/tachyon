@@ -107,8 +107,15 @@ void Piloting::HandlePiloting(Tachyon* tachyon, State& state, const float dt) {
     UpdatePilotedVehicleParts(tachyon, state);
 
     state.flight_mode = FlightMode::MANUAL_CONTROL;
-    // @todo use max ship speed for the speed ratio
-    state.ship_rotate_to_target_speed = 3.f - 3.f * (speed / 110000.f) + abs(state.camera_roll_speed);
+
+    // @todo use generic GetMaxShipSpeed()
+    float speed_ratio = speed / 100000.f;
+    float forward_dot = tVec3f::dot(state.view_forward_direction, state.ship_rotation_basis.forward);
+
+    state.ship_rotate_to_target_speed = 2.5f * Tachyon_Lerpf(1.f, powf(forward_dot, 3.f), speed_ratio);
+    if (state.ship_rotate_to_target_speed < 0.5f) state.ship_rotate_to_target_speed = 0.5f;
+
+    state.ship_rotate_to_target_speed = Tachyon_Lerpf(state.ship_rotate_to_target_speed, 0.2f, sqrtf(abs(state.ship_pitch_factor)));
 
     // Lock drone to vehicle
     state.ship_position =
