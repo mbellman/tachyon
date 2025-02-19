@@ -74,6 +74,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh(platform);
   load_mesh(carrier);
   load_mesh(solar_rotator);
+  load_mesh(solar_field);
   load_mesh(base_1);
   load_mesh(building_1);
   load_mesh(station_base);
@@ -450,6 +451,16 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     .defaults = {
       .scale = tVec3f(18000.f),
       .material = tVec4f(0.9f, 0, 0, 0.2f)
+    }
+  });
+
+  placeable_mesh_assets.push_back({
+    .mesh_name = "solar_field",
+    .mesh_index = meshes.solar_field,
+    .placeholder = true,
+    .defaults = {
+      .scale = tVec3f(200000.f),
+      .material = tVec4f(1.f, 0, 0, 0.2f)
     }
   });
 
@@ -877,6 +888,10 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
   load_mesh(solar_rotator_body);
   load_mesh(solar_rotator_frame);
   load_mesh(solar_rotator_panels);
+
+  load_mesh(solar_field_core);
+  load_mesh(solar_field_frame);
+  load_mesh(solar_field_panels);
 
   load_mesh(light_1_base);
   load_mesh(light_1_bulb);
@@ -1365,6 +1380,30 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       }
     },
 
+    // solar_field
+    {
+      .mesh_index = meshes.solar_field_core,
+      .generated_from = meshes.solar_field,
+      .defaults = {
+        .material = tVec4f(0.9f, 0, 0, 0.3f)
+      }
+    },
+    {
+      .mesh_index = meshes.solar_field_frame,
+      .generated_from = meshes.solar_field,
+      .defaults = {
+        .material = tVec4f(0.6f, 1.f, 0, 0)
+      }
+    },
+    {
+      .mesh_index = meshes.solar_field_panels,
+      .generated_from = meshes.solar_field,
+      .defaults = {
+        .color = 0xFF41,
+        .material = tVec4f(0.4f, 1.f, 0, 0)
+      }
+    },
+  
     // light_1
     {
       .mesh_index = meshes.light_1_base,
