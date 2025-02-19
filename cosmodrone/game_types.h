@@ -186,6 +186,9 @@ namespace Cosmodrone {
       tUIElement* selected_target_center = nullptr;
       tUIElement* flight_meter = nullptr;
       tUIElement* plane_meter = nullptr;
+      tUIElement* meter_indicator_green = nullptr;
+      tUIElement* meter_indicator_red = nullptr;
+      tUIElement* meter_indicator_white = nullptr;
 
       tUIText* cascadia_mono_20 = nullptr;
       tUIText* cascadia_mono_26 = nullptr;

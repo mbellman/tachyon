@@ -522,11 +522,60 @@ static void HandleFlightMeter(Tachyon* tachyon, State& state) {
 }
 
 static void HandlePlaneMeter(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
   Tachyon_DrawUIElement(tachyon, state.ui.plane_meter, {
     .screen_x = int32(tachyon->window_width / 2),
     .screen_y = 80,
-    .alpha = 0.25f
+    .alpha = 1.f
   });
+
+  for (auto& tracker : state.on_screen_target_trackers) {
+    auto target_mesh = tracker.object.mesh_index;
+
+    if (
+      target_mesh != meshes.fighter_dock &&
+      target_mesh != meshes.freight_spawn &&
+      target_mesh != meshes.antenna_3 &&
+      target_mesh != meshes.charge_pad &&
+      target_mesh != meshes.floater_1
+    ) {
+      continue;
+    }
+
+    float width_ratio = float(tracker.screen_x) / float(tachyon->window_width);
+
+    int32 screen_x =
+      tachyon->window_width / 2 -
+      state.ui.plane_meter->surface->w / 2 +
+      state.ui.plane_meter->surface->w * width_ratio;
+
+    float alpha = 1.f - 2.f * abs(width_ratio - 0.5f);
+    float alignment = tVec3f::dot(state.view_forward_direction, (tracker.object.position - tachyon->scene.camera.position).unit());
+    if (alignment < 0.f) alignment = 0.f;
+
+    alpha *= powf(alignment, 10.f);
+
+    if (tracker.selected_time != 0.f) {
+      Tachyon_DrawUIElement(tachyon, state.ui.meter_indicator_white, {
+        .screen_x = screen_x,
+        .screen_y = 120,
+        .alpha = 1.f
+      });
+    } else if (target_mesh == meshes.fighter_dock || target_mesh == meshes.freight_spawn) {
+      Tachyon_DrawUIElement(tachyon, state.ui.meter_indicator_red, {
+        .screen_x = screen_x,
+        .screen_y = 120,
+        .alpha = alpha
+      });
+    } else {
+      Tachyon_DrawUIElement(tachyon, state.ui.meter_indicator_green, {
+        .screen_x = screen_x,
+        .screen_y = 120,
+        .alpha = alpha
+      });
+    }
+  }
 }
 
 void HUDSystem::HandleHUD(Tachyon* tachyon, State& state, const float dt) {
