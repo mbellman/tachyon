@@ -1,4 +1,5 @@
 #include "cosmodrone/fighter_flight_system.h"
+#include "cosmodrone/utilities.h"
 
 using namespace Cosmodrone;
 
@@ -39,7 +40,7 @@ void FighterFlightSystem::HandlePitch(State& state, const float dt) {
   float slowdown_factor = 5.f * state.ship_pitch_factor * ACCELERATION;
   float acceleration_factor = 20.f * state.ship_pitch_factor * ACCELERATION;
   // @todo use external constant for max speed
-  float rotation_blend = 0.75f * (ship_speed / 50000.f) * state.ship_pitch_factor;
+  float rotation_blend = 0.4f * (ship_speed / Utilities::GetMaxShipSpeed(state)) * state.ship_pitch_factor;
 
   state.ship_velocity -= state.ship_velocity_basis.forward * slowdown_factor * dt;
   state.ship_velocity += state.ship_rotation_basis.forward * ACCELERATION * dt;

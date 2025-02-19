@@ -23,7 +23,7 @@ void FlightSystemDelegator::PullBack(State& state, const float dt, const float f
   }
 
   if (state.flight_system == FlightSystem::FIGHTER) {
-    DroneFlightSystem::ChangePitch(state, dt, factor);
+    FighterFlightSystem::ChangePitch(state, dt, factor);
   }
 }
 

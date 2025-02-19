@@ -267,10 +267,14 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
       Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -0.5f * state.ship_pitch_factor) *
       camera.rotation;
 
+    float blend_factor = state.flight_system == FlightSystem::FIGHTER
+      ? 30.f * powf(abs(state.ship_pitch_factor), 4.f)
+      : 2.f;
+
     state.target_camera_rotation = Quaternion::slerp(
       state.target_camera_rotation,
       new_target,
-      2.f * abs(state.ship_pitch_factor) * dt
+      blend_factor * abs(state.ship_pitch_factor) * dt
     );
   }
 
@@ -525,7 +529,7 @@ static void UpdateShipVelocityBasis(State& state) {
   state.ship_velocity_basis.sideways = sideways;
 }
 
-static void ApplyShipBanking(Tachyon* tachyon, State& state) {
+static void HandleShipBanking(Tachyon* tachyon, State& state) {
   auto& hull = objects(state.meshes.hull)[0];
   auto target_left = state.target_ship_rotation.getLeftDirection();
   float banking_factor;
@@ -578,7 +582,7 @@ static void HandleDrone(Tachyon* tachyon, State& state, const float dt) {
       FlightSystemDelegator::HandlePitch(state, dt);
     }
 
-    ApplyShipBanking(tachyon, state);
+    HandleShipBanking(tachyon, state);
   }
 
   // @todo will nlerp work here?
