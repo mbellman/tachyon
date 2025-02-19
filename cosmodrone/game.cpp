@@ -302,6 +302,14 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
         state.controlled_thrust_duration < 1.f
           ? -3.f :
         3.f;
+
+      // When stopping a fighter vehicle, snap the FoV back to a smaller
+      // value and gradually transition to normal again
+      if (ship_speed > 500.f && state.controlled_thrust_duration == 0.f) {
+        float blend = powf(1.f - speed_ratio, 1.f / 3.f);
+
+        boost_intensity = Tachyon_Lerpf(-10.f, 0.f, blend);
+      }
     } else {
       boost_intensity =
         state.camera_boost_intensity < 0.4f
