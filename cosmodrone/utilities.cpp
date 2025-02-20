@@ -48,7 +48,7 @@ const tVec3f Utilities::GetDockingPositionOffset(const State& state) {
  */
 const tVec3f Utilities::GetDockingPositionOffset(const State& state, const uint16 mesh_index) {
   if (mesh_index == state.meshes.antenna_3) {
-    return tVec3f(0, -1.f, -1.f).unit() * 0.8f;
+    return tVec3f(0, -1.f, -1.f).unit() * 0.75f;
   }
 
   if (mesh_index == state.meshes.antenna_5) {

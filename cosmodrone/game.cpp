@@ -73,7 +73,7 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
     state.controlled_thrust_duration < 1.f &&
     state.ship_velocity.magnitude() > 500.f
   ) {
-    state.ship_velocity *= 1.f - 1.5f * dt;
+    state.ship_velocity *= 1.f - 1.3f * dt;
   }
 
   // Handle pull-back actions

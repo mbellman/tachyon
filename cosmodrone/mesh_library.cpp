@@ -1588,7 +1588,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .mesh_index = meshes.fighter_frame,
       .generated_from = meshes.fighter_spawn,
       .defaults = {
-        .material = tVec4f(1.f, 0.2f, 0, 0)
+        .material = tVec4f(1.f, 0.2f, 0.1f, 0.2f)
       }
     },
     {
@@ -1602,7 +1602,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .mesh_index = meshes.fighter_guns,
       .generated_from = meshes.fighter_spawn,
       .defaults = {
-        .material = tVec4f(0.3f, 1.f, 0, 0)
+        .material = tVec4f(0.5f, 1.f, 0, 0)
       }
     },
     {
