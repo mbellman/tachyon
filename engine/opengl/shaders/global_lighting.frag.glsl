@@ -667,6 +667,7 @@ void main() {
   // @todo move to post shader
   float exposure = 1.5 + 4.0 * emissive;
 
+  // Explore/gamma correction
   out_color = vec3(1.0) - exp(-out_color * exposure);
   out_color = pow(out_color, vec3(1.0 / 2.2));
 

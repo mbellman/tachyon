@@ -26,8 +26,8 @@ void Beacons::InitBeacons(Tachyon* tachyon, State& state) {
 
       beacon.beacon_1.rotation = object.rotation;
       beacon.beacon_2.rotation = object.rotation;
-      beacon.beacon_1.scale = 1500.f;
-      beacon.beacon_2.scale = 1500.f;
+      beacon.beacon_1.scale = 1300.f;
+      beacon.beacon_2.scale = 1300.f;
       beacon.beacon_1.color = tVec4f(1.f, 0.5f, 0.2f, 1.f);
       beacon.beacon_2.color = tVec4f(1.f, 0.5f, 0.2f, 1.f);
 
@@ -64,7 +64,7 @@ void Beacons::UpdateBeacons(Tachyon* tachyon, State& state) {
       direction * 500.f +
       direction * 3000.f * beacon_1_progress;
 
-    beacon.beacon_1.scale = 1500.f;
+    beacon.beacon_1.scale = 1300.f;
 
     beacon.beacon_1.color = tVec4f(
       beacon_color,
@@ -76,7 +76,7 @@ void Beacons::UpdateBeacons(Tachyon* tachyon, State& state) {
       direction * 500.f +
       direction * 3000.f * beacon_2_progress;
 
-    beacon.beacon_2.scale = 1500.f;
+    beacon.beacon_2.scale = 1300.f;
 
     beacon.beacon_2.color = tVec4f(
       beacon_color,

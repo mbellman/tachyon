@@ -111,14 +111,17 @@ void Piloting::HandlePiloting(Tachyon* tachyon, State& state, const float dt) {
 
     if (state.controlled_thrust_duration > 0.f) {
       if (state.controlled_thrust_duration < 1.f) {
+        // Charging up
         state.ship_rotate_to_target_speed = 4.f;
       } else {
+        // Flying
         float forward_dot = tVec3f::dot(state.view_forward_direction, state.ship_rotation_basis.forward);
         if (forward_dot < 0.f) forward_dot = 0.f;
 
-        state.ship_rotate_to_target_speed = Tachyon_Lerpf(1.f, 1.5f, forward_dot);
+        state.ship_rotate_to_target_speed = Tachyon_Lerpf(0.25f, 1.25f, forward_dot);
       }
     } else {
+      // Stopped
       state.ship_rotate_to_target_speed = 2.f;
     }
 

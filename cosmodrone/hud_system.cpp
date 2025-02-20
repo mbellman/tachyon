@@ -537,6 +537,7 @@ static void HandlePlaneMeter(Tachyon* tachyon, State& state) {
       target_mesh != meshes.fighter_dock &&
       target_mesh != meshes.freight_spawn &&
       target_mesh != meshes.antenna_3 &&
+      target_mesh != meshes.antenna_5 &&
       target_mesh != meshes.charge_pad &&
       target_mesh != meshes.floater_1
     ) {
@@ -550,11 +551,10 @@ static void HandlePlaneMeter(Tachyon* tachyon, State& state) {
       state.ui.plane_meter->surface->w / 2 +
       state.ui.plane_meter->surface->w * width_ratio;
 
-    float alpha = 1.f - 2.f * abs(width_ratio - 0.5f);
     float alignment = tVec3f::dot(state.view_forward_direction, (tracker.object.position - tachyon->scene.camera.position).unit());
     if (alignment < 0.f) alignment = 0.f;
 
-    alpha *= powf(alignment, 10.f);
+    float alpha = powf(alignment, 10.f);
 
     if (tracker.selected_time != 0.f) {
       Tachyon_DrawUIElement(tachyon, state.ui.meter_indicator_white, {
