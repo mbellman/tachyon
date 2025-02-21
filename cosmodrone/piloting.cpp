@@ -41,11 +41,33 @@ static void UpdatePilotedVehicleParts(Tachyon* tachyon, State& state) {
     // Handle jets
     if (live == vehicle.parts.back()) {
       float jets_intensity = 0.5f + 0.5f * state.jets_intensity;
+      if (jets_intensity > 0.98f) jets_intensity = 1.f;
 
       live.color = tVec4f(1.f, 0.6f, 0.2f, jets_intensity);
     }
 
     commit(live);
+  }
+
+  // @todo factor
+  if (vehicle.root_object.mesh_index == state.meshes.fighter_dock) {
+    float retraction = 0.32f * Tachyon_EaseInOutf(state.jets_intensity);
+    auto x_axis = vehicle.rotation.getLeftDirection();
+
+    auto& left_wing = *get_live_object(vehicle.parts[5]);
+    auto& left_wing_turrets = *get_live_object(vehicle.parts[6]);
+    auto& right_wing = *get_live_object(vehicle.parts[7]);
+    auto& right_wing_turrets = *get_live_object(vehicle.parts[8]);
+
+    left_wing.position -= x_axis * retraction * left_wing.scale.x;
+    left_wing_turrets.position = left_wing.position;
+    right_wing.position += x_axis * retraction * right_wing.scale.x;
+    right_wing_turrets.position = right_wing.position;
+
+    commit(left_wing);
+    commit(left_wing_turrets);
+    commit(right_wing);
+    commit(right_wing_turrets);
   }
 }
 

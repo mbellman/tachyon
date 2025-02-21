@@ -185,6 +185,10 @@ namespace Cosmodrone {
       fighter_dock,
       fighter_guns,
       fighter_thrusters,
+      fighter_left_wing_core,
+      fighter_left_wing_turrets,
+      fighter_right_wing_core,
+      fighter_right_wing_turrets,
       fighter_jets,
 
       // Procedural meshes

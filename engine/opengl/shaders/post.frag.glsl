@@ -51,10 +51,11 @@ float noise(float seed) {
 }
 
 // @todo allow positions + size to be defined externally
+// ideally we should be able to create fog volume meshes
 const vec3[] fog_volume_positions = {
   vec3(55000.0, -190000.0, 82000.0),
   vec3(32000.0, -170000.0, 30000.0),
-  vec3(50000.0, -270000.0, 90000.0),
+  vec3(50000.0, -270000.0, 80000.0),
   vec3(-60000.0, -170000.0, 40000.0)
 };
 
@@ -96,7 +97,7 @@ vec4 GetVolumetricFogColorAndThickness(float depth, vec3 direction) {
       float NdotL = max(0.0, dot(sample_direction, -primary_light_direction));
 
       color += mix(dark_fog_color, light_fog_color, NdotL);
-      thickness += 0.0025 * (1.0 - distance_ratio);
+      thickness += 0.005 * (1.0 - distance_ratio);
     }
   }
 
