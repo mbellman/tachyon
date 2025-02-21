@@ -168,7 +168,7 @@ const std::string Utilities::GetTargetName(const State& state, const uint16 mesh
   auto& meshes = state.meshes;
 
   if (mesh_index == meshes.antenna_3) {
-    return "ANTENNA-3";
+    return "RADIO TELESCOPE";
   }
 
   if (mesh_index == meshes.antenna_5) {
@@ -180,7 +180,7 @@ const std::string Utilities::GetTargetName(const State& state, const uint16 mesh
   }
 
   if (mesh_index == meshes.freight_spawn) {
-    return "FREIGHT VESSEL";
+    return "CARGO FERRY";
   }
 
   if (mesh_index == meshes.floater_1) {
@@ -192,7 +192,7 @@ const std::string Utilities::GetTargetName(const State& state, const uint16 mesh
   }
 
   if (mesh_index == meshes.procedural_elevator_car) {
-    return "CABLE TRANSPORT";
+    return "ORBITAL LIFT";
   }
 
   return "--UNNAMED--";
