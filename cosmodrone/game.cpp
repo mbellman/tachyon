@@ -211,9 +211,14 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
   state.camera_yaw_speed *= (1.f - 5.f * dt);
 
   if (is_window_focused()) {
+    float mouse_divisor =
+      state.flight_system == FlightSystem::FIGHTER && state.controlled_thrust_duration > 0.f
+        ? 1500.f
+        : 1000.f;
+
     Quaternion turn = (
-      Quaternion::fromAxisAngle(RIGHT_VECTOR, (float)tachyon->mouse_delta_y / 1000.f) *
-      Quaternion::fromAxisAngle(UP_VECTOR, (float)tachyon->mouse_delta_x / 1000.f) *
+      Quaternion::fromAxisAngle(RIGHT_VECTOR, (float)tachyon->mouse_delta_y / mouse_divisor) *
+      Quaternion::fromAxisAngle(UP_VECTOR, (float)tachyon->mouse_delta_x / mouse_divisor) *
       Quaternion::fromAxisAngle(FORWARD_VECTOR, state.camera_roll_speed * dt)
     );
 
@@ -278,18 +283,24 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
     );
   }
 
-  float rate = state.is_piloting_vehicle ? 1.5f : 2.f;
+  float ship_speed = state.ship_velocity.magnitude();
+  float speed_ratio = ship_speed / Utilities::GetMaxShipSpeed(state);
+  float rate;
+
+  if (state.flight_system == FlightSystem::FIGHTER) {
+    rate = Tachyon_Lerpf(1.4f, 1.f, speed_ratio);
+  } else {
+    rate = 2.f;
+  }
 
   camera.rotation = Quaternion::slerp(camera.rotation, state.target_camera_rotation, rate * dt);
 
   UpdateViewDirections(tachyon, state);
 
-  float ship_speed = state.ship_velocity.magnitude();
-  float speed_ratio = ship_speed / Utilities::GetMaxShipSpeed(state);
   float speed_zoom_ratio = ship_speed / (ship_speed + 5000.f);
   float boost_intensity;
 
-  // Handle thruster boost effect
+  // Calculate thruster boost effect
   {
     state.camera_boost_intensity += 10.f * state.controlled_thrust_duration * dt;
     state.camera_boost_intensity *= 1.f - 10.f * dt;
