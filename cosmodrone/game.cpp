@@ -363,8 +363,13 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
 
     state.ship_camera_distance = Tachyon_Lerpf(state.ship_camera_distance, target_distance, 5.f * dt);
 
+    // @todo make a utility for this
     if (state.flight_system == FlightSystem::FIGHTER) {
-      state.camera_up_distance = Tachyon_Lerpf(state.camera_up_distance, 2500.f, dt);
+      if (state.current_piloted_vehicle.root_object.mesh_index == meshes.freight_dock) {
+        state.camera_up_distance = Tachyon_Lerpf(state.camera_up_distance, 4000.f, dt);
+      } else {
+        state.camera_up_distance = Tachyon_Lerpf(state.camera_up_distance, 2500.f, dt);
+      }
     } else {
       state.camera_up_distance = Tachyon_Lerpf(state.camera_up_distance, 500.f, 5.f * dt);
     }

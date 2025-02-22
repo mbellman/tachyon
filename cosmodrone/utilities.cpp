@@ -11,10 +11,10 @@ const std::vector<uint16>& Utilities::GetTargetableMeshes(const State& state) {
     state.meshes.antenna_5,
     state.meshes.charge_pad,
     state.meshes.fighter_dock,
+    state.meshes.freight_dock,
     state.meshes.floater_1,
     state.meshes.station_drone_core,
-    state.meshes.procedural_elevator_car,
-    state.meshes.freight_spawn
+    state.meshes.procedural_elevator_car
   };
 
   return targetable_meshes;
@@ -29,8 +29,8 @@ const std::vector<uint16>& Utilities::GetDockableMeshes(const State& state) {
     state.meshes.antenna_5,
     state.meshes.charge_pad,
     state.meshes.fighter_dock,
-    state.meshes.floater_1,
-    state.meshes.freight_spawn
+    state.meshes.freight_dock,
+    state.meshes.floater_1
   };
 
   return dockable_meshes;
@@ -59,7 +59,7 @@ const tVec3f Utilities::GetDockingPositionOffset(const State& state, const uint1
     return tVec3f(0, 0.3f, 0.35f);
   }
 
-  if (mesh_index == state.meshes.freight_spawn) {
+  if (mesh_index == state.meshes.freight_dock) {
     return tVec3f(0, 0.21f, 0.62f);
   }
 
@@ -124,7 +124,7 @@ const float Utilities::GetDockedCameraDistance(const State& state, const uint16 
 
   if (
     mesh_index == meshes.fighter_dock ||
-    mesh_index == meshes.freight_spawn
+    mesh_index == meshes.freight_dock
   ) {
     return 15000.f;
   }
@@ -154,7 +154,7 @@ const uint16 Utilities::GetTargetWireframeMesh(const State& state, const uint16 
     return meshes.fighter_wireframe;
   }
 
-  if (mesh_index == meshes.freight_spawn) {
+  if (mesh_index == meshes.freight_dock) {
     return meshes.freight_wireframe;
   }
 
@@ -179,7 +179,7 @@ const std::string Utilities::GetTargetName(const State& state, const uint16 mesh
     return "PEREGRINE";
   }
 
-  if (mesh_index == meshes.freight_spawn) {
+  if (mesh_index == meshes.freight_dock) {
     return "CARGO FERRY";
   }
 
@@ -216,7 +216,7 @@ const tVec3f Utilities::GetBeaconColor(const State& state, const uint16 mesh_ind
     return tVec3f(0.2f, 1.f, 0.5f);
   }
 
-  if (mesh_index == meshes.fighter_dock || mesh_index == meshes.freight_spawn) {
+  if (mesh_index == meshes.fighter_dock || mesh_index == meshes.freight_dock) {
     return tVec3f(1.f, 0.3f, 0.2f);
   }
 

@@ -741,7 +741,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   placeable_mesh_assets.push_back({
     .mesh_name = "freight_spawn",
     .mesh_index = meshes.freight_spawn,
-    // .placeholder = true,
+    .placeholder = true,
     .defaults = {
       .scale = tVec3f(8000.f)
     }
@@ -932,6 +932,12 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
   load_mesh(fighter_right_wing_core);
   load_mesh(fighter_right_wing_turrets);
   load_mesh(fighter_jets);
+
+  load_mesh(freight_core);
+  load_mesh(freight_frame);
+  load_mesh(freight_dock);
+  load_mesh(freight_thrusters);
+  load_mesh(freight_jets);
 
   generated_mesh_assets = {
     // antenna_2
@@ -1650,8 +1656,48 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .generated_from = meshes.fighter_spawn,
       .defaults = {
         .type = ION_THRUSTER_MESH,
-        .color = tVec4f(1.f, 0.6f, 0.1f, 0.f),
-        .material = tVec4f(1.f, 0, 0, 0)
+        .color = tVec4f(1.f, 0.6f, 0.1f, 0.f)
+      }
+    },
+
+    // freight_spawn
+    {
+      .mesh_index = meshes.freight_core,
+      .generated_from = meshes.freight_spawn,
+      .defaults = {
+        .color = tVec3f(1.f, 0.5f, 0.3f),
+        .material = tVec4f(0.9f, 0, 0, 0.3f)
+      }
+    },
+    {
+      .mesh_index = meshes.freight_frame,
+      .generated_from = meshes.freight_spawn,
+      .defaults = {
+        .color = tVec3f(1.f, 0.6f, 0.4f),
+        .material = tVec4f(0.8f, 1.f, 0, 0)
+      }
+    },
+    {
+      .mesh_index = meshes.freight_dock,
+      .generated_from = meshes.freight_spawn,
+      .defaults = {
+        .material = tVec4f(0.6f, 1.f, 0, 0)
+      }
+    },
+    {
+      .mesh_index = meshes.freight_thrusters,
+      .generated_from = meshes.freight_spawn,
+      .defaults = {
+        .color = tVec3f(0.1f),
+        .material = tVec4f(1.f, 0, 0, 0.1f)
+      }
+    },
+    {
+      .mesh_index = meshes.freight_jets,
+      .generated_from = meshes.freight_spawn,
+      .defaults = {
+        .type = ION_THRUSTER_MESH,
+        .color = tVec4f(0.4f, 0.6f, 1.f, 0.f)
       }
     },
 

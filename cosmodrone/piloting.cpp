@@ -51,7 +51,7 @@ static void UpdatePilotedVehicleParts(Tachyon* tachyon, State& state) {
 
   // @todo factor
   if (vehicle.root_object.mesh_index == state.meshes.fighter_dock) {
-    float retraction = 0.32f * Tachyon_EaseInOutf(state.jets_intensity);
+    float retraction = 0.32f * powf(Tachyon_EaseInOutf(state.jets_intensity), 2.f);
     auto x_axis = vehicle.rotation.getLeftDirection();
 
     auto& left_wing = *get_live_object(vehicle.parts[5]);
@@ -103,6 +103,13 @@ void Piloting::HandlePiloting(Tachyon* tachyon, State& state, const float dt) {
   {
     if (Autopilot::IsDocked(state) && !state.is_piloting_vehicle) {
       if (state.docking_target.mesh_index == meshes.fighter_dock) {
+        state.flight_system = FlightSystem::FIGHTER;
+
+        StartPiloting(tachyon, state);
+      }
+
+      if (state.docking_target.mesh_index == meshes.freight_dock) {
+        // @todo add a new flight system type
         state.flight_system = FlightSystem::FIGHTER;
 
         StartPiloting(tachyon, state);

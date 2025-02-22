@@ -409,20 +409,40 @@ void WorldSetup::RebuildWorld(Tachyon* tachyon, State& state) {
       auto& right_wing_turrets = *objects(meshes.fighter_right_wing_turrets).getById(dock.object_id);
       auto& jets = *objects(meshes.fighter_jets).getById(dock.object_id);
 
-      PilotableVehicle vehicle;
+      PilotableVehicle vehicle = {
+        .root_object = dock,
+        .parts = {
+          core,
+          frame,
+          guns,
+          dock,
+          thrusters,
+          left_wing_core,
+          left_wing_turrets,
+          right_wing_core,
+          right_wing_turrets,
+          jets
+        }
+      };
 
-      vehicle.root_object = dock;
-      vehicle.parts = {
-        core,
-        frame,
-        guns,
-        dock,
-        thrusters,
-        left_wing_core,
-        left_wing_turrets,
-        right_wing_core,
-        right_wing_turrets,
-        jets
+      state.pilotable_vehicles.push_back(vehicle);
+    }
+
+    for (auto& dock : objects(meshes.freight_dock)) {
+      auto& core = *objects(meshes.freight_core).getById(dock.object_id);
+      auto& frame = *objects(meshes.freight_frame).getById(dock.object_id);
+      auto& thrusters = *objects(meshes.freight_thrusters).getById(dock.object_id);
+      auto& jets = *objects(meshes.freight_jets).getById(dock.object_id);
+
+      PilotableVehicle vehicle = {
+        .root_object = dock,
+        .parts = {
+          core,
+          frame,
+          dock,
+          thrusters,
+          jets
+        }
       };
 
       state.pilotable_vehicles.push_back(vehicle);

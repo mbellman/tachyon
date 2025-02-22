@@ -180,6 +180,7 @@ namespace Cosmodrone {
       station_drone_frame,
       station_drone_rotator,
       station_drone_light,
+
       fighter_core,
       fighter_frame,
       fighter_dock,
@@ -190,6 +191,12 @@ namespace Cosmodrone {
       fighter_right_wing_core,
       fighter_right_wing_turrets,
       fighter_jets,
+
+      freight_core,
+      freight_frame,
+      freight_thrusters,
+      freight_dock,
+      freight_jets,
 
       // Procedural meshes
       procedural_elevator_car,

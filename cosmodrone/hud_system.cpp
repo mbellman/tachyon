@@ -535,7 +535,7 @@ static void HandlePlaneMeter(Tachyon* tachyon, State& state) {
 
     if (
       target_mesh != meshes.fighter_dock &&
-      target_mesh != meshes.freight_spawn &&
+      target_mesh != meshes.freight_dock &&
       target_mesh != meshes.antenna_3 &&
       target_mesh != meshes.antenna_5 &&
       target_mesh != meshes.charge_pad &&
@@ -562,7 +562,7 @@ static void HandlePlaneMeter(Tachyon* tachyon, State& state) {
         .screen_y = 120,
         .alpha = 1.f
       });
-    } else if (target_mesh == meshes.fighter_dock || target_mesh == meshes.freight_spawn) {
+    } else if (target_mesh == meshes.fighter_dock || target_mesh == meshes.freight_dock) {
       Tachyon_DrawUIElement(tachyon, state.ui.meter_indicator_red, {
         .screen_x = screen_x,
         .screen_y = 120,
