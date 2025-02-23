@@ -43,7 +43,7 @@ static void RebuildVehicleNetwork(Tachyon* tachyon, State& state) {
   }
 }
 
-static void RecreateFlyingShips(Tachyon* tachyon, State& state) {
+static void SpawnFlyingShips(Tachyon* tachyon, State& state) {
   auto& point_lights = tachyon->point_lights;
   auto& meshes = state.meshes;
   auto& vehicles = state.vehicles;
@@ -69,7 +69,7 @@ static void RecreateFlyingShips(Tachyon* tachyon, State& state) {
       commit(ship);
 
       vehicles.push_back({
-        .object = ship,
+        .parts = { ship },
         .spawn_position = node.position + offset,
         .target_position = target_node.position + offset,
         .light_indexes_offset = uint32(point_lights.size())
@@ -89,6 +89,119 @@ static void RecreateFlyingShips(Tachyon* tachyon, State& state) {
         .power = 2.f
       });
     }
+  }
+}
+
+// @todo accept position/rotation
+// @todo apply color/material properties as defined in MeshLibrary
+static void SpawnCargoFerry(Tachyon* tachyon, const State& state, BackgroundVehicle& vehicle) {
+  auto& meshes = state.meshes;
+
+  auto& core = create(meshes.freight_core);
+  auto& frame = create(meshes.freight_frame);
+  auto& thrusters = create(meshes.freight_thrusters);
+  auto& dock = create(meshes.freight_dock);
+  auto& jets = create(meshes.freight_jets);
+
+  core.scale =
+  frame.scale =
+  thrusters.scale =
+  dock.scale =
+  jets.scale = 8000.f;
+
+  vehicle.parts = { core, frame, thrusters, dock, jets };
+}
+
+static void SpawnMovingCargoFerries(Tachyon* tachyon, State& state) {
+  for (auto& node : objects(state.meshes.freight_vehicle_target)) {
+    for (auto& node2 : objects(state.meshes.freight_vehicle_target)) {
+      if (node == node2) {
+        continue;
+      }
+
+      BackgroundVehicle vehicle;
+
+      SpawnCargoFerry(tachyon, state, vehicle);
+
+      vehicle.spawn_position = node.position;
+      vehicle.target_position = node2.position;
+
+      // @temporary
+      for (auto& part : vehicle.parts) {
+        auto& live_part = *get_live_object(part);
+
+        live_part.position = vehicle.spawn_position;
+
+        commit(live_part);
+      }
+
+      state.vehicles.push_back(vehicle);
+    }
+  }
+}
+
+static void UpdateFlyingShip(Tachyon* tachyon, BackgroundVehicle& vehicle, const float dt) {
+  auto& point_lights = tachyon->point_lights;
+  auto& ship = *get_live_object(vehicle.parts[0]);
+  auto object_to_target = vehicle.target_position - ship.position;
+  auto distance = object_to_target.magnitude();
+  auto direction = object_to_target / distance;
+
+  if (distance < 10000.f) {
+    ship.position = vehicle.spawn_position;
+  }
+
+  ship.position += direction * 25000.f * dt;
+  ship.rotation = DirectionToQuaternion(direction);
+
+  auto& light1 = point_lights[vehicle.light_indexes_offset];
+  auto& light2 = point_lights[vehicle.light_indexes_offset + 1];
+  auto matrix = ship.rotation.toMatrix4f();
+
+  float light_ratio = distance / 2000000.f;
+  if (light_ratio > 1.f) light_ratio = 1.f;
+  light_ratio *= light_ratio;
+
+  light1.position =
+    ship.position +
+    matrix.transformVec3f(tVec3f(-0.2f, 0, -0.95f) * ship.scale);
+
+  light2.position =
+    ship.position +
+    matrix.transformVec3f(tVec3f(0.2f, 0, -0.95f) * ship.scale);
+
+  light1.power =
+  light2.power =
+  1.f + 50.f * light_ratio;
+
+  light1.radius =
+  light2.radius =
+  1000.f + 20000.f * light_ratio;
+
+  commit(ship);
+}
+
+static void UpdateCargoFerry(Tachyon* tachyon, BackgroundVehicle& vehicle, const float dt) {
+  auto& ship = *get_live_object(vehicle.parts[0]);
+  auto object_to_target = vehicle.target_position - ship.position;
+  auto distance = object_to_target.magnitude();
+  auto direction = object_to_target / distance;
+
+  if (distance < 10000.f) {
+    ship.position = vehicle.spawn_position;
+  }
+
+  ship.position += direction * 25000.f * dt;
+  ship.rotation = DirectionToQuaternion(direction.invert());
+
+  // @todo only apply position/rotation to additional parts
+  for (auto& part : vehicle.parts) {
+    auto& live_part = *get_live_object(part);
+
+    live_part.position = ship.position;
+    live_part.rotation = ship.rotation;
+
+    commit(live_part);
   }
 }
 
@@ -117,7 +230,8 @@ void BackgroundVehicles::InitVehicles(Tachyon* tachyon, State& state) {
   }
 
   RebuildVehicleNetwork(tachyon, state);
-  RecreateFlyingShips(tachyon, state);
+  SpawnFlyingShips(tachyon, state);
+  SpawnMovingCargoFerries(tachyon, state);
 
   // @todo dev mode only
   {
@@ -132,47 +246,15 @@ void BackgroundVehicles::UpdateVehicles(Tachyon* tachyon, State& state, const fl
   auto& point_lights = tachyon->point_lights;
 
   for (auto& vehicle : state.vehicles) {
-    auto& object = *get_live_object(vehicle.object);
+    auto& main_part = vehicle.parts[0];
 
-    // Flying ships
-    if (object.mesh_index == state.meshes.flying_ship_1) {
-      auto object_to_target = vehicle.target_position - object.position;
-      auto distance = object_to_target.magnitude();
-      auto direction = object_to_target / distance;
-
-      if (distance < 10000.f) {
-        object.position = vehicle.spawn_position;
-      }
-
-      object.position += direction * 25000.f * dt;
-      object.rotation = DirectionToQuaternion(direction);
-
-      auto& light1 = point_lights[vehicle.light_indexes_offset];
-      auto& light2 = point_lights[vehicle.light_indexes_offset + 1];
-      auto matrix = object.rotation.toMatrix4f();
-
-      float light_ratio = distance / 2000000.f;
-      if (light_ratio > 1.f) light_ratio = 1.f;
-      light_ratio *= light_ratio;
-
-      light1.position =
-        object.position +
-        matrix.transformVec3f(tVec3f(-0.2f, 0, -0.95f) * object.scale);
-
-      light2.position =
-        object.position +
-        matrix.transformVec3f(tVec3f(0.2f, 0, -0.95f) * object.scale);
-
-      light1.power =
-      light2.power =
-      1.f + 50.f * light_ratio;
-
-      light1.radius =
-      light2.radius =
-      1000.f + 20000.f * light_ratio;
+    if (main_part.mesh_index == state.meshes.flying_ship_1) {
+      UpdateFlyingShip(tachyon, vehicle, dt);
     }
 
-    commit(object);
+    if (main_part.mesh_index == state.meshes.freight_core) {
+      UpdateCargoFerry(tachyon, vehicle, dt);
+    }
   }
 
   auto t = Tachyon_GetMicroseconds() - start;

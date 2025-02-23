@@ -58,17 +58,17 @@ namespace Cosmodrone {
     float spawn_distance;
   };
 
+  struct VehicleNetworkNode {
+    tVec3f position;
+    std::vector<VehicleNetworkNode> connected_nodes;
+  };
+
   struct BackgroundVehicle {
-    tObject object;
+    std::vector<tObject> parts;
     tVec3f spawn_position;
     tVec3f target_position;
     float speed = 0.f;
     uint32 light_indexes_offset = 0;
-  };
-
-  struct VehicleNetworkNode {
-    tVec3f position;
-    std::vector<VehicleNetworkNode> connected_nodes;
   };
 
   struct PilotableVehicle {

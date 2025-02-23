@@ -52,7 +52,7 @@ void Beacons::UpdateBeacons(Tachyon* tachyon, State& state) {
     }
 
     auto& source_object = *get_live_object(beacon.source_object);
-    // @optimize don't call get_live_object twice
+    // @todo @optimize don't call get_live_object twice
     auto docking_position = Autopilot::GetDockingPosition(tachyon, state, source_object);
     auto direction = source_object.rotation.getUpDirection();
     auto beacon_1_progress = fmodf(state.current_game_time, 2.f) * 0.5f;

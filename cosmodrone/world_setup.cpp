@@ -390,9 +390,9 @@ void WorldSetup::RebuildWorld(Tachyon* tachyon, State& state) {
   // @todo lights.cpp
   InitLights(tachyon, state);
 
-  Beacons::InitBeacons(tachyon, state);
   ObjectBehavior::InitObjects(tachyon, state);
   BackgroundVehicles::InitVehicles(tachyon, state);
+  Beacons::InitBeacons(tachyon, state);
 
   // @todo factor and move to piloting.cpp
   {
