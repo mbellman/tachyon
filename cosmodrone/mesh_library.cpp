@@ -1709,7 +1709,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .generated_from = meshes.freight_spawn,
       .defaults = {
         .type = ION_THRUSTER_MESH,
-        .color = tVec4f(0.4f, 0.6f, 1.f, 0.f)
+        .color = tVec4f(1.f, 0.6f, 0.2f, 0.f)
       }
     },
 
@@ -1830,6 +1830,7 @@ void MeshLibrary::LoadMeshes(Tachyon* tachyon, State& state) {
   ApplyMeshTextures(tachyon, state);
 
   // Set placeable/generated mesh types
+  // @todo factor
   {
     for (auto& asset : placeable_mesh_assets) {
       mesh(asset.mesh_index).type = asset.defaults.type;

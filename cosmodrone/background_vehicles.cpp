@@ -1,4 +1,5 @@
 #include "cosmodrone/background_vehicles.h"
+#include "cosmodrone/mesh_library.h"
 
 using namespace Cosmodrone;
 
@@ -93,9 +94,15 @@ static void SpawnFlyingShips(Tachyon* tachyon, State& state) {
 }
 
 // @todo accept position/rotation
-// @todo apply color/material properties as defined in MeshLibrary
-static void SpawnCargoFerry(Tachyon* tachyon, const State& state, BackgroundVehicle& vehicle) {
+static void SpawnMovingCargoFerry(Tachyon* tachyon, const State& state, BackgroundVehicle& vehicle) {
   auto& meshes = state.meshes;
+
+  #define set_attributes(object, asset)\
+    {\
+      auto& defaults = MeshLibrary::FindMeshAsset(asset).defaults;\
+      object.color = defaults.color;\
+      object.material = defaults.material;\
+    }\
 
   auto& core = create(meshes.freight_core);
   auto& frame = create(meshes.freight_frame);
@@ -103,11 +110,19 @@ static void SpawnCargoFerry(Tachyon* tachyon, const State& state, BackgroundVehi
   auto& dock = create(meshes.freight_dock);
   auto& jets = create(meshes.freight_jets);
 
+  set_attributes(core, meshes.freight_core);
+  set_attributes(frame, meshes.freight_frame);
+  set_attributes(thrusters, meshes.freight_thrusters);
+  set_attributes(dock, meshes.freight_dock);
+  set_attributes(jets, meshes.freight_jets);
+
   core.scale =
   frame.scale =
   thrusters.scale =
   dock.scale =
   jets.scale = 8000.f;
+
+  jets.color.rgba |= 0x000F;
 
   vehicle.parts = { core, frame, thrusters, dock, jets };
 }
@@ -121,7 +136,7 @@ static void SpawnMovingCargoFerries(Tachyon* tachyon, State& state) {
 
       BackgroundVehicle vehicle;
 
-      SpawnCargoFerry(tachyon, state, vehicle);
+      SpawnMovingCargoFerry(tachyon, state, vehicle);
 
       vehicle.spawn_position = node.position;
       vehicle.target_position = node2.position;
@@ -145,6 +160,7 @@ static void UpdateFlyingShip(Tachyon* tachyon, BackgroundVehicle& vehicle, const
   auto& ship = *get_live_object(vehicle.parts[0]);
   auto object_to_target = vehicle.target_position - ship.position;
   auto distance = object_to_target.magnitude();
+  auto distance_to_camera = (ship.position - tachyon->scene.camera.position).magnitude();
   auto direction = object_to_target / distance;
 
   if (distance < 10000.f) {
@@ -158,7 +174,7 @@ static void UpdateFlyingShip(Tachyon* tachyon, BackgroundVehicle& vehicle, const
   auto& light2 = point_lights[vehicle.light_indexes_offset + 1];
   auto matrix = ship.rotation.toMatrix4f();
 
-  float light_ratio = distance / 2000000.f;
+  float light_ratio = distance_to_camera / 2000000.f;
   if (light_ratio > 1.f) light_ratio = 1.f;
   light_ratio *= light_ratio;
 
@@ -176,7 +192,7 @@ static void UpdateFlyingShip(Tachyon* tachyon, BackgroundVehicle& vehicle, const
 
   light1.radius =
   light2.radius =
-  1000.f + 20000.f * light_ratio;
+  2000.f + 20000.f * light_ratio;
 
   commit(ship);
 }
@@ -191,7 +207,7 @@ static void UpdateCargoFerry(Tachyon* tachyon, BackgroundVehicle& vehicle, const
     ship.position = vehicle.spawn_position;
   }
 
-  ship.position += direction * 25000.f * dt;
+  ship.position += direction * 50000.f * dt;
   ship.rotation = DirectionToQuaternion(direction.invert());
 
   // @todo only apply position/rotation to additional parts
