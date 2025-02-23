@@ -407,7 +407,8 @@ vec3 GetSkyColor(vec3 sky_direction, float sun_glare_factor) {
   float bg_noise3 = simplex_noise((sky_direction.xy * sky_direction.zy + sky_direction.xz) * vec2(1.0, 3.0));
   bg_noise3 = clamp(bg_noise3, 0.0, 1.0);
 
-  vec3 space_color = vec3(0);
+  float down_dot = max(0.0, dot(sky_direction, planet_direction));
+  vec3 space_color = mix(vec3(0), vec3(0.0, 0.5, 1.0), 0.2 * pow(down_dot, 5.0));
 
   space_color += vec3(bg_noise) * mix(vec3(1.0), vec3(0.0, 0.5, 1.0), bg_noise) * 0.1;
   space_color += vec3(bg_noise2) * vec3(0.0, 0.75, 1.0) * 0.1;

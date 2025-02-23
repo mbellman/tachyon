@@ -19,6 +19,7 @@ namespace Cosmodrone {
       // Marker/spawn meshes
       zone_target,
       vehicle_target,
+      freight_vehicle_target,
 
       // Major station pieces
       platform,
