@@ -59,7 +59,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh(antenna_5);
   load_mesh_with_2_lods(machine_1);
   load_mesh(machine_2);
-  load_mesh(machine_3);
+  load_mesh_with_2_lods(machine_3);
   load_mesh(radio_tower_1);
   load_mesh(module_1);
   load_mesh(module_2);
@@ -93,7 +93,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh(solar_panel_2);
   load_mesh_with_2_lods(girder_1);
   load_mesh_with_3_lods(girder_1b);
-  load_mesh_with_2_lods(girder_2);
+  load_mesh_with_3_lods(girder_2);
   load_mesh_with_2_lods(girder_3);
   load_mesh(girder_4);
   load_mesh_with_2_lods(girder_5);

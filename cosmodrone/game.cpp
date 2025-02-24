@@ -812,8 +812,8 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
   {
     auto s = Tachyon_GetMicroseconds();
 
+    // 2-LoD
     // @todo process groups of meshes per frame
-    Tachyon_UseLodByDistance(tachyon, meshes.girder_2, 80000.f);
     Tachyon_UseLodByDistance(tachyon, meshes.girder_3, 80000.f);
     Tachyon_UseLodByDistance(tachyon, meshes.girder_5, 100000.f);
     Tachyon_UseLodByDistance(tachyon, meshes.girder_4_core, 200000.f);
@@ -822,6 +822,7 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
     Tachyon_UseLodByDistance(tachyon, meshes.mega_girder_1, 200000.f);
 
     Tachyon_UseLodByDistance(tachyon, meshes.machine_1, 70000.f);
+    Tachyon_UseLodByDistance(tachyon, meshes.machine_3, 70000.f);
     Tachyon_UseLodByDistance(tachyon, meshes.antenna_1, 70000.f);
 
     Tachyon_UseLodByDistance(tachyon, meshes.grate_1, 50000.f, 150000.f);
@@ -835,7 +836,9 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
     Tachyon_UseLodByDistance(tachyon, meshes.habitation_1_core, 80000.f);
     Tachyon_UseLodByDistance(tachyon, meshes.habitation_1_insulation, 80000.f);
 
+    // 3-LoD
     Tachyon_UseLodByDistance(tachyon, meshes.girder_1b, 100000.f, 200000.f);
+    Tachyon_UseLodByDistance(tachyon, meshes.girder_2, 80000.f, 150000.f);
 
     // Use LoD 3 on the following meshes, which lack geometry for LoD 3.
     // This effectively distance-culls them at the second distance threshold,
