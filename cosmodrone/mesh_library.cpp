@@ -37,6 +37,15 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
       3000\
     )
 
+  #define load_mesh_with_3_lods(__name) meshes.__name =\
+    Tachyon_AddMesh(\
+      tachyon,\
+      Tachyon_LoadMesh("./cosmodrone/assets/station-parts/" #__name ".obj"),\
+      Tachyon_LoadMesh("./cosmodrone/assets/station-parts/" #__name "_lod_2.obj"),\
+      Tachyon_LoadMesh("./cosmodrone/assets/station-parts/" #__name "_lod_3.obj"),\
+      3000\
+    )
+
   auto& meshes = state.meshes;
 
   meshes.zone_target = Tachyon_AddMesh(tachyon, Tachyon_CreateSphereMesh(16), 100);
@@ -48,7 +57,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh(antenna_3);
   load_mesh(antenna_4);
   load_mesh(antenna_5);
-  load_mesh(machine_1);
+  load_mesh_with_2_lods(machine_1);
   load_mesh(machine_2);
   load_mesh(machine_3);
   load_mesh(radio_tower_1);
@@ -83,7 +92,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh(solar_panel_1);
   load_mesh(solar_panel_2);
   load_mesh_with_2_lods(girder_1);
-  load_mesh(girder_1b);
+  load_mesh_with_3_lods(girder_1b);
   load_mesh_with_2_lods(girder_2);
   load_mesh_with_2_lods(girder_3);
   load_mesh(girder_4);
