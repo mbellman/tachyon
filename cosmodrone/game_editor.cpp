@@ -37,6 +37,7 @@ struct EditorState {
   float running_angle_y = 0.f;
 
   bool is_object_selected = false;
+  bool was_object_selected_on_mouse_down = false;
   ActionType action_type = ActionType::POSITION;
   tObject selected_object;
 
@@ -596,7 +597,7 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
   }
 
   if (editor.is_object_selected) {
-    if (is_mouse_held_down()) {
+    if (is_mouse_held_down() && editor.was_object_selected_on_mouse_down) {
       HandleSelectedObjectMouseAction(tachyon);
     }
 
@@ -639,8 +640,16 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
     }
   }
 
-  if (!editor.is_object_selected && did_left_click_down()) {
-    MaybeSelectObject(tachyon);
+  if (did_left_click_down()) {
+    if (editor.is_object_selected) {
+      editor.was_object_selected_on_mouse_down = true;
+    } else {
+      MaybeSelectObject(tachyon);
+    }
+  }
+
+  if(did_left_click_up()) {
+    editor.was_object_selected_on_mouse_down = false;
   }
 
   if (!editor.is_object_selected && is_key_held(tKey::ARROW_LEFT)) {
