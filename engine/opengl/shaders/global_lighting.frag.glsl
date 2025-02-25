@@ -398,8 +398,10 @@ vec3 GetSkyColor(vec3 sky_direction, float sun_glare_factor) {
   // @todo cleanup
   vec3 bg_direction = RotateAroundAxis(ORBITAL_AXIS, sky_direction, scene_time * 0.001);
 
-  float bg_noise = simplex_noise((sky_direction.xy + sky_direction.yz) * 1.0);
-  bg_noise = clamp(bg_noise, 0.0, 1.0);
+  float bg_noise = simplex_noise(sky_direction.xy + sky_direction.yz);
+  float bg_noise_b = simplex_noise((sky_direction.xy + sky_direction.yz) * 2.0);
+  float bg_noise_c = simplex_noise((sky_direction.xy + sky_direction.yz) * 6.0);
+  bg_noise = clamp(bg_noise * bg_noise_b * bg_noise_c, 0.0, 1.0);
 
   float bg_noise2 = simplex_noise(sky_direction.zx * sky_direction.zy + sky_direction.zz);
   bg_noise2 = clamp(bg_noise2, 0.0, 1.0);

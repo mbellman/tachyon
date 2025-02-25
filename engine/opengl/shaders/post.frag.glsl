@@ -53,7 +53,7 @@ float noise(float seed) {
 // @todo allow positions + size to be defined externally
 // ideally we should be able to create fog volume meshes
 const vec3[] fog_volume_positions = {
-  vec3(55000.0, -190000.0, 82000.0),
+  vec3(0.0, -300000.0, 0.0),
   vec3(32000.0, -170000.0, 30000.0),
   vec3(50000.0, -270000.0, 80000.0),
   vec3(-60000.0, -170000.0, 40000.0)
