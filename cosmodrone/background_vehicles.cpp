@@ -134,23 +134,35 @@ static void SpawnMovingCargoFerries(Tachyon* tachyon, State& state) {
         continue;
       }
 
-      BackgroundVehicle vehicle;
+      for (uint8 i = 0; i < 5; i++) {
+        BackgroundVehicle vehicle;
 
-      SpawnMovingCargoFerry(tachyon, state, vehicle);
+        SpawnMovingCargoFerry(tachyon, state, vehicle);
 
-      vehicle.spawn_position = node.position;
-      vehicle.target_position = node2.position;
+        auto offset = tVec3f(
+          Tachyon_GetRandom(-1.f, 1.f),
+          Tachyon_GetRandom(-1.f, 1.f),
+          Tachyon_GetRandom(-1.f, 1.f)
+        ) * 20000.f;
 
-      // @temporary
-      for (auto& part : vehicle.parts) {
-        auto& live_part = *get_live_object(part);
+        vehicle.spawn_position = node.position + offset;
+        vehicle.target_position = node2.position + offset;
 
-        live_part.position = vehicle.spawn_position;
+        auto position =
+          tVec3f::lerp(node.position, node2.position, Tachyon_GetRandom());
 
-        commit(live_part);
+        // @temporary
+        // @todo move into SpawnMovingCargoFerry()
+        for (auto& part : vehicle.parts) {
+          auto& live_part = *get_live_object(part);
+
+          live_part.position = position;
+
+          commit(live_part);
+        }
+
+        state.vehicles.push_back(vehicle);
       }
-
-      state.vehicles.push_back(vehicle);
     }
   }
 }
@@ -200,17 +212,22 @@ static void UpdateFlyingShip(Tachyon* tachyon, BackgroundVehicle& vehicle, const
 static void UpdateCargoFerry(Tachyon* tachyon, BackgroundVehicle& vehicle, const float dt) {
   auto& ship = *get_live_object(vehicle.parts[0]);
   auto object_to_target = vehicle.target_position - ship.position;
-  auto distance = object_to_target.magnitude();
-  auto direction = object_to_target / distance;
+  auto spawn_distance = (vehicle.spawn_position - ship.position).magnitude();
+  auto target_distance = object_to_target.magnitude();
+  auto direction = object_to_target / target_distance;
 
-  if (distance < 10000.f) {
+  if (target_distance < 10000.f) {
     ship.position = vehicle.spawn_position;
   }
 
-  ship.position += direction * 50000.f * dt;
+  float speed_blend = 1.f - std::min(spawn_distance, target_distance) / 200000.f;
+  if (speed_blend < 0.f) speed_blend = 0.f;
+
+  float speed = Tachyon_Lerpf(50000.f, 10000.f, speed_blend);
+
+  ship.position += direction * speed * dt;
   ship.rotation = DirectionToQuaternion(direction.invert());
 
-  // @todo only apply position/rotation to additional parts
   for (auto& part : vehicle.parts) {
     auto& live_part = *get_live_object(part);
 
