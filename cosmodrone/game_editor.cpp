@@ -1,5 +1,6 @@
 #include <format>
 #include <math.h>
+#include <vector>
 
 #include "cosmodrone/game_editor.h"
 #include "cosmodrone/mesh_library.h"
@@ -36,14 +37,19 @@ struct EditorState {
   float running_angle_x = 0.f;
   float running_angle_y = 0.f;
 
-  bool is_object_selected = false;
   bool was_object_selected_on_mouse_down = false;
   ActionType action_type = ActionType::POSITION;
-  tObject selected_object;
+
+  std::vector<tObject> selected_objects;
+  tVec3f selected_objects_origin;
 
   bool use_high_speed_camera_movement = false;
   float last_pressed_space_time = 0.f;
 } editor;
+
+static bool AreObjectsSelected() {
+  return editor.selected_objects.size() > 0;
+}
 
 static const MeshAsset& GetSelectedObjectPickerMeshAsset() {
   auto& placeable_meshes = MeshLibrary::GetPlaceableMeshAssets();
@@ -175,7 +181,7 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
     return;
   }
 
-  if (editor.is_object_selected && is_mouse_held_down()) {
+  if (AreObjectsSelected() && is_mouse_held_down()) {
     return;
   }
 
@@ -188,8 +194,8 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
 
   // Handle mouse movements
   {
-    if (is_key_held(tKey::SHIFT) && editor.is_object_selected) {
-      auto offset = camera.position - editor.selected_object.position;
+    if (is_key_held(tKey::SHIFT) && AreObjectsSelected()) {
+      auto offset = camera.position - editor.selected_objects_origin;
       auto unit_offset = offset.unit();
 
       tCamera3p camera3p;
@@ -202,10 +208,10 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
         camera3p.altitude += (float)tachyon->mouse_delta_y / 1000.f;
         camera3p.limitAltitude(0.99f);
 
-        camera.position = editor.selected_object.position + camera3p.calculatePosition();
+        camera.position = editor.selected_objects_origin + camera3p.calculatePosition();
       }
 
-      camera.orientation.face(editor.selected_object.position - camera.position, tVec3f(0, 1.f, 0));
+      camera.orientation.face(editor.selected_objects_origin - camera.position, tVec3f(0, 1.f, 0));
     } else {
       camera.orientation.yaw += (float)tachyon->mouse_delta_x / 1000.f;
       camera.orientation.pitch += (float)tachyon->mouse_delta_y / 1000.f;
@@ -301,14 +307,18 @@ static void RenderObjectPickerList(Tachyon* tachyon) {
 }
 
 static void HandleObjectPickerCycleChange(Tachyon* tachyon) {
+  if (editor.selected_objects.size() > 1) {
+    return;
+  }
+
   auto& camera = tachyon->scene.camera;
 
   tVec3f spawn_position = camera.position + camera.orientation.getDirection() * 4000.f;
 
-  if (editor.is_object_picker_active && editor.is_object_selected) {
-    spawn_position = get_live_object(editor.selected_object)->position;
+  if (editor.is_object_picker_active && editor.selected_objects.size() == 1) {
+    spawn_position = get_live_object(editor.selected_objects[0])->position;
 
-    remove(editor.selected_object);
+    remove(editor.selected_objects[0]);
   }
 
   if (!editor.is_object_picker_active) {
@@ -325,9 +335,13 @@ static void HandleObjectPickerCycleChange(Tachyon* tachyon) {
   selected.color = selected_mesh.defaults.color;
   selected.material = selected_mesh.defaults.material;
 
-  editor.selected_object = selected;
-  editor.is_object_selected = true;
+  if (editor.selected_objects.size() == 0) {
+    editor.selected_objects.push_back(selected);
+  } else {
+    editor.selected_objects[0] = selected;
+  }
 
+  editor.selected_objects_origin = spawn_position;
   editor.last_object_picker_cycle_time = tachyon->running_time;
 }
 
@@ -371,16 +385,16 @@ static void HandleRotationSnapping(float& running_angle, float& angle) {
   }
 }
 
-static void HandleSelectedObjectMouseAction(Tachyon* tachyon) {
+static void HandleSelectedObjectMouseMovements(Tachyon* tachyon) {
   auto& camera = tachyon->scene.camera;
-  auto& selected = *get_live_object(editor.selected_object);
+  auto& first_selected = *get_live_object(editor.selected_objects[0]);
   auto is_horizontal_action = abs(tachyon->mouse_delta_x) > abs(tachyon->mouse_delta_y);
   auto camera_up = camera.orientation.getUpDirection();
   auto camera_right = camera.orientation.getRightDirection();
 
   switch (editor.action_type) {
     case(ActionType::POSITION, {
-      auto distance = (selected.position - camera.position).magnitude();
+      auto distance = (editor.selected_objects_origin - camera.position).magnitude();
       auto movement_factor = distance / 5000.f;
       auto use_object_axis = editor.use_modified_action;
 
@@ -389,26 +403,36 @@ static void HandleSelectedObjectMouseAction(Tachyon* tachyon) {
         movement_factor *= 0.1f;
       }
 
+      tVec3f offset;
+
       if (is_horizontal_action) {
-        auto axis = use_object_axis
-          ? GetMostSimilarObjectAxis(camera_right, selected)
+        auto axis = use_object_axis 
+          ? GetMostSimilarObjectAxis(camera_right, first_selected)
           : GetMostSimilarGlobalAxis(camera_right);
 
-        selected.position += axis * (float)tachyon->mouse_delta_x * movement_factor;
+        offset = axis * (float)tachyon->mouse_delta_x * movement_factor;
       } else {
         auto axis = use_object_axis
-          ? GetMostSimilarObjectAxis(camera_up, selected)
+          ? GetMostSimilarObjectAxis(camera_up, first_selected)
           : tVec3f(0, 1.f, 0);
 
-        selected.position -= axis * (float)tachyon->mouse_delta_y * movement_factor;
+        offset = axis * -(float)tachyon->mouse_delta_y * movement_factor;
       }
+
+      for (auto& object : editor.selected_objects) {
+        auto& selected = *get_live_object(object);
+
+        selected.position += offset;
+      }
+
+      editor.selected_objects_origin += offset;
     })
     case(ActionType::ROTATE, {
       constexpr static float SNAP_INCREMENT = t_PI / 12.f;
       auto use_snapping = editor.use_modified_action;
 
       if (is_horizontal_action) {
-        auto axis = GetMostSimilarObjectAxis(camera_up, selected);
+        auto axis = GetMostSimilarObjectAxis(camera_up, first_selected);
         auto angle = (float)tachyon->mouse_delta_x * 0.005f;
 
         editor.running_angle_x += angle;
@@ -417,9 +441,13 @@ static void HandleSelectedObjectMouseAction(Tachyon* tachyon) {
           HandleRotationSnapping(editor.running_angle_x, angle);
         }
 
-        selected.rotation *= Quaternion::fromAxisAngle(axis, angle);
+        for (auto& object : editor.selected_objects) {
+          auto& selected = *get_live_object(object);
+
+          selected.rotation *= Quaternion::fromAxisAngle(axis, angle);
+        }
       } else {
-        auto axis = GetMostSimilarObjectAxis(camera_right, selected);
+        auto axis = GetMostSimilarObjectAxis(camera_right, first_selected);
         auto angle = (float)tachyon->mouse_delta_y * 0.005f;
 
         editor.running_angle_y += angle;
@@ -428,23 +456,21 @@ static void HandleSelectedObjectMouseAction(Tachyon* tachyon) {
           HandleRotationSnapping(editor.running_angle_y, angle);
         }
 
-        selected.rotation *= Quaternion::fromAxisAngle(axis, angle);
+        for (auto& object : editor.selected_objects) {
+          auto& selected = *get_live_object(object);
+
+          selected.rotation *= Quaternion::fromAxisAngle(axis, angle);
+        }
       }
     })
     case(ActionType::SCALE, {
-      // @todo
+      // @todo (may just remove this)
     })
   }
-
-  // Synchronize the transform properties, but not color, since the
-  // selected instance uses a flashing hightlight color while selected
-  editor.selected_object.position = selected.position;
-  editor.selected_object.scale = selected.scale;
-  editor.selected_object.rotation = selected.rotation;
 }
 
-static void ResetSelectedObject(Tachyon* tachyon) {
-  auto& selected = *get_live_object(editor.selected_object);
+static void ResetSelectedObjectTransform(Tachyon* tachyon) {
+  auto& selected = *get_live_object(editor.selected_objects[0]);
 
   switch (editor.action_type) {
     case(ActionType::ROTATE, {
@@ -456,85 +482,109 @@ static void ResetSelectedObject(Tachyon* tachyon) {
   }
 }
 
-static void RestoreSelectedObject(Tachyon* tachyon, tObject& object) {
-  object.color = editor.selected_object.color;
+static void RestoreSelectedObjectColors(Tachyon* tachyon) {
+  for (auto& object : editor.selected_objects) {
+    auto& live = *get_live_object(object);
 
-  commit(object);
+    live.color = object.color;
+
+    commit(live);
+  }
+}
+
+static void RecalculateSelectedObjectsOrigin(Tachyon* tachyon) {
+  tVec3f average;
+
+  for (auto& object : editor.selected_objects) {
+    auto& live = *get_live_object(object);
+
+    average += live.position;
+  }
+
+  editor.selected_objects_origin = average / float(editor.selected_objects.size());
 }
 
 enum Direction {
   UP, RIGHT, LEFT, DOWN
 };
 
-static void CopySelectedObject(Tachyon* tachyon, State& state, Direction direction) {
+static void CopySelectedObjects(Tachyon* tachyon, State& state, Direction direction) {
+  RestoreSelectedObjectColors(tachyon);
+
   auto& camera = tachyon->scene.camera;
-  auto& selected = *get_live_object(editor.selected_object);
-  auto& copy = create(selected.mesh_index);
+  auto& first_selected = *get_live_object(editor.selected_objects[0]);
+  tVec3f move_distance = first_selected.scale;
 
-  RestoreSelectedObject(tachyon, selected);
+  if (editor.selected_objects.size() == 1) {
+    auto& copy = first_selected;
 
-  copy.rotation = selected.rotation;
-  copy.scale = selected.scale;
-  copy.color = editor.selected_object.color;
-  copy.material = selected.material;
+    // @todo refactor
+    if (
+      copy.mesh_index == state.meshes.girder_1 ||
+      copy.mesh_index == state.meshes.girder_1b ||
+      copy.mesh_index == state.meshes.girder_2 ||
+      copy.mesh_index == state.meshes.girder_3 ||
+      copy.mesh_index == state.meshes.girder_4 ||
+      copy.mesh_index == state.meshes.girder_5 ||
+      copy.mesh_index == state.meshes.mega_girder_2 ||
+      copy.mesh_index == state.meshes.beam_1 ||
+      copy.mesh_index == state.meshes.beam_2 ||
+      copy.mesh_index == state.meshes.silo_7 ||
+      copy.mesh_index == state.meshes.radio_tower_1
+    ) {
+      move_distance *= 1.99f;
+    }
 
-  tVec3f axis;
+    // @todo refactor
+    if (copy.mesh_index == state.meshes.silo_3) {
+      move_distance *= 2.05f;
+    }
 
-  switch (direction) {
-    case(LEFT, {
-      axis = GetMostSimilarObjectAxis(camera.orientation.getLeftDirection(), selected);
-    })
-    case(RIGHT, {
-      axis = GetMostSimilarObjectAxis(camera.orientation.getRightDirection(), selected);
-    })
-    case(UP, {
-      axis = GetMostSimilarObjectAxis(camera.orientation.getUpDirection(), selected);
-    })
-    case(DOWN, {
-      axis = GetMostSimilarObjectAxis(camera.orientation.getUpDirection().invert(), selected);
-    })
+    // @todo refactor
+    if (copy.mesh_index == state.meshes.silo_2) {
+      move_distance *= 1.4f;
+    }
   }
 
-  tVec3f move_distance = copy.scale;
+  for (auto& object : editor.selected_objects) {
+    auto& original = *get_live_object(object);
+    auto& copy = create(original.mesh_index);
 
-  // @todo refactor
-  if (
-    copy.mesh_index == state.meshes.girder_1 ||
-    copy.mesh_index == state.meshes.girder_1b ||
-    copy.mesh_index == state.meshes.girder_2 ||
-    copy.mesh_index == state.meshes.girder_3 ||
-    copy.mesh_index == state.meshes.girder_4 ||
-    copy.mesh_index == state.meshes.girder_5 ||
-    copy.mesh_index == state.meshes.mega_girder_2 ||
-    copy.mesh_index == state.meshes.beam_1 ||
-    copy.mesh_index == state.meshes.beam_2 ||
-    copy.mesh_index == state.meshes.silo_7 ||
-    copy.mesh_index == state.meshes.radio_tower_1
-  ) {
-    move_distance *= 1.99f;
+    copy.rotation = original.rotation;
+    copy.scale = original.scale;
+    copy.color = original.color;
+    copy.material = original.material;
+
+    tVec3f axis;
+
+    switch (direction) {
+      case(LEFT, {
+        axis = GetMostSimilarObjectAxis(camera.orientation.getLeftDirection(), first_selected);
+      })
+      case(RIGHT, {
+        axis = GetMostSimilarObjectAxis(camera.orientation.getRightDirection(), first_selected);
+      })
+      case(UP, {
+        axis = GetMostSimilarObjectAxis(camera.orientation.getUpDirection(), first_selected);
+      })
+      case(DOWN, {
+        axis = GetMostSimilarObjectAxis(camera.orientation.getUpDirection().invert(), first_selected);
+      })
+    }
+
+    copy.position = original.position + axis * move_distance;
+
+    commit(copy);
+
+    object = copy;
   }
 
-  // @todo refactor
-  if (copy.mesh_index == state.meshes.silo_3) {
-    move_distance *= 2.05f;
-  }
-
-  // @todo refactor
-  if (copy.mesh_index == state.meshes.silo_2) {
-    move_distance *= 1.4f;
-  }
-
-  copy.position = selected.position + axis * move_distance;
-
-  commit(copy);
-
-  editor.selected_object = copy;
+  RecalculateSelectedObjectsOrigin(tachyon);
 
   // Save when objects are copied
   SaveWorldData(tachyon, state);
 }
 
-// @todo improve accuracy using collision planes/scale
 static void MaybeSelectObject(Tachyon* tachyon) {
   auto& placeable_meshes = MeshLibrary::GetPlaceableMeshAssets();
   auto& camera = tachyon->scene.camera;
@@ -567,11 +617,33 @@ static void MaybeSelectObject(Tachyon* tachyon) {
   }
 
   if (highest_candidate_score > 0.f) {
-    editor.is_object_selected = true;
-    editor.selected_object = candidate;
+    if (!is_key_held(tKey::ALT)) {
+      editor.selected_objects.clear();
+    }
+
+    bool already_selected = false;
+
+    for (auto& object : editor.selected_objects) {
+      if (candidate == object) {
+        already_selected = true;
+
+        break;
+      }
+    }
+
+    if (!already_selected) {
+      editor.selected_objects.push_back(candidate);
+
+      RecalculateSelectedObjectsOrigin(tachyon);
+    }
+
+    if (editor.selected_objects.size() > 1) {
+      editor.is_object_picker_active = false;
+    }
   }
 }
 
+// @todo CTRL-Z (?)
 static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
   auto initial_object_picker_index = editor.object_picker_index;
 
@@ -579,6 +651,7 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
     HandleObjectPickerInputs(tachyon, dt);
   }
 
+  // Cycling through objects
   if (
     did_press_key(tKey::Q) || did_press_key(tKey::E) ||
     editor.object_picker_index != initial_object_picker_index
@@ -590,58 +663,63 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
     editor.object_picker_cycle_speed *= 1.f - 5.f * dt;
   }
 
+  // Changing the action type
   if (did_wheel_down()) {
     HandleActionTypeCycleChange(tachyon, +1);
   } else if (did_wheel_up()) {
     HandleActionTypeCycleChange(tachyon, -1);
   }
 
-  if (editor.is_object_selected) {
+  // Handling selected objects
+  if (AreObjectsSelected()) {
     if (is_mouse_held_down() && editor.was_object_selected_on_mouse_down) {
-      HandleSelectedObjectMouseAction(tachyon);
+      HandleSelectedObjectMouseMovements(tachyon);
     }
 
-    // @todo CTRL-Z
-    if (did_press_key(tKey::ENTER)) {
-      ResetSelectedObject(tachyon);
+    // @todo use a different key, as ENTER also toggles lighting (or change that hotkey)
+    if (did_press_key(tKey::ENTER) && editor.selected_objects.size() == 1) {
+      ResetSelectedObjectTransform(tachyon);
     }
 
+    // @todo DeleteSelectedObjects()
     if (did_press_key(tKey::BACKSPACE)) {
-      // @todo factor
-      remove(editor.selected_object);
+      for (auto& object: editor.selected_objects) {
+        remove(object);
+      }
 
-      editor.is_object_selected = false;
       editor.is_object_picker_active = false;
+      editor.selected_objects.clear();
 
       // Save when objects are deleted
       SaveWorldData(tachyon, state);
     }
 
     if (did_press_key(tKey::ARROW_LEFT)) {
-      CopySelectedObject(tachyon, state, LEFT);
+      CopySelectedObjects(tachyon, state, LEFT);
     }
 
     if (did_press_key(tKey::ARROW_RIGHT)) {
-      CopySelectedObject(tachyon, state, RIGHT);
+      CopySelectedObjects(tachyon, state, RIGHT);
     }
 
     if (did_press_key(tKey::ARROW_UP)) {
-      CopySelectedObject(tachyon, state, UP);
+      CopySelectedObjects(tachyon, state, UP);
     }
 
     if (did_press_key(tKey::ARROW_DOWN)) {
-      CopySelectedObject(tachyon, state, DOWN);
+      CopySelectedObjects(tachyon, state, DOWN);
     }
 
     // @temporary
     // @todo implement a color picker, or color controls
-    if (did_press_key(tKey::J)) {
-      editor.selected_object.color = tVec3f(1.f, 0.1f, 0.1f);
+    if (did_press_key(tKey::J) && editor.selected_objects.size() == 1) {
+      editor.selected_objects[0].color = tVec3f(1.f, 0.1f, 0.1f);
     }
   }
 
+  // Object selection
   if (did_left_click_down()) {
-    if (editor.is_object_selected) {
+    if (editor.selected_objects.size() > 0 && !is_key_held(tKey::ALT)) {
       editor.was_object_selected_on_mouse_down = true;
     } else {
       MaybeSelectObject(tachyon);
@@ -652,21 +730,21 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
     editor.was_object_selected_on_mouse_down = false;
   }
 
-  if (!editor.is_object_selected && is_key_held(tKey::ARROW_LEFT)) {
+  if (!AreObjectsSelected() && is_key_held(tKey::ARROW_LEFT)) {
     // Fast-rewind time
     state.current_game_time -= 500.f * dt;
 
     WorldBehavior::UpdateWorld(tachyon, state, 0.f);
   }
 
-  if (!editor.is_object_selected && is_key_held(tKey::ARROW_RIGHT)) {
+  if (!AreObjectsSelected() && is_key_held(tKey::ARROW_RIGHT)) {
     // Fast-forward time
     state.current_game_time += 500.f * dt;
 
     WorldBehavior::UpdateWorld(tachyon, state, 0.f);
   }
 
-  if (!editor.is_object_selected && did_press_key(tKey::R)) {
+  if (!AreObjectsSelected() && did_press_key(tKey::R)) {
     // Respawn
     // @todo factor
     auto& camera = tachyon->scene.camera;
@@ -721,14 +799,20 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
   }
 }
 
-static void HandleSelectedObject(Tachyon* tachyon, State& state) {
+static void HandleSelectedObjects(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
-  auto& selected = *get_live_object(editor.selected_object);
+  auto& first_selected = *get_live_object(editor.selected_objects[0]);
   bool should_flash = uint32(tachyon->running_time * 2.f) % 2;
 
-  selected.color = editor.selected_object.color;
-  selected.color.rgba &= should_flash ? 0xF0F0 : 0xFFF0;
-  selected.color.rgba |= should_flash ? 0x0006 : 0x0001;
+  for (auto& object : editor.selected_objects) {
+    auto& selected = *get_live_object(object);
+
+    selected.color = object.color;
+    selected.color.rgba &= should_flash ? 0xF0F0 : 0xFFF0;
+    selected.color.rgba |= should_flash ? 0x0006 : 0x0001;
+
+    commit(selected);
+  }
 
   // @todo refactor
   {
@@ -740,13 +824,13 @@ static void HandleSelectedObject(Tachyon* tachyon, State& state) {
       objects(state.meshes.editor_position).disabled = false;
 
       auto& indicator = objects(state.meshes.editor_position)[0];
-      auto selected_object_direction = (selected.position - camera.position).unit();
+      auto selected_object_direction = (editor.selected_objects_origin - camera.position).unit();
 
       indicator.position = camera.position + selected_object_direction * 600.f;
       indicator.scale = tVec3f(90.f);
 
       if (editor.use_modified_action) {
-        indicator.rotation = selected.rotation;
+        indicator.rotation = first_selected.rotation;
         indicator.color = tVec4f(1.f, 1.f, 0.f, 1.f);
       } else {
         indicator.rotation = Quaternion(1.f, 0, 0, 0);
@@ -758,10 +842,10 @@ static void HandleSelectedObject(Tachyon* tachyon, State& state) {
       objects(state.meshes.editor_rotation).disabled = false;
 
       auto& indicator = objects(state.meshes.editor_rotation)[0];
-      auto selected_object_direction = (selected.position - camera.position).unit();
+      auto selected_object_direction = (editor.selected_objects_origin - camera.position).unit();
 
       indicator.position = camera.position + selected_object_direction * 600.f;
-      indicator.rotation = selected.rotation;
+      indicator.rotation = first_selected.rotation;
       indicator.scale = tVec3f(90.f);
 
       if (editor.use_modified_action) {
@@ -775,11 +859,11 @@ static void HandleSelectedObject(Tachyon* tachyon, State& state) {
       objects(state.meshes.editor_scale).disabled = false;
 
       auto& indicator = objects(state.meshes.editor_scale)[0];
-      auto selected_object_direction = (selected.position - camera.position).unit();
+      auto selected_object_direction = (editor.selected_objects_origin - camera.position).unit();
 
       indicator.position = camera.position + selected_object_direction * 600.f;
       indicator.color = tVec4f(1.f, 1.f, 1.f, 1.f);
-      indicator.rotation = selected.rotation;
+      indicator.rotation = first_selected.rotation;
       indicator.scale = tVec3f(90.f);
 
       commit(indicator);
@@ -789,21 +873,23 @@ static void HandleSelectedObject(Tachyon* tachyon, State& state) {
   // @todo move to HandleInputs()
   // @todo DeselectObject()
   if (did_right_click_down()) {
-    RestoreSelectedObject(tachyon, selected);
+    RestoreSelectedObjectColors(tachyon);
 
-    editor.is_object_selected = false;
     editor.is_object_picker_active = false;
+    editor.selected_objects.clear();
 
     // Save when deselecting an object
     SaveWorldData(tachyon, state);
   }
 
-  commit(selected);
+  if (editor.selected_objects.size() > 1) {
+    return;
+  }
 
   // @todo factor -> RenderMeshStats()
-  auto mesh_name = GetPlaceableMeshAssetByMeshIndex(selected.mesh_index).mesh_name;
+  auto mesh_name = GetPlaceableMeshAssetByMeshIndex(first_selected.mesh_index).mesh_name;
   auto generated_meshes = MeshLibrary::GetGeneratedMeshAssets();
-  auto& record = tachyon->mesh_pack.mesh_records[selected.mesh_index];
+  auto& record = tachyon->mesh_pack.mesh_records[first_selected.mesh_index];
   // @todo properly count based on active LoDs
   auto total_vertices = record.lod_1.vertex_end - record.lod_1.vertex_start;
   auto total_triangles = (record.lod_1.face_element_end - record.lod_1.face_element_start) / 3;
@@ -815,7 +901,7 @@ static void HandleSelectedObject(Tachyon* tachyon, State& state) {
   uint32 total_lod_3_triangles = 0;
 
   for (auto& asset : generated_meshes) {
-    if (asset.generated_from == selected.mesh_index) {
+    if (asset.generated_from == first_selected.mesh_index) {
       auto& mesh = mesh(asset.mesh_index);
       auto& lod_2 = mesh.lod_2;
       auto& lod_3 = mesh.lod_3;
@@ -865,8 +951,8 @@ static void HandleSelectedObject(Tachyon* tachyon, State& state) {
     add_dev_label("  (LoD 3)", std::to_string(total_lod_3_triangles) + " [" + std::to_string(total_lod_3_triangles * total_instances) + "]");
   }
 
-  add_dev_label("Position", selected.position.toString());
-  add_dev_label("Rotation", selected.rotation.toString());
+  add_dev_label("Position", first_selected.position.toString());
+  add_dev_label("Rotation", first_selected.rotation.toString());
 }
 
 static void HandleGuidelines(Tachyon* tachyon, State& state) {
@@ -964,8 +1050,8 @@ void Editor::HandleEditor(Tachyon* tachyon, State& state, const float dt) {
     RenderObjectPickerList(tachyon);
   }
 
-  if (editor.is_object_selected) {
-    HandleSelectedObject(tachyon, state);
+  if (AreObjectsSelected()) {
+    HandleSelectedObjects(tachyon, state);
   } else {
     objects(state.meshes.editor_position).disabled = true;
     objects(state.meshes.editor_rotation).disabled = true;
@@ -999,18 +1085,15 @@ void Editor::EnableEditor(Tachyon* tachyon, State& state) {
 }
 
 void Editor::DisableEditor(Tachyon* tachyon, State& state) {
-  if (editor.is_object_selected) {
+  if (AreObjectsSelected()) {
     if (editor.is_object_picker_active) {
-      remove(editor.selected_object);
+      remove(editor.selected_objects[0]);
     } else {
-      auto& selected = *get_live_object(editor.selected_object);
-
-      RestoreSelectedObject(tachyon, selected);
+      RestoreSelectedObjectColors(tachyon);
     }
   }
 
   editor.is_object_picker_active = false;
-  editor.is_object_selected = false;
 
   objects(state.meshes.editor_position).disabled = true;
   objects(state.meshes.editor_rotation).disabled = true;

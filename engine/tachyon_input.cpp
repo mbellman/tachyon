@@ -51,7 +51,8 @@ const static std::map<SDL_Keycode, tKey> key_map = {
   { SDLK_RETURN, tKey::ENTER },
   { SDLK_LCTRL, tKey::CONTROL },
   { SDLK_BACKSPACE, tKey::BACKSPACE },
-  { SDLK_TAB, tKey::TAB }
+  { SDLK_TAB, tKey::TAB },
+  { SDLK_LALT, tKey::ALT }
 };
 
 void Tachyon_HandleInputEvent(Tachyon* tachyon, const SDL_Event& event) {
