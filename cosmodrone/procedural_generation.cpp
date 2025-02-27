@@ -13,6 +13,14 @@ using namespace Cosmodrone;
     __total\
   )
 
+#define load_mesh_with_2_lods(__mesh_entry, __file, __file2, __total)\
+  __mesh_entry = Tachyon_AddMesh(\
+    tachyon,\
+    Tachyon_LoadMesh("./cosmodrone/assets" __file),\
+    Tachyon_LoadMesh("./cosmodrone/assets" __file2),\
+    __total\
+  )
+
 #define apply_scale(__object, __asset)\
   __object.scale = __asset.defaults.scale
 
@@ -129,109 +137,6 @@ static void GenerateStationTorus3(Tachyon* tachyon, const State& state, const tV
   commit(lights);
 }
 
-static void GenerateElevatorToruses(Tachyon* tachyon, State& state) {
-  auto& meshes = state.meshes;
-
-  // station_torus_2
-  {
-    auto& asset = MeshLibrary::FindMeshAsset(meshes.station_torus_2);
-    auto& list = GetAutoPlacedObjectList(state, meshes.station_torus_2);
-
-    for (int32 i = 1; i <= 2; i++) {
-      auto& torus = create(meshes.station_torus_2);
-      auto& torus2 = create(meshes.station_torus_2);
-
-      torus.position = tVec3f(0, 50000.f + i * -2000000.f, 0);
-      torus2.position = torus.position * -1.f;
-
-      apply_scale(torus, asset);
-      apply_scale(torus2, asset);
-
-      apply_surface(torus, asset);
-      apply_surface(torus2, asset);
-
-      commit(torus);
-      commit(torus2);
-
-      list.object_ids.push_back(torus.object_id);
-      list.object_ids.push_back(torus2.object_id);
-    }
-  }
-
-  // station_torus_3
-  // @todo use actual station_torus_3 mesh
-  {
-    auto positions = {
-      tVec3f(0, -650000.f, 0),
-      tVec3f(0, -1000000.f, 0),
-
-      tVec3f(0, -1700000.f, 0),
-      tVec3f(0, -1900000.f, 0),
-
-      tVec3f(0, -3700000.f, 0),
-      tVec3f(0, -4100000.f, 0),
-
-      tVec3f(0, -4700000.f, 0),
-      tVec3f(0, -4900000.f, 0)
-    };
-
-    for (int32 i = 0; i < 8; i++) {
-      auto& position = *(positions.begin() + i);
-
-      GenerateStationTorus3(tachyon, state, position);
-      GenerateStationTorus3(tachyon, state, tVec3f(0, 250000.f, 0) + position * -1.f);
-    }
-  }
-
-  // elevator_torus_1
-  {
-    auto& asset = MeshLibrary::FindMeshAsset(meshes.elevator_torus_1);
-    auto& list = GetAutoPlacedObjectList(state, meshes.elevator_torus_1);
-
-    for (int32 i = 1; i < 8; i++) {
-      auto& torus = create(meshes.elevator_torus_1);
-      auto& torus2 = create(meshes.elevator_torus_1);
-      float interval = i % 2 == 0 ? -300000.f : -400000.f;
-
-      torus.position = tVec3f(0, i * interval - 150000.f, 0);
-      torus2.position = torus.position * -1.f + tVec3f(0, 300000.f, 0);
-
-      apply_scale(torus, asset);
-      apply_scale(torus2, asset);
-
-      apply_surface(torus, asset);
-      apply_surface(torus, asset);
-
-      commit(torus);
-      commit(torus2);
-
-      list.object_ids.push_back(torus.object_id);
-      list.object_ids.push_back(torus2.object_id);
-    }
-
-    for (int32 i = 14; i < 20; i++) {
-      auto& torus = create(meshes.elevator_torus_1);
-      auto& torus2 = create(meshes.elevator_torus_1);
-      float interval = i % 2 == 0 ? -300000.f : -400000.f;
-
-      torus.position = tVec3f(0, i * interval, 0);
-      torus2.position = torus.position * -1.f;
-
-      apply_scale(torus, asset);
-      apply_scale(torus2, asset);
-
-      apply_surface(torus, asset);
-      apply_surface(torus2, asset);
-
-      commit(torus);
-      commit(torus2);
-
-      list.object_ids.push_back(torus.object_id);
-      list.object_ids.push_back(torus2.object_id);
-    }
-  }
-}
-
 static void GenerateElevatorTrackSupports(Tachyon* tachyon, const State& state) {
   auto& meshes = state.meshes;
 
@@ -278,7 +183,7 @@ static void GenerateElevatorTrackSupports(Tachyon* tachyon, const State& state) 
 void ProceduralGeneration::LoadMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
-  load_mesh(meshes.procedural_track_1, "/station-parts/track_1.obj", TOTAL_TRACK_PIECES);
+  load_mesh_with_2_lods(meshes.procedural_track_1, "/station-parts/track_1.obj", "/station-parts/track_1_lod_2.obj", TOTAL_TRACK_PIECES);
   load_mesh(meshes.procedural_elevator_car, "/elevator_car.obj", TOTAL_ELEVATOR_CARS);
   load_mesh(meshes.procedural_elevator_car_light, "/elevator_car_lights.obj", TOTAL_ELEVATOR_CARS);
   load_mesh(meshes.procedural_track_supports_1, "./track_supports_1.obj", 100);
@@ -298,6 +203,5 @@ void ProceduralGeneration::RemoveAutoPlacedObjects(Tachyon* tachyon, State& stat
 void ProceduralGeneration::GenerateWorld(Tachyon* tachyon, State& state) {
   GenerateElevator(tachyon, state);
   GenerateElevatorCars(tachyon, state);
-  // GenerateElevatorToruses(tachyon, state);
   GenerateElevatorTrackSupports(tachyon, state);
 }

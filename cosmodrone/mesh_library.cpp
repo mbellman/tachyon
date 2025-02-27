@@ -930,7 +930,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
   load_mesh(arch_1_frame);
   load_mesh(arch_1_details);
 
-  load_mesh(track_1_frame);
+  load_mesh_with_2_lods(track_1_frame);
 
   load_mesh(station_drone_core);
   load_mesh(station_drone_frame);
