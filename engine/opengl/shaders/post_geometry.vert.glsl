@@ -18,6 +18,7 @@ out vec3 fragNormal;
 flat out vec3 modelPosition;
 flat out vec3 basePosition;
 flat out vec3 topPosition;
+flat out vec3 upDirection;
 out vec3 vertPosition;
 
 uvec4 SurfaceToUVec4(uint surface) {
@@ -46,6 +47,7 @@ void main() {
   modelPosition = translation;
   basePosition = (modelMatrix * vec4(0, -1.0, 0, 1.0)).xyz;
   topPosition = (modelMatrix * vec4(0, 1.0, 0, 1.0)).xyz;
+  upDirection = mat3(modelMatrix) * vec4(0, 1.0, 0, 1.0).xyz;
   vertPosition = vertexPosition;
   fragPosition = model_space_position + translation;
   fragNormal = normal_matrix * vertexNormal;
