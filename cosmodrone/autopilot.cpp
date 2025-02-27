@@ -175,6 +175,10 @@ static void HandleAutoPrograde(Tachyon* tachyon, State& state, const float dt) {
 }
 
 void Autopilot::HandleAutopilot(Tachyon* tachyon, State& state, const float dt) {
+  if (state.flight_system != FlightSystem::DRONE) {
+    return;
+  }
+
   auto& camera = tachyon->scene.camera;
   float ship_speed = state.ship_velocity.magnitude();
 

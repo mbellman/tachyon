@@ -85,6 +85,13 @@ void FlightSystemDelegator::AutoStop(State& state, const float dt) {
     state.retrograde_direction = state.ship_velocity_basis.forward;
     state.ship_rotate_to_target_speed = 0.f;
   }
+
+  if (state.flight_system == FlightSystem::FIGHTER) {
+    state.flight_mode = FlightMode::AUTO_RETROGRADE;
+    state.retrograde_direction = state.ship_rotation_basis.forward;
+    state.retrograde_up = state.ship_rotation_basis.up.invert();
+    state.last_fighter_reversal_time = state.current_game_time;
+  }
 }
 
 void FlightSystemDelegator::DockOrUndock(Tachyon* tachyon, State& state, const float dt) {

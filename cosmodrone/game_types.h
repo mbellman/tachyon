@@ -109,6 +109,7 @@ namespace Cosmodrone {
     Quaternion target_camera_rotation;
     float target_camera_fov = 45.f;
     float controlled_thrust_duration = 0.f;
+    float last_fighter_reversal_time = 0.f;
     float camera_boost_intensity = 0.f;
     float camera_up_distance = 500.f;
 
@@ -125,6 +126,7 @@ namespace Cosmodrone {
     float initial_docking_ship_distance;
 
     tVec3f retrograde_direction;
+    tVec3f retrograde_up;
     // @todo make these an orthonormal basis
     tVec3f view_forward_direction;
     tVec3f view_up_direction;

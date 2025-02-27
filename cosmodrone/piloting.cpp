@@ -96,6 +96,11 @@ static void StartUpPilotedVehicle(Tachyon* tachyon, State& state, const float dt
   }
 }
 
+static void DoReversalManeuver(Tachyon* tachyon, State& state, const float dt) {
+  state.target_ship_rotation = Quaternion::FromDirection(state.retrograde_direction, state.retrograde_up);
+  state.ship_rotate_to_target_speed += 5.f * dt;
+}
+
 void Piloting::HandlePiloting(Tachyon* tachyon, State& state, const float dt) {
   auto& meshes = state.meshes;
 
@@ -139,6 +144,19 @@ void Piloting::HandlePiloting(Tachyon* tachyon, State& state, const float dt) {
 
     UpdatePilotedVehicleParts(tachyon, state);
 
+    // Lock drone to vehicle
+    state.ship_position =
+    state.docking_position = Autopilot::GetDockingPosition(tachyon, state);
+
+    if (
+      state.current_game_time - state.last_fighter_reversal_time < 2.f &&
+      state.flight_mode == FlightMode::AUTO_RETROGRADE
+    ) {
+      DoReversalManeuver(tachyon, state, dt);
+
+      return;
+    }
+
     state.flight_mode = FlightMode::MANUAL_CONTROL;
 
     if (state.controlled_thrust_duration > 0.f) {
@@ -158,9 +176,5 @@ void Piloting::HandlePiloting(Tachyon* tachyon, State& state, const float dt) {
 
       state.ship_rotate_to_target_speed = Tachyon_Lerpf(1.5f, 4.f, 1.f - speed_ratio);
     }
-
-    // Lock drone to vehicle
-    state.ship_position =
-    state.docking_position = Autopilot::GetDockingPosition(tachyon, state);
   }
 }

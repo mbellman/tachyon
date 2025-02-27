@@ -251,6 +251,7 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
     state.target_camera_rotation = state.target_camera_rotation.unit();
   }
 
+  // Handle auto-orientation
   if (
     state.flight_mode == FlightMode::AUTO_PROGRADE ||
     state.flight_mode == FlightMode::AUTO_RETROGRADE || (
@@ -259,14 +260,16 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
       Autopilot::GetDockingAlignment(state, Autopilot::GetDockingPosition(tachyon, state)) > 0.5f
     )
   ) {
-    // Gradually move the camera behind the player ship
+    float blend_factor = state.flight_system == FlightSystem::FIGHTER ? 1.f : dt;
+
     state.target_camera_rotation = Quaternion::slerp(
       state.target_camera_rotation,
       objects(meshes.hull)[0].rotation.opposite(),
-      dt
+      blend_factor
     );
   }
 
+  // Handle pitch changes
   if (state.ship_pitch_factor != 0.f) {
     auto new_target =
       Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -0.5f * state.ship_pitch_factor) *
@@ -288,7 +291,11 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
   float rate;
 
   if (state.flight_system == FlightSystem::FIGHTER) {
-    rate = Tachyon_Lerpf(1.4f, 1.f, speed_ratio);
+    if (state.current_game_time - state.last_fighter_reversal_time < 2.f) {
+      rate = 5.f;
+    } else {
+      rate = Tachyon_Lerpf(1.4f, 1.f, speed_ratio);
+    }
   } else {
     rate = 2.f;
   }
