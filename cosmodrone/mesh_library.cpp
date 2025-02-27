@@ -57,9 +57,9 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh(antenna_3);
   load_mesh(antenna_4);
   load_mesh(antenna_5);
-  load_mesh_with_2_lods(machine_1);
-  load_mesh(machine_2);
-  load_mesh_with_2_lods(machine_3);
+  load_mesh_with_3_lods(machine_1);
+  load_mesh_with_2_lods(machine_2);
+  load_mesh_with_3_lods(machine_3);
   load_mesh(radio_tower_1);
   load_mesh(module_1);
   load_mesh(module_2);
@@ -98,7 +98,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh(girder_4);
   load_mesh_with_2_lods(girder_5);
   load_mesh(girder_6);
-  load_mesh(beam_1);
+  load_mesh_with_2_lods(beam_1);
   load_mesh(beam_2);
   load_mesh_with_2_lods(mega_girder_1);
   load_mesh(mega_girder_2);
@@ -1406,8 +1406,8 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .mesh_index = meshes.solar_rotator_panels,
       .generated_from = meshes.solar_rotator,
       .defaults = {
-        .color = 0x44F1,
-        .material = tVec4f(0.2f, 1.f, 0.3f, 1.f)
+        .color = 0x44F2,
+        .material = tVec4f(0.4f, 1.f, 0.3f, 1.f)
       }
     },
 
@@ -1874,6 +1874,8 @@ void MeshLibrary::LoadMeshes(Tachyon* tachyon, State& state) {
     mesh(meshes.girder_1).shadow_cascade_ceiling = 3;
     mesh(meshes.girder_1b).shadow_cascade_ceiling = 3;
     mesh(meshes.girder_4_frame).shadow_cascade_ceiling = 3;
+    mesh(meshes.machine_1).shadow_cascade_ceiling = 3;
+    mesh(meshes.machine_2).shadow_cascade_ceiling = 3;
     mesh(meshes.machine_3).shadow_cascade_ceiling = 3;
     mesh(meshes.antenna_1).shadow_cascade_ceiling = 3;
     mesh(meshes.antenna_2_frame).shadow_cascade_ceiling = 3;
