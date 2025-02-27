@@ -97,8 +97,13 @@ static void StartUpPilotedVehicle(Tachyon* tachyon, State& state, const float dt
 }
 
 static void DoReversalManeuver(Tachyon* tachyon, State& state, const float dt) {
+  float alpha = 2.f * (state.current_game_time - state.last_fighter_reversal_time);
+  if (alpha > 1.f) alpha = 1.f;
+  alpha *= alpha;
+
   state.target_ship_rotation = Quaternion::FromDirection(state.retrograde_direction, state.retrograde_up);
-  state.ship_rotate_to_target_speed += 5.f * dt;
+
+  state.ship_rotate_to_target_speed = 4.f * alpha;
 }
 
 void Piloting::HandlePiloting(Tachyon* tachyon, State& state, const float dt) {

@@ -292,7 +292,10 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
 
   if (state.flight_system == FlightSystem::FIGHTER) {
     if (state.current_game_time - state.last_fighter_reversal_time < 2.f) {
-      rate = 5.f;
+      float alpha = 5.f * (state.current_game_time - state.last_fighter_reversal_time);
+      if (alpha > 1.f) alpha = 1.f;
+
+      rate = 20.f * alpha;
     } else {
       rate = Tachyon_Lerpf(1.4f, 1.f, speed_ratio);
     }
