@@ -130,6 +130,7 @@ namespace Cosmodrone {
     // @todo make these an orthonormal basis
     tVec3f view_forward_direction;
     tVec3f view_up_direction;
+    tVec3f reticle_view_forward;
 
     tVec3f ship_position;
     tVec3f ship_velocity;
@@ -167,8 +168,6 @@ namespace Cosmodrone {
     bool is_piloting_vehicle = false;
     float piloting_start_time = 0.f;
 
-    tVec2f flight_reticle_offset;
-    tVec2f flight_target_reticle_offset;
     float flight_reticle_rotation = 0.f;
 
     bool photo_mode = false;

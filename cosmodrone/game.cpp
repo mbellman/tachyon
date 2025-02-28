@@ -33,7 +33,7 @@ static Quaternion DirectionToQuaternion(const tVec3f& direction) {
   );
 }
 
-static void UpdateViewDirections(Tachyon* tachyon, State& state) {
+static void UpdateViewDirections(Tachyon* tachyon, State& state, const float dt) {
   auto& camera = tachyon->scene.camera;
 
   auto view_matrix = (
@@ -52,6 +52,21 @@ static void UpdateViewDirections(Tachyon* tachyon, State& state) {
     view_matrix.m[5],
     view_matrix.m[6]
   );
+
+  // @todo cleanup
+  if (
+    state.reticle_view_forward.x == 0.f &&
+    state.reticle_view_forward.y == 0.f &&
+    state.reticle_view_forward.z == 0.f
+  ) {
+    state.reticle_view_forward = state.view_forward_direction;
+  } else {
+    state.reticle_view_forward = tVec3f::lerp(
+      state.reticle_view_forward,
+      state.view_forward_direction,
+      5.f * dt
+    ).unit();
+  }
 }
 
 static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
@@ -305,7 +320,7 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
 
   camera.rotation = Quaternion::slerp(camera.rotation, state.target_camera_rotation, rate * dt);
 
-  UpdateViewDirections(tachyon, state);
+  UpdateViewDirections(tachyon, state, dt);
 
   float speed_zoom_ratio = ship_speed / (ship_speed + 5000.f);
   float boost_intensity;

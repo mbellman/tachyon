@@ -84,26 +84,40 @@ struct Vec2i {
 };
 
 static Vec2i GetFlightReticleCoordinates(Tachyon* tachyon, const State& state) {
-  auto& offset = state.flight_reticle_offset;
+  auto& camera = tachyon->scene.camera;
 
-  auto screen_x = (int32)roundf(tachyon->window_width / 2.f + offset.x * 500.f);
-  auto screen_y = (int32)roundf(tachyon->window_height / 2.f + offset.y * 500.f);
+  // @todo write a helper for the below stuff; we do the same work
+  // in target_system.cpp for computing target positions
+
+  // @optimize compute this after camera updates
+  tMat4f view_matrix = (
+    camera.rotation.toMatrix4f() *
+    tMat4f::translation(camera.position * tVec3f(-1.f))
+  );
+
+  auto forward = camera.position + state.reticle_view_forward * 10000.f;
+
+  // @todo make fov/near/far customizable
+  tMat4f projection_matrix = tMat4f::perspective(camera.fov, 500.f, 10000000.f);
+  tVec3f local = view_matrix * forward;
+  tVec3f clip_position = (projection_matrix * local) / local.z;
+
+  clip_position.x *= 0.5f;
+  clip_position.x += 0.5f;
+  clip_position.y *= 0.5f;
+  clip_position.y += 0.5f;
+
+  auto screen_x = int32(tachyon->window_width - clip_position.x * tachyon->window_width);
+  auto screen_y = int32(clip_position.y * tachyon->window_height);
 
   return Vec2i(screen_x, screen_y);
 }
 
 static void HandleFlightReticle(Tachyon* tachyon, State& state, const float dt) {
-  auto& target_offset = state.flight_target_reticle_offset;
-  auto& offset = state.flight_reticle_offset;
   auto& rotation = state.flight_reticle_rotation;
 
-  // Lag when panning the camera/rotating
+  // Lag when rotating
   {
-    if (is_window_focused()) {
-      target_offset.x -= (float)tachyon->mouse_delta_x / 2000.f;
-      target_offset.y -= (float)tachyon->mouse_delta_y / 2000.f;
-    }
-
     rotation -= state.camera_roll_speed * dt;
   }
 
@@ -111,19 +125,12 @@ static void HandleFlightReticle(Tachyon* tachyon, State& state, const float dt) 
   {
     auto coords = GetFlightReticleCoordinates(tachyon, state);
 
-    auto alpha = 1.f - sqrtf(
-      offset.x * offset.x +
-      offset.y * offset.y
-    );
-
-    if (alpha < 0.5f) alpha = 0.5f;
-
     if (state.flight_system == FlightSystem::DRONE) {
       Tachyon_DrawUIElement(tachyon, state.ui.drone_reticle, {
         .screen_x = coords.x,
         .screen_y = coords.y,
         .rotation = rotation,
-        .alpha = alpha
+        .alpha = 1.f
       });
     } else if (state.flight_system == FlightSystem::FIGHTER) {
       Vec2i screen_center = {
@@ -139,7 +146,7 @@ static void HandleFlightReticle(Tachyon* tachyon, State& state, const float dt) 
       Tachyon_DrawUIElement(tachyon, state.ui.fighter_reticle_frame, {
         .screen_x = coords.x,
         .screen_y = coords.y,
-        .alpha = alpha
+        .alpha = 1.f
       });
 
       if (
@@ -155,14 +162,9 @@ static void HandleFlightReticle(Tachyon* tachyon, State& state, const float dt) 
     }
   }
 
-  // Drift toward the center of the screen/stop roll
+  // Stop roll
   {
-    target_offset.x *= 1.f - 2.f * dt;
-    target_offset.y *= 1.f - 2.f * dt;
     rotation *= 1.f - 4.f * dt;
-
-    offset.x = Tachyon_Lerpf(offset.x, target_offset.x, 20.f * dt);
-    offset.y = Tachyon_Lerpf(offset.y, target_offset.y, 20.f * dt);
   }
 }
 

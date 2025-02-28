@@ -32,7 +32,6 @@ void FighterFlightSystem::ChangePitch(State& state, const float dt, const float 
   if (state.ship_pitch_factor > 1.f) state.ship_pitch_factor = 1.f;
 
   state.flight_mode = FlightMode::MANUAL_CONTROL;
-  state.flight_target_reticle_offset.y += 0.4f * state.ship_pitch_factor * dt;
 }
 
 void FighterFlightSystem::HandlePitch(State& state, const float dt) {

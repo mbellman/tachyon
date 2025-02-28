@@ -121,6 +121,7 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
     float max_selection_distance = state.is_piloting_vehicle ? 350000.f : 200000.f;
     tObject selected_target;
 
+    // @optimize compute this after camera updates
     tMat4f view_matrix = (
       camera.rotation.toMatrix4f() *
       tMat4f::translation(camera.position * tVec3f(-1.f))
