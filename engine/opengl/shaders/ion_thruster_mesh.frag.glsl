@@ -28,10 +28,13 @@ void main() {
   const float TAU = 2.0 * 3.141592;
   float t = fract(scene_time);
 
-  out_color *= 1.0 + 0.02 * sin(TAU * (vertPosition.z * 5.0 - t * 4.0));
+  const float pulse_speed = 8.0;
+  const float fluctuation_speed = 2.0;
+
+  out_color *= 1.0 + 0.05 * sin(TAU * (vertPosition.z * 6.0 - t * pulse_speed));
 
   float up_dot = abs(dot(fragNormal, upDirection));
-  float intensity = 0.8 + 0.2 * sin(TAU * (2.0 * t + 2.0 * up_dot));
+  float intensity = 0.8 + 0.2 * sin(TAU * (fluctuation_speed * t + 2.0 * up_dot));
 
   out_color.rgb = mix(out_color.rgb, vec3(1.0), 0.15 * intensity);
 

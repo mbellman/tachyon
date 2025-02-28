@@ -97,7 +97,7 @@ static void StartUpPilotedVehicle(Tachyon* tachyon, State& state, const float dt
 }
 
 static void DoReversalManeuver(Tachyon* tachyon, State& state, const float dt) {
-  float alpha = 2.f * (state.current_game_time - state.last_fighter_reversal_time);
+  float alpha = 4.f * (state.current_game_time - state.last_fighter_reversal_time);
   if (alpha > 1.f) alpha = 1.f;
   alpha *= alpha;
 

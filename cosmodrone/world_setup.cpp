@@ -111,10 +111,11 @@ static void InitLevel(Tachyon* tachyon, State& state) {
   );
 
   // @todo define as a default
-  state.ship_position = tVec3f(-15000.f, 115000.f, 0.f);
+  state.ship_position = tVec3f(-10000.f, -220000.f, -110000.f);
 
   // Set the initial camera behind the player drone
-  state.target_camera_rotation = camera.rotation = state.target_ship_rotation.opposite();
+  state.target_camera_rotation =
+  camera.rotation = state.target_ship_rotation.opposite();
 
   // @todo improve ship part handling
   {
