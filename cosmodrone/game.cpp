@@ -136,6 +136,12 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
   // Handle auto-stop actions
   if (did_press_key(tKey::SPACE)) {
     FlightSystemDelegator::AutoStop(state, dt);
+
+    // @todo factor
+    if (state.flight_system == FlightSystem::FIGHTER) {
+      // Stop camera drift when activating a fighter quick-target/quick-reverse
+      state.target_camera_rotation = tachyon->scene.camera.rotation;
+    }
   }
 
   // Handle auto-dock/undock actions
@@ -275,7 +281,10 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
       Autopilot::GetDockingAlignment(state, Autopilot::GetDockingPosition(tachyon, state)) > 0.5f
     )
   ) {
-    float blend_factor = state.flight_system == FlightSystem::FIGHTER ? 1.f : dt;
+    float blend_factor =
+      state.flight_system == FlightSystem::FIGHTER
+        ? std::min(1.f, powf(state.current_game_time - state.last_fighter_reversal_time, 2.f))
+        : dt;
 
     state.target_camera_rotation = Quaternion::slerp(
       state.target_camera_rotation,
@@ -323,7 +332,7 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
       float alpha = 5.f * (state.current_game_time - state.last_fighter_reversal_time);
       if (alpha > 1.f) alpha = 1.f;
 
-      rate = 20.f * alpha;
+      rate = 10.f * alpha;
     } else {
       rate = Tachyon_Lerpf(1.4f, 1.f, speed_ratio);
     }
