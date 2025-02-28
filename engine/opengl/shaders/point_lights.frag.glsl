@@ -8,7 +8,7 @@ struct Light {
 };
 
 uniform sampler2D in_normal_and_depth;
-uniform sampler2D in_color_and_material;
+uniform usampler2D in_color_and_material;
 uniform mat4 inverse_projection_matrix;
 uniform mat4 inverse_view_matrix;
 uniform vec3 camera_position;
@@ -36,6 +36,22 @@ vec3 GetWorldPosition(float depth, vec2 frag_uv, mat4 inverse_projection, mat4 i
   vec4 world_position = inverse_view * view_position;
 
   return world_position.xyz;
+}
+
+struct Material {
+  float roughness;
+  float metalness;
+  float clearcoat;
+  float subsurface;
+};
+
+Material UnpackMaterial(uvec4 surface) {
+  float roughness = float((surface.z & 0xF0) >> 4) / 15.0;
+  float metalness = float(surface.z & 0x0F) / 15.0;
+  float clearcoat = float((surface.w & 0xF0) >> 4) / 15.0;
+  float subsurface = float(surface.w & 0x0F) / 15.0;
+
+  return Material(roughness, metalness, clearcoat, subsurface);
 }
 
 float GetGlowFactor(vec3 world_position) {
@@ -78,9 +94,12 @@ float GetGlowFactor(vec3 world_position) {
   return glow_factor;
 }
 
-vec3 GetPointLightRadiance(vec3 world_position, float light_distance, vec3 N, vec3 L) {
+vec3 GetPointLightRadiance(vec3 world_position, float light_distance, vec3 N, vec3 L, vec3 V, Material material) {
+  vec3 H = normalize(V + L);
+  float NdotL = max(0.0, dot(N, L));
+  float NdotH = max(dot(N, H), 0.0);
+
   vec3 radiant_flux = light.color * light.power;
-  float NdotL = max(0.0, dot(N, -L));
   float distance_factor = 1.0 - min(1.0, light_distance / light.radius);
 
   // distance_factor *= distance_factor;
@@ -90,23 +109,28 @@ vec3 GetPointLightRadiance(vec3 world_position, float light_distance, vec3 N, ve
 
   // @todo PBR
   vec3 D = albedo * radiant_flux * distance_factor * NdotL;
+  vec3 S = radiant_flux * pow(NdotH, 50.0) * distance_factor;
 
-  return D;
+  return D + S;
 }
 
 void main() {
   vec4 frag_normal_and_depth = texture(in_normal_and_depth, fragUv);
+  uvec4 frag_color_and_material = texture(in_color_and_material, fragUv);
+
+  Material material = UnpackMaterial(frag_color_and_material);
 
   vec3 position = GetWorldPosition(frag_normal_and_depth.w, fragUv, inverse_projection_matrix, inverse_view_matrix);
-  vec3 light_to_surface = position - light.position;
-  float light_distance = length(light_to_surface);
+  vec3 surface_to_light = light.position - position;
+  float light_distance = length(surface_to_light);
   float light_distance_from_camera = length(light.position - camera_position);
   vec3 out_color = vec3(0.0);
 
   vec3 N = frag_normal_and_depth.xyz;
-  vec3 L = light_to_surface / light_distance;
+  vec3 V = normalize(camera_position - position);
+  vec3 L = surface_to_light / light_distance;
 
-  out_color += GetPointLightRadiance(position, light_distance, N, L);
+  out_color += GetPointLightRadiance(position, light_distance, N, L, V, material);
   out_color += light.color * GetGlowFactor(position) * min(1.0, light.power);
   // out_color += light.color * 0.2;
 

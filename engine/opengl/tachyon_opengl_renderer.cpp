@@ -1011,8 +1011,8 @@ static void RenderGBufferView(Tachyon* tachyon) {
   glUseProgram(shader.program);
   SetShaderVec4f(locations.offset_and_scale, { 0.f, 0.f, 1.f, 1.f });
   SetShaderFloat(locations.rotation, 0.f);
-  SetShaderInt(locations.in_normal_and_depth, 0);
-  SetShaderInt(locations.in_color_and_material, 1);
+  SetShaderInt(locations.in_normal_and_depth, G_BUFFER_NORMALS_AND_DEPTH);
+  SetShaderInt(locations.in_color_and_material, G_BUFFER_COLOR_AND_MATERIAL);
   SetShaderMat4f(locations.inverse_projection_matrix, ctx.inverse_projection_matrix);
   SetShaderMat4f(locations.inverse_view_matrix, ctx.inverse_view_matrix);
 
