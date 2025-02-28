@@ -177,7 +177,10 @@ static void HandleTargetLine(Tachyon* tachyon, State& state, const float dt) {
     return;
   }
 
-  Vec2i start = GetFlightReticleCoordinates(tachyon, state);
+  Vec2i start = state.flight_system == FlightSystem::FIGHTER
+    ? Vec2i(tachyon->window_width / 2, tachyon->window_height / 2)
+    : GetFlightReticleCoordinates(tachyon, state);
+
   Vec2i end = Vec2i(tracker->screen_x, tracker->screen_y);
 
   float dx = float(end.x - start.x);

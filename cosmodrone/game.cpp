@@ -301,6 +301,19 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
     );
   }
 
+  // When charging up fighter ships, slide the target camera
+  // behind the ship to cause the aim direction to slow rapidly
+  if (
+    state.flight_system == FlightSystem::FIGHTER &&
+    (state.controlled_thrust_duration > 0.f && state.controlled_thrust_duration < 1.f)
+  ) {
+    state.target_camera_rotation = Quaternion::slerp(
+      state.target_camera_rotation,
+      objects(meshes.hull)[0].rotation.opposite(),
+      2.f * dt
+    );
+  }
+
   float ship_speed = state.ship_velocity.magnitude();
   float speed_ratio = ship_speed / Utilities::GetMaxShipSpeed(state);
   float rate;
