@@ -28,8 +28,8 @@ void main() {
   const float TAU = 2.0 * 3.141592;
   float t = fract(scene_time);
 
-  const float pulse_speed = 8.0;
-  const float fluctuation_speed = 2.0;
+  const float pulse_speed = 5.0 * out_color.w;
+  const float fluctuation_speed = 2.0 * out_color.w;
 
   out_color *= 1.0 + 0.05 * sin(TAU * (vertPosition.z * 6.0 - t * pulse_speed));
 

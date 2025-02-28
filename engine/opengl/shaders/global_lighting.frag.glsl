@@ -400,7 +400,7 @@ vec3 GetSkyColor(vec3 sky_direction, float sun_glare_factor) {
 
   float bg_noise = simplex_noise(sky_direction.xy + sky_direction.yz);
   float bg_noise_b = simplex_noise((sky_direction.xy + sky_direction.yz) * 2.0);
-  float bg_noise_c = simplex_noise((sky_direction.xy + sky_direction.yz) * 6.0);
+  float bg_noise_c = simplex_noise((sky_direction.xy + sky_direction.yz) * 8.0);
   bg_noise = clamp(bg_noise * bg_noise_b * bg_noise_c, 0.0, 1.0);
 
   float bg_noise2 = simplex_noise(sky_direction.zx * sky_direction.zy + sky_direction.zz);
