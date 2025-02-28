@@ -783,7 +783,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     .mesh_index = meshes.gas_flare_1_spawn,
     .placeholder = true,
     .defaults = {
-      .scale = tVec3f(6000.f),
+      .scale = tVec3f(10000.f),
       .color = tVec4f(1.f, 0, 0, 0.5f)
     }
   });
@@ -1735,7 +1735,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .generated_from = meshes.gas_flare_1_spawn,
       .defaults = {
         .type = FIRE_MESH,
-        .scale = tVec3f(6000.f, 18000.f, 6000.f),
+        .scale = tVec3f(10000.f, 10000.f, 10000.f),
         .color = tVec4f(1.f, 0.2f, 0.1f, 0.8f)
       }
     },

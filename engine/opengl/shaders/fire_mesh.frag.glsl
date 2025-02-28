@@ -77,14 +77,6 @@ float Fire3D(vec3 p) {
   return clamp(v, 0.0, 1.0);
 }
 
-/**
- * Returns a value within the range -1.0 - 1.0, constant
- * in screen space, acting as a noise filter.
- */
-float noise(float seed) {
-  return 2.0 * (fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * seed * 43758.545312) - 0.5);
-}
-
 void main() {
   vec3 N = normalize(fragNormal);
   vec3 V = normalize(camera_position - fragPosition);
@@ -128,7 +120,8 @@ void main() {
       center_factor *
       density_factor;
 
-    sample_position += D * 2000.0;
+    // @todo use object scale for this
+    sample_position += D * 4000.0;
   }
 
   out_color *= pow(NdotV, 2.0) * intensity;

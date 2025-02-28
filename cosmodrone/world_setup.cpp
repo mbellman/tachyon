@@ -320,7 +320,7 @@ static void InitLights(Tachyon* tachyon, State& state) {
 
   for (auto& flare : objects(state.meshes.gas_flare_1_spawn)) {
     point_lights.push_back({
-      .position = flare.position,
+      .position = flare.position - flare.rotation.getUpDirection() * flare.scale.y * 0.9f,
       .radius = 50000.f,
       .color = tVec3f(1.f, 0.5f, 0.1f),
       .power = 5.f
