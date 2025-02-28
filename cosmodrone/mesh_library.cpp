@@ -1613,7 +1613,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .generated_from = meshes.fighter_spawn,
       .defaults = {
         .color = tVec3f(0.2f, 0.4f, 0.6f),
-        .material = tVec4f(1.f, 0, 0.2f, 0.3f)
+        .material = tVec4f(1.f, 0, 0.2f, 0.5f)
       }
     },
     {
@@ -1652,7 +1652,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .generated_from = meshes.fighter_spawn,
       .defaults = {
         .color = tVec3f(0.2f, 0.4f, 0.6f),
-        .material = tVec4f(1.f, 0, 0.2f, 0.3f)
+        .material = tVec4f(1.f, 0, 0.2f, 0.5f)
       }
     },
     {
@@ -1668,7 +1668,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .generated_from = meshes.fighter_spawn,
       .defaults = {
         .color = tVec3f(0.2f, 0.4f, 0.6f),
-        .material = tVec4f(1.f, 0, 0.2f, 0.3f)
+        .material = tVec4f(1.f, 0, 0.2f, 0.5f)
       }
     },
     {
