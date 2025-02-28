@@ -373,7 +373,7 @@ static void RenderDebugLabels(Tachyon* tachyon) {
       "  (Cascade 1): " + String(renderer.total_vertices_by_cascade[1]),
       "  (Cascade 2): " + String(renderer.total_vertices_by_cascade[2]),
       "  (Cascade 3): " + String(renderer.total_vertices_by_cascade[3]),
-      "Point lights: " + String(tachyon->point_lights.size()),
+      "Point lights: " + String(renderer.total_point_lights_drawn),
       "Draw calls: " + String(renderer.total_draw_calls),
       "Running time: " + String(tachyon->running_time)
     };
@@ -867,29 +867,28 @@ static void RenderPointLights(Tachyon* tachyon) {
   SetShaderMat4f(locations.inverse_view_matrix, ctx.inverse_view_matrix);
   SetShaderVec3f(locations.camera_position, ctx.camera_position);
 
-  // @todo perform culling
-  auto& lights = tachyon->point_lights;
-  auto total_instances = lights.size();
   // @todo avoid reallocating each frame
-  auto* instances = new tOpenGLPointLightDiscInstance[total_instances];
+  std::vector<tOpenGLPointLightDiscInstance> instances;
   // @todo put in ctx
   auto aspect_ratio = float(ctx.w) / float(ctx.h);
 
   auto view_matrix = ctx.view_matrix.transpose();
   auto projection_matrix = ctx.projection_matrix.transpose();
 
-  for (uint32 i = 0; i < total_instances; i++) {
-    auto& light = lights[i];
-    auto& instance = instances[i];
+  for (uint32 i = 0; i < tachyon->point_lights.size(); i++) {
+    auto& light = tachyon->point_lights[i];
+
+    if (light.power == 0.f) {
+      continue;
+    }
+
+    tOpenGLPointLightDiscInstance instance;
 
     instance.light = light;
 
     tVec3f local_light_position = view_matrix * light.position;
 
-    if (light.power == 0.f) {
-      instance.offset = tVec2f(0.f);
-      instance.scale = tVec2f(0.f);
-    } else if (local_light_position.z < -0.1f) {
+    if (local_light_position.z < -0.1f) {
       // Light source in front of the camera
       tVec3f clip_position = (projection_matrix * local_light_position) / local_light_position.z;
 
@@ -906,19 +905,28 @@ static void RenderPointLights(Tachyon* tachyon) {
       // out of range
       float scale = local_light_position.magnitude() < light.radius ? 2.f : 0.f;
 
+      if (scale == 0.f) {
+        continue;
+      }
+
       instance.offset = tVec2f(0.f);
       instance.scale = tVec2f(scale);
     }
+
+    instances.push_back(instance);
   }
 
   glBindBuffer(GL_ARRAY_BUFFER, renderer.point_light_disc.light_buffer);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(tOpenGLPointLightDiscInstance) * total_instances, instances, GL_DYNAMIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(tOpenGLPointLightDiscInstance) * instances.size(), instances.data(), GL_DYNAMIC_DRAW);
 
   glBindVertexArray(renderer.point_light_disc.vao);
   // @todo reference # of disc slices in tachyon_opengl_geometry.cpp
-  glDrawArraysInstanced(GL_TRIANGLES, 0, 16 * 3, total_instances);
+  glDrawArraysInstanced(GL_TRIANGLES, 0, 16 * 3, instances.size());
 
-  delete[] instances;
+  // @todo dev mode only
+  {
+    renderer.total_point_lights_drawn = instances.size();
+  }
 }
 
 static void RenderPost(Tachyon* tachyon) {

@@ -51,6 +51,7 @@ struct tOpenGLRenderer {
   uint32 total_triangles_by_cascade[4] = { 0, 0, 0, 0 };
   uint32 total_vertices_by_cascade[4] = { 0, 0, 0, 0 };
   uint32 total_meshes_drawn = 0;
+  uint32 total_point_lights_drawn = 0;
   uint32 total_draw_calls = 0;
 };
 
