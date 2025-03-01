@@ -83,6 +83,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh(station_platform_1);
   load_mesh(platform);
   load_mesh(carrier);
+  load_mesh(orbital_base);
   load_mesh(solar_rotator);
   load_mesh(solar_field);
   load_mesh(base_1);
@@ -462,6 +463,15 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     .defaults = {
       .scale = tVec3f(60000.f),
       .material = tVec4f(0.9f, 0, 0, 0.2f)
+    }
+  });
+
+  placeable_mesh_assets.push_back({
+    .mesh_name = "orbital_base",
+    .mesh_index = meshes.orbital_base,
+    .defaults = {
+      .scale = tVec3f(300000.f),
+      .material = tVec4f(1.f, 0, 0, 0.2f)
     }
   });
 

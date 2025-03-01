@@ -179,7 +179,7 @@ void main() {
   float c2 = snoise(vec4(d * 2.0, t));
   float c3 = snoise(vec4(d * 4.0, t));
   float c4 = snoise(vec4(d * 8.0, t));
-  float c5 = snoise(vec4(d * 32.0, t));
+  float c5 = snoise(vec4(d * 24.0, t));
 
   float clouds = c1 + c2 + c3 + c4 + c5;
 
@@ -203,7 +203,7 @@ void main() {
 
   float shadow = (c3_2 + c4_2) * (1.0 - NdotV * 0.75);
 
-  out_color -= vec3(shadow) * 0.3 * density;
+  out_color -= vec3(shadow) * 0.6 * density;
 
   // Haze
   out_color += vec3(2.0) * pow(1.0 - NdotV, 3.0);

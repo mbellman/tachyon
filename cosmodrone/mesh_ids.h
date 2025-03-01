@@ -24,6 +24,7 @@ namespace Cosmodrone {
       // Major station pieces
       platform,
       carrier,
+      orbital_base,
 
       // Station parts
       antenna_1,

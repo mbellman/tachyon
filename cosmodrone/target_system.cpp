@@ -238,13 +238,10 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
         // Draw selected tracker
         const static float animation_time = 0.3f;
 
-        Tachyon_DrawUIElement(tachyon, state.ui.selected_target_center, {
-          .screen_x = tracker.screen_x,
-          .screen_y = tracker.screen_y
-        });
-
-        auto time_since_selected = state.current_game_time - tracker.selected_time;
-        if (time_since_selected > animation_time) time_since_selected = animation_time;
+        // Tachyon_DrawUIElement(tachyon, state.ui.selected_target_center, {
+        //   .screen_x = tracker.screen_x,
+        //   .screen_y = tracker.screen_y
+        // });
 
         const static std::vector<tVec2f> offsets = {
           tVec2f(-1.f, -1.f),
@@ -260,10 +257,13 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
           t_PI + t_HALF_PI
         };
 
+        auto time_since_selected = state.current_game_time - tracker.selected_time;
+        if (time_since_selected > animation_time) time_since_selected = animation_time;
+
         auto alpha = time_since_selected / animation_time;
         alpha = sqrtf(alpha);
 
-        auto spread = 30.f + 10.f * (1.f - alpha);
+        auto spread = 30.f + 20.f * (1.f - alpha);
 
         for (uint32 i = 0; i < 4; i++) {
           auto& offset = offsets[i];
@@ -274,7 +274,8 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
           Tachyon_DrawUIElement(tachyon, state.ui.selected_target_corner, {
             .screen_x = screen_x,
             .screen_y = screen_y,
-            .rotation = rotation
+            .rotation = rotation,
+            .alpha = alpha
           });
         }
 
