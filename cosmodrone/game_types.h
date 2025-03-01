@@ -112,6 +112,8 @@ namespace Cosmodrone {
     float last_fighter_reversal_time = 0.f;
     float camera_boost_intensity = 0.f;
     float camera_up_distance = 500.f;
+    float camera_side_distance = 0.f;
+    float banking_factor = 0.f;
 
     FlightMode flight_mode = FlightMode::MANUAL_CONTROL;
     AutoDockStage auto_dock_stage;

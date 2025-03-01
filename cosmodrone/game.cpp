@@ -421,14 +421,23 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
       state.camera_up_distance = Tachyon_Lerpf(state.camera_up_distance, 500.f, 5.f * dt);
     }
 
+    // @todo orthonormal basis for view
+    tVec3f sideways = tVec3f::cross(state.view_up_direction, state.view_forward_direction);
+
+    float max_side_distance = state.flight_system == FlightSystem::FIGHTER ? 900.f : 300.f;
+
+    state.camera_side_distance = Tachyon_Lerpf(state.camera_side_distance, -state.banking_factor * max_side_distance, dt);
+
     camera.position =
       state.ship_position -
       state.view_forward_direction * state.ship_camera_distance +
-      state.view_up_direction * state.camera_up_distance;
+      state.view_up_direction * state.camera_up_distance +
+      state.view_up_direction * abs(state.camera_side_distance) +
+      sideways * state.camera_side_distance;
   }
 }
 
-// @todo move to HUDSystem
+// @todo maybe we should just get rid of this
 static void HandleFlightGuides(Tachyon* tachyon, State& state, const float dt) {
   const static float MIN_SPAWN_DISTANCE = 5000.f;
 
@@ -466,6 +475,9 @@ static void HandleFlightGuides(Tachyon* tachyon, State& state, const float dt) {
 
     commit(curve);
   }
+
+  // @todo consider removing this feature altogether
+  return;
 
   float speed_ratio = state.ship_velocity.magnitude() / Utilities::GetMaxShipSpeed(state);
 
@@ -603,7 +615,6 @@ static void UpdateShipVelocityBasis(State& state) {
 static void HandleShipBanking(Tachyon* tachyon, State& state) {
   auto& hull = objects(state.meshes.hull)[0];
   auto target_left = state.target_ship_rotation.getLeftDirection();
-  float banking_factor;
 
   float left_dot = tVec3f::dot(state.ship_rotation_basis.forward, target_left);
   if (left_dot < 0.f) left_dot = 0.f;
@@ -612,24 +623,29 @@ static void HandleShipBanking(Tachyon* tachyon, State& state) {
   if (right_dot < 0.f) right_dot = 0.f;
 
   if (abs(left_dot) > abs(right_dot)) {
-    banking_factor = -left_dot;
+    state.banking_factor = -left_dot;
   } else {
-    banking_factor = right_dot;
+    state.banking_factor = right_dot;
   }
 
   if (state.flight_system == FlightSystem::FIGHTER) {
     // Increase the amount of banking when flying fighter ships
     float speed_ratio = state.ship_velocity.magnitude() / Utilities::GetMaxShipSpeed(state);
 
-    banking_factor *= (speed_ratio + 0.25f) * 1.2f;
+    state.banking_factor *= (speed_ratio + 0.25f) * 1.2f;
   }
 
-  if (banking_factor > 1.5f) banking_factor = 1.5f;
-  if (banking_factor < -1.5f) banking_factor = -1.5f;
+  if (state.banking_factor > 1.5f) state.banking_factor = 1.5f;
+  if (state.banking_factor < -1.5f) state.banking_factor = -1.5f;
+
+  float multiplier = state.ship_rotate_to_target_speed;
+  if (multiplier > 1.f) multiplier = 1.f;
+
+  state.banking_factor *= multiplier;
 
   state.target_ship_rotation =
     state.target_ship_rotation *
-    Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), banking_factor);
+    Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), state.banking_factor);
 }
 
 static void HandleDrone(Tachyon* tachyon, State& state, const float dt) {

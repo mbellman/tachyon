@@ -89,7 +89,7 @@ void FlightSystemDelegator::AutoStop(State& state, const float dt) {
   if (state.flight_system == FlightSystem::FIGHTER) {
     state.flight_mode = FlightMode::AUTO_RETROGRADE;
     state.retrograde_direction = state.ship_rotation_basis.forward;
-    state.retrograde_up = state.ship_rotation_basis.up.invert();
+    state.retrograde_up = state.ship_rotation_basis.up;
     state.last_fighter_reversal_time = state.current_game_time;
   }
 }
