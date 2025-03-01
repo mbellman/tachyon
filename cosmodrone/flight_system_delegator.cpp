@@ -83,6 +83,7 @@ void FlightSystemDelegator::AutoStop(State& state, const float dt) {
     // We're doing this for now because of quirks with the player drone model, which should
     // probably be correctly oriented.
     state.retrograde_direction = state.ship_velocity_basis.forward;
+    state.retrograde_up = state.ship_rotation_basis.up;
     state.ship_rotate_to_target_speed = 0.f;
   }
 

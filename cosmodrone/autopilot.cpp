@@ -63,7 +63,7 @@ static void HandleDockingApproachCamera(Tachyon* tachyon, State& state, tObject&
 static void HandleDockingApproachDeceleration(Tachyon* tachyon, State& state, const float dt, const float ship_speed) {
   DecelerateRetrograde(state, dt);
 
-  state.target_ship_rotation = Quaternion::FromDirection(state.retrograde_direction, state.ship_rotation_basis.up);
+  state.target_ship_rotation = Quaternion::FromDirection(state.retrograde_direction, state.retrograde_up);
   state.ship_rotate_to_target_speed += 6.f * dt;
 
   // Once we've decelerated enough, start approach alignment
@@ -159,7 +159,7 @@ static void HandleDockingConnection(Tachyon* tachyon, State& state) {
 static void HandleAutoRetrograde(Tachyon* tachyon, State& state, const float dt, const float ship_speed) {
   DecelerateRetrograde(state, dt);
 
-  state.target_ship_rotation = Quaternion::FromDirection(state.retrograde_direction, state.ship_rotation_basis.up);
+  state.target_ship_rotation = Quaternion::FromDirection(state.retrograde_direction, state.retrograde_up);
   state.ship_rotate_to_target_speed += 3.f * dt;
 
   if (ship_speed < 200.f) {
