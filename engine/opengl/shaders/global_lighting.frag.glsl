@@ -143,7 +143,7 @@ vec3 GetDirectionalLightRadiance(
   float Sp = (sD + sG) * light_factor;
   float C = Clearcoat(NdotH, NdotV, clearcoat) * light_factor;
   // @todo pass the additional terms into Subsurface()
-  float Sc = Subsurface(NdotV, subsurface) * (light_factor + 0.05) * (1.0 - metalness * 0.95);
+  float Sc = Subsurface(NdotV, subsurface) * (light_factor + 0.05) * (1.0 - metalness * 0.5);
 
   return light_color * (albedo * D + albedo * Sp + C + albedo * albedo * Sc) / PI;
 }

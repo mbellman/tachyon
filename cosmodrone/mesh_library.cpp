@@ -85,6 +85,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh(carrier);
   load_mesh(orbital_base);
   load_mesh(solar_rotator);
+  load_mesh(solar_rotator_2);
   load_mesh(solar_field);
   load_mesh(base_1);
   load_mesh(building_1);
@@ -482,6 +483,15 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     .defaults = {
       .scale = tVec3f(18000.f),
       .material = tVec4f(0.9f, 0, 0, 0.2f)
+    }
+  });
+
+  placeable_mesh_assets.push_back({
+    .mesh_name = "solar_rotator_2",
+    .mesh_index = meshes.solar_rotator_2,
+    .defaults = {
+      .scale = tVec3f(75000.f),
+      .material = tVec4f(1.f, 0, 0, 0.2f)
     }
   });
 
@@ -1106,7 +1116,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .generated_from = meshes.girder_4,
       .defaults = {
         .color = tVec3f(1.f),
-        .material = tVec4f(0.6f, 1.f, 0, 0.5f)
+        .material = tVec4f(0.6f, 1.f, 0, 0.1f)
       }
     },
 
@@ -1254,7 +1264,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .generated_from = meshes.habitation_4,
       .defaults {
         .color = tVec3f(0.2f, 0.4f, 1.f),
-        .material = tVec4f(0.2f, 1.f, 0.3f, 0)
+        .material = tVec4f(0.2f, 1.f, 0.3f, 0.5f)
       }
     },
     {
@@ -1284,7 +1294,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .mesh_index = meshes.solar_panel_2_cells,
       .generated_from = meshes.solar_panel_2,
       .defaults = {
-        .color = 0x22F1,
+        .color = 0x44F0,
         .material = tVec4f(0.2f, 1.f, 0.3f, 1.f) 
       }
     },
@@ -1425,7 +1435,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .mesh_index = meshes.solar_rotator_panels,
       .generated_from = meshes.solar_rotator,
       .defaults = {
-        .color = 0x44F2,
+        .color = 0x44F0,
         .material = tVec4f(0.4f, 1.f, 0.3f, 1.f)
       }
     },
@@ -1449,8 +1459,8 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .mesh_index = meshes.solar_field_panels,
       .generated_from = meshes.solar_field,
       .defaults = {
-        .color = 0xFF41,
-        .material = tVec4f(0.4f, 1.f, 0, 0)
+        .color = 0xFF40,
+        .material = tVec4f(0.4f, 1.f, 0, 1.f)
       }
     },
   
@@ -1621,7 +1631,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .mesh_index = meshes.floater_1_panels,
       .generated_from = meshes.floater_1,
       .defaults = {
-        .color = 0x44F1,
+        .color = 0x44F0,
         .material = tVec4f(0.2f, 1.f, 0.3f, 1.f)
       }
     },

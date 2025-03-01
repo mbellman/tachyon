@@ -151,12 +151,12 @@ static void GenerateElevatorTrackSupports(Tachyon* tachyon, const State& state) 
     30000.f
   };
 
-  for (int32 i = 0; i < 50; i++) {
+  for (int32 i = 0; i < 30; i++) {
     auto& supports = create(meshes.procedural_track_supports_1);
     float spin = t_TAU * ((i % 6) / 6.f);
 
     supports.scale = 12000.f;
-    supports.position.y = 8000000.f + i * -400000.f + offset_cycle[i % 5];
+    supports.position.y = 8000000.f + i * -700000.f + offset_cycle[i % 5];
     supports.material = tVec4f(0.8f, 0, 0, 0.1f);
     supports.rotation =
       Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), spin) *
@@ -165,12 +165,12 @@ static void GenerateElevatorTrackSupports(Tachyon* tachyon, const State& state) 
     commit(supports);
   }
 
-  for (int32 i = 0; i < 50; i++) {
+  for (int32 i = 0; i < 30; i++) {
     auto& supports = create(meshes.procedural_track_supports_2);
     float spin = t_TAU * ((i % 6) / 6.f);
 
     supports.scale = 12000.f;
-    supports.position.y = 8000000.f + i * -400000.f + 200000.f - offset_cycle[i % 5];
+    supports.position.y = 8000000.f + i * -700000.f + 200000.f - offset_cycle[i % 5];
     supports.material = tVec4f(0.8f, 0, 0, 0.1f);
     supports.rotation =
       Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), spin) *
@@ -186,8 +186,8 @@ void ProceduralGeneration::LoadMeshes(Tachyon* tachyon, State& state) {
   load_mesh_with_2_lods(meshes.procedural_track_1, "/station-parts/track_1.obj", "/station-parts/track_1_lod_2.obj", TOTAL_TRACK_PIECES);
   load_mesh(meshes.procedural_elevator_car, "/elevator_car.obj", TOTAL_ELEVATOR_CARS);
   load_mesh(meshes.procedural_elevator_car_light, "/elevator_car_lights.obj", TOTAL_ELEVATOR_CARS);
-  load_mesh(meshes.procedural_track_supports_1, "./track_supports_1.obj", 100);
-  load_mesh(meshes.procedural_track_supports_2, "./track_supports_2.obj", 100);
+  load_mesh(meshes.procedural_track_supports_1, "./track_supports_1.obj", 50);
+  load_mesh(meshes.procedural_track_supports_2, "./track_supports_2.obj", 50);
 }
 
 void ProceduralGeneration::RemoveAutoPlacedObjects(Tachyon* tachyon, State& state) {
