@@ -652,9 +652,9 @@ static void HandleDrone(Tachyon* tachyon, State& state, const float dt) {
     if (state.ship_pitch_factor != 0.f) {
       FlightSystemDelegator::HandlePitch(state, dt);
     }
-
-    HandleShipBanking(tachyon, state);
   }
+
+  HandleShipBanking(tachyon, state);
 
   // @todo will nlerp work here?
   auto rotation = Quaternion::slerp(hull.rotation, state.target_ship_rotation, state.ship_rotate_to_target_speed * dt);
