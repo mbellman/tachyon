@@ -188,6 +188,9 @@ static void CreateRenderBuffers(Tachyon* tachyon) {
 
   SDL_GL_GetDrawableSize(tachyon->sdl_window, &w, &h);
 
+  // w = 3840;
+  // h = 2160;
+
   g_buffer.init();
   g_buffer.setSize(w, h);
   g_buffer.addColorAttachment(ColorFormat::RGBA, G_BUFFER_NORMALS_AND_DEPTH);
@@ -726,7 +729,7 @@ static void RenderGlobalLighting(Tachyon* tachyon) {
   renderer.directional_shadow_map.read();
   target_accumulation_buffer.write();
 
-  glViewport(0, 0, ctx.w, ctx.h);
+  glViewport(0, 0, tachyon->window_width, tachyon->window_height);
   glClear(GL_COLOR_BUFFER_BIT);
 
   glUseProgram(shader.program);
@@ -1158,8 +1161,23 @@ void Tachyon_OpenGL_RenderScene(Tachyon* tachyon) {
   if (tachyon->show_developer_tools) {
     RenderDebugLabels(tachyon);
   } else {
+    // Simple FPS label
     auto frame_fps = uint32(1000000.f / (float)tachyon->last_frame_time_in_microseconds);
-    auto label = std::to_string(frame_fps) + "fps";
+    uint32 average_fps = 0;
+
+    renderer.fps_measurements.push_back(frame_fps);
+
+    if (renderer.fps_measurements.size() > 20) {
+      renderer.fps_measurements.erase(renderer.fps_measurements.begin());
+    }
+
+    for (auto fps : renderer.fps_measurements) {
+      average_fps += fps;
+    }
+
+    average_fps /= renderer.fps_measurements.size();
+
+    auto label = std::to_string(average_fps) + "fps";
 
     RenderText(tachyon, tachyon->developer_overlay_font, label.c_str(), 10, 10, 1920, tVec3f(1.f), tVec4f(0.f));
   }

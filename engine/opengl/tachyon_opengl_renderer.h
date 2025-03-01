@@ -53,6 +53,7 @@ struct tOpenGLRenderer {
   uint32 total_meshes_drawn = 0;
   uint32 total_point_lights_drawn = 0;
   uint32 total_draw_calls = 0;
+  std::vector<uint32> fps_measurements;
 };
 
 void Tachyon_OpenGL_InitRenderer(Tachyon* tachyon);
