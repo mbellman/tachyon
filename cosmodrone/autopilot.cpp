@@ -323,6 +323,10 @@ void Autopilot::Undock(Tachyon* tachyon, State& state) {
     return;
   }
 
+  if (state.is_piloting_vehicle) {
+    state.piloting_end_time = state.current_game_time;
+  }
+
   auto& hull = objects(state.meshes.hull)[0];
 
   state.flight_system = FlightSystem::DRONE;

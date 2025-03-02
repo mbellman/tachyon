@@ -1465,7 +1465,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .generated_from = meshes.solar_rotator_2,
       .defaults = {
         .color = 0x44F0,
-        .material = tVec4f(0.4f, 1.f, 0.3f, 1.f)
+        .material = tVec4f(0.1f, 1.f, 0.3f, 1.f)
       }
     },
 

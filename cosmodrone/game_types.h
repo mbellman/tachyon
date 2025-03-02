@@ -169,6 +169,7 @@ namespace Cosmodrone {
     FlightSystem flight_system = FlightSystem::DRONE;
     bool is_piloting_vehicle = false;
     float piloting_start_time = 0.f;
+    float piloting_end_time = 0.f;
 
     float flight_reticle_rotation = 0.f;
 

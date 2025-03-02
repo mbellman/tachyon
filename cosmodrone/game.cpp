@@ -282,7 +282,7 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
     float blend_factor = reversal_duration - 0.1f;
     if (blend_factor > 1.f) blend_factor = 1.f;
     if (blend_factor < 0.f) blend_factor = 0.f;
-    blend_factor = 100.f * powf(blend_factor, 2.f) * dt;
+    blend_factor = 30.f * powf(blend_factor, 2.f) * dt;
     if (blend_factor > 1.f) blend_factor = 1.f;
 
     state.target_camera_rotation = Quaternion::slerp(
@@ -341,22 +341,26 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
 
   float ship_speed = state.ship_velocity.magnitude();
   float speed_ratio = ship_speed / Utilities::GetMaxShipSpeed(state);
-  float rate;
 
-  if (state.flight_system == FlightSystem::FIGHTER) {
-    if (state.current_game_time - state.last_fighter_reversal_time < 2.f) {
-      float alpha = 5.f * (state.current_game_time - state.last_fighter_reversal_time);
-      if (alpha > 1.f) alpha = 1.f;
+  // Set rotation
+  {
+    float blend_rate;
 
-      rate = 10.f * alpha;
+    if (state.flight_system == FlightSystem::FIGHTER) {
+      if (state.current_game_time - state.last_fighter_reversal_time < 2.5f) {
+        float alpha = 5.f * (state.current_game_time - state.last_fighter_reversal_time);
+        if (alpha > 1.f) alpha = 1.f;
+
+        blend_rate = 10.f * alpha;
+      } else {
+        blend_rate = Tachyon_Lerpf(1.4f, 1.f, speed_ratio);
+      }
     } else {
-      rate = Tachyon_Lerpf(1.4f, 1.f, speed_ratio);
+      blend_rate = 2.f;
     }
-  } else {
-    rate = 2.f;
-  }
 
-  camera.rotation = Quaternion::slerp(camera.rotation, state.target_camera_rotation, rate * dt);
+    camera.rotation = Quaternion::slerp(camera.rotation, state.target_camera_rotation, blend_rate * dt);
+  }
 
   UpdateViewDirections(tachyon, state, dt);
 
@@ -441,19 +445,38 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
     tVec3f sideways = tVec3f::cross(state.view_up_direction, state.view_forward_direction);
 
     float max_side_distance = state.flight_system == FlightSystem::FIGHTER ? 900.f : 300.f;
+    float side_distance_blend_factor = state.is_piloting_vehicle ? 1.f : 0.1f;
 
-    state.camera_side_distance = Tachyon_Lerpf(state.camera_side_distance, -state.banking_factor * max_side_distance, dt);
+    state.camera_side_distance = Tachyon_Lerpf(
+      state.camera_side_distance,
+      -state.banking_factor * max_side_distance,
+      side_distance_blend_factor * dt
+    );
 
-    auto& reference_position = state.is_piloting_vehicle
-      ? get_live_object(state.docking_target)->position
-      : state.ship_position;
+    tVec3f base_position = state.ship_position;
+    float blend_rate = 1.f;
 
-    camera.position =
-      reference_position -
+    if (state.is_piloting_vehicle) {
+      blend_rate = (state.current_game_time - state.piloting_start_time);
+      if (blend_rate > 1.f) blend_rate = 1.f;
+
+      auto& vehicle_position = get_live_object(state.docking_target)->position;
+
+      base_position = tVec3f::lerp(state.ship_position, vehicle_position, blend_rate);
+    } else if (state.piloting_end_time > 0.f) {
+      blend_rate = 0.5f * (state.current_game_time - state.piloting_end_time);
+    }
+
+    if (blend_rate > 1.f) blend_rate = 1.f;
+
+    tVec3f new_position =
+      base_position -
       state.view_forward_direction * state.ship_camera_distance +
       state.view_up_direction * state.camera_up_distance +
       state.view_up_direction * abs(state.camera_side_distance) +
       sideways * state.camera_side_distance;
+
+    camera.position = tVec3f::lerp(camera.position, new_position, blend_rate);
   }
 }
 
@@ -690,7 +713,12 @@ static void HandleDrone(Tachyon* tachyon, State& state, const float dt) {
     }
   }
 
-  HandleShipBanking(tachyon, state);
+  if (
+    state.flight_mode != FlightMode::AUTO_RETROGRADE ||
+    state.flight_system != FlightSystem::DRONE
+  ) {
+    HandleShipBanking(tachyon, state);
+  }
 
   // @todo will nlerp work here?
   auto rotation = Quaternion::slerp(hull.rotation, state.target_ship_rotation, state.ship_rotate_to_target_speed * dt);

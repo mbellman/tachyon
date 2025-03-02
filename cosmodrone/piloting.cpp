@@ -72,11 +72,15 @@ static void UpdatePilotedVehicleParts(Tachyon* tachyon, State& state) {
 }
 
 static void StartUpPilotedVehicle(Tachyon* tachyon, State& state, const float dt, const float duration) {
+  if (duration < 1.f) {
+    return;
+  }
+
   auto& camera = tachyon->scene.camera;
   auto& root = *get_live_object(state.current_piloted_vehicle.root_object);
   auto up_direction = root.rotation.getUpDirection();
   auto& vehicle = state.current_piloted_vehicle;
-  float up_speed = sinf(t_PI * duration / START_UP_TIME) * 20000.f;
+  float up_speed = sinf(t_TAU * (duration - 1.f) / START_UP_TIME) * 40000.f;
 
   // Launch vehicle/ship together
   {
@@ -97,12 +101,12 @@ static void StartUpPilotedVehicle(Tachyon* tachyon, State& state, const float dt
 }
 
 static void HandleQuickReversal(Tachyon* tachyon, State& state, const float dt) {
-  float alpha = 3.f * (state.current_game_time - state.last_fighter_reversal_time);
+  float alpha = 4.f * (state.current_game_time - state.last_fighter_reversal_time);
   if (alpha > 1.f) alpha = 1.f;
   alpha *= alpha;
 
   state.target_ship_rotation = Quaternion::FromDirection(state.retrograde_direction, state.retrograde_up);
-  state.ship_rotate_to_target_speed = 4.f * alpha;
+  state.ship_rotate_to_target_speed = 3.f * alpha;
 }
 
 static void HandleQuickTarget() {
@@ -157,7 +161,7 @@ void Piloting::HandlePiloting(Tachyon* tachyon, State& state, const float dt) {
     state.docking_position = Autopilot::GetDockingPosition(tachyon, state);
 
     if (
-      state.current_game_time - state.last_fighter_reversal_time < 2.f &&
+      state.current_game_time - state.last_fighter_reversal_time < 2.5f &&
       state.flight_mode == FlightMode::AUTO_RETROGRADE
     ) {
       HandleQuickReversal(tachyon, state, dt);
