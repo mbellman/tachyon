@@ -489,6 +489,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   placeable_mesh_assets.push_back({
     .mesh_name = "solar_rotator_2",
     .mesh_index = meshes.solar_rotator_2,
+    .placeholder = true,
     .defaults = {
       .scale = tVec3f(75000.f),
       .material = tVec4f(1.f, 0, 0, 0.2f)
@@ -930,6 +931,10 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
   load_mesh(solar_rotator_body);
   load_mesh(solar_rotator_frame);
   load_mesh(solar_rotator_panels);
+
+  load_mesh(solar_rotator_2_body);
+  load_mesh(solar_rotator_2_frame);
+  load_mesh(solar_rotator_2_panels);
 
   load_mesh(solar_field_core);
   load_mesh(solar_field_frame);
@@ -1434,6 +1439,30 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
     {
       .mesh_index = meshes.solar_rotator_panels,
       .generated_from = meshes.solar_rotator,
+      .defaults = {
+        .color = 0x44F0,
+        .material = tVec4f(0.4f, 1.f, 0.3f, 1.f)
+      }
+    },
+
+    // solar_rotator_2
+    {
+      .mesh_index = meshes.solar_rotator_2_body,
+      .generated_from = meshes.solar_rotator_2,
+      .defaults = {
+        .material = tVec4f(0.9f, 0, 0.1f, 0)
+      }
+    },
+    {
+      .mesh_index = meshes.solar_rotator_2_frame,
+      .generated_from = meshes.solar_rotator_2,
+      .defaults = {
+        .material = tVec4f(0.6f, 1.f, 0, 0)
+      }
+    },
+    {
+      .mesh_index = meshes.solar_rotator_2_panels,
+      .generated_from = meshes.solar_rotator_2,
       .defaults = {
         .color = 0x44F0,
         .material = tVec4f(0.4f, 1.f, 0.3f, 1.f)
