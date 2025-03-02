@@ -18,6 +18,7 @@ static void UpdateCelestialBodies(Tachyon* tachyon, State& state) {
   static const tVec3f sun_direction = tVec3f(0, -1.f, 0).unit();
   static const tVec3f moon_direction = tVec3f(0, 1.f, 0.5f).unit();
   static const tVec3f sunlight_direction = sun_direction.invert();
+  static const float earth_distance = -1E8f;
   static const float moon_distance = 6000000.f;
   static const float moon_scale = 350000.f;
 
@@ -29,8 +30,8 @@ static void UpdateCelestialBodies(Tachyon* tachyon, State& state) {
     auto& earth = objects(meshes.earth)[0];
     auto& atmosphere = objects(meshes.earth_atmosphere)[0];
 
-    earth.position = camera.position + tVec3f(0, -1E7f, 0);
-    earth.scale = tVec3f(3200000.f);
+    earth.position = camera.position + tVec3f(0, earth_distance, 0);
+    earth.scale = tVec3f(35000000.f);
     earth.color = tVec3f(0.1f, 0.2f, 1.f);
     earth.material = tVec4f(0.4f, 0.f, 1.f, 0.3);
 
@@ -39,7 +40,7 @@ static void UpdateCelestialBodies(Tachyon* tachyon, State& state) {
       base_earth_rotation;
 
     atmosphere.position = earth.position;
-    atmosphere.scale = earth.scale * 1.015f;
+    atmosphere.scale = earth.scale * 1.04f;
 
     commit(earth);
     commit(atmosphere);

@@ -174,12 +174,6 @@ void main() {
 
   vec3 out_color = vec3(0.0);
 
-  // Nighttime side
-  out_color += mix(vec3(0.0), vec3(-0.9, -0.5, -0.2), pow(1.0 - NdotL, 10.0));
-
-  // Color adjustment
-  out_color -= vec3(0.2, 0.2, 0.0);
-
   // Clouds
   vec3 d = GetCloudDirection(N);
 
@@ -200,8 +194,6 @@ void main() {
 
   clouds = clamp(clouds, 0.0, 1.0) * density;
 
-  out_color += vec3(clouds);
-
   vec3 d2 = GetCloudDirection(N * 1.02);
   float c3_2 = snoise(vec4(d2 * 2.0, t));
   float c4_2 = snoise(vec4(d2 * 8.0, t));
@@ -210,71 +202,79 @@ void main() {
 
   float shadow = (c3_2 + c4_2) * (1.0 - NdotV * 0.75);
 
+
+  // Clouds + cloud shadows
+  out_color += vec3(clouds);
   out_color -= vec3(shadow) * 0.6 * density;
 
   // Haze
   out_color += vec3(2.0) * pow(1.0 - NdotV, 3.0);
 
   // Incidence
-  out_color *= pow(NdotL, 1.0 / 3.0) + 0.2;
+  out_color *= (0.2 + 0.8 * pow(NdotL, 1.0 / 3.0));
+
+  // Nighttime side
+  out_color += mix(vec3(0.0), vec3(-0.5, -0.3, -0.1), pow(1.0 - NdotL, 10.0));
+
+  // Color adjustment
+  out_color -= vec3(0.2, 0.1, 0.0);
 
   // Fade out clouds near the horizon
   out_color = mix(out_color, vec3(0.0), pow(1.0 - NdotV * NdotV, 2.0));
 
   // Edge scattering
-  {
-    // Blend between blue/orange depending on how close the sun is to this pixel
-    vec3 edge_color = mix(
-      vec3(0.4, 0.7, 1.0),
-      vec3(1.0, 0.8, 0.1),
-      pow(DdotL, 2.0)
-    );
+  // Blend between blue/orange depending on how close the sun is to this pixel
+  vec3 edge_color = mix(
+    vec3(0.4, 0.7, 1.0),
+    vec3(1.0, 0.8, 0.1),
+    pow(DdotL, 2.0)
+  );
 
-    // Add a copper/reddish tint near the light/dark boundary
-    edge_color = mix(edge_color, vec3(1.0, 0.6, 0.4), 1.0 - abs(dot(N, L)));
+  // Add a copper/reddish tint near the light/dark boundary
+  edge_color = mix(edge_color, vec3(1.0, 0.6, 0.4), 1.0 - abs(dot(N, L)));
 
-    // Our goal here is to have a rim of light which gradually intensifies
-    // as we move toward the glancing edge of the atmosphere, and then rapidly
-    // falls off.
-    //
-    // edge_alpha is a range over [0 - 1] representing progress toward the glancing edge.
-    //
-    // edge_falloff_threshold is the point within the range at which the light intensity
-    // should peak, and then start falling off.
-    float edge_alpha = 1.0 - NdotV;
-    float edge_falloff_threshold = 0.82;
+  // Our goal here is to have a rim of light which gradually intensifies
+  // as we move toward the glancing edge of the atmosphere, and then rapidly
+  // falls off.
+  //
+  // edge_alpha is a range over [0 - 1] representing progress toward the glancing edge.
+  //
+  // edge_falloff_threshold is the point within the range at which the light intensity
+  // should peak, and then start falling off.
+  float edge_alpha = 1.0 - NdotV;
+  float edge_falloff_threshold = 0.725;
 
-    // We use this to recover a [0 - 1] blend value for the region past
-    // the falloff threshold.
-    float edge_falloff_threshold_multiplier = 1.0 / (1.0 - edge_falloff_threshold);
+  // We use this to recover a [0 - 1] blend value for the region past
+  // the falloff threshold.
+  float edge_falloff_threshold_multiplier = 1.0 / (1.0 - edge_falloff_threshold);
 
-    float edge_factor =
-      edge_alpha < edge_falloff_threshold
-        ? mix(0.0, 1.0, edge_alpha / edge_falloff_threshold)
-        : mix(1.0, 0.0, edge_falloff_threshold_multiplier * (edge_alpha - edge_falloff_threshold));
+  float edge_factor =
+    edge_alpha < edge_falloff_threshold
+      ? mix(0.0, 1.0, edge_alpha / edge_falloff_threshold)
+      : mix(1.0, 0.0, edge_falloff_threshold_multiplier * (edge_alpha - edge_falloff_threshold));
 
-    // Exponentially dampen the light intensity
+  // Exponentially dampen the light intensity
+  edge_factor *= edge_factor;
+  edge_factor *= edge_factor;
+
+  if (edge_alpha < edge_falloff_threshold) {
     edge_factor *= edge_factor;
     edge_factor *= edge_factor;
-
-    if (edge_alpha < edge_falloff_threshold) {
-      edge_factor *= edge_factor;
-      edge_factor *= edge_factor;
-    }
-
-    // Reduce the light intensity on the far side of the atmosphere from the sun
-    float sunlight_factor = 1.0 - abs(dot(N, L));
-
-    out_color += edge_color * edge_factor * sunlight_factor;
   }
+
+  // Reduce the light intensity on the far side of the atmosphere from the sun
+  float sunlight_factor = 1.0 - abs(dot(N, L));
+
+  out_color += edge_color * edge_factor * sunlight_factor;
 
   // Sunrise/sunset
   out_color +=
-    2.0 *
-    (vec3(1.0, 0.8, 0.5) + clouds) *
+    5.0 *
+    (vec3(1.0, 0.5, 0.2) + 2.0 * clouds) *
     pow(DdotL, 50.0) *
     pow(1.0 - NdotV, 2.0) *
-    pow(1.0 - NdotL, 10.0);
+    pow(1.0 - NdotL, 10.0) *
+    edge_factor;
 
   out_color_and_depth = vec4(out_color, 0);
 }
