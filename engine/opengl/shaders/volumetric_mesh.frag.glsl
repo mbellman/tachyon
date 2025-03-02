@@ -172,6 +172,15 @@ void main() {
   float NdotL = max(0.0, dot(N, L));
   float DdotL = max(0.0, dot(D, L));
 
+  vec3 out_color = vec3(0.0);
+
+  // Nighttime side
+  out_color += mix(vec3(0.0), vec3(-0.9, -0.5, -0.2), pow(1.0 - NdotL, 10.0));
+
+  // Color adjustment
+  out_color -= vec3(0.2, 0.2, 0.0);
+
+  // Clouds
   vec3 d = GetCloudDirection(N);
 
   float t = scene_time * 0.01;
@@ -190,8 +199,6 @@ void main() {
   );
 
   clouds = clamp(clouds, 0.0, 1.0) * density;
-
-  vec3 out_color = vec3(0.0);
 
   out_color += vec3(clouds);
 

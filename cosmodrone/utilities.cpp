@@ -233,7 +233,7 @@ const tVec3f Utilities::GetBeaconColor(const State& state, const uint16 mesh_ind
  */
 const float Utilities::GetMaxShipSpeed(const State& state) {
   if (state.flight_system == FlightSystem::FIGHTER) {
-    return 120000.f;
+    return 100000.f;
   }
 
   return 20000.f;

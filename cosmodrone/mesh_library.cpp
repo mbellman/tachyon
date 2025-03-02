@@ -932,7 +932,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
   load_mesh(solar_rotator_frame);
   load_mesh(solar_rotator_panels);
 
-  load_mesh(solar_rotator_2_body);
+  load_mesh_with_2_lods(solar_rotator_2_body);
   load_mesh(solar_rotator_2_frame);
   load_mesh(solar_rotator_2_panels);
 
