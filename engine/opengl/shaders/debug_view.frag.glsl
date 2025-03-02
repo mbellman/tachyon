@@ -10,7 +10,7 @@ in vec2 fragUv;
 layout (location = 0) out vec4 out_color_and_depth;
 
 const float Z_NEAR = 500.0;
-const float Z_FAR = 10000000.0;
+const float Z_FAR = 100000000.0;
 
 /**
  * Reconstructs a fragment's world position from depth,

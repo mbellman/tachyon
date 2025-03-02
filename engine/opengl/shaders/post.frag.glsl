@@ -15,7 +15,7 @@ layout (location = 0) out vec3 out_color;
 
 const vec2 TEXEL_SIZE = 1.0 / vec2(1920.0, 1080.0);
 const float Z_NEAR = 500.0;
-const float Z_FAR = 10000000.0;
+const float Z_FAR = 100000000.0;
 
 /**
  * Reconstructs a fragment's world position from depth,

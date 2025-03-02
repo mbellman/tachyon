@@ -869,10 +869,13 @@ void Cosmodrone::StartGame(Tachyon* tachyon) {
 }
 
 void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
-  auto& camera = tachyon->scene.camera;
+  auto& scene = tachyon->scene;
+  auto& camera = scene.camera;
   auto& meshes = state.meshes;
 
-  tachyon->scene.transform_origin = camera.position;
+  scene.transform_origin = camera.position;
+  scene.z_near = 500.f;
+  scene.z_far = 100000000.f;
 
   // @todo dev mode only
   if (did_press_key(tKey::NUM_1)) {

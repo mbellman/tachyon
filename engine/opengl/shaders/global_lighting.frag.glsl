@@ -34,7 +34,7 @@ layout (location = 0) out vec4 out_color_and_depth;
 layout (location = 1) out vec4 out_temporal_data;
 
 const float Z_NEAR = 500.0;
-const float Z_FAR = 10000000.0;
+const float Z_FAR = 100000000.0;
 
 /**
  * Returns a value within the range -1.0 - 1.0, constant
@@ -470,7 +470,7 @@ const vec3[] ssao_sample_points = {
 
 float GetSSAO(int total_samples, float depth, vec3 position, vec3 normal, float seed) {
   float linear_depth = GetLinearDepth(depth, Z_NEAR, Z_FAR);
-  float radius = mix(500.0, 500000.0, linear_depth);
+  float radius = mix(5.0, 10000000.0, linear_depth);
   float ssao = 0.0;
 
   vec3 random_vector = vec3(noise(1.0 + seed), noise(2.0 + seed), noise(3.0 + seed));
@@ -485,7 +485,7 @@ float GetSSAO(int total_samples, float depth, vec3 position, vec3 normal, float 
     vec2 screen_sample_uv = GetScreenCoordinates(view_sample_position, projection_matrix);
     // float sample_depth = textureLod(texColorAndDepth, screen_sample_uv, 1).w;
     float sample_depth = texture(in_normal_and_depth, screen_sample_uv).w;
-    float world_depth = GetWorldDepth(sample_depth, Z_NEAR, Z_NEAR);
+    float world_depth = GetWorldDepth(sample_depth, Z_NEAR, Z_FAR);
 
     if (world_depth < -view_sample_position.z) {
       float occluder_distance = -view_sample_position.z - world_depth;
@@ -499,7 +499,7 @@ float GetSSAO(int total_samples, float depth, vec3 position, vec3 normal, float 
   const float far_ssao = 0.6;
 
   float ssao_intensity = mix(near_ssao, far_ssao, pow(depth, 30.0));
-  ssao_intensity = mix(ssao_intensity, 0.0, pow(depth, 1024.0));
+  ssao_intensity = mix(ssao_intensity, 0.0, pow(depth, 1000.0));
 
   return ssao / float(total_samples) * ssao_intensity;
 }
