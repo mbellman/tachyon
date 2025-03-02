@@ -84,7 +84,8 @@ struct Vec2i {
 };
 
 static Vec2i GetFlightReticleCoordinates(Tachyon* tachyon, const State& state) {
-  auto& camera = tachyon->scene.camera;
+  auto& scene = tachyon->scene;
+  auto& camera = scene.camera;
 
   // @todo write a helper for the below stuff; we do the same work
   // in target_system.cpp for computing target positions
@@ -98,7 +99,7 @@ static Vec2i GetFlightReticleCoordinates(Tachyon* tachyon, const State& state) {
   auto forward = camera.position + state.reticle_view_forward * 10000.f;
 
   // @todo make fov/near/far customizable
-  tMat4f projection_matrix = tMat4f::perspective(camera.fov, 500.f, 10000000.f);
+  tMat4f projection_matrix = tMat4f::perspective(camera.fov, scene.z_near, scene.z_far);
   tVec3f local = view_matrix * forward;
   tVec3f clip_position = (projection_matrix * local) / local.z;
 

@@ -14,6 +14,8 @@ in vec2 fragUv;
 layout (location = 0) out vec3 out_color;
 
 const vec2 TEXEL_SIZE = 1.0 / vec2(1920.0, 1080.0);
+const float Z_NEAR = 500.0;
+const float Z_FAR = 10000000.0;
 
 /**
  * Reconstructs a fragment's world position from depth,
@@ -155,7 +157,7 @@ void main() {
     vec3 position = GetWorldPosition(color_and_depth.w, fragUv, inverse_projection_matrix, inverse_view_matrix);
     vec3 D = normalize(position - camera_position);
     float VdotD = max(0.0, -dot(D, primary_light_direction));
-    float world_depth = GetWorldDepth(color_and_depth.w, 500.0, 10000000.0);
+    float world_depth = GetWorldDepth(color_and_depth.w, Z_NEAR, Z_FAR);
     vec4 volumetric_fog = GetVolumetricFogColorAndThickness(world_depth, D);
 
     post_color = mix(post_color, volumetric_fog.rgb, volumetric_fog.w);

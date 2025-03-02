@@ -9,6 +9,9 @@ in vec2 fragUv;
 
 layout (location = 0) out vec4 out_color_and_depth;
 
+const float Z_NEAR = 500.0;
+const float Z_FAR = 10000000.0;
+
 /**
  * Reconstructs a fragment's world position from depth,
  * using the inverse projection/view matrices to transform
@@ -65,7 +68,7 @@ void main() {
     // Top right (depth/position)
     vec2 uv = 2.0 * (fragUv - vec2(0.5));
     float frag_depth = texture(in_normal_and_depth, uv).w;
-    float depth_color = 0.7 * pow(1.0 - LinearDepth(frag_depth, 500.0, 10000000.0), 50);
+    float depth_color = 0.7 * pow(1.0 - LinearDepth(frag_depth, Z_NEAR, Z_FAR), 50);
     vec3 position = GetWorldPosition(frag_depth, uv, inverse_projection_matrix, inverse_view_matrix);
     vec3 position_color = position * 0.001;
 

@@ -33,6 +33,9 @@ noperspective in vec2 fragUv;
 layout (location = 0) out vec4 out_color_and_depth;
 layout (location = 1) out vec4 out_temporal_data;
 
+const float Z_NEAR = 500.0;
+const float Z_FAR = 10000000.0;
+
 /**
  * Returns a value within the range -1.0 - 1.0, constant
  * in screen space, acting as a noise filter.
@@ -156,7 +159,7 @@ const mat4[] light_matrices = {
 };
 
 int GetCascadeIndex(float depth) {
-  float world_depth = GetWorldDepth(depth, 500.0, 10000000.0);
+  float world_depth = GetWorldDepth(depth, Z_NEAR, Z_FAR);
 
   if (world_depth < 10000.0) {
     return 0;
@@ -466,7 +469,7 @@ const vec3[] ssao_sample_points = {
 };
 
 float GetSSAO(int total_samples, float depth, vec3 position, vec3 normal, float seed) {
-  float linear_depth = GetLinearDepth(depth, 500.0, 10000000.0);
+  float linear_depth = GetLinearDepth(depth, Z_NEAR, Z_FAR);
   float radius = mix(500.0, 500000.0, linear_depth);
   float ssao = 0.0;
 
@@ -482,7 +485,7 @@ float GetSSAO(int total_samples, float depth, vec3 position, vec3 normal, float 
     vec2 screen_sample_uv = GetScreenCoordinates(view_sample_position, projection_matrix);
     // float sample_depth = textureLod(texColorAndDepth, screen_sample_uv, 1).w;
     float sample_depth = texture(in_normal_and_depth, screen_sample_uv).w;
-    float world_depth = GetWorldDepth(sample_depth, 500.0, 10000000.0);
+    float world_depth = GetWorldDepth(sample_depth, Z_NEAR, Z_NEAR);
 
     if (world_depth < -view_sample_position.z) {
       float occluder_distance = -view_sample_position.z - world_depth;
@@ -513,7 +516,7 @@ vec2 GetDenoisedTemporalData(float ssao, float shadow, float depth, vec2 tempora
   const float temporal_weight = 1.0;
   const float spatial_spread = 2.0;
 
-  float world_depth = GetWorldDepth(depth, 500.0, 10000000.0);
+  float world_depth = GetWorldDepth(depth, Z_NEAR, Z_FAR);
 
   // @hack don't use the temporal UV coordinates for
   // objects close to the camera, e.g. the player ship.
@@ -537,7 +540,7 @@ vec2 GetDenoisedTemporalData(float ssao, float shadow, float depth, vec2 tempora
       vec2 offset = spatial_spread * offsets[i];
       vec4 temporal_data = texture(in_temporal_data, temporal_uv + texel_size * offset);
       float temporal_depth = temporal_data.w;
-      float depth_distance = abs(world_depth - GetWorldDepth(temporal_depth, 500.0, 10000000.0));
+      float depth_distance = abs(world_depth - GetWorldDepth(temporal_depth, Z_NEAR, Z_FAR));
 
       if (depth_distance < 500.0) {
         ssao += temporal_data.x * temporal_weight;

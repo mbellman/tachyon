@@ -227,6 +227,9 @@ struct Tachyon {
     tVec3f transform_origin = tVec3f(0.f);
     float scene_time = 0.f;
 
+    float z_near = 500.f;
+    float z_far = 10000000.f;
+
     // @temporary
     // @todo allow multiple directional lights
     tVec3f directional_light_direction = tVec3f(0, -1.f, 0);

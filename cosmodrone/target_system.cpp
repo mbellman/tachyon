@@ -50,7 +50,8 @@ static void StopTrackingObject(State& state, const tObject& object) {
 }
 
 void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const float dt) {
-  auto& camera = tachyon->scene.camera;
+  auto& scene = tachyon->scene;
+  auto& camera = scene.camera;
 
   // Manage tracker instances
   {
@@ -128,7 +129,7 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
     );
 
     // @todo make fov/near/far customizable
-    tMat4f projection_matrix = tMat4f::perspective(camera.fov, 500.f, 10000000.f);
+    tMat4f projection_matrix = tMat4f::perspective(camera.fov, scene.z_near, scene.z_far);
 
     // Calculate tracker screen coordinates
     for (auto& tracker : state.on_screen_target_trackers) {
