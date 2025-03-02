@@ -272,24 +272,40 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
     state.target_camera_rotation = state.target_camera_rotation.unit();
   }
 
+  // Handle fighter quick reversal camera
+  if (
+    state.flight_system == FlightSystem::FIGHTER &&
+    state.flight_mode == FlightMode::AUTO_RETROGRADE
+  ) {
+    float reversal_duration = state.current_game_time - state.last_fighter_reversal_time;
+
+    float blend_factor = reversal_duration - 0.1f;
+    if (blend_factor > 1.f) blend_factor = 1.f;
+    if (blend_factor < 0.f) blend_factor = 0.f;
+    blend_factor = 100.f * powf(blend_factor, 2.f) * dt;
+    if (blend_factor > 1.f) blend_factor = 1.f;
+
+    state.target_camera_rotation = Quaternion::slerp(
+      state.target_camera_rotation,
+      objects(meshes.hull)[0].rotation.opposite(),
+      blend_factor
+    );
+  }
+
   // Handle auto-orientation
   if (
+    state.flight_system == FlightSystem::DRONE && (
     state.flight_mode == FlightMode::AUTO_PROGRADE ||
     state.flight_mode == FlightMode::AUTO_RETROGRADE || (
       state.flight_mode == FlightMode::AUTO_DOCK &&
       state.auto_dock_stage == AutoDockStage::APPROACH_ALIGNMENT &&
       Autopilot::GetDockingAlignment(state, Autopilot::GetDockingPosition(tachyon, state)) > 0.5f
     )
-  ) {
-    float blend_factor =
-      state.flight_system == FlightSystem::FIGHTER
-        ? std::min(1.f, powf(state.current_game_time - state.last_fighter_reversal_time, 2.f))
-        : dt;
-
+  )) {
     state.target_camera_rotation = Quaternion::slerp(
       state.target_camera_rotation,
       objects(meshes.hull)[0].rotation.opposite(),
-      blend_factor
+      dt
     );
   }
 
@@ -415,7 +431,7 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
       if (state.current_piloted_vehicle.root_object.mesh_index == meshes.freight_dock) {
         state.camera_up_distance = Tachyon_Lerpf(state.camera_up_distance, 4000.f, dt);
       } else {
-        state.camera_up_distance = Tachyon_Lerpf(state.camera_up_distance, 2500.f, dt);
+        state.camera_up_distance = Tachyon_Lerpf(state.camera_up_distance, 3500.f, dt);
       }
     } else {
       state.camera_up_distance = Tachyon_Lerpf(state.camera_up_distance, 500.f, 5.f * dt);
@@ -428,8 +444,12 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
 
     state.camera_side_distance = Tachyon_Lerpf(state.camera_side_distance, -state.banking_factor * max_side_distance, dt);
 
+    auto& reference_position = state.is_piloting_vehicle
+      ? get_live_object(state.docking_target)->position
+      : state.ship_position;
+
     camera.position =
-      state.ship_position -
+      reference_position -
       state.view_forward_direction * state.ship_camera_distance +
       state.view_up_direction * state.camera_up_distance +
       state.view_up_direction * abs(state.camera_side_distance) +

@@ -122,11 +122,12 @@ const Quaternion Utilities::GetDockedCameraRotation(const State& state, const tO
 const float Utilities::GetDockedCameraDistance(const State& state, const uint16 mesh_index) {
   auto& meshes = state.meshes;
 
-  if (
-    mesh_index == meshes.fighter_dock ||
-    mesh_index == meshes.freight_dock
-  ) {
-    return 15000.f;
+  if (mesh_index == meshes.fighter_dock) {
+    return 16000.f;
+  }
+
+  if (mesh_index == meshes.freight_dock) {
+    return 18000.f;
   }
 
   return 30000.f;
