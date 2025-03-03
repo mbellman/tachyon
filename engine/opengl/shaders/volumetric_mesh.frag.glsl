@@ -207,14 +207,11 @@ void main() {
   out_color += vec3(clouds);
   out_color -= vec3(shadow) * 0.6 * density;
 
-  // Haze
-  out_color += vec3(2.0) * pow(1.0 - NdotV, 3.0);
-
   // Incidence
   out_color *= (0.2 + 0.8 * pow(NdotL, 1.0 / 3.0));
 
   // Nighttime side
-  out_color += mix(vec3(0.0), vec3(-0.5, -0.3, -0.1), pow(1.0 - NdotL, 10.0));
+  out_color += mix(vec3(0.0), vec3(-0.8, -0.6, -0.1), pow(1.0 - NdotL, 10.0));
 
   // Color adjustment
   out_color -= vec3(0.2, 0.1, 0.0);
@@ -266,6 +263,14 @@ void main() {
   float sunlight_factor = 1.0 - abs(dot(N, L));
 
   out_color += edge_color * edge_factor * sunlight_factor;
+
+  // Haze
+  float haze_edge_factor =
+    edge_alpha < edge_falloff_threshold
+      ? 1.0
+      : 0.0;
+
+  out_color += vec3(0.4) * pow(1.0 - NdotV, 3.0) * haze_edge_factor;
 
   // Sunrise/sunset
   out_color +=

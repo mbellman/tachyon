@@ -191,9 +191,9 @@ void ObjectBehavior::UpdateObjects(Tachyon* tachyon, State& state, const float d
   UpdateRotator(tachyon, state, dt, meshes.solar_rotator_frame, 0.05f);
   UpdateRotator(tachyon, state, dt, meshes.solar_rotator_panels, 0.05f);
 
-  UpdateRotator(tachyon, state, dt, meshes.solar_rotator_2_body, 0.02f);
-  UpdateRotator(tachyon, state, dt, meshes.solar_rotator_2_frame, 0.02f);
-  UpdateRotator(tachyon, state, dt, meshes.solar_rotator_2_panels, 0.02f);
+  UpdateRotator(tachyon, state, dt, meshes.solar_rotator_2_body, 0.03f);
+  UpdateRotator(tachyon, state, dt, meshes.solar_rotator_2_frame, 0.03f);
+  UpdateRotator(tachyon, state, dt, meshes.solar_rotator_2_panels, 0.03f);
 
   UpdateRotator(tachyon, state, dt, meshes.elevator_torus_1, 0.2f);
   UpdateRotator(tachyon, state, dt, meshes.elevator_torus_1_frame, -0.1f);
