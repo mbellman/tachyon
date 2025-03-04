@@ -76,7 +76,7 @@ void FlightSystemDelegator::AutoPrograde(State& state, const float dt) {
 }
 
 void FlightSystemDelegator::AutoStop(State& state, const float dt) {
-  // @todo create a method in autopilot.cpp
+  // @todo drone_flight_system.cpp
   if (state.flight_system == FlightSystem::DRONE) {
     state.flight_mode = FlightMode::AUTO_RETROGRADE;
     // @todo define the retrograde direction correctly (as the anti-vector of velocity).
@@ -87,6 +87,7 @@ void FlightSystemDelegator::AutoStop(State& state, const float dt) {
     state.ship_rotate_to_target_speed = 0.f;
   }
 
+  // @todo fighter_flight_system.cpp
   if (state.flight_system == FlightSystem::FIGHTER) {
     state.flight_mode = FlightMode::AUTO_RETROGRADE;
     state.retrograde_direction = state.ship_rotation_basis.forward;

@@ -199,22 +199,11 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
     }
   }
 
-  state.ship_rotate_to_target_speed *= (1.f - dt);
-  state.ship_position += state.ship_velocity * dt;
-
-  // When panning the camera around while not issuing ship controls,
-  // rapidly slow the ship's natural rotation drift
-  if (
-    state.flight_mode == FlightMode::MANUAL_CONTROL &&
-    !is_issuing_control_action &&
-    (tachyon->mouse_delta_x != 0 || tachyon->mouse_delta_y != 0) &&
-    // Only do this when the camera isn't behind the ship.
-    // It looks a little odd when the ship suddenly stops
-    // drifting while the camera is following it.
-    tVec3f::dot(state.view_forward_direction, state.ship_rotation_basis.forward) < 0.95f
-  ) {
-    // state.ship_rotate_to_target_speed *= (1.f - 10.f * dt);
+  if (!Autopilot::IsAutopilotActive(state)) {
+    state.ship_rotate_to_target_speed = 2.f;
   }
+
+  state.ship_position += state.ship_velocity * dt;
 }
 
 // @todo camera_system.cpp
@@ -305,7 +294,7 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
     state.target_camera_rotation = Quaternion::slerp(
       state.target_camera_rotation,
       objects(meshes.hull)[0].rotation.opposite(),
-      dt
+      5.f * dt
     );
   }
 
