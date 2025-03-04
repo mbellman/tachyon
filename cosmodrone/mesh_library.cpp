@@ -927,6 +927,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
   load_mesh(platform_torus);
   load_mesh(platform_frame);
   load_mesh(platform_supports);
+  load_mesh(platform_truss);
 
   load_mesh(solar_rotator_body);
   load_mesh(solar_rotator_frame);
@@ -1103,7 +1104,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .generated_from = meshes.silo_8,
       .defaults = {
         .color = tVec3f(0.8f),
-        .material = tVec4f(1.f, 0, 0, 0.2f)
+        .material = tVec4f(1.f, 1.f, 0, 0.6f)
       }
     },
 
@@ -1390,7 +1391,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .mesh_index = meshes.platform_body,
       .generated_from = meshes.platform,
       .defaults = {
-        .material = tVec4f(1.f, 0, 0, 0.2f)
+        .material = tVec4f(0.6f, 1.f, 0, 0.6f)
       }
     },
     {
@@ -1417,7 +1418,14 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .mesh_index = meshes.platform_supports,
       .generated_from = meshes.platform,
       .defaults = {
-        .material = tVec4f(0.3f, 1.f, 0, 0)
+        .material = tVec4f(0.4f, 1.f, 0, 0)
+      }
+    },
+    {
+      .mesh_index = meshes.platform_truss,
+      .generated_from = meshes.platform,
+      .defaults = {
+        .material = tVec4f(0.2f, 1.f, 1.f, 0.9f)
       }
     },
 
