@@ -74,6 +74,10 @@ float GetGlowFactor(vec3 world_position) {
   float occlusion_distance = max(0.0, light_distance_from_camera - surface_distance_from_camera);
   float occlusion_distance_factor = 1.0 - min(1.0, occlusion_distance / 500.0);
 
+  // Volumetric glow
+  glow_factor += 0.1 * pow(1.0 - distance_from_light_disc_center, 5.0);
+
+  // Hide behind closer objects
   glow_factor *= occlusion_distance_factor;
   glow_factor *= 1.5;
 
@@ -83,6 +87,7 @@ float GetGlowFactor(vec3 world_position) {
     const float disc_exponent = 4.0;
   #endif
 
+  // Diffraction spikes
   float diffraction_factor =
     occlusion_distance_factor *
     pow(1.0 - distance_from_light_disc_center, disc_exponent);
@@ -119,7 +124,7 @@ vec3 GetPointLightRadiance(vec3 world_position, float light_distance, vec3 N, ve
   vec3 D = albedo * radiant_flux * distance_factor * NdotL;
   vec3 S = radiant_flux * pow(NdotH, 50.0) * distance_factor;
 
-  return D + 2.0 * S;
+  return D + 3.0 * material.metalness * S;
 }
 
 void main() {
@@ -140,7 +145,7 @@ void main() {
 
   out_color += GetPointLightRadiance(position, light_distance, N, L, V, material);
   out_color += light.color * GetGlowFactor(position) * min(1.0, light.power);
-  // out_color += light.color * 0.2;
+  // out_color += light.color * 0.1;
 
   #if USE_GAMMA_CORRECTION == 1
     out_color *= light.color;

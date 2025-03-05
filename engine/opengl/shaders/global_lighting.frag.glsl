@@ -657,7 +657,7 @@ void main() {
     vec3 R = reflect(-V, N);
     vec3 reflection = GetReflectionColor(R);
 
-    out_color += albedo * reflection * metalness * (1.0 - roughness) * 0.2;
+    out_color += albedo * reflection * metalness * (1.0 - roughness) * 0.4 * shadow;
   }
 
   // @todo dev mode only
