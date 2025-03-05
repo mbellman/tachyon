@@ -126,7 +126,7 @@ static void InitLevel(Tachyon* tachyon, State& state) {
     auto& jets = create(meshes.jets);
 
     hull.scale = 600.f;
-    hull.material = tVec4f(0.1f, 0, 0.2f, 0.5f);
+    hull.material = tVec4f(0.1f, 0, 0.2f, 1.f);
 
     streams.scale = 600.f;
     streams.material = tVec4f(0.4f, 0.5f, 0, 0.2f);
@@ -320,6 +320,7 @@ static void InitLights(Tachyon* tachyon, State& state) {
 
   for (auto& flare : objects(state.meshes.gas_flare_1_spawn)) {
     point_lights.push_back({
+      // @todo @fix this repositioning breaks light syncing
       .position = flare.position - flare.rotation.getUpDirection() * flare.scale.y * 0.9f,
       .radius = 40000.f,
       .color = tVec3f(1.f, 0.5f, 0.1f),

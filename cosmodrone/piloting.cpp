@@ -51,7 +51,7 @@ static void UpdatePilotedVehicleParts(Tachyon* tachyon, State& state) {
 
   // @todo factor
   if (vehicle.root_object.mesh_index == state.meshes.fighter_dock) {
-    float retraction = 0.32f * powf(Tachyon_EaseInOutf(state.jets_intensity), 2.f);
+    float retraction = 0.32f * powf(Tachyon_EaseInOutf(state.jets_intensity), 3.f);
     auto x_axis = vehicle.rotation.getLeftDirection();
 
     auto& left_wing = *get_live_object(vehicle.parts[5]);

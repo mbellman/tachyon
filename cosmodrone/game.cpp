@@ -338,6 +338,7 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
     if (state.flight_system == FlightSystem::FIGHTER) {
       if (state.current_game_time - state.last_fighter_reversal_time < 2.5f) {
         float alpha = 5.f * (state.current_game_time - state.last_fighter_reversal_time);
+        if (alpha < 0.f) alpha = 0.f;
         if (alpha > 1.f) alpha = 1.f;
 
         blend_rate = 10.f * alpha;
@@ -427,7 +428,7 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
         state.camera_up_distance = Tachyon_Lerpf(state.camera_up_distance, 3500.f, dt);
       }
     } else {
-      state.camera_up_distance = Tachyon_Lerpf(state.camera_up_distance, 500.f, 5.f * dt);
+      state.camera_up_distance = Tachyon_Lerpf(state.camera_up_distance, 600.f, 5.f * dt);
     }
 
     // @todo orthonormal basis for view
@@ -881,6 +882,11 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
   objects(meshes.hud_flight_curve).disabled = state.is_editor_active;
   objects(meshes.drone_wireframe).disabled = state.is_editor_active;
   objects(meshes.antenna_3_wireframe).disabled = state.is_editor_active;
+
+  // @temporary
+  objects(meshes.machine_1).disabled = true;
+  objects(meshes.machine_2).disabled = true;
+  objects(meshes.machine_3).disabled = true;
 
   // @todo dev mode only
   if (state.is_editor_active) {

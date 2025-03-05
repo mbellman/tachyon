@@ -135,6 +135,9 @@ static void HandleDockingConnection(Tachyon* tachyon, State& state) {
     auto& hull = objects(state.meshes.hull)[0];
 
     hull.rotation = Quaternion::slerp(state.initial_docking_ship_rotation, state.target_ship_rotation, rotation_factor);
+
+    // Let the rotation be set above
+    state.ship_rotate_to_target_speed = 0.f;
   }
 
   // Slow down as we make the final approach

@@ -111,7 +111,7 @@ namespace Cosmodrone {
     float controlled_thrust_duration = 0.f;
     float last_fighter_reversal_time = 0.f;
     float camera_boost_intensity = 0.f;
-    float camera_up_distance = 500.f;
+    float camera_up_distance = 600.f;
     float camera_side_distance = 0.f;
     float banking_factor = 0.f;
 

@@ -270,7 +270,7 @@ void main() {
       ? 1.0
       : 0.0;
 
-  out_color += vec3(0.4) * pow(1.0 - NdotV, 3.0) * haze_edge_factor;
+  out_color += vec3(0.4) * (1.0 - NdotV) * haze_edge_factor;
 
   // Sunrise/sunset
   out_color +=

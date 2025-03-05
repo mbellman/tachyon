@@ -94,7 +94,8 @@ void main() {
   vec3 out_color = vec3(0.0);
   vec3 sample_position = fragPosition;
   vec3 center_line = basePosition - modelPosition;
-  float intensity = 0.5 * sin(scene_time * 0.5 + modelPosition.x) + 0.5;
+  float t = scene_time * 0.5 + modelPosition.x;
+  float intensity = 5.0 * (0.5 * sin(t) + 0.5);
 
   for (int i = 0; i < 5; i++) {
     float base_distance = 0.0002 * length(sample_position - basePosition);

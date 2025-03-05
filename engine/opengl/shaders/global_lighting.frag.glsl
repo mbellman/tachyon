@@ -391,11 +391,12 @@ vec3 GetSkyColor(vec3 sky_direction, float sun_glare_factor) {
   // Glare
   sun_color += vec3(1.0, 0.5, 0.0) * sun_glare_factor;
 
+  const float planet_bloom = 40.0;
   float planet_dot = max(dot(planet_direction, sky_direction), 0.0);
   vec3 planet_atmosphere_base_color = mix(vec3(0.0, 0.1, 1.0), vec3(0.5, 0.7, 0.9), pow(planet_dot, 20));
   planet_atmosphere_base_color = mix(planet_atmosphere_base_color, vec3(1, 0.9, 0.6), pow(sun_dot, 20));
   float planet_atmosphere_sunlight_factor = 0.4 + 0.6 * pow(sun_dot, 10);
-  float planet_atmosphere_alpha = clamp(pow(planet_dot, 40) * 8.0, 0, 1) * planet_atmosphere_sunlight_factor;
+  float planet_atmosphere_alpha = clamp(pow(planet_dot, planet_bloom) * 8.0, 0, 1) * planet_atmosphere_sunlight_factor;
   vec3 planet_atmosphere_color = mix(vec3(0), planet_atmosphere_base_color, planet_atmosphere_alpha);
 
   // @todo cleanup
@@ -508,7 +509,7 @@ vec2 GetDenoisedTemporalData(float ssao, float shadow, float depth, vec2 tempora
   #define USE_SPATIAL_DENOISING 1
 
   if (temporal_uv.x < 0.0 || temporal_uv.x > 1.0 || temporal_uv.y < 0.0 || temporal_uv.y > 1.0) {
-    return vec2(0.0, 0.0);
+    return vec2(0.0);
   }
 
   // @todo use screen size
@@ -598,7 +599,6 @@ void main() {
   // Temporal data
   vec3 previous_view_position = (previous_view_matrix * vec4(position, 1.0)).xyz;
   vec2 temporal_uv = GetScreenCoordinates(previous_view_position, projection_matrix);
-  vec4 last_temporal_sample = texture(in_temporal_data, temporal_uv);
 
   // Denoised SSAO/shadow
   float ssao = GetSSAO(12, frag_normal_and_depth.w, position, frag_normal_and_depth.xyz, fract(running_time));
