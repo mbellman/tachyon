@@ -27,7 +27,11 @@ static void LoadShipPartMeshes(Tachyon* tachyon, State& state) {
 }
 
 static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
-  #define load_mesh(__name) meshes.__name = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/" #__name ".obj"), 3000)
+  #define load_and_add_mesh(__name) meshes.__name = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/" #__name ".obj"), 3000)
+
+  #define load_mesh(__name, ...)\
+    load_and_add_mesh(__name);\
+    placeable_mesh_assets.push_back(__VA_ARGS__)
 
   #define load_mesh_with_2_lods(__name) meshes.__name =\
     Tachyon_AddMesh(\
@@ -48,81 +52,9 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
 
   auto& meshes = state.meshes;
 
-  meshes.zone_target = Tachyon_AddMesh(tachyon, Tachyon_CreateSphereMesh(16), 100);
-  meshes.vehicle_target = Tachyon_AddMesh(tachyon, Tachyon_CreateSphereMesh(16), 100);
-  meshes.freight_vehicle_target = Tachyon_AddMesh(tachyon, Tachyon_CreateSphereMesh(16), 100);
-
-  load_mesh_with_2_lods(antenna_1);
-  load_mesh(antenna_2);
-  load_mesh(antenna_3);
-  load_mesh(antenna_4);
-  load_mesh(antenna_5);
-  load_mesh_with_3_lods(machine_1);
-  load_mesh_with_2_lods(machine_2);
-  load_mesh_with_3_lods(machine_3);
-  load_mesh(radio_tower_1);
-  load_mesh(module_1);
-  load_mesh(module_2);
-  load_mesh(habitation_1);
-  load_mesh(habitation_2);
-  load_mesh(habitation_3);
-  load_mesh(habitation_4);
-  load_mesh_with_2_lods(silo_2);
-  load_mesh(silo_3);
-  load_mesh(silo_4);
-  load_mesh(silo_5);
-  load_mesh(silo_6);
-  load_mesh(silo_7);
-  load_mesh(silo_8);
-  load_mesh(torus_1);
-  load_mesh(elevator_torus_1);
-  load_mesh(station_torus_1);
-  load_mesh(station_torus_2);
-  load_mesh(station_torus_3);
-  load_mesh(station_torus_4);
-  load_mesh(station_platform_1);
-  load_mesh(platform);
-  load_mesh(carrier);
-  load_mesh(orbital_base);
-  load_mesh(solar_rotator);
-  load_mesh(solar_rotator_2);
-  load_mesh(solar_field);
-  load_mesh(base_1);
-  load_mesh(building_1);
-  load_mesh(station_base);
-  load_mesh(gate_tower_1);
-  load_mesh(solar_panel_1);
-  load_mesh(solar_panel_2);
-  load_mesh_with_2_lods(girder_1);
-  load_mesh_with_3_lods(girder_1b);
-  load_mesh_with_3_lods(girder_2);
-  load_mesh_with_2_lods(girder_3);
-  load_mesh(girder_4);
-  load_mesh_with_2_lods(girder_5);
-  load_mesh(girder_6);
-  load_mesh_with_2_lods(beam_1);
-  load_mesh(beam_2);
-  load_mesh_with_2_lods(mega_girder_1);
-  load_mesh(mega_girder_2);
-  load_mesh_with_2_lods(grate_1);
-  load_mesh_with_2_lods(grate_2);
-  load_mesh(grate_3);
-  load_mesh(grate_4);
-  load_mesh(track_1);
-  load_mesh(light_1);
-  load_mesh(light_2);
-  load_mesh(light_3);
-  load_mesh(light_4);
-  load_mesh(charge_pad);
-  load_mesh(fighter_spawn);
-  load_mesh(freight_spawn);
-  load_mesh(floater_1);
-  load_mesh(gas_flare_1_spawn);
-  load_mesh(arch_1);
-  load_mesh(station_drone);
-  load_mesh(background_ship_1);
-
   // @todo refactor
+  meshes.zone_target = Tachyon_AddMesh(tachyon, Tachyon_CreateSphereMesh(16), 100);
+
   placeable_mesh_assets.push_back({
     .mesh_name = "zone_target",
     .mesh_index = meshes.zone_target,
@@ -133,6 +65,8 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
       .material = tVec4f(0.6f, 0, 0, 0)
     }
   });
+
+  meshes.vehicle_target = Tachyon_AddMesh(tachyon, Tachyon_CreateSphereMesh(16), 100);
 
   placeable_mesh_assets.push_back({
     .mesh_name = "vehicle_target",
@@ -145,6 +79,8 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
+  meshes.freight_vehicle_target = Tachyon_AddMesh(tachyon, Tachyon_CreateSphereMesh(16), 100);
+
   placeable_mesh_assets.push_back({
     .mesh_name = "freight_vehicle_target",
     .mesh_index = meshes.freight_vehicle_target,
@@ -156,6 +92,8 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
+  load_mesh_with_2_lods(antenna_1);
+
   placeable_mesh_assets.push_back({
     .mesh_name = "antenna_1",
     .mesh_index = meshes.antenna_1,
@@ -166,7 +104,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(antenna_2, {
     .mesh_name = "antenna_2",
     .mesh_index = meshes.antenna_2,
     .placeholder = true,
@@ -177,7 +115,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(antenna_3, {
     .mesh_name = "antenna_3",
     .mesh_index = meshes.antenna_3,
     .defaults = {
@@ -187,7 +125,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(antenna_4, {
     .mesh_name = "antenna_4",
     .mesh_index = meshes.antenna_4,
     .placeholder = true,
@@ -198,7 +136,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(antenna_5, {
     .mesh_name = "antenna_5",
     .mesh_index = meshes.antenna_5,
     .defaults = {
@@ -207,6 +145,18 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
       .material = tVec4f(0.8f, 0, 0.1f, 0.2f)
     }
   });
+
+  load_mesh(radio_tower_1, {
+    .mesh_name = "radio_tower_1",
+    .mesh_index = meshes.radio_tower_1,
+    .defaults {
+      .scale = tVec3f(5000.f),
+      .color = tVec3f(1.f),
+      .material = tVec4f(0.9f, 0, 0, 0)
+    }
+  });
+
+  load_mesh_with_3_lods(machine_1);
 
   placeable_mesh_assets.push_back({
     .mesh_name = "machine_1",
@@ -217,6 +167,8 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
+  load_mesh_with_2_lods(machine_2);
+
   placeable_mesh_assets.push_back({
     .mesh_name = "machine_2",
     .mesh_index = meshes.machine_2,
@@ -225,6 +177,8 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
       .material = tVec4f(1.f, 0, 0, 0.2f)
     }
   });
+
+  load_mesh_with_3_lods(machine_3);
 
   placeable_mesh_assets.push_back({
     .mesh_name = "machine_3",
@@ -245,7 +199,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(module_1, {
     .mesh_name = "module_1",
     .mesh_index = meshes.module_1,
     .defaults = {
@@ -255,7 +209,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(module_2, {
     .mesh_name = "module_2",
     .mesh_index = meshes.module_2,
     .placeholder = true,
@@ -266,7 +220,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(habitation_1, {
     .mesh_name = "habitation_1",
     .mesh_index = meshes.habitation_1,
     .placeholder = true,
@@ -277,7 +231,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(habitation_2, {
     .mesh_name = "habitation_2",
     .mesh_index = meshes.habitation_2,
     .placeholder = true,
@@ -288,7 +242,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(habitation_3, {
     .mesh_name = "habitation_3",
     .mesh_index = meshes.habitation_3,
     .placeholder = true,
@@ -299,7 +253,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(habitation_4, {
     .mesh_name = "habitation_4",
     .mesh_index = meshes.habitation_4,
     .placeholder = true,
@@ -309,6 +263,8 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
       .material = tVec4f(0.6f, 0, 0, 0.4f)
     }
   });
+
+  load_mesh_with_2_lods(silo_2);
 
   placeable_mesh_assets.push_back({
     .mesh_name = "silo_2",
@@ -320,7 +276,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(silo_3, {
     .mesh_name = "silo_3",
     .mesh_index = meshes.silo_3,
     .placeholder = true,
@@ -331,7 +287,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(silo_4, {
     .mesh_name = "silo_4",
     .mesh_index = meshes.silo_4,
     .defaults = {
@@ -341,7 +297,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(silo_5, {
     .mesh_name = "silo_5",
     .mesh_index = meshes.silo_5,
     .defaults = {
@@ -351,7 +307,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(silo_6, {
     .mesh_name = "silo_6",
     .mesh_index = meshes.silo_6,
     .placeholder = true,
@@ -362,7 +318,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(silo_7, {
     .mesh_name = "silo_7",
     .mesh_index = meshes.silo_7,
     .placeholder = true,
@@ -371,7 +327,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(silo_8, {
     .mesh_name = "silo_8",
     .mesh_index = meshes.silo_8,
     .placeholder = true,
@@ -380,12 +336,12 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(torus_1, {
     .mesh_name = "torus_1",
     .mesh_index = meshes.torus_1
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(elevator_torus_1, {
     .mesh_name = "elevator_torus_1",
     .mesh_index = meshes.elevator_torus_1,
     .defaults = {
@@ -395,7 +351,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(station_torus_1, {
     .mesh_name = "station_torus_1",
     .mesh_index = meshes.station_torus_1,
     .defaults = {
@@ -405,7 +361,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(station_torus_2, {
     .mesh_name = "station_torus_2",
     .mesh_index = meshes.station_torus_2,
     .placeholder = true,
@@ -416,7 +372,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(station_torus_3, {
     .mesh_name = "station_torus_3",
     .mesh_index = meshes.station_torus_3,
     .placeholder = true,
@@ -427,7 +383,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(station_torus_4, {
     .mesh_name = "station_torus_4",
     .mesh_index = meshes.station_torus_4,
     .placeholder = true,
@@ -438,7 +394,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(station_platform_1, {
     .mesh_name = "station_platform_1",
     .mesh_index = meshes.station_platform_1,
     .defaults = {
@@ -448,7 +404,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(platform, {
     .mesh_name = "platform",
     .mesh_index = meshes.platform,
     .placeholder = true,
@@ -458,7 +414,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(carrier, {
     .mesh_name = "carrier",
     .mesh_index = meshes.carrier,
     .defaults = {
@@ -467,7 +423,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(orbital_base, {
     .mesh_name = "orbital_base",
     .mesh_index = meshes.orbital_base,
     .defaults = {
@@ -476,7 +432,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(solar_rotator, {
     .mesh_name = "solar_rotator",
     .mesh_index = meshes.solar_rotator,
     .placeholder = true,
@@ -486,7 +442,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(solar_rotator_2, {
     .mesh_name = "solar_rotator_2",
     .mesh_index = meshes.solar_rotator_2,
     .placeholder = true,
@@ -496,7 +452,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(solar_field, {
     .mesh_name = "solar_field",
     .mesh_index = meshes.solar_field,
     .placeholder = true,
@@ -506,7 +462,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(base_1, {
     .mesh_name = "base_1",
     .mesh_index = meshes.base_1,
     .defaults = {
@@ -515,7 +471,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(building_1, {
     .mesh_name = "building_1",
     .mesh_index = meshes.building_1,
     .defaults = {
@@ -524,7 +480,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(station_base, {
     .mesh_name = "station_base",
     .mesh_index = meshes.station_base,
     .defaults = {
@@ -533,7 +489,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(gate_tower_1, {
     .mesh_name = "gate_tower_1",
     .mesh_index = meshes.gate_tower_1,
     .defaults = {
@@ -543,12 +499,12 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(solar_panel_1, {
     .mesh_name = "solar_panel_1",
     .mesh_index = meshes.solar_panel_1
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(solar_panel_2, {
     .mesh_name = "solar_panel_2",
     .mesh_index = meshes.solar_panel_2,
     .placeholder = true,
@@ -559,6 +515,8 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
+  load_mesh_with_2_lods(girder_1);
+
   placeable_mesh_assets.push_back({
     .mesh_name = "girder_1",
     .mesh_index = meshes.girder_1,
@@ -568,6 +526,8 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
+  load_mesh_with_3_lods(girder_1b);
+
   placeable_mesh_assets.push_back({
     .mesh_name = "girder_1b",
     .mesh_index = meshes.girder_1b,
@@ -576,6 +536,8 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
       .material = tVec4f(1.f, 1.f, 0, 0)
     }
   });
+
+  load_mesh_with_3_lods(girder_2);
 
   placeable_mesh_assets.push_back({
     .mesh_name = "girder_2",
@@ -587,6 +549,8 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
+  load_mesh_with_2_lods(girder_3);
+
   placeable_mesh_assets.push_back({
     .mesh_name = "girder_3",
     .mesh_index = meshes.girder_3,
@@ -597,7 +561,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(girder_4, {
     .mesh_name = "girder_4",
     .mesh_index = meshes.girder_4,
     .placeholder = true,
@@ -607,6 +571,8 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
       .material = tVec4f(0.5f, 1.f, 0, 0.5f)
     }
   });
+
+  load_mesh_with_2_lods(girder_5);
 
   placeable_mesh_assets.push_back({
     .mesh_name = "girder_5",
@@ -618,7 +584,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(girder_6, {
     .mesh_name = "girder_6",
     .mesh_index = meshes.girder_6,
     .placeholder = true,
@@ -629,6 +595,8 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
+  load_mesh_with_2_lods(beam_1);
+
   placeable_mesh_assets.push_back({
     .mesh_name = "beam_1",
     .mesh_index = meshes.beam_1,
@@ -638,7 +606,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(beam_2, {
     .mesh_name = "beam_2",
     .mesh_index = meshes.beam_2,
     .placeholder = true,
@@ -648,6 +616,8 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
       .material = tVec4f(0.8f, 0, 0, 0.1f)
     }
   });
+
+  load_mesh_with_2_lods(mega_girder_1);
 
   placeable_mesh_assets.push_back({
     .mesh_name = "mega_girder_1",
@@ -659,7 +629,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(mega_girder_2, {
     .mesh_name = "mega_girder_2",
     .mesh_index = meshes.mega_girder_2,
     .defaults = {
@@ -668,6 +638,8 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
       .material = tVec4f(0.9f, 0, 0, 0.4f)
     }
   });
+
+  load_mesh_with_2_lods(grate_1);
 
   placeable_mesh_assets.push_back({
     .mesh_name = "grate_1",
@@ -679,6 +651,8 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
+  load_mesh_with_2_lods(grate_2);
+
   placeable_mesh_assets.push_back({
     .mesh_name = "grate_2",
     .mesh_index = meshes.grate_2,
@@ -689,7 +663,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(grate_3, {
     .mesh_name = "grate_3",
     .mesh_index = meshes.grate_3,
     .defaults = {
@@ -698,7 +672,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(grate_4, {
     .mesh_name = "grate_4",
     .mesh_index = meshes.grate_4,
     .defaults = {
@@ -708,7 +682,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(track_1, {
     .mesh_name = "track_1",
     .mesh_index = meshes.track_1,
     .defaults = {
@@ -718,7 +692,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(light_1, {
     .mesh_name = "light_1",
     .mesh_index = meshes.light_1,
     .placeholder = true,
@@ -729,7 +703,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(light_2, {
     .mesh_name = "light_2",
     .mesh_index = meshes.light_2,
     .placeholder = true,
@@ -740,7 +714,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(light_3, {
     .mesh_name = "light_3",
     .mesh_index = meshes.light_3,
     .placeholder = true,
@@ -751,7 +725,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(light_4, {
     .mesh_name = "light_4",
     .mesh_index = meshes.light_4,
     .placeholder = true,
@@ -762,7 +736,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(charge_pad, {
     .mesh_name = "charge_pad",
     .mesh_index = meshes.charge_pad,
     .defaults = {
@@ -771,7 +745,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(fighter_spawn, {
     .mesh_name = "fighter_spawn",
     .mesh_index = meshes.fighter_spawn,
     .placeholder = true,
@@ -780,7 +754,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(freight_spawn, {
     .mesh_name = "freight_spawn",
     .mesh_index = meshes.freight_spawn,
     .placeholder = true,
@@ -789,7 +763,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(floater_1, {
     .mesh_name = "floater_1",
     .mesh_index = meshes.floater_1,
     .placeholder = true,
@@ -799,7 +773,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(gas_flare_1_spawn, {
     .mesh_name = "gas_flare_1_spawn",
     .mesh_index = meshes.gas_flare_1_spawn,
     .placeholder = true,
@@ -809,7 +783,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(arch_1, {
     .mesh_name = "arch_1",
     .mesh_index = meshes.arch_1,
     .placeholder = true,
@@ -819,7 +793,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(station_drone, {
     .mesh_name = "station_drone",
     .mesh_index = meshes.station_drone,
     .placeholder = true,
@@ -829,7 +803,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(background_ship_1, {
     .mesh_name = "background_ship_1",
     .mesh_index = meshes.background_ship_1,
     .defaults = {

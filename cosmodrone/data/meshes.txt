@@ -1,0 +1,20 @@
+// This is a currently-unused file for experimenting with mesh definition syntax.
+
+@antenna_1
+file = STATION_PARTS/antenna_1.obj
+scale = 2000
+material = 0.4, 1, 0, 0
+
+@antenna_4
+placeholder
+file = STATION_PARTS/antenna_4.obj
+scale = 2000,
+color = 1
+material = tVec4f(0.6f, 0, 0.1f, 0.2f)
+generates = {
+
+  @antenna_4_base
+  file = GENERATED_PARTS/antenna_4.obj
+  material = 1, 0.5, 0, 0.2
+
+}
