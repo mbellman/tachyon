@@ -161,7 +161,7 @@ void Piloting::HandlePiloting(Tachyon* tachyon, State& state, const float dt) {
     state.docking_position = Autopilot::GetDockingPosition(tachyon, state);
 
     if (
-      state.current_game_time - state.last_fighter_reversal_time < 2.5f &&
+      state.current_game_time - state.last_fighter_reversal_time < 2.f &&
       state.flight_mode == FlightMode::AUTO_RETROGRADE
     ) {
       HandleQuickReversal(tachyon, state, dt);
@@ -180,7 +180,7 @@ void Piloting::HandlePiloting(Tachyon* tachyon, State& state, const float dt) {
         float forward_dot = tVec3f::dot(state.view_forward_direction, state.ship_rotation_basis.forward);
         if (forward_dot < 0.f) forward_dot = 0.f;
 
-        state.ship_rotate_to_target_speed = Tachyon_Lerpf(0.5f, 1.5f, forward_dot);
+        state.ship_rotate_to_target_speed = Tachyon_Lerpf(0.5f, 1.5f + abs(state.camera_roll_speed), forward_dot);
       }
     } else {
       // Stopped

@@ -199,7 +199,7 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
     }
   }
 
-  if (!Autopilot::IsAutopilotActive(state)) {
+  if (!Autopilot::IsAutopilotActive(state) && state.flight_system == ::DRONE) {
     state.ship_rotate_to_target_speed = 2.f;
   }
 
@@ -211,13 +211,25 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
   auto& camera = tachyon->scene.camera;
   auto& meshes = state.meshes;
 
-  // Clamp roll speed
-  if (state.camera_roll_speed > 3.f) state.camera_roll_speed = 3.f;
-  if (state.camera_roll_speed < -3.f) state.camera_roll_speed = -3.f;
+  switch (state.flight_system) {
+    case ::DRONE: {
+      if (state.camera_roll_speed > 3.f) state.camera_roll_speed = 3.f;
+      if (state.camera_roll_speed < -3.f) state.camera_roll_speed = -3.f;
 
-  float roll_speed_dampening_factor = state.is_piloting_vehicle ? 3.f : 1.f;
+      state.camera_roll_speed *= 1.f - dt;
 
-  state.camera_roll_speed *= (1.f - roll_speed_dampening_factor * dt);
+      break;
+    }
+    case ::FIGHTER: {
+      if (state.camera_roll_speed > 1.5f) state.camera_roll_speed = 1.5f;
+      if (state.camera_roll_speed < -1.5f) state.camera_roll_speed = -1.5f;
+
+      if (!is_key_held(tKey::Q) && !is_key_held(tKey::E)) {
+        state.camera_roll_speed *= 1.f - 10.f * dt;
+      }
+    }
+  }
+
   state.camera_yaw_speed *= (1.f - 5.f * dt);
 
   if (is_window_focused()) {
@@ -228,8 +240,7 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
 
     Quaternion turn = (
       Quaternion::fromAxisAngle(RIGHT_VECTOR, (float)tachyon->mouse_delta_y / mouse_divisor) *
-      Quaternion::fromAxisAngle(UP_VECTOR, (float)tachyon->mouse_delta_x / mouse_divisor) *
-      Quaternion::fromAxisAngle(FORWARD_VECTOR, state.camera_roll_speed * dt)
+      Quaternion::fromAxisAngle(UP_VECTOR, (float)tachyon->mouse_delta_x / mouse_divisor)
     );
 
     state.target_camera_rotation *= turn;
@@ -268,9 +279,10 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
   ) {
     float reversal_duration = state.current_game_time - state.last_fighter_reversal_time;
 
+    // Pause for 0.1 seconds before initiating the camera change
     float blend_factor = reversal_duration - 0.1f;
-    if (blend_factor > 1.f) blend_factor = 1.f;
     if (blend_factor < 0.f) blend_factor = 0.f;
+    if (blend_factor > 1.f) blend_factor = 1.f;
     blend_factor = 30.f * powf(blend_factor, 2.f) * dt;
     if (blend_factor > 1.f) blend_factor = 1.f;
 
@@ -336,7 +348,7 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
     float blend_rate;
 
     if (state.flight_system == FlightSystem::FIGHTER) {
-      if (state.current_game_time - state.last_fighter_reversal_time < 2.5f) {
+      if (state.current_game_time - state.last_fighter_reversal_time < 2.f) {
         float alpha = 5.f * (state.current_game_time - state.last_fighter_reversal_time);
         if (alpha < 0.f) alpha = 0.f;
         if (alpha > 1.f) alpha = 1.f;
@@ -350,6 +362,10 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
     }
 
     camera.rotation = Quaternion::slerp(camera.rotation, state.target_camera_rotation, blend_rate * dt);
+
+    // Apply roll separately, since we want roll speed to be decoupled from turn speed.
+    state.target_camera_rotation *= Quaternion::fromAxisAngle(FORWARD_VECTOR, state.camera_roll_speed * dt);
+    camera.rotation *= Quaternion::fromAxisAngle(FORWARD_VECTOR, state.camera_roll_speed * dt);
   }
 
   UpdateViewDirections(tachyon, state, dt);

@@ -47,13 +47,15 @@ static void HandleDockingApproachCamera(Tachyon* tachyon, State& state, tObject&
 
   camera_blend = Tachyon_EaseInOutf(camera_blend);
 
-  tachyon->scene.camera.rotation = state.target_camera_rotation = Quaternion::slerp(
+  tachyon->scene.camera.rotation =
+  state.target_camera_rotation = Quaternion::slerp(
     state.initial_approach_camera_rotation,
     docked_camera_rotation,
     camera_blend
   );
 
-  state.ship_camera_distance = state.ship_camera_distance_target = Tachyon_Lerpf(
+  state.ship_camera_distance =
+  state.ship_camera_distance_target = Tachyon_Lerpf(
     state.initial_approach_camera_distance,
     Utilities::GetDockedCameraDistance(state, state.docking_target.mesh_index),
     camera_blend
@@ -179,6 +181,10 @@ static void HandleAutoPrograde(Tachyon* tachyon, State& state, const float dt) {
 
 void Autopilot::HandleAutopilot(Tachyon* tachyon, State& state, const float dt) {
   if (state.flight_system != FlightSystem::DRONE) {
+    // @todo we should probably rename this module DroneAutopilot or similar,
+    // or have distinct modules for different vehicle maneuvering behaviors
+    // in addition to the flight system delegation stuff. Maybe end up merging
+    // common flight system code into done/fighter/etc. modules.
     return;
   }
 
@@ -196,6 +202,17 @@ void Autopilot::HandleAutopilot(Tachyon* tachyon, State& state, const float dt) 
   if (state.flight_mode == FlightMode::AUTO_DOCK) {
     // @todo allow us to reuse target for this, rather than getting it again, redundantly
     state.docking_position = GetDockingPosition(tachyon, state);
+
+    // @temporary
+    // @todo dev mode: allow vehicles to be spawned and controlled instantly
+    {
+      if (did_press_key(tKey::L)) {
+        state.ship_position = state.docking_position;
+        state.auto_dock_stage = ::DOCKED;
+        state.ship_velocity = 0.f;
+        state.ship_rotate_to_target_speed = 0.f;
+      }
+    }
 
     switch (state.auto_dock_stage) {
       case AutoDockStage::APPROACH_DECELERATION: {

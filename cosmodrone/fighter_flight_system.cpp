@@ -17,12 +17,14 @@ void FighterFlightSystem::ControlledThrustForward(State& state, const float dt) 
 }
 
 void FighterFlightSystem::RollLeft(State& state, const float dt) {
-  state.camera_roll_speed += 4.f * dt;
+  state.camera_roll_speed += 5.f * dt;
+  state.ship_rotate_to_target_speed = 5.f;
   state.flight_mode = FlightMode::MANUAL_CONTROL;
 }
 
 void FighterFlightSystem::RollRight(State& state, const float dt) {
-  state.camera_roll_speed -= 4.f * dt;
+  state.camera_roll_speed -= 5.f * dt;
+  state.ship_rotate_to_target_speed = 5.f;
   state.flight_mode = FlightMode::MANUAL_CONTROL;
 }
 
