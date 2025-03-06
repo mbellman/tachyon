@@ -146,16 +146,6 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  load_mesh(radio_tower_1, {
-    .mesh_name = "radio_tower_1",
-    .mesh_index = meshes.radio_tower_1,
-    .defaults {
-      .scale = tVec3f(5000.f),
-      .color = tVec3f(1.f),
-      .material = tVec4f(0.9f, 0, 0, 0)
-    }
-  });
-
   load_mesh_with_3_lods(machine_1);
 
   placeable_mesh_assets.push_back({
@@ -189,7 +179,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  placeable_mesh_assets.push_back({
+  load_mesh(radio_tower_1, {
     .mesh_name = "radio_tower_1",
     .mesh_index = meshes.radio_tower_1,
     .defaults {

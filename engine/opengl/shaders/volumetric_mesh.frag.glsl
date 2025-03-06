@@ -194,6 +194,7 @@ void main() {
 
   clouds = clamp(clouds, 0.0, 1.0) * density;
 
+  // Cloud shadows
   vec3 d2 = GetCloudDirection(N * 1.02);
   float c3_2 = snoise(vec4(d2 * 2.0, t));
   float c4_2 = snoise(vec4(d2 * 8.0, t));
@@ -201,34 +202,6 @@ void main() {
   c4_2 = clamp(c4_2, 0.0, 1.0);
 
   float shadow = (c3_2 + c4_2) * (1.0 - NdotV * 0.75);
-
-
-  // Clouds + cloud shadows
-  out_color += vec3(clouds);
-  out_color -= vec3(shadow) * 0.6 * density;
-
-  // Incidence
-  out_color *= (0.2 + 0.8 * pow(NdotL, 1.0 / 3.0));
-
-  // Nighttime side
-  out_color += mix(vec3(0.0), vec3(-0.8, -0.6, -0.1), pow(1.0 - NdotL, 10.0));
-
-  // Color adjustment
-  out_color -= vec3(0.2, 0.1, 0.0);
-
-  // Fade out clouds near the horizon
-  out_color = mix(out_color, vec3(0.0), pow(1.0 - NdotV * NdotV, 2.0));
-
-  // Edge scattering
-  // Blend between blue/orange depending on how close the sun is to this pixel
-  vec3 edge_color = mix(
-    vec3(0.4, 0.7, 1.0),
-    vec3(1.0, 0.8, 0.1),
-    pow(DdotL, 2.0)
-  );
-
-  // Add a copper/reddish tint near the light/dark boundary
-  edge_color = mix(edge_color, vec3(1.0, 0.6, 0.4), 1.0 - abs(dot(N, L)));
 
   // Our goal here is to have a rim of light which gradually intensifies
   // as we move toward the glancing edge of the atmosphere, and then rapidly
@@ -259,18 +232,46 @@ void main() {
     edge_factor *= edge_factor;
   }
 
+  // Define a binary 1.0/0.0 factor for being inside or outside the planetary silhouette
+  float inside_edge_factor =
+    edge_alpha < edge_falloff_threshold
+      ? 1.0
+      : 0.0;
+
+  // Clouds + cloud shadows
+  out_color += vec3(clouds);
+  out_color -= vec3(shadow) * 0.6 * density;
+
+  // Incidence
+  out_color *= (0.2 + 0.8 * pow(NdotL, 1.0 / 3.0));
+
+  // Nighttime side
+  out_color += mix(vec3(0.0), vec3(-0.8, -0.6, -0.1), pow(1.0 - NdotL, 10.0)) * inside_edge_factor;
+
+  // Color adjustment
+  out_color -= vec3(0.2, 0.1, 0.0);
+
+  // Fade out clouds near the horizon
+  out_color = mix(out_color, vec3(0.0), pow(1.0 - NdotV * NdotV, 2.0));
+
+  // Edge scattering
+  // Blend between blue/orange depending on how close the sun is to this pixel
+  vec3 edge_color = mix(
+    vec3(0.4, 0.7, 1.0),
+    vec3(1.0, 0.8, 0.1),
+    pow(DdotL, 2.0)
+  );
+
+  // Add a copper/reddish tint near the light/dark boundary
+  edge_color = mix(edge_color, vec3(1.0, 0.6, 0.4), 1.0 - abs(dot(N, L)));
+
   // Reduce the light intensity on the far side of the atmosphere from the sun
   float sunlight_factor = 1.0 - abs(dot(N, L));
 
   out_color += edge_color * edge_factor * sunlight_factor;
 
   // Haze
-  float haze_edge_factor =
-    edge_alpha < edge_falloff_threshold
-      ? 1.0
-      : 0.0;
-
-  out_color += vec3(0.4) * (1.0 - NdotV) * haze_edge_factor;
+  out_color += vec3(0.4) * (1.0 - NdotV) * inside_edge_factor;
 
   // Sunrise/sunset
   out_color +=

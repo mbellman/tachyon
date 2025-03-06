@@ -92,20 +92,19 @@ void main() {
   hot_color.b = clamp(hot_color.b, 0.0, 1.0);
 
   vec3 out_color = vec3(0.0);
-  vec3 sample_position = fragPosition;
-  vec3 center_line = basePosition - modelPosition;
+  vec3 sample_position = fragPosition - N * 1500.0;
   float t = scene_time * 0.5 + modelPosition.x;
   float intensity = 5.0 * (0.5 * sin(t) + 0.5);
 
   for (int i = 0; i < 5; i++) {
     float base_distance = 0.0002 * length(sample_position - basePosition);
     float top_distance = 0.0002 * length(sample_position - topPosition);
-    vec3 center_position = ClosestPointOnLine(basePosition, modelPosition, sample_position);
+    vec3 center_position = ClosestPointOnLine(basePosition, topPosition, sample_position);
     float center_distance = 0.0005 * length(sample_position - center_position);
 
     float base_factor = pow(1.0 / base_distance, 2.0);
-    float top_factor = max(0.0, 1.0 - 1.0 / top_distance);
-    float center_factor = pow(min(1.0, 1.0 / center_distance), 5.0);
+    float top_factor = 0.5 + 0.5 * max(0.0, 1.0 - 1.0 / top_distance);
+    float center_factor = pow(min(1.0, 1.0 / center_distance), 3.0);
     float density_factor = Fire3D(sample_position);
 
     vec3 fire_color = mix(object_color.rgb * 0.5, hot_color, base_factor);
@@ -117,17 +116,20 @@ void main() {
     out_color +=
       fire_color *
       base_factor *
-      top_factor *
       center_factor *
+      top_factor *
       density_factor;
 
     // @todo use object scale for this
-    sample_position += D * 4000.0;
+    float step_size = 4000.0 * NdotV;
+
+    sample_position += D * step_size;
   }
 
   out_color *= pow(NdotV, 2.0) * intensity;
   out_color *= out_color * 100.0;
   // out_color = pow(out_color, vec3(1.0 / 2.2));
+  // out_color += vec3(0.2);
 
   out_color_and_depth = vec4(out_color, 0);
 }
