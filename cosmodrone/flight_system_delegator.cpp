@@ -92,6 +92,8 @@ void FlightSystemDelegator::AutoStop(State& state, const float dt) {
     state.flight_mode = FlightMode::AUTO_RETROGRADE;
     state.retrograde_direction = state.ship_rotation_basis.forward;
     state.retrograde_up = state.ship_rotation_basis.up;
+    state.controlled_thrust_duration = 0.f;
+    state.ship_pitch_factor = 0.f;
     state.last_fighter_reversal_time = state.current_game_time;
   }
 }

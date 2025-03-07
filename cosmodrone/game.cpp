@@ -1,3 +1,5 @@
+#include <cmath>
+
 #include "cosmodrone/autopilot.h"
 #include "cosmodrone/drone_flight_system.h"
 #include "cosmodrone/flight_system_delegator.h"
@@ -390,7 +392,11 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
       // When stopping a fighter vehicle, snap the FoV back to a smaller
       // value and gradually transition to normal again
       if (ship_speed > 500.f && state.controlled_thrust_duration == 0.f) {
-        float blend = powf(1.f - speed_ratio, 1.f / 3.f);
+        float alpha = 1.f - speed_ratio;
+        // Fixes a rare issue with -0.0 alpha values, causing boost_intensity
+        // to be NaN, which propagates to the camera FoV.
+        if (std::signbit(alpha)) alpha = 0.f;
+        float blend = powf(alpha, 1.f / 3.f);
 
         boost_intensity = Tachyon_Lerpf(-10.f, 0.f, blend);
       }
@@ -842,6 +848,7 @@ static void ShowDevLabels(Tachyon* tachyon, State& state) {
   add_dev_label("Ship speed", std::to_string(state.ship_velocity.magnitude()));
   add_dev_label("Camera position", camera.position.toString());
   add_dev_label("Camera rotation", camera.rotation.toString());
+  add_dev_label("Camera FoV", std::to_string(camera.fov));
 }
 
 void Cosmodrone::StartGame(Tachyon* tachyon) {

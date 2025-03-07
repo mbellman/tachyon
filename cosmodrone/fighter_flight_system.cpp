@@ -6,6 +6,10 @@ using namespace Cosmodrone;
 const float ACCELERATION = 500000.f;
 
 void FighterFlightSystem::ControlledThrustForward(State& state, const float dt) {
+  if (state.current_game_time - state.last_fighter_reversal_time < 2.f) {
+    return;
+  }
+
   if (state.controlled_thrust_duration > 1.f) {
     state.ship_velocity += state.ship_rotation_basis.forward * ACCELERATION * dt;
   }
