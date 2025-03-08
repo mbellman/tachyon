@@ -124,7 +124,7 @@ vec3 GetPointLightRadiance(vec3 world_position, float light_distance, vec3 N, ve
   vec3 D = albedo * radiant_flux * distance_factor * NdotL;
   vec3 S = radiant_flux * pow(NdotH, 50.0) * distance_factor;
 
-  return D + 3.0 * material.metalness * S;
+  return D + 3.0 * (material.metalness + 2.0 * material.clearcoat + 2.0 * (1.0 - material.roughness)) * S;
 }
 
 void main() {

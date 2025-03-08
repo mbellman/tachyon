@@ -668,6 +668,9 @@ void main() {
   out_color += GetAmbientFresnel(NdotV);
   out_color = mix(out_color, albedo, pow(emissive, 1.5));
 
+  // float NdotL = max(0.0, dot(N, L));
+  // out_color = mix(out_color, vec3(0.01, 0.02, 0.03), 0.5 * NdotL);
+
   if (frag_normal_and_depth.w >= 1.0) out_color = vec3(0);
 
   // @todo move to post shader

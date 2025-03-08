@@ -1,7 +1,7 @@
 #include "cosmodrone/procedural_generation.h"
 #include "cosmodrone/mesh_library.h"
 
-constexpr static uint16 TOTAL_TRACK_PIECES = 600;
+constexpr static uint16 TOTAL_TRACK_PIECES = 3200;
 constexpr static uint16 TOTAL_ELEVATOR_CARS = 16;
 
 using namespace Cosmodrone;
@@ -18,6 +18,15 @@ using namespace Cosmodrone;
     tachyon,\
     Tachyon_LoadMesh("./cosmodrone/assets" __file),\
     Tachyon_LoadMesh("./cosmodrone/assets" __file2),\
+    __total\
+  )
+
+#define load_mesh_with_3_lods(__mesh_entry, __file, __file2, __file3, __total)\
+  __mesh_entry = Tachyon_AddMesh(\
+    tachyon,\
+    Tachyon_LoadMesh("./cosmodrone/assets" __file),\
+    Tachyon_LoadMesh("./cosmodrone/assets" __file2),\
+    Tachyon_LoadMesh("./cosmodrone/assets" __file3),\
     __total\
   )
 
@@ -51,7 +60,7 @@ static void GenerateElevator(Tachyon* tachyon, State& state) {
   remove_all(meshes.procedural_track_1);
 
   // Down
-  for (int32 i = 0; i < 300; i++) {
+  for (int32 i = 0; i < TOTAL_TRACK_PIECES / 2; i++) {
     auto& track = create(meshes.procedural_track_1);
 
     track.position = tVec3f(0, i * -24000.f, 0);
@@ -63,7 +72,7 @@ static void GenerateElevator(Tachyon* tachyon, State& state) {
   }
 
   // Up
-  for (int32 i = 1; i < 300; i++) {
+  for (int32 i = 1; i < TOTAL_TRACK_PIECES / 2; i++) {
     auto& track = create(meshes.procedural_track_1);
 
     track.position = tVec3f(0, i * 24000.f, 0);
@@ -183,7 +192,14 @@ static void GenerateElevatorTrackSupports(Tachyon* tachyon, const State& state) 
 void ProceduralGeneration::LoadMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
-  load_mesh_with_2_lods(meshes.procedural_track_1, "/station-parts/track_1.obj", "/station-parts/track_1_lod_2.obj", TOTAL_TRACK_PIECES);
+  load_mesh_with_3_lods(
+    meshes.procedural_track_1,
+    "/station-parts/track_1.obj",
+    "/station-parts/track_1_lod_2.obj",
+    "/station-parts/track_1_lod_3.obj",
+    TOTAL_TRACK_PIECES
+  );
+
   load_mesh(meshes.procedural_elevator_car, "/elevator_car.obj", TOTAL_ELEVATOR_CARS);
   load_mesh(meshes.procedural_elevator_car_light, "/elevator_car_lights.obj", TOTAL_ELEVATOR_CARS);
   load_mesh(meshes.procedural_track_supports_1, "./track_supports_1.obj", 50);

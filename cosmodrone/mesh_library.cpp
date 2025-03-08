@@ -27,7 +27,7 @@ static void LoadShipPartMeshes(Tachyon* tachyon, State& state) {
 }
 
 static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
-  #define load_and_add_mesh(__name) meshes.__name = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/" #__name ".obj"), 3000)
+  #define load_and_add_mesh(__name) meshes.__name = Tachyon_AddMesh(tachyon, Tachyon_LoadMesh("./cosmodrone/assets/station-parts/" #__name ".obj"), 4000)
 
   #define load_mesh(__name, ...)\
     load_and_add_mesh(__name);\
@@ -38,7 +38,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
       tachyon,\
       Tachyon_LoadMesh("./cosmodrone/assets/station-parts/" #__name ".obj"),\
       Tachyon_LoadMesh("./cosmodrone/assets/station-parts/" #__name "_lod_2.obj"),\
-      3000\
+      4000\
     )
 
   #define load_mesh_with_3_lods(__name) meshes.__name =\
@@ -47,7 +47,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
       Tachyon_LoadMesh("./cosmodrone/assets/station-parts/" #__name ".obj"),\
       Tachyon_LoadMesh("./cosmodrone/assets/station-parts/" #__name "_lod_2.obj"),\
       Tachyon_LoadMesh("./cosmodrone/assets/station-parts/" #__name "_lod_3.obj"),\
-      3000\
+      4000\
     )
 
   auto& meshes = state.meshes;
@@ -391,6 +391,15 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
       .scale = tVec3f(100000.f),
       .color = tVec3f(1.f),
       .material = tVec4f(1.f, 0, 0.1f, 0.2f)
+    }
+  });
+
+  load_mesh(platform_column, {
+    .mesh_name = "platform_column",
+    .mesh_index = meshes.platform_column,
+    .defaults = {
+      .scale = tVec3f(50000.f),
+      .material = tVec4f(0.8f, 0, 0.1f, 0.3f)
     }
   });
 
@@ -811,7 +820,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       tachyon,\
       Tachyon_LoadMesh("./cosmodrone/assets/station-parts/generated/" #__name ".obj"),\
       Tachyon_LoadMesh("./cosmodrone/assets/station-parts/generated/" #__name "_lod_2.obj"),\
-      3000\
+      4000\
     )
 
   auto& meshes = state.meshes;
