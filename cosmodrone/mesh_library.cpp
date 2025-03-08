@@ -397,8 +397,9 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh(platform_column, {
     .mesh_name = "platform_column",
     .mesh_index = meshes.platform_column,
+    .placeholder = true,
     .defaults = {
-      .scale = tVec3f(50000.f),
+      .scale = tVec3f(75000.f),
       .material = tVec4f(0.8f, 0, 0.1f, 0.3f)
     }
   });
@@ -902,6 +903,11 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
   load_mesh(platform_supports);
   load_mesh(platform_truss);
 
+  load_mesh(platform_column_body);
+  load_mesh(platform_column_frame);
+  load_mesh(platform_column_ladders);
+  load_mesh(platform_column_supports);
+
   load_mesh(solar_rotator_body);
   load_mesh(solar_rotator_frame);
   load_mesh(solar_rotator_panels);
@@ -1399,6 +1405,36 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .generated_from = meshes.platform,
       .defaults = {
         .material = tVec4f(0.2f, 1.f, 0, 0)
+      }
+    },
+
+    // platform_column
+    {
+      .mesh_index = meshes.platform_column_body,
+      .generated_from = meshes.platform_column,
+      .defaults = {
+        .material = tVec4f(0.9f, 0, 0, 0.1f)
+      }
+    },
+    {
+      .mesh_index = meshes.platform_column_frame,
+      .generated_from = meshes.platform_column,
+      .defaults = {
+        .material = tVec4f(1.f, 1.f, 0, 0.2f)
+      }
+    },
+    {
+      .mesh_index = meshes.platform_column_ladders,
+      .generated_from = meshes.platform_column,
+      .defaults = {
+        .material = tVec4f(0.8f, 1.f, 0, 0.1f)
+      }
+    },
+    {
+      .mesh_index = meshes.platform_column_supports,
+      .generated_from = meshes.platform_column,
+      .defaults = {
+        .material = tVec4f(0.6f, 1.f, 0, 0)
       }
     },
 
