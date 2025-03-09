@@ -900,8 +900,8 @@ static void RenderPointLights(Tachyon* tachyon) {
 
       instance.offset = tVec2f(clip_position.x, clip_position.y);
       // @todo use 1 + log(light.power) or similar for scaling term
-      instance.scale.x = 1.5f * light.radius / local_light_position.z;
-      instance.scale.y = 1.5f * light.radius / local_light_position.z * aspect_ratio;
+      instance.scale.x = 1.2f * light.radius / local_light_position.z;
+      instance.scale.y = 1.2f * light.radius / local_light_position.z * aspect_ratio;
     } else {
       // Light source behind the camera; scale to cover
       // screen when within range, and scale to 0 when

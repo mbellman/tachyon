@@ -635,6 +635,14 @@ void main() {
     out_color += GetDirectionalLightRadiance(direction, light_color * intensity, albedo, position, N, V, NdotV, 1.0, metalness, 0.0, subsurface, 1.0);
   }
 
+  // Ambient light (based on the primary directional light)
+  // @todo cleanup
+  {
+    float NdotL = max(dot(N, L), 0.0);
+
+    out_color += albedo * vec3(0.1, 0.2, 1.0) * (0.005 + 0.02 * (1.0 - NdotL));
+  }
+
   // Earth bounce light
   // @todo make customizable
   {
@@ -642,14 +650,6 @@ void main() {
     const vec3 earth_light_color = vec3(0.2, 0.5, 1.0) * 0.2;
  
     out_color += GetDirectionalLightRadiance(earth_light_direction, earth_light_color, albedo, position, N, V, NdotV, mix(roughness, 1.0, 0.5), metalness, 0.0, 0.0, 1.0);
-  }
-
-  // Ambient light (based on the primary directional light)
-  // @todo cleanup
-  {
-    float NdotL = max(dot(N, L), 0.0);
-
-    out_color += albedo * vec3(0.1, 0.2, 1.0) * (0.005 + 0.02 * (1.0 - NdotL));
   }
 
   // Reflections
