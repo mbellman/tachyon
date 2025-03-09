@@ -165,6 +165,22 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
     state.photo_mode = !state.photo_mode;
   }
 
+  if (state.flight_system == ::FIGHTER) {
+    // Reset fighter quick reversal actions when pressing forward again
+    if (did_press_key(tKey::W)) {
+      state.last_fighter_reversal_time = 0.f;
+    }
+
+    // Wait a moment after doing a fighter quick reversal, and then
+    // allow mouse movements to cancel the action/re-assume control
+    if (
+      state.current_game_time - state.last_fighter_reversal_time > 1.5f &&
+      (tachyon->mouse_delta_x != 0 || tachyon->mouse_delta_y != 0 )
+    ) {
+      state.last_fighter_reversal_time = 0.f;
+    }
+  }
+
   // @todo How does any of the below have to do with inputs? Why is it here?
   // This stuff should be moved to HandleDrone() or some intermediate step.
 
@@ -255,7 +271,12 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
       Quaternion::fromAxisAngle(UP_VECTOR, (float)tachyon->mouse_delta_x / mouse_divisor)
     );
 
-    state.target_camera_rotation *= turn;
+    if (
+      state.flight_system != ::FIGHTER ||
+      state.current_game_time - state.last_fighter_reversal_time > 1.5f
+    ) {
+      state.target_camera_rotation *= turn;
+    }
 
     // Swiveling
     {
@@ -408,7 +429,7 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
         if (std::signbit(alpha)) alpha = 0.f;
         float blend = powf(alpha, 1.f / 3.f);
 
-        boost_intensity = Tachyon_Lerpf(-1.f, 0.f, blend);
+        boost_intensity = Tachyon_Lerpf(1.f, 0.f, blend);
       }
     } else {
       boost_intensity =

@@ -734,12 +734,20 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
     // Fast-rewind time
     state.current_game_time -= 500.f * dt;
 
+    state.piloting_end_time = 0.f;
+    state.piloting_start_time = 0.f;
+    state.is_piloting_vehicle = false;
+
     WorldBehavior::UpdateWorld(tachyon, state, 0.f);
   }
 
   if (!AreObjectsSelected() && is_key_held(tKey::ARROW_RIGHT)) {
     // Fast-forward time
     state.current_game_time += 500.f * dt;
+
+    state.piloting_end_time = 0.f;
+    state.piloting_start_time = 0.f;
+    state.is_piloting_vehicle = false;
 
     WorldBehavior::UpdateWorld(tachyon, state, 0.f);
   }
@@ -1103,6 +1111,7 @@ void Editor::DisableEditor(Tachyon* tachyon, State& state) {
 
   // @todo respawn piloted vehicle
   state.is_piloting_vehicle = false;
+  state.flight_system = ::DRONE;
 
   // Reset target trackers to avoid stale references
   // if objects are deleted in the editor

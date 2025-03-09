@@ -161,7 +161,7 @@ void Piloting::HandlePiloting(Tachyon* tachyon, State& state, const float dt) {
     state.docking_position = Autopilot::GetDockingPosition(tachyon, state);
 
     if (
-      state.current_game_time - state.last_fighter_reversal_time < 2.f &&
+      state.current_game_time - state.last_fighter_reversal_time < 3.f &&
       state.flight_mode == FlightMode::AUTO_RETROGRADE
     ) {
       HandleQuickReversal(tachyon, state, dt);
