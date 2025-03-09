@@ -404,6 +404,15 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
+  load_mesh(platform_ring, {
+    .mesh_name = "platform_ring",
+    .mesh_index = meshes.platform_ring,
+    .defaults = {
+      .scale = tVec3f(240000.f),
+      .material = tVec4f(0.8f, 1.f, 0, 0.6f)
+    }
+  });
+
   load_mesh(platform, {
     .mesh_name = "platform",
     .mesh_index = meshes.platform,
@@ -1413,16 +1422,16 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .mesh_index = meshes.platform_column_body,
       .generated_from = meshes.platform_column,
       .defaults = {
-        .material = tVec4f(0.9f, 0, 0, 0.1f)
+        .material = tVec4f(0.8f, 1.f, 0, 0.6f)
       }
     },
-    // {
-    //   .mesh_index = meshes.platform_column_frame,
-    //   .generated_from = meshes.platform_column,
-    //   .defaults = {
-    //     .material = tVec4f(1.f, 1.f, 0, 0.2f)
-    //   }
-    // },
+    {
+      .mesh_index = meshes.platform_column_frame,
+      .generated_from = meshes.platform_column,
+      .defaults = {
+        .material = tVec4f(0.8f, 1.f, 0, 0)
+      }
+    },
     {
       .mesh_index = meshes.platform_column_ladders,
       .generated_from = meshes.platform_column,
