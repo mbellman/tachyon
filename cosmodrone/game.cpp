@@ -84,13 +84,23 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
     state.controlled_thrust_duration = 0.f;
   }
 
-  // Slow the ship down when not fully accelerating in FIGHTER mode
+  // Slow down when not fully accelerating in FIGHTER mode
   if (
     state.flight_system == FlightSystem::FIGHTER &&
     state.controlled_thrust_duration < 1.f &&
     state.ship_velocity.magnitude() > 500.f
   ) {
     state.ship_velocity *= 1.f - 1.3f * dt;
+  }
+
+  // Slow down when not fully accelerating in DRONE mode
+  if (
+    state.flight_system == ::DRONE &&
+    !Autopilot::IsAutopilotActive(state) &&
+    state.controlled_thrust_duration == 0.f &&
+    state.ship_velocity.magnitude() > 1000.f
+  ) {
+    state.ship_velocity *= 1.f - 0.25f * dt;
   }
 
   // Handle pull-back actions
@@ -398,7 +408,7 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
         if (std::signbit(alpha)) alpha = 0.f;
         float blend = powf(alpha, 1.f / 3.f);
 
-        boost_intensity = Tachyon_Lerpf(-5.f, 0.f, blend);
+        boost_intensity = Tachyon_Lerpf(-1.f, 0.f, blend);
       }
     } else {
       boost_intensity =

@@ -1416,13 +1416,13 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
         .material = tVec4f(0.9f, 0, 0, 0.1f)
       }
     },
-    {
-      .mesh_index = meshes.platform_column_frame,
-      .generated_from = meshes.platform_column,
-      .defaults = {
-        .material = tVec4f(1.f, 1.f, 0, 0.2f)
-      }
-    },
+    // {
+    //   .mesh_index = meshes.platform_column_frame,
+    //   .generated_from = meshes.platform_column,
+    //   .defaults = {
+    //     .material = tVec4f(1.f, 1.f, 0, 0.2f)
+    //   }
+    // },
     {
       .mesh_index = meshes.platform_column_ladders,
       .generated_from = meshes.platform_column,

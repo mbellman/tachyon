@@ -103,7 +103,7 @@ namespace Cosmodrone {
   struct State {
     MeshIds meshes;
 
-    float current_game_time = 0.f;
+    float current_game_time = 500.f;
 
     Quaternion target_ship_rotation;
     Quaternion target_camera_rotation;
