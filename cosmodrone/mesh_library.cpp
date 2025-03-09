@@ -553,7 +553,6 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     .mesh_index = meshes.girder_2,
     .defaults = {
       .scale = tVec3f(4000.f),
-      .color = tVec3f(1.f),
       .material = tVec4f(0.5f, 1.f, 0, 0)
     }
   });
@@ -1406,14 +1405,14 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .mesh_index = meshes.platform_supports,
       .generated_from = meshes.platform,
       .defaults = {
-        .material = tVec4f(0.4f, 1.f, 0, 0)
+        .material = tVec4f(0.5f, 1.f, 0, 0)
       }
     },
     {
       .mesh_index = meshes.platform_truss,
       .generated_from = meshes.platform,
       .defaults = {
-        .material = tVec4f(0.2f, 1.f, 0, 0)
+        .material = tVec4f(0.5f, 1.f, 0, 0)
       }
     },
 

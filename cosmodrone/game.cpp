@@ -261,10 +261,17 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
   state.camera_yaw_speed *= (1.f - 5.f * dt);
 
   if (is_window_focused()) {
-    float mouse_divisor =
-      state.flight_system == FlightSystem::FIGHTER && state.controlled_thrust_duration > 0.f
-        ? 1500.f
-        : 1000.f;
+    float mouse_divisor;
+
+    if (state.flight_system == ::FIGHTER) {
+      if (state.controlled_thrust_duration > 0.f) {
+        mouse_divisor = 2500.f;
+      } else {
+        mouse_divisor = 2000.f;
+      }
+    } else {
+      mouse_divisor = 1000.f;
+    }
 
     Quaternion turn = (
       Quaternion::fromAxisAngle(RIGHT_VECTOR, (float)tachyon->mouse_delta_y / mouse_divisor) *
@@ -388,7 +395,7 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
 
         blend_rate = 10.f * alpha;
       } else {
-        blend_rate = Tachyon_Lerpf(1.4f, 1.f, speed_ratio);
+        blend_rate = Tachyon_Lerpf(3.f, 1.5f, speed_ratio);
       }
     } else {
       blend_rate = 2.f;
