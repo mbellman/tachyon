@@ -128,7 +128,7 @@ tMat4f CreateCascadedLightMatrix(uint8 cascade, const tVec3f& light_direction, c
     tMat4f::translation(camera.position.invert())
   );
 
-  tMat4f camera_projection = tMat4f::perspective(camera.fov, near, far);
+  tMat4f camera_projection = tMat4f::perspective(70.f, near, far);
   tMat4f camera_view_projection = camera_projection * camera_view;
   tMat4f inverse_camera_view_projection = camera_view_projection.inverse();
 

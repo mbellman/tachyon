@@ -423,7 +423,9 @@ vec3 GetSkyColor(vec3 sky_direction, float sun_glare_factor) {
 
   float earth_dot = max(0.0, dot(sky_direction, vec3(0, -1.0, 0)));
   // Increase space color intensity near the earth/sun
-  space_color *= 1.0 + pow(earth_dot, 5.0) + pow(sun_dot, 10.0);
+  space_color *= 1.0 + pow(earth_dot, 1.0) + pow(sun_dot, 10.0);
+  // Add more blue
+  space_color += vec3(0.05, 0.1, 0.2);
   // Avoid awkward color bleeding between space/sun color
   space_color = mix(space_color, vec3(0.0), pow(sun_dot, 50.0));
 

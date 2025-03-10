@@ -228,7 +228,7 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
   }
 
   if (!Autopilot::IsAutopilotActive(state) && state.flight_system == ::DRONE) {
-    state.ship_rotate_to_target_speed = 2.f;
+    state.ship_rotate_to_target_speed = 1.5f;
   }
 
   state.ship_position += state.ship_velocity * dt;
@@ -760,12 +760,7 @@ static void HandleDrone(Tachyon* tachyon, State& state, const float dt) {
     }
   }
 
-  if (
-    state.flight_mode != FlightMode::AUTO_RETROGRADE ||
-    state.flight_system != FlightSystem::DRONE
-  ) {
-    HandleShipBanking(tachyon, state);
-  }
+  HandleShipBanking(tachyon, state);
 
   // @todo will nlerp work here?
   auto rotation = Quaternion::slerp(hull.rotation, state.target_ship_rotation, state.ship_rotate_to_target_speed * dt);
