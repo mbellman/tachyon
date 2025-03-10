@@ -311,11 +311,11 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
           if (alpha < 0.f) alpha = 0.f;
           if (alpha > 1.f) alpha = 1.f;
 
-          Tachyon_DrawUIElement(tachyon, state.ui.mini_target_indicator, {
-            .screen_x = tracker.screen_x,
-            .screen_y = tracker.screen_y,
-            .alpha = alpha
-          });
+          // Tachyon_DrawUIElement(tachyon, state.ui.mini_target_indicator, {
+          //   .screen_x = tracker.screen_x,
+          //   .screen_y = tracker.screen_y,
+          //   .alpha = alpha
+          // });
         }
       }
     }

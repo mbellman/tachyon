@@ -200,6 +200,7 @@ float GetAverageShadowFactor(sampler2D shadow_map, vec3 light_space_position) {
   return shadow_factor / 5.0;
 }
 
+// @todo fade out far cascade
 float GetPrimaryLightShadowFactor(vec3 world_position, float depth) {
   int cascade_index = GetCascadeIndex(depth);
   vec4 light_space_position = light_matrices[cascade_index] * vec4(world_position, 1.0);
@@ -588,6 +589,7 @@ void main() {
   vec3 L = normalize(directional_light_direction);
 
   float NdotV = max(dot(N, V), 0.0);
+  float NdotL = max(dot(N, L), 0.0);
 
   float roughness = material.roughness;
   float metalness = material.metalness;
@@ -638,8 +640,6 @@ void main() {
   // Ambient light (based on the primary directional light)
   // @todo cleanup
   {
-    float NdotL = max(dot(N, L), 0.0);
-
     out_color += albedo * vec3(0.1, 0.2, 1.0) * (0.005 + 0.02 * (1.0 - NdotL));
   }
 
@@ -668,17 +668,30 @@ void main() {
   out_color += GetAmbientFresnel(NdotV);
   out_color = mix(out_color, albedo, pow(emissive, 1.5));
 
-  // float NdotL = max(0.0, dot(N, L));
-  // out_color = mix(out_color, vec3(0.01, 0.02, 0.03), 0.5 * NdotL);
-
   if (frag_normal_and_depth.w >= 1.0) out_color = vec3(0);
 
   // @todo move to post shader
   float exposure = 1.5 + 4.0 * emissive;
 
-  // Explore/gamma correction
+  // Exposure/gamma correction
   out_color = vec3(1.0) - exp(-out_color * exposure);
   out_color = pow(out_color, vec3(1.0 / 2.2));
+
+  if (!use_high_visibility_mode) {
+    // Fade to a dim blue in shadowed/darkened areas.
+    // Reduce the effect as the camera approaches.
+    {
+      float haze_factor = pow(1.0 - NdotL, 3.0) * shadow;
+      haze_factor = mix(haze_factor, 1.0, 1.0 - pow(frag_normal_and_depth.w, 300.0));
+
+      out_color = mix(vec3(0.02, 0.04, 0.2), out_color, haze_factor);
+    }
+
+    // Apply a glancing angle highlight opposite to the primary light direction
+    {
+      out_color += 0.25 * albedo * pow(NdotL, 5.0) * pow(1.0 - NdotV, 2.0);
+    }
+  }
 
   out_color -= ssao;
 

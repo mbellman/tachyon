@@ -180,7 +180,7 @@ void Piloting::HandlePiloting(Tachyon* tachyon, State& state, const float dt) {
         float forward_dot = tVec3f::dot(state.view_forward_direction, state.ship_rotation_basis.forward);
         if (forward_dot < 0.f) forward_dot = 0.f;
 
-        state.ship_rotate_to_target_speed = Tachyon_Lerpf(0.5f, 1.5f + abs(state.camera_roll_speed), forward_dot);
+        state.ship_rotate_to_target_speed = Tachyon_Lerpf(0.5f, 3.f, forward_dot);
       }
     } else {
       // Stopped

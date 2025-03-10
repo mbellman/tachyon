@@ -916,6 +916,8 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
   load_mesh(platform_column_ladders);
   load_mesh(platform_column_supports);
 
+  load_mesh(platform_ring_supports);
+
   load_mesh(solar_rotator_body);
   load_mesh(solar_rotator_frame);
   load_mesh(solar_rotator_panels);
@@ -1443,6 +1445,15 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .generated_from = meshes.platform_column,
       .defaults = {
         .material = tVec4f(0.6f, 1.f, 0, 0)
+      }
+    },
+
+    // platform_ring,
+    {
+      .mesh_index = meshes.platform_ring_supports,
+      .generated_from = meshes.platform_ring,
+      .defaults = {
+        .material = tVec4f(0.5f, 1.f, 0, 0)
       }
     },
 
