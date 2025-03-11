@@ -404,6 +404,16 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
+  load_mesh(platform_antenna, {
+    .mesh_name = "platform_antenna",
+    .mesh_index = meshes.platform_antenna,
+    // .placeholder = true,
+    .defaults = {
+      .scale = tVec3f(60000.f),
+      .material = tVec4f(1.f, 0, 0.1f, 0.2f)
+    }
+  });
+
   load_mesh(platform_ring, {
     .mesh_name = "platform_ring",
     .mesh_index = meshes.platform_ring,
