@@ -169,6 +169,7 @@ namespace Cosmodrone {
       solar_rotator_2_body,
       solar_rotator_2_frame,
       solar_rotator_2_panels,
+      solar_rotator_2_lights,
       solar_field_core,
       solar_field_frame,
       solar_field_panels,

@@ -93,14 +93,15 @@ float GetGlowFactor(vec3 world_position) {
     occlusion_distance_factor *
     pow(1.0 - distance_from_light_disc_center, disc_exponent);
 
-  glow_factor += diffraction_factor * pow(1.0 - abs(dy), 1000.0);
-  glow_factor += diffraction_factor * pow(1.0 - abs(dx), 1000.0);
+  glow_factor += diffraction_factor * pow(1.0 - abs(dy), 2048.0);
+  glow_factor += diffraction_factor * pow(1.0 - abs(dx), 2048.0);
 
   if (isnan(glow_factor)) glow_factor = 0.0;
 
-  float distance_factor = 1.0 - min(1.0, light_distance_from_camera / 500000.0);
+  float distance_factor = min(1.0, light_distance_from_camera / 2000000.0);
 
   glow_factor *= distance_factor;
+  glow_factor *= 2.0 * (1.0 - distance_factor);
 
   return glow_factor;
 }

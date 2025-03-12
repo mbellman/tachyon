@@ -121,6 +121,23 @@ static void UpdateMovingLights(Tachyon* tachyon, State& state) {
   }
 }
 
+static void UpdateSolarRotatorLights(Tachyon* tachyon, State& state) {
+  for (auto& lights : state.solar_rotator_lights) {
+    auto& rotator = *get_live_object(lights.rotator);
+    auto matrix = rotator.rotation.toMatrix4f();
+    auto& light_1 = tachyon->point_lights[lights.light_index_1];
+    auto& light_2 = tachyon->point_lights[lights.light_index_2];
+
+    light_1.position =
+      rotator.position +
+      matrix * (rotator.scale * tVec3f(0, 0, 1.f) * 2.625f);
+
+    light_2.position =
+      rotator.position +
+      matrix * (rotator.scale * tVec3f(0, 0, -1.f) * 2.625f);
+  }
+}
+
 void WorldBehavior::UpdateWorld(Tachyon* tachyon, State& state, const float dt) {
   // Do these first so they can be updated in editor mode when changing game time
   UpdateCelestialBodies(tachyon, state);
@@ -138,4 +155,5 @@ void WorldBehavior::UpdateWorld(Tachyon* tachyon, State& state, const float dt) 
   UpdateGasFlareLights(tachyon, state);
   UpdateBlinkingLights(tachyon, state);
   UpdateMovingLights(tachyon, state);
+  UpdateSolarRotatorLights(tachyon, state);
 }

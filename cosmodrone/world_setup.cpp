@@ -232,6 +232,7 @@ static void InitLights(Tachyon* tachyon, State& state) {
   state.gas_flare_light_indexes.clear();
   state.blinking_lights.clear();
   state.moving_lights.clear();
+  state.solar_rotator_lights.clear();
 
   // @todo only clear generated lights
   tachyon->point_lights.clear();
@@ -327,6 +328,28 @@ static void InitLights(Tachyon* tachyon, State& state) {
     });
 
     state.gas_flare_light_indexes.push_back(point_lights.size() - 1);
+  }
+
+  for (auto& rotator : objects(state.meshes.solar_rotator_2_body)) {
+    point_lights.push_back({
+      .position = rotator.position,
+      .radius = 30000.f,
+      .color = tVec3f(1.f, 0, 0),
+      .power = 3.f
+    });
+
+    point_lights.push_back({
+      .position = rotator.position,
+      .radius = 30000.f,
+      .color = tVec3f(1.f, 0, 0),
+      .power = 3.f
+    });
+
+    state.solar_rotator_lights.push_back({
+      .rotator = rotator,
+      .light_index_1 = uint32(point_lights.size() - 2),
+      .light_index_2 = uint32(point_lights.size() - 1)
+    });
   }
 }
 

@@ -118,6 +118,7 @@ void ObjectBehavior::InitObjects(Tachyon* tachyon, State& state) {
     meshes.solar_rotator_2_body,
     meshes.solar_rotator_2_frame,
     meshes.solar_rotator_2_panels,
+    meshes.solar_rotator_2_lights,
 
     meshes.floater_1_base,
     meshes.floater_1_spokes,
@@ -194,6 +195,7 @@ void ObjectBehavior::UpdateObjects(Tachyon* tachyon, State& state, const float d
   UpdateRotator(tachyon, state, dt, meshes.solar_rotator_2_body, 0.03f);
   UpdateRotator(tachyon, state, dt, meshes.solar_rotator_2_frame, 0.03f);
   UpdateRotator(tachyon, state, dt, meshes.solar_rotator_2_panels, 0.03f);
+  UpdateRotator(tachyon, state, dt, meshes.solar_rotator_2_lights, 0.03f);
 
   UpdateRotator(tachyon, state, dt, meshes.elevator_torus_1, 0.2f);
   UpdateRotator(tachyon, state, dt, meshes.elevator_torus_1_frame, -0.1f);

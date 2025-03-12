@@ -935,6 +935,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
   load_mesh_with_2_lods(solar_rotator_2_body);
   load_mesh(solar_rotator_2_frame);
   load_mesh(solar_rotator_2_panels);
+  load_mesh(solar_rotator_2_lights);
 
   load_mesh(solar_field_core);
   load_mesh(solar_field_frame);
@@ -1512,6 +1513,14 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .defaults = {
         .color = 0x44F0,
         .material = tVec4f(0.1f, 1.f, 0.3f, 1.f)
+      }
+    },
+    {
+      .mesh_index = meshes.solar_rotator_2_lights,
+      .generated_from = meshes.solar_rotator_2,
+      .defaults = {
+        .color = tVec4f(1.f, 0.1f, 0.1f, 1.f),
+        .material = tVec4f(1.f, 0, 0, 0)
       }
     },
 
