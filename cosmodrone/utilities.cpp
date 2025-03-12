@@ -246,14 +246,15 @@ const float Utilities::GetCameraDistanceTarget(const State& state) {
   if (
     state.flight_mode == ::AUTO_DOCK && (
       state.auto_dock_stage == ::APPROACH ||
-      state.auto_dock_stage == ::DOCKING_CONNECTION
+      state.auto_dock_stage == ::DOCKING_CONNECTION ||
+      state.auto_dock_stage == ::DOCKED
     )
   ) {
     return state.ship_camera_distance;
   }
 
   if (state.flight_system == ::FIGHTER) {
-    return 17000.f;
+    return 16000.f;
   }
 
   return 1900.f;
