@@ -89,11 +89,12 @@ float GetGlowFactor(vec3 world_position) {
 
   // Diffraction spikes
   float diffraction_factor =
+    mix(1.0, 5.0, light_distance_from_camera / 100000.0) *
     occlusion_distance_factor *
     pow(1.0 - distance_from_light_disc_center, disc_exponent);
 
-  glow_factor += diffraction_factor * pow(1.0 - abs(dy), 500.0);
-  glow_factor += diffraction_factor * pow(1.0 - abs(dx), 500.0);
+  glow_factor += diffraction_factor * pow(1.0 - abs(dy), 1000.0);
+  glow_factor += diffraction_factor * pow(1.0 - abs(dx), 1000.0);
 
   if (isnan(glow_factor)) glow_factor = 0.0;
 
