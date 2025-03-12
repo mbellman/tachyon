@@ -238,3 +238,23 @@ const float Utilities::GetMaxShipSpeed(const State& state) {
 
   return 20000.f;
 }
+
+/**
+ * @todo description
+ */
+const float Utilities::GetCameraDistanceTarget(const State& state) {
+  if (
+    state.flight_mode == ::AUTO_DOCK && (
+      state.auto_dock_stage == ::APPROACH ||
+      state.auto_dock_stage == ::DOCKING_CONNECTION
+    )
+  ) {
+    return state.ship_camera_distance;
+  }
+
+  if (state.flight_system == ::FIGHTER) {
+    return 17000.f;
+  }
+
+  return 1900.f;
+}

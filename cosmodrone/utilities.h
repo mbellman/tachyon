@@ -16,5 +16,6 @@ namespace Cosmodrone {
     const std::string GetTargetName(const State& state, const uint16 mesh_index);
     const tVec3f GetBeaconColor(const State& state, const uint16 mesh_index);
     const float GetMaxShipSpeed(const State& state);
+    const float GetCameraDistanceTarget(const State& state);
   }
 }

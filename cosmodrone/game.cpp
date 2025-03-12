@@ -299,16 +299,6 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
       }
     }
 
-    // Zoom in/out
-    {
-      if (did_wheel_down()) {
-        state.ship_camera_distance_target += 1000.f;
-      } else if (did_wheel_up()) {
-        state.ship_camera_distance_target -= 1000.f;
-        if (state.ship_camera_distance_target < 1800.f) state.ship_camera_distance_target = 1800.f;
-      }
-    }
-
     state.target_camera_rotation = state.target_camera_rotation.unit();
   }
 
@@ -471,7 +461,7 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
   // Set the camera position
   {
     float target_distance =
-      state.ship_camera_distance_target +
+      Utilities::GetCameraDistanceTarget(state) +
       250.f * speed_zoom_ratio +
       (state.is_piloting_vehicle ? -6000.f * speed_zoom_ratio : 0.f);
 

@@ -140,8 +140,7 @@ namespace Cosmodrone {
     float camera_yaw_speed = 0.f;
     float ship_rotate_to_target_speed = 0.f;
     float ship_pitch_factor = 0.f;
-    float ship_camera_distance = 1800.f;
-    float ship_camera_distance_target = 1800.f;
+    float ship_camera_distance = 2000.f;
     float jets_intensity = 0.f;
 
     OrthonormalBasis ship_rotation_basis;

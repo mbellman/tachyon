@@ -54,8 +54,7 @@ static void HandleDockingApproachCamera(Tachyon* tachyon, State& state, tObject&
     camera_blend
   );
 
-  state.ship_camera_distance =
-  state.ship_camera_distance_target = Tachyon_Lerpf(
+  state.ship_camera_distance = Tachyon_Lerpf(
     state.initial_approach_camera_distance,
     Utilities::GetDockedCameraDistance(state, state.docking_target.mesh_index),
     camera_blend
@@ -352,7 +351,6 @@ void Autopilot::Undock(Tachyon* tachyon, State& state) {
   state.flight_system = FlightSystem::DRONE;
   state.flight_mode = FlightMode::MANUAL_CONTROL;
   state.is_piloting_vehicle = false;
-  state.ship_camera_distance_target = 1800.f;
   state.target_camera_rotation = hull.rotation.opposite();
 
   state.ship_velocity = (
