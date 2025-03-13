@@ -249,7 +249,8 @@ void main() {
   out_color += mix(vec3(0.0), vec3(-0.8, -0.6, -0.1), pow(1.0 - NdotL, 10.0)) * inside_edge_factor;
 
   // Color adjustment
-  out_color -= vec3(0.2, 0.1, 0.0);
+  out_color -= vec3(0.3, 0.2, 0.0);
+  out_color += vec3(0, 0, 0.1);
 
   // Fade out clouds near the horizon
   out_color = mix(out_color, vec3(0.0), pow(1.0 - NdotV * NdotV, 2.0));

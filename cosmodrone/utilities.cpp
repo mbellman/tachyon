@@ -261,5 +261,5 @@ const float Utilities::GetCameraDistanceTarget(const State& state) {
     }
   }
 
-  return 1900.f;
+  return 1850.f;
 }

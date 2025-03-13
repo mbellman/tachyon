@@ -56,6 +56,14 @@ Material UnpackMaterial(uvec4 surface) {
   return Material(roughness, metalness, clearcoat, subsurface);
 }
 
+float GetGlowDistanceFactor(float light_distance) {
+  if (light_distance < 100000.0) {
+    return 1.0;
+  }
+
+  return max(0.0, mix(1.0, 0.2, light_distance / 2000000.0));
+}
+
 float GetGlowFactor(vec3 world_position) {
   float dx = (1920.0 / 1080.0) * (fragUv.x - center.x);
   float dy = (fragUv.y - center.y);
@@ -98,10 +106,9 @@ float GetGlowFactor(vec3 world_position) {
 
   if (isnan(glow_factor)) glow_factor = 0.0;
 
-  float distance_factor = min(1.0, light_distance_from_camera / 5000000.0);
+  float distance_factor = GetGlowDistanceFactor(light_distance_from_camera);
 
-  // glow_factor *= distance_factor;
-  glow_factor *= 2.0 * (1.0 - distance_factor);
+  glow_factor *= distance_factor;
 
   return glow_factor;
 }

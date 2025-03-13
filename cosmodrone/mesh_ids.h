@@ -126,6 +126,7 @@ namespace Cosmodrone {
       beam_2_core,
       beam_2_frame,
       grate_4_frame,
+      building_1_windows,
       habitation_1_core,
       habitation_1_frame,
       habitation_1_insulation,
