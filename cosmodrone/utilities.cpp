@@ -123,7 +123,7 @@ const float Utilities::GetDockedCameraDistance(const State& state, const uint16 
   auto& meshes = state.meshes;
 
   if (mesh_index == meshes.fighter_dock) {
-    return 16000.f;
+    return 18000.f;
   }
 
   if (mesh_index == meshes.freight_dock) {
@@ -254,7 +254,11 @@ const float Utilities::GetCameraDistanceTarget(const State& state) {
   }
 
   if (state.flight_system == ::FIGHTER) {
-    return 16000.f;
+    if (state.controlled_thrust_duration > 0.f) {
+      return 16000.f;
+    } else {
+      return 18000.f;
+    }
   }
 
   return 1900.f;
