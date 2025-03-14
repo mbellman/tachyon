@@ -318,9 +318,9 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
               ? 1.f
               : 1.f - 2.f * (scan_time - 3.5f);
 
-            float scan_factor = distance_from_scan_line > 15000.f
+            float scan_factor = distance_from_scan_line > 20000.f
               ? 1.f
-              : sinf(distance_from_scan_line / 3000.f);
+              : sinf(distance_from_scan_line / 2000.f);
 
 
             float alpha = world_distance_factor * time_factor * scan_factor;

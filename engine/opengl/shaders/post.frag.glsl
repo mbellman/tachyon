@@ -115,6 +115,8 @@ void main() {
   vec4 color_and_depth = texture(in_color_and_depth, fragUv);
   vec3 post_color = color_and_depth.rgb;
 
+  float world_depth = GetWorldDepth(color_and_depth.w, Z_NEAR, Z_FAR);
+
   #if ENABLE_DEPTH_OF_FIELD_BLUR
     // Depth-of-field blur
     {
@@ -160,7 +162,6 @@ void main() {
     vec3 position = GetWorldPosition(color_and_depth.w, fragUv, inverse_projection_matrix, inverse_view_matrix);
     vec3 D = normalize(position - camera_position);
     float VdotD = max(0.0, -dot(D, primary_light_direction));
-    float world_depth = GetWorldDepth(color_and_depth.w, Z_NEAR, Z_FAR);
     vec4 volumetric_fog = GetVolumetricFogColorAndThickness(world_depth, D);
 
     post_color = mix(post_color, volumetric_fog.rgb, volumetric_fog.w);
@@ -171,6 +172,10 @@ void main() {
     post_color = mix(post_color, vec3(0.2, 0.4, 0.6), depth_factor);
     post_color = mix(post_color, vec3(0.8, 0.9, 1.0), depth_factor * pow(VdotD, 10.0));
     post_color = mix(post_color, vec3(2.0), depth_factor * pow(VdotD, 300.0));
+
+    if (color_and_depth.w < 1.0) {
+      post_color += mix(vec3(0), vec3(0.05, 0.1, 0.2), min(1.0, world_depth / 10000000.0));
+    }
   }
 
   // ---------------------
@@ -204,7 +209,6 @@ void main() {
       const vec3 scan_area_color = vec3(0, 0.5, 1);
       const vec3 scan_line_color = 2.0 * vec3(0, 0.7, 1.0);
       float scan_distance = scan_time * distance_per_second;
-      float world_depth = GetWorldDepth(color_and_depth.w, Z_NEAR, Z_FAR);
 
       // Color inside the scan area
       if (world_depth < distance_per_second * scan_time) {

@@ -1163,6 +1163,7 @@ void Tachyon_OpenGL_RenderScene(Tachyon* tachyon) {
     RenderDebugLabels(tachyon);
   } else {
     // Simple FPS label
+    // @todo factor
     auto frame_fps = uint32(1000000.f / (float)tachyon->last_frame_time_in_microseconds);
     uint32 average_fps = 0;
 
