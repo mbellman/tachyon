@@ -107,7 +107,10 @@ struct tUniformLocations {
     inverse_projection_matrix,
     inverse_view_matrix,
     camera_position,
-    primary_light_direction
+    primary_light_direction,
+
+    // Fx: Cosmodrone
+    scan_time
   ) post;
 
   uniform_locations(

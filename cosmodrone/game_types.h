@@ -179,6 +179,8 @@ namespace Cosmodrone {
 
     float flight_reticle_rotation = 0.f;
 
+    float last_scan_time = 0.f;
+
     bool photo_mode = false;
 
     // @todo move to ui_system.cpp

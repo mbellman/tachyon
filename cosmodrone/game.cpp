@@ -98,7 +98,7 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
     state.flight_system == ::DRONE &&
     !Autopilot::IsAutopilotActive(state) &&
     state.controlled_thrust_duration == 0.f &&
-    state.ship_velocity.magnitude() > 1000.f
+    state.ship_velocity.magnitude() > 5000.f
   ) {
     state.ship_velocity *= 1.f - 0.1f * dt;
   }
@@ -161,6 +161,12 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
     FlightSystemDelegator::DockOrUndock(tachyon, state, dt);
   }
 
+  // Handle scan actions
+  if (did_press_key(tKey::C)) {
+    state.last_scan_time = state.current_game_time;
+  }
+
+  // @experimental Photo mode
   if (did_press_key(tKey::F)) {
     state.photo_mode = !state.photo_mode;
   }
@@ -426,7 +432,7 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
         if (std::signbit(alpha)) alpha = 0.f;
         float blend = powf(alpha, 1.f / 3.f);
 
-        boost_intensity = Tachyon_Lerpf(1.f, 0.f, blend);
+        boost_intensity = Tachyon_Lerpf(-1.f, 0.f, blend);
       }
     } else {
       boost_intensity =
@@ -909,6 +915,13 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
   scene.transform_origin = camera.position;
   scene.z_near = 500.f;
   scene.z_far = 100000000.f;
+
+  // @todo factor
+  if (state.last_scan_time != 0.f) {
+    float scan_time = state.current_game_time - state.last_scan_time;
+
+    tachyon->fx.scan_time = scan_time;
+  }
 
   // @todo dev mode only
   if (did_press_key(tKey::NUM_1)) {

@@ -9,6 +9,9 @@ uniform mat4 inverse_view_matrix;
 uniform vec3 camera_position;
 uniform vec3 primary_light_direction;
 
+// Fx: Cosmodrone
+uniform float scan_time;
+
 in vec2 fragUv;
 
 layout (location = 0) out vec3 out_color;
@@ -170,22 +173,54 @@ void main() {
     post_color = mix(post_color, vec3(2.0), depth_factor * pow(VdotD, 300.0));
   }
 
-  // Vignette
+  // ---------------------
+  // Game-specific effects
+  //
+  // Cosmodrone
+  // ---------------------
   {
-    const vec3 vignette_color = vec3(0.1, 0.3, 0.4);
+    // Vignette
+    {
+      const vec3 vignette_color = vec3(0.1, 0.3, 0.4);
 
-    float vignette_factor =
-      fragUv.x > 0.75
-        ? (fragUv.x - 0.75) * 4.0 :
-      fragUv.x < 0.2
-        ? 0.4 * (1.0 - fragUv.x * 5.0) :
-      0.0;
+      float vignette_factor =
+        fragUv.x > 0.75
+          ? (fragUv.x - 0.75) * 4.0 :
+        fragUv.x < 0.2
+          ? 0.4 * (1.0 - fragUv.x * 5.0) :
+        0.0;
 
-    // Tweak the gradation
-    vignette_factor = mix(vignette_factor, 1.0, vignette_factor);
-    vignette_factor *= vignette_factor;
+      // Tweak the gradation
+      vignette_factor = mix(vignette_factor, 1.0, vignette_factor);
+      vignette_factor *= vignette_factor;
 
-    post_color = mix(post_color, post_color * vignette_color, vignette_factor);
+      post_color = mix(post_color, post_color * vignette_color, vignette_factor);
+    }
+
+    // Scanner
+    {
+      const float distance_per_second = 50000.0;
+      const float scan_line_thickness = 2000.0;
+      const vec3 scan_area_color = vec3(0, 0.5, 1);
+      const vec3 scan_line_color = 2.0 * vec3(0, 0.7, 1.0);
+      float scan_distance = scan_time * distance_per_second;
+      float world_depth = GetWorldDepth(color_and_depth.w, Z_NEAR, Z_FAR);
+
+      // Color inside the scan area
+      if (world_depth < distance_per_second * scan_time) {
+        vec3 area_color = post_color * scan_area_color;
+        float area_alpha = 1.0 - clamp(scan_time * 0.25, 0.0, 1.0);
+        area_alpha *= min(1.0, world_depth / 10000.0);
+
+        post_color = mix(post_color, area_color, area_alpha);
+      }
+
+      float line_alpha = 1.0 - clamp(abs(scan_distance - world_depth) / scan_line_thickness, 0.0, 1.0);
+      line_alpha *= max(0.0, 1.0 - pow(scan_time / 4.0, 5.0));
+
+      // Scan line
+      post_color = mix(post_color, scan_line_color, line_alpha);
+    }
   }
 
   const float contrast = 1.15;
