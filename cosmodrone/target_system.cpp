@@ -66,7 +66,7 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
         if (
           camera_to_object.magnitude() > MAX_TARGET_DISTANCE ||
           (state.is_piloting_vehicle && object == state.docking_target) ||
-          target_dot < 0.8f
+          target_dot < 0.7f
         ) {
           if (
             IsTrackingObject(state, object) &&
@@ -98,7 +98,7 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
 
       if (
         camera_to_object.magnitude() > 5000000.f ||
-        target_dot < 0.8f
+        target_dot < 0.7f
       ) {
         if (IsTrackingObject(state, object)) {
           StopTrackingObject(state, object);
@@ -303,19 +303,36 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
             .alpha = 1.f
           });
         } else {
-          float world_distance_factor = 1.f - (tracker.object.position - camera.position).magnitude() / MAX_TARGET_DISTANCE;
-          float edge_distance_factor = (float)minimum_edge_distance / 200.f;
-          if (edge_distance_factor > 1.f) edge_distance_factor = 1.f;
+          float scan_time = state.current_game_time - state.last_scan_time;
+          float scan_distance = 100000.f * scan_time;
 
-          float alpha = world_distance_factor * edge_distance_factor;
-          if (alpha < 0.f) alpha = 0.f;
-          if (alpha > 1.f) alpha = 1.f;
+          if (
+            state.last_scan_time != 0.f &&
+            scan_time < 4.f &&
+            tracker.object_distance < scan_distance
+          ) {
+            float distance_from_scan_line = abs(tracker.object_distance - scan_distance);
+            float world_distance_factor = 1.f - tracker.object_distance / MAX_TARGET_DISTANCE;
 
-          // Tachyon_DrawUIElement(tachyon, state.ui.mini_target_indicator, {
-          //   .screen_x = tracker.screen_x,
-          //   .screen_y = tracker.screen_y,
-          //   .alpha = alpha
-          // });
+            float time_factor = scan_time < 3.5f
+              ? 1.f
+              : 1.f - 2.f * (scan_time - 3.5f);
+
+            float scan_factor = distance_from_scan_line > 15000.f
+              ? 1.f
+              : sinf(distance_from_scan_line / 3000.f);
+
+
+            float alpha = world_distance_factor * time_factor * scan_factor;
+            if (alpha < 0.f) alpha = 0.f;
+            if (alpha > 1.f) alpha = 1.f;
+
+            Tachyon_DrawUIElement(tachyon, state.ui.mini_target_indicator, {
+              .screen_x = tracker.screen_x,
+              .screen_y = tracker.screen_y,
+              .alpha = alpha
+            });
+          }
         }
       }
     }

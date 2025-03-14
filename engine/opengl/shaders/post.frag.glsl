@@ -199,7 +199,7 @@ void main() {
 
     // Scanner
     {
-      const float distance_per_second = 50000.0;
+      const float distance_per_second = 100000.0;
       const float scan_line_thickness = 2000.0;
       const vec3 scan_area_color = vec3(0, 0.5, 1);
       const vec3 scan_line_color = 2.0 * vec3(0, 0.7, 1.0);
