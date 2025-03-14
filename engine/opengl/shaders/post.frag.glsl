@@ -224,6 +224,11 @@ void main() {
 
       // Scan line
       post_color = mix(post_color, scan_line_color, line_alpha);
+
+      // Pulse
+      float pulse_alpha = 0.25 * (1.0 - min(1.0, scan_time / 0.5));
+
+      post_color = mix(post_color, scan_area_color, pulse_alpha);
     }
   }
 

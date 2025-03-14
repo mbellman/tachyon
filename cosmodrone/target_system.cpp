@@ -287,52 +287,43 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
           .rotation = 2.f * state.current_game_time,
           .alpha = (0.8f + 0.2f * sinf(state.current_game_time * t_TAU))
         });
-      } else {
-        // Draw unselected trackers
-        int32 minimum_edge_distance = std::min({
-          tracker.screen_x,
-          (int32)tachyon->window_width - tracker.screen_x,
-          tracker.screen_y,
-          (int32)tachyon->window_height - tracker.screen_y
+      } else if (tracker.object.mesh_index == state.meshes.zone_target) {
+        // Draw zone targets
+        Tachyon_DrawUIElement(tachyon, state.ui.zone_target_indicator, {
+          .screen_x = tracker.screen_x,
+          .screen_y = tracker.screen_y,
+          .alpha = 1.f
         });
+      } else {
+        // Scanned targets
+        float scan_time = state.current_game_time - state.last_scan_time;
+        float scan_distance = 100000.f * scan_time;
 
-        if (tracker.object.mesh_index == state.meshes.zone_target) {
-          Tachyon_DrawUIElement(tachyon, state.ui.zone_target_indicator, {
+        if (
+          state.last_scan_time != 0.f &&
+          scan_time < 5.f &&
+          tracker.object_distance < scan_distance
+        ) {
+          float distance_from_scan_line = abs(tracker.object_distance - scan_distance);
+          float world_distance_factor = 1.f - tracker.object_distance / MAX_TARGET_DISTANCE;
+
+          float time_factor = scan_time < 4.5f
+            ? 1.f
+            : 1.f - 2.f * (scan_time - 4.5f);
+
+          float scan_factor = distance_from_scan_line > 20000.f
+            ? 1.f
+            : sinf(distance_from_scan_line / 2000.f);
+
+          float alpha = world_distance_factor * time_factor * scan_factor;
+          if (alpha < 0.f) alpha = 0.f;
+          if (alpha > 1.f) alpha = 1.f;
+
+          Tachyon_DrawUIElement(tachyon, state.ui.mini_target_indicator, {
             .screen_x = tracker.screen_x,
             .screen_y = tracker.screen_y,
-            .alpha = 1.f
+            .alpha = alpha
           });
-        } else {
-          float scan_time = state.current_game_time - state.last_scan_time;
-          float scan_distance = 100000.f * scan_time;
-
-          if (
-            state.last_scan_time != 0.f &&
-            scan_time < 4.f &&
-            tracker.object_distance < scan_distance
-          ) {
-            float distance_from_scan_line = abs(tracker.object_distance - scan_distance);
-            float world_distance_factor = 1.f - tracker.object_distance / MAX_TARGET_DISTANCE;
-
-            float time_factor = scan_time < 3.5f
-              ? 1.f
-              : 1.f - 2.f * (scan_time - 3.5f);
-
-            float scan_factor = distance_from_scan_line > 20000.f
-              ? 1.f
-              : sinf(distance_from_scan_line / 2000.f);
-
-
-            float alpha = world_distance_factor * time_factor * scan_factor;
-            if (alpha < 0.f) alpha = 0.f;
-            if (alpha > 1.f) alpha = 1.f;
-
-            Tachyon_DrawUIElement(tachyon, state.ui.mini_target_indicator, {
-              .screen_x = tracker.screen_x,
-              .screen_y = tracker.screen_y,
-              .alpha = alpha
-            });
-          }
         }
       }
     }

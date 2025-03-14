@@ -212,7 +212,7 @@ void main() {
   // edge_falloff_threshold is the point within the range at which the light intensity
   // should peak, and then start falling off.
   float edge_alpha = 1.0 - NdotV;
-  float edge_falloff_threshold = 0.725;
+  float edge_falloff_threshold = 0.735;
 
   // We use this to recover a [0 - 1] blend value for the region past
   // the falloff threshold.
