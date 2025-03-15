@@ -1707,7 +1707,11 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
     },
     {
       .mesh_index = meshes.floater_1_base,
-      .generated_from = meshes.floater_1
+      .generated_from = meshes.floater_1,
+      .defaults = {
+        .color = tVec3f(0.6f, 0.8f, 1.f),
+        .material = tVec4f(0.4f, 1.f, 0, 0)
+      }
     },
     {
       .mesh_index = meshes.floater_1_frame,
