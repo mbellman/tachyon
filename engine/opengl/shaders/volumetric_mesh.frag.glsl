@@ -246,7 +246,9 @@ void main() {
   out_color *= (0.2 + 0.8 * pow(NdotL, 1.0 / 3.0));
 
   // Nighttime side
-  out_color += mix(vec3(0.0), vec3(-0.8, -0.6, -0.1), pow(1.0 - NdotL, 10.0)) * inside_edge_factor;
+  float nighttime_factor = pow(1.0 - NdotL, 10.0);
+
+  out_color += mix(vec3(0.0), vec3(-0.8, -0.6, -0.1), nighttime_factor) * inside_edge_factor;
 
   // Color adjustment
   out_color -= vec3(0.3, 0.2, 0.0);
