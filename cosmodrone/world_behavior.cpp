@@ -1,4 +1,5 @@
 #include "cosmodrone/background_vehicles.h"
+#include "cosmodrone/lights.h"
 #include "cosmodrone/object_behavior.h"
 #include "cosmodrone/world_behavior.h"
 
@@ -72,72 +73,6 @@ static void UpdateCelestialBodies(Tachyon* tachyon, State& state) {
   }
 }
 
-// @todo lights.cpp
-static void UpdateGasFlareLights(Tachyon* tachyon, State& state) {
-  for (auto light_index : state.gas_flare_light_indexes) {
-    auto& light = tachyon->point_lights[light_index];
-    auto t = state.current_game_time * 0.5f + light.position.x;
-    auto power = 5.f * (0.5f * sinf(t) + 0.5f);
-
-    light.power = power;
-  }
-}
-
-// @todo lights.cpp
-static void UpdateBlinkingLights(Tachyon* tachyon, State& state) {
-  for (auto& blinking_light : state.blinking_lights) {
-    auto& light = tachyon->point_lights[blinking_light.light_index];
-    auto& bulb = *get_live_object(blinking_light.bulb);
-    auto power = 0.5f * sinf(state.current_game_time * 3.f + light.position.x * 0.03f) + 0.5f;
-    power = powf(power, 5.f);
-
-    light.power = power;
-    bulb.color = tVec4f(1.f, 0.5f, 0.2f, power);
-
-    commit(bulb);
-  }
-}
-
-// @todo lights.cpp
-// @todo handle multiple moving lights per object
-static void UpdateMovingLights(Tachyon* tachyon, State& state) {
-  for (auto& moving_light : state.moving_lights) {
-    auto& light = tachyon->point_lights[moving_light.light_index];
-    auto& bulb = *get_live_object(moving_light.light_object);
-
-    light.position = bulb.position;
-
-    if (bulb.mesh_index == state.meshes.station_drone_light) {
-      // @optimize
-      light.position = bulb.position + bulb.rotation.getDirection() * 1500.f;
-    }
-
-    if (bulb.mesh_index == state.meshes.procedural_elevator_car_light) {
-      // @optimize
-      light.position =
-        bulb.position +
-        bulb.rotation.toMatrix4f() * (tVec3f(0, 1.f, -0.5f) * 3400.f);
-    }
-  }
-}
-
-static void UpdateSolarRotatorLights(Tachyon* tachyon, State& state) {
-  for (auto& lights : state.solar_rotator_lights) {
-    auto& rotator = *get_live_object(lights.rotator);
-    auto matrix = rotator.rotation.toMatrix4f();
-    auto& light_1 = tachyon->point_lights[lights.light_index_1];
-    auto& light_2 = tachyon->point_lights[lights.light_index_2];
-
-    light_1.position =
-      rotator.position +
-      matrix * (rotator.scale * tVec3f(0, 0, 1.f) * 2.625f);
-
-    light_2.position =
-      rotator.position +
-      matrix * (rotator.scale * tVec3f(0, 0, -1.f) * 2.625f);
-  }
-}
-
 void WorldBehavior::UpdateWorld(Tachyon* tachyon, State& state, const float dt) {
   // Do these first so they can be updated in editor mode when changing game time
   UpdateCelestialBodies(tachyon, state);
@@ -151,9 +86,5 @@ void WorldBehavior::UpdateWorld(Tachyon* tachyon, State& state, const float dt) 
 
   BackgroundVehicles::UpdateVehicles(tachyon, state, dt);
   ObjectBehavior::UpdateObjects(tachyon, state, dt);
-
-  UpdateGasFlareLights(tachyon, state);
-  UpdateBlinkingLights(tachyon, state);
-  UpdateMovingLights(tachyon, state);
-  UpdateSolarRotatorLights(tachyon, state);
+  Lights::UpdateLights(tachyon, state);
 }
