@@ -90,7 +90,7 @@ float GetGlowFactor(vec3 world_position) {
   glow_factor *= 1.5;
 
   #if USE_GAMMA_CORRECTION == 1
-    const float disc_exponent = 10.0;
+    const float disc_exponent = 6.0;
   #else
     const float disc_exponent = 4.0;
   #endif

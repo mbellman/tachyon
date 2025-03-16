@@ -15,7 +15,7 @@ const static float AUTO_DOCK_APPROACH_ACCELERATION = 1500.f;
 static inline float GetDockingApproachSpeedLimit(const State& state) {
   float speed_limit = state.initial_approach_ship_distance / 15.f;
   if (speed_limit < 2000.f) speed_limit = 2000.f;
-  if (speed_limit > 3500.f) speed_limit = 3500.f;
+  if (speed_limit > 4000.f) speed_limit = 4000.f;
 
   return speed_limit;
 }
