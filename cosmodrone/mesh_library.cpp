@@ -613,7 +613,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     }
   });
 
-  load_mesh_with_2_lods(beam_1);
+  load_mesh_with_3_lods(beam_1);
 
   placeable_mesh_assets.push_back({
     .mesh_name = "beam_1",
