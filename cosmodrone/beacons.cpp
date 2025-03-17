@@ -40,7 +40,10 @@ void Beacons::UpdateBeacons(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   for (auto& beacon : state.beacons) {
-    if (state.is_piloting_vehicle && beacon.source_object == state.current_piloted_vehicle.root_object) {
+    if (
+      state.is_piloting_vehicle &&
+      beacon.source_object == state.current_piloted_vehicle.root_object
+    ) {
       // Disable beacons for actively piloted vehicles
       beacon.beacon_1.scale = 0.f;
       beacon.beacon_2.scale = 0.f;

@@ -3,6 +3,7 @@
 
 #include "cosmodrone/background_vehicles.h"
 #include "cosmodrone/beacons.h"
+#include "cosmodrone/bullets.h"
 #include "cosmodrone/lights.h"
 #include "cosmodrone/mesh_library.h"
 #include "cosmodrone/object_behavior.h"
@@ -288,6 +289,7 @@ void WorldSetup::RebuildWorld(Tachyon* tachyon, State& state) {
   ObjectBehavior::InitObjects(tachyon, state);
   BackgroundVehicles::InitVehicles(tachyon, state);
   Beacons::InitBeacons(tachyon, state);
+  Bullets::InitBullets(tachyon, state);
 
   // @todo factor and move to piloting.cpp
   {
