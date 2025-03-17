@@ -15,6 +15,8 @@
 #define did_right_click_down() (tachyon->did_right_click_down)
 #define did_right_click_up() (tachyon->did_right_click_up)
 #define is_mouse_held_down() (tachyon->is_mouse_held_down)
+#define is_left_mouse_held_down() (tachyon->is_left_mouse_held_down)
+#define is_right_mouse_held_down() (tachyon->is_right_mouse_held_down)
 
 enum class tKey : uint64 {
   A = 1ULL << 0,

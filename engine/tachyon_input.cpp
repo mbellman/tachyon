@@ -91,8 +91,10 @@ void Tachyon_HandleInputEvent(Tachyon* tachyon, const SDL_Event& event) {
     case SDL_MOUSEBUTTONDOWN: {
       if (event.button.button == SDL_BUTTON_LEFT) {
         tachyon->did_left_click_down = true;
+        tachyon->is_left_mouse_held_down = true;
       } else if (event.button.button == SDL_BUTTON_RIGHT) {
         tachyon->did_right_click_down = true;
+        tachyon->is_right_mouse_held_down = true;
       }
 
       tachyon->is_mouse_held_down = true;
@@ -102,8 +104,10 @@ void Tachyon_HandleInputEvent(Tachyon* tachyon, const SDL_Event& event) {
     case SDL_MOUSEBUTTONUP: {
       if (event.button.button == SDL_BUTTON_LEFT) {
         tachyon->did_left_click_up = true;
+        tachyon->is_left_mouse_held_down = false;
       } else if (event.button.button == SDL_BUTTON_RIGHT) {
         tachyon->did_right_click_up = true;
+        tachyon->is_right_mouse_held_down = false;
       }
 
       tachyon->is_mouse_held_down = false;

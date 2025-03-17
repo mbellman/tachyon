@@ -408,6 +408,9 @@
     <ClInclude Include="cosmodrone\bullets.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="cosmodrone\fighter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -519,6 +522,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cosmodrone\bullets.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cosmodrone\fighter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

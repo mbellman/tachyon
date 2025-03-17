@@ -219,6 +219,8 @@ struct Tachyon {
   bool did_right_click_down = false;
   bool did_right_click_up = false;
   bool is_mouse_held_down = false;
+  bool is_left_mouse_held_down = false;
+  bool is_right_mouse_held_down = false;
 
   struct Scene {
     tCamera camera;

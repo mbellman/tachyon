@@ -2,6 +2,7 @@
 
 #include "cosmodrone/autopilot.h"
 #include "cosmodrone/drone_flight_system.h"
+#include "cosmodrone/fighter.h"
 #include "cosmodrone/flight_system_delegator.h"
 #include "cosmodrone/game.h"
 #include "cosmodrone/game_editor.h"
@@ -71,6 +72,7 @@ static void UpdateViewDirections(Tachyon* tachyon, State& state, const float dt)
   }
 }
 
+// @todo different input handlers per flight system
 static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
   bool is_issuing_control_action = false;
 
@@ -954,6 +956,10 @@ void Cosmodrone::UpdateGame(Tachyon* tachyon, const float dt) {
   }
 
   HandleInputs(tachyon, state, dt);
+
+  if (state.flight_system == ::FIGHTER) {
+    Fighter::HandleInputs(tachyon, state);
+  }
 
   Autopilot::HandleAutopilot(tachyon, state, dt);
   Piloting::HandlePiloting(tachyon, state, dt);
