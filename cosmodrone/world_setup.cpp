@@ -124,10 +124,12 @@ static void InitLevel(Tachyon* tachyon, State& state) {
     auto& streams = create(meshes.streams);
     auto& thrusters = create(meshes.thrusters);
     auto& trim = create(meshes.trim);
+    auto& turbine_left = create(meshes.turbine);
+    auto& turbine_right = create(meshes.turbine);
     auto& jets = create(meshes.jets);
 
     hull.scale = 600.f;
-    hull.material = tVec4f(0.1f, 0, 0.2f, 1.f);
+    hull.material = tVec4f(0.5f, 0.2f, 0.2f, 0.5f);
 
     streams.scale = 600.f;
     streams.material = tVec4f(0.4f, 0.5f, 0, 0.2f);
@@ -138,6 +140,15 @@ static void InitLevel(Tachyon* tachyon, State& state) {
 
     trim.scale = 600.f;
     trim.material = tVec4f(0.2f, 1.f, 0, 0);
+
+    turbine_left.scale =
+    turbine_right.scale = 600.f;
+
+    turbine_left.color =
+    turbine_right.color = tVec3f(0.6f, 0.3f, 0.1f);
+
+    turbine_left.material =
+    turbine_right.material = tVec4f(0.2f, 1.f, 0, 0);
 
     jets.scale = 600.f;
     jets.color = tVec4f(0.1f, 0.2f, 1.f, 1.f);
@@ -152,6 +163,8 @@ static void InitLevel(Tachyon* tachyon, State& state) {
     commit(streams);
     commit(thrusters);
     commit(trim);
+    commit(turbine_left);
+    commit(turbine_right);
     commit(jets);
   }
 

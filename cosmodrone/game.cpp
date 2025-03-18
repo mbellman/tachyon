@@ -396,7 +396,7 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
         blend_rate = Tachyon_Lerpf(3.f, 1.5f, speed_ratio);
       }
     } else {
-      blend_rate = 2.f;
+      blend_rate = 1.5f;
     }
 
     camera.rotation = Quaternion::slerp(camera.rotation, state.target_camera_rotation, blend_rate * dt);
@@ -736,6 +736,7 @@ static void HandleShipBanking(Tachyon* tachyon, State& state) {
     Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), state.banking_factor);
 }
 
+// @todo move to drone.cpp
 static void HandleDrone(Tachyon* tachyon, State& state, const float dt) {
   auto& camera = tachyon->scene.camera;
   auto& meshes = state.meshes;
@@ -744,6 +745,8 @@ static void HandleDrone(Tachyon* tachyon, State& state, const float dt) {
   auto& streams = objects(meshes.streams)[0];
   auto& thrusters = objects(meshes.thrusters)[0];
   auto& trim = objects(meshes.trim)[0];
+  auto& turbine_left = objects(meshes.turbine)[0];
+  auto& turbine_right = objects(meshes.turbine)[1];
   auto& jets = objects(meshes.jets)[0];
 
   if (state.ship_velocity.magnitude() > 0.f) {
@@ -773,17 +776,37 @@ static void HandleDrone(Tachyon* tachyon, State& state, const float dt) {
   trim.position =
   jets.position = state.ship_position;
 
+  turbine_left.position =
+    hull.position +
+    rotation.getUpDirection() * 12.f +
+    rotation.getDirection() * -405.f +
+    rotation.getLeftDirection() * 215.f;
+
+  turbine_right.position =
+    hull.position +
+    rotation.getUpDirection() * 12.f +
+    rotation.getDirection() * -405.f -
+    rotation.getLeftDirection() * 215.f;
+
   hull.rotation =
   streams.rotation =
   thrusters.rotation =
   trim.rotation =
   jets.rotation = rotation;
 
+  turbine_left.rotation = hull.rotation * Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), state.turbine_rotation);
+  turbine_right.rotation = hull.rotation * Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), -state.turbine_rotation);
+
+  state.turbine_rotation += (0.1f + 6.f * state.jets_intensity) * dt;
+
   hull.scale =
   streams.scale =
   thrusters.scale =
   trim.scale =
   jets.scale = state.photo_mode ? 0.f : 600.f;
+
+  turbine_left.scale =
+  turbine_right.scale = state.photo_mode ? 0.f : 700.f;
 
   // Gradually taper jets intensity/update visibility
   {
@@ -799,6 +822,8 @@ static void HandleDrone(Tachyon* tachyon, State& state, const float dt) {
   commit(streams);
   commit(thrusters);
   commit(trim);
+  commit(turbine_left);
+  commit(turbine_right);
   commit(jets);
 
   state.ship_rotation_basis.forward = rotation.getDirection();

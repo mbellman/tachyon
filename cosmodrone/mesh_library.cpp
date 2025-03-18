@@ -15,13 +15,15 @@ static void LoadShipPartMeshes(Tachyon* tachyon, State& state) {
   auto streams_mesh = Tachyon_LoadMesh("./cosmodrone/assets/drone/streams.obj");
   auto thrusters_mesh = Tachyon_LoadMesh("./cosmodrone/assets/drone/thrusters.obj");
   auto trim_mesh = Tachyon_LoadMesh("./cosmodrone/assets/drone/trim.obj");
+  auto turbine_mesh = Tachyon_LoadMesh("./cosmodrone/assets/drone/turbine.obj");
   auto jets_mesh = Tachyon_LoadMesh("./cosmodrone/assets/drone/jets.obj");
 
-  meshes.hull = Tachyon_AddMesh(tachyon, hull_mesh, 1);
-  meshes.streams = Tachyon_AddMesh(tachyon, streams_mesh, 1);
-  meshes.thrusters = Tachyon_AddMesh(tachyon, thrusters_mesh, 1);
-  meshes.trim = Tachyon_AddMesh(tachyon, trim_mesh, 1);
-  meshes.jets = Tachyon_AddMesh(tachyon, jets_mesh, 1);
+  meshes.hull = add_mesh(hull_mesh, 1);
+  meshes.streams = add_mesh(streams_mesh, 1);
+  meshes.thrusters = add_mesh(thrusters_mesh, 1);
+  meshes.trim = add_mesh(trim_mesh, 1);
+  meshes.turbine = add_mesh(turbine_mesh, 2);
+  meshes.jets = add_mesh(jets_mesh, 1);
 
   mesh(meshes.jets).type = tMeshType::ION_THRUSTER_MESH;
 }

@@ -10,6 +10,7 @@ namespace Cosmodrone {
       streams,
       thrusters,
       trim,
+      turbine,
       jets,
 
       // NPC drones/ships
