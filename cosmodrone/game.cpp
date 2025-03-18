@@ -236,7 +236,7 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
   }
 
   if (!Autopilot::IsAutopilotActive(state) && state.flight_system == ::DRONE) {
-    state.ship_rotate_to_target_speed = 1.5f;
+    state.ship_rotate_to_target_speed = 2.f;
   }
 
   state.ship_position += state.ship_velocity * dt;
@@ -396,8 +396,28 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
         blend_rate = Tachyon_Lerpf(3.f, 1.5f, speed_ratio);
       }
     } else {
-      blend_rate = 1.5f;
+      if (Autopilot::IsAutopilotActive(state)) {
+        blend_rate = 1.5f;
+      } else {
+        blend_rate = 0.1f;
+
+        // @todo clean this up and better formalize this behavior
+        // @todo handle roll and pitch differently
+        float turn_dot = tVec3f::dot(camera.rotation.getDirection(), state.target_camera_rotation.getDirection());
+        if (turn_dot < 0.f) turn_dot = 0.f;
+
+        state.camera_turn_speed += (1.f - turn_dot) * dt;
+        if (state.camera_turn_speed > 1.f) state.camera_turn_speed = 1.f;
+        state.camera_turn_speed *= 1.f - dt;
+
+        blend_rate *= 1.f + 10.f * state.camera_turn_speed;
+        blend_rate *= 3.f;
+
+        if (blend_rate > 1.5f) blend_rate = 1.5f;
+      }
     }
+
+    console_log(blend_rate);
 
     camera.rotation = Quaternion::slerp(camera.rotation, state.target_camera_rotation, blend_rate * dt);
 
@@ -797,7 +817,7 @@ static void HandleDrone(Tachyon* tachyon, State& state, const float dt) {
   turbine_left.rotation = hull.rotation * Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), state.turbine_rotation);
   turbine_right.rotation = hull.rotation * Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), -state.turbine_rotation);
 
-  state.turbine_rotation += (0.1f + 6.f * state.jets_intensity) * dt;
+  state.turbine_rotation += (0.2f + 6.f * state.jets_intensity) * dt;
 
   hull.scale =
   streams.scale =

@@ -129,10 +129,10 @@ static void InitLevel(Tachyon* tachyon, State& state) {
     auto& jets = create(meshes.jets);
 
     hull.scale = 600.f;
-    hull.material = tVec4f(0.5f, 0.2f, 0.2f, 0.5f);
+    hull.material = tVec4f(0.5f, 0.2f, 0.2f, 0.2f);
 
     streams.scale = 600.f;
-    streams.material = tVec4f(0.4f, 0.5f, 0, 0.2f);
+    streams.material = tVec4f(0.4f, 0.5f, 0, 0.1f);
 
     thrusters.scale = 600.f;
     thrusters.color = tVec3f(0.1f);
