@@ -123,6 +123,7 @@ namespace Cosmodrone {
 
     FlightMode flight_mode = FlightMode::MANUAL_CONTROL;
     AutoDockStage auto_dock_stage;
+    float last_undock_time = 0.f;
 
     tObject docking_target;
     tVec3f docking_position;

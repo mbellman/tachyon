@@ -247,6 +247,10 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
   auto& camera = tachyon->scene.camera;
   auto& meshes = state.meshes;
 
+  if (state.last_undock_time != 0.f && state.current_game_time - state.last_undock_time < 2.f) {
+    return;
+  }
+
   switch (state.flight_system) {
     case ::DRONE: {
       if (state.camera_roll_speed > 3.f) state.camera_roll_speed = 3.f;
@@ -399,7 +403,7 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
       if (Autopilot::IsAutopilotActive(state)) {
         blend_rate = 1.5f;
       } else {
-        blend_rate = 0.1f;
+        blend_rate = 0.5f;
 
         // @todo clean this up and better formalize this behavior
         // @todo handle roll and pitch differently
@@ -411,13 +415,11 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
         state.camera_turn_speed *= 1.f - dt;
 
         blend_rate *= 1.f + 10.f * state.camera_turn_speed;
-        blend_rate *= 3.f;
+        // blend_rate *= 3.f;
 
         if (blend_rate > 1.5f) blend_rate = 1.5f;
       }
     }
-
-    console_log(blend_rate);
 
     camera.rotation = Quaternion::slerp(camera.rotation, state.target_camera_rotation, blend_rate * dt);
 
@@ -781,10 +783,14 @@ static void HandleDrone(Tachyon* tachyon, State& state, const float dt) {
     }
   }
 
-  HandleShipBanking(tachyon, state);
+  Quaternion rotation = hull.rotation;
 
-  // @todo will nlerp work here?
-  auto rotation = Quaternion::slerp(hull.rotation, state.target_ship_rotation, state.ship_rotate_to_target_speed * dt);
+  if (state.last_undock_time == 0.f || state.current_game_time - state.last_undock_time > 2.f) {
+    HandleShipBanking(tachyon, state);
+
+    // @todo will nlerp work here?
+    rotation = Quaternion::slerp(hull.rotation, state.target_ship_rotation, state.ship_rotate_to_target_speed * dt);
+  }
 
   if (Autopilot::IsDocked(state)) {
     state.ship_position = tVec3f::lerp(state.ship_position, state.docking_position, dt);
