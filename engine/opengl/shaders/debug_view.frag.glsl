@@ -88,6 +88,6 @@ void main() {
     uvec4 color_and_material = texture(in_color_and_material, 2.0 * (fragUv - vec2(0.5, 0)));
     Material material = UnpackMaterial(color_and_material);
 
-    out_color_and_depth = vec4(material.roughness, material.metalness, material.clearcoat, material.subsurface);
+    out_color_and_depth = vec4(material.roughness, material.metalness, material.subsurface, material.clearcoat);
   }
 }

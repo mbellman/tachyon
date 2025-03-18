@@ -656,8 +656,9 @@ void main() {
   {
     vec3 R = reflect(-V, N);
     vec3 reflection = GetReflectionColor(R);
+    float factor = 0.4 * shadow * (NdotL > 0.0 ? 0.0 : 1.0);
 
-    out_color += albedo * reflection * metalness * (1.0 - roughness) * 0.4 * shadow;
+    out_color += albedo * reflection * metalness * (1.0 - roughness) * factor;
   }
 
   // @todo dev mode only
@@ -682,18 +683,19 @@ void main() {
     // Reduce the effect as the camera approaches.
     {
       float haze_factor = pow(1.0 - NdotL, 3.0) * shadow;
-      haze_factor = mix(haze_factor, 1.0, 1.0 - pow(frag_normal_and_depth.w, 300.0));
+      haze_factor = mix(haze_factor, 1.0, 1.0 - pow(frag_normal_and_depth.w, 100.0));
 
       out_color = mix(vec3(0.02, 0.04, 0.2), out_color, haze_factor);
     }
 
     // Apply a glancing angle highlight opposite to the primary light direction
     {
-      out_color += 0.25 * albedo * pow(NdotL, 5.0) * pow(1.0 - NdotV, 2.0);
+      out_color += 0.5 * albedo * pow(NdotL, 2.0) * pow(1.0 - NdotV, 2.0);
     }
   }
 
   out_color -= ssao;
+  // out_color -= ssao * (0.5 + 0.5 * shadow);
 
   out_color_and_depth = vec4(out_color, frag_normal_and_depth.w);
   out_temporal_data = vec4(ssao, shadow, 0, frag_normal_and_depth.w);
