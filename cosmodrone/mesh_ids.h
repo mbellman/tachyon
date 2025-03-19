@@ -164,6 +164,7 @@ namespace Cosmodrone {
       platform_column_frame,
       platform_column_ladders,
       platform_column_supports,
+      platform_ring_body,
       platform_ring_supports,
       solar_rotator_body,
       solar_rotator_frame,

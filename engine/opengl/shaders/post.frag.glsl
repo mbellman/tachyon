@@ -221,12 +221,13 @@ void main() {
 
       float line_alpha = 1.0 - clamp(abs(scan_distance - world_depth) / scan_line_thickness, 0.0, 1.0);
       line_alpha *= max(0.0, 1.0 - pow(scan_time / 4.0, 5.0));
+      line_alpha *= pow(color_and_depth.w, 10.0);
 
       // Scan line
       post_color = mix(post_color, scan_line_color, line_alpha);
 
       // Pulse
-      float pulse_alpha = 0.25 * (1.0 - min(1.0, scan_time / 0.5));
+      float pulse_alpha = 0.25 * (1.0 - min(1.0, scan_time / 1.0));
 
       post_color = mix(post_color, scan_area_color, pulse_alpha);
     }

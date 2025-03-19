@@ -419,9 +419,9 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
   load_mesh(platform_ring, {
     .mesh_name = "platform_ring",
     .mesh_index = meshes.platform_ring,
+    .placeholder = true,
     .defaults = {
-      .scale = tVec3f(240000.f),
-      .material = tVec4f(0.8f, 1.f, 0, 0.6f)
+      .scale = tVec3f(240000.f)
     }
   });
 
@@ -448,7 +448,7 @@ static void LoadPlaceableMeshes(Tachyon* tachyon, State& state) {
     .mesh_name = "orbital_base",
     .mesh_index = meshes.orbital_base,
     .defaults = {
-      .scale = tVec3f(300000.f),
+      .scale = tVec3f(400000.f),
       .material = tVec4f(1.f, 0, 0, 0.2f)
     }
   });
@@ -930,6 +930,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
   load_mesh(platform_column_ladders);
   load_mesh(platform_column_supports);
 
+  load_mesh(platform_ring_body);
   load_mesh(platform_ring_supports);
 
   load_mesh(solar_rotator_body);
@@ -1473,7 +1474,14 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       }
     },
 
-    // platform_ring,
+    // platform_ring
+    {
+      .mesh_index = meshes.platform_ring_body,
+      .generated_from = meshes.platform_ring,
+      .defaults = {
+        .material = tVec4f(0.8f, 1.f, 0, 0.6f)
+      }
+    },
     {
       .mesh_index = meshes.platform_ring_supports,
       .generated_from = meshes.platform_ring,

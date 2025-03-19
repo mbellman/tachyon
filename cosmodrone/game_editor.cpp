@@ -734,8 +734,12 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
     // Fast-rewind time
     state.current_game_time -= 500.f * dt;
 
+    // @todo factor
     state.piloting_end_time = 0.f;
     state.piloting_start_time = 0.f;
+    state.last_undock_time = 0.f;
+    state.last_fighter_reversal_time = 0.f;
+    state.last_scan_time = 0.f;
     state.is_piloting_vehicle = false;
 
     WorldBehavior::UpdateWorld(tachyon, state, 0.f);
@@ -745,8 +749,12 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
     // Fast-forward time
     state.current_game_time += 500.f * dt;
 
+    // @todo factor
     state.piloting_end_time = 0.f;
     state.piloting_start_time = 0.f;
+    state.last_undock_time = 0.f;
+    state.last_fighter_reversal_time = 0.f;
+    state.last_scan_time = 0.f;
     state.is_piloting_vehicle = false;
 
     WorldBehavior::UpdateWorld(tachyon, state, 0.f);
