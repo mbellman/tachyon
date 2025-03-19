@@ -22,3 +22,7 @@ void Fighter::HandleInputs(Tachyon* tachyon, State& state) {
     HandleMissileFire(tachyon, state);
   }
 }
+
+bool Fighter::IsDoingQuickReversal(const State& state) {
+  return state.current_game_time - state.last_fighter_reversal_time < 2.f;
+}

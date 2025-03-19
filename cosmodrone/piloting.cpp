@@ -1,4 +1,5 @@
 #include "cosmodrone/autopilot.h"
+#include "cosmodrone/fighter.h"
 #include "cosmodrone/piloting.h"
 #include "cosmodrone/utilities.h"
 
@@ -50,6 +51,7 @@ static void UpdatePilotedVehicleParts(Tachyon* tachyon, State& state) {
   }
 
   // @todo factor
+  // @todo move to fighter.cpp
   if (vehicle.root_object.mesh_index == state.meshes.fighter_dock) {
     float retraction = 0.32f * powf(Tachyon_EaseInOutf(state.jets_intensity), 3.f);
     auto x_axis = vehicle.rotation.getLeftDirection();
@@ -100,13 +102,14 @@ static void StartUpPilotedVehicle(Tachyon* tachyon, State& state, const float dt
   }
 }
 
+// @todo move to fighter.cpp
 static void HandleQuickReversal(Tachyon* tachyon, State& state, const float dt) {
   float alpha = 4.f * (state.current_game_time - state.last_fighter_reversal_time);
   if (alpha > 1.f) alpha = 1.f;
   alpha *= alpha;
 
   state.target_ship_rotation = Quaternion::FromDirection(state.retrograde_direction, state.retrograde_up);
-  state.ship_rotate_to_target_speed = 3.f * alpha;
+  state.ship_rotate_to_target_speed = 4.f * alpha;
 }
 
 static void HandleQuickTarget() {
@@ -160,10 +163,7 @@ void Piloting::HandlePiloting(Tachyon* tachyon, State& state, const float dt) {
     state.ship_position =
     state.docking_position = Autopilot::GetDockingPosition(tachyon, state);
 
-    if (
-      state.current_game_time - state.last_fighter_reversal_time < 3.f &&
-      state.flight_mode == FlightMode::AUTO_RETROGRADE
-    ) {
+    if (Fighter::IsDoingQuickReversal(state)) {
       HandleQuickReversal(tachyon, state, dt);
 
       return;

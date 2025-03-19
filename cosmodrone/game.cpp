@@ -403,13 +403,13 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
     float blend_rate;
 
     if (state.flight_system == ::FIGHTER) {
-      if (state.current_game_time - state.last_fighter_reversal_time < 2.f) {
+      if (Fighter::IsDoingQuickReversal(state)) {
         // Quick reversal
         float alpha = 5.f * (state.current_game_time - state.last_fighter_reversal_time);
         if (alpha < 0.f) alpha = 0.f;
         if (alpha > 1.f) alpha = 1.f;
 
-        blend_rate = 10.f * alpha;
+        blend_rate = 20.f * alpha;
       } else {
         // Normal fighter camera behavior
         blend_rate = GetAdjustedCameraBlendRate(

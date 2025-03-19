@@ -1,3 +1,4 @@
+#include "cosmodrone/fighter.h"
 #include "cosmodrone/fighter_flight_system.h"
 #include "cosmodrone/utilities.h"
 
@@ -6,7 +7,7 @@ using namespace Cosmodrone;
 const float ACCELERATION = 500000.f;
 
 void FighterFlightSystem::ControlledThrustForward(State& state, const float dt) {
-  if (state.current_game_time - state.last_fighter_reversal_time < 2.f) {
+  if (Fighter::IsDoingQuickReversal(state)) {
     return;
   }
 
@@ -21,7 +22,7 @@ void FighterFlightSystem::ControlledThrustForward(State& state, const float dt) 
 }
 
 void FighterFlightSystem::RollLeft(State& state, const float dt) {
-  if (state.current_game_time - state.last_fighter_reversal_time < 2.f) {
+  if (Fighter::IsDoingQuickReversal(state)) {
     return;
   }
 
@@ -31,7 +32,7 @@ void FighterFlightSystem::RollLeft(State& state, const float dt) {
 }
 
 void FighterFlightSystem::RollRight(State& state, const float dt) {
-  if (state.current_game_time - state.last_fighter_reversal_time < 2.f) {
+  if (Fighter::IsDoingQuickReversal(state)) {
     return;
   }
 
