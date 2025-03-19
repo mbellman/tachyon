@@ -242,7 +242,20 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
   state.ship_position += state.ship_velocity * dt;
 }
 
+// @todo handle pitch differently
+static float GetAdjustedCameraBlendRate(const float blend_rate, const Quaternion& camera_rotation, const Quaternion& target_camera_rotation, const float dt) {
+  float rotation_dot = tVec3f::dot(camera_rotation.getDirection(), target_camera_rotation.getDirection());
+  if (rotation_dot < 0.f) rotation_dot = 0.f;
+
+  state.camera_blend_rate_factor += (1.f - rotation_dot) * dt;
+  if (state.camera_blend_rate_factor > 1.f) state.camera_blend_rate_factor = 1.f;
+  state.camera_blend_rate_factor *= 1.f - dt;
+
+  return blend_rate * (1.f + 10.f * state.camera_blend_rate_factor);
+}
+
 // @todo camera_system.cpp
+// @todo this function is a mess and needs reorganization
 static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
   auto& camera = tachyon->scene.camera;
   auto& meshes = state.meshes;
@@ -389,34 +402,31 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
   {
     float blend_rate;
 
-    if (state.flight_system == FlightSystem::FIGHTER) {
+    if (state.flight_system == ::FIGHTER) {
       if (state.current_game_time - state.last_fighter_reversal_time < 2.f) {
+        // Quick reversal
         float alpha = 5.f * (state.current_game_time - state.last_fighter_reversal_time);
         if (alpha < 0.f) alpha = 0.f;
         if (alpha > 1.f) alpha = 1.f;
 
         blend_rate = 10.f * alpha;
       } else {
-        blend_rate = Tachyon_Lerpf(3.f, 1.5f, speed_ratio);
+        // Normal fighter camera behavior
+        blend_rate = GetAdjustedCameraBlendRate(
+          Tachyon_Lerpf(1.f, 0.5f, speed_ratio),
+          camera.rotation,
+          state.target_camera_rotation,
+          dt
+        );
+
+        if (blend_rate > 3.f) blend_rate = 3.f;
       }
-    } else {
+    } else if (state.flight_system == ::DRONE) {
       if (Autopilot::IsAutopilotActive(state)) {
         blend_rate = 1.5f;
       } else {
-        blend_rate = 0.5f;
-
-        // @todo clean this up and better formalize this behavior
-        // @todo handle roll and pitch differently
-        float turn_dot = tVec3f::dot(camera.rotation.getDirection(), state.target_camera_rotation.getDirection());
-        if (turn_dot < 0.f) turn_dot = 0.f;
-
-        state.camera_turn_speed += (1.f - turn_dot) * dt;
-        if (state.camera_turn_speed > 1.f) state.camera_turn_speed = 1.f;
-        state.camera_turn_speed *= 1.f - dt;
-
-        blend_rate *= 1.f + 10.f * state.camera_turn_speed;
-        // blend_rate *= 3.f;
-
+        // Normal drone camera behavior
+        blend_rate = GetAdjustedCameraBlendRate(0.5f, camera.rotation, state.target_camera_rotation, dt);
         if (blend_rate > 1.5f) blend_rate = 1.5f;
       }
     }
