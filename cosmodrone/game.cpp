@@ -261,7 +261,12 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
   auto& camera = tachyon->scene.camera;
   auto& meshes = state.meshes;
 
-  if (state.last_undock_time != 0.f && state.current_game_time - state.last_undock_time < 2.f) {
+  if (
+    state.last_undock_time != 0.f &&
+    state.current_game_time - state.last_undock_time < 2.f &&
+    state.docking_target.mesh_index != meshes.fighter_dock &&
+    state.docking_target.mesh_index != meshes.freight_dock
+  ) {
     return;
   }
 
