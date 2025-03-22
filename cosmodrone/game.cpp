@@ -55,8 +55,9 @@ static void UpdateViewDirections(Tachyon* tachyon, State& state, const float dt)
     view_matrix.m[5],
     view_matrix.m[6]
   );
+}
 
-  // @todo cleanup
+static void UpdateReticlePosition(State& state, const float dt) {
   if (
     state.reticle_view_forward.x == 0.f &&
     state.reticle_view_forward.y == 0.f &&
@@ -439,6 +440,7 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
   }
 
   UpdateViewDirections(tachyon, state, dt);
+  UpdateReticlePosition(state, dt);
 
   float speed_zoom_ratio = ship_speed / (ship_speed + 5000.f);
   float boost_intensity;
