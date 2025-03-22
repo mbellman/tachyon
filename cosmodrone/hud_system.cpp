@@ -294,8 +294,9 @@ static void HandleTargetInspectorWireframe(Tachyon* tachyon, const State& state,
   }
 
   auto& wireframe = objects[0];
+  auto scale_factor = Utilities::GetTargetWireframeScaleFactor(state, wireframe_mesh_index);
 
-  wireframe.scale = 1.1f * camera.fov;
+  wireframe.scale = scale_factor * camera.fov;
 
   wireframe.color = tVec4f(
     tVec3f(0.5f, 0.8f, 1.f),
@@ -305,7 +306,7 @@ static void HandleTargetInspectorWireframe(Tachyon* tachyon, const State& state,
   wireframe.position =
     offset_position +
     state.view_forward_direction * 20.f +
-    state.view_up_direction * (80.f + camera.fov);
+    state.view_up_direction * (90.f + camera.fov);
 
   wireframe.rotation =
     camera.rotation.opposite() *

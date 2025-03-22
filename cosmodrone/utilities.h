@@ -13,6 +13,7 @@ namespace Cosmodrone {
     const Quaternion GetDockedCameraRotation(const State& state, const tObject& target);
     const float GetDockedCameraDistance(const State& state, const uint16 mesh_index);
     const uint16 GetTargetWireframeMesh(const State& state, const uint16 mesh_index);
+    const float GetTargetWireframeScaleFactor(const State& state, const uint16 mesh_index);
     const std::string GetTargetName(const State& state, const uint16 mesh_index);
     const tVec3f GetBeaconColor(const State& state, const uint16 mesh_index);
     const float GetMaxShipSpeed(const State& state);

@@ -162,6 +162,16 @@ const uint16 Utilities::GetTargetWireframeMesh(const State& state, const uint16 
   return meshes.antenna_3_wireframe;
 }
 
+const float Utilities::GetTargetWireframeScaleFactor(const State& state, const uint16 mesh_index) {
+  auto& meshes = state.meshes;
+
+  if (mesh_index == meshes.floater_1_wireframe) {
+    return 0.8f;
+  }
+
+  return 1.1f;
+}
+
 /**
  * @todo description
  */
