@@ -118,7 +118,7 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
     auto center_x = int32(tachyon->window_width >> 1);
     auto center_y = int32(tachyon->window_height >> 1);
     float closest_distance_to_center = std::numeric_limits<float>::max();
-    float closest_relative_distance = std::numeric_limits<float>::max();
+    float closest_object_distance = std::numeric_limits<float>::max();
     float max_selection_distance = state.is_piloting_vehicle ? 350000.f : 200000.f;
     tObject selected_target;
 
@@ -161,20 +161,22 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
       float dy = float(screen_y - center_y);
 
       float center_distance = sqrtf(dx*dx + dy*dy);
-      float relative_distance = (tracker.object.position - state.ship_position).magnitude();
+      float object_distance = (tracker.object.position - state.ship_position).magnitude();
 
       tracker.center_distance = center_distance;
-      tracker.object_distance = relative_distance;
+      tracker.object_distance = object_distance;
+
+      if (tracker.object.mesh_index == state.meshes.zone_target) {
+        // For now, we don't allow zone target trackers to be selected.
+        continue;
+      }
 
       // Try to select the target tracker closest to the center of the screen,
       // assuming its object is closer than the closest relative distance threshold
       if (
-        relative_distance < max_selection_distance &&
-        relative_distance < closest_relative_distance &&
-        center_distance < closest_distance_to_center &&
-        // @temporary
-        // @todo come up with a different scheme for targeting zone targets
-        tracker.object.mesh_index != state.meshes.zone_target
+        object_distance < max_selection_distance &&
+        object_distance < closest_object_distance &&
+        center_distance < closest_distance_to_center
       ) {
         closest_distance_to_center = center_distance;
         selected_target = tracker.object;
@@ -183,13 +185,10 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
       // Prioritize closer target objects
       // @todo make it so a close enough center distance still wins out
       if (
-        relative_distance < 20000.f &&
-        relative_distance < closest_relative_distance &&
-        // @temporary
-        // @todo come up with a different scheme for targeting zone targets
-        tracker.object.mesh_index != state.meshes.zone_target
+        object_distance < 20000.f &&
+        object_distance < closest_object_distance
       ) {
-        closest_relative_distance = relative_distance;
+        closest_object_distance = object_distance;
         selected_target = tracker.object;
       }
     }
@@ -200,25 +199,36 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
     }
 
     // Update tracker selection (only when not auto-docking)
-    for (auto& tracker : state.on_screen_target_trackers) {
-      if (
-        tracker.object != selected_target &&
-        tracker.selected_time != 0.f
-      ) {
-        // Deselect any previously-selected trackers
-        // if they are not for the selected target object
-        tracker.selected_time = 0.f;
-        tracker.deselected_time = state.current_game_time;
-      }
+    auto* selected_tracker = TargetSystem::GetSelectedTargetTracker(state);
 
-      if (
-        tracker.object == selected_target &&
-        tracker.selected_time == 0.f &&
-        tracker.object.mesh_index != state.meshes.zone_target
-      ) {
-        // Select the tracker for the selected target object
-        tracker.selected_time = state.current_game_time;
-        tracker.deselected_time = 0.f;
+    if (
+      // Only update the selection if there is no selected tracker,
+      // or if a fraction of a second has passed since selecting the
+      // previous one. We don't want the selection cycling rapidly
+      // between similarly-weighted trackers.
+      selected_tracker == nullptr ||
+      state.current_game_time - selected_tracker->selected_time > 0.25f
+    ) {
+      for (auto& tracker : state.on_screen_target_trackers) {
+        if (
+          tracker.object != selected_target &&
+          tracker.selected_time != 0.f
+        ) {
+          // Deselect any previously-selected trackers
+          // if they are not for the selected target object
+          tracker.selected_time = 0.f;
+          tracker.deselected_time = state.current_game_time;
+        }
+
+        if (
+          tracker.object == selected_target &&
+          tracker.selected_time == 0.f &&
+          tracker.object.mesh_index != state.meshes.zone_target
+        ) {
+          // Select the tracker for the selected target object
+          tracker.selected_time = state.current_game_time;
+          tracker.deselected_time = 0.f;
+        }
       }
     }
 
@@ -238,11 +248,6 @@ void TargetSystem::HandleTargetTrackers(Tachyon* tachyon, State& state, const fl
       if (tracker.selected_time != 0.f) {
         // Draw selected tracker
         const static float animation_time = 0.3f;
-
-        // Tachyon_DrawUIElement(tachyon, state.ui.selected_target_center, {
-        //   .screen_x = tracker.screen_x,
-        //   .screen_y = tracker.screen_y
-        // });
 
         const static std::vector<tVec2f> offsets = {
           tVec2f(-1.f, -1.f),
