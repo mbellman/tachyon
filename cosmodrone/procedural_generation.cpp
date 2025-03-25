@@ -40,20 +40,6 @@ using namespace Cosmodrone;
 #define apply(__object, __asset, __property)\
   __object.__property = __asset.defaults.__property
 
-static AutoPlacedObjectList& GetAutoPlacedObjectList(State& state, const uint16 mesh_index) {
-  for (auto& list : state.auto_placed_object_lists) {
-    if (list.mesh_index == mesh_index) {
-      return list;
-    }
-  }
-
-  state.auto_placed_object_lists.push_back({
-    .mesh_index = mesh_index
-  });
-
-  return state.auto_placed_object_lists.back();
-}
-
 static void GenerateElevator(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
@@ -204,16 +190,6 @@ void ProceduralGeneration::LoadMeshes(Tachyon* tachyon, State& state) {
   load_mesh(meshes.procedural_elevator_car_light, "/elevator_car_lights.obj", TOTAL_ELEVATOR_CARS);
   load_mesh(meshes.procedural_track_supports_1, "./track_supports_1.obj", 50);
   load_mesh(meshes.procedural_track_supports_2, "./track_supports_2.obj", 50);
-}
-
-void ProceduralGeneration::RemoveAutoPlacedObjects(Tachyon* tachyon, State& state) {
-  for (auto& list : state.auto_placed_object_lists) {
-    for (auto& object_id : list.object_ids) {
-      remove(list.mesh_index, object_id);
-    }
-  }
-
-  state.auto_placed_object_lists.clear();
 }
 
 void ProceduralGeneration::GenerateWorld(Tachyon* tachyon, State& state) {

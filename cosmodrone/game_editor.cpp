@@ -1092,8 +1092,6 @@ void Editor::EnableEditor(Tachyon* tachyon, State& state) {
   EnablePlaceholderMeshes(tachyon);
   ResetInitialObjects(tachyon);
 
-  ProceduralGeneration::RemoveAutoPlacedObjects(tachyon, state);
-
   tachyon->show_developer_tools = true;
   tachyon->use_high_visibility_mode = true;
 

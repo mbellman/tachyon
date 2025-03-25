@@ -101,11 +101,6 @@ namespace Cosmodrone {
     uint32 light_index_2 = 0;
   };
 
-  struct AutoPlacedObjectList {
-    uint16 mesh_index;
-    std::vector<uint16> object_ids;
-  };
-
   struct State {
     MeshIds meshes;
 
@@ -209,8 +204,6 @@ namespace Cosmodrone {
       tUIText* cascadia_mono_26 = nullptr;
       tUIText* cascadia_mono_32 = nullptr;
     } ui;
-
-    std::vector<AutoPlacedObjectList> auto_placed_object_lists;
 
     // @todo dev mode only
     bool is_editor_active = false;
