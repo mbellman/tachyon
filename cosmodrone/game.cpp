@@ -75,6 +75,16 @@ static void UpdateReticlePosition(State& state, const float dt) {
 
 // @todo different input handlers per flight system
 static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
+  // Handle auto-dock/undock actions
+  if (did_press_key(tKey::ENTER)) {
+    FlightSystemDelegator::DockOrUndock(tachyon, state, dt);
+  }
+
+  if (state.flight_system == ::DRONE && state.auto_dock_stage == ::DOCKED) {
+    // Disallow other inputs while docked in drone mode
+    return;
+  }
+
   bool is_issuing_control_action = false;
 
   // Handle forward action
@@ -157,11 +167,6 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
       // Stop camera drift when activating a fighter quick-target/quick-reverse
       state.target_camera_rotation = tachyon->scene.camera.rotation;
     }
-  }
-
-  // Handle auto-dock/undock actions
-  if (did_press_key(tKey::ENTER)) {
-    FlightSystemDelegator::DockOrUndock(tachyon, state, dt);
   }
 
   // Handle scan actions

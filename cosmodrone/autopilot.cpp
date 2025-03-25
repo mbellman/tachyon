@@ -353,6 +353,7 @@ void Autopilot::Undock(Tachyon* tachyon, State& state) {
 
   state.flight_system = FlightSystem::DRONE;
   state.flight_mode = FlightMode::MANUAL_CONTROL;
+  state.auto_dock_stage = AutoDockStage::APPROACH;
   state.is_piloting_vehicle = false;
   state.last_undock_time = state.current_game_time;
   state.target_camera_rotation = hull.rotation.opposite();
