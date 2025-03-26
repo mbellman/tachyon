@@ -84,6 +84,12 @@ namespace Cosmodrone {
     tObject beacon_2;
   };
 
+  struct Bullet {
+    tVec3f direction;
+    tObject object;
+    float spawn_time = 0.f;
+  };
+
   struct BlinkingLight {
     tObject bulb;
     uint32 light_index;
@@ -169,6 +175,11 @@ namespace Cosmodrone {
 
     std::vector<PilotableVehicle> pilotable_vehicles;
     PilotableVehicle current_piloted_vehicle;
+
+    std::vector<Bullet> machine_gun_bullets;
+    std::vector<Bullet> missiles;
+    uint16 next_machine_gun_bullet_index = 0;
+    uint16 next_missile_index = 0;
 
     FlightSystem flight_system = FlightSystem::DRONE;
     bool is_piloting_vehicle = false;

@@ -1,4 +1,5 @@
 #include "cosmodrone/background_vehicles.h"
+#include "cosmodrone/bullets.h"
 #include "cosmodrone/lights.h"
 #include "cosmodrone/object_behavior.h"
 #include "cosmodrone/world_behavior.h"
@@ -87,4 +88,5 @@ void WorldBehavior::UpdateWorld(Tachyon* tachyon, State& state, const float dt) 
   BackgroundVehicles::UpdateVehicles(tachyon, state, dt);
   ObjectBehavior::UpdateObjects(tachyon, state, dt);
   Lights::UpdateLights(tachyon, state);
+  Bullets::UpdateBullets(tachyon, state, dt);
 }

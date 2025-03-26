@@ -17,6 +17,10 @@ namespace Cosmodrone {
       station_drone,
       flying_ship_1,
 
+      // Gunfire
+      bullet_1,
+      missile_1,
+
       // Marker/spawn meshes
       zone_target,
       vehicle_target,

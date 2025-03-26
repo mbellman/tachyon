@@ -4,13 +4,11 @@
 using namespace Cosmodrone;
 
 static void HandleMachineGunFire(Tachyon* tachyon, State& state) {
-  // @todo
-  console_log("Machine gun!");
+  Bullets::FireBullet(tachyon, state);
 }
 
 static void HandleMissileFire(Tachyon* tachyon, State& state) {
-  // @todo
-  console_log("Missile!");
+  Bullets::FireMissile(tachyon, state);
 }
 
 void Fighter::HandleInputs(Tachyon* tachyon, State& state) {

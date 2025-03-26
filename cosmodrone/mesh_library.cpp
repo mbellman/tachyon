@@ -1940,6 +1940,13 @@ static void LoadEntityMeshes(Tachyon* tachyon, State& state) {
   }
 }
 
+static void LoadGunfireMeshes(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
+  meshes.bullet_1 = add_mesh(Tachyon_CreateSphereMesh(8), 100);
+  meshes.missile_1 = add_mesh(Tachyon_CreateSphereMesh(8), 100);
+}
+
 static void LoadDebugMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
@@ -1980,6 +1987,7 @@ void MeshLibrary::LoadMeshes(Tachyon* tachyon, State& state) {
   LoadTargetInspectorMeshes(tachyon, state);
   LoadBackgroundMeshes(tachyon, state);
   LoadEntityMeshes(tachyon, state);
+  LoadGunfireMeshes(tachyon, state);
   LoadDebugMeshes(tachyon, state);
 
   ApplyMeshTextures(tachyon, state);
