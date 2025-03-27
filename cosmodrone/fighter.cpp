@@ -4,7 +4,7 @@
 using namespace Cosmodrone;
 
 static void HandleMachineGunFire(Tachyon* tachyon, State& state) {
-  Bullets::FireBullet(tachyon, state);
+  Bullets::FireMachineGuns(tachyon, state);
 }
 
 static void HandleMissileFire(Tachyon* tachyon, State& state) {

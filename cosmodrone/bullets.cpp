@@ -80,7 +80,7 @@ void Bullets::InitBullets(Tachyon* tachyon, State& state) {
   }
 }
 
-void Bullets::FireBullet(Tachyon* tachyon, State& state) {
+void Bullets::FireMachineGuns(Tachyon* tachyon, State& state) {
   if (state.next_machine_gun_bullet_index == 100) {
     state.next_machine_gun_bullet_index = 0;
   }
@@ -90,14 +90,33 @@ void Bullets::FireBullet(Tachyon* tachyon, State& state) {
   }
 
   auto& object = objects(state.meshes.bullet_1)[state.next_machine_gun_bullet_index++];
+  auto& object2 = objects(state.meshes.bullet_1)[state.next_machine_gun_bullet_index++];
 
-  object.position = state.ship_position;
-  object.scale = tVec3f(200.f);
-  object.color = tVec4f(1.f, 0.7f, 0.2f, 1.f);
+  object.position =
+    state.ship_position -
+    state.ship_rotation_basis.up * 1400.f +
+    state.ship_rotation_basis.sideways * 1900.f;
+
+  object2.position =
+    state.ship_position -
+    state.ship_rotation_basis.up * 1400.f -
+    state.ship_rotation_basis.sideways * 1900.f;
+
+  object.scale =
+  object2.scale = tVec3f(200.f);
+
+  object.color =
+  object2.color = tVec4f(1.f, 0.2f, 0.2f, 1.f);
 
   state.machine_gun_bullets.push_back({
     .direction = state.ship_rotation_basis.forward,
     .object = object,
+    .spawn_time = state.current_game_time
+  });
+
+  state.machine_gun_bullets.push_back({
+    .direction = state.ship_rotation_basis.forward,
+    .object = object2,
     .spawn_time = state.current_game_time
   });
 }
