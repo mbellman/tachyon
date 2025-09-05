@@ -178,35 +178,48 @@ tMat4f CreateCascadedLightMatrix(uint8 cascade, const tVec3f& light_direction, c
   return (projection_matrix * view_matrix).transpose();
 }
 // --------------------------------------
-static void UpdateInternalRendererSize(Tachyon* tachyon) {
+enum Resolution {
+  RESOLUTION_NATIVE,
+  RESOLUTION_1080p,
+  RESOLUTION_1440p,
+  RESOLUTION_2160p
+};
+
+static void UpdateInternalRendererSize(Tachyon* tachyon, Resolution resolution) {
   auto& ctx = get_renderer().ctx;
 
-  ctx.internal_width = tachyon->window_width;
-  ctx.internal_height = tachyon->window_height;
-
-  // ctx.internal_width = 1920;
-  // ctx.internal_height = 1080;
-
-  // ctx.internal_width = 3840;
-  // ctx.internal_height = 2160;
+  if (resolution == RESOLUTION_NATIVE) {
+    ctx.internal_width = tachyon->window_width;
+    ctx.internal_height = tachyon->window_height;
+  }
+  else if (resolution == RESOLUTION_1080p) {
+    ctx.internal_width = 1920;
+    ctx.internal_height = 1080;
+  }
+  else if (resolution == RESOLUTION_1440p) {
+    ctx.internal_width = 2560;
+    ctx.internal_height = 1440;
+  }
+  else if (resolution == RESOLUTION_2160p) {
+    ctx.internal_width = 3840;
+    ctx.internal_height = 2160;
+  }
 }
 
 static void InitRenderBuffers(Tachyon* tachyon) {
   auto& renderer = get_renderer();
+  auto& ctx = renderer.ctx;
   auto& g_buffer = renderer.g_buffer;
   auto& accumulation_buffer_a = renderer.accumulation_buffer_a;
   auto& accumulation_buffer_b = renderer.accumulation_buffer_b;
   auto& directional_shadow_map = renderer.directional_shadow_map;
 
-  UpdateInternalRendererSize(tachyon);
-
-  int w = renderer.ctx.internal_width;
-  int h = renderer.ctx.internal_height;
+  UpdateInternalRendererSize(tachyon, RESOLUTION_1440p);
 
   // G-Buffer
   {
     g_buffer.init();
-    g_buffer.setSize(w, h);
+    g_buffer.setSize(ctx.internal_width, ctx.internal_height);
     g_buffer.addColorAttachment(ColorFormat::RGBA, G_BUFFER_NORMALS_AND_DEPTH);
     g_buffer.addColorAttachment(ColorFormat::RGBA8UI, G_BUFFER_COLOR_AND_MATERIAL);
     g_buffer.addDepthStencilAttachment();
@@ -216,11 +229,8 @@ static void InitRenderBuffers(Tachyon* tachyon) {
   // Accumulation Buffer A
   {
     accumulation_buffer_a.init();
-    accumulation_buffer_a.setSize(w, h);
-    accumulation_buffer_a.addColorAttachment(ColorFormat::RGBA, ACCUMULATION_COLOR_AND_DEPTH, {
-      .wrapping = GL_CLAMP_TO_BORDER,
-      .magnification = GL_LINEAR
-    });
+    accumulation_buffer_a.setSize(ctx.internal_width, ctx.internal_height);
+    accumulation_buffer_a.addColorAttachment(ColorFormat::RGBA, ACCUMULATION_COLOR_AND_DEPTH);
     accumulation_buffer_a.addColorAttachment(ColorFormat::RGBA, ACCUMULATION_TEMPORAL_DATA);
     g_buffer.shareDepthStencilAttachment(accumulation_buffer_a);
     accumulation_buffer_a.bindColorAttachments();
@@ -229,11 +239,8 @@ static void InitRenderBuffers(Tachyon* tachyon) {
   // Accumulation Buffer B
   {
     accumulation_buffer_b.init();
-    accumulation_buffer_b.setSize(w, h);
-    accumulation_buffer_b.addColorAttachment(ColorFormat::RGBA, ACCUMULATION_COLOR_AND_DEPTH, {
-      .wrapping = GL_CLAMP_TO_BORDER,
-      .magnification = GL_LINEAR
-    });
+    accumulation_buffer_b.setSize(ctx.internal_width, ctx.internal_height);
+    accumulation_buffer_b.addColorAttachment(ColorFormat::RGBA, ACCUMULATION_COLOR_AND_DEPTH);
     accumulation_buffer_b.addColorAttachment(ColorFormat::RGBA, ACCUMULATION_TEMPORAL_DATA);
     g_buffer.shareDepthStencilAttachment(accumulation_buffer_b);
     accumulation_buffer_b.bindColorAttachments();

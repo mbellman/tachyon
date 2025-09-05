@@ -1,7 +1,8 @@
 #version 460 core
 
-#define ENABLE_DEPTH_OF_FIELD_BLUR 1
-#define ENABLE_CHROMATIC_ABERRATION 1
+#define ENABLE_IMAGE_SMOOTHING 1
+#define ENABLE_DEPTH_OF_FIELD_BLUR 0
+#define ENABLE_CHROMATIC_ABERRATION 0
 
 #define ENABLE_COSMODRONE_FX 1
 
@@ -113,8 +114,48 @@ vec4 GetVolumetricFogColorAndThickness(float depth, vec3 direction) {
   return vec4(color, thickness);
 }
 
+struct BilinearSample {
+  vec4 original;
+  vec4 filtered;
+};
+
+/**
+ * Sourced from https://iquilezles.org/articles/hwinterpolation/
+ * with slight modifications.
+ */
+BilinearSample GetBilinearTextureSample( sampler2D sam, vec2 uv ) {
+  ivec2 ires = textureSize( sam, 0 );
+  vec2  fres = vec2( ires );
+
+  vec2 st = (fract(uv)-0.5/fres)*fres;
+  ivec2 i = ivec2( floor( st ) );
+  vec2  w = fract( st );
+
+  vec4 a = texelFetch( sam, (i+ivec2(0,0)), 0 );
+  vec4 b = texelFetch( sam, (i+ivec2(1,0)), 0 );
+  vec4 c = texelFetch( sam, (i+ivec2(0,1)), 0 );
+  vec4 d = texelFetch( sam, (i+ivec2(1,1)), 0 );
+
+  BilinearSample s;
+  s.original = a;
+  s.filtered = mix(mix(a, b, w.x), mix(c, d, w.x), w.y);
+
+  return s;
+}
+
 void main() {
-  vec4 color_and_depth = texture(in_color_and_depth, fragUv);
+  #if ENABLE_IMAGE_SMOOTHING
+    BilinearSample color_and_depth_sample = GetBilinearTextureSample(in_color_and_depth, fragUv);
+ 
+    vec4 color_and_depth;
+    // Use the filtered color sample
+    color_and_depth.rgb = color_and_depth_sample.filtered.rgb;
+    // Use the original depth sample to avoid erroneously-resolved world depth values
+    color_and_depth.w = color_and_depth_sample.original.w;
+  #else
+    vec4 color_and_depth = texture(in_color_and_depth, fragUv);
+  #endif
+
   vec3 post_color = color_and_depth.rgb;
 
   float world_depth = GetWorldDepth(color_and_depth.w, Z_NEAR, Z_FAR);
@@ -136,7 +177,11 @@ void main() {
       for (int i = 0; i < 4; i++) {
         vec2 uv = fragUv + blur * TEXEL_SIZE * offsets[i];
 
-        post_color += texture(in_color_and_depth, uv).rgb;
+        #if ENABLE_IMAGE_SMOOTHING
+          post_color += GetBilinearTextureSample(in_color_and_depth, uv).filtered.rgb;
+        #else
+          post_color += texture(in_color_and_depth, uv).rgb;
+        #endif
       }
 
       post_color /= 5.0;
