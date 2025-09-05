@@ -61,10 +61,13 @@ void OpenGLFrameBuffer::addColorAttachment(ColorFormat format) {
 }
 
 void OpenGLFrameBuffer::addColorAttachment(ColorFormat format, uint32 unit) {
-  addColorAttachment(format, unit, GL_CLAMP_TO_BORDER);
+  addColorAttachment(format, unit, {
+    .wrapping = GL_CLAMP_TO_BORDER,
+    .magnification = GL_NEAREST
+  });
 }
 
-void OpenGLFrameBuffer::addColorAttachment(ColorFormat format, uint32 unit, GLint clamp) {
+void OpenGLFrameBuffer::addColorAttachment(ColorFormat format, uint32 unit, const ColorAttachmentOptions& options) {
   GLuint textureId;
   GLuint index = GL_COLOR_ATTACHMENT0 + colorAttachments.size();
   GLint glInternalFormat = glInternalFormatMap.at(format);
@@ -74,10 +77,10 @@ void OpenGLFrameBuffer::addColorAttachment(ColorFormat format, uint32 unit, GLin
   glGenTextures(1, &textureId);
   glBindTexture(GL_TEXTURE_2D, textureId);
   glTexImage2D(GL_TEXTURE_2D, 0, glInternalFormat, width, height, 0, glFormat, type, 0);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clamp);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, clamp);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, options.magnification);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, options.magnification);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, options.wrapping);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, options.wrapping);
   glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, defaultBorderColor);
 
   glBindFramebuffer(GL_FRAMEBUFFER, fbo);

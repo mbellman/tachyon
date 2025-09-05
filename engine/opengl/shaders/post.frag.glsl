@@ -3,6 +3,8 @@
 #define ENABLE_DEPTH_OF_FIELD_BLUR 1
 #define ENABLE_CHROMATIC_ABERRATION 1
 
+#define ENABLE_COSMODRONE_FX 1
+
 uniform sampler2D in_color_and_depth;
 uniform mat4 inverse_projection_matrix;
 uniform mat4 inverse_view_matrix;
@@ -183,7 +185,7 @@ void main() {
   //
   // Cosmodrone
   // ---------------------
-  {
+  #if ENABLE_COSMODRONE_FX
     // Vignette
     {
       const vec3 vignette_color = vec3(0.1, 0.3, 0.4);
@@ -231,7 +233,7 @@ void main() {
 
       post_color = mix(post_color, scan_area_color, pulse_alpha);
     }
-  }
+  #endif
 
   const float contrast = 1.15;
   const float brightness = 0.05;

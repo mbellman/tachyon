@@ -40,11 +40,7 @@ static void HandleEvents(Tachyon* tachyon) {
         break;
       case SDL_WINDOWEVENT:
         if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
-          if (tachyon->renderer != nullptr) {
-            if (tachyon->render_backend == TachyonRenderBackend::OPENGL) {
-              Tachyon_OpenGL_ResizeRenderer(tachyon);
-            }
-          }
+          Tachyon_HandleWindowResize(tachyon);
         }
         break;
     }
@@ -93,6 +89,9 @@ void Tachyon_SpawnWindow(Tachyon* tachyon, const char* title, uint32 width, uint
     width, height,
     SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI
   );
+
+  tachyon->window_width = width;
+  tachyon->window_height = height;
 }
 
 void Tachyon_UseRenderBackend(Tachyon* tachyon, TachyonRenderBackend backend) {
@@ -105,10 +104,6 @@ void Tachyon_UseRenderBackend(Tachyon* tachyon, TachyonRenderBackend backend) {
   if (backend == TachyonRenderBackend::OPENGL) {
     Tachyon_OpenGL_InitRenderer(tachyon);
   }
-}
-
-bool Tachyon_IsRunning(Tachyon* tachyon) {
-  return tachyon->is_running;
 }
 
 void Tachyon_StartFrame(Tachyon* tachyon) {
@@ -142,6 +137,21 @@ void Tachyon_UnfocusWindow(Tachyon* tachyon) {
 
   // Ensure window unfocus events release the mouse held state
   tachyon->is_mouse_held_down = false;
+}
+
+void Tachyon_HandleWindowResize(Tachyon* tachyon) {
+  int w, h;
+
+  SDL_GL_GetDrawableSize(tachyon->sdl_window, &w, &h);
+
+  tachyon->window_width = w;
+  tachyon->window_height = h;
+
+  if (tachyon->renderer != nullptr) {
+    if (tachyon->render_backend == TachyonRenderBackend::OPENGL) {
+      Tachyon_OpenGL_HandleWindowResize(tachyon);
+    }
+  }
 }
 
 void Tachyon_Exit(Tachyon* tachyon) {

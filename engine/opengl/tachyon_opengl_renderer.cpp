@@ -178,51 +178,79 @@ tMat4f CreateCascadedLightMatrix(uint8 cascade, const tVec3f& light_direction, c
   return (projection_matrix * view_matrix).transpose();
 }
 // --------------------------------------
-static void CreateRenderBuffers(Tachyon* tachyon) {
+static void UpdateInternalRendererSize(Tachyon* tachyon) {
+  auto& ctx = get_renderer().ctx;
+
+  ctx.internal_width = tachyon->window_width;
+  ctx.internal_height = tachyon->window_height;
+
+  // ctx.internal_width = 1920;
+  // ctx.internal_height = 1080;
+
+  // ctx.internal_width = 3840;
+  // ctx.internal_height = 2160;
+}
+
+static void InitRenderBuffers(Tachyon* tachyon) {
   auto& renderer = get_renderer();
   auto& g_buffer = renderer.g_buffer;
   auto& accumulation_buffer_a = renderer.accumulation_buffer_a;
   auto& accumulation_buffer_b = renderer.accumulation_buffer_b;
   auto& directional_shadow_map = renderer.directional_shadow_map;
-  int w, h;
 
-  SDL_GL_GetDrawableSize(tachyon->sdl_window, &w, &h);
+  UpdateInternalRendererSize(tachyon);
 
-  // w = 3840;
-  // h = 2160;
+  int w = renderer.ctx.internal_width;
+  int h = renderer.ctx.internal_height;
 
-  g_buffer.init();
-  g_buffer.setSize(w, h);
-  g_buffer.addColorAttachment(ColorFormat::RGBA, G_BUFFER_NORMALS_AND_DEPTH);
-  g_buffer.addColorAttachment(ColorFormat::RGBA8UI, G_BUFFER_COLOR_AND_MATERIAL);
-  g_buffer.addDepthStencilAttachment();
-  g_buffer.bindColorAttachments();
+  // G-Buffer
+  {
+    g_buffer.init();
+    g_buffer.setSize(w, h);
+    g_buffer.addColorAttachment(ColorFormat::RGBA, G_BUFFER_NORMALS_AND_DEPTH);
+    g_buffer.addColorAttachment(ColorFormat::RGBA8UI, G_BUFFER_COLOR_AND_MATERIAL);
+    g_buffer.addDepthStencilAttachment();
+    g_buffer.bindColorAttachments();
+  }
 
-  accumulation_buffer_a.init();
-  accumulation_buffer_a.setSize(w, h);
-  accumulation_buffer_a.addColorAttachment(ColorFormat::RGBA, ACCUMULATION_COLOR_AND_DEPTH);
-  accumulation_buffer_a.addColorAttachment(ColorFormat::RGBA, ACCUMULATION_TEMPORAL_DATA);
-  g_buffer.shareDepthStencilAttachment(accumulation_buffer_a);
-  accumulation_buffer_a.bindColorAttachments();
+  // Accumulation Buffer A
+  {
+    accumulation_buffer_a.init();
+    accumulation_buffer_a.setSize(w, h);
+    accumulation_buffer_a.addColorAttachment(ColorFormat::RGBA, ACCUMULATION_COLOR_AND_DEPTH, {
+      .wrapping = GL_CLAMP_TO_BORDER,
+      .magnification = GL_LINEAR
+    });
+    accumulation_buffer_a.addColorAttachment(ColorFormat::RGBA, ACCUMULATION_TEMPORAL_DATA);
+    g_buffer.shareDepthStencilAttachment(accumulation_buffer_a);
+    accumulation_buffer_a.bindColorAttachments();
+  }
 
-  accumulation_buffer_b.init();
-  accumulation_buffer_b.setSize(w, h);
-  accumulation_buffer_b.addColorAttachment(ColorFormat::RGBA, ACCUMULATION_COLOR_AND_DEPTH);
-  accumulation_buffer_b.addColorAttachment(ColorFormat::RGBA, ACCUMULATION_TEMPORAL_DATA);
-  g_buffer.shareDepthStencilAttachment(accumulation_buffer_b);
-  accumulation_buffer_b.bindColorAttachments();
+  // Accumulation Buffer B
+  {
+    accumulation_buffer_b.init();
+    accumulation_buffer_b.setSize(w, h);
+    accumulation_buffer_b.addColorAttachment(ColorFormat::RGBA, ACCUMULATION_COLOR_AND_DEPTH, {
+      .wrapping = GL_CLAMP_TO_BORDER,
+      .magnification = GL_LINEAR
+    });
+    accumulation_buffer_b.addColorAttachment(ColorFormat::RGBA, ACCUMULATION_TEMPORAL_DATA);
+    g_buffer.shareDepthStencilAttachment(accumulation_buffer_b);
+    accumulation_buffer_b.bindColorAttachments();
+  }
 
-  directional_shadow_map.init();
-  directional_shadow_map.setSize(2048, 2048);
-  directional_shadow_map.addColorAttachment(ColorFormat::R, DIRECTIONAL_SHADOW_MAP_CASCADE_1);
-  directional_shadow_map.addColorAttachment(ColorFormat::R, DIRECTIONAL_SHADOW_MAP_CASCADE_2);
-  directional_shadow_map.addColorAttachment(ColorFormat::R, DIRECTIONAL_SHADOW_MAP_CASCADE_3);
-  directional_shadow_map.addColorAttachment(ColorFormat::R, DIRECTIONAL_SHADOW_MAP_CASCADE_4);
-  directional_shadow_map.addDepthAttachment();
-  directional_shadow_map.bindColorAttachments();
-
-  tachyon->window_width = w;
-  tachyon->window_height = h;
+  // Primary directional shadow map
+  // @todo this need not be recreated on resize, as it is of constant size!
+  {
+    directional_shadow_map.init();
+    directional_shadow_map.setSize(2048, 2048);
+    directional_shadow_map.addColorAttachment(ColorFormat::R, DIRECTIONAL_SHADOW_MAP_CASCADE_1);
+    directional_shadow_map.addColorAttachment(ColorFormat::R, DIRECTIONAL_SHADOW_MAP_CASCADE_2);
+    directional_shadow_map.addColorAttachment(ColorFormat::R, DIRECTIONAL_SHADOW_MAP_CASCADE_3);
+    directional_shadow_map.addColorAttachment(ColorFormat::R, DIRECTIONAL_SHADOW_MAP_CASCADE_4);
+    directional_shadow_map.addDepthAttachment();
+    directional_shadow_map.bindColorAttachments();
+  }
 }
 
 static tOpenGLTexture& GetOpenGLTexture(const std::string& texture_path) {
@@ -275,10 +303,10 @@ static void RenderSurface(Tachyon* tachyon, SDL_Surface* surface, int32 x, int32
   auto& shader = renderer.shaders.surface;
   auto& locations = renderer.shaders.locations.surface;
 
-  float offsetX = -1.0f + (2 * x + w) / (float)ctx.w;
-  float offsetY = 1.0f - (2 * y + h) / (float)ctx.h;
-  float scaleX = w / (float)ctx.w;
-  float scaleY = -1.0f * h / (float)ctx.h;
+  float offsetX = -1.0f + (2 * x + w) / (float)tachyon->window_width;
+  float offsetY = 1.0f - (2 * y + h) / (float)tachyon->window_height;
+  float scaleX = w / (float)tachyon->window_width;
+  float scaleY = -1.0f * h / (float)tachyon->window_height;
   int format = surface->format->BytesPerPixel == 4 ? GL_RGBA : GL_RGB;
 
   glActiveTexture(GL_TEXTURE0);
@@ -359,7 +387,7 @@ static void RenderDebugLabels(Tachyon* tachyon) {
 
     std::vector<std::string> labels = {
       "View: " + std::string(renderer.show_g_buffer_view ? "G-BUFFER" : "DEFAULT"),
-      "Resolution: " + String(ctx.w) + " x " + String(ctx.h),
+      "Resolution: " + String(ctx.internal_width) + " x " + String(ctx.internal_height),
       "V-Sync: " + std::string(SDL_GL_GetSwapInterval() ? "ON" : "OFF"),
       "GPU Model: " + std::string(gpu_model),
       "GPU Memory: " + String(used_gpu_memory) + "MB / " + String(total_gpu_memory) + "MB",
@@ -385,7 +413,7 @@ static void RenderDebugLabels(Tachyon* tachyon) {
     int32 y_offset = 10;
 
     for (auto& label : labels) {
-      RenderText(tachyon, tachyon->developer_overlay_font, label.c_str(), 10, y_offset, ctx.w, tVec3f(1.f), tVec4f(0.f, 0.f, 0.f, 0.6f));
+      RenderText(tachyon, tachyon->developer_overlay_font, label.c_str(), 10, y_offset, tachyon->window_width, tVec3f(1.f), tVec4f(0.f, 0.f, 0.f, 0.6f));
 
       y_offset += 22;
     }
@@ -396,7 +424,7 @@ static void RenderDebugLabels(Tachyon* tachyon) {
     for (auto& dev_label : tachyon->dev_labels) {
       auto full_label = dev_label.label + ": " + dev_label.message;
 
-      RenderText(tachyon, tachyon->developer_overlay_font, full_label.c_str(), 10, y_offset, ctx.w, tVec3f(1.f), tVec4f(0.2f, 0.2f, 1.f, 0.4f));
+      RenderText(tachyon, tachyon->developer_overlay_font, full_label.c_str(), 10, y_offset, tachyon->window_width, tVec3f(1.f), tVec4f(0.2f, 0.2f, 1.f, 0.4f));
 
       y_offset += 24;
     }
@@ -406,7 +434,7 @@ static void RenderDebugLabels(Tachyon* tachyon) {
   {
     auto now = Tachyon_GetMicroseconds();
     auto& console_messages = Tachyon_GetConsoleMessages();
-    int32 y_offset = renderer.ctx.h - console_messages.size() * 30 - 10;
+    int32 y_offset = tachyon->window_height - console_messages.size() * 30 - 10;
 
     for (auto& console_message : console_messages) {
       auto& message = console_message.message;
@@ -415,7 +443,7 @@ static void RenderDebugLabels(Tachyon* tachyon) {
       auto time_left = 20000000 - age;
       auto alpha = std::min(1.f, (float)time_left / 1000000.f);
 
-      RenderText(tachyon, tachyon->developer_overlay_font, message.c_str(), 10, y_offset, ctx.w, tVec4f(color, alpha), tVec4f(0.f));
+      RenderText(tachyon, tachyon->developer_overlay_font, message.c_str(), 10, y_offset, tachyon->window_width, tVec4f(color, alpha), tVec4f(0.f));
 
       y_offset += 30;
     }
@@ -427,12 +455,6 @@ static void UpdateRendererContext(Tachyon* tachyon) {
   auto& scene = tachyon->scene;
   auto& camera = scene.camera;
   tMat4f camera_rotation_matrix = camera.rotation.toMatrix4f();
-  int w, h;
-
-  SDL_GL_GetDrawableSize(tachyon->sdl_window, &w, &h);
-
-  ctx.w = w;
-  ctx.h = h;
 
   ctx.projection_matrix = tMat4f::perspective(camera.fov, scene.z_near, scene.z_far).transpose();
 
@@ -610,6 +632,7 @@ static void RenderPbrMeshes(Tachyon* tachyon) {
   SetShaderBool(locations.has_texture, true);
   SetShaderInt(locations.albedo_texture, 0);
 
+  // Render textured PBR meshes
   // @todo factor
   for (auto& record : tachyon->mesh_pack.mesh_records) {
     if (
@@ -729,7 +752,6 @@ static void RenderGlobalLighting(Tachyon* tachyon) {
   renderer.directional_shadow_map.read();
   target_accumulation_buffer.write();
 
-  glViewport(0, 0, tachyon->window_width, tachyon->window_height);
   glClear(GL_COLOR_BUFFER_BIT);
 
   glUseProgram(shader.program);
@@ -873,7 +895,7 @@ static void RenderPointLights(Tachyon* tachyon) {
   // @todo avoid reallocating each frame
   std::vector<tOpenGLPointLightDiscInstance> instances;
   // @todo put in ctx
-  auto aspect_ratio = float(ctx.w) / float(ctx.h);
+  auto aspect_ratio = float(ctx.internal_width) / float(ctx.internal_height);
 
   auto view_matrix = ctx.view_matrix.transpose();
   auto projection_matrix = ctx.projection_matrix.transpose();
@@ -886,7 +908,6 @@ static void RenderPointLights(Tachyon* tachyon) {
     }
 
     tOpenGLPointLightDiscInstance instance;
-
     instance.light = light;
 
     tVec3f local_light_position = view_matrix * light.position;
@@ -899,7 +920,7 @@ static void RenderPointLights(Tachyon* tachyon) {
       clip_position.y = 1.f - clip_position.y - 1.f;
 
       instance.offset = tVec2f(clip_position.x, clip_position.y);
-      // @todo use 1 + log(light.power) or similar for scaling term
+      // @todo (?) use 1 + log(light.power) or similar for scaling term
       instance.scale.x = 1.2f * light.radius / local_light_position.z;
       instance.scale.y = 1.2f * light.radius / local_light_position.z * aspect_ratio;
     } else {
@@ -945,7 +966,7 @@ static void RenderPost(Tachyon* tachyon) {
   accumulation_buffer.read();
 
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-  glViewport(0, 0, ctx.w, ctx.h);
+  glViewport(0, 0, tachyon->window_width, tachyon->window_height);
 
   glUseProgram(shader.program);
   SetShaderVec4f(locations.offset_and_scale, { 0.f, 0.f, 1.f, 1.f });
@@ -972,8 +993,9 @@ static void RenderUIElements(Tachyon* tachyon) {
     } else if (command.ui_text != nullptr) {
       auto& text = *command.ui_text;
       auto& string = command.options.string;
+      SDL_Color color = { 255, 255, 255 };
 
-      surface = TTF_RenderText_Blended_Wrapped(text.font, string.c_str(), { 255, 255, 255 }, ctx.w);
+      surface = TTF_RenderText_Blended_Wrapped(text.font, string.c_str(), color, tachyon->window_width);
     }
 
     if (surface == nullptr) {
@@ -992,7 +1014,7 @@ static void RenderUIElements(Tachyon* tachyon) {
       y -= half_h;
     }
 
-    // @todo batch render common surfaces
+    // @todo @optimize batch render common surfaces
     RenderSurface(tachyon, surface, x, y, surface->w, surface->h, options.rotation, tVec4f(options.color, options.alpha), tVec4f(0.f));
 
     if (command.ui_text != nullptr) {
@@ -1010,7 +1032,7 @@ static void RenderGBufferView(Tachyon* tachyon) {
   renderer.g_buffer.read();
 
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-  glViewport(0, 0, ctx.w, ctx.h);
+  glViewport(0, 0, tachyon->window_width, tachyon->window_height);
 
   glUseProgram(shader.program);
   SetShaderVec4f(locations.offset_and_scale, { 0.f, 0.f, 1.f, 1.f });
@@ -1026,34 +1048,37 @@ static void RenderGBufferView(Tachyon* tachyon) {
 void Tachyon_OpenGL_InitRenderer(Tachyon* tachyon) {
   auto* renderer = new tOpenGLRenderer;
 
-  // @todo only do GL setup stuff once in case we destroy/recreate the renderer
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
-  SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-  SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-  SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-
-  renderer->gl_context = SDL_GL_CreateContext(tachyon->sdl_window);
-
-  glewExperimental = true;
-
-  glewInit();
-
-  SDL_GL_SetSwapInterval(0);
-
-  // Apply default OpenGL settings
-  glEnable(GL_PROGRAM_POINT_SIZE);
-  glFrontFace(GL_CCW);
-
   tachyon->renderer = renderer;
+
+  // OpenGL setup
+  // @todo only do this stuff once in case we destroy/recreate the renderer
+  {
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+
+    renderer->gl_context = SDL_GL_CreateContext(tachyon->sdl_window);
+
+    glewExperimental = true;
+
+    glewInit();
+
+    SDL_GL_SetSwapInterval(0);
+
+    // Apply default OpenGL settings
+    glEnable(GL_PROGRAM_POINT_SIZE);
+    glFrontFace(GL_CCW);
+  }
 
   Tachyon_OpenGL_InitShaders(renderer->shaders);
 
   // Initialize buffers
   {
     glGenBuffers(1, &renderer->indirect_buffer);
-    CreateRenderBuffers(tachyon);
+    InitRenderBuffers(tachyon);
   }
 
   // Set up screen quad texture binding
@@ -1084,7 +1109,7 @@ void Tachyon_OpenGL_InitRenderer(Tachyon* tachyon) {
   }
 }
 
-void Tachyon_OpenGL_ResizeRenderer(Tachyon* tachyon) {
+void Tachyon_OpenGL_HandleWindowResize(Tachyon* tachyon) {
   auto& renderer = get_renderer();
 
   renderer.g_buffer.destroy();
@@ -1092,7 +1117,7 @@ void Tachyon_OpenGL_ResizeRenderer(Tachyon* tachyon) {
   renderer.accumulation_buffer_b.destroy();
   renderer.directional_shadow_map.destroy();
 
-  CreateRenderBuffers(tachyon);
+  InitRenderBuffers(tachyon);
 }
 
 void Tachyon_OpenGL_RenderScene(Tachyon* tachyon) {

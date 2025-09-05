@@ -12,6 +12,11 @@ struct ColorAttachment {
   GLenum textureUnit;
 };
 
+struct ColorAttachmentOptions {
+  GLint wrapping;
+  GLint magnification;
+};
+
 enum ColorFormat {
   R,
   R16,
@@ -31,7 +36,7 @@ public:
   void destroy();
   void addColorAttachment(ColorFormat format);
   void addColorAttachment(ColorFormat format, uint32 unit);
-  void addColorAttachment(ColorFormat format, uint32 unit, GLint clamp);
+  void addColorAttachment(ColorFormat format, uint32 unit, const ColorAttachmentOptions& options);
   void addDepthAttachment();
   void addDepthStencilAttachment();
   void bindColorAttachments();

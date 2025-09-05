@@ -16,7 +16,8 @@ struct tOpenGLRenderer {
   tOpenGLMeshPack mesh_pack;
 
   struct tOpenGLRendererContext {
-    int32 w, h;
+    int32 internal_width;
+    int32 internal_height;
 
     tMat4f view_matrix;
     tMat4f projection_matrix;
@@ -57,7 +58,7 @@ struct tOpenGLRenderer {
 };
 
 void Tachyon_OpenGL_InitRenderer(Tachyon* tachyon);
-void Tachyon_OpenGL_ResizeRenderer(Tachyon* tachyon);
+void Tachyon_OpenGL_HandleWindowResize(Tachyon* tachyon);
 void Tachyon_OpenGL_RenderScene(Tachyon* tachyon);
 void Tachyon_OpenGL_RenderDeveloperOverlay(Tachyon* tachyon);
 void Tachyon_OpenGL_DestroyRenderer(Tachyon* tachyon);
