@@ -517,7 +517,7 @@ tObject& Tachyon_CreateObject(Tachyon* tachyon, uint16 mesh_index) {
   auto& record = tachyon->mesh_pack.mesh_records[mesh_index];
   auto& group = record.group;
 
-  if (group.total_visible >= group.total) {
+  if (group.total_active >= group.total) {
     // @todo show the mesh name + limit
     printf("[Tachyon_CreateObject] Fatal Error: Too many objects created for mesh %d\n", mesh_index);
 
@@ -526,11 +526,10 @@ tObject& Tachyon_CreateObject(Tachyon* tachyon, uint16 mesh_index) {
     exit(0);
   }
 
-  group.total_visible++;
   group.total_active++;
 
   // Reset LoDs
-  record.lod_1.instance_count = group.total_visible;
+  record.lod_1.instance_count = group.total_active;
   record.lod_2.instance_count = 0;
   record.lod_3.instance_count = 0;
 
@@ -586,14 +585,8 @@ void Tachyon_RemoveObject(Tachyon* tachyon, uint16 mesh_index, uint16 object_id)
   // Truncate total active objects by 1
   group.total_active--;
 
-  if (removed_index < group.total_visible) {
-    // If the removed index is within the visible objects range,
-    // truncate that by 1 too
-    group.total_visible--;
-  }
-
   // Reset LoDs
-  record.lod_1.instance_count = group.total_visible;
+  record.lod_1.instance_count = group.total_active;
   record.lod_2.instance_count = 0;
   record.lod_3.instance_count = 0;
 
@@ -609,7 +602,6 @@ void Tachyon_RemoveAllObjects(Tachyon* tachyon, uint16 mesh_index) {
   auto& group = record.group;
 
   group.total_active = 0;
-  group.total_visible = 0;
 
   // Reset LoDs
   record.lod_1.instance_count = 0;
@@ -640,7 +632,7 @@ tObject* Tachyon_GetLiveObject(Tachyon* tachyon, const tObject& object) {
 uint16 Tachyon_PartitionObjectsByDistance(Tachyon* tachyon, tObjectGroup& group, const uint16 start, const float distance) {
   auto& camera = tachyon->scene.camera;
   uint16 current = start;
-  uint16 end = group.total_visible;
+  uint16 end = group.total_active;
 
   // Partition objects in a group in linear time, by distance from the camera.
   // We independently count up and count down until our counters meet.
@@ -691,7 +683,7 @@ void Tachyon_UseLodByDistance(Tachyon* tachyon, const uint16 mesh_index, const f
   record.lod_1.instance_count = pivot;
 
   record.lod_2.base_instance = record.lod_1.base_instance + pivot;
-  record.lod_2.instance_count = group.total_visible - pivot;
+  record.lod_2.instance_count = group.total_active - pivot;
 }
 
 /**
@@ -709,5 +701,5 @@ void Tachyon_UseLodByDistance(Tachyon* tachyon, const uint16 mesh_index, const f
   record.lod_2.instance_count = pivot2 - pivot;
 
   record.lod_3.base_instance = record.lod_1.base_instance + pivot2;
-  record.lod_3.instance_count = group.total_visible - pivot2;
+  record.lod_3.instance_count = group.total_active - pivot2;
 }

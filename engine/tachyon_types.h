@@ -73,7 +73,6 @@ struct tObjectGroup {
   uint16* id_to_index = nullptr;
   uint32 object_offset = 0;
   uint16 total = 0;
-  uint16 total_visible = 0;
   uint16 total_active = 0;
   uint16 highest_used_id = 0;
   bool buffered = false;

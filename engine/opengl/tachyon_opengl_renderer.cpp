@@ -557,7 +557,7 @@ static void RenderMeshesByType(Tachyon* tachyon, tMeshType type) {
     for (auto& record : tachyon->mesh_pack.mesh_records) {
       if (
         record.group.disabled ||
-        record.group.total_visible == 0 ||
+        record.group.total_active == 0 ||
         record.type != type
       ) {
         continue;
@@ -565,10 +565,10 @@ static void RenderMeshesByType(Tachyon* tachyon, tMeshType type) {
 
       if (!record.group.buffered) {
         glBindBuffer(GL_ARRAY_BUFFER, gl_mesh_pack.buffers[SURFACE_BUFFER]);
-        glBufferSubData(GL_ARRAY_BUFFER, record.group.object_offset * sizeof(uint32), record.group.total_visible * sizeof(uint32), record.group.surfaces);
+        glBufferSubData(GL_ARRAY_BUFFER, record.group.object_offset * sizeof(uint32), record.group.total_active * sizeof(uint32), record.group.surfaces);
 
         glBindBuffer(GL_ARRAY_BUFFER, gl_mesh_pack.buffers[MATRIX_BUFFER]);
-        glBufferSubData(GL_ARRAY_BUFFER, record.group.object_offset * sizeof(tMat4f), record.group.total_visible * sizeof(tMat4f), record.group.matrices);
+        glBufferSubData(GL_ARRAY_BUFFER, record.group.object_offset * sizeof(tMat4f), record.group.total_active * sizeof(tMat4f), record.group.matrices);
       }
 
       record.group.buffered = true;
@@ -588,7 +588,7 @@ static void RenderMeshesByType(Tachyon* tachyon, tMeshType type) {
 
     if (
       record.group.disabled ||
-      record.group.total_visible == 0 ||
+      record.group.total_active == 0 ||
       record.type != type ||
       record.texture != ""
     ) {
@@ -644,7 +644,7 @@ static void RenderPbrMeshes(Tachyon* tachyon) {
   for (auto& record : tachyon->mesh_pack.mesh_records) {
     if (
       !record.group.disabled &&
-      record.group.total_visible > 0 &&
+      record.group.total_active > 0 &&
       record.type == PBR_MESH &&
       record.texture != ""
     ) {
@@ -712,7 +712,7 @@ static void RenderShadowMaps(Tachyon* tachyon) {
 
       if (
         record.group.disabled ||
-        record.group.total_visible == 0 ||
+        record.group.total_active == 0 ||
         record.type != PBR_MESH ||
         record.shadow_cascade_ceiling <= cascade_index
       ) {
