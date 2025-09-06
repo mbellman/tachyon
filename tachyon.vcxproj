@@ -114,6 +114,8 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="astro\game.h" />
+    <ClInclude Include="astro\game_state.h" />
     <ClInclude Include="cosmodrone\autopilot.h" />
     <ClInclude Include="cosmodrone\background_vehicles.h" />
     <ClInclude Include="cosmodrone\beacons.h" />
@@ -248,6 +250,7 @@
     <ClInclude Include="external\SDL_ttf\include\SDL_ttf.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="astro\game.cpp" />
     <ClCompile Include="cosmodrone\autopilot.cpp" />
     <ClCompile Include="cosmodrone\background_vehicles.cpp" />
     <ClCompile Include="cosmodrone\beacons.cpp" />
