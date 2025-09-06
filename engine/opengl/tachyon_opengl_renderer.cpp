@@ -688,6 +688,8 @@ static void RenderShadowMaps(Tachyon* tachyon) {
 
   renderer.directional_shadow_map.write();
 
+  // glCullFace(GL_FRONT);
+
   // Directional shadow map
   for (uint8 attachment = DIRECTIONAL_SHADOW_MAP_CASCADE_1; attachment <= DIRECTIONAL_SHADOW_MAP_CASCADE_4; attachment++) {
     auto cascade_index = attachment - DIRECTIONAL_SHADOW_MAP_CASCADE_1;
@@ -732,6 +734,8 @@ static void RenderShadowMaps(Tachyon* tachyon) {
       renderer.total_draw_calls += 1;
     }
   }
+
+  // glCullFace(GL_BACK);
 }
 
 static void RenderGlobalLighting(Tachyon* tachyon) {

@@ -99,6 +99,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <AdditionalIncludeDirectories>$(SolutionDir)\external\SDL2\include;$(SolutionDir)\external\GLEW\include;$(SolutionDir)\external\SDL_image\include;$(SolutionDir)\external\SDL_ttf\include;$(SolutionDir)\cosmodrone;$(SolutionDir)\tachyon;$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>
