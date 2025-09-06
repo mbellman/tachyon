@@ -417,6 +417,12 @@
     <ClInclude Include="astro\game_state.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="astro\mesh_library.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\object_manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -534,6 +540,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="astro\game.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="astro\mesh_library.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="astro\object_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

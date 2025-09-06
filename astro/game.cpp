@@ -1,18 +1,15 @@
-#include "engine/tachyon.h"
 #include "astro/game.h"
+#include "astro/mesh_library.h"
+#include "astro/object_manager.h"
 
 using namespace astro;
 
 void astro::InitGame(Tachyon* tachyon, State& state) {
-  state.meshes.cube = Tachyon_AddMesh(
-    tachyon,
-    Tachyon_CreateCubeMesh(),
-    1
-  );
+  astro::AddMeshes(tachyon, state);
 
   Tachyon_InitializeObjects(tachyon);
 
-  create(state.meshes.cube);
+  astro::CreateObjects(tachyon, state);
 }
 
 void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
