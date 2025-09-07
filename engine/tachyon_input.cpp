@@ -71,6 +71,7 @@ void Tachyon_HandleInputEvent(Tachyon* tachyon, const SDL_Event& event) {
       }
       break;
     }
+
     case SDL_KEYUP: {
       auto code = event.key.keysym.sym;
 
@@ -83,16 +84,19 @@ void Tachyon_HandleInputEvent(Tachyon* tachyon, const SDL_Event& event) {
       }
       break;
     }
+
     case SDL_MOUSEMOTION: {
       tachyon->mouse_delta_x = event.motion.xrel;
       tachyon->mouse_delta_y = event.motion.yrel;
       break;
     }
+
     case SDL_MOUSEBUTTONDOWN: {
       if (event.button.button == SDL_BUTTON_LEFT) {
         tachyon->did_left_click_down = true;
         tachyon->is_left_mouse_held_down = true;
-      } else if (event.button.button == SDL_BUTTON_RIGHT) {
+      }
+      else if (event.button.button == SDL_BUTTON_RIGHT) {
         tachyon->did_right_click_down = true;
         tachyon->is_right_mouse_held_down = true;
       }
@@ -101,11 +105,13 @@ void Tachyon_HandleInputEvent(Tachyon* tachyon, const SDL_Event& event) {
 
       break;
     }
+
     case SDL_MOUSEBUTTONUP: {
       if (event.button.button == SDL_BUTTON_LEFT) {
         tachyon->did_left_click_up = true;
         tachyon->is_left_mouse_held_down = false;
-      } else if (event.button.button == SDL_BUTTON_RIGHT) {
+      }
+      else if (event.button.button == SDL_BUTTON_RIGHT) {
         tachyon->did_right_click_up = true;
         tachyon->is_right_mouse_held_down = false;
       }
@@ -114,39 +120,28 @@ void Tachyon_HandleInputEvent(Tachyon* tachyon, const SDL_Event& event) {
 
       break;
     }
+
     case SDL_MOUSEWHEEL: {
       tachyon->wheel_direction = event.wheel.y;
       break;
     }
+
     case SDL_CONTROLLERAXISMOTION: {
       const float DEAD_ZONE = 0.2f;
       float v = float(event.jaxis.value) / 32767.f;
       bool isDeadZone = v < DEAD_ZONE && v > -DEAD_ZONE;
 
       if (event.caxis.axis == SDL_CONTROLLER_AXIS_LEFTX) {
-        if (isDeadZone) {
-          tachyon->left_stick.x = 0.f;
-        } else {
-          tachyon->left_stick.x = v;
-        }
-      } else if (event.caxis.axis == SDL_CONTROLLER_AXIS_LEFTY) {
-        if (isDeadZone) {
-          tachyon->left_stick.y = 0.f;
-        } else {
-          tachyon->left_stick.y = v;
-        }
-      } else if (event.caxis.axis == SDL_CONTROLLER_AXIS_RIGHTX) {
-        if (isDeadZone) {
-          tachyon->right_stick.x = 0.f;
-        } else {
-          tachyon->right_stick.x = v;
-        }
-      } else if (event.caxis.axis == SDL_CONTROLLER_AXIS_RIGHTY) {
-        if (isDeadZone) {
-          tachyon->right_stick.y = 0.f;
-        } else {
-          tachyon->right_stick.y = v;
-        }
+        tachyon->left_stick.x = isDeadZone ? 0.f : v;
+      }
+      else if (event.caxis.axis == SDL_CONTROLLER_AXIS_LEFTY) {
+        tachyon->left_stick.y = isDeadZone ? 0.f : v;
+      }
+      else if (event.caxis.axis == SDL_CONTROLLER_AXIS_RIGHTX) {
+        tachyon->right_stick.x = isDeadZone ? 0.f : v;
+      }
+      else if (event.caxis.axis == SDL_CONTROLLER_AXIS_RIGHTY) {
+        tachyon->right_stick.y = isDeadZone ? 0.f : v;
       }
 
       break;

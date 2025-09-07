@@ -20,6 +20,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
 
   cube.position = state.player_position;
   cube.scale = tVec3f(600.f);
+  cube.scale.y = 1200.f;
 
   commit(cube);
 
@@ -46,7 +47,6 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
     state.player_position += tVec3f(0, 0, 1.f) * 4000.f * dt;
   }
 
-  // @temporary
-  tVec3f(tachyon->left_stick.x, tachyon->left_stick.y, 0.f).debug();
-  tVec3f(tachyon->right_stick.x, tachyon->right_stick.y, 0.f).debug();
+  state.player_position.x += tachyon->left_stick.x * 6000.f * dt;
+  state.player_position.z += tachyon->left_stick.y * 6000.f * dt;
 }
