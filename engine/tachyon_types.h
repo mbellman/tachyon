@@ -212,6 +212,8 @@ struct Tachyon {
   uint64 released_key_state = 0;
   int32 mouse_delta_x = 0;
   int32 mouse_delta_y = 0;
+  tVec2f left_stick;
+  tVec2f right_stick;
   int8 wheel_direction = 0;
   bool did_left_click_down = false;
   bool did_left_click_up = false;

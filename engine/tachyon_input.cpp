@@ -118,6 +118,39 @@ void Tachyon_HandleInputEvent(Tachyon* tachyon, const SDL_Event& event) {
       tachyon->wheel_direction = event.wheel.y;
       break;
     }
+    case SDL_CONTROLLERAXISMOTION: {
+      const float DEAD_ZONE = 0.2f;
+      float v = float(event.jaxis.value) / 32767.f;
+      bool isDeadZone = v < DEAD_ZONE && v > -DEAD_ZONE;
+
+      if (event.caxis.axis == SDL_CONTROLLER_AXIS_LEFTX) {
+        if (isDeadZone) {
+          tachyon->left_stick.x = 0.f;
+        } else {
+          tachyon->left_stick.x = v;
+        }
+      } else if (event.caxis.axis == SDL_CONTROLLER_AXIS_LEFTY) {
+        if (isDeadZone) {
+          tachyon->left_stick.y = 0.f;
+        } else {
+          tachyon->left_stick.y = v;
+        }
+      } else if (event.caxis.axis == SDL_CONTROLLER_AXIS_RIGHTX) {
+        if (isDeadZone) {
+          tachyon->right_stick.x = 0.f;
+        } else {
+          tachyon->right_stick.x = v;
+        }
+      } else if (event.caxis.axis == SDL_CONTROLLER_AXIS_RIGHTY) {
+        if (isDeadZone) {
+          tachyon->right_stick.y = 0.f;
+        } else {
+          tachyon->right_stick.y = v;
+        }
+      }
+
+      break;
+    }
   }
 }
 

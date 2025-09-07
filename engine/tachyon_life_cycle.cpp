@@ -74,6 +74,9 @@ Tachyon* Tachyon_Init() {
   TTF_Init();
   IMG_Init(IMG_INIT_PNG);
 
+  SDL_GameControllerAddMappingsFromFile("./controllers.txt");
+  SDL_GameControllerOpen(0);
+
   auto* tachyon = new Tachyon;
 
   // @todo dev mode only
