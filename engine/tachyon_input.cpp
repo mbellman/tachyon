@@ -55,6 +55,15 @@ const static std::map<SDL_Keycode, tKey> key_map = {
   { SDLK_LALT, tKey::ALT }
 };
 
+const static std::map<Uint8, tKey> controllerButtonMap = {
+  { SDL_CONTROLLER_BUTTON_A, tKey::CONTROLLER_A },
+  { SDL_CONTROLLER_BUTTON_B, tKey::CONTROLLER_B },
+  { SDL_CONTROLLER_BUTTON_X, tKey::CONTROLLER_X },
+  { SDL_CONTROLLER_BUTTON_Y, tKey::CONTROLLER_Y },
+  { SDL_CONTROLLER_BUTTON_LEFTSHOULDER, tKey::CONTROLLER_L1 },
+  { SDL_CONTROLLER_BUTTON_RIGHTSHOULDER, tKey::CONTROLLER_R1 }
+};
+
 void Tachyon_HandleInputEvent(Tachyon* tachyon, const SDL_Event& event) {
   switch (event.type) {
     case SDL_KEYDOWN: {
@@ -69,6 +78,7 @@ void Tachyon_HandleInputEvent(Tachyon* tachyon, const SDL_Event& event) {
 
         tachyon->held_key_state |= key;
       }
+
       break;
     }
 
@@ -82,6 +92,7 @@ void Tachyon_HandleInputEvent(Tachyon* tachyon, const SDL_Event& event) {
         tachyon->pressed_key_state &= ~key;
         tachyon->released_key_state |= key;
       }
+
       break;
     }
 
@@ -123,6 +134,7 @@ void Tachyon_HandleInputEvent(Tachyon* tachyon, const SDL_Event& event) {
 
     case SDL_MOUSEWHEEL: {
       tachyon->wheel_direction = event.wheel.y;
+
       break;
     }
 
@@ -142,6 +154,42 @@ void Tachyon_HandleInputEvent(Tachyon* tachyon, const SDL_Event& event) {
       }
       else if (event.caxis.axis == SDL_CONTROLLER_AXIS_RIGHTY) {
         tachyon->right_stick.y = isDeadZone ? 0.f : v;
+      }
+      else if (event.caxis.axis == SDL_CONTROLLER_AXIS_TRIGGERLEFT) {
+        tachyon->left_trigger = event.caxis.value / 32767.f;
+      }
+      else if (event.caxis.axis == SDL_CONTROLLER_AXIS_TRIGGERRIGHT) {
+        tachyon->right_trigger = event.caxis.value / 32767.f;
+      }
+
+      break;
+    }
+
+    case SDL_CONTROLLERBUTTONDOWN: {
+      auto button = event.cbutton.button;
+
+      if (controllerButtonMap.find(button) != controllerButtonMap.end()) {
+        uint64 key = (uint64)controllerButtonMap.at(button);
+
+        if (!is_key_held(key)) {
+          tachyon->pressed_key_state |= key;
+        }
+
+        tachyon->held_key_state |= key;
+      }
+
+      break;
+    }
+
+    case SDL_CONTROLLERBUTTONUP: {
+      auto button = event.cbutton.button;
+
+      if (controllerButtonMap.find(button) != controllerButtonMap.end()) {
+        uint64 key = (uint64)controllerButtonMap.at(button);
+
+        tachyon->held_key_state &= ~key;
+        tachyon->pressed_key_state &= ~key;
+        tachyon->released_key_state |= key;
       }
 
       break;
