@@ -21,14 +21,23 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   cube.position = state.player_position;
   cube.scale = tVec3f(600.f);
   cube.scale.y = 1200.f;
+  cube.color = tVec3f(0, 0.2f, 0.8f);
 
   commit(cube);
 
   // @temporary
+  auto& plane = objects(state.meshes.plane)[0];
+
+  plane.position = tVec3f(0, -1500.f, 0);
+  plane.scale = tVec3f(20000.f, 1.f, 20000.f);
+
+  commit(plane);
+
+  // @temporary
   // @todo unit() this in the renderer
   scene.directional_light_direction = tVec3f(1.f, -1.f, -0.2f).unit();
-  scene.camera.position = tVec3f(0, 5000.f, 7000.f);
-  scene.camera.rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.5f);
+  scene.camera.position = tVec3f(0, 10000.f, 10000.f);
+  scene.camera.rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.9f);
 
   // @temporary
   if (is_key_held(tKey::ARROW_UP) || is_key_held(tKey::W)) {

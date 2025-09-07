@@ -139,7 +139,7 @@ void Tachyon_HandleInputEvent(Tachyon* tachyon, const SDL_Event& event) {
     }
 
     case SDL_CONTROLLERAXISMOTION: {
-      const float DEAD_ZONE = 0.2f;
+      const float DEAD_ZONE = 0.1f;
       float v = float(event.jaxis.value) / 32767.f;
       bool isDeadZone = v < DEAD_ZONE && v > -DEAD_ZONE;
 

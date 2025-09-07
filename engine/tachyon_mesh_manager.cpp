@@ -213,12 +213,12 @@ tMesh Tachyon_CreatePlaneMesh() {
   mesh.vertices[3].uv = tVec2f(1.f, 1.f);
 
   mesh.face_elements[0] = 0;
-  mesh.face_elements[1] = 1;
-  mesh.face_elements[2] = 2;
+  mesh.face_elements[1] = 2;
+  mesh.face_elements[2] = 1;
 
   mesh.face_elements[3] = 1;
-  mesh.face_elements[4] = 3;
-  mesh.face_elements[5] = 2;
+  mesh.face_elements[4] = 2;
+  mesh.face_elements[5] = 3;
 
   return mesh;
 }

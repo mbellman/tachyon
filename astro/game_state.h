@@ -4,7 +4,9 @@
 
 namespace astro {
   struct MeshIds {
-    uint16 cube;
+    uint16
+      cube,
+      plane;
   };
 
   struct State {
