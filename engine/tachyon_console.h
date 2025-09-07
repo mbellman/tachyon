@@ -16,6 +16,10 @@ struct tConsoleMessage {
 #define add_console_message(message, color) Tachyon_AddConsoleMessage(message, color)
 #define console_log(value) Tachyon_Log(value);
 
+#define show_alert_message(message)\
+  tachyon->alert_message = message;\
+  tachyon->last_alert_message_time = tachyon->running_time;\
+
 void Tachyon_AddConsoleMessage(const std::string& message, const tVec3f& color);
 void Tachyon_Log(const char* message);
 void Tachyon_Log(const std::string& message);

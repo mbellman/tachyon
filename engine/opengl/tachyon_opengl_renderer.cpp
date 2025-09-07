@@ -344,8 +344,20 @@ static void RenderText(Tachyon* tachyon, TTF_Font* font, const char* message, in
   SDL_FreeSurface(text);
 }
 
+static void RenderTextCentered(Tachyon* tachyon, TTF_Font* font, const char* message, int32 x, int32 y, uint32 wrap_width, const tVec4f& color, const tVec4f& background) {
+  SDL_Surface* text = TTF_RenderText_Blended_Wrapped(font, message, { 255, 255, 255 }, wrap_width);
+
+  RenderSurface(tachyon, text, x - text->w / 2, y - text->h / 2, text->w, text->h, 0.f, color, background);
+
+  SDL_FreeSurface(text);
+}
+
 static void RenderText(Tachyon* tachyon, TTF_Font* font, const char* message, int32 x, int32 y, uint32 wrap_width, const tVec3f& color, const tVec4f& background) {
   RenderText(tachyon, font, message, x, y, wrap_width, tVec4f(color, 1.f), background);
+}
+
+static void RenderTextCentered(Tachyon* tachyon, TTF_Font* font, const char* message, int32 x, int32 y, uint32 wrap_width, const tVec3f& color, const tVec4f& background) {
+  RenderTextCentered(tachyon, font, message, x, y, wrap_width, tVec4f(color, 1.f), background);
 }
 
 static void HandleDevModeInputs(Tachyon* tachyon) {
@@ -367,6 +379,7 @@ static void HandleDevModeInputs(Tachyon* tachyon) {
     SDL_GL_SetSwapInterval(swap_interval ? 0 : 1);
 
     add_console_message(message, tVec3f(1.f));
+    show_alert_message(message);
   }
 }
 
@@ -455,6 +468,23 @@ static void RenderDebugLabels(Tachyon* tachyon) {
 
       y_offset += 30;
     }
+  }
+}
+
+static void RenderAlertMessage(Tachyon* tachyon) {
+  if (
+    tachyon->alert_message != "" &&
+    tachyon->last_alert_message_time != 0.f &&
+    (tachyon->running_time - tachyon->last_alert_message_time) < 5.f
+  ) {
+    auto* font = tachyon->alert_message_font;
+    auto& message = tachyon->alert_message;
+    int32 x = tachyon->window_width / 2;
+    int32 y = tachyon->window_height / 3;
+    int32 wrap_width = tachyon->window_width;
+    auto font_color = tVec3f(1.f);
+
+    RenderTextCentered(tachyon, font, message.c_str(), x, y, wrap_width, font_color, tVec4f(0.f));
   }
 }
 
@@ -1219,6 +1249,8 @@ void Tachyon_OpenGL_RenderScene(Tachyon* tachyon) {
 
     RenderText(tachyon, tachyon->developer_overlay_font, label.c_str(), 10, 10, 1920, tVec3f(1.f), tVec4f(0.f));
   }
+
+  RenderAlertMessage(tachyon);
 
   SDL_GL_SwapWindow(tachyon->sdl_window);
 

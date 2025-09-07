@@ -248,7 +248,10 @@ struct Tachyon {
   bool show_developer_tools = true;
   bool use_high_visibility_mode = false;
   TTF_Font* developer_overlay_font = nullptr;
+  TTF_Font* alert_message_font = nullptr;
   uint64 frame_start_time_in_microseconds = 0;
   uint64 last_frame_time_in_microseconds = 1;
   std::vector<tDevLabel> dev_labels;
+  std::string alert_message = "";
+  float last_alert_message_time = 0.f;
 };
