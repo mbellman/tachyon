@@ -33,14 +33,14 @@ static void SaveSourceFileRecord(const char* path) {
 
 static tOpenGLShaderAttachment AttachShader(tOpenGLShader& shader, GLenum type, const char* path) {
   auto id = glCreateShader(type);
-  auto source = Tachyon_GetFileContents(path);
-  auto* source_pointer = source.c_str();
+  auto shader_file_contents = Tachyon_GetFileContents(path);
+  auto* shader_file_contents_pointer = shader_file_contents.c_str();
 
   // @todo handle #includes/other directives etc.
 
   SaveSourceFileRecord(path);
 
-  glShaderSource(id, 1, &source_pointer, 0);
+  glShaderSource(id, 1, &shader_file_contents_pointer, 0);
   glCompileShader(id);
 
   // @todo dev mode only
@@ -54,11 +54,11 @@ static tOpenGLShaderAttachment AttachShader(tOpenGLShader& shader, GLenum type, 
 
       glGetShaderInfoLog(id, 512, 0, error);
 
-      // @todo print to game window
       printf("Failed to compile shader: %s\n", path);
       printf("\u001b[31m %s\n\u001b[37m", error);
 
       add_console_message("Failed to compile shader: " + std::string(path), tVec3f(1.f, 0.8f, 0.2f));
+      // @todo split error by newlines and add each as its own message
       add_console_message(error, tVec3f(1.f, 0, 0));
     }
   }
@@ -296,7 +296,7 @@ void Tachyon_OpenGL_HotReloadShaders(tOpenGLShaders& shaders) {
       }
     }
 
-    // Doing this means a single shader change will cause
+    // Update all shader uniforms. A single shader change will cause
     // all uniform locations across all shaders to be reloaded,
     // but in practice this is fast enough not to matter.
     StoreShaderUniforms(shaders);
