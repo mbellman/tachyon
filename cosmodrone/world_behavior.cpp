@@ -56,7 +56,7 @@ static void UpdateCelestialBodies(Tachyon* tachyon, State& state) {
     auto unit_sun_position = orbit_rotation_matrix.transformVec3f(sun_direction);
     auto sunlight_direction = unit_sun_position.invert();
 
-    tachyon->scene.directional_light_direction = sunlight_direction;
+    tachyon->scene.primary_light_direction = sunlight_direction;
     tachyon->scene.scene_time = state.current_game_time;
 
     auto& moon = objects(meshes.moon)[0];

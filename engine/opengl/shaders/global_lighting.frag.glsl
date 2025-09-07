@@ -21,9 +21,8 @@ uniform mat4 inverse_view_matrix;
 uniform vec3 camera_position;
 uniform float scene_time;
 uniform float running_time;
-// @temporary
 // @todo allow multiple directional lights
-uniform vec3 directional_light_direction;
+uniform vec3 primary_light_direction;
 
 // @todo dev mode only
 uniform bool use_high_visibility_mode;
@@ -351,7 +350,7 @@ vec3 RotateAroundAxis(vec3 axis, vec3 vector, float angle) {
 const vec3 ORBITAL_AXIS = normalize(vec3(0.5, 0, -1.0));
 
 float GetSunGlareFactor(vec3 sky_direction) {
-  vec3 sun_direction = -directional_light_direction;
+  vec3 sun_direction = -primary_light_direction;
 
   vec3 view_direction = -1.0 * vec3(view_matrix[0][2], view_matrix[1][2], view_matrix[2][2]);
   float sun_dot = max(dot(sun_direction, sky_direction), 0.0);
@@ -388,7 +387,7 @@ float GetSunGlareFactor(vec3 sky_direction) {
 
 // @todo allow game-specific implementation
 vec3 GetSkyColor(vec3 sky_direction, float sun_glare_factor) {
-  vec3 sun_direction = -directional_light_direction;
+  vec3 sun_direction = -primary_light_direction;
   vec3 planet_direction = vec3(0, -1, 0);
 
   float sun_dot = max(dot(sun_direction, sky_direction), 0.0);
@@ -595,7 +594,7 @@ void main() {
   Material material = UnpackMaterial(frag_color_and_material);
 
   vec3 V = normalize(camera_position - position);
-  vec3 L = normalize(directional_light_direction);
+  vec3 L = normalize(primary_light_direction);
 
   float NdotV = max(dot(N, V), 0.0);
   float NdotL = max(dot(N, L), 0.0);
