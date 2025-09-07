@@ -158,27 +158,26 @@ const mat4[] light_matrices = {
   light_matrix_cascade_4
 };
 
-int GetCascadeIndex(float depth) {
-  float world_depth = GetWorldDepth(depth, Z_NEAR, Z_FAR);
+int GetCascadeIndex(vec3 world_position) {
+  float camera_distance = length(camera_position - world_position);
 
-  if (world_depth < 10000.0) {
+  // @todo make these depend on defined cascade ranges
+  if (camera_distance < 20000.0) {
     return 0;
-  } else if (world_depth < 50000.0) {
+  } else if (camera_distance < 50000.0) {
     return 1;
-  } else if (world_depth < 100000.0) {
+  } else if (camera_distance < 100000.0) {
     return 2;
   } else {
     return 3;
   }
 }
 
-float GetAverageShadowFactor(sampler2D shadow_map, vec3 light_space_position) {
+float GetAverageShadowFactor(sampler2D shadow_map, vec3 light_space_position, int cascade_index) {
   const vec2 texel_size = 1.0 / vec2(2048.0);
-  const float spread = 2.0;
-
   float t = fract(running_time);
 
-  const vec2[] offsets = {
+  vec2[] offsets = {
     vec2(0.0),
     vec2(noise(1.0 + t), noise(2.0 + t)),
     vec2(noise(3.0 + t), noise(4.0 + t)),
@@ -186,7 +185,16 @@ float GetAverageShadowFactor(sampler2D shadow_map, vec3 light_space_position) {
     vec2(noise(7.0 + t), noise(8.0 + t)),
   };
 
+  const float[] spatial_spread_per_cascade = {
+    2.0,
+    1.0,
+    1.5,
+    2.0
+  };
+
   const float bias = 0.001;
+  const float spread = spatial_spread_per_cascade[cascade_index];
+
   float shadow_factor = 0.0;
 
   for (int i = 0; i < 5; i++) {
@@ -201,8 +209,8 @@ float GetAverageShadowFactor(sampler2D shadow_map, vec3 light_space_position) {
 }
 
 // @todo fade out far cascade
-float GetPrimaryLightShadowFactor(vec3 world_position, float depth) {
-  int cascade_index = GetCascadeIndex(depth);
+float GetPrimaryLightShadowFactor(vec3 world_position) {
+  int cascade_index = GetCascadeIndex(world_position);
   vec4 light_space_position = light_matrices[cascade_index] * vec4(world_position, 1.0);
 
   light_space_position.xyz /= light_space_position.w;
@@ -222,7 +230,8 @@ float GetPrimaryLightShadowFactor(vec3 world_position, float depth) {
     cascade_index == 1 ? in_shadow_map_cascade_2 :
     cascade_index == 2 ? in_shadow_map_cascade_3 :
     in_shadow_map_cascade_4,
-    light_space_position.xyz
+    light_space_position.xyz,
+    cascade_index
   );
 }
 
@@ -515,7 +524,7 @@ vec2 GetDenoisedTemporalData(float ssao, float shadow, float depth, vec2 tempora
 
   // @todo use screen size
   const vec2 texel_size = 1.0 / vec2(1920.0, 1080.0);
-  const float temporal_weight = 1.0;
+  const float temporal_weight = 0.1;
   const float spatial_spread = 2.0;
 
   float world_depth = GetWorldDepth(depth, Z_NEAR, Z_FAR);
@@ -604,7 +613,7 @@ void main() {
 
   // Denoised SSAO/shadow
   float ssao = GetSSAO(12, frag_normal_and_depth.w, position, frag_normal_and_depth.xyz, fract(running_time));
-  float shadow = GetPrimaryLightShadowFactor(position, frag_normal_and_depth.w);
+  float shadow = GetPrimaryLightShadowFactor(position);
   vec2 denoised_temporal_data = GetDenoisedTemporalData(ssao, shadow, frag_normal_and_depth.w, temporal_uv);
 
   ssao = denoised_temporal_data.x;
