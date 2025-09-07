@@ -13,12 +13,36 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
 }
 
 void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
+  auto& scene = tachyon->scene;
+
+  // @temporary
   auto& cube = objects(state.meshes.cube)[0];
 
-  cube.position = tVec3f(0, -2000.f, -5000.f);
-  cube.scale = tVec3f(1000.f);
+  cube.position = state.player_position;
+  cube.scale = tVec3f(600.f);
 
   commit(cube);
 
-  tachyon->scene.directional_light_direction = tVec3f(1.f, -1.f, -0.2f);
+  // @temporary
+  // @todo unit() this in the renderer
+  scene.directional_light_direction = tVec3f(1.f, -1.f, -0.2f).unit();
+  scene.camera.position = tVec3f(0, 5000.f, 7000.f);
+  scene.camera.rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.5f);
+
+  // @temporary
+  if (is_key_held(tKey::ARROW_UP) || is_key_held(tKey::W)) {
+    state.player_position += tVec3f(0, 0, -1.f) * 4000.f * dt;
+  }
+
+  if (is_key_held(tKey::ARROW_LEFT) || is_key_held(tKey::A)) {
+    state.player_position += tVec3f(-1.f, 0, 0) * 4000.f * dt;
+  }
+
+  if (is_key_held(tKey::ARROW_RIGHT) || is_key_held(tKey::D)) {
+    state.player_position += tVec3f(1.f, 0, 0) * 4000.f * dt;
+  }
+
+  if (is_key_held(tKey::ARROW_DOWN) || is_key_held(tKey::S)) {
+    state.player_position += tVec3f(0, 0, 1.f) * 4000.f * dt;
+  }
 }

@@ -9,5 +9,7 @@ namespace astro {
 
   struct State {
     MeshIds meshes;
+
+    tVec3f player_position = tVec3f(0.f);
   };
 }
