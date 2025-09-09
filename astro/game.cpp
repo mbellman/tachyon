@@ -22,7 +22,8 @@ static void UpdateWaterPlane(Tachyon* tachyon, State& state) {
   // @temporary
   water_plane.position = tVec3f(0, -2500.f, 0);
   water_plane.scale = tVec3f(40000.f, 1.f, 40000.f);
-  water_plane.color = tVec3f(0, 0.2f, 0.5f);
+  water_plane.color = tVec3f(0, 0.1f, 0.3f);
+  water_plane.material = tVec4f(0.1f, 1.f, 0, 0.5f);
 
   commit(water_plane);
 }
@@ -38,8 +39,27 @@ static void UpdateGroundPlane(Tachyon* tachyon, State& state) {
   commit(ground_plane);
 }
 
+static void ShowGameStats(Tachyon* tachyon, State& state) {
+  std::string stat_messages[] = {
+    "Player " + state.player_position.toString(),
+    "Camera " + tachyon->scene.camera.position.toString()
+  };
+
+  for (uint8 i = 0; i < 2; i++) {
+    Tachyon_DrawUIText(tachyon, state.debug_text, {
+      .screen_x = tachyon->window_width - 570,
+      .screen_y = 20 + (i * 25),
+      .centered = false,
+      .string = stat_messages[i]
+    });
+  }
+}
+
 void astro::InitGame(Tachyon* tachyon, State& state) {
   astro::AddMeshes(tachyon, state);
+
+  // @todo move to ui.cpp
+  state.debug_text = Tachyon_CreateUIText("./fonts/CascadiaMonoNF.ttf", 20);
 
   Tachyon_InitializeObjects(tachyon);
 
@@ -52,6 +72,10 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   UpdatePlayer(tachyon, state);
   UpdateWaterPlane(tachyon, state);
   UpdateGroundPlane(tachyon, state);
+
+  // @todo move to ui.cpp
+  // @todo debug mode only
+  ShowGameStats(tachyon, state);
 
   // @temporary
   // @todo unit() this in the renderer
