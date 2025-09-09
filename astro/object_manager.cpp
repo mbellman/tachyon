@@ -3,7 +3,10 @@
 using namespace astro;
 
 void astro::CreateObjects(Tachyon* tachyon, State& state) {
-  create(state.meshes.cube);
+  auto& meshes = state.meshes;
 
-  create(state.meshes.plane);
+  create(meshes.player);
+
+  create(meshes.ground_plane);
+  create(meshes.water_plane);
 }

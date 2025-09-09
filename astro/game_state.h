@@ -5,8 +5,10 @@
 namespace astro {
   struct MeshIds {
     uint16
-      cube,
-      plane;
+      player,
+
+      ground_plane,
+      water_plane;
   };
 
   struct State {

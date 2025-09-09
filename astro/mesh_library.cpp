@@ -6,6 +6,10 @@
 using namespace astro;
 
 void astro::AddMeshes(Tachyon* tachyon, State& state) {
-  state.meshes.cube = CUBE_MESH(1);
-  state.meshes.plane = PLANE_MESH(1);
+  auto& meshes = state.meshes;
+
+  meshes.player = CUBE_MESH(1);
+
+  meshes.ground_plane = PLANE_MESH(1);
+  meshes.water_plane = PLANE_MESH(1);
 }
