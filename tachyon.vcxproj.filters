@@ -423,6 +423,9 @@
     <ClInclude Include="astro\object_manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="astro\time_evolution.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -546,6 +549,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="astro\object_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="astro\time_evolution.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

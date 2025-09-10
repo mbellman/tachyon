@@ -1,6 +1,7 @@
 #include "astro/game.h"
 #include "astro/mesh_library.h"
 #include "astro/object_manager.h"
+#include "astro/time_evolution.h"
 
 using namespace astro;
 
@@ -91,10 +92,6 @@ static void HandleControls(Tachyon* tachyon, State& state, const float dt) {
   }
 }
 
-static void HandleAstroTime(Tachyon* tachyon, State& state, const float dt) {
-  state.astro_time += 0.01f * dt;
-}
-
 void astro::InitGame(Tachyon* tachyon, State& state) {
   MeshLibrary::AddMeshes(tachyon, state);
 
@@ -115,7 +112,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
 
   HandleControls(tachyon, state, dt);
 
-  HandleAstroTime(tachyon, state, dt);
+  TimeEvolution::HandleAstroTime(tachyon, state, dt);
 
   // @todo move to ui.cpp
   // @todo debug mode only

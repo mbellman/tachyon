@@ -119,6 +119,7 @@
     <ClInclude Include="astro\game_state.h" />
     <ClInclude Include="astro\mesh_library.h" />
     <ClInclude Include="astro\object_manager.h" />
+    <ClInclude Include="astro\time_evolution.h" />
     <ClInclude Include="cosmodrone\autopilot.h" />
     <ClInclude Include="cosmodrone\background_vehicles.h" />
     <ClInclude Include="cosmodrone\beacons.h" />
@@ -256,6 +257,7 @@
     <ClCompile Include="astro\game.cpp" />
     <ClCompile Include="astro\mesh_library.cpp" />
     <ClCompile Include="astro\object_manager.cpp" />
+    <ClCompile Include="astro\time_evolution.cpp" />
     <ClCompile Include="cosmodrone\autopilot.cpp" />
     <ClCompile Include="cosmodrone\background_vehicles.cpp" />
     <ClCompile Include="cosmodrone\beacons.cpp" />
