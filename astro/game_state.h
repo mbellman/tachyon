@@ -1,7 +1,10 @@
 #pragma once
 
+#include <vector>
+
 #include "engine/tachyon_aliases.h"
 #include "engine/tachyon_types.h"
+#include "astro/entities.h"
 
 namespace astro {
   struct MeshIds {
@@ -15,11 +18,14 @@ namespace astro {
   struct State {
     MeshIds meshes;
 
-    tVec3f player_position = tVec3f(0.f);
+    tVec3f player_position = tVec3f(0.f, 0.f, 3500.f);
 
     float astro_time = 0.f;
 
     // @todo debug mode only
     tUIText* debug_text = nullptr;
+
+    std::vector<TreeEntity> oak_trees;
+    std::vector<TreeEntity> willow_trees;
   };
 }

@@ -1,4 +1,5 @@
 #include "astro/game.h"
+#include "astro/entity_manager.h"
 #include "astro/mesh_library.h"
 #include "astro/object_manager.h"
 #include "astro/time_evolution.h"
@@ -101,6 +102,15 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
   Tachyon_InitializeObjects(tachyon);
 
   ObjectManager::CreateObjects(tachyon, state);
+
+  // @temporary
+  {
+    auto record = EntityManager::CreateEntity(state, OAK_TREE);
+    auto& oak = *(TreeEntity*)EntityManager::FindEntity(state, record);
+
+    oak.position = tVec3f(-5000.f, 0, 0);
+    oak.scale = tVec3f(1000.f);
+  }
 }
 
 void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
