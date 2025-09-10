@@ -42,10 +42,11 @@ static void UpdateGroundPlane(Tachyon* tachyon, State& state) {
 static void ShowGameStats(Tachyon* tachyon, State& state) {
   std::string stat_messages[] = {
     "Player " + state.player_position.toString(),
-    "Camera " + tachyon->scene.camera.position.toString()
+    "Camera " + tachyon->scene.camera.position.toString(),
+    "Astro time: " + std::to_string(state.astro_time)
   };
 
-  for (uint8 i = 0; i < 2; i++) {
+  for (uint8 i = 0; i < std::size(stat_messages); i++) {
     Tachyon_DrawUIText(tachyon, state.debug_text, {
       .screen_x = tachyon->window_width - 570,
       .screen_y = 20 + (i * 25),
@@ -53,6 +54,45 @@ static void ShowGameStats(Tachyon* tachyon, State& state) {
       .string = stat_messages[i]
     });
   }
+}
+
+static void HandleControls(Tachyon* tachyon, State& state, const float dt) {
+  // Handle movement
+  // @temporary
+  {
+    if (is_key_held(tKey::ARROW_UP) || is_key_held(tKey::W)) {
+      state.player_position += tVec3f(0, 0, -1.f) * 6000.f * dt;
+    }
+
+    if (is_key_held(tKey::ARROW_LEFT) || is_key_held(tKey::A)) {
+      state.player_position += tVec3f(-1.f, 0, 0) * 6000.f * dt;
+    }
+
+    if (is_key_held(tKey::ARROW_RIGHT) || is_key_held(tKey::D)) {
+      state.player_position += tVec3f(1.f, 0, 0) * 6000.f * dt;
+    }
+
+    if (is_key_held(tKey::ARROW_DOWN) || is_key_held(tKey::S)) {
+      state.player_position += tVec3f(0, 0, 1.f) * 6000.f * dt;
+    }
+
+    state.player_position.x += tachyon->left_stick.x * 6000.f * dt;
+    state.player_position.z += tachyon->left_stick.y * 6000.f * dt;
+  }
+
+  // Handle astro time changes
+  {
+    state.astro_time -= tachyon->left_trigger * 100.f * dt;
+
+    // @todo allow > 0.f astro time changes after obtaining the appropriate item
+    if (state.astro_time < 0.f) {
+      state.astro_time += tachyon->right_trigger * 100.f * dt;
+    }
+  }
+}
+
+static void HandleAstroTime(Tachyon* tachyon, State& state, const float dt) {
+  state.astro_time += 0.01f * dt;
 }
 
 void astro::InitGame(Tachyon* tachyon, State& state) {
@@ -73,6 +113,10 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   UpdateWaterPlane(tachyon, state);
   UpdateGroundPlane(tachyon, state);
 
+  HandleControls(tachyon, state, dt);
+
+  HandleAstroTime(tachyon, state, dt);
+
   // @todo move to ui.cpp
   // @todo debug mode only
   ShowGameStats(tachyon, state);
@@ -82,24 +126,4 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   scene.primary_light_direction = tVec3f(1.f, -1.f, -0.2f).unit();
   scene.camera.position = tVec3f(0, 10000.f, 10000.f);
   scene.camera.rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.9f);
-
-  // @temporary
-  if (is_key_held(tKey::ARROW_UP) || is_key_held(tKey::W)) {
-    state.player_position += tVec3f(0, 0, -1.f) * 4000.f * dt;
-  }
-
-  if (is_key_held(tKey::ARROW_LEFT) || is_key_held(tKey::A)) {
-    state.player_position += tVec3f(-1.f, 0, 0) * 4000.f * dt;
-  }
-
-  if (is_key_held(tKey::ARROW_RIGHT) || is_key_held(tKey::D)) {
-    state.player_position += tVec3f(1.f, 0, 0) * 4000.f * dt;
-  }
-
-  if (is_key_held(tKey::ARROW_DOWN) || is_key_held(tKey::S)) {
-    state.player_position += tVec3f(0, 0, 1.f) * 4000.f * dt;
-  }
-
-  state.player_position.x += tachyon->left_stick.x * 6000.f * dt;
-  state.player_position.z += tachyon->left_stick.y * 6000.f * dt;
 }

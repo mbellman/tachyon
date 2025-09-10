@@ -17,6 +17,8 @@ namespace astro {
 
     tVec3f player_position = tVec3f(0.f);
 
+    float astro_time = 0.f;
+
     // @todo debug mode only
     tUIText* debug_text = nullptr;
   };
