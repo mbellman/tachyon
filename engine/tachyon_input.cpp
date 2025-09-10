@@ -139,21 +139,29 @@ void Tachyon_HandleInputEvent(Tachyon* tachyon, const SDL_Event& event) {
     }
 
     case SDL_CONTROLLERAXISMOTION: {
+      if (!tachyon->is_controller_connected) {
+        // Ensure residual control stick events are not handled
+        // after a controller is disconnected
+        return;
+      }
+
       const float DEAD_ZONE = 0.1f;
-      float v = float(event.jaxis.value) / 32767.f;
-      bool isDeadZone = v < DEAD_ZONE && v > -DEAD_ZONE;
+      float value = float(event.jaxis.value) / 32767.f;
+      bool isDeadZone = value < DEAD_ZONE && value > -DEAD_ZONE;
+
+      if (isDeadZone) value = 0.f;
 
       if (event.caxis.axis == SDL_CONTROLLER_AXIS_LEFTX) {
-        tachyon->left_stick.x = isDeadZone ? 0.f : v;
+        tachyon->left_stick.x = value;
       }
       else if (event.caxis.axis == SDL_CONTROLLER_AXIS_LEFTY) {
-        tachyon->left_stick.y = isDeadZone ? 0.f : v;
+        tachyon->left_stick.y = value;
       }
       else if (event.caxis.axis == SDL_CONTROLLER_AXIS_RIGHTX) {
-        tachyon->right_stick.x = isDeadZone ? 0.f : v;
+        tachyon->right_stick.x = value;
       }
       else if (event.caxis.axis == SDL_CONTROLLER_AXIS_RIGHTY) {
-        tachyon->right_stick.y = isDeadZone ? 0.f : v;
+        tachyon->right_stick.y = value;
       }
       else if (event.caxis.axis == SDL_CONTROLLER_AXIS_TRIGGERLEFT) {
         tachyon->left_trigger = event.caxis.value / 32767.f;

@@ -224,6 +224,7 @@ struct Tachyon {
   bool is_mouse_held_down = false;
   bool is_left_mouse_held_down = false;
   bool is_right_mouse_held_down = false;
+  bool is_controller_connected = false;
 
   struct Scene {
     tCamera camera;

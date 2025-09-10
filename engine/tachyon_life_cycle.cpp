@@ -43,6 +43,23 @@ static void HandleEvents(Tachyon* tachyon) {
           Tachyon_HandleWindowResize(tachyon);
         }
         break;
+
+      case SDL_CONTROLLERDEVICEADDED: {
+        tachyon->is_controller_connected = SDL_GameControllerOpen(0);
+
+        break;
+      }
+
+      case SDL_CONTROLLERDEVICEREMOVED: {
+        tachyon->left_stick = tVec2f(0.f);
+        tachyon->right_stick = tVec2f(0.f);
+        tachyon->left_trigger = 0.f;
+        tachyon->right_trigger = 0.f;
+
+        tachyon->is_controller_connected = false;
+
+        break;
+      }
     }
 
     Tachyon_HandleInputEvent(tachyon, event);
@@ -74,10 +91,11 @@ Tachyon* Tachyon_Init() {
   TTF_Init();
   IMG_Init(IMG_INIT_PNG);
 
-  SDL_GameControllerAddMappingsFromFile("./controllers.txt");
-  SDL_GameControllerOpen(0);
-
   auto* tachyon = new Tachyon;
+
+  SDL_GameControllerAddMappingsFromFile("./controllers.txt");
+
+  tachyon->is_controller_connected = SDL_GameControllerOpen(0);
 
   // @todo dev mode only
   tachyon->developer_overlay_font = TTF_OpenFont("./fonts/CascadiaMonoNF.ttf", 20);
