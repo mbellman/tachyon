@@ -2,7 +2,7 @@
 
 using namespace astro;
 
-void astro::CreateObjects(Tachyon* tachyon, State& state) {
+void ObjectManager::CreateObjects(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   create(meshes.player);

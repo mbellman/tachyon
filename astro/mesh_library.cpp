@@ -5,7 +5,7 @@
 
 using namespace astro;
 
-void astro::AddMeshes(Tachyon* tachyon, State& state) {
+void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   meshes.player = CUBE_MESH(1);

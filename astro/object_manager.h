@@ -4,5 +4,7 @@
 #include "astro/game_state.h"
 
 namespace astro {
-  void CreateObjects(Tachyon* tachyon, State& state);
+  namespace ObjectManager {
+    void CreateObjects(Tachyon* tachyon, State& state);
+  }
 }

@@ -57,7 +57,7 @@ static void ShowGameStats(Tachyon* tachyon, State& state) {
 }
 
 static void HandleControls(Tachyon* tachyon, State& state, const float dt) {
-  // Handle movement
+  // Handle movement actions
   // @temporary
   {
     if (is_key_held(tKey::ARROW_UP) || is_key_held(tKey::W)) {
@@ -80,7 +80,7 @@ static void HandleControls(Tachyon* tachyon, State& state, const float dt) {
     state.player_position.z += tachyon->left_stick.y * 6000.f * dt;
   }
 
-  // Handle astro time changes
+  // Handle astro time actions
   {
     state.astro_time -= tachyon->left_trigger * 100.f * dt;
 
@@ -96,14 +96,14 @@ static void HandleAstroTime(Tachyon* tachyon, State& state, const float dt) {
 }
 
 void astro::InitGame(Tachyon* tachyon, State& state) {
-  astro::AddMeshes(tachyon, state);
+  MeshLibrary::AddMeshes(tachyon, state);
 
   // @todo move to ui.cpp
   state.debug_text = Tachyon_CreateUIText("./fonts/CascadiaMonoNF.ttf", 20);
 
   Tachyon_InitializeObjects(tachyon);
 
-  astro::CreateObjects(tachyon, state);
+  ObjectManager::CreateObjects(tachyon, state);
 }
 
 void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {

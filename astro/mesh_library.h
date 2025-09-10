@@ -4,5 +4,7 @@
 #include "astro/game_state.h"
 
 namespace astro {
-  void AddMeshes(Tachyon* tachyon, State& state);
+  namespace MeshLibrary {
+    void AddMeshes(Tachyon* tachyon, State& state);
+  }
 }
