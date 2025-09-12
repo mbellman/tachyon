@@ -2,7 +2,7 @@
 
 using namespace astro;
 
-static uint32 running_entity_id = 0;
+static int32 running_entity_id = 0;
 
 static EntityRecord CreateTreeEntity(State& state, EntityType type) {
   TreeEntity tree;

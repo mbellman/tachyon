@@ -12,7 +12,13 @@ namespace astro {
       player,
 
       ground_plane,
-      water_plane;
+      water_plane,
+
+      // OAK_TREE
+      oak_tree_trunk,
+
+      // WILLOW_TREE
+      willow_tree_trunk;
   };
 
   struct State {

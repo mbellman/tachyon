@@ -93,6 +93,38 @@ static void HandleControls(Tachyon* tachyon, State& state, const float dt) {
   }
 }
 
+static void ProvisionAvailableObjectsForEntities(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
+  // @todo refactor
+  for (int i = 0; i < state.oak_trees.size(); i++) {
+    auto& tree = state.oak_trees[i];
+    auto& trunk = objects(meshes.oak_tree_trunk)[i];
+
+    trunk.position = tree.position;
+    trunk.scale = tree.scale * tVec3f(0.2f, 1.f, 0.2f);
+    trunk.rotation = tree.orientation;
+    trunk.color = tree.tint;
+
+    // @todo perform final commit in time_evolution.cpp
+    commit(trunk);
+  }
+
+  // @todo refactor
+  for (int i = 0; i < state.willow_trees.size(); i++) {
+    auto& tree = state.oak_trees[i];
+    auto& trunk = objects(meshes.willow_tree_trunk)[i];
+
+    trunk.position = tree.position;
+    trunk.scale = tree.scale;
+    trunk.rotation = tree.orientation;
+    trunk.color = tree.tint;
+
+    // @todo perform final commit in time_evolution.cpp
+    commit(trunk);
+  }
+}
+
 void astro::InitGame(Tachyon* tachyon, State& state) {
   MeshLibrary::AddMeshes(tachyon, state);
 
@@ -109,7 +141,22 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
     auto& oak = *(TreeEntity*)EntityManager::FindEntity(state, record);
 
     oak.position = tVec3f(-5000.f, 0, 0);
-    oak.scale = tVec3f(1000.f);
+    oak.scale = tVec3f(2000.f);
+    oak.tint = tVec3f(1.f, 0.6f, 0.3f);
+
+    ObjectManager::CreateObjectsForEntity(tachyon, state, record.type);
+  }
+
+  // @temporary
+  {
+    auto record = EntityManager::CreateEntity(state, OAK_TREE);
+    auto& oak = *(TreeEntity*)EntityManager::FindEntity(state, record);
+
+    oak.position = tVec3f(5500.f, 0, 2500.f);
+    oak.scale = tVec3f(2500.f);
+    oak.tint = tVec3f(1.f, 0.6f, 0.3f);
+
+    ObjectManager::CreateObjectsForEntity(tachyon, state, record.type);
   }
 }
 
@@ -121,6 +168,8 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   UpdateGroundPlane(tachyon, state);
 
   HandleControls(tachyon, state, dt);
+
+  ProvisionAvailableObjectsForEntities(tachyon, state);
 
   TimeEvolution::HandleAstroTime(tachyon, state, dt);
 
