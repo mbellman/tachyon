@@ -84,11 +84,26 @@ static void HandleControls(Tachyon* tachyon, State& state, const float dt) {
 
   // Handle astro time actions
   {
-    state.astro_time -= tachyon->left_trigger * 100.f * dt;
+    const float turn_rate = 2.f;
 
-    // @todo allow > 0.f astro time changes after obtaining the appropriate item
-    if (state.astro_time < 0.f) {
-      state.astro_time += tachyon->right_trigger * 100.f * dt;
+    // Handle reverse/forward turn actions
+    state.astro_turn_speed -= tachyon->left_trigger * turn_rate * dt;
+    state.astro_turn_speed += tachyon->right_trigger * turn_rate * dt;
+
+    // Disable forward time changes past 0.
+    // @todo allow this once the appropriate item is obtained
+    if (state.astro_time > 0.f && state.astro_turn_speed > 0.f) {
+      state.astro_turn_speed = 0.f;
+    }
+
+    state.astro_time += state.astro_turn_speed * 100.f * dt;
+
+    // Reduce turn rate gradually
+    state.astro_turn_speed *= 1.f - turn_rate * dt;
+
+    // Stop turning at a low enough speed
+    if (abs(state.astro_turn_speed) < 0.001f) {
+      state.astro_turn_speed = 0.f;
     }
   }
 }
@@ -163,7 +178,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
     auto record = EntityManager::CreateEntity(state, OAK_TREE);
     auto& oak = *(TreeEntity*)EntityManager::FindEntity(state, record);
 
-    oak.position = tVec3f(5500.f, 0, 2500.f);
+    oak.position = tVec3f(5500.f, 0, 1000.f);
     oak.scale = tVec3f(2500.f);
     oak.tint = tVec3f(1.f, 0.6f, 0.3f);
     oak.astro_time_when_born = -280.f;
