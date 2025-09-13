@@ -24,6 +24,7 @@ namespace astro {
   struct State {
     MeshIds meshes;
 
+    // @todo default this in game.cpp or elsewhere
     tVec3f player_position = tVec3f(0.f, 0.f, 3500.f);
 
     float astro_time = 0.f;

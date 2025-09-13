@@ -40,6 +40,20 @@ static void UpdateGroundPlane(Tachyon* tachyon, State& state) {
   commit(ground_plane);
 }
 
+static void UpdateCamera(Tachyon* tachyon, State& state) {
+  auto& camera = tachyon->scene.camera;
+
+  tVec3f distance_from_room_center;
+  distance_from_room_center.x = state.player_position.x - 0.f;
+  distance_from_room_center.z = state.player_position.z - 3500.f;
+
+  // @temporary
+  camera.position.x = distance_from_room_center.x * 0.1f;
+  camera.position.y = 10000.f;
+  camera.position.z = 10000.f + distance_from_room_center.z * 0.1f;
+  camera.rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.9f);
+}
+
 static void ShowGameStats(Tachyon* tachyon, State& state) {
   std::string stat_messages[] = {
     "Player " + state.player_position.toString(),
@@ -194,6 +208,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   UpdatePlayer(tachyon, state);
   UpdateWaterPlane(tachyon, state);
   UpdateGroundPlane(tachyon, state);
+  UpdateCamera(tachyon, state);
   
   ProvisionAvailableObjectsForEntities(tachyon, state);
 
@@ -202,10 +217,4 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   // @todo move to ui.cpp
   // @todo debug mode only
   ShowGameStats(tachyon, state);
-
-  // @temporary
-  // @todo unit() this in the renderer
-  // scene.primary_light_direction = tVec3f(1.f, -1.f, -0.2f).unit();
-  scene.camera.position = tVec3f(0, 10000.f, 10000.f);
-  scene.camera.rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.9f);
 }
