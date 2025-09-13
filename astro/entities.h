@@ -1,7 +1,6 @@
 #pragma once
 
-#include "engine/tachyon_aliases.h"
-#include "engine/tachyon_quaternion.h"
+#include "engine/tachyon.h"
 
 namespace astro {
   enum EntityType {

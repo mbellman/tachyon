@@ -96,18 +96,19 @@ static void HandleControls(Tachyon* tachyon, State& state, const float dt) {
 static void ProvisionAvailableObjectsForEntities(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
+  // @todo @optimize determine on-screen/in-range entities
+  // and use reduced-fidelity object groups, or single objects,
+  // for more distant entities
+
   // @todo refactor
   for (int i = 0; i < state.oak_trees.size(); i++) {
     auto& tree = state.oak_trees[i];
     auto& trunk = objects(meshes.oak_tree_trunk)[i];
+    float tree_age = state.astro_time - tree.astro_time_when_born;
 
     trunk.position = tree.position;
-    trunk.scale = tree.scale * tVec3f(0.2f, 1.f, 0.2f);
     trunk.rotation = tree.orientation;
     trunk.color = tree.tint;
-
-    // @todo perform final commit in time_evolution.cpp
-    commit(trunk);
   }
 
   // @todo refactor
@@ -116,12 +117,8 @@ static void ProvisionAvailableObjectsForEntities(Tachyon* tachyon, State& state)
     auto& trunk = objects(meshes.willow_tree_trunk)[i];
 
     trunk.position = tree.position;
-    trunk.scale = tree.scale;
     trunk.rotation = tree.orientation;
     trunk.color = tree.tint;
-
-    // @todo perform final commit in time_evolution.cpp
-    commit(trunk);
   }
 }
 
@@ -163,12 +160,12 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
 void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   auto& scene = tachyon->scene;
 
+  HandleControls(tachyon, state, dt);
+
   UpdatePlayer(tachyon, state);
   UpdateWaterPlane(tachyon, state);
   UpdateGroundPlane(tachyon, state);
-
-  HandleControls(tachyon, state, dt);
-
+  
   ProvisionAvailableObjectsForEntities(tachyon, state);
 
   TimeEvolution::HandleAstroTime(tachyon, state, dt);

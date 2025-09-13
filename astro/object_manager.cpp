@@ -26,5 +26,9 @@ void ObjectManager::CreateObjectsForEntity(Tachyon* tachyon, State& state, Entit
 
       break;
     };
+
+    default:
+      // @todo log error
+      break;
   }
 }
