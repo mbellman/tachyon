@@ -11,8 +11,7 @@ static void UpdatePlayer(Tachyon* tachyon, State& state) {
   
   player.position = state.player_position;
   // @temporary
-  player.scale = tVec3f(600.f);
-  player.scale.y = 1200.f;
+  player.scale = tVec3f(600.f, 1500.f, 600.f);
   player.color = tVec3f(0, 0.2f, 1.f);
 
   commit(player);
@@ -206,7 +205,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
 
   // @temporary
   // @todo unit() this in the renderer
-  scene.primary_light_direction = tVec3f(1.f, -1.f, -0.2f).unit();
+  // scene.primary_light_direction = tVec3f(1.f, -1.f, -0.2f).unit();
   scene.camera.position = tVec3f(0, 10000.f, 10000.f);
   scene.camera.rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.9f);
 }

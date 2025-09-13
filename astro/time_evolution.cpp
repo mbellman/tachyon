@@ -21,12 +21,13 @@ static void TimeEvolveOakTrees(Tachyon* tachyon, State& state) {
 
     // @todo factor
     auto& trunk = objects(meshes.oak_tree_trunk)[i];
-    float trunk_height = 1.f - powf(powf(1.f - life_progression, 0.2f), 15.f);
+    float trunk_height = 1.f - powf(1.f - life_progression, 4.f);
+    float trunk_thickness = -(cosf(t_PI * life_progression) - 1.f) / 2.f;
 
     trunk.scale = tree.scale * tVec3f(
-      0.05f + 0.15f * life_progression,
+      0.02f + 0.18f * trunk_thickness,
       trunk_height,
-      0.05f + 0.15f * life_progression
+      0.02f + 0.18f * trunk_thickness
     );
 
     trunk.position.y = tree.position.y - tree.scale.y * (1.f - trunk_height);
@@ -56,4 +57,7 @@ void TimeEvolution::HandleAstroTime(Tachyon* tachyon, State& state, const float 
 
   TimeEvolveOakTrees(tachyon, state);
   TimeEvolveWillowTrees(tachyon, state);
+
+  // @temporary
+  tachyon->scene.primary_light_direction = tVec3f(1.f - state.astro_time / 200.f, -1.f, -0.2f).unit();
 }
