@@ -5,29 +5,31 @@ using namespace astro;
 static void TimeEvolveOakTrees(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
-  float lifetime = 200.f;
+  const float lifetime = 200.f;
 
   // @todo @optimize only iterate over on-screen/in-range entities
   // once that list is built
-  for (int i = 0; i < state.oak_trees.size(); i++) {
+  for (uint16 i = 0; i < (uint16)state.oak_trees.size(); i++) {
     const auto& tree = state.oak_trees[i];
 
     // @todo cleanup
     float entity_age = state.astro_time - tree.astro_time_when_born;
     if (entity_age < 0.f) entity_age = 0.f;
+    if (entity_age > lifetime) entity_age = lifetime;
 
     float life_progression = entity_age / lifetime;
 
-    auto& trunk = objects(meshes.oak_tree_trunk)[i];
-
     // @todo factor
+    auto& trunk = objects(meshes.oak_tree_trunk)[i];
+    float trunk_height = 1.f - powf(powf(1.f - life_progression, 0.2f), 15.f);
+
     trunk.scale = tree.scale * tVec3f(
       0.05f + 0.15f * life_progression,
-      life_progression,
+      trunk_height,
       0.05f + 0.15f * life_progression
     );
 
-    trunk.position.y = tree.position.y - tree.scale.y * (1.f - life_progression);
+    trunk.position.y = tree.position.y - tree.scale.y * (1.f - trunk_height);
 
     commit(trunk);
   }
@@ -38,7 +40,7 @@ static void TimeEvolveWillowTrees(Tachyon* tachyon, State& state) {
 
   // @todo @optimize only iterate over on-screen/in-range entities
   // once that list is built
-  for (int i = 0; i < state.willow_trees.size(); i++) {
+  for (uint16 i = 0; i < (uint16)state.willow_trees.size(); i++) {
     const auto& tree = state.oak_trees[i];
 
     auto& trunk = objects(meshes.willow_tree_trunk)[i];

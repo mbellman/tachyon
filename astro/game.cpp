@@ -140,7 +140,20 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
     oak.position = tVec3f(-5000.f, 0, 0);
     oak.scale = tVec3f(2000.f);
     oak.tint = tVec3f(1.f, 0.6f, 0.3f);
-    oak.astro_time_when_born = -150.f;
+    oak.astro_time_when_born = -250.f;
+
+    ObjectManager::CreateObjectsForEntity(tachyon, state, record.type);
+  }
+
+  // @temporary
+  {
+    auto record = EntityManager::CreateEntity(state, OAK_TREE);
+    auto& oak = *(TreeEntity*)EntityManager::FindEntity(state, record);
+
+    oak.position = tVec3f(-6000.f, 0, 6000.f);
+    oak.scale = tVec3f(2000.f);
+    oak.tint = tVec3f(1.f, 0.6f, 0.3f);
+    oak.astro_time_when_born = -300.f;
 
     ObjectManager::CreateObjectsForEntity(tachyon, state, record.type);
   }
@@ -153,7 +166,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
     oak.position = tVec3f(5500.f, 0, 2500.f);
     oak.scale = tVec3f(2500.f);
     oak.tint = tVec3f(1.f, 0.6f, 0.3f);
-    oak.astro_time_when_born = -180.f;
+    oak.astro_time_when_born = -280.f;
 
     ObjectManager::CreateObjectsForEntity(tachyon, state, record.type);
   }
