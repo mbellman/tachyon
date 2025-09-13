@@ -40,7 +40,7 @@ static void UpdateGroundPlane(Tachyon* tachyon, State& state) {
   commit(ground_plane);
 }
 
-static void UpdateCamera(Tachyon* tachyon, State& state) {
+static void UpdateCamera(Tachyon* tachyon, State& state, const float dt) {
   auto& camera = tachyon->scene.camera;
 
   tVec3f distance_from_room_center;
@@ -48,9 +48,13 @@ static void UpdateCamera(Tachyon* tachyon, State& state) {
   distance_from_room_center.z = state.player_position.z - 3500.f;
 
   // @temporary
-  camera.position.x = distance_from_room_center.x * 0.1f;
-  camera.position.y = 10000.f;
-  camera.position.z = 10000.f + distance_from_room_center.z * 0.1f;
+  tVec3f new_camera_position;
+  new_camera_position.x = distance_from_room_center.x * 0.1f;
+  new_camera_position.y = 10000.f;
+  new_camera_position.z = 10000.f + distance_from_room_center.z * 0.1f;
+
+  camera.position = tVec3f::lerp(camera.position, new_camera_position, 3.f * dt);
+
   camera.rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.9f);
 }
 
@@ -160,6 +164,9 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
 
   ObjectManager::CreateObjects(tachyon, state);
 
+  // @todo default this somewhere, or load in from save
+  tachyon->scene.camera.position = tVec3f(0.f, 10000.f, 10000.f);
+
   // @temporary
   {
     auto record = EntityManager::CreateEntity(state, OAK_TREE);
@@ -208,7 +215,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   UpdatePlayer(tachyon, state);
   UpdateWaterPlane(tachyon, state);
   UpdateGroundPlane(tachyon, state);
-  UpdateCamera(tachyon, state);
+  UpdateCamera(tachyon, state, dt);
   
   ProvisionAvailableObjectsForEntities(tachyon, state);
 
