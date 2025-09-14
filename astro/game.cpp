@@ -96,6 +96,64 @@ static void ShowGameStats(Tachyon* tachyon, State& state) {
   }
 }
 
+// @todo cleanup
+// @todo move elsewhere
+static void UpdateAstrolabe(Tachyon* tachyon, State& state) {
+  auto& camera = tachyon->scene.camera;
+  auto& meshes = state.meshes;
+
+  auto& base = objects(meshes.astrolabe_base)[0];
+  auto& ring = objects(meshes.astrolabe_ring)[0];
+  auto& hand = objects(meshes.astrolabe_hand)[0];
+
+  base.scale =
+  ring.scale =
+  hand.scale =
+  200.f;
+
+  base.color = tVec3f(1.f, 0.6f, 0.2f);
+  base.material = tVec4f(0.1f, 1.f, 0, 0.5f);
+
+  ring.color = tVec3f(0.2f, 0.4f, 1.f);
+  ring.material = tVec4f(0.2f, 1.f, 0, 0);
+
+  hand.color = tVec3f(1.f, 0.6f, 0.2f);
+  hand.material = tVec4f(0.1f, 1.f, 0, 1.f);
+
+  base.rotation =
+  ring.rotation =
+  (
+    Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -0.9f) *
+    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -t_HALF_PI * 0.85f)
+  );
+
+  hand.rotation =
+  (
+    base.rotation *
+    Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -state.astro_time * 0.02f)
+  );
+
+  ring.rotation =
+  (
+    base.rotation *
+    Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -state.astro_time * 0.015f)
+  );
+
+  base.position =
+  ring.position =
+  hand.position =
+  (
+    camera.position +
+    camera.rotation.getDirection() * tVec3f(1.f, -1.f, 1.f) * 2000.f +
+    camera.rotation.getLeftDirection() * 1200.f +
+    camera.rotation.getUpDirection() * tVec3f(1.f, -1.f, 1.f) * 600.f
+  );
+
+  commit(base);
+  commit(ring);
+  commit(hand);
+}
+
 // @todo move to its own file
 static void HandleControls(Tachyon* tachyon, State& state, const float dt) {
   // Handle movement actions
@@ -236,6 +294,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   UpdateWaterPlane(tachyon, state);
   UpdateGroundPlane(tachyon, state);
   UpdateCamera(tachyon, state, dt);
+  UpdateAstrolabe(tachyon, state);
 
   ObjectManager::ProvisionAvailableObjectsForEntities(tachyon, state);
   TimeEvolution::HandleAstroTime(tachyon, state, dt);

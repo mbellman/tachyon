@@ -16,6 +16,10 @@ namespace astro {
       ground_plane,
       water_plane,
 
+      astrolabe_base,
+      astrolabe_ring,
+      astrolabe_hand,
+
       // SHRUB
       shrub_branches,
 

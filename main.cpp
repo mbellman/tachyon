@@ -27,7 +27,7 @@
 int main(int argc, char* argv[]) {
   auto* tachyon = Tachyon_Init();
 
-  Tachyon_SpawnWindow(tachyon, "AA", 1536, 850);
+  Tachyon_SpawnWindow(tachyon, "Astrolabe", 1536, 850);
 
   astro::State state;
   astro::InitGame(tachyon, state);

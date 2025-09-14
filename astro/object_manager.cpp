@@ -9,6 +9,10 @@ void ObjectManager::CreateObjects(Tachyon* tachyon, State& state) {
 
   create(meshes.ground_plane);
   create(meshes.water_plane);
+
+  create(meshes.astrolabe_base);
+  create(meshes.astrolabe_ring);
+  create(meshes.astrolabe_hand);
 }
 
 void ObjectManager::CreateObjectsForEntity(Tachyon* tachyon, State& state, EntityType type) {
