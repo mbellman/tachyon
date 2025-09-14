@@ -519,7 +519,7 @@ vec2 GetDenoisedTemporalData(float ssao, float shadow, float depth, vec2 tempora
   #define USE_SPATIAL_DENOISING 1
 
   if (temporal_uv.x < 0.0 || temporal_uv.x > 1.0 || temporal_uv.y < 0.0 || temporal_uv.y > 1.0) {
-    return vec2(0.0);
+    return vec2(ssao, shadow);
   }
 
   // @todo use renderer resolution
