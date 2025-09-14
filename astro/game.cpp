@@ -40,6 +40,7 @@ static void UpdateGroundPlane(Tachyon* tachyon, State& state) {
   commit(ground_plane);
 }
 
+// @todo move to its own file
 static tVec3f GetRoomCameraPosition(Tachyon* tachyon, State& state) {
   // @temporary
   float room_size = 16000.f;
@@ -57,6 +58,7 @@ static tVec3f GetRoomCameraPosition(Tachyon* tachyon, State& state) {
   );
 }
 
+// @todo move to its own file
 static void UpdateCamera(Tachyon* tachyon, State& state, const float dt) {
   auto& camera = tachyon->scene.camera;
 
@@ -94,6 +96,7 @@ static void ShowGameStats(Tachyon* tachyon, State& state) {
   }
 }
 
+// @todo move to its own file
 static void HandleControls(Tachyon* tachyon, State& state, const float dt) {
   // Handle movement actions
   // @todo refactor
@@ -142,44 +145,6 @@ static void HandleControls(Tachyon* tachyon, State& state, const float dt) {
     if (abs(state.astro_turn_speed) < 0.001f) {
       state.astro_turn_speed = 0.f;
     }
-  }
-}
-
-static void ProvisionAvailableObjectsForEntities(Tachyon* tachyon, State& state) {
-  auto& meshes = state.meshes;
-
-  // @todo @optimize determine on-screen/in-range entities
-  // and use reduced-fidelity object groups, or single objects,
-  // for more distant entities
-
-  // @todo refactor
-  for_entities(state.shrubs) {
-    auto& shrub = state.shrubs[i];
-    auto& branches = objects(meshes.shrub_branches)[i];
-
-    branches.position = shrub.position;
-    branches.rotation = shrub.orientation;
-    branches.color = shrub.tint;
-  }
-
-  // @todo refactor
-  for_entities(state.oak_trees) {
-    auto& tree = state.oak_trees[i];
-    auto& trunk = objects(meshes.oak_tree_trunk)[i];
-
-    trunk.position = tree.position;
-    trunk.rotation = tree.orientation;
-    trunk.color = tree.tint;
-  }
-
-  // @todo refactor
-  for_entities(state.willow_trees) {
-    auto& tree = state.oak_trees[i];
-    auto& trunk = objects(meshes.willow_tree_trunk)[i];
-
-    trunk.position = tree.position;
-    trunk.rotation = tree.orientation;
-    trunk.color = tree.tint;
   }
 }
 
@@ -271,9 +236,8 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   UpdateWaterPlane(tachyon, state);
   UpdateGroundPlane(tachyon, state);
   UpdateCamera(tachyon, state, dt);
-  
-  ProvisionAvailableObjectsForEntities(tachyon, state);
 
+  ObjectManager::ProvisionAvailableObjectsForEntities(tachyon, state);
   TimeEvolution::HandleAstroTime(tachyon, state, dt);
 
   // @todo move to ui.cpp
