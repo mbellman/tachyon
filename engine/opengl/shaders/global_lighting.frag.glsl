@@ -176,7 +176,7 @@ float GetAverageShadowFactor(sampler2D shadow_map, vec3 light_space_position, in
   const vec2 texel_size = 1.0 / vec2(2048.0);
   float t = fract(running_time);
 
-  vec2[] offsets = {
+  const vec2[] offsets = {
     vec2(0.0),
     vec2(noise(1.0 + t), noise(2.0 + t)),
     vec2(noise(3.0 + t), noise(4.0 + t)),
@@ -515,22 +515,23 @@ float GetSSAO(int total_samples, float depth, vec3 position, vec3 normal, float 
 }
 
 vec2 GetDenoisedTemporalData(float ssao, float shadow, float depth, vec2 temporal_uv) {
+  // @todo any reason not to always use this?
   #define USE_SPATIAL_DENOISING 1
 
   if (temporal_uv.x < 0.0 || temporal_uv.x > 1.0 || temporal_uv.y < 0.0 || temporal_uv.y > 1.0) {
     return vec2(0.0);
   }
 
-  // @todo use screen size
+  // @todo use renderer resolution
   const vec2 texel_size = 1.0 / vec2(1920.0, 1080.0);
-  const float temporal_weight = 0.1;
+  const float ssao_temporal_denoising_strength = 1.0;
+  const float shadow_temporal_denoising_strength = 0.2;
   const float spatial_spread = 2.0;
 
   float world_depth = GetWorldDepth(depth, Z_NEAR, Z_FAR);
 
-  // @hack don't use the temporal UV coordinates for
-  // objects close to the camera, e.g. the player ship.
-  // This eliminates smearing/ghosting.
+  // @hack don't use the temporal UV coordinates for objects
+  // close to the camera. This reduces smearing/ghosting.
   if (world_depth < 2500.0) {
     temporal_uv = fragUv;
   }
@@ -553,22 +554,28 @@ vec2 GetDenoisedTemporalData(float ssao, float shadow, float depth, vec2 tempora
       float depth_distance = abs(world_depth - GetWorldDepth(temporal_depth, Z_NEAR, Z_FAR));
 
       if (depth_distance < 500.0) {
-        ssao += temporal_data.x * temporal_weight;
-        shadow += temporal_data.y * temporal_weight;
+        ssao += temporal_data.x * ssao_temporal_denoising_strength;
+        shadow += temporal_data.y * shadow_temporal_denoising_strength;
       } else {
-        ssao += base_ssao * temporal_weight;
-        shadow += base_shadow * temporal_weight;
+        ssao += base_ssao * ssao_temporal_denoising_strength;
+        shadow += base_shadow * shadow_temporal_denoising_strength;
       }
     }
 
-    return vec2(ssao, shadow) / (temporal_weight * 4.0 + 1.0);
+    return vec2(
+      ssao / (ssao_temporal_denoising_strength * 4.0 + 1.0),
+      shadow / (shadow_temporal_denoising_strength * 4.0 + 1.0)
+    );
   #else
     vec4 temporal_data = texture(in_temporal_data, temporal_uv);
 
-    ssao += temporal_data.x * temporal_weight;
-    shadow += temporal_data.y * temporal_weight;
+    ssao += temporal_data.x * ssao_temporal_denoising_strength;
+    shadow += temporal_data.y * shadow_temporal_denoising_strength;
 
-    return vec2(ssao, shadow) / (temporal_weight + 1.0);
+    return vec2(
+      ssao / (ssao_temporal_denoising_strength + 1.0),
+      shadow / (shadow_temporal_denoising_strength + 1.0)
+    );
   #endif
 }
 
