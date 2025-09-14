@@ -1107,7 +1107,7 @@ void Tachyon_OpenGL_InitRenderer(Tachyon* tachyon) {
 
     glewInit();
 
-    SDL_GL_SetSwapInterval(0);
+    SDL_GL_SetSwapInterval(1);
 
     // Apply default OpenGL settings
     glEnable(GL_PROGRAM_POINT_SIZE);
