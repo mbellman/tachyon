@@ -1,5 +1,6 @@
 #include "astro/game.h"
 #include "astro/entity_manager.h"
+#include "astro/level_editor.h"
 #include "astro/mesh_library.h"
 #include "astro/object_manager.h"
 #include "astro/time_evolution.h"
@@ -287,6 +288,24 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
 
 void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   auto& scene = tachyon->scene;
+
+  // Toggle level editor with E
+  // @todo dev mode only
+  {
+    if (did_press_key(tKey::E)) {
+      if (state.is_level_editor_open) {
+        LevelEditor::CloseLevelEditor(tachyon, state);
+      } else {
+        LevelEditor::OpenLevelEditor(tachyon, state);
+      }
+    }
+  }
+
+  if (state.is_level_editor_open) {
+    LevelEditor::HandleLevelEditor(tachyon, state, dt);
+
+    return;
+  }
 
   HandleControls(tachyon, state, dt);
 

@@ -39,11 +39,12 @@ namespace astro {
     float astro_time = 0.f;
     float astro_turn_speed = 0.f;
 
-    // @todo debug mode only
-    tUIText* debug_text = nullptr;
-
     std::vector<PlantEntity> shrubs;
     std::vector<TreeEntity> oak_trees;
     std::vector<TreeEntity> willow_trees;
+
+    // @todo dev mode only
+    tUIText* debug_text = nullptr;
+    bool is_level_editor_open = false;
   };
 }
