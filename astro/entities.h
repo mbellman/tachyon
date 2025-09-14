@@ -5,6 +5,7 @@
 namespace astro {
   enum EntityType {
     UNSPECIFIED = -1,
+    SHRUB,
     OAK_TREE,
     WILLOW_TREE
   };
@@ -25,5 +26,6 @@ namespace astro {
     float astro_time_when_born = 0.f;
   };
 
+  struct PlantEntity : BaseEntity, Living {};
   struct TreeEntity : BaseEntity, Living {};
 }

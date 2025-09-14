@@ -6,6 +6,8 @@
 #include "engine/tachyon_types.h"
 #include "astro/entities.h"
 
+#define for_entities(array) for (uint16 i = 0; i < (uint16)array.size(); i++)
+
 namespace astro {
   struct MeshIds {
     uint16
@@ -13,6 +15,9 @@ namespace astro {
 
       ground_plane,
       water_plane,
+
+      // SHRUB
+      shrub_branches,
 
       // OAK_TREE
       oak_tree_trunk,
@@ -33,6 +38,7 @@ namespace astro {
     // @todo debug mode only
     tUIText* debug_text = nullptr;
 
+    std::vector<PlantEntity> shrubs;
     std::vector<TreeEntity> oak_trees;
     std::vector<TreeEntity> willow_trees;
   };

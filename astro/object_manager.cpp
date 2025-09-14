@@ -15,6 +15,12 @@ void ObjectManager::CreateObjectsForEntity(Tachyon* tachyon, State& state, Entit
   auto& meshes = state.meshes;
 
   switch (type) {
+    case SHRUB: {
+      create(meshes.shrub_branches);
+
+      break;
+    }
+
     case OAK_TREE: {
       create(meshes.oak_tree_trunk);
 

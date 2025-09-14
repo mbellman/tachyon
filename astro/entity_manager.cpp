@@ -19,6 +19,18 @@ static EntityRecord CreateTreeEntity(State& state, EntityType type) {
   return { tree.id, type };
 }
 
+static EntityRecord CreatePlantEntity(State& state, EntityType type) {
+  PlantEntity plant;
+  plant.type = type;
+  plant.id = running_entity_id++;
+
+  if (type == SHRUB) {
+    state.shrubs.push_back(plant);
+  }
+
+  return { plant.id, type };
+}
+
 template<class T>
 static BaseEntity* FindEntityFromArray(std::vector<T>& array, const EntityRecord& record) {
   for (auto& entity : array) {
@@ -32,6 +44,9 @@ static BaseEntity* FindEntityFromArray(std::vector<T>& array, const EntityRecord
 
 EntityRecord EntityManager::CreateEntity(State& state, EntityType type) {
   switch (type) {
+    case SHRUB:
+      return CreatePlantEntity(state, type);
+
     case OAK_TREE:
     case WILLOW_TREE:
       return CreateTreeEntity(state, type);
@@ -47,6 +62,8 @@ EntityRecord EntityManager::CreateEntity(State& state, EntityType type) {
 
 BaseEntity* EntityManager::FindEntity(State& state, const EntityRecord& record) {
   switch (record.type) {
+    case SHRUB:
+      return FindEntityFromArray(state.shrubs, record);
     case OAK_TREE:
       return FindEntityFromArray(state.oak_trees, record);
     case WILLOW_TREE:

@@ -96,7 +96,7 @@ static void ShowGameStats(Tachyon* tachyon, State& state) {
 
 static void HandleControls(Tachyon* tachyon, State& state, const float dt) {
   // Handle movement actions
-  // @temporary
+  // @todo refactor
   {
     if (is_key_held(tKey::ARROW_UP) || is_key_held(tKey::W)) {
       state.player_position += tVec3f(0, 0, -1.f) * 6000.f * dt;
@@ -120,11 +120,12 @@ static void HandleControls(Tachyon* tachyon, State& state, const float dt) {
 
   // Handle astro time actions
   {
-    const float turn_rate = 2.f;
+    const float astro_turn_rate = 0.2f;
+    const float astro_slowdown_rate = 1.f;
 
     // Handle reverse/forward turn actions
-    state.astro_turn_speed -= tachyon->left_trigger * turn_rate * dt;
-    state.astro_turn_speed += tachyon->right_trigger * turn_rate * dt;
+    state.astro_turn_speed -= tachyon->left_trigger * astro_turn_rate * dt;
+    state.astro_turn_speed += tachyon->right_trigger * astro_turn_rate * dt;
 
     // Disable forward time changes past 0.
     // @todo allow this once the appropriate item is obtained
@@ -135,7 +136,7 @@ static void HandleControls(Tachyon* tachyon, State& state, const float dt) {
     state.astro_time += state.astro_turn_speed * 100.f * dt;
 
     // Reduce turn rate gradually
-    state.astro_turn_speed *= 1.f - turn_rate * dt;
+    state.astro_turn_speed *= 1.f - astro_slowdown_rate * dt;
 
     // Stop turning at a low enough speed
     if (abs(state.astro_turn_speed) < 0.001f) {
@@ -152,10 +153,19 @@ static void ProvisionAvailableObjectsForEntities(Tachyon* tachyon, State& state)
   // for more distant entities
 
   // @todo refactor
-  for (int i = 0; i < state.oak_trees.size(); i++) {
+  for_entities(state.shrubs) {
+    auto& shrub = state.shrubs[i];
+    auto& branches = objects(meshes.shrub_branches)[i];
+
+    branches.position = shrub.position;
+    branches.rotation = shrub.orientation;
+    branches.color = shrub.tint;
+  }
+
+  // @todo refactor
+  for_entities(state.oak_trees) {
     auto& tree = state.oak_trees[i];
     auto& trunk = objects(meshes.oak_tree_trunk)[i];
-    float tree_age = state.astro_time - tree.astro_time_when_born;
 
     trunk.position = tree.position;
     trunk.rotation = tree.orientation;
@@ -163,7 +173,7 @@ static void ProvisionAvailableObjectsForEntities(Tachyon* tachyon, State& state)
   }
 
   // @todo refactor
-  for (int i = 0; i < state.willow_trees.size(); i++) {
+  for_entities(state.willow_trees) {
     auto& tree = state.oak_trees[i];
     auto& trunk = objects(meshes.willow_tree_trunk)[i];
 
@@ -221,6 +231,32 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
     oak.scale = tVec3f(2500.f);
     oak.tint = tVec3f(1.f, 0.6f, 0.3f);
     oak.astro_time_when_born = -280.f;
+
+    ObjectManager::CreateObjectsForEntity(tachyon, state, record.type);
+  }
+
+  // @temporary
+  {
+    auto record = EntityManager::CreateEntity(state, SHRUB);
+    auto& shrub = *(PlantEntity*)EntityManager::FindEntity(state, record);
+
+    shrub.position = tVec3f(6500.f, -1500.f, 3500.f);
+    shrub.scale = tVec3f(600.f);
+    shrub.tint = tVec3f(0.2f, 0.8f, 0.5f);
+    shrub.astro_time_when_born = -50.f;
+
+    ObjectManager::CreateObjectsForEntity(tachyon, state, record.type);
+  }
+
+  // @temporary
+  {
+    auto record = EntityManager::CreateEntity(state, SHRUB);
+    auto& shrub = *(PlantEntity*)EntityManager::FindEntity(state, record);
+
+    shrub.position = tVec3f(7000.f, -1500.f, 5200.f);
+    shrub.scale = tVec3f(800.f);
+    shrub.tint = tVec3f(0.2f, 0.8f, 0.5f);
+    shrub.astro_time_when_born = -40.f;
 
     ObjectManager::CreateObjectsForEntity(tachyon, state, record.type);
   }

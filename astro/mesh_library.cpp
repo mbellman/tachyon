@@ -13,6 +13,7 @@ void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
   meshes.ground_plane = PLANE_MESH(1);
   meshes.water_plane = PLANE_MESH(1);
 
+  meshes.shrub_branches = CUBE_MESH(100);
   meshes.oak_tree_trunk = CUBE_MESH(100);
   meshes.willow_tree_trunk = CUBE_MESH(100);
 }
