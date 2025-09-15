@@ -21,12 +21,15 @@ namespace astro {
       astrolabe_hand,
 
       // SHRUB
+      shrub_placeholder,
       shrub_branches,
 
       // OAK_TREE
+      oak_tree_placeholder,
       oak_tree_trunk,
 
       // WILLOW_TREE
+      willow_tree_placeholder,
       willow_tree_trunk;
   };
 

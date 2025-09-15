@@ -25,4 +25,8 @@ void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
   meshes.shrub_branches = CUBE_MESH(100);
   meshes.oak_tree_trunk = CUBE_MESH(100);
   meshes.willow_tree_trunk = CUBE_MESH(100);
+
+  meshes.shrub_placeholder = CUBE_MESH(100);
+  meshes.oak_tree_placeholder = CUBE_MESH(100);
+  meshes.willow_tree_placeholder = CUBE_MESH(100);
 }
