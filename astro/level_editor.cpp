@@ -1,6 +1,9 @@
+#include <format>
+#include <string>
 #include <vector>
 
 #include "astro/level_editor.h"
+#include "astro/entity_manager.h"
 
 using namespace astro;
 
@@ -14,6 +17,73 @@ struct LevelEditorState {
   SelectableEntity selected_entity;
   bool is_object_selected = false;
 } editor;
+
+static inline std::string Serialize(float f) {
+  return std::format("{:.3f}", f);
+}
+
+static inline std::string Serialize(const tVec3f& vector) {
+  return Serialize(vector.x) + "," + Serialize(vector.y) + "," + Serialize(vector.z);
+}
+
+static inline std::string Serialize(const Quaternion& quaternion) {
+  return (
+    Serialize(quaternion.w) + "," +
+    Serialize(quaternion.x) + "," +
+    Serialize(quaternion.y) + "," +
+    Serialize(quaternion.z)
+  );
+}
+
+std::string SerializeEntity(BaseEntity* entity) {
+  switch (entity->type) {
+    case SHRUB: {
+      auto& plant = *(PlantEntity*)entity;
+
+      return (
+        std::to_string(plant.type) + "," +
+        Serialize(plant.position) + "," +
+        Serialize(plant.scale) + "," +
+        Serialize(plant.orientation) + "," +
+        Serialize(plant.tint) + "," +
+        std::to_string(plant.astro_time_when_born)
+      );
+    }
+
+    case OAK_TREE:
+    case WILLOW_TREE: {
+      auto& tree = *(TreeEntity*)entity;
+
+      return (
+        std::to_string(tree.type) + "," +
+        Serialize(tree.position) + "," +
+        Serialize(tree.scale) + "," +
+        Serialize(tree.orientation) + "," +
+        Serialize(tree.tint) + "," +
+        std::to_string(tree.astro_time_when_born)
+      );
+    }
+
+    default:
+      // @todo log error
+      return "";
+  }
+}
+
+void SaveWorldData(State& state) {
+  std::string world_data = "";
+
+  for (auto& selectable : editor.selectable_entities) {
+    auto* entity = EntityManager::FindEntity(state, selectable.entity_record);
+
+    world_data += SerializeEntity(entity) + "\n";
+  }
+
+  // @todo write to file
+  printf("Saving!\n");
+  printf("%s\n", world_data.c_str());
+  printf("\n");
+}
 
 static void InitEditorCamera(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
@@ -74,6 +144,8 @@ static void DeselectCurrentlySelectedEntity(Tachyon* tachyon, State& state) {
 
   // Restore the placeholder color
   commit(live_placeholder);
+
+  SaveWorldData(state);
 }
 
 static void HandleEditorActions(Tachyon* tachyon, State& state) {
@@ -117,7 +189,7 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
   }
 }
 
-static void SaveSelectableEntity(BaseEntity& entity, tObject& placeholder) {
+static void TrackSelectableEntity(BaseEntity& entity, tObject& placeholder) {
   editor.selectable_entities.push_back({
     .entity_record = {
       entity.id,
@@ -141,7 +213,7 @@ static void SpawnEntityPlaceholders(Tachyon* tachyon, State& state) {
 
     commit(placeholder);
 
-    SaveSelectableEntity(entity, placeholder);
+    TrackSelectableEntity(entity, placeholder);
   }
 
   // @todo refactor
@@ -155,7 +227,7 @@ static void SpawnEntityPlaceholders(Tachyon* tachyon, State& state) {
 
     commit(placeholder);
 
-    SaveSelectableEntity(entity, placeholder);
+    TrackSelectableEntity(entity, placeholder);
   }
 
   // @todo refactor
@@ -169,7 +241,7 @@ static void SpawnEntityPlaceholders(Tachyon* tachyon, State& state) {
 
     commit(placeholder);
 
-    SaveSelectableEntity(entity, placeholder);
+    TrackSelectableEntity(entity, placeholder);
   }
 }
 
@@ -216,6 +288,7 @@ void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
   objects(meshes.willow_tree_trunk).disabled = false;
   objects(meshes.shrub_branches).disabled = false;
 
+  SaveWorldData(state);
   RemoveEntityPlaceholders(tachyon, state);
 }
 
