@@ -7,6 +7,7 @@ x86/
 
 .vs/
 .vscode/
+.VSCodeCounter
 
 *.rsuser
 *.suo

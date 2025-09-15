@@ -301,6 +301,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
     }
   }
 
+  // @todo dev mode only
   if (state.is_level_editor_open) {
     LevelEditor::HandleLevelEditor(tachyon, state, dt);
 
