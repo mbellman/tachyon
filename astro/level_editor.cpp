@@ -1,6 +1,17 @@
+#include <vector>
+
 #include "astro/level_editor.h"
 
 using namespace astro;
+
+struct SelectableEntity {
+  EntityRecord entity_record;
+  tObject placeholder;
+};
+
+struct LevelEditorState {
+  std::vector<SelectableEntity> selectable_entities;
+} editor;
 
 static void InitEditorCamera(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
@@ -43,8 +54,55 @@ static void HandleFreeCamera(Tachyon* tachyon, State& state, const float dt) {
   camera.rotation = camera.orientation.toQuaternion();
 }
 
+static void HandleEditorActions(Tachyon* tachyon, State& state) {
+  if (did_left_click_down()) {
+    // @todo factor all of this
+    auto& camera = tachyon->scene.camera;
+    tVec3f forward = camera.orientation.getDirection();
+    float highest_candidate_score = 0.f;
+    SelectableEntity candidate;
+
+    for (auto& selectable : editor.selectable_entities) {
+      auto& live_placeholder = *get_live_object(selectable.placeholder);
+      float scale_limit = 20000.f; // @todo base on placeholder scale
+      tVec3f camera_to_entity = live_placeholder.position - camera.position;
+      float distance = camera_to_entity.magnitude();
+      float entity_dot = tVec3f::dot(forward, camera_to_entity.unit());
+
+      if (distance > scale_limit || entity_dot < 0.6f) continue;
+
+      float score = (100.f * powf(entity_dot, 20.f)) / distance;
+
+      if (score > highest_candidate_score) {
+        highest_candidate_score = score;
+        candidate = selectable;
+      }
+    }
+
+    if (highest_candidate_score > 0.f) {
+      auto& live_placeholder = *get_live_object(candidate.placeholder);
+
+      live_placeholder.color = tVec3f(1.f, 0, 1.f);
+
+      commit(live_placeholder);
+    }
+  }
+}
+
+static void SaveSelectableEntity(BaseEntity& entity, tObject& placeholder) {
+  editor.selectable_entities.push_back({
+    .entity_record = {
+      entity.id,
+      entity.type
+    },
+    .placeholder = placeholder,
+  });
+}
+
 static void SpawnEntityPlaceholders(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
+
+  editor.selectable_entities.clear();
 
   // @todo refactor
   for_entities(state.shrubs) {
@@ -56,6 +114,8 @@ static void SpawnEntityPlaceholders(Tachyon* tachyon, State& state) {
     placeholder.color = tVec3f(0.2f, 0.8f, 0.5f);
 
     commit(placeholder);
+
+    SaveSelectableEntity(entity, placeholder);
   }
 
   // @todo refactor
@@ -68,6 +128,8 @@ static void SpawnEntityPlaceholders(Tachyon* tachyon, State& state) {
     placeholder.color = tVec3f(1.f, 0.6f, 0.3f);
 
     commit(placeholder);
+
+    SaveSelectableEntity(entity, placeholder);
   }
 
   // @todo refactor
@@ -80,6 +142,8 @@ static void SpawnEntityPlaceholders(Tachyon* tachyon, State& state) {
     placeholder.color = tVec3f(1.f, 0.6f, 0.3f);
 
     commit(placeholder);
+
+    SaveSelectableEntity(entity, placeholder);
   }
 }
 
@@ -130,5 +194,6 @@ void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
 void LevelEditor::HandleLevelEditor(Tachyon* tachyon, State& state, const float dt) {
   if (is_window_focused()) {
     HandleFreeCamera(tachyon, state, dt);
+    HandleEditorActions(tachyon, state);
   }
 }
