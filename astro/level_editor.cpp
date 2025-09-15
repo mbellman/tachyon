@@ -11,6 +11,8 @@ struct SelectableEntity {
 
 struct LevelEditorState {
   std::vector<SelectableEntity> selectable_entities;
+  SelectableEntity selected_entity;
+  bool is_object_selected = false;
 } editor;
 
 static void InitEditorCamera(Tachyon* tachyon, State& state) {
@@ -54,7 +56,28 @@ static void HandleFreeCamera(Tachyon* tachyon, State& state, const float dt) {
   camera.rotation = camera.orientation.toQuaternion();
 }
 
+static void SelectEntity(Tachyon* tachyon, State& state, SelectableEntity& selectable) {
+  editor.is_object_selected = true;
+  editor.selected_entity = selectable;
+
+  auto& placeholder = selectable.placeholder;
+
+  placeholder.color = tVec3f(1.f, 0, 1.f);
+
+  commit(placeholder);
+}
+
+static void DeselectCurrentlySelectedEntity(Tachyon* tachyon, State& state) {
+  editor.is_object_selected = false;
+
+  auto& live_placeholder = *get_live_object(editor.selected_entity.placeholder);
+
+  // Restore the placeholder color
+  commit(live_placeholder);
+}
+
 static void HandleEditorActions(Tachyon* tachyon, State& state) {
+  // @todo allow us to distinguish between selecting decorative objects and actual entities
   if (did_left_click_down()) {
     // @todo factor all of this
     auto& camera = tachyon->scene.camera;
@@ -79,13 +102,18 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
       }
     }
 
+    // If we found a selectable entity, select it
     if (highest_candidate_score > 0.f) {
-      auto& live_placeholder = *get_live_object(candidate.placeholder);
+      if (editor.is_object_selected) {
+        DeselectCurrentlySelectedEntity(tachyon, state);
+      }
 
-      live_placeholder.color = tVec3f(1.f, 0, 1.f);
-
-      commit(live_placeholder);
+      SelectEntity(tachyon, state, candidate);
     }
+  }
+
+  if (did_right_click_down() && editor.is_object_selected) {
+    DeselectCurrentlySelectedEntity(tachyon, state);
   }
 }
 
@@ -101,8 +129,6 @@ static void SaveSelectableEntity(BaseEntity& entity, tObject& placeholder) {
 
 static void SpawnEntityPlaceholders(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
-
-  editor.selectable_entities.clear();
 
   // @todo refactor
   for_entities(state.shrubs) {
@@ -153,6 +179,8 @@ static void RemoveEntityPlaceholders(Tachyon* tachyon, State& state) {
   remove_all(meshes.shrub_placeholder);
   remove_all(meshes.oak_tree_placeholder);
   remove_all(meshes.willow_tree_placeholder);
+
+  editor.selectable_entities.clear();
 }
 
 void LevelEditor::OpenLevelEditor(Tachyon* tachyon, State& state) {
