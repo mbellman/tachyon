@@ -6,13 +6,8 @@
 
 using namespace astro;
 
-void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
+static void AddHUDMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
-
-  meshes.player = CUBE_MESH(1);
-
-  meshes.ground_plane = PLANE_MESH(1);
-  meshes.water_plane = PLANE_MESH(1);
 
   meshes.astrolabe_base = MODEL_MESH("./astro/models/astrolabe_base.obj", 1);
   meshes.astrolabe_ring = MODEL_MESH("./astro/models/astrolabe_ring.obj", 1);
@@ -21,11 +16,35 @@ void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
   mesh(meshes.astrolabe_base).shadow_cascade_ceiling = 0;
   mesh(meshes.astrolabe_ring).shadow_cascade_ceiling = 0;
   mesh(meshes.astrolabe_hand).shadow_cascade_ceiling = 0;
+}
 
+static void AddEditorMeshes(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
+  meshes.gizmo_arrow = MODEL_MESH("./astro/models/editor/gizmo_arrow.obj", 3);
+
+  mesh(meshes.gizmo_arrow).shadow_cascade_ceiling = 0;
+}
+
+void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
+  meshes.player = CUBE_MESH(1);
+
+  meshes.ground_plane = PLANE_MESH(1);
+  meshes.water_plane = PLANE_MESH(1);
+
+  AddHUDMeshes(tachyon, state);
+
+  // @todo dev mode only
+  AddEditorMeshes(tachyon, state);
+
+  // @todo factor
   meshes.shrub_branches = CUBE_MESH(100);
   meshes.oak_tree_trunk = CUBE_MESH(100);
   meshes.willow_tree_trunk = CUBE_MESH(100);
 
+  // @todo factor
   meshes.shrub_placeholder = CUBE_MESH(100);
   meshes.oak_tree_placeholder = CUBE_MESH(100);
   meshes.willow_tree_placeholder = CUBE_MESH(100);

@@ -168,6 +168,72 @@ static void HandleFreeCamera(Tachyon* tachyon, State& state, const float dt) {
 
 /**
  * ----------------------------
+ * Creates the objects for a given gizmo type.
+ * @todo accept type as an argument
+ * ----------------------------
+ */
+static void CreateGizmo(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
+  auto& up = create(meshes.gizmo_arrow);
+  auto& left = create(meshes.gizmo_arrow);
+  auto& right = create(meshes.gizmo_arrow);
+
+  up.scale = tVec3f(40.f);
+  left.scale = tVec3f(40.f);
+  right.scale = tVec3f(40.f);
+
+  left.rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), t_HALF_PI);
+  right.rotation = Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), t_HALF_PI);
+
+  up.color = tVec4f(1.f, 0, 0, 0.4f);
+  left.color = tVec4f(0, 1.f, 0, 0.4f);
+  right.color = tVec4f(0, 0, 1.f, 0.4f);
+
+  commit(up);
+  commit(left);
+  commit(right);
+}
+
+/**
+ * ----------------------------
+ * Updates the objects for the current gizmo.
+ * @todo change according to current action type
+ * ----------------------------
+ */
+static void UpdateCurrentGizmo(Tachyon* tachyon, State& state) {
+  auto& camera = tachyon->scene.camera;
+  auto& meshes = state.meshes;
+  auto& up = objects(meshes.gizmo_arrow)[0];
+  auto& left = objects(meshes.gizmo_arrow)[1];
+  auto& right = objects(meshes.gizmo_arrow)[2];
+
+  auto& live_placeholder = *get_live_object(editor.current_selectable.placeholder);
+  tVec3f camera_to_selected = live_placeholder.position - camera.position;
+  tVec3f position = camera.position + camera_to_selected.unit() * 650.f;
+
+  up.position = position;
+  left.position = position;
+  right.position = position;
+
+  commit(up);
+  commit(left);
+  commit(right);
+}
+
+/**
+ * ----------------------------
+ * Destroys gizmo-related objects.
+ * ----------------------------
+ */
+static void DestroyGizmo(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
+  remove_all(meshes.gizmo_arrow);
+}
+
+/**
+ * ----------------------------
  * Selects a given Selectable, either an entity or plain object.
  * ----------------------------
  */
@@ -180,6 +246,8 @@ static void MakeSelection(Tachyon* tachyon, State& state, Selectable& selectable
   placeholder.color = tVec3f(1.f, 0, 1.f);
 
   commit(placeholder);
+
+  CreateGizmo(tachyon, state);
 }
 
 /**
@@ -199,6 +267,7 @@ static void DeselectCurrent(Tachyon* tachyon, State& state) {
   // Restore the placeholder color
   commit(live_placeholder);
 
+  DestroyGizmo(tachyon, state);
   SaveWorldData(state);
 }
 
@@ -370,16 +439,19 @@ void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
   objects(meshes.shrub_branches).disabled = false;
 
   DeselectCurrent(tachyon, state);
-
-  editor.selectables.clear();
-
   SaveWorldData(state);
   RemoveEntityPlaceholders(tachyon, state);
+
+  editor.selectables.clear();
 }
 
 void LevelEditor::HandleLevelEditor(Tachyon* tachyon, State& state, const float dt) {
   if (is_window_focused()) {
     HandleFreeCamera(tachyon, state, dt);
     HandleEditorActions(tachyon, state);
+  }
+
+  if (editor.is_object_selected) {
+    UpdateCurrentGizmo(tachyon, state);
   }
 }

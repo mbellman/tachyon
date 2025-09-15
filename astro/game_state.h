@@ -20,6 +20,10 @@ namespace astro {
       astrolabe_ring,
       astrolabe_hand,
 
+      // Editor meshes
+      // @todo dev mode only
+      gizmo_arrow,
+
       // SHRUB
       shrub_placeholder,
       shrub_branches,
