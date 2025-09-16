@@ -397,16 +397,17 @@ static tVec3f GetClosestWorldAxis(const tVec3f& vector) {
 static void HandleSelectedObjectMovementActions(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
   auto& placeholder = editor.current_selectable.placeholder;
+  float move_speed = (placeholder.position - camera.position).magnitude() / 4000.f;
 
   if (abs(tachyon->mouse_delta_x) > abs(tachyon->mouse_delta_y)) {
     tVec3f camera_left = camera.orientation.getLeftDirection();
     tVec3f move_axis = GetClosestWorldAxis(camera_left);
 
-    placeholder.position -= move_axis * tachyon->mouse_delta_x * 5.f;
+    placeholder.position -= move_axis * tachyon->mouse_delta_x * move_speed;
   } else {
     tVec3f move_axis = tVec3f(0, 1.f, 0);
 
-    placeholder.position -= move_axis * tachyon->mouse_delta_y * 5.f;
+    placeholder.position -= move_axis * tachyon->mouse_delta_y * move_speed;
   }
 
   if (editor.current_selectable.is_entity) {
