@@ -9,9 +9,9 @@ using namespace astro;
 static void AddHUDMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
-  meshes.astrolabe_base = MODEL_MESH("./astro/models/astrolabe_base.obj", 1);
-  meshes.astrolabe_ring = MODEL_MESH("./astro/models/astrolabe_ring.obj", 1);
-  meshes.astrolabe_hand = MODEL_MESH("./astro/models/astrolabe_hand.obj", 1);
+  meshes.astrolabe_base = MODEL_MESH("./astro/3d_models/astrolabe_base.obj", 1);
+  meshes.astrolabe_ring = MODEL_MESH("./astro/3d_models/astrolabe_ring.obj", 1);
+  meshes.astrolabe_hand = MODEL_MESH("./astro/3d_models/astrolabe_hand.obj", 1);
 
   mesh(meshes.astrolabe_base).shadow_cascade_ceiling = 0;
   mesh(meshes.astrolabe_ring).shadow_cascade_ceiling = 0;
@@ -21,7 +21,7 @@ static void AddHUDMeshes(Tachyon* tachyon, State& state) {
 static void AddEditorMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
-  meshes.gizmo_arrow = MODEL_MESH("./astro/models/editor/gizmo_arrow.obj", 3);
+  meshes.gizmo_arrow = MODEL_MESH("./astro/3d_models/editor/gizmo_arrow.obj", 3);
 
   mesh(meshes.gizmo_arrow).shadow_cascade_ceiling = 0;
 }
