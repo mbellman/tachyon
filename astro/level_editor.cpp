@@ -135,13 +135,15 @@ static void InitEditorCamera(Tachyon* tachyon, State& state) {
 static void HandleFreeCamera(Tachyon* tachyon, State& state, const float dt) {
   auto& camera = tachyon->scene.camera;
 
-  const float camera_panning_speed = 0.3f;
+  const float camera_panning_speed = 0.25f;
   const float camera_movement_speed = is_key_held(tKey::SPACE) ? 10000.f : 5000.f;
 
   // Mouse panning
   {
-    camera.orientation.yaw += tachyon->mouse_delta_x * camera_panning_speed * dt;
-    camera.orientation.pitch += tachyon->mouse_delta_y * camera_panning_speed * dt;
+    if (!is_left_mouse_held_down()) {
+      camera.orientation.yaw += tachyon->mouse_delta_x * camera_panning_speed * dt;
+      camera.orientation.pitch += tachyon->mouse_delta_y * camera_panning_speed * dt;
+    }
   }
 
   // WASD controls
@@ -208,8 +210,9 @@ static void UpdateCurrentGizmo(Tachyon* tachyon, State& state) {
   auto& left = objects(meshes.gizmo_arrow)[1];
   auto& right = objects(meshes.gizmo_arrow)[2];
 
-  auto& live_placeholder = *get_live_object(editor.current_selectable.placeholder);
-  tVec3f camera_to_selected = live_placeholder.position - camera.position;
+  // auto& placeholder = *get_live_object(editor.current_selectable.placeholder);
+  auto& placeholder = editor.current_selectable.placeholder;
+  tVec3f camera_to_selected = placeholder.position - camera.position;
   tVec3f position = camera.position + camera_to_selected.unit() * 650.f;
 
   up.position = position;
@@ -241,9 +244,9 @@ static void MakeSelection(Tachyon* tachyon, State& state, Selectable& selectable
   editor.is_object_selected = true;
   editor.current_selectable = selectable;
 
-  auto& placeholder = selectable.placeholder;
+  auto& placeholder = editor.current_selectable.placeholder;
 
-  placeholder.color = tVec3f(1.f, 0, 1.f);
+  placeholder.color = tVec4f(1.f, 0, 1.f, 0.2f);
 
   commit(placeholder);
 
@@ -310,12 +313,73 @@ static void MaybeMakeSelection(Tachyon* tachyon, State& state) {
 
 /**
  * ----------------------------
+ * Finds the global axis most similar to a given vector.
+ * ----------------------------
+ */
+static tVec3f GetClosestWorldAxis(const tVec3f& vector) {
+  float abs_x = abs(vector.x);
+  float abs_y = abs(vector.y);
+  float abs_z = abs(vector.z);
+
+  if (abs_x > abs_y && abs_x > abs_z) {
+    return tVec3f(vector.x, 0, 0).unit();
+  } else if (abs_y > abs_x && abs_y > abs_z) {
+    return tVec3f(0, vector.y, 0).unit();
+  } else {
+    return tVec3f(0, 0, vector.z).unit();
+  }
+}
+
+/**
+ * ----------------------------
+ * Handler for moving selected objects around.
+ * ----------------------------
+ */
+static void HandleSelectedObjectMovementActions(Tachyon* tachyon, State& state) {
+  auto& camera = tachyon->scene.camera;
+  auto& placeholder = editor.current_selectable.placeholder;
+
+  if (abs(tachyon->mouse_delta_x) > abs(tachyon->mouse_delta_y)) {
+    tVec3f camera_left = camera.orientation.getLeftDirection();
+    tVec3f move_axis = GetClosestWorldAxis(camera_left);
+
+    placeholder.position += move_axis * -tachyon->mouse_delta_x * 5.f;
+  } else {
+    tVec3f move_axis = tVec3f(0, 1.f, 0);
+
+    placeholder.position += move_axis * -tachyon->mouse_delta_y * 5.f;
+  }
+
+  commit(placeholder);
+}
+
+/**
+ * ----------------------------
+ * Handler for manipulating selected objects with the mouse.
+ * ----------------------------
+ */
+static void HandleSelectedObjectActions(Tachyon* tachyon, State& state) {
+  if (tachyon->mouse_delta_x == 0 && tachyon->mouse_delta_y == 0) {
+    return;
+  }
+
+  // @todo check the current action type
+
+  HandleSelectedObjectMovementActions(tachyon, state);
+}
+
+/**
+ * ----------------------------
  * Handles inputs while the editor is open.
  * ----------------------------
  */
 static void HandleEditorActions(Tachyon* tachyon, State& state) {
   if (did_left_click_down() && !editor.is_object_selected) {
     MaybeMakeSelection(tachyon, state);
+  }
+
+  if (is_left_mouse_held_down() && editor.is_object_selected) {
+    HandleSelectedObjectActions(tachyon, state);
   }
 
   if (did_right_click_down() && editor.is_object_selected) {
