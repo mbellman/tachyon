@@ -4,6 +4,7 @@
 
 #include "astro/level_editor.h"
 #include "astro/entity_manager.h"
+#include "astro/object_manager.h"
 
 using namespace astro;
 
@@ -210,6 +211,23 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
 
 /**
  * ----------------------------
+ * Puts an entity and its placeholder object in the Selectables list
+ * so it can be clicked on and manipulated in the editor.
+ * ----------------------------
+ */
+static void TrackSelectableEntity(BaseEntity& entity, tObject& placeholder) {
+  editor.selectables.push_back({
+    .is_entity = true,
+    .entity_record = {
+      entity.id,
+      entity.type
+    },
+    .placeholder = placeholder,
+  });
+}
+
+/**
+ * ----------------------------
  * Ensures all placeholder objects stored in the selectables list
  * are updated to reflect their live counterparts.
  * ----------------------------
@@ -220,6 +238,30 @@ static void SyncSelectables(Tachyon* tachyon) {
 
     selectable.placeholder = live_placeholder;
   }
+}
+
+/**
+ * ----------------------------
+ * Removes an element from the selectables list by entity ID.
+ * ----------------------------
+ */
+static void ForgetSelectableEntity(int32 entity_id) {
+  for (size_t i = 0; i < editor.selectables.size(); i++) {
+    if (entity_id == editor.selectables[i].entity_record.id) {
+      editor.selectables.erase(editor.selectables.begin() + i);
+
+      break;
+    }
+  }
+}
+
+/**
+ * ----------------------------
+ * Removes an element from the selectables list by object.
+ * ----------------------------
+ */
+static void ForgetSelectableObject(tObject& object) {
+  // @todo
 }
 
 /**
@@ -312,10 +354,6 @@ static void MakeSelection(Tachyon* tachyon, State& state, Selectable& selectable
  * ----------------------------
  */
 static void DeselectCurrent(Tachyon* tachyon, State& state) {
-  if (!editor.is_object_selected) {
-    return;
-  }
-
   auto& placeholder = editor.current_selectable.placeholder;
   auto& live_placeholder = *get_live_object(placeholder);
 
@@ -372,6 +410,30 @@ static void MaybeMakeSelection(Tachyon* tachyon, State& state) {
 
 /**
  * ----------------------------
+ * Deletes the currently-selected entity or object.
+ * ----------------------------
+ */
+static void DeleteSelectedObject(Tachyon* tachyon, State& state) {
+  auto& selected = editor.current_selectable;
+
+  remove(selected.placeholder);
+
+  if (selected.is_entity) {
+    ForgetSelectableEntity(selected.entity_record.id);
+
+    EntityManager::DeleteEntity(state, selected.entity_record);
+    ObjectManager::DeleteObjectsForEntityType(tachyon, state, selected.entity_record.type);
+  } else {
+    ForgetSelectableObject(selected.placeholder);
+  }
+
+  DestroyGizmo(tachyon, state);
+
+  editor.is_object_selected = false;
+}
+
+/**
+ * ----------------------------
  * Finds the global axis most similar to a given vector.
  * ----------------------------
  */
@@ -403,11 +465,11 @@ static void HandleSelectedObjectMovementActions(Tachyon* tachyon, State& state) 
     tVec3f camera_left = camera.orientation.getLeftDirection();
     tVec3f move_axis = GetClosestWorldAxis(camera_left);
 
-    placeholder.position -= move_axis * tachyon->mouse_delta_x * move_speed;
+    placeholder.position -= move_axis * move_speed * (float)tachyon->mouse_delta_x;
   } else {
     tVec3f move_axis = tVec3f(0, 1.f, 0);
 
-    placeholder.position -= move_axis * tachyon->mouse_delta_y * move_speed;
+    placeholder.position -= move_axis * move_speed * (float)tachyon->mouse_delta_y;
   }
 
   if (editor.current_selectable.is_entity) {
@@ -445,30 +507,19 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
     MaybeMakeSelection(tachyon, state);
   }
 
-  if (is_left_mouse_held_down() && editor.is_object_selected) {
-    HandleSelectedObjectActions(tachyon, state);
-  }
+  if (editor.is_object_selected) {
+    if (is_left_mouse_held_down()) {
+      HandleSelectedObjectActions(tachyon, state);
+    }
 
-  if (did_right_click_down() && editor.is_object_selected) {
-    DeselectCurrent(tachyon, state);
-  }
-}
+    if (did_press_key(tKey::BACKSPACE)) {
+      DeleteSelectedObject(tachyon, state);
+    }
 
-/**
- * ----------------------------
- * Puts an entity and its placeholder object in the Selectables list
- * so it can be clicked on and manipulated in the editor.
- * ----------------------------
- */
-static void TrackSelectableEntity(BaseEntity& entity, tObject& placeholder) {
-  editor.selectables.push_back({
-    .is_entity = true,
-    .entity_record = {
-      entity.id,
-      entity.type
-    },
-    .placeholder = placeholder,
-  });
+    if (did_right_click_down()) {
+      DeselectCurrent(tachyon, state);
+    }
+  }
 }
 
 /**
@@ -573,7 +624,10 @@ void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
   objects(meshes.willow_tree_trunk).disabled = false;
   objects(meshes.shrub_branches).disabled = false;
 
-  DeselectCurrent(tachyon, state);
+  if (editor.is_object_selected) {
+    DeselectCurrent(tachyon, state);
+  }
+
   SaveWorldData(state);
   RemoveEntityPlaceholders(tachyon, state);
 

@@ -42,6 +42,17 @@ static BaseEntity* FindEntityFromArray(std::vector<T>& array, const EntityRecord
   return nullptr;
 }
 
+template<class T>
+void DeleteEntityFromArray(std::vector<T>& array, const EntityRecord& record) {
+  for (size_t i = 0; i < array.size(); i++) {
+    if (record.id == array[i].id) {
+      array.erase(array.begin() + i);
+
+      break;
+    }
+  }
+}
+
 EntityRecord EntityManager::CreateEntity(State& state, EntityType type) {
   switch (type) {
     case SHRUB:
@@ -53,6 +64,7 @@ EntityRecord EntityManager::CreateEntity(State& state, EntityType type) {
 
     default:
       // Unknown entity type requested
+      // @todo log error
       return {
         .id = -1,
         .type = UNSPECIFIED
@@ -69,6 +81,30 @@ BaseEntity* EntityManager::FindEntity(State& state, const EntityRecord& record) 
     case WILLOW_TREE:
       return FindEntityFromArray(state.willow_trees, record);
     default:
+      // @todo log error
       return nullptr;
+  }
+}
+
+void EntityManager::DeleteEntity(State& state, const EntityRecord& record) {
+  switch (record.type) {
+    case SHRUB:
+      DeleteEntityFromArray(state.shrubs, record);
+
+      break;
+
+    case OAK_TREE:
+      DeleteEntityFromArray(state.oak_trees, record);
+
+      break;
+
+    case WILLOW_TREE:
+      DeleteEntityFromArray(state.willow_trees, record);
+
+      break;
+
+    default:
+      // @todo log error
+      break;
   }
 }
