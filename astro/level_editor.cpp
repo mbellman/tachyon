@@ -170,6 +170,20 @@ static void HandleFreeCamera(Tachyon* tachyon, State& state, const float dt) {
 
 /**
  * ----------------------------
+ * Ensures all placeholder objects stored in the selectables list
+ * are updated to reflect their live counterparts.
+ * ----------------------------
+ */
+static void SyncSelectables(Tachyon* tachyon) {
+  for (auto& selectable : editor.selectables) {
+    auto& live_placeholder = *get_live_object(selectable.placeholder);
+
+    selectable.placeholder = live_placeholder;
+  }
+}
+
+/**
+ * ----------------------------
  * Creates the objects for a given gizmo type.
  * @todo accept type as an argument
  * ----------------------------
@@ -210,7 +224,6 @@ static void UpdateCurrentGizmo(Tachyon* tachyon, State& state) {
   auto& left = objects(meshes.gizmo_arrow)[1];
   auto& right = objects(meshes.gizmo_arrow)[2];
 
-  // auto& placeholder = *get_live_object(editor.current_selectable.placeholder);
   auto& placeholder = editor.current_selectable.placeholder;
   tVec3f camera_to_selected = placeholder.position - camera.position;
   tVec3f position = camera.position + camera_to_selected.unit() * 650.f;
@@ -263,14 +276,20 @@ static void DeselectCurrent(Tachyon* tachyon, State& state) {
     return;
   }
 
-  editor.is_object_selected = false;
+  auto& placeholder = editor.current_selectable.placeholder;
+  auto& live_placeholder = *get_live_object(placeholder);
 
-  auto& live_placeholder = *get_live_object(editor.current_selectable.placeholder);
+  // Save transformations
+  // @todo save scale
+  live_placeholder.position = placeholder.position;
+  live_placeholder.rotation = placeholder.rotation;
 
-  // Restore the placeholder color
   commit(live_placeholder);
 
+  editor.is_object_selected = false;
+
   DestroyGizmo(tachyon, state);
+  SyncSelectables(tachyon);
   SaveWorldData(state);
 }
 
@@ -288,16 +307,16 @@ static void MaybeMakeSelection(Tachyon* tachyon, State& state) {
 
   for (auto& selectable : editor.selectables) {
     auto& live_placeholder = *get_live_object(selectable.placeholder);
-    float scale_limit = 20000.f; // @todo base on placeholder scale
+    float distance_limit = 20000.f; // @todo base on placeholder scale
     tVec3f camera_to_entity = live_placeholder.position - camera.position;
     float distance = camera_to_entity.magnitude();
-    float selectable_dot = tVec3f::dot(forward, camera_to_entity.unit());
+    float dot = tVec3f::dot(forward, camera_to_entity.unit());
 
-    if (distance > scale_limit || selectable_dot < 0.6f) {
+    if (distance > distance_limit || dot < 0.6f) {
       continue;
     }
 
-    float score = (100.f * powf(selectable_dot, 20.f)) / distance;
+    float score = (100.f * powf(dot, 20.f)) / distance;
 
     if (score > highest_candidate_score) {
       highest_candidate_score = score;
@@ -343,11 +362,18 @@ static void HandleSelectedObjectMovementActions(Tachyon* tachyon, State& state) 
     tVec3f camera_left = camera.orientation.getLeftDirection();
     tVec3f move_axis = GetClosestWorldAxis(camera_left);
 
-    placeholder.position += move_axis * -tachyon->mouse_delta_x * 5.f;
+    placeholder.position -= move_axis * tachyon->mouse_delta_x * 5.f;
   } else {
     tVec3f move_axis = tVec3f(0, 1.f, 0);
 
-    placeholder.position += move_axis * -tachyon->mouse_delta_y * 5.f;
+    placeholder.position -= move_axis * tachyon->mouse_delta_y * 5.f;
+  }
+
+  if (editor.current_selectable.is_entity) {
+    // Find and sync the position of the original entity
+    auto* entity = EntityManager::FindEntity(state, editor.current_selectable.entity_record);
+
+    entity->position = placeholder.position;
   }
 
   commit(placeholder);
@@ -473,6 +499,8 @@ void LevelEditor::OpenLevelEditor(Tachyon* tachyon, State& state) {
 
   state.is_level_editor_open = true;
 
+  show_alert_message("Entering editor");
+
   objects(meshes.astrolabe_base).disabled = true;
   objects(meshes.astrolabe_ring).disabled = true;
   objects(meshes.astrolabe_hand).disabled = true;
@@ -492,6 +520,8 @@ void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   state.is_level_editor_open = false;
+
+  show_alert_message("Leaving editor");
 
   objects(meshes.astrolabe_base).disabled = false;
   objects(meshes.astrolabe_ring).disabled = false;
