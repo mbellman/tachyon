@@ -129,20 +129,51 @@ static void InitEditorCamera(Tachyon* tachyon, State& state) {
 
 /**
  * ----------------------------
- * Handles camera panning/movement in the editor.
+ * Handles swiveling around the current selected object.
  * ----------------------------
  */
-static void HandleFreeCamera(Tachyon* tachyon, State& state, const float dt) {
+static void HandleSelectedObjectCameraSwiveling(Tachyon* tachyon, State& state) {
+  auto& camera = tachyon->scene.camera;
+  tVec3f origin = editor.current_selectable.placeholder.position;
+  tVec3f offset = camera.position - origin;
+  tVec3f unit_offset = offset.unit();
+
+  tCamera3p camera3p;
+  camera3p.radius = offset.magnitude();
+  camera3p.azimuth = atan2f(unit_offset.z, unit_offset.x);
+  camera3p.altitude = atan2f(unit_offset.y, unit_offset.xz().magnitude());
+
+  if (tachyon->mouse_delta_x != 0 || tachyon->mouse_delta_y != 0) {
+    camera3p.azimuth += (float)tachyon->mouse_delta_x / 1000.f;
+    camera3p.altitude += (float)tachyon->mouse_delta_y / 1000.f;
+    camera3p.limitAltitude(0.99f);
+
+    camera.position = origin + camera3p.calculatePosition();
+  }
+
+  camera.orientation.face(origin - camera.position, tVec3f(0, 1.f, 0));
+}
+
+/**
+ * ----------------------------
+ * Handles camera behavior in the editor.
+ * ----------------------------
+ */
+static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
   auto& camera = tachyon->scene.camera;
 
-  const float camera_panning_speed = 0.25f;
+  const float camera_panning_speed = 0.2f;
   const float camera_movement_speed = is_key_held(tKey::SPACE) ? 10000.f : 5000.f;
 
-  // Mouse panning
+  // Object swiveling or mouse panning
   {
     if (!is_left_mouse_held_down()) {
-      camera.orientation.yaw += tachyon->mouse_delta_x * camera_panning_speed * dt;
-      camera.orientation.pitch += tachyon->mouse_delta_y * camera_panning_speed * dt;
+      if (is_key_held(tKey::SHIFT) && editor.is_object_selected) {
+        HandleSelectedObjectCameraSwiveling(tachyon, state);
+      } else {
+        camera.orientation.yaw += tachyon->mouse_delta_x * camera_panning_speed * dt;
+        camera.orientation.pitch += tachyon->mouse_delta_y * camera_panning_speed * dt;
+      }
     }
   }
 
@@ -165,7 +196,16 @@ static void HandleFreeCamera(Tachyon* tachyon, State& state, const float dt) {
     }
   }
 
-  camera.rotation = camera.orientation.toQuaternion();
+  // Update camera rotation
+  {
+    float blend_alpha = 50.f * dt;
+
+    if (tachyon->mouse_delta_x != 0 || tachyon->mouse_delta_y != 0 || blend_alpha > 1.f) {
+      blend_alpha = 1.f;
+    }
+
+    camera.rotation = Quaternion::slerp(camera.rotation, camera.orientation.toQuaternion(), blend_alpha);
+  }
 }
 
 /**
@@ -541,7 +581,7 @@ void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
 
 void LevelEditor::HandleLevelEditor(Tachyon* tachyon, State& state, const float dt) {
   if (is_window_focused()) {
-    HandleFreeCamera(tachyon, state, dt);
+    HandleCamera(tachyon, state, dt);
     HandleEditorActions(tachyon, state);
   }
 
