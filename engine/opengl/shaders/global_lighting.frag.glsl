@@ -161,7 +161,7 @@ int GetCascadeIndex(vec3 world_position) {
   float camera_distance = length(camera_position - world_position);
 
   // @todo make these depend on defined cascade ranges
-  if (camera_distance < 20000.0) {
+  if (camera_distance < 19000.0) {
     return 0;
   } else if (camera_distance < 50000.0) {
     return 1;
