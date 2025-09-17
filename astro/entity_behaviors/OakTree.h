@@ -17,7 +17,8 @@ namespace astro {
     }
 
     placeholderSpawned() {
-      auto& placeholder = create(state.meshes.oak_tree_placeholder);
+      auto& meshes = state.meshes;
+      auto& placeholder = create(meshes.oak_tree_placeholder);
 
       placeholder.position = entity.position;
       placeholder.scale = tVec3f(500.f, 2000.f, 500.f);
