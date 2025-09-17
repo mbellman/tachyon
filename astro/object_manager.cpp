@@ -27,35 +27,6 @@ void ObjectManager::CreateObjects(Tachyon* tachyon, State& state) {
   create(meshes.astrolabe_hand);
 }
 
-// @todo replace with EntityDispatcher::DestroyObjects()
-void ObjectManager::DeleteObjectsForEntityType(Tachyon* tachyon, State& state, EntityType type) {
-  auto& meshes = state.meshes;
-
-  switch (type) {
-    case SHRUB: {
-      RemoveLastObject(tachyon, meshes.shrub_branches);
-
-      break;
-    }
-
-    case OAK_TREE: {
-      RemoveLastObject(tachyon, meshes.oak_tree_trunk);
-
-      break;
-    };
-
-    case WILLOW_TREE: {
-      RemoveLastObject(tachyon, meshes.willow_tree_trunk);
-
-      break;
-    };
-
-    default:
-      // @todo log error
-      break;
-  }
-}
-
 void ObjectManager::ProvisionAvailableObjectsForEntities(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 

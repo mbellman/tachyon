@@ -15,6 +15,11 @@ using namespace astro;
   case __entity_type:\
     return __Behavior::_SpawnObjects(tachyon, state)\
 
+#define dispatch_DestroyObjects(__entity_type, __Behavior)\
+  case __entity_type:\
+    __Behavior::_DestroyObjects(tachyon, state);\
+    break\
+
 #define dispatch_SpawnPlaceholder(__entity_type, __Behavior, __entity)\
   case __entity_type:\
     return __Behavior::_SpawnPlaceholder(tachyon, state, __entity)\
@@ -41,6 +46,22 @@ void EntityDispatcher::SpawnObjects(Tachyon* tachyon, State& state, const GameEn
   switch (entity.type) {
     dispatch_SpawnObjects(SHRUB, Shrub);
     dispatch_SpawnObjects(OAK_TREE, OakTree);
+
+    case WILLOW_TREE:
+      // @todo
+      break;
+
+    default:
+      // @todo log error
+      exit(0);
+      break;
+  }
+}
+
+void EntityDispatcher::DestroyObjects(Tachyon* tachyon, State& state, EntityType type) {
+  switch (type) {
+    dispatch_DestroyObjects(SHRUB, Shrub);
+    dispatch_DestroyObjects(OAK_TREE, OakTree);
 
     case WILLOW_TREE:
       // @todo

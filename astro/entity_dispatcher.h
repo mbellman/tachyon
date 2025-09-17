@@ -16,6 +16,7 @@ namespace astro {
     std::vector<GameEntity>& GetAllEntitiesOfType(State& state, EntityType type);
 
     void SpawnObjects(Tachyon* tachyon, State& state, const GameEntity& entity);
+    void DestroyObjects(Tachyon* tachyon, State& state, EntityType type);
     tObject& SpawnPlaceholder(Tachyon* tachyon, State& state, const GameEntity& entity);
     void DestroyPlaceholders(Tachyon* tachyon, State& state, EntityType type);
   }

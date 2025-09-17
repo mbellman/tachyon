@@ -419,9 +419,7 @@ static void DeleteSelectedObject(Tachyon* tachyon, State& state) {
     ForgetSelectableEntity(selected.entity_record.id);
 
     EntityManager::DeleteEntity(state, selected.entity_record);
-
-    // @todo EntityDispatcher::DestroyObjects()
-    ObjectManager::DeleteObjectsForEntityType(tachyon, state, selected.entity_record.type);
+    EntityDispatcher::DestroyObjects(tachyon, state, selected.entity_record.type);
   } else {
     ForgetSelectableObject(selected.placeholder);
   }
@@ -471,6 +469,8 @@ static void HandleSelectedObjectMovementActions(Tachyon* tachyon, State& state) 
     placeholder.position -= move_axis * move_speed * (float)tachyon->mouse_delta_y;
   }
 
+  // @optimize We don't need to do this every time the object is moved!
+  // It would be perfectly acceptable to do this on deselection.
   if (editor.current_selectable.is_entity) {
     // Find and sync the position of the original entity
     auto* entity = EntityManager::FindEntity(state, editor.current_selectable.entity_record);

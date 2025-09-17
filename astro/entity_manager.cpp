@@ -16,6 +16,10 @@ static inline GameEntity* FindEntityByRecord(std::vector<GameEntity>& entities, 
 }
 
 static inline void DeleteEntityByRecord(std::vector<GameEntity>& entities, const EntityRecord& record) {
+  // @todo @optimize If we wanted, we could swap with the last element
+  // and declare a bound on the number of "active" entities, instead of
+  // removing them from the array and shuffling data around memory.
+  // However, this will suffice for now.
   for (size_t i = 0; i < entities.size(); i++) {
     if (record.id == entities[i].id) {
       entities.erase(entities.begin() + i);
