@@ -116,6 +116,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="astro\entities.h" />
+    <ClInclude Include="astro\entity_descriptions\Shrub.h" />
+    <ClInclude Include="astro\entity_dispatcher.h" />
     <ClInclude Include="astro\entity_manager.h" />
     <ClInclude Include="astro\game.h" />
     <ClInclude Include="astro\game_state.h" />
@@ -257,6 +259,7 @@
     <ClInclude Include="external\SDL_ttf\include\SDL_ttf.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="astro\entity_dispatcher.cpp" />
     <ClCompile Include="astro\entity_manager.cpp" />
     <ClCompile Include="astro\game.cpp" />
     <ClCompile Include="astro\level_editor.cpp" />

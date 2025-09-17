@@ -4,6 +4,7 @@
 
 #include "astro/level_editor.h"
 #include "astro/entity_manager.h"
+#include "astro/entity_dispatcher.h"
 #include "astro/object_manager.h"
 
 using namespace astro;
@@ -53,32 +54,28 @@ static inline std::string Serialize(const Quaternion& quaternion) {
  * for storage in a level data file.
  * ----------------------------
  */
-std::string SerializeEntity(BaseEntity* entity) {
+std::string SerializeEntity(GameEntity* entity) {
   switch (entity->type) {
     case SHRUB: {
-      auto& plant = *(PlantEntity*)entity;
-
       return (
-        std::to_string(plant.type) + "," +
-        Serialize(plant.position) + "," +
-        Serialize(plant.scale) + "," +
-        Serialize(plant.orientation) + "," +
-        Serialize(plant.tint) + "," +
-        std::to_string(plant.astro_time_when_born)
+        std::to_string(entity->type) + "," +
+        Serialize(entity->position) + "," +
+        Serialize(entity->scale) + "," +
+        Serialize(entity->orientation) + "," +
+        Serialize(entity->tint) + "," +
+        std::to_string(entity->astro_start_time)
       );
     }
 
     case OAK_TREE:
     case WILLOW_TREE: {
-      auto& tree = *(TreeEntity*)entity;
-
       return (
-        std::to_string(tree.type) + "," +
-        Serialize(tree.position) + "," +
-        Serialize(tree.scale) + "," +
-        Serialize(tree.orientation) + "," +
-        Serialize(tree.tint) + "," +
-        std::to_string(tree.astro_time_when_born)
+        std::to_string(entity->type) + "," +
+        Serialize(entity->position) + "," +
+        Serialize(entity->scale) + "," +
+        Serialize(entity->orientation) + "," +
+        Serialize(entity->tint) + "," +
+        std::to_string(entity->astro_start_time)
       );
     }
 
@@ -215,7 +212,7 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
  * so it can be clicked on and manipulated in the editor.
  * ----------------------------
  */
-static void TrackSelectableEntity(BaseEntity& entity, tObject& placeholder) {
+static void TrackSelectableEntity(GameEntity& entity, tObject& placeholder) {
   editor.selectables.push_back({
     .is_entity = true,
     .entity_record = {
@@ -422,6 +419,8 @@ static void DeleteSelectedObject(Tachyon* tachyon, State& state) {
     ForgetSelectableEntity(selected.entity_record.id);
 
     EntityManager::DeleteEntity(state, selected.entity_record);
+
+    // @todo EntityDispatcher::DestroyObjects()
     ObjectManager::DeleteObjectsForEntityType(tachyon, state, selected.entity_record.type);
   } else {
     ForgetSelectableObject(selected.placeholder);
@@ -530,60 +529,25 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
 static void SpawnEntityPlaceholders(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
-  // @todo refactor
-  for_entities(state.shrubs) {
-    auto& entity = state.shrubs[i];
-    auto& placeholder = create(meshes.shrub_placeholder);
+  for_all_entity_types() {
+    for_entities_of_type(entity_type) {
+      auto& entity = entities[i];
+      auto& placeholder = EntityDispatcher::SpawnPlaceholder(tachyon, state, entity);
 
-    placeholder.position = entity.position;
-    placeholder.scale = tVec3f(800.f);
-    placeholder.color = tVec3f(0.2f, 0.8f, 0.5f);
-
-    commit(placeholder);
-
-    TrackSelectableEntity(entity, placeholder);
-  }
-
-  // @todo refactor
-  for_entities(state.oak_trees) {
-    auto& entity = state.oak_trees[i];
-    auto& placeholder = create(meshes.oak_tree_placeholder);
-
-    placeholder.position = entity.position;
-    placeholder.scale = tVec3f(500.f, 2000.f, 500.f);
-    placeholder.color = tVec3f(1.f, 0.6f, 0.3f);
-
-    commit(placeholder);
-
-    TrackSelectableEntity(entity, placeholder);
-  }
-
-  // @todo refactor
-  for_entities(state.willow_trees) {
-    auto& entity = state.willow_trees[i];
-    auto& placeholder = create(meshes.willow_tree_placeholder);
-
-    placeholder.position = entity.position;
-    placeholder.scale = tVec3f(500.f, 2000.f, 500.f);
-    placeholder.color = tVec3f(1.f, 0.6f, 0.3f);
-
-    commit(placeholder);
-
-    TrackSelectableEntity(entity, placeholder);
+      TrackSelectableEntity(entity, placeholder);
+    }
   }
 }
 
 /**
  * ----------------------------
- * Resets the placeholder objects for all entities.
+ * Destroys the placeholder objects for all entities.
  * ----------------------------
  */
 static void RemoveEntityPlaceholders(Tachyon* tachyon, State& state) {
-  auto& meshes = state.meshes;
-
-  remove_all(meshes.shrub_placeholder);
-  remove_all(meshes.oak_tree_placeholder);
-  remove_all(meshes.willow_tree_placeholder);
+  for_all_entity_types() {
+    EntityDispatcher::DestroyPlaceholders(tachyon, state, entity_type);
+  }
 }
 
 void LevelEditor::OpenLevelEditor(Tachyon* tachyon, State& state) {

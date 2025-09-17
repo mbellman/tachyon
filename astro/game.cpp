@@ -223,12 +223,12 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
   // @temporary
   {
     auto record = EntityManager::CreateEntity(state, OAK_TREE);
-    auto& oak = *(TreeEntity*)EntityManager::FindEntity(state, record);
+    auto& oak = *EntityManager::FindEntity(state, record);
 
     oak.position = tVec3f(-5000.f, 0, 0);
     oak.scale = tVec3f(2000.f);
     oak.tint = tVec3f(1.f, 0.6f, 0.3f);
-    oak.astro_time_when_born = -250.f;
+    oak.astro_start_time = -250.f;
 
     ObjectManager::CreateObjectsForEntityType(tachyon, state, record.type);
   }
@@ -236,12 +236,12 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
   // @temporary
   {
     auto record = EntityManager::CreateEntity(state, OAK_TREE);
-    auto& oak = *(TreeEntity*)EntityManager::FindEntity(state, record);
+    auto& oak = *EntityManager::FindEntity(state, record);
 
     oak.position = tVec3f(-6000.f, 0, 6000.f);
     oak.scale = tVec3f(2000.f);
     oak.tint = tVec3f(1.f, 0.6f, 0.3f);
-    oak.astro_time_when_born = -300.f;
+    oak.astro_start_time = -300.f;
 
     ObjectManager::CreateObjectsForEntityType(tachyon, state, record.type);
   }
@@ -249,12 +249,12 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
   // @temporary
   {
     auto record = EntityManager::CreateEntity(state, OAK_TREE);
-    auto& oak = *(TreeEntity*)EntityManager::FindEntity(state, record);
+    auto& oak = *EntityManager::FindEntity(state, record);
 
     oak.position = tVec3f(5500.f, 0, 1000.f);
     oak.scale = tVec3f(2500.f);
     oak.tint = tVec3f(1.f, 0.6f, 0.3f);
-    oak.astro_time_when_born = -280.f;
+    oak.astro_start_time = -280.f;
 
     ObjectManager::CreateObjectsForEntityType(tachyon, state, record.type);
   }
@@ -262,12 +262,12 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
   // @temporary
   {
     auto record = EntityManager::CreateEntity(state, SHRUB);
-    auto& shrub = *(PlantEntity*)EntityManager::FindEntity(state, record);
+    auto& shrub = *EntityManager::FindEntity(state, record);
 
     shrub.position = tVec3f(6500.f, -1500.f, 3500.f);
     shrub.scale = tVec3f(600.f);
     shrub.tint = tVec3f(0.2f, 0.8f, 0.5f);
-    shrub.astro_time_when_born = -50.f;
+    shrub.astro_start_time = -50.f;
 
     ObjectManager::CreateObjectsForEntityType(tachyon, state, record.type);
   }
@@ -275,12 +275,12 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
   // @temporary
   {
     auto record = EntityManager::CreateEntity(state, SHRUB);
-    auto& shrub = *(PlantEntity*)EntityManager::FindEntity(state, record);
+    auto& shrub = *EntityManager::FindEntity(state, record);
 
     shrub.position = tVec3f(7000.f, -1500.f, 5200.f);
     shrub.scale = tVec3f(800.f);
     shrub.tint = tVec3f(0.2f, 0.8f, 0.5f);
-    shrub.astro_time_when_born = -40.f;
+    shrub.astro_start_time = -40.f;
 
     ObjectManager::CreateObjectsForEntityType(tachyon, state, record.type);
   }

@@ -11,21 +11,17 @@ namespace astro {
   };
 
   struct EntityRecord {
-    int32 id;
+    int32 id = -1;
     EntityType type = UNSPECIFIED;
   };
 
-  struct BaseEntity : EntityRecord {
+  struct GameEntity : EntityRecord {
     tVec3f position;
     tVec3f scale;
     tVec3f tint;
     Quaternion orientation = Quaternion(1.f, 0, 0, 0);
-  };
 
-  struct Living {
-    float astro_time_when_born = 0.f;
+    float astro_start_time = 0.f;
+    float astro_end_time = 0.f;
   };
-
-  struct PlantEntity : BaseEntity, Living {};
-  struct TreeEntity : BaseEntity, Living {};
 }

@@ -26,6 +26,7 @@ void ObjectManager::CreateObjects(Tachyon* tachyon, State& state) {
   create(meshes.astrolabe_hand);
 }
 
+// @todo replace with EntityDispatcher::CreateObjects()
 void ObjectManager::CreateObjectsForEntityType(Tachyon* tachyon, State& state, EntityType type) {
   auto& meshes = state.meshes;
 
@@ -54,6 +55,7 @@ void ObjectManager::CreateObjectsForEntityType(Tachyon* tachyon, State& state, E
   }
 }
 
+// @todo replace with EntityDispatcher::DestroyObjects()
 void ObjectManager::DeleteObjectsForEntityType(Tachyon* tachyon, State& state, EntityType type) {
   auto& meshes = state.meshes;
 

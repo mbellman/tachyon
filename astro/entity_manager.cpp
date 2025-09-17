@@ -5,7 +5,7 @@ using namespace astro;
 static int32 running_entity_id = 0;
 
 static EntityRecord CreateTreeEntity(State& state, EntityType type) {
-  TreeEntity tree;
+  GameEntity tree;
   tree.type = type;
   tree.id = running_entity_id++;
 
@@ -20,7 +20,7 @@ static EntityRecord CreateTreeEntity(State& state, EntityType type) {
 }
 
 static EntityRecord CreatePlantEntity(State& state, EntityType type) {
-  PlantEntity plant;
+  GameEntity plant;
   plant.type = type;
   plant.id = running_entity_id++;
 
@@ -31,8 +31,7 @@ static EntityRecord CreatePlantEntity(State& state, EntityType type) {
   return { plant.id, type };
 }
 
-template<class T>
-static BaseEntity* FindEntityFromArray(std::vector<T>& array, const EntityRecord& record) {
+static GameEntity* FindEntityFromArray(std::vector<GameEntity>& array, const EntityRecord& record) {
   for (auto& entity : array) {
     if (entity.id == record.id) {
       return &entity;
@@ -42,8 +41,7 @@ static BaseEntity* FindEntityFromArray(std::vector<T>& array, const EntityRecord
   return nullptr;
 }
 
-template<class T>
-void DeleteEntityFromArray(std::vector<T>& array, const EntityRecord& record) {
+void DeleteEntityFromArray(std::vector<GameEntity>& array, const EntityRecord& record) {
   for (size_t i = 0; i < array.size(); i++) {
     if (record.id == array[i].id) {
       array.erase(array.begin() + i);
@@ -72,7 +70,7 @@ EntityRecord EntityManager::CreateEntity(State& state, EntityType type) {
   }
 }
 
-BaseEntity* EntityManager::FindEntity(State& state, const EntityRecord& record) {
+GameEntity* EntityManager::FindEntity(State& state, const EntityRecord& record) {
   switch (record.type) {
     case SHRUB:
       return FindEntityFromArray(state.shrubs, record);

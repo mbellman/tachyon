@@ -2,8 +2,8 @@
 
 using namespace astro;
 
-static float GetLivingEntityProgress(State& state, const Living& entity, const float lifetime) {
-  float entity_age = state.astro_time - entity.astro_time_when_born;
+static float GetLivingEntityProgress(State& state, const GameEntity& entity, const float lifetime) {
+  float entity_age = state.astro_time - entity.astro_start_time;
   if (entity_age < 0.f) return 0.f;
   if (entity_age > lifetime) return 1.f;
 
