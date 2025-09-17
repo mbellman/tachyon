@@ -116,6 +116,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="astro\entities.h" />
+    <ClInclude Include="astro\entity_descriptions\description.h" />
+    <ClInclude Include="astro\entity_descriptions\OakTree.h" />
     <ClInclude Include="astro\entity_descriptions\Shrub.h" />
     <ClInclude Include="astro\entity_dispatcher.h" />
     <ClInclude Include="astro\entity_manager.h" />

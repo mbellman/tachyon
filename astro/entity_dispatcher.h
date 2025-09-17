@@ -1,7 +1,5 @@
 #pragma once
 
-#include <variant>
-
 #include "astro/entities.h"
 #include "astro/game_state.h"
 
