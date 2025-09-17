@@ -1,4 +1,5 @@
 #include "astro/game.h"
+#include "astro/entity_dispatcher.h"
 #include "astro/entity_manager.h"
 #include "astro/level_editor.h"
 #include "astro/mesh_library.h"
@@ -230,7 +231,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
     oak.tint = tVec3f(1.f, 0.6f, 0.3f);
     oak.astro_start_time = -250.f;
 
-    ObjectManager::CreateObjectsForEntityType(tachyon, state, record.type);
+    EntityDispatcher::SpawnObjects(tachyon, state, oak);
   }
 
   // @temporary
@@ -243,7 +244,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
     oak.tint = tVec3f(1.f, 0.6f, 0.3f);
     oak.astro_start_time = -300.f;
 
-    ObjectManager::CreateObjectsForEntityType(tachyon, state, record.type);
+    EntityDispatcher::SpawnObjects(tachyon, state, oak);
   }
 
   // @temporary
@@ -256,7 +257,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
     oak.tint = tVec3f(1.f, 0.6f, 0.3f);
     oak.astro_start_time = -280.f;
 
-    ObjectManager::CreateObjectsForEntityType(tachyon, state, record.type);
+    EntityDispatcher::SpawnObjects(tachyon, state, oak);
   }
 
   // @temporary
@@ -269,7 +270,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
     shrub.tint = tVec3f(0.2f, 0.8f, 0.5f);
     shrub.astro_start_time = -50.f;
 
-    ObjectManager::CreateObjectsForEntityType(tachyon, state, record.type);
+    EntityDispatcher::SpawnObjects(tachyon, state, shrub);
   }
 
   // @temporary
@@ -282,7 +283,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
     shrub.tint = tVec3f(0.2f, 0.8f, 0.5f);
     shrub.astro_start_time = -40.f;
 
-    ObjectManager::CreateObjectsForEntityType(tachyon, state, record.type);
+    EntityDispatcher::SpawnObjects(tachyon, state, shrub);
   }
 }
 

@@ -4,10 +4,10 @@
 #include "astro/entities.h"
 #include "astro/game_state.h"
 
-#define description struct
-#define created() static void _CreateObjects(Tachyon* tachyon, State& state)
+#define behavior struct
+#define spawned() static void _SpawnObjects(Tachyon* tachyon, State& state)
 #define destroyed() static void _DestroyObjects(Tachyon* tachyon, State& state)
-#define placeholderCreated() static tObject& _SpawnPlaceholder(Tachyon* tachyon, State& state, const GameEntity& entity)
+#define placeholderSpawned() static tObject& _SpawnPlaceholder(Tachyon* tachyon, State& state, const GameEntity& entity)
 #define placeholdersDestroyed() static void _DestroyPlaceholders(Tachyon* tachyon, State& state)
 
 namespace astro {

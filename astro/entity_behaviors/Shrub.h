@@ -1,10 +1,10 @@
 #pragma once
 
-#include "astro/entity_descriptions/description.h"
+#include "astro/entity_behaviors/behavior.h"
 
 namespace astro {
-  description Shrub {
-    created() {
+  behavior Shrub {
+    spawned() {
       auto& meshes = state.meshes;
 
       create(meshes.shrub_branches);
@@ -16,7 +16,7 @@ namespace astro {
       RemoveLastObject(tachyon, meshes.shrub_branches);
     }
 
-    placeholderCreated() {
+    placeholderSpawned() {
       auto& meshes = state.meshes;
       auto& placeholder = create(meshes.shrub_placeholder);
 

@@ -530,7 +530,7 @@ static void SpawnEntityPlaceholders(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   for_all_entity_types() {
-    for_entities_of_type(entity_type) {
+    for_entities_of_type(type) {
       auto& entity = entities[i];
       auto& placeholder = EntityDispatcher::SpawnPlaceholder(tachyon, state, entity);
 
@@ -546,7 +546,7 @@ static void SpawnEntityPlaceholders(Tachyon* tachyon, State& state) {
  */
 static void RemoveEntityPlaceholders(Tachyon* tachyon, State& state) {
   for_all_entity_types() {
-    EntityDispatcher::DestroyPlaceholders(tachyon, state, entity_type);
+    EntityDispatcher::DestroyPlaceholders(tachyon, state, type);
   }
 }
 

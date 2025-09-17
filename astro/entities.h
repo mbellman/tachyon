@@ -10,6 +10,12 @@ namespace astro {
     WILLOW_TREE
   };
 
+  static std::vector<EntityType> entity_types = {
+    SHRUB,
+    OAK_TREE,
+    WILLOW_TREE
+  };
+
   struct EntityRecord {
     int32 id = -1;
     EntityType type = UNSPECIFIED;

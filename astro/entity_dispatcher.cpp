@@ -2,33 +2,27 @@
 
 #include "astro/entity_dispatcher.h"
 
-#include "astro/entity_descriptions/OakTree.h"
-#include "astro/entity_descriptions/Shrub.h"
+#include "astro/entity_behaviors/OakTree.h"
+#include "astro/entity_behaviors/Shrub.h"
 
 using namespace astro;
 
-#define dispatch_GetAllEntitiesOfType(__type, __entities)\
-  case __type:\
+#define dispatch_GetAllEntitiesOfType(__entity_type, __entities)\
+  case __entity_type:\
     return __entities\
 
-#define dispatch_SpawnPlaceholder(__type, __description)\
-  case __type:\
-    return __description::_SpawnPlaceholder(tachyon, state, entity)\
+#define dispatch_SpawnObjects(__entity_type, __Behavior)\
+  case __entity_type:\
+    return __Behavior::_SpawnObjects(tachyon, state)\
 
-#define dispatch_DestroyPlaceholders(__type, __description)\
-  case __type:\
-    __description::_DestroyPlaceholders(tachyon, state);\
+#define dispatch_SpawnPlaceholder(__entity_type, __Behavior, __entity)\
+  case __entity_type:\
+    return __Behavior::_SpawnPlaceholder(tachyon, state, __entity)\
+
+#define dispatch_DestroyPlaceholders(__entity_type, __Behavior)\
+  case __entity_type:\
+    __Behavior::_DestroyPlaceholders(tachyon, state);\
     break\
-
-const std::vector<EntityType>& EntityDispatcher::GetAllEntityTypes() {
-  const static std::vector<EntityType> entity_types = {
-    SHRUB,
-    OAK_TREE,
-    WILLOW_TREE
-  };
-
-  return entity_types;
-}
 
 std::vector<GameEntity>& EntityDispatcher::GetAllEntitiesOfType(State& state, EntityType type) {
   switch (type) {
@@ -43,10 +37,26 @@ std::vector<GameEntity>& EntityDispatcher::GetAllEntitiesOfType(State& state, En
   }
 }
 
+void EntityDispatcher::SpawnObjects(Tachyon* tachyon, State& state, const GameEntity& entity) {
+  switch (entity.type) {
+    dispatch_SpawnObjects(SHRUB, Shrub);
+    dispatch_SpawnObjects(OAK_TREE, OakTree);
+
+    case WILLOW_TREE:
+      // @todo
+      break;
+
+    default:
+      // @todo log error
+      exit(0);
+      break;
+  }
+}
+
 tObject& EntityDispatcher::SpawnPlaceholder(Tachyon* tachyon, State& state, const GameEntity& entity) {
   switch (entity.type) {
-    dispatch_SpawnPlaceholder(SHRUB, Shrub);
-    dispatch_SpawnPlaceholder(OAK_TREE, OakTree);
+    dispatch_SpawnPlaceholder(SHRUB, Shrub, entity);
+    dispatch_SpawnPlaceholder(OAK_TREE, OakTree, entity);
 
     case WILLOW_TREE:
       // @todo
