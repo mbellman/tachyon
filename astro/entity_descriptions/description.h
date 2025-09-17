@@ -7,7 +7,7 @@
 #define description struct
 #define created() static void _CreateObjects(Tachyon* tachyon, State& state)
 #define destroyed() static void _DestroyObjects(Tachyon* tachyon, State& state)
-#define placeholderCreated(T) static tObject& _SpawnPlaceholder(Tachyon* tachyon, State& state, T)
+#define placeholderCreated() static tObject& _SpawnPlaceholder(Tachyon* tachyon, State& state, const GameEntity& entity)
 #define placeholdersDestroyed() static void _DestroyPlaceholders(Tachyon* tachyon, State& state)
 
 namespace astro {

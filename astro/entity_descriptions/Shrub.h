@@ -16,7 +16,7 @@ namespace astro {
       RemoveLastObject(tachyon, meshes.shrub_branches);
     }
 
-    placeholderCreated(const GameEntity& entity) {
+    placeholderCreated() {
       auto& meshes = state.meshes;
       auto& placeholder = create(meshes.shrub_placeholder);
 

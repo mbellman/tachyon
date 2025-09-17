@@ -1,4 +1,5 @@
 #include "astro/object_manager.h"
+#include "astro/entity_dispatcher.h"
 
 using namespace astro;
 

@@ -16,7 +16,7 @@ namespace astro {
       RemoveLastObject(tachyon, meshes.oak_tree_trunk);
     }
 
-    placeholderCreated(const GameEntity& entity) {
+    placeholderCreated() {
       auto& placeholder = create(state.meshes.oak_tree_placeholder);
 
       placeholder.position = entity.position;

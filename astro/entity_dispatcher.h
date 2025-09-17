@@ -6,9 +6,12 @@
 #include "astro/game_state.h"
 
 #define for_all_entity_types() for (auto entity_type : EntityDispatcher::GetAllEntityTypes())
+
 #define for_entities_of_type(__type)\
   auto& entities = EntityDispatcher::GetAllEntitiesOfType(state, __type);\
   for_entities(entities)\
+
+#define for_entities(array) for (uint16 i = 0; i < (uint16)array.size(); i++)
 
 namespace astro {
   namespace EntityDispatcher {
