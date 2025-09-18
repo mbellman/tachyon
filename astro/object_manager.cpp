@@ -26,21 +26,3 @@ void ObjectManager::CreateObjects(Tachyon* tachyon, State& state) {
   create(meshes.astrolabe_ring);
   create(meshes.astrolabe_hand);
 }
-
-void ObjectManager::ProvisionAvailableObjectsForEntities(Tachyon* tachyon, State& state) {
-  auto& meshes = state.meshes;
-
-  // @todo @optimize determine on-screen/in-range entities
-  // and use reduced-fidelity object groups, or single objects,
-  // for more distant entities
-
-  // @todo refactor
-  for_entities(state.willow_trees) {
-    auto& tree = state.oak_trees[i];
-    auto& trunk = objects(meshes.willow_tree_trunk)[i];
-
-    trunk.position = tree.position;
-    trunk.rotation = tree.orientation;
-    trunk.color = tree.tint;
-  }
-}

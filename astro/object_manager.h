@@ -7,6 +7,5 @@
 namespace astro {
   namespace ObjectManager {
     void CreateObjects(Tachyon* tachyon, State& state);
-    void ProvisionAvailableObjectsForEntities(Tachyon* tachyon, State& state);
   }
 }

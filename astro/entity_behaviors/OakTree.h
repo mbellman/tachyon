@@ -22,6 +22,7 @@ namespace astro {
 
       placeholder.position = entity.position;
       placeholder.scale = tVec3f(500.f, 2000.f, 500.f);
+      placeholder.rotation = entity.orientation;
       placeholder.color = tVec3f(1.f, 0.6f, 0.3f);
 
       commit(placeholder);

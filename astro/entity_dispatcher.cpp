@@ -4,6 +4,7 @@
 
 #include "astro/entity_behaviors/OakTree.h"
 #include "astro/entity_behaviors/Shrub.h"
+#include "astro/entity_behaviors/WillowTree.h"
 
 using namespace astro;
 
@@ -51,10 +52,7 @@ void EntityDispatcher::SpawnObjects(Tachyon* tachyon, State& state, const GameEn
   switch (entity.type) {
     dispatch_SpawnObjects(SHRUB, Shrub);
     dispatch_SpawnObjects(OAK_TREE, OakTree);
-
-    case WILLOW_TREE:
-      // @todo
-      break;
+    dispatch_SpawnObjects(WILLOW_TREE, WillowTree);
 
     default:
       // @todo log error
@@ -67,10 +65,7 @@ void EntityDispatcher::DestroyObjects(Tachyon* tachyon, State& state, EntityType
   switch (type) {
     dispatch_DestroyObjects(SHRUB, Shrub);
     dispatch_DestroyObjects(OAK_TREE, OakTree);
-
-    case WILLOW_TREE:
-      // @todo
-      break;
+    dispatch_DestroyObjects(WILLOW_TREE, WillowTree);
 
     default:
       // @todo log error
@@ -83,10 +78,7 @@ tObject& EntityDispatcher::SpawnPlaceholder(Tachyon* tachyon, State& state, cons
   switch (entity.type) {
     dispatch_SpawnPlaceholder(SHRUB, Shrub, entity);
     dispatch_SpawnPlaceholder(OAK_TREE, OakTree, entity);
-
-    case WILLOW_TREE:
-      // @todo
-      break;
+    dispatch_SpawnPlaceholder(WILLOW_TREE, WillowTree, entity);
 
     default:
       // @todo log error
@@ -99,10 +91,7 @@ void EntityDispatcher::DestroyPlaceholders(Tachyon* tachyon, State& state, Entit
   switch (type) {
     dispatch_DestroyPlaceholders(SHRUB, Shrub);
     dispatch_DestroyPlaceholders(OAK_TREE, OakTree);
-
-    case WILLOW_TREE:
-      // @todo
-      break;
+    dispatch_DestroyPlaceholders(WILLOW_TREE, WillowTree);
 
     default:
       // @todo log error
@@ -115,10 +104,7 @@ void EntityDispatcher::TimeEvolve(Tachyon* tachyon, State& state, EntityType typ
   switch (type) {
     dispatch_TimeEvolve(SHRUB, Shrub);
     dispatch_TimeEvolve(OAK_TREE, OakTree);
-
-    case WILLOW_TREE:
-      // @todo
-      break;
+    dispatch_TimeEvolve(WILLOW_TREE, WillowTree);
 
     default:
       // @todo log error

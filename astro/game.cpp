@@ -317,7 +317,6 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   UpdateCamera(tachyon, state, dt);
   UpdateAstrolabe(tachyon, state);
 
-  ObjectManager::ProvisionAvailableObjectsForEntities(tachyon, state);
   TimeEvolution::HandleAstroTime(tachyon, state, dt);
 
   // @todo move to ui.cpp

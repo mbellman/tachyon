@@ -119,6 +119,7 @@
     <ClInclude Include="astro\entity_behaviors\behavior.h" />
     <ClInclude Include="astro\entity_behaviors\OakTree.h" />
     <ClInclude Include="astro\entity_behaviors\Shrub.h" />
+    <ClInclude Include="astro\entity_behaviors\WillowTree.h" />
     <ClInclude Include="astro\entity_descriptions\description.h" />
     <ClInclude Include="astro\entity_descriptions\OakTree.h" />
     <ClInclude Include="astro\entity_descriptions\Shrub.h" />
