@@ -161,7 +161,7 @@ static void HandleSelectedObjectCameraSwiveling(Tachyon* tachyon, State& state) 
  * Handles camera behavior in the editor.
  * ----------------------------
  */
-static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
+static void HandleCameraActions(Tachyon* tachyon, State& state, const float dt) {
   auto& camera = tachyon->scene.camera;
 
   const float camera_panning_speed = 0.2f;
@@ -286,11 +286,10 @@ static void ForgetSelectableObject(tObject& object) {
 
 /**
  * ----------------------------
- * Creates the objects for a given gizmo type.
- * @todo accept type as an argument
+ * Creates a positioning gizmo.
  * ----------------------------
  */
-static void CreateGizmo(Tachyon* tachyon, State& state) {
+static void CreatePositionGizmo(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   auto& up = create(meshes.gizmo_arrow);
@@ -302,11 +301,11 @@ static void CreateGizmo(Tachyon* tachyon, State& state) {
   right.scale = tVec3f(40.f);
 
   left.rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), t_HALF_PI);
-  right.rotation = Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), t_HALF_PI);
+  right.rotation = Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), -t_HALF_PI);
 
-  up.color = tVec4f(1.f, 0, 0, 0.4f);
-  left.color = tVec4f(0, 1.f, 0, 0.4f);
-  right.color = tVec4f(0, 0, 1.f, 0.4f);
+  up.color = tVec4f(0, 1.f, 0, 0.4f);
+  left.color = tVec4f(0, 0, 1.f, 0.4f);
+  right.color = tVec4f(1.f, 0, 0, 0.4f);
 
   commit(up);
   commit(left);
@@ -315,11 +314,10 @@ static void CreateGizmo(Tachyon* tachyon, State& state) {
 
 /**
  * ----------------------------
- * Updates the objects for the current gizmo.
- * @todo change according to current action type
+ * Updates the position gizmo.
  * ----------------------------
  */
-static void UpdateCurrentGizmo(Tachyon* tachyon, State& state) {
+static void UpdatePositionGizmo(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
   auto& meshes = state.meshes;
   auto& up = objects(meshes.gizmo_arrow)[0];
@@ -337,6 +335,26 @@ static void UpdateCurrentGizmo(Tachyon* tachyon, State& state) {
   commit(up);
   commit(left);
   commit(right);
+}
+
+/**
+ * ----------------------------
+ * Creates the objects for a given gizmo type.
+ * @todo accept type as an argument
+ * ----------------------------
+ */
+static void CreateGizmo(Tachyon* tachyon, State& state) {
+  CreatePositionGizmo(tachyon, state);
+}
+
+/**
+ * ----------------------------
+ * Updates the objects for the current gizmo.
+ * @todo change according to current action type
+ * ----------------------------
+ */
+static void UpdateCurrentGizmo(Tachyon* tachyon, State& state) {
+  UpdatePositionGizmo(tachyon, state);
 }
 
 /**
@@ -692,7 +710,7 @@ void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
 
 void LevelEditor::HandleLevelEditor(Tachyon* tachyon, State& state, const float dt) {
   if (is_window_focused()) {
-    HandleCamera(tachyon, state, dt);
+    HandleCameraActions(tachyon, state, dt);
     HandleEditorActions(tachyon, state);
   }
 
@@ -700,6 +718,7 @@ void LevelEditor::HandleLevelEditor(Tachyon* tachyon, State& state, const float 
     UpdateCurrentGizmo(tachyon, state);
   }
 
+  // @todo create a HandleUI() method
   Tachyon_DrawUIText(tachyon, state.debug_text_large, {
     .screen_x = tachyon->window_width / 2,
     .screen_y = 30,
@@ -707,4 +726,15 @@ void LevelEditor::HandleLevelEditor(Tachyon* tachyon, State& state, const float 
     .color = tVec3f(1.f),
     .string = "Level Editor"
   });
+
+  if (editor.is_object_selected) {
+    // @temporary
+    Tachyon_DrawUIText(tachyon, state.debug_text, {
+      .screen_x = tachyon->window_width / 2,
+      .screen_y = 60,
+      .centered = true,
+      .color = tVec3f(1.f),
+      .string = "Object selected"
+    });
+  }
 }
