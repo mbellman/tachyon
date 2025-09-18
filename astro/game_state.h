@@ -9,18 +9,20 @@
 namespace astro {
   struct MeshIds {
     uint16
+      // Character meshes
       player,
 
+      // Static environment meshes
       ground_plane,
       water_plane,
 
+      // HUD meshes
       astrolabe_base,
       astrolabe_ring,
       astrolabe_hand,
 
-      // Editor meshes
-      // @todo dev mode only
-      gizmo_arrow,
+      // Decorative meshes
+      rock_1,
 
       // SHRUB
       shrub_placeholder,
@@ -32,7 +34,11 @@ namespace astro {
 
       // WILLOW_TREE
       willow_tree_placeholder,
-      willow_tree_trunk;
+      willow_tree_trunk,
+      
+      // Editor meshes
+      // @todo dev mode only
+      gizmo_arrow;
   };
 
   struct State {

@@ -18,6 +18,12 @@ static void AddHUDMeshes(Tachyon* tachyon, State& state) {
   mesh(meshes.astrolabe_hand).shadow_cascade_ceiling = 0;
 }
 
+static void AddDecorativeMeshes(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
+  meshes.rock_1 = MODEL_MESH("./astro/3d_models/rock_1.obj", 100);
+}
+
 static void AddEditorMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
@@ -35,6 +41,7 @@ void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
   meshes.water_plane = PLANE_MESH(1);
 
   AddHUDMeshes(tachyon, state);
+  AddDecorativeMeshes(tachyon, state);
 
   // @todo dev mode only
   AddEditorMeshes(tachyon, state);

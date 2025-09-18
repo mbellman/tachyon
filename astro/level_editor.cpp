@@ -48,6 +48,10 @@ static inline std::string Serialize(const Quaternion& quaternion) {
   );
 }
 
+static inline std::string Serialize(tColor& color) {
+  return std::to_string(color.rgba);
+}
+
 /**
  * ----------------------------
  * Converts an entity into a condensed string representation
@@ -55,34 +59,34 @@ static inline std::string Serialize(const Quaternion& quaternion) {
  * ----------------------------
  */
 std::string SerializeEntity(GameEntity* entity) {
-  switch (entity->type) {
-    case SHRUB: {
-      return (
-        std::to_string(entity->type) + "," +
-        Serialize(entity->position) + "," +
-        Serialize(entity->scale) + "," +
-        Serialize(entity->orientation) + "," +
-        Serialize(entity->tint) + "," +
-        std::to_string(entity->astro_start_time)
-      );
-    }
+  return (
+    std::to_string(entity->type) + "," +
+    Serialize(entity->position) + "," +
+    Serialize(entity->scale) + "," +
+    Serialize(entity->orientation) + "," +
+    Serialize(entity->tint) + "," +
+    std::to_string(entity->astro_start_time) + "," +
+    std::to_string(entity->astro_end_time)
+  );
+}
 
-    case OAK_TREE:
-    case WILLOW_TREE: {
-      return (
-        std::to_string(entity->type) + "," +
-        Serialize(entity->position) + "," +
-        Serialize(entity->scale) + "," +
-        Serialize(entity->orientation) + "," +
-        Serialize(entity->tint) + "," +
-        std::to_string(entity->astro_start_time)
-      );
-    }
-
-    default:
-      // @todo log error
-      return "";
-  }
+/**
+ * ----------------------------
+ * Converts an object into a condensed string representation
+ * for storage in a level data file.
+ * ----------------------------
+ */
+std::string SerializeObject(tObject& object) {
+  return (
+    // @todo don't serialize mesh_index, as this will not be
+    // stable if the order of loaded meshes changes. Use another
+    // fixed representation of the mesh name
+    std::to_string(object.mesh_index) + "," +
+    Serialize(object.position) + "," +
+    Serialize(object.scale) + "," +
+    Serialize(object.rotation) + "," +
+    Serialize(object.color)
+  );
 }
 
 /**
@@ -103,7 +107,7 @@ void SaveWorldData(State& state) {
         // @todo log error?
       }
     } else {
-      // @todo serialize plain objects
+      world_data += SerializeObject(selectable.placeholder) + "\n";
     }
   }
 
@@ -208,7 +212,20 @@ static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {
 
 /**
  * ----------------------------
- * Puts an entity and its placeholder object in the Selectables list
+ * Puts an ordinary decorative object in the selectables list
+ * so it can be clicked on and manipulated in the editor.
+ * ----------------------------
+ */
+static void TrackDecorativeObject(tObject& object) {
+  editor.selectables.push_back({
+    .is_entity = false,
+    .placeholder = object
+  });
+}
+
+/**
+ * ----------------------------
+ * Puts an entity and its placeholder object in the selectables list
  * so it can be clicked on and manipulated in the editor.
  * ----------------------------
  */
@@ -258,7 +275,13 @@ static void ForgetSelectableEntity(int32 entity_id) {
  * ----------------------------
  */
 static void ForgetSelectableObject(tObject& object) {
-  // @todo
+  for (size_t i = 0; i < editor.selectables.size(); i++) {
+    if (object == editor.selectables[i].placeholder) {
+      editor.selectables.erase(editor.selectables.begin() + i);
+
+      break;
+    }
+  }
 }
 
 /**
@@ -370,7 +393,7 @@ static void DeselectCurrent(Tachyon* tachyon, State& state) {
 
 /**
  * ----------------------------
- * Checks for Selectables in front of and near the camera,
+ * Checks for selectables in front of and near the camera,
  * and selects one if it is found.
  * ----------------------------
  */
@@ -498,6 +521,35 @@ static void HandleSelectedObjectActions(Tachyon* tachyon, State& state) {
 
 /**
  * ----------------------------
+ * Creates a normal object and adds it to the scene.
+ * ----------------------------
+ */
+static void CreateDecorativeObject(Tachyon* tachyon, State& state) {
+  auto& camera = tachyon->scene.camera;
+
+  // @temporary
+  auto& rock = create(state.meshes.rock_1);
+
+  rock.position = camera.position + camera.orientation.getDirection() * 5000.f;
+  rock.scale = 500.f;
+  rock.color = tVec3f(0.2f);
+
+  commit(rock);
+
+  TrackDecorativeObject(rock);
+}
+
+/**
+ * ----------------------------
+ * Creates an entity and adds it to the scene.
+ * ----------------------------
+ */
+static void CreateEntity(Tachyon* tachyon, State& state) {
+  // @todo
+}
+
+/**
+ * ----------------------------
  * Handles inputs while the editor is open.
  * ----------------------------
  */
@@ -519,6 +571,10 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
       DeselectCurrent(tachyon, state);
     }
   }
+
+  if (did_press_key(tKey::ENTER)) {
+    CreateDecorativeObject(tachyon, state);
+  }
 }
 
 /**
@@ -535,6 +591,25 @@ static void SpawnEntityPlaceholders(Tachyon* tachyon, State& state) {
       auto& placeholder = EntityDispatcher::CreatePlaceholder(tachyon, state, entity);
 
       TrackSelectableEntity(entity, placeholder);
+    }
+  }
+}
+
+/**
+ * ----------------------------
+ * Puts all decorative objects in the selectables list.
+ * ----------------------------
+ */
+static void TrackDecorativeObjects(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
+  auto decorative_meshes = {
+    meshes.rock_1
+  };
+
+  for (auto mesh_index : decorative_meshes) {
+    for (auto& object : objects(mesh_index)) {
+      TrackDecorativeObject(object);
     }
   }
 }
@@ -569,6 +644,7 @@ void LevelEditor::OpenLevelEditor(Tachyon* tachyon, State& state) {
   editor.selectables.clear();
 
   SpawnEntityPlaceholders(tachyon, state);
+  TrackDecorativeObjects(tachyon, state);
   InitEditorCamera(tachyon, state);
 }
 
