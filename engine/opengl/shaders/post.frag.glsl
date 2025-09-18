@@ -211,7 +211,9 @@ void main() {
     float VdotD = max(0.0, -dot(D, primary_light_direction));
     vec4 volumetric_fog = GetVolumetricFogColorAndThickness(world_depth, D);
 
-    post_color = mix(post_color, volumetric_fog.rgb, volumetric_fog.w);
+    #if ENABLE_COSMODRONE_FX
+      post_color = mix(post_color, volumetric_fog.rgb, volumetric_fog.w);
+    #endif
 
     // Depth fog
     float depth_factor = 0.25 * pow(color_and_depth.w, 300.0);

@@ -21,9 +21,9 @@ namespace astro {
       auto& placeholder = create(meshes.shrub_placeholder);
 
       placeholder.position = entity.position;
-      placeholder.scale = tVec3f(800.f);
+      placeholder.scale = entity.scale;
       placeholder.rotation = entity.orientation;
-      placeholder.color = tVec3f(0.2f, 0.8f, 0.5f);
+      placeholder.color = entity.tint;
 
       commit(placeholder);
 

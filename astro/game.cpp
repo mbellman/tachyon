@@ -228,7 +228,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
     auto& oak = *EntityManager::FindEntity(state, record);
 
     oak.position = tVec3f(-5000.f, 0, 0);
-    oak.scale = tVec3f(2000.f);
+    oak.scale = tVec3f(500.f, 2000.f, 500.f);
     oak.tint = tVec3f(1.f, 0.6f, 0.3f);
     oak.astro_start_time = -250.f;
 
@@ -241,7 +241,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
     auto& oak = *EntityManager::FindEntity(state, record);
 
     oak.position = tVec3f(-6000.f, 0, 6000.f);
-    oak.scale = tVec3f(2000.f);
+    oak.scale = tVec3f(500.f, 2000.f, 500.f);
     oak.tint = tVec3f(1.f, 0.6f, 0.3f);
     oak.astro_start_time = -300.f;
 
@@ -254,7 +254,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
     auto& oak = *EntityManager::FindEntity(state, record);
 
     oak.position = tVec3f(5500.f, 0, 1000.f);
-    oak.scale = tVec3f(2500.f);
+    oak.scale = tVec3f(600.f, 2500.f, 600.f);
     oak.tint = tVec3f(1.f, 0.6f, 0.3f);
     oak.astro_start_time = -280.f;
 

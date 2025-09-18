@@ -21,9 +21,9 @@ namespace astro {
       auto& placeholder = create(meshes.oak_tree_placeholder);
 
       placeholder.position = entity.position;
-      placeholder.scale = tVec3f(500.f, 2000.f, 500.f);
+      placeholder.scale = entity.scale;
       placeholder.rotation = entity.orientation;
-      placeholder.color = tVec3f(1.f, 0.6f, 0.3f);
+      placeholder.color = entity.tint;
 
       commit(placeholder);
 
@@ -50,12 +50,12 @@ namespace astro {
         // @todo factor
         auto& trunk = objects(meshes.oak_tree_trunk)[i];
         float trunk_height = 1.f - powf(1.f - life_progress, 4.f);
-        float trunk_thickness = -(cosf(t_PI * life_progress) - 1.f) / 2.f;
+        float trunk_thickness = 0.1f + 0.9f * -(cosf(t_PI * life_progress) - 1.f) / 2.f;
 
         trunk.scale = tree.scale * tVec3f(
-          0.02f + 0.18f * trunk_thickness,
+          trunk_thickness,
           trunk_height,
-          0.02f + 0.18f * trunk_thickness
+          trunk_thickness
         );
 
         trunk.position = tree.position;

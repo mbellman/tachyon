@@ -39,7 +39,8 @@ namespace astro {
       
       // Editor meshes
       // @todo dev mode only
-      gizmo_arrow;
+      gizmo_arrow,
+      gizmo_resizer;
   };
 
   struct State {

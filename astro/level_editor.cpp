@@ -9,6 +9,12 @@
 
 using namespace astro;
 
+enum GizmoAction {
+  POSITION,
+  SCALE,
+  ROTATE
+};
+
 struct Selectable {
   bool is_entity;
   EntityRecord entity_record;
@@ -20,6 +26,7 @@ struct LevelEditorState {
   // @todo allow multiple?
   Selectable current_selectable;
   bool is_object_selected = false;
+  GizmoAction current_gizmo_action = POSITION;
 } editor;
 
 /**
@@ -314,7 +321,35 @@ static void CreatePositionGizmo(Tachyon* tachyon, State& state) {
 
 /**
  * ----------------------------
- * Updates the position gizmo.
+ * Creates a scale gizmo.
+ * ----------------------------
+ */
+static void CreateScaleGizmo(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
+  auto& up = create(meshes.gizmo_resizer);
+  auto& left = create(meshes.gizmo_resizer);
+  auto& right = create(meshes.gizmo_resizer);
+
+  up.scale = tVec3f(40.f);
+  left.scale = tVec3f(40.f);
+  right.scale = tVec3f(40.f);
+
+  left.rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), t_HALF_PI);
+  right.rotation = Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), -t_HALF_PI);
+
+  up.color = tVec4f(0, 1.f, 0, 0.4f);
+  left.color = tVec4f(0, 0, 1.f, 0.4f);
+  right.color = tVec4f(1.f, 0, 0, 0.4f);
+
+  commit(up);
+  commit(left);
+  commit(right);
+}
+
+/**
+ * ----------------------------
+ * Updates the positioning gizmo.
  * ----------------------------
  */
 static void UpdatePositionGizmo(Tachyon* tachyon, State& state) {
@@ -339,22 +374,55 @@ static void UpdatePositionGizmo(Tachyon* tachyon, State& state) {
 
 /**
  * ----------------------------
- * Creates the objects for a given gizmo type.
- * @todo accept type as an argument
+ * Updates the scale gizmo.
  * ----------------------------
  */
-static void CreateGizmo(Tachyon* tachyon, State& state) {
-  CreatePositionGizmo(tachyon, state);
+static void UpdateScaleGizmo(Tachyon* tachyon, State& state) {
+  auto& camera = tachyon->scene.camera;
+  auto& meshes = state.meshes;
+  auto& up = objects(meshes.gizmo_resizer)[0];
+  auto& left = objects(meshes.gizmo_resizer)[1];
+  auto& right = objects(meshes.gizmo_resizer)[2];
+
+  auto& placeholder = editor.current_selectable.placeholder;
+  tVec3f camera_to_selected = placeholder.position - camera.position;
+  tVec3f position = camera.position + camera_to_selected.unit() * 650.f;
+
+  up.position = position;
+  left.position = position;
+  right.position = position;
+
+  commit(up);
+  commit(left);
+  commit(right);
+}
+
+/**
+ * ----------------------------
+ * Creates the objects for a given gizmo type.
+ * ----------------------------
+ */
+static void CreateGizmo(Tachyon* tachyon, State& state, GizmoAction action) {
+  if (action == POSITION) {
+    CreatePositionGizmo(tachyon, state);
+  }
+  else if (action == SCALE) {
+    CreateScaleGizmo(tachyon, state);
+  }
 }
 
 /**
  * ----------------------------
  * Updates the objects for the current gizmo.
- * @todo change according to current action type
  * ----------------------------
  */
 static void UpdateCurrentGizmo(Tachyon* tachyon, State& state) {
-  UpdatePositionGizmo(tachyon, state);
+  if (editor.current_gizmo_action == POSITION) {
+    UpdatePositionGizmo(tachyon, state);
+  }
+  else if (editor.current_gizmo_action == SCALE) {
+    UpdateScaleGizmo(tachyon, state);
+  }
 }
 
 /**
@@ -366,6 +434,25 @@ static void DestroyGizmo(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   remove_all(meshes.gizmo_arrow);
+  remove_all(meshes.gizmo_resizer);
+}
+
+/**
+ * ----------------------------
+ * Cycles between available gizmo actions.
+ * ----------------------------
+ */
+static void CycleGizmoAction(Tachyon* tachyon, State& state) {
+  DestroyGizmo(tachyon, state);
+
+  if (editor.current_gizmo_action == POSITION) {
+    editor.current_gizmo_action = SCALE;
+  }
+  else if (editor.current_gizmo_action == SCALE) {
+    editor.current_gizmo_action = POSITION;
+  }
+
+  CreateGizmo(tachyon, state, editor.current_gizmo_action);
 }
 
 /**
@@ -383,7 +470,7 @@ static void MakeSelection(Tachyon* tachyon, State& state, Selectable& selectable
 
   commit(placeholder);
 
-  CreateGizmo(tachyon, state);
+  CreateGizmo(tachyon, state, editor.current_gizmo_action);
 }
 
 /**
@@ -396,8 +483,8 @@ static void DeselectCurrent(Tachyon* tachyon, State& state) {
   auto& live_placeholder = *get_live_object(placeholder);
 
   // Save transformations
-  // @todo save scale
   live_placeholder.position = placeholder.position;
+  live_placeholder.scale = placeholder.scale;
   live_placeholder.rotation = placeholder.rotation;
 
   commit(live_placeholder);
@@ -494,7 +581,7 @@ static tVec3f GetClosestWorldAxis(const tVec3f& vector) {
  * Handler for moving selected objects around.
  * ----------------------------
  */
-static void HandleSelectedObjectMovementActions(Tachyon* tachyon, State& state) {
+static void HandleSelectedObjectPositionActions(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
   auto& placeholder = editor.current_selectable.placeholder;
   float move_speed = (placeholder.position - camera.position).magnitude() / 4000.f;
@@ -524,6 +611,39 @@ static void HandleSelectedObjectMovementActions(Tachyon* tachyon, State& state) 
 
 /**
  * ----------------------------
+ * Handler for scaling selected objects.
+ * ----------------------------
+ */
+static void HandleSelectedObjectScaleActions(Tachyon* tachyon, State& state) {
+  auto& camera = tachyon->scene.camera;
+  auto& placeholder = editor.current_selectable.placeholder;
+  float scale_speed = (placeholder.position - camera.position).magnitude() / 4000.f;
+
+  if (abs(tachyon->mouse_delta_x) > abs(tachyon->mouse_delta_y)) {
+    tVec3f camera_left = camera.orientation.getLeftDirection();
+    tVec3f scale_axis = GetClosestWorldAxis(camera_left);
+
+    placeholder.scale -= scale_axis * scale_speed * (float)tachyon->mouse_delta_x;
+  } else {
+    tVec3f scale_axis = tVec3f(0, 1.f, 0);
+
+    placeholder.scale -= scale_axis * scale_speed * (float)tachyon->mouse_delta_y;
+  }
+
+  // @optimize We don't need to do this every time the object is moved!
+  // It would be perfectly acceptable to do this on deselection.
+  if (editor.current_selectable.is_entity) {
+    // Find and sync the scale of the original entity
+    auto* entity = EntityManager::FindEntity(state, editor.current_selectable.entity_record);
+
+    entity->scale = placeholder.scale;
+  }
+
+  commit(placeholder);
+}
+
+/**
+ * ----------------------------
  * Handler for manipulating selected objects with the mouse.
  * ----------------------------
  */
@@ -532,9 +652,12 @@ static void HandleSelectedObjectActions(Tachyon* tachyon, State& state) {
     return;
   }
 
-  // @todo check the current action type
-
-  HandleSelectedObjectMovementActions(tachyon, state);
+  if (editor.current_gizmo_action == POSITION) {
+    HandleSelectedObjectPositionActions(tachyon, state);
+  }
+  else if (editor.current_gizmo_action == SCALE) {
+    HandleSelectedObjectScaleActions(tachyon, state);
+  }
 }
 
 /**
@@ -602,6 +725,10 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
 
     if (did_right_click_down()) {
       DeselectCurrent(tachyon, state);
+    }
+
+    if (did_wheel_down()) {
+      CycleGizmoAction(tachyon, state);
     }
   }
 
