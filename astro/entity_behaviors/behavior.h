@@ -7,8 +7,8 @@
 #define behavior struct
 #define spawned() static void _SpawnObjects(Tachyon* tachyon, State& state)
 #define destroyed() static void _DestroyObjects(Tachyon* tachyon, State& state)
-#define placeholderSpawned() static tObject& _SpawnPlaceholder(Tachyon* tachyon, State& state, const GameEntity& entity)
-#define placeholdersDestroyed() static void _DestroyPlaceholders(Tachyon* tachyon, State& state)
+#define createPlaceholder() static tObject& _CreatePlaceholder(Tachyon* tachyon, State& state, const GameEntity& entity)
+#define destroyPlaceholders() static void _DestroyPlaceholders(Tachyon* tachyon, State& state)
 #define timeEvolve() static void _TimeEvolve(Tachyon* tachyon, State& state)
 
 namespace astro {

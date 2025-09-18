@@ -17,7 +17,7 @@ namespace astro {
 
     void SpawnObjects(Tachyon* tachyon, State& state, const GameEntity& entity);
     void DestroyObjects(Tachyon* tachyon, State& state, EntityType type);
-    tObject& SpawnPlaceholder(Tachyon* tachyon, State& state, const GameEntity& entity);
+    tObject& CreatePlaceholder(Tachyon* tachyon, State& state, const GameEntity& entity);
     void DestroyPlaceholders(Tachyon* tachyon, State& state, EntityType type);
     void TimeEvolve(Tachyon* tachyon, State& state, EntityType type);
   }

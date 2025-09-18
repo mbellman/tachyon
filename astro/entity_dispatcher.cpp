@@ -21,9 +21,9 @@ using namespace astro;
     __Behavior::_DestroyObjects(tachyon, state);\
     break\
 
-#define dispatch_SpawnPlaceholder(__entity_type, __Behavior, __entity)\
+#define dispatch_CreatePlaceholder(__entity_type, __Behavior, __entity)\
   case __entity_type:\
-    return __Behavior::_SpawnPlaceholder(tachyon, state, __entity)\
+    return __Behavior::_CreatePlaceholder(tachyon, state, __entity)\
 
 #define dispatch_DestroyPlaceholders(__entity_type, __Behavior)\
   case __entity_type:\
@@ -74,11 +74,11 @@ void EntityDispatcher::DestroyObjects(Tachyon* tachyon, State& state, EntityType
   }
 }
 
-tObject& EntityDispatcher::SpawnPlaceholder(Tachyon* tachyon, State& state, const GameEntity& entity) {
+tObject& EntityDispatcher::CreatePlaceholder(Tachyon* tachyon, State& state, const GameEntity& entity) {
   switch (entity.type) {
-    dispatch_SpawnPlaceholder(SHRUB, Shrub, entity);
-    dispatch_SpawnPlaceholder(OAK_TREE, OakTree, entity);
-    dispatch_SpawnPlaceholder(WILLOW_TREE, WillowTree, entity);
+    dispatch_CreatePlaceholder(SHRUB, Shrub, entity);
+    dispatch_CreatePlaceholder(OAK_TREE, OakTree, entity);
+    dispatch_CreatePlaceholder(WILLOW_TREE, WillowTree, entity);
 
     default:
       // @todo log error

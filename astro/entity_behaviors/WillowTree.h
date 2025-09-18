@@ -16,7 +16,7 @@ namespace astro {
       RemoveLastObject(tachyon, meshes.willow_tree_trunk);
     }
 
-    placeholderSpawned() {
+    createPlaceholder() {
       auto& meshes = state.meshes;
       auto& placeholder = create(meshes.willow_tree_placeholder);
 
@@ -30,7 +30,7 @@ namespace astro {
       return placeholder;
     }
 
-    placeholdersDestroyed() {
+    destroyPlaceholders() {
       auto& meshes = state.meshes;
 
       remove_all(meshes.shrub_placeholder);

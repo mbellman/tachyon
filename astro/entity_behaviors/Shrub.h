@@ -16,7 +16,7 @@ namespace astro {
       RemoveLastObject(tachyon, meshes.shrub_branches);
     }
 
-    placeholderSpawned() {
+    createPlaceholder() {
       auto& meshes = state.meshes;
       auto& placeholder = create(meshes.shrub_placeholder);
 
@@ -30,7 +30,7 @@ namespace astro {
       return placeholder;
     }
 
-    placeholdersDestroyed() {
+    destroyPlaceholders() {
       auto& meshes = state.meshes;
 
       remove_all(meshes.shrub_placeholder);

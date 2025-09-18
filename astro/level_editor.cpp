@@ -532,7 +532,7 @@ static void SpawnEntityPlaceholders(Tachyon* tachyon, State& state) {
   for_all_entity_types() {
     for_entities_of_type(type) {
       auto& entity = entities[i];
-      auto& placeholder = EntityDispatcher::SpawnPlaceholder(tachyon, state, entity);
+      auto& placeholder = EntityDispatcher::CreatePlaceholder(tachyon, state, entity);
 
       TrackSelectableEntity(entity, placeholder);
     }
