@@ -528,15 +528,30 @@ static void CreateDecorativeObject(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
 
   // @temporary
-  auto& rock = create(state.meshes.rock_1);
+  {
+    auto& rock = create(state.meshes.rock_1);
 
-  rock.position = camera.position + camera.orientation.getDirection() * 5000.f;
-  rock.scale = 500.f;
-  rock.color = tVec3f(0.2f);
+    rock.position = camera.position + camera.orientation.getDirection() * 5000.f;
+    rock.scale = 500.f;
+    rock.color = tVec3f(0.2f);
 
-  commit(rock);
+    commit(rock);
 
-  TrackDecorativeObject(rock);
+    TrackDecorativeObject(rock);
+  }
+
+  // @temporary
+  {
+    auto& ground = create(state.meshes.ground_1);
+
+    ground.position = camera.position + camera.orientation.getDirection() * 8000.f;
+    ground.scale = 2000.f;
+    ground.color = tVec3f(0.4f, 0.7f, 0.2f);
+
+    commit(ground);
+
+    TrackDecorativeObject(ground);
+  }
 }
 
 /**
@@ -604,7 +619,8 @@ static void TrackDecorativeObjects(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   auto decorative_meshes = {
-    meshes.rock_1
+    meshes.rock_1,
+    meshes.ground_1
   };
 
   for (auto mesh_index : decorative_meshes) {

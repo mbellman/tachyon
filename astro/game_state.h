@@ -23,6 +23,7 @@ namespace astro {
 
       // Decorative meshes
       rock_1,
+      ground_1,
 
       // SHRUB
       shrub_placeholder,

@@ -22,6 +22,7 @@ static void AddDecorativeMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   meshes.rock_1 = MODEL_MESH("./astro/3d_models/rock_1.obj", 100);
+  meshes.ground_1 = MODEL_MESH("./astro/3d_models/ground_1.obj", 100);
 }
 
 static void AddEditorMeshes(Tachyon* tachyon, State& state) {
