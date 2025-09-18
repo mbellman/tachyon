@@ -56,6 +56,7 @@ namespace astro {
 
     // @todo dev mode only
     tUIText* debug_text = nullptr;
+    tUIText* debug_text_large = nullptr;
     bool is_level_editor_open = false;
   };
 }

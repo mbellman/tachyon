@@ -213,6 +213,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
 
   // @todo move to ui.cpp
   state.debug_text = Tachyon_CreateUIText("./fonts/CascadiaMonoNF.ttf", 20);
+  state.debug_text_large = Tachyon_CreateUIText("./fonts/OpenSans-Regular.ttf", 32);
 
   Tachyon_InitializeObjects(tachyon);
 

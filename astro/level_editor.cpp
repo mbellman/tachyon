@@ -683,4 +683,12 @@ void LevelEditor::HandleLevelEditor(Tachyon* tachyon, State& state, const float 
   if (editor.is_object_selected) {
     UpdateCurrentGizmo(tachyon, state);
   }
+
+  Tachyon_DrawUIText(tachyon, state.debug_text_large, {
+    .screen_x = tachyon->window_width / 2,
+    .screen_y = 30,
+    .centered = true,
+    .color = tVec3f(1.f),
+    .string = "Level Editor"
+  });
 }

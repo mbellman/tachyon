@@ -366,6 +366,12 @@ static void HandleDevModeInputs(Tachyon* tachyon) {
   // Toggle the G-Buffer view with TAB
   if (did_press_key(tKey::TAB)) {
     renderer.show_g_buffer_view = !renderer.show_g_buffer_view;
+
+    if (renderer.show_g_buffer_view) {
+      show_alert_message("[Tachyon] G-Buffer View");
+    } else {
+      show_alert_message("[Tachyon] Default View");
+    }
   }
 
   // Toggle V-Sync with V
@@ -472,17 +478,20 @@ static void RenderDebugLabels(Tachyon* tachyon) {
 }
 
 static void RenderAlertMessage(Tachyon* tachyon) {
+  float alert_age = tachyon->running_time - tachyon->last_alert_message_time;
+
   if (
     tachyon->alert_message != "" &&
     tachyon->last_alert_message_time != 0.f &&
-    (tachyon->running_time - tachyon->last_alert_message_time) < 5.f
+    alert_age < 3.f
   ) {
     auto* font = tachyon->alert_message_font;
     auto& message = tachyon->alert_message;
     int32 x = tachyon->window_width / 2;
-    int32 y = tachyon->window_height / 3;
+    int32 y = tachyon->window_height / 2.5f;
     int32 wrap_width = tachyon->window_width;
-    auto font_color = tVec3f(1.f);
+    float alpha = alert_age < 2.f ? 1.f : (3.f - alert_age);
+    auto font_color = tVec4f(1.f, alpha);
 
     RenderTextCentered(tachyon, font, message.c_str(), x, y, wrap_width, font_color, tVec4f(0.f));
   }
