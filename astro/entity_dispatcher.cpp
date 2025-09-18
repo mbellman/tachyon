@@ -29,6 +29,11 @@ using namespace astro;
     __Behavior::_DestroyPlaceholders(tachyon, state);\
     break\
 
+#define dispatch_TimeEvolve(__entity_type, __Behavior)\
+  case __entity_type:\
+    __Behavior::_TimeEvolve(tachyon, state);\
+    break\
+
 std::vector<GameEntity>& EntityDispatcher::GetAllEntitiesOfType(State& state, EntityType type) {
   switch (type) {
     dispatch_GetAllEntitiesOfType(SHRUB, state.shrubs);
@@ -94,6 +99,22 @@ void EntityDispatcher::DestroyPlaceholders(Tachyon* tachyon, State& state, Entit
   switch (type) {
     dispatch_DestroyPlaceholders(SHRUB, Shrub);
     dispatch_DestroyPlaceholders(OAK_TREE, OakTree);
+
+    case WILLOW_TREE:
+      // @todo
+      break;
+
+    default:
+      // @todo log error
+      exit(0);
+      break;
+  }
+}
+
+void EntityDispatcher::TimeEvolve(Tachyon* tachyon, State& state, EntityType type) {
+  switch (type) {
+    dispatch_TimeEvolve(SHRUB, Shrub);
+    dispatch_TimeEvolve(OAK_TREE, OakTree);
 
     case WILLOW_TREE:
       // @todo

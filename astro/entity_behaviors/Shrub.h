@@ -34,5 +34,28 @@ namespace astro {
 
       remove_all(meshes.shrub_placeholder);
     }
+
+    timeEvolve() {
+      auto& meshes = state.meshes;
+      const float lifetime = 60.f;
+
+      for_entities(state.shrubs) {
+        const auto& shrub = state.shrubs[i];
+        float life_progress = GetLivingEntityProgress(state, shrub, lifetime);
+
+        // @todo factor
+        auto& branches = objects(meshes.shrub_branches)[i];
+
+        branches.position = shrub.position;
+        branches.position.y = -1500.f + branches.scale.y;
+
+        branches.scale = shrub.scale * sinf(life_progress * 0.75f * t_PI);
+
+        branches.rotation = shrub.orientation;
+        branches.color = shrub.tint;
+
+        commit(branches);
+      }
+    }
   };
 }

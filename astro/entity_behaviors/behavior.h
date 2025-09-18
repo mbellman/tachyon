@@ -9,6 +9,7 @@
 #define destroyed() static void _DestroyObjects(Tachyon* tachyon, State& state)
 #define placeholderSpawned() static tObject& _SpawnPlaceholder(Tachyon* tachyon, State& state, const GameEntity& entity)
 #define placeholdersDestroyed() static void _DestroyPlaceholders(Tachyon* tachyon, State& state)
+#define timeEvolve() static void _TimeEvolve(Tachyon* tachyon, State& state)
 
 namespace astro {
   // @todo move this into engine
@@ -21,5 +22,14 @@ namespace astro {
     
       remove(last_object);
     }
+  }
+
+  // @todo move elsewhere
+  static float GetLivingEntityProgress(State& state, const GameEntity& entity, const float lifetime) {
+    float entity_age = state.astro_time - entity.astro_start_time;
+    if (entity_age < 0.f) return 0.f;
+    if (entity_age > lifetime) return 1.f;
+
+    return entity_age / lifetime;
   }
 }

@@ -35,26 +35,6 @@ void ObjectManager::ProvisionAvailableObjectsForEntities(Tachyon* tachyon, State
   // for more distant entities
 
   // @todo refactor
-  for_entities(state.shrubs) {
-    auto& shrub = state.shrubs[i];
-    auto& branches = objects(meshes.shrub_branches)[i];
-
-    branches.position = shrub.position;
-    branches.rotation = shrub.orientation;
-    branches.color = shrub.tint;
-  }
-
-  // @todo refactor
-  for_entities(state.oak_trees) {
-    auto& tree = state.oak_trees[i];
-    auto& trunk = objects(meshes.oak_tree_trunk)[i];
-
-    trunk.position = tree.position;
-    trunk.rotation = tree.orientation;
-    trunk.color = tree.tint;
-  }
-
-  // @todo refactor
   for_entities(state.willow_trees) {
     auto& tree = state.oak_trees[i];
     auto& trunk = objects(meshes.willow_tree_trunk)[i];
