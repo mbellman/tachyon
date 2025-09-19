@@ -17,6 +17,13 @@ enum GizmoAction {
   ROTATE
 };
 
+struct DecorativeMesh {
+  uint16 mesh_index;
+  std::string mesh_name;
+  tVec3f default_scale;
+  tVec3f default_color;
+};
+
 struct Selectable {
   bool is_entity;
   EntityRecord entity_record;
@@ -29,6 +36,7 @@ struct LevelEditorState {
   Selectable current_selectable;
   bool is_object_selected = false;
   GizmoAction current_gizmo_action = POSITION;
+  int32 current_decorative_mesh_index = 0;
 } editor;
 
 /**
@@ -99,16 +107,31 @@ std::string SerializeObject(State& state, tObject& object) {
 
 /**
  * ----------------------------
- * Returns a list of all decorative mesh indexes.
+ * Returns a list of all decorative meshes.
  * ----------------------------
  */
-std::vector<uint16>& GetDecorativeMeshes(State& state) {
+std::vector<DecorativeMesh>& GetDecorativeMeshes(State& state) {
   auto& meshes = state.meshes;
 
-  static std::vector<uint16> decorative_meshes = {
-    meshes.flat_ground,
-    meshes.rock_1,
-    meshes.ground_1
+  static std::vector<DecorativeMesh> decorative_meshes = {
+    {
+      .mesh_index = meshes.rock_1,
+      .mesh_name = "rock_1",
+      .default_scale = tVec3f(500.f),
+      .default_color = tVec3f(0.2f)
+    },
+    {
+      .mesh_index = meshes.ground_1,
+      .mesh_name = "ground_1",
+      .default_scale = tVec3f(2000.f),
+      .default_color = tVec3f(0.4f, 0.7f, 0.2f)
+    },
+    {
+      .mesh_index = meshes.flat_ground,
+      .mesh_name = "flat_ground",
+      .default_scale = tVec3f(5000.f, 1.f, 5000.f),
+      .default_color = tVec3f(0.4f, 0.5f, 0.1f)
+    }
   };
 
   return decorative_meshes;
@@ -130,8 +153,8 @@ void SaveLevelData(Tachyon* tachyon, State& state) {
     }
   }
 
-  for (auto mesh_index : GetDecorativeMeshes(state)) {
-    auto& objects = objects(mesh_index);
+  for (auto& decorative : GetDecorativeMeshes(state)) {
+    auto& objects = objects(decorative.mesh_index);
 
     // Perform a sequence-preserving loop over the objects
     // to ensure they always serialize in the same order
@@ -525,6 +548,7 @@ static void CycleGizmoAction(Tachyon* tachyon, State& state, int8 direction) {
 static void MakeSelection(Tachyon* tachyon, State& state, Selectable& selectable) {
   editor.is_object_selected = true;
   editor.current_selectable = selectable;
+  editor.current_gizmo_action = POSITION;
 
   auto& placeholder = editor.current_selectable.placeholder;
 
@@ -775,46 +799,49 @@ static void HandleSelectedObjectActions(Tachyon* tachyon, State& state) {
  */
 static void CreateDecorativeObject(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
+  auto& decorative_meshes = GetDecorativeMeshes(state);
+  auto& current_decorative_mesh = decorative_meshes[editor.current_decorative_mesh_index];
+  auto& object = create(current_decorative_mesh.mesh_index);
+
+  object.scale = current_decorative_mesh.default_scale;
+  object.color = current_decorative_mesh.default_color;
 
   // @temporary
-  // {
-  //   auto& ground = create(state.meshes.flat_ground);
-
-  //   ground.position = camera.position + camera.orientation.getDirection() * 5000.f;
-  //   ground.position.y = -1500.f;
-  //   ground.scale = tVec3f(5000.f, 1.f, 5000.f);
-  //   ground.color = tVec3f(0.4f, 0.5f, 0.1f);
-
-  //   commit(ground);
-
-  //   TrackDecorativeObject(ground);
-  // }
-
-  // @temporary
-  {
-    auto& rock = create(state.meshes.rock_1);
-
-    rock.position = camera.position + camera.orientation.getDirection() * 5000.f;
-    rock.scale = 500.f;
-    rock.color = tVec3f(0.2f);
-
-    commit(rock);
-
-    TrackDecorativeObject(rock);
+  // @todo define various restrictions/defaults on how certain
+  // decorative mesh objects are spawned or can be manipulated
+  if (current_decorative_mesh.mesh_index == state.meshes.flat_ground) {
+    object.position = camera.position + camera.orientation.getDirection() * abs(camera.position.y) * 1.5f;
+    object.position.y = -1500.f;
+  } else {
+    object.position = camera.position + camera.orientation.getDirection() * 7500.f;
   }
 
-  // @temporary
-  {
-    auto& ground = create(state.meshes.ground_1);
+  commit(object);
 
-    ground.position = camera.position + camera.orientation.getDirection() * 8000.f;
-    ground.scale = 2000.f;
-    ground.color = tVec3f(0.4f, 0.7f, 0.2f);
+  TrackDecorativeObject(object);
 
-    commit(ground);
+  MakeSelection(tachyon, state, editor.selectables.back());
+}
 
-    TrackDecorativeObject(ground);
+static void CycleDecorativeMesh(Tachyon* tachyon, State& state, int8 direction) {
+  auto& decorative_meshes = GetDecorativeMeshes(state);
+
+  if (direction == 1) {
+    editor.current_decorative_mesh_index++;
+
+    if (editor.current_decorative_mesh_index > decorative_meshes.size() - 1) {
+      editor.current_decorative_mesh_index = 0;
+    }
   }
+  else if (direction == -1) {
+    editor.current_decorative_mesh_index--;
+
+    if (editor.current_decorative_mesh_index < 0) {
+      editor.current_decorative_mesh_index = decorative_meshes.size() - 1;
+    }
+  }
+
+  show_alert_message("Active mesh: " + decorative_meshes[editor.current_decorative_mesh_index].mesh_name);
 }
 
 /**
@@ -858,6 +885,14 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
     }
   }
 
+  if (did_press_key(tKey::ARROW_LEFT)) {
+    CycleDecorativeMesh(tachyon, state, -1);
+  }
+
+  if (did_press_key(tKey::ARROW_RIGHT)) {
+    CycleDecorativeMesh(tachyon, state, 1);
+  }
+
   if (did_press_key(tKey::ENTER)) {
     CreateDecorativeObject(tachyon, state);
   }
@@ -887,8 +922,8 @@ static void SpawnEntityPlaceholders(Tachyon* tachyon, State& state) {
  * ----------------------------
  */
 static void TrackDecorativeObjects(Tachyon* tachyon, State& state) {
-  for (auto mesh_index : GetDecorativeMeshes(state)) {
-    for (auto& object : objects(mesh_index)) {
+  for (auto& decorative : GetDecorativeMeshes(state)) {
+    for (auto& object : objects(decorative.mesh_index)) {
       TrackDecorativeObject(object);
     }
   }
