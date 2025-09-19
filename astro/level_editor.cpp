@@ -1,8 +1,10 @@
 #include <format>
+#include <map>
 #include <string>
 #include <vector>
 
 #include "astro/level_editor.h"
+#include "astro/data_loader.h"
 #include "astro/entity_manager.h"
 #include "astro/entity_dispatcher.h"
 #include "astro/object_manager.h"
@@ -67,6 +69,7 @@ static inline std::string Serialize(tColor& color) {
  */
 std::string SerializeEntity(GameEntity* entity) {
   return (
+    "@" +
     std::to_string(entity->type) + "," +
     Serialize(entity->position) + "," +
     Serialize(entity->scale) + "," +
@@ -83,12 +86,10 @@ std::string SerializeEntity(GameEntity* entity) {
  * for storage in a level data file.
  * ----------------------------
  */
-std::string SerializeObject(tObject& object) {
+std::string SerializeObject(State& state, tObject& object) {
   return (
-    // @todo don't serialize mesh_index, as this will not be
-    // stable if the order of loaded meshes changes. Use another
-    // fixed representation of the mesh name
-    std::to_string(object.mesh_index) + "," +
+    "$" +
+    std::to_string(DataLoader::MeshIndexToId(state, object.mesh_index)) + "," +
     Serialize(object.position) + "," +
     Serialize(object.scale) + "," +
     Serialize(object.rotation) + "," +
@@ -101,27 +102,24 @@ std::string SerializeObject(tObject& object) {
  * Writes all entities/objects in the level to a file.
  * ----------------------------
  */
-void SaveWorldData(State& state) {
-  std::string world_data = "";
+void SaveLevelData(State& state) {
+  std::string level_data = "";
 
   for (auto& selectable : editor.selectables) {
     if (selectable.is_entity) {
       auto* entity = EntityManager::FindEntity(state, selectable.entity_record);
 
       if (entity != nullptr) {
-        world_data += SerializeEntity(entity) + "\n";
+        level_data += SerializeEntity(entity) + "\n";
       } else {
         // @todo log error?
       }
     } else {
-      world_data += SerializeObject(selectable.placeholder) + "\n";
+      level_data += SerializeObject(state, selectable.placeholder) + "\n";
     }
   }
 
-  // @todo write to file
-  printf("Saving!\n");
-  printf("%s\n", world_data.c_str());
-  printf("\n");
+  Tachyon_WriteFileContents("./astro/level_data/level.txt", level_data);
 }
 
 /**
@@ -505,7 +503,7 @@ static void DeselectCurrent(Tachyon* tachyon, State& state) {
 
   DestroyGizmo(tachyon, state);
   SyncSelectables(tachyon);
-  SaveWorldData(state);
+  SaveLevelData(state);
 }
 
 /**
@@ -850,7 +848,7 @@ void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
     DeselectCurrent(tachyon, state);
   }
 
-  SaveWorldData(state);
+  SaveLevelData(state);
   RemoveEntityPlaceholders(tachyon, state);
 
   editor.selectables.clear();

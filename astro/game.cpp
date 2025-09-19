@@ -1,4 +1,5 @@
 #include "astro/game.h"
+#include "astro/data_loader.h"
 #include "astro/entity_dispatcher.h"
 #include "astro/entity_manager.h"
 #include "astro/level_editor.h"
@@ -218,74 +219,10 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
   Tachyon_InitializeObjects(tachyon);
 
   ObjectManager::CreateObjects(tachyon, state);
+  DataLoader::LoadLevelData(tachyon, state);
 
   // @todo default this somewhere, or load in from save
   tachyon->scene.camera.position = tVec3f(0.f, 10000.f, 10000.f);
-
-  // @temporary
-  {
-    auto record = EntityManager::CreateEntity(state, OAK_TREE);
-    auto& oak = *EntityManager::FindEntity(state, record);
-
-    oak.position = tVec3f(-5000.f, 0, 0);
-    oak.scale = tVec3f(500.f, 2000.f, 500.f);
-    oak.tint = tVec3f(1.f, 0.6f, 0.3f);
-    oak.astro_start_time = -250.f;
-
-    EntityDispatcher::SpawnObjects(tachyon, state, oak);
-  }
-
-  // @temporary
-  {
-    auto record = EntityManager::CreateEntity(state, OAK_TREE);
-    auto& oak = *EntityManager::FindEntity(state, record);
-
-    oak.position = tVec3f(-6000.f, 0, 6000.f);
-    oak.scale = tVec3f(500.f, 2000.f, 500.f);
-    oak.tint = tVec3f(1.f, 0.6f, 0.3f);
-    oak.astro_start_time = -300.f;
-
-    EntityDispatcher::SpawnObjects(tachyon, state, oak);
-  }
-
-  // @temporary
-  {
-    auto record = EntityManager::CreateEntity(state, OAK_TREE);
-    auto& oak = *EntityManager::FindEntity(state, record);
-
-    oak.position = tVec3f(5500.f, 0, 1000.f);
-    oak.scale = tVec3f(600.f, 2500.f, 600.f);
-    oak.tint = tVec3f(1.f, 0.6f, 0.3f);
-    oak.astro_start_time = -280.f;
-
-    EntityDispatcher::SpawnObjects(tachyon, state, oak);
-  }
-
-  // @temporary
-  {
-    auto record = EntityManager::CreateEntity(state, SHRUB);
-    auto& shrub = *EntityManager::FindEntity(state, record);
-
-    shrub.position = tVec3f(6500.f, -1500.f, 3500.f);
-    shrub.scale = tVec3f(600.f);
-    shrub.tint = tVec3f(0.2f, 0.8f, 0.5f);
-    shrub.astro_start_time = -50.f;
-
-    EntityDispatcher::SpawnObjects(tachyon, state, shrub);
-  }
-
-  // @temporary
-  {
-    auto record = EntityManager::CreateEntity(state, SHRUB);
-    auto& shrub = *EntityManager::FindEntity(state, record);
-
-    shrub.position = tVec3f(7000.f, -1500.f, 5200.f);
-    shrub.scale = tVec3f(800.f);
-    shrub.tint = tVec3f(0.2f, 0.8f, 0.5f);
-    shrub.astro_start_time = -40.f;
-
-    EntityDispatcher::SpawnObjects(tachyon, state, shrub);
-  }
 }
 
 void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {

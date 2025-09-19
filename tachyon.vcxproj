@@ -115,6 +115,7 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="astro\data_loader.h" />
     <ClInclude Include="astro\entities.h" />
     <ClInclude Include="astro\entity_behaviors\behavior.h" />
     <ClInclude Include="astro\entity_behaviors\OakTree.h" />
@@ -265,6 +266,7 @@
     <ClInclude Include="external\SDL_ttf\include\SDL_ttf.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="astro\data_loader.cpp" />
     <ClCompile Include="astro\entity_dispatcher.cpp" />
     <ClCompile Include="astro\entity_manager.cpp" />
     <ClCompile Include="astro\game.cpp" />

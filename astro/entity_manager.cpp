@@ -34,11 +34,15 @@ EntityRecord EntityManager::CreateEntity(State& state, EntityType type) {
   entity.type = type;
   entity.id = running_entity_id++;
 
-  auto& entities = EntityDispatcher::GetAllEntitiesOfType(state, type);
-
-  entities.push_back(entity);
+  SaveNewEntity(state, entity);
 
   return { entity.id, type };
+}
+
+void EntityManager::SaveNewEntity(State& state, const GameEntity& entity) {
+  auto& container = EntityDispatcher::GetAllEntitiesOfType(state, entity.type);
+
+  container.push_back(entity);
 }
 
 GameEntity* EntityManager::FindEntity(State& state, const EntityRecord& record) {
