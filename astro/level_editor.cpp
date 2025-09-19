@@ -442,14 +442,26 @@ static void DestroyGizmo(Tachyon* tachyon, State& state) {
  * Cycles between available gizmo actions.
  * ----------------------------
  */
-static void CycleGizmoAction(Tachyon* tachyon, State& state) {
+static void CycleGizmoAction(Tachyon* tachyon, State& state, int8 direction) {
   DestroyGizmo(tachyon, state);
 
-  if (editor.current_gizmo_action == POSITION) {
-    editor.current_gizmo_action = SCALE;
+  if (direction == 1) {
+    // Cycle down
+    if (editor.current_gizmo_action == POSITION) {
+      editor.current_gizmo_action = SCALE;
+    }
+    else if (editor.current_gizmo_action == SCALE) {
+      editor.current_gizmo_action = POSITION;
+    }
   }
-  else if (editor.current_gizmo_action == SCALE) {
-    editor.current_gizmo_action = POSITION;
+  else if (direction == -1) {
+    // Cycle up
+    if (editor.current_gizmo_action == POSITION) {
+      editor.current_gizmo_action = SCALE;
+    }
+    else if (editor.current_gizmo_action == SCALE) {
+      editor.current_gizmo_action = POSITION;
+    }
   }
 
   CreateGizmo(tachyon, state, editor.current_gizmo_action);
@@ -623,6 +635,11 @@ static void HandleSelectedObjectScaleActions(Tachyon* tachyon, State& state) {
     tVec3f camera_left = camera.orientation.getLeftDirection();
     tVec3f scale_axis = GetClosestWorldAxis(camera_left);
 
+    // Ensure dragging the mouse right or left always scales in the correct direction,
+    // regardless of which direction we're looking along X or Z
+    if (scale_axis.x == 1.f) scale_axis.x = -1.f;
+    if (scale_axis.z == 1.f) scale_axis.z = -1.f;
+
     placeholder.scale -= scale_axis * scale_speed * (float)tachyon->mouse_delta_x;
   } else {
     tVec3f scale_axis = tVec3f(0, 1.f, 0);
@@ -728,7 +745,11 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
     }
 
     if (did_wheel_down()) {
-      CycleGizmoAction(tachyon, state);
+      CycleGizmoAction(tachyon, state, 1);
+    }
+
+    if (did_wheel_up()) {
+      CycleGizmoAction(tachyon, state, -1);
     }
   }
 
