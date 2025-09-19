@@ -316,30 +316,39 @@ static void ForgetSelectableObject(tObject& object) {
 
 /**
  * ----------------------------
+ * Creates a gizmo using three instances of a provided mesh.
+ * ----------------------------
+ */
+static void CreateGizmoFromMesh(Tachyon* tachyon, State& state, uint16 mesh_index) {
+  auto& meshes = state.meshes;
+
+  auto& up = create(mesh_index);
+  auto& left = create(mesh_index);
+  auto& forward = create(mesh_index);
+
+  up.scale = tVec3f(40.f);
+  left.scale = tVec3f(40.f);
+  forward.scale = tVec3f(40.f);
+
+  left.rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), t_HALF_PI);
+  forward.rotation = Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), -t_HALF_PI);
+
+  up.color = tVec4f(0, 1.f, 0, 0.4f);
+  left.color = tVec4f(0, 0, 1.f, 0.4f);
+  forward.color = tVec4f(1.f, 0, 0, 0.4f);
+
+  commit(up);
+  commit(left);
+  commit(forward);
+}
+
+/**
+ * ----------------------------
  * Creates a positioning gizmo.
  * ----------------------------
  */
 static void CreatePositionGizmo(Tachyon* tachyon, State& state) {
-  auto& meshes = state.meshes;
-
-  auto& up = create(meshes.gizmo_arrow);
-  auto& left = create(meshes.gizmo_arrow);
-  auto& right = create(meshes.gizmo_arrow);
-
-  up.scale = tVec3f(40.f);
-  left.scale = tVec3f(40.f);
-  right.scale = tVec3f(40.f);
-
-  left.rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), t_HALF_PI);
-  right.rotation = Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), -t_HALF_PI);
-
-  up.color = tVec4f(0, 1.f, 0, 0.4f);
-  left.color = tVec4f(0, 0, 1.f, 0.4f);
-  right.color = tVec4f(1.f, 0, 0, 0.4f);
-
-  commit(up);
-  commit(left);
-  commit(right);
+  CreateGizmoFromMesh(tachyon, state, state.meshes.gizmo_arrow);
 }
 
 /**
@@ -348,26 +357,41 @@ static void CreatePositionGizmo(Tachyon* tachyon, State& state) {
  * ----------------------------
  */
 static void CreateScaleGizmo(Tachyon* tachyon, State& state) {
+  CreateGizmoFromMesh(tachyon, state, state.meshes.gizmo_resizer);
+}
+
+/**
+ * ----------------------------
+ * Creates a rotation gizmo.
+ * ----------------------------
+ */
+static void CreateRotationGizmo(Tachyon* tachyon, State& state) {
+  CreateGizmoFromMesh(tachyon, state, state.meshes.gizmo_rotator);
+}
+
+/**
+ * ----------------------------
+ * Updates the gizmo pieces created from a given mesh.
+ * ----------------------------
+ */
+static void UpdateGizmoFromMesh(Tachyon* tachyon, State& state, uint16 mesh_index) {
+  auto& camera = tachyon->scene.camera;
   auto& meshes = state.meshes;
+  auto& up = objects(mesh_index)[0];
+  auto& left = objects(mesh_index)[1];
+  auto& forward = objects(mesh_index)[2];
 
-  auto& up = create(meshes.gizmo_resizer);
-  auto& left = create(meshes.gizmo_resizer);
-  auto& right = create(meshes.gizmo_resizer);
+  auto& placeholder = editor.current_selectable.placeholder;
+  tVec3f camera_to_selected = placeholder.position - camera.position;
+  tVec3f position = camera.position + camera_to_selected.unit() * 650.f;
 
-  up.scale = tVec3f(40.f);
-  left.scale = tVec3f(40.f);
-  right.scale = tVec3f(40.f);
-
-  left.rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), t_HALF_PI);
-  right.rotation = Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), -t_HALF_PI);
-
-  up.color = tVec4f(0, 1.f, 0, 0.4f);
-  left.color = tVec4f(0, 0, 1.f, 0.4f);
-  right.color = tVec4f(1.f, 0, 0, 0.4f);
+  up.position = position;
+  left.position = position;
+  forward.position = position;
 
   commit(up);
   commit(left);
-  commit(right);
+  commit(forward);
 }
 
 /**
@@ -376,23 +400,7 @@ static void CreateScaleGizmo(Tachyon* tachyon, State& state) {
  * ----------------------------
  */
 static void UpdatePositionGizmo(Tachyon* tachyon, State& state) {
-  auto& camera = tachyon->scene.camera;
-  auto& meshes = state.meshes;
-  auto& up = objects(meshes.gizmo_arrow)[0];
-  auto& left = objects(meshes.gizmo_arrow)[1];
-  auto& right = objects(meshes.gizmo_arrow)[2];
-
-  auto& placeholder = editor.current_selectable.placeholder;
-  tVec3f camera_to_selected = placeholder.position - camera.position;
-  tVec3f position = camera.position + camera_to_selected.unit() * 650.f;
-
-  up.position = position;
-  left.position = position;
-  right.position = position;
-
-  commit(up);
-  commit(left);
-  commit(right);
+  UpdateGizmoFromMesh(tachyon, state, state.meshes.gizmo_arrow);
 }
 
 /**
@@ -401,23 +409,28 @@ static void UpdatePositionGizmo(Tachyon* tachyon, State& state) {
  * ----------------------------
  */
 static void UpdateScaleGizmo(Tachyon* tachyon, State& state) {
-  auto& camera = tachyon->scene.camera;
-  auto& meshes = state.meshes;
-  auto& up = objects(meshes.gizmo_resizer)[0];
-  auto& left = objects(meshes.gizmo_resizer)[1];
-  auto& right = objects(meshes.gizmo_resizer)[2];
+  UpdateGizmoFromMesh(tachyon, state, state.meshes.gizmo_resizer);
+}
 
-  auto& placeholder = editor.current_selectable.placeholder;
-  tVec3f camera_to_selected = placeholder.position - camera.position;
-  tVec3f position = camera.position + camera_to_selected.unit() * 650.f;
+/**
+ * ----------------------------
+ * Updates the rotation gizmo.
+ * ----------------------------
+ */
+static void UpdateRotationGizmo(Tachyon* tachyon, State& state) {
+  UpdateGizmoFromMesh(tachyon, state, state.meshes.gizmo_rotator);
 
-  up.position = position;
-  left.position = position;
-  right.position = position;
+  auto& up = objects(state.meshes.gizmo_rotator)[0];
+  auto& left = objects(state.meshes.gizmo_rotator)[1];
+  auto& forward = objects(state.meshes.gizmo_rotator)[2];
 
-  commit(up);
-  commit(left);
-  commit(right);
+  auto& current_object = editor.current_selectable.placeholder;
+
+  up.rotation = current_object.rotation;
+  left.rotation = current_object.rotation * Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), t_HALF_PI);
+  forward.rotation = current_object.rotation * Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -t_HALF_PI);
+
+  commit(forward);
 }
 
 /**
@@ -431,6 +444,9 @@ static void CreateGizmo(Tachyon* tachyon, State& state, GizmoAction action) {
   }
   else if (action == SCALE) {
     CreateScaleGizmo(tachyon, state);
+  }
+  else if (action == ROTATE) {
+    CreateRotationGizmo(tachyon, state);
   }
 }
 
@@ -446,6 +462,9 @@ static void UpdateCurrentGizmo(Tachyon* tachyon, State& state) {
   else if (editor.current_gizmo_action == SCALE) {
     UpdateScaleGizmo(tachyon, state);
   }
+  else if (editor.current_gizmo_action == ROTATE) {
+    UpdateRotationGizmo(tachyon, state);
+  }
 }
 
 /**
@@ -458,6 +477,7 @@ static void DestroyGizmo(Tachyon* tachyon, State& state) {
 
   remove_all(meshes.gizmo_arrow);
   remove_all(meshes.gizmo_resizer);
+  remove_all(meshes.gizmo_rotator);
 }
 
 /**
@@ -474,12 +494,18 @@ static void CycleGizmoAction(Tachyon* tachyon, State& state, int8 direction) {
       editor.current_gizmo_action = SCALE;
     }
     else if (editor.current_gizmo_action == SCALE) {
+      editor.current_gizmo_action = ROTATE;
+    }
+    else if (editor.current_gizmo_action == ROTATE) {
       editor.current_gizmo_action = POSITION;
     }
   }
   else if (direction == -1) {
     // Cycle up
     if (editor.current_gizmo_action == POSITION) {
+      editor.current_gizmo_action = ROTATE;
+    }
+    else if (editor.current_gizmo_action == ROTATE) {
       editor.current_gizmo_action = SCALE;
     }
     else if (editor.current_gizmo_action == SCALE) {
@@ -684,6 +710,34 @@ static void HandleSelectedObjectScaleActions(Tachyon* tachyon, State& state) {
 
 /**
  * ----------------------------
+ * Handler for rotating selected objects.
+ * ----------------------------
+ */
+static void HandleSelectedObjectRotateActions(Tachyon* tachyon, State& state) {
+  auto& camera = tachyon->scene.camera;
+  auto& placeholder = editor.current_selectable.placeholder;
+  float scale_speed = (placeholder.position - camera.position).magnitude() / 4000.f;
+
+  if (abs(tachyon->mouse_delta_x) > abs(tachyon->mouse_delta_y)) {
+    placeholder.rotation *= Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), (float)tachyon->mouse_delta_x * 0.001f);
+  } else {
+    // @todo
+  }
+
+  // @optimize We don't need to do this every time the object is moved!
+  // It would be perfectly acceptable to do this on deselection.
+  if (editor.current_selectable.is_entity) {
+    // Find and sync the scale of the original entity
+    auto* entity = EntityManager::FindEntity(state, editor.current_selectable.entity_record);
+
+    entity->orientation = placeholder.rotation;
+  }
+
+  commit(placeholder);
+}
+
+/**
+ * ----------------------------
  * Handler for manipulating selected objects with the mouse.
  * ----------------------------
  */
@@ -697,6 +751,9 @@ static void HandleSelectedObjectActions(Tachyon* tachyon, State& state) {
   }
   else if (editor.current_gizmo_action == SCALE) {
     HandleSelectedObjectScaleActions(tachyon, state);
+  }
+  else if (editor.current_gizmo_action == ROTATE) {
+    HandleSelectedObjectRotateActions(tachyon, state);
   }
 }
 

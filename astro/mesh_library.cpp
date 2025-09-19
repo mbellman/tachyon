@@ -30,9 +30,11 @@ static void AddEditorMeshes(Tachyon* tachyon, State& state) {
 
   meshes.gizmo_arrow = MODEL_MESH("./astro/3d_models/editor/gizmo_arrow.obj", 3);
   meshes.gizmo_resizer = MODEL_MESH("./astro/3d_models/editor/gizmo_resizer.obj", 3);
+  meshes.gizmo_rotator = MODEL_MESH("./astro/3d_models/editor/gizmo_rotator.obj", 3);
 
   mesh(meshes.gizmo_arrow).shadow_cascade_ceiling = 0;
   mesh(meshes.gizmo_resizer).shadow_cascade_ceiling = 0;
+  mesh(meshes.gizmo_rotator).shadow_cascade_ceiling = 0;
 }
 
 void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
