@@ -19,7 +19,6 @@ void ObjectManager::CreateObjects(Tachyon* tachyon, State& state) {
 
   create(meshes.player);
 
-  create(meshes.ground_plane);
   create(meshes.water_plane);
 
   create(meshes.astrolabe_base);

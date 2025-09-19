@@ -31,7 +31,8 @@ uint16 DataLoader::MeshIndexToId(State& state, uint16 mesh_index) {
 
   const static std::map<uint16, uint16> mesh_map = {
     { meshes.rock_1, 1 },
-    { meshes.ground_1, 2 }
+    { meshes.ground_1, 2 },
+    { meshes.flat_ground, 3 }
   };
 
   return mesh_map.at(mesh_index);
@@ -42,7 +43,8 @@ uint16 DataLoader::MeshIdToIndex(State& state, uint16 mesh_id) {
 
   const static std::map<uint16, uint16> mesh_map = {
     { 1, meshes.rock_1 },
-    { 2, meshes.ground_1 }
+    { 2, meshes.ground_1 },
+    { 3, meshes.flat_ground }
   };
 
   return mesh_map.at(mesh_id);
@@ -68,7 +70,6 @@ void DataLoader::LoadLevelData(Tachyon* tachyon, State& state) {
       EntityType entity_type = (EntityType)stoi(parts[0].substr(1));
       GameEntity entity = EntityManager::CreateNewEntity(state, entity_type);
 
-      entity.type = (EntityType)stoi(parts[0].substr(1));
       entity.position = parse_vec3f(1, 2, 3);
       entity.scale = parse_vec3f(4, 5, 6);
       entity.orientation = parse_quaternion(7, 8, 9, 10);

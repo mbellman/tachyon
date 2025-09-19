@@ -106,6 +106,7 @@ std::vector<uint16>& GetDecorativeMeshes(State& state) {
   auto& meshes = state.meshes;
 
   static std::vector<uint16> decorative_meshes = {
+    meshes.flat_ground,
     meshes.rock_1,
     meshes.ground_1
   };
@@ -658,6 +659,11 @@ static void HandleSelectedObjectPositionActions(Tachyon* tachyon, State& state) 
     placeholder.position -= move_axis * move_speed * (float)tachyon->mouse_delta_y;
   }
 
+  // @temporary
+  if (placeholder.mesh_index == state.meshes.flat_ground) {
+    placeholder.position.y = -1500.f;
+  }
+
   // @optimize We don't need to do this every time the object is moved!
   // It would be perfectly acceptable to do this on deselection.
   if (editor.current_selectable.is_entity) {
@@ -694,6 +700,11 @@ static void HandleSelectedObjectScaleActions(Tachyon* tachyon, State& state) {
     tVec3f scale_axis = tVec3f(0, 1.f, 0);
 
     placeholder.scale -= scale_axis * scale_speed * (float)tachyon->mouse_delta_y;
+  }
+
+  // @temporary
+  if (placeholder.mesh_index == state.meshes.flat_ground) {
+    placeholder.scale.y = 1.f;
   }
 
   // @optimize We don't need to do this every time the object is moved!
@@ -764,6 +775,20 @@ static void HandleSelectedObjectActions(Tachyon* tachyon, State& state) {
  */
 static void CreateDecorativeObject(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
+
+  // @temporary
+  // {
+  //   auto& ground = create(state.meshes.flat_ground);
+
+  //   ground.position = camera.position + camera.orientation.getDirection() * 5000.f;
+  //   ground.position.y = -1500.f;
+  //   ground.scale = tVec3f(5000.f, 1.f, 5000.f);
+  //   ground.color = tVec3f(0.4f, 0.5f, 0.1f);
+
+  //   commit(ground);
+
+  //   TrackDecorativeObject(ground);
+  // }
 
   // @temporary
   {

@@ -32,17 +32,6 @@ static void UpdateWaterPlane(Tachyon* tachyon, State& state) {
   commit(water_plane);
 }
 
-static void UpdateGroundPlane(Tachyon* tachyon, State& state) {
-  auto& ground_plane = objects(state.meshes.ground_plane)[0];
-
-  // @temporary
-  ground_plane.position = tVec3f(0, -1500.f, 2500.f);
-  ground_plane.scale = tVec3f(20000.f, 1.f, 5000.f);
-  ground_plane.color = tVec3f(0.4f, 0.5f, 0.1f);
-
-  commit(ground_plane);
-}
-
 // @todo move to its own file
 static tVec3f GetRoomCameraPosition(Tachyon* tachyon, State& state) {
   // @temporary
@@ -251,7 +240,6 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
 
   UpdatePlayer(tachyon, state);
   UpdateWaterPlane(tachyon, state);
-  UpdateGroundPlane(tachyon, state);
   UpdateCamera(tachyon, state, dt);
   UpdateAstrolabe(tachyon, state);
 

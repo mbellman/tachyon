@@ -21,6 +21,7 @@ static void AddHUDMeshes(Tachyon* tachyon, State& state) {
 static void AddDecorativeMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
+  meshes.flat_ground = PLANE_MESH(100);
   meshes.rock_1 = MODEL_MESH("./astro/3d_models/rock_1.obj", 100);
   meshes.ground_1 = MODEL_MESH("./astro/3d_models/ground_1.obj", 100);
 }
@@ -42,7 +43,6 @@ void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
 
   meshes.player = CUBE_MESH(1);
 
-  meshes.ground_plane = PLANE_MESH(1);
   meshes.water_plane = PLANE_MESH(1);
 
   AddHUDMeshes(tachyon, state);

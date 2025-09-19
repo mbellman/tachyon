@@ -26,7 +26,7 @@ tOpenGLMeshPack Tachyon_CreateOpenGLMeshPack(Tachyon* tachyon) {
   // Buffer vertex data
   glBindBuffer(GL_ARRAY_BUFFER, glPack.buffers[VERTEX_BUFFER]);
   glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(tVertex), vertices.data(), GL_STATIC_DRAW);
-  
+
   // Buffer vertex element data
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glPack.ebo);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, faceElements.size() * sizeof(uint32), faceElements.data(), GL_STATIC_DRAW);

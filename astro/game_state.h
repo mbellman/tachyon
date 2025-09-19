@@ -13,7 +13,6 @@ namespace astro {
       player,
 
       // Static environment meshes
-      ground_plane,
       water_plane,
 
       // HUD meshes
@@ -22,6 +21,7 @@ namespace astro {
       astrolabe_hand,
 
       // Decorative meshes
+      flat_ground,
       rock_1,
       ground_1,
 
