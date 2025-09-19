@@ -67,16 +67,16 @@ static inline std::string Serialize(tColor& color) {
  * for storage in a level data file.
  * ----------------------------
  */
-std::string SerializeEntity(GameEntity* entity) {
+std::string SerializeEntity(const GameEntity& entity) {
   return (
     "@" +
-    std::to_string(entity->type) + "," +
-    Serialize(entity->position) + "," +
-    Serialize(entity->scale) + "," +
-    Serialize(entity->orientation) + "," +
-    Serialize(entity->tint) + "," +
-    std::to_string(entity->astro_start_time) + "," +
-    std::to_string(entity->astro_end_time)
+    std::to_string(entity.type) + "," +
+    Serialize(entity.position) + "," +
+    Serialize(entity.scale) + "," +
+    Serialize(entity.orientation) + "," +
+    Serialize(entity.tint) + "," +
+    std::to_string(entity.astro_start_time) + "," +
+    std::to_string(entity.astro_end_time)
   );
 }
 
@@ -99,23 +99,48 @@ std::string SerializeObject(State& state, tObject& object) {
 
 /**
  * ----------------------------
+ * Returns a list of all decorative mesh indexes.
+ * ----------------------------
+ */
+std::vector<uint16>& GetDecorativeMeshes(State& state) {
+  auto& meshes = state.meshes;
+
+  static std::vector<uint16> decorative_meshes = {
+    meshes.rock_1,
+    meshes.ground_1
+  };
+
+  return decorative_meshes;
+}
+
+/**
+ * ----------------------------
  * Writes all entities/objects in the level to a file.
  * ----------------------------
  */
-void SaveLevelData(State& state) {
+void SaveLevelData(Tachyon* tachyon, State& state) {
   std::string level_data = "";
 
-  for (auto& selectable : editor.selectables) {
-    if (selectable.is_entity) {
-      auto* entity = EntityManager::FindEntity(state, selectable.entity_record);
+  for_all_entity_types() {
+    for_entities_of_type(type) {
+      auto& entity = entities[i];
 
-      if (entity != nullptr) {
-        level_data += SerializeEntity(entity) + "\n";
-      } else {
-        // @todo log error?
+      level_data += SerializeEntity(entity) + "\n";
+    }
+  }
+
+  for (auto mesh_index : GetDecorativeMeshes(state)) {
+    auto& objects = objects(mesh_index);
+
+    // Perform a sequence-preserving loop over the objects
+    // to ensure they always serialize in the same order
+    // (e.g. if objects are removed/shuffled during runtime)
+    for (uint16 id = 0; id <= objects.highest_used_id; id++) {
+      tObject* object = objects.getById(id);
+
+      if (object != nullptr) {
+        level_data += SerializeObject(state, *object) + "\n";
       }
-    } else {
-      level_data += SerializeObject(state, selectable.placeholder) + "\n";
     }
   }
 
@@ -503,7 +528,7 @@ static void DeselectCurrent(Tachyon* tachyon, State& state) {
 
   DestroyGizmo(tachyon, state);
   SyncSelectables(tachyon);
-  SaveLevelData(state);
+  SaveLevelData(tachyon, state);
 }
 
 /**
@@ -780,14 +805,7 @@ static void SpawnEntityPlaceholders(Tachyon* tachyon, State& state) {
  * ----------------------------
  */
 static void TrackDecorativeObjects(Tachyon* tachyon, State& state) {
-  auto& meshes = state.meshes;
-
-  auto decorative_meshes = {
-    meshes.rock_1,
-    meshes.ground_1
-  };
-
-  for (auto mesh_index : decorative_meshes) {
+  for (auto mesh_index : GetDecorativeMeshes(state)) {
     for (auto& object : objects(mesh_index)) {
       TrackDecorativeObject(object);
     }
@@ -848,7 +866,7 @@ void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
     DeselectCurrent(tachyon, state);
   }
 
-  SaveLevelData(state);
+  SaveLevelData(tachyon, state);
   RemoveEntityPlaceholders(tachyon, state);
 
   editor.selectables.clear();
