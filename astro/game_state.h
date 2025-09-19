@@ -6,6 +6,8 @@
 #include "engine/tachyon_types.h"
 #include "astro/entities.h"
 
+#define for_entities(array) for (uint16 i = 0; i < (uint16)array.size(); i++)
+
 namespace astro {
   struct MeshIds {
     uint16
@@ -36,7 +38,12 @@ namespace astro {
       // WILLOW_TREE
       willow_tree_placeholder,
       willow_tree_trunk,
-      
+
+      // SMALL_STONE_BRIDGE
+      small_stone_bridge_placeholder,
+      small_stone_bridge_columns,
+      small_stone_bridge_base,
+
       // Editor meshes
       // @todo dev mode only
       gizmo_arrow,
@@ -56,6 +63,7 @@ namespace astro {
     std::vector<GameEntity> shrubs;
     std::vector<GameEntity> oak_trees;
     std::vector<GameEntity> willow_trees;
+    std::vector<GameEntity> small_stone_bridges;
 
     // @todo dev mode only
     tUIText* debug_text = nullptr;

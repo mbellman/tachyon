@@ -3,8 +3,6 @@
 #include "astro/entities.h"
 #include "astro/game_state.h"
 
-#define for_entities(array) for (uint16 i = 0; i < (uint16)array.size(); i++)
-
 #define for_all_entity_types() for (auto type : entity_types)
 
 #define for_entities_of_type(__type)\

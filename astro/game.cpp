@@ -24,7 +24,7 @@ static void UpdateWaterPlane(Tachyon* tachyon, State& state) {
   auto& water_plane = objects(state.meshes.water_plane)[0];
 
   // @temporary
-  water_plane.position = tVec3f(0, -2500.f, 0);
+  water_plane.position = tVec3f(0, -3000.f, 0);
   water_plane.scale = tVec3f(40000.f, 1.f, 40000.f);
   water_plane.color = tVec3f(0, 0.1f, 0.3f);
   water_plane.material = tVec4f(0.1f, 1.f, 0, 0.5f);
@@ -65,6 +65,16 @@ static void UpdateCamera(Tachyon* tachyon, State& state, const float dt) {
   new_camera_position.x = room_camera_position.x + distance_from_room_center.x * 0.1f;
   new_camera_position.y = 10000.f;
   new_camera_position.z = 10000.f + room_camera_position.z + distance_from_room_center.z * 0.1f;
+
+  // @temporary
+  int32 room_x = (int32)roundf(state.player_position.x / 16000.f);
+  int32 room_z = (int32)roundf(state.player_position.z / 16000.f);
+
+  if (room_x != 0 || room_z != 0) {
+    new_camera_position = state.player_position;
+    new_camera_position.y += 10000.f;
+    new_camera_position.z += 7000.f;
+  }
 
   camera.position = tVec3f::lerp(camera.position, new_camera_position, 5.f * dt);
 

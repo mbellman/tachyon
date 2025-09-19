@@ -55,9 +55,12 @@ void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
   meshes.shrub_branches = CUBE_MESH(100);
   meshes.oak_tree_trunk = CUBE_MESH(100);
   meshes.willow_tree_trunk = CUBE_MESH(100);
+  meshes.small_stone_bridge_base = MODEL_MESH("./astro/3d_models/small_stone_bridge/base.obj", 100);
+  meshes.small_stone_bridge_columns = MODEL_MESH("./astro/3d_models/small_stone_bridge/columns.obj", 100);
 
   // @todo factor
   meshes.shrub_placeholder = CUBE_MESH(100);
   meshes.oak_tree_placeholder = CUBE_MESH(100);
   meshes.willow_tree_placeholder = CUBE_MESH(100);
+  meshes.small_stone_bridge_placeholder = MODEL_MESH("./astro/3d_models/small_stone_bridge/placeholder.obj", 100);
 }

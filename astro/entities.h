@@ -7,13 +7,15 @@ namespace astro {
     UNSPECIFIED = -1,
     SHRUB,
     OAK_TREE,
-    WILLOW_TREE
+    WILLOW_TREE,
+    SMALL_STONE_BRIDGE
   };
 
   static std::vector<EntityType> entity_types = {
     SHRUB,
     OAK_TREE,
-    WILLOW_TREE
+    WILLOW_TREE,
+    SMALL_STONE_BRIDGE
   };
 
   struct EntityRecord {

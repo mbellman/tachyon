@@ -34,9 +34,12 @@ struct LevelEditorState {
   std::vector<Selectable> selectables;
   // @todo allow multiple?
   Selectable current_selectable;
-  bool is_object_selected = false;
   GizmoAction current_gizmo_action = POSITION;
   int32 current_decorative_mesh_index = 0;
+  int32 current_entity_index = 0;
+
+  bool is_object_selected = false;
+  bool should_place_entity = false;
 } editor;
 
 /**
@@ -169,6 +172,25 @@ void SaveLevelData(Tachyon* tachyon, State& state) {
   }
 
   Tachyon_WriteFileContents("./astro/level_data/level.txt", level_data);
+}
+
+/**
+ * ----------------------------
+ * Finds the global axis most similar to a given vector.
+ * ----------------------------
+ */
+static tVec3f GetClosestWorldAxis(const tVec3f& vector) {
+  float abs_x = abs(vector.x);
+  float abs_y = abs(vector.y);
+  float abs_z = abs(vector.z);
+
+  if (abs_x > abs_y && abs_x > abs_z) {
+    return tVec3f(vector.x, 0, 0).unit();
+  } else if (abs_y > abs_x && abs_y > abs_z) {
+    return tVec3f(0, vector.y, 0).unit();
+  } else {
+    return tVec3f(0, 0, vector.z).unit();
+  }
 }
 
 /**
@@ -542,6 +564,69 @@ static void CycleGizmoAction(Tachyon* tachyon, State& state, int8 direction) {
 
 /**
  * ----------------------------
+ * Cycles between decorative meshes.
+ * ----------------------------
+ */
+static void CycleDecorativeMeshes(Tachyon* tachyon, State& state, int8 direction) {
+  editor.should_place_entity = false;
+
+  auto& decorative_meshes = GetDecorativeMeshes(state);
+
+  if (direction == 1) {
+    editor.current_decorative_mesh_index++;
+
+    if (editor.current_decorative_mesh_index > decorative_meshes.size() - 1) {
+      editor.current_decorative_mesh_index = 0;
+    }
+  }
+  else if (direction == -1) {
+    editor.current_decorative_mesh_index--;
+
+    if (editor.current_decorative_mesh_index < 0) {
+      editor.current_decorative_mesh_index = decorative_meshes.size() - 1;
+    }
+  }
+
+  show_alert_message("Active mesh: " + decorative_meshes[editor.current_decorative_mesh_index].mesh_name);
+}
+
+/**
+ * ----------------------------
+ * Cycles between entities.
+ * ----------------------------
+ */
+static void CycleEntities(Tachyon* tachyon, State& state, int8 direction) {
+  editor.should_place_entity = true;
+
+  if (direction == 1) {
+    editor.current_entity_index++;
+
+    if (editor.current_entity_index > entity_types.size() - 1) {
+      editor.current_entity_index = 0;
+    }
+  }
+  else if (direction == -1) {
+    editor.current_entity_index--;
+
+    if (editor.current_entity_index < 0) {
+      editor.current_entity_index = entity_types.size() - 1;
+    }
+  }
+
+  // @todo refactor
+  std::string entity_name;
+  auto entity_type = entity_types[editor.current_entity_index];
+
+  if (entity_type == SHRUB) entity_name = "Shrub";
+  if (entity_type == OAK_TREE) entity_name = "Oak Tree";
+  if (entity_type == WILLOW_TREE) entity_name = "Willow Tree";
+  if (entity_type == SMALL_STONE_BRIDGE) entity_name = "Small stone bridge";
+
+  show_alert_message("Active entity: " + entity_name);
+}
+
+/**
+ * ----------------------------
  * Selects a given Selectable, either an entity or plain object.
  * ----------------------------
  */
@@ -621,45 +706,58 @@ static void MaybeMakeSelection(Tachyon* tachyon, State& state) {
 
 /**
  * ----------------------------
- * Deletes the currently-selected entity or object.
+ * Creates a normal object and adds it to the scene.
  * ----------------------------
  */
-static void DeleteSelectedObject(Tachyon* tachyon, State& state) {
-  auto& selected = editor.current_selectable;
+static void CreateDecorativeObject(Tachyon* tachyon, State& state) {
+  auto& camera = tachyon->scene.camera;
+  auto& decorative_meshes = GetDecorativeMeshes(state);
+  auto& current_decorative_mesh = decorative_meshes[editor.current_decorative_mesh_index];
+  auto& object = create(current_decorative_mesh.mesh_index);
 
-  remove(selected.placeholder);
+  object.scale = current_decorative_mesh.default_scale;
+  object.color = current_decorative_mesh.default_color;
 
-  if (selected.is_entity) {
-    ForgetSelectableEntity(selected.entity_record.id);
-
-    EntityManager::DeleteEntity(state, selected.entity_record);
-    EntityDispatcher::DestroyObjects(tachyon, state, selected.entity_record.type);
+  // @temporary
+  // @todo define various restrictions/defaults on how certain
+  // decorative mesh objects are spawned or can be manipulated
+  if (current_decorative_mesh.mesh_index == state.meshes.flat_ground) {
+    object.position = camera.position + camera.orientation.getDirection() * abs(camera.position.y) * 1.5f;
+    object.position.y = -1500.f;
   } else {
-    ForgetSelectableObject(selected.placeholder);
+    object.position = camera.position + camera.orientation.getDirection() * 7500.f;
   }
 
-  DestroyGizmo(tachyon, state);
+  commit(object);
 
-  editor.is_object_selected = false;
+  TrackDecorativeObject(object);
+  MakeSelection(tachyon, state, editor.selectables.back());
 }
 
 /**
  * ----------------------------
- * Finds the global axis most similar to a given vector.
+ * Creates an entity and adds it to the scene.
  * ----------------------------
  */
-static tVec3f GetClosestWorldAxis(const tVec3f& vector) {
-  float abs_x = abs(vector.x);
-  float abs_y = abs(vector.y);
-  float abs_z = abs(vector.z);
+static void CreateEntity(Tachyon* tachyon, State& state) {
+  auto& camera = tachyon->scene.camera;
 
-  if (abs_x > abs_y && abs_x > abs_z) {
-    return tVec3f(vector.x, 0, 0).unit();
-  } else if (abs_y > abs_x && abs_y > abs_z) {
-    return tVec3f(0, vector.y, 0).unit();
-  } else {
-    return tVec3f(0, 0, vector.z).unit();
-  }
+  EntityType entity_type = entity_types[editor.current_entity_index];
+  GameEntity entity = EntityManager::CreateNewEntity(state, entity_type);
+
+  entity.position = camera.position + camera.orientation.getDirection() * 7500.f;
+  // @temporary
+  entity.scale = tVec3f(500.f);
+  entity.orientation = Quaternion(1.f, 0, 0, 0);
+  entity.tint = tVec3f(1.f);
+  entity.astro_start_time = -50.f;
+
+  EntityManager::SaveNewEntity(state, entity);
+  EntityDispatcher::SpawnObjects(tachyon, state, entity);
+
+  auto& placeholder = EntityDispatcher::CreatePlaceholder(tachyon, state, entity);
+
+  TrackSelectableEntity(entity, placeholder);
 }
 
 /**
@@ -794,63 +892,26 @@ static void HandleSelectedObjectActions(Tachyon* tachyon, State& state) {
 
 /**
  * ----------------------------
- * Creates a normal object and adds it to the scene.
+ * Deletes the currently-selected entity or object.
  * ----------------------------
  */
-static void CreateDecorativeObject(Tachyon* tachyon, State& state) {
-  auto& camera = tachyon->scene.camera;
-  auto& decorative_meshes = GetDecorativeMeshes(state);
-  auto& current_decorative_mesh = decorative_meshes[editor.current_decorative_mesh_index];
-  auto& object = create(current_decorative_mesh.mesh_index);
+static void DeleteSelectedObject(Tachyon* tachyon, State& state) {
+  auto& selected = editor.current_selectable;
 
-  object.scale = current_decorative_mesh.default_scale;
-  object.color = current_decorative_mesh.default_color;
+  remove(selected.placeholder);
 
-  // @temporary
-  // @todo define various restrictions/defaults on how certain
-  // decorative mesh objects are spawned or can be manipulated
-  if (current_decorative_mesh.mesh_index == state.meshes.flat_ground) {
-    object.position = camera.position + camera.orientation.getDirection() * abs(camera.position.y) * 1.5f;
-    object.position.y = -1500.f;
+  if (selected.is_entity) {
+    ForgetSelectableEntity(selected.entity_record.id);
+
+    EntityManager::DeleteEntity(state, selected.entity_record);
+    EntityDispatcher::DestroyObjects(tachyon, state, selected.entity_record.type);
   } else {
-    object.position = camera.position + camera.orientation.getDirection() * 7500.f;
+    ForgetSelectableObject(selected.placeholder);
   }
 
-  commit(object);
+  DestroyGizmo(tachyon, state);
 
-  TrackDecorativeObject(object);
-
-  MakeSelection(tachyon, state, editor.selectables.back());
-}
-
-static void CycleDecorativeMesh(Tachyon* tachyon, State& state, int8 direction) {
-  auto& decorative_meshes = GetDecorativeMeshes(state);
-
-  if (direction == 1) {
-    editor.current_decorative_mesh_index++;
-
-    if (editor.current_decorative_mesh_index > decorative_meshes.size() - 1) {
-      editor.current_decorative_mesh_index = 0;
-    }
-  }
-  else if (direction == -1) {
-    editor.current_decorative_mesh_index--;
-
-    if (editor.current_decorative_mesh_index < 0) {
-      editor.current_decorative_mesh_index = decorative_meshes.size() - 1;
-    }
-  }
-
-  show_alert_message("Active mesh: " + decorative_meshes[editor.current_decorative_mesh_index].mesh_name);
-}
-
-/**
- * ----------------------------
- * Creates an entity and adds it to the scene.
- * ----------------------------
- */
-static void CreateEntity(Tachyon* tachyon, State& state) {
-  // @todo
+  editor.is_object_selected = false;
 }
 
 /**
@@ -886,15 +947,27 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
   }
 
   if (did_press_key(tKey::ARROW_LEFT)) {
-    CycleDecorativeMesh(tachyon, state, -1);
+    CycleDecorativeMeshes(tachyon, state, -1);
   }
 
   if (did_press_key(tKey::ARROW_RIGHT)) {
-    CycleDecorativeMesh(tachyon, state, 1);
+    CycleDecorativeMeshes(tachyon, state, 1);
+  }
+
+  if (did_press_key(tKey::ARROW_UP)) {
+    CycleEntities(tachyon, state, -1);
+  }
+
+  if (did_press_key(tKey::ARROW_DOWN)) {
+    CycleEntities(tachyon, state, 1);
   }
 
   if (did_press_key(tKey::ENTER)) {
-    CreateDecorativeObject(tachyon, state);
+    if (editor.should_place_entity) {
+      CreateEntity(tachyon, state);
+    } else {
+      CreateDecorativeObject(tachyon, state);
+    }
   }
 }
 
@@ -955,6 +1028,8 @@ void LevelEditor::OpenLevelEditor(Tachyon* tachyon, State& state) {
   objects(meshes.oak_tree_trunk).disabled = true;
   objects(meshes.willow_tree_trunk).disabled = true;
   objects(meshes.shrub_branches).disabled = true;
+  objects(meshes.small_stone_bridge_base).disabled = true;
+  objects(meshes.small_stone_bridge_columns).disabled = true;
 
   editor.selectables.clear();
 
@@ -978,6 +1053,8 @@ void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
   objects(meshes.oak_tree_trunk).disabled = false;
   objects(meshes.willow_tree_trunk).disabled = false;
   objects(meshes.shrub_branches).disabled = false;
+  objects(meshes.small_stone_bridge_base).disabled = false;
+  objects(meshes.small_stone_bridge_columns).disabled = false;
 
   if (editor.is_object_selected) {
     DeselectCurrent(tachyon, state);
