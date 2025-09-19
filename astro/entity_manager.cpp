@@ -29,14 +29,12 @@ static inline void DeleteEntityByRecord(std::vector<GameEntity>& entities, const
   }
 }
 
-EntityRecord EntityManager::CreateEntity(State& state, EntityType type) {
+GameEntity EntityManager::CreateNewEntity(State& state, EntityType type) {
   GameEntity entity;
   entity.type = type;
   entity.id = running_entity_id++;
 
-  SaveNewEntity(state, entity);
-
-  return { entity.id, type };
+  return entity;
 }
 
 void EntityManager::SaveNewEntity(State& state, const GameEntity& entity) {

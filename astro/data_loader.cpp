@@ -65,8 +65,9 @@ void DataLoader::LoadLevelData(Tachyon* tachyon, State& state) {
     if (line[0] == '@') {
       // Entity
       auto parts = SplitString(line, ",");
+      EntityType entity_type = (EntityType)stoi(parts[0].substr(1));
+      GameEntity entity = EntityManager::CreateNewEntity(state, entity_type);
 
-      GameEntity entity;
       entity.type = (EntityType)stoi(parts[0].substr(1));
       entity.position = parse_vec3f(1, 2, 3);
       entity.scale = parse_vec3f(4, 5, 6);
