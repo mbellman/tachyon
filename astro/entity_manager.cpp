@@ -38,19 +38,19 @@ GameEntity EntityManager::CreateNewEntity(State& state, EntityType type) {
 }
 
 void EntityManager::SaveNewEntity(State& state, const GameEntity& entity) {
-  auto& container = EntityDispatcher::GetAllEntitiesOfType(state, entity.type);
+  auto& container = EntityDispatcher::GetEntityContainer(state, entity.type);
 
   container.push_back(entity);
 }
 
 GameEntity* EntityManager::FindEntity(State& state, const EntityRecord& record) {
-  auto& entities = EntityDispatcher::GetAllEntitiesOfType(state, record.type);
+  auto& entities = EntityDispatcher::GetEntityContainer(state, record.type);
 
   return FindEntityByRecord(entities, record);
 }
 
 void EntityManager::DeleteEntity(State& state, const EntityRecord& record) {
-  auto& entities = EntityDispatcher::GetAllEntitiesOfType(state, record.type);
+  auto& entities = EntityDispatcher::GetEntityContainer(state, record.type);
 
   DeleteEntityByRecord(entities, record);
 }

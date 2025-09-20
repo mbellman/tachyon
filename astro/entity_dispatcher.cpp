@@ -9,7 +9,7 @@
 
 using namespace astro;
 
-#define dispatch_GetAllEntitiesOfType(__entity_type, __entities)\
+#define dispatch_GetEntityContainer(__entity_type, __entities)\
   case __entity_type:\
     return __entities\
 
@@ -36,12 +36,12 @@ using namespace astro;
     __Behavior::_TimeEvolve(tachyon, state);\
     break\
 
-std::vector<GameEntity>& EntityDispatcher::GetAllEntitiesOfType(State& state, EntityType type) {
+std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, EntityType type) {
   switch (type) {
-    dispatch_GetAllEntitiesOfType(SHRUB, state.shrubs);
-    dispatch_GetAllEntitiesOfType(OAK_TREE, state.oak_trees);
-    dispatch_GetAllEntitiesOfType(WILLOW_TREE, state.willow_trees);
-    dispatch_GetAllEntitiesOfType(SMALL_STONE_BRIDGE, state.small_stone_bridges);
+    dispatch_GetEntityContainer(SHRUB, state.shrubs);
+    dispatch_GetEntityContainer(OAK_TREE, state.oak_trees);
+    dispatch_GetEntityContainer(WILLOW_TREE, state.willow_trees);
+    dispatch_GetEntityContainer(SMALL_STONE_BRIDGE, state.small_stone_bridges);
 
     default:
       // @todo log error

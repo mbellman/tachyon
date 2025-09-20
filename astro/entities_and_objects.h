@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "astro/game_state.h"
-#include "astro/entities.h"
+#include "astro/entity_types.h"
 
 namespace astro {
   struct EntityDefaults {

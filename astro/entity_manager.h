@@ -1,6 +1,6 @@
 #pragma once
 
-#include "astro/entities.h"
+#include "astro/entity_types.h"
 #include "astro/game_state.h"
 
 namespace astro {
