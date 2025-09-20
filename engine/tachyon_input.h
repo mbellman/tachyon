@@ -8,6 +8,7 @@
 #define did_press_key(key) (tachyon->pressed_key_state & (uint64)key)
 #define is_key_held(key) (tachyon->held_key_state & (uint64)key)
 #define did_release_key(key) (tachyon->released_key_state & (uint64)key)
+#define get_text_input() (tachyon->text_input)
 #define did_wheel_up() (tachyon->wheel_direction > 0)
 #define did_wheel_down() (tachyon->wheel_direction < 0)
 #define did_left_click_down() (tachyon->did_left_click_down)

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <string>
 #include <vector>
 
 #include "astro/game_state.h"
@@ -8,6 +9,7 @@
 
 namespace astro {
   struct EntityDefaults {
+    std::string name;
     tVec3f scale;
     tVec3f orientation;
     tVec3f tint;
@@ -23,22 +25,26 @@ namespace astro {
   static EntityDefaults& GetEntityDefaults(EntityType type) {
     static std::map<EntityType, EntityDefaults> entity_defaults_map = {
       { SHRUB, {
+        .name = "Shrub",
         .scale = tVec3f(500.f),
         .tint = tVec3f(0.2f, 0.8f, 0.5f)
       } },
 
       { OAK_TREE, {
+        .name = "Oak Tree",
         .scale = tVec3f(500.f, 2000.f, 500.f ),
         .tint = tVec3f(1.f, 0.6f, 0.3f)
       } },
 
       { WILLOW_TREE, {
         // @todo
+        .name = "Willow Tree",
         .scale = tVec3f(500.f, 2000.f, 500.f ),
         .tint = tVec3f(1.f, 0.6f, 0.3f )
       } },
 
       { SMALL_STONE_BRIDGE, {
+        .name = "Small Stone Bridge",
         .scale = tVec3f(3000.f),
         .tint = tVec3f(0.6f)
       } }

@@ -493,7 +493,6 @@ float GetSSAO(int total_samples, float depth, vec3 position, vec3 normal, float 
     vec3 world_sample_position = position + tbn_sample_position * radius;
     vec3 view_sample_position = (view_matrix * vec4(world_sample_position, 1.0)).xyz;
     vec2 screen_sample_uv = GetScreenCoordinates(view_sample_position, projection_matrix);
-    // float sample_depth = textureLod(texColorAndDepth, screen_sample_uv, 1).w;
     float sample_depth = texture(in_normal_and_depth, screen_sample_uv).w;
     float world_depth = GetWorldDepth(sample_depth, Z_NEAR, Z_FAR);
 

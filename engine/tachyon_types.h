@@ -210,6 +210,7 @@ struct Tachyon {
   uint64 held_key_state = 0;
   uint64 pressed_key_state = 0;
   uint64 released_key_state = 0;
+  char text_input;
   int32 mouse_delta_x = 0;
   int32 mouse_delta_y = 0;
   tVec2f left_stick;

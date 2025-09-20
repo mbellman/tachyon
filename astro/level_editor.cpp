@@ -34,7 +34,28 @@ struct LevelEditorState {
 
   bool is_object_selected = false;
   bool should_place_entity = false;
+
+  // @todo improve how we manage editing steps
+  bool is_editing_entity_properties = false;
+  bool setting_astro_start_time = false;
+  bool setting_astro_end_time = false;
+  std::string edited_entity_property_value = "";
 } editor;
+
+/**
+ * ----------------------------
+ * Exception-safe wrapper around stof().
+ * ----------------------------
+ */
+static inline float ToFloat(const std::string& string, const float fallback) {
+  try {
+    auto f = stof(string);
+
+    return f;
+  } catch (const std::invalid_argument& e) {
+    return fallback;
+  }
+}
 
 /**
  * ----------------------------
@@ -219,20 +240,22 @@ static void HandleCameraActions(Tachyon* tachyon, State& state, const float dt) 
 
   // WASD controls
   {
-    if (is_key_held(tKey::W)) {
-      camera.position += camera.orientation.getDirection() * camera_movement_speed * dt;
-    }
-
-    if (is_key_held(tKey::A)) {
-      camera.position += camera.orientation.getLeftDirection() * camera_movement_speed * dt;
-    }
-
-    if (is_key_held(tKey::D)) {
-      camera.position += camera.orientation.getLeftDirection().invert() * camera_movement_speed * dt;
-    }
-
-    if (is_key_held(tKey::S)) {
-      camera.position += camera.orientation.getDirection().invert() * camera_movement_speed * dt;
+    if (!editor.is_editing_entity_properties) {
+      if (is_key_held(tKey::W)) {
+        camera.position += camera.orientation.getDirection() * camera_movement_speed * dt;
+      }
+  
+      if (is_key_held(tKey::A)) {
+        camera.position += camera.orientation.getLeftDirection() * camera_movement_speed * dt;
+      }
+  
+      if (is_key_held(tKey::D)) {
+        camera.position += camera.orientation.getLeftDirection().invert() * camera_movement_speed * dt;
+      }
+  
+      if (is_key_held(tKey::S)) {
+        camera.position += camera.orientation.getDirection().invert() * camera_movement_speed * dt;
+      }
     }
   }
 
@@ -575,14 +598,8 @@ static void CycleEntities(Tachyon* tachyon, State& state, int8 direction) {
     }
   }
 
-  // @todo refactor
-  std::string entity_name;
   auto entity_type = entity_types[editor.current_entity_index];
-
-  if (entity_type == SHRUB) entity_name = "Shrub";
-  if (entity_type == OAK_TREE) entity_name = "Oak Tree";
-  if (entity_type == WILLOW_TREE) entity_name = "Willow Tree";
-  if (entity_type == SMALL_STONE_BRIDGE) entity_name = "Small stone bridge";
+  std::string entity_name = GetEntityDefaults(entity_type).name;
 
   show_alert_message("Active entity: " + entity_name);
 }
@@ -855,6 +872,68 @@ static void HandleSelectedObjectActions(Tachyon* tachyon, State& state) {
 
 /**
  * ----------------------------
+ * Initiates the entity property editor flow.
+ * ----------------------------
+ */
+static void StartEditingEntityProperties(Tachyon* tachyon, State& state) {
+  editor.is_editing_entity_properties = true;
+  // @todo set editor step instead
+  editor.setting_astro_start_time = true;
+
+  auto* entity = EntityManager::FindEntity(state, editor.current_selectable.entity_record);
+
+  editor.edited_entity_property_value = "";
+}
+
+/**
+ * ----------------------------
+ * Flow for editing selected entity properties.
+ * ----------------------------
+ */
+static void HandleEntityPropertiesEditor(Tachyon* tachyon, State& state) {
+  auto& entity_record = editor.current_selectable.entity_record;
+  auto& property_value = editor.edited_entity_property_value;
+
+  if (get_text_input()) {
+    property_value += get_text_input();
+  }
+
+  if (did_press_key(tKey::BACKSPACE) && property_value.size() > 0) {
+    property_value.pop_back();
+  }
+
+  // 1. astro_start_time
+  if (
+    editor.setting_astro_start_time &&
+    did_press_key(tKey::ENTER)
+  ) {
+    auto* entity = EntityManager::FindEntity(state, entity_record);
+
+    entity->astro_start_time = ToFloat(property_value, entity->astro_start_time);
+
+    editor.setting_astro_start_time = false;
+    editor.setting_astro_end_time = true;
+
+    editor.edited_entity_property_value = "";
+  }
+  // 2. astro_end_time
+  else if (
+    editor.setting_astro_end_time &&
+    did_press_key(tKey::ENTER)
+  ) {
+    auto* entity = EntityManager::FindEntity(state, entity_record);
+
+    entity->astro_end_time = ToFloat(property_value, entity->astro_end_time);
+
+    editor.setting_astro_end_time = false;
+    editor.is_editing_entity_properties = false;
+
+    editor.edited_entity_property_value = "";
+  }
+}
+
+/**
+ * ----------------------------
  * Deletes the currently-selected entity or object.
  * ----------------------------
  */
@@ -888,11 +967,15 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
   }
 
   if (editor.is_object_selected) {
+    // Selected object/entity actions
     if (is_left_mouse_held_down()) {
       HandleSelectedObjectActions(tachyon, state);
     }
 
-    if (did_press_key(tKey::BACKSPACE)) {
+    if (
+      did_press_key(tKey::BACKSPACE) &&
+      !editor.is_editing_entity_properties
+    ) {
       DeleteSelectedObject(tachyon, state);
     }
 
@@ -907,29 +990,44 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
     if (did_wheel_up()) {
       CycleGizmoAction(tachyon, state, -1);
     }
-  }
 
-  if (did_press_key(tKey::ARROW_LEFT)) {
-    CycleDecorativeMeshes(tachyon, state, -1);
-  }
+    if (
+      did_press_key(tKey::ENTER) &&
+      editor.current_selectable.is_entity &&
+      !editor.is_editing_entity_properties
+    ) {
+      StartEditingEntityProperties(tachyon, state);
+      editor.is_editing_entity_properties = true;
+      // @todo set editor step instead
+      editor.setting_astro_start_time = true;
+    }
+    else if (editor.is_editing_entity_properties) {
+      HandleEntityPropertiesEditor(tachyon, state);
+    }
+  } else {
+    // Free actions
+    if (did_press_key(tKey::ARROW_LEFT)) {
+      CycleDecorativeMeshes(tachyon, state, -1);
+    }
 
-  if (did_press_key(tKey::ARROW_RIGHT)) {
-    CycleDecorativeMeshes(tachyon, state, 1);
-  }
+    if (did_press_key(tKey::ARROW_RIGHT)) {
+      CycleDecorativeMeshes(tachyon, state, 1);
+    }
 
-  if (did_press_key(tKey::ARROW_UP)) {
-    CycleEntities(tachyon, state, -1);
-  }
+    if (did_press_key(tKey::ARROW_UP)) {
+      CycleEntities(tachyon, state, -1);
+    }
 
-  if (did_press_key(tKey::ARROW_DOWN)) {
-    CycleEntities(tachyon, state, 1);
-  }
+    if (did_press_key(tKey::ARROW_DOWN)) {
+      CycleEntities(tachyon, state, 1);
+    }
 
-  if (did_press_key(tKey::ENTER)) {
-    if (editor.should_place_entity) {
-      CreateEntity(tachyon, state);
-    } else {
-      CreateDecorativeObject(tachyon, state);
+    if (did_press_key(tKey::ENTER)) {
+      if (editor.should_place_entity) {
+        CreateEntity(tachyon, state);
+      } else {
+        CreateDecorativeObject(tachyon, state);
+      }
     }
   }
 }
@@ -1002,6 +1100,12 @@ void LevelEditor::OpenLevelEditor(Tachyon* tachyon, State& state) {
 }
 
 void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
+  if (editor.is_editing_entity_properties) {
+    // If we happened to hit the E key while editing entity properties,
+    // ignore the hotkey behavior which normally closes the editor
+    return;
+  }
+
   auto& meshes = state.meshes;
 
   state.is_level_editor_open = false;
@@ -1040,25 +1144,80 @@ void LevelEditor::HandleLevelEditor(Tachyon* tachyon, State& state, const float 
   }
 
   // @todo create a HandleUI() method
-  Tachyon_DrawUIText(tachyon, state.debug_text_large, {
-    .screen_x = tachyon->window_width / 2,
-    .screen_y = 30,
-    .centered = true,
-    .color = tVec3f(1.f),
-    .string = "Level Editor"
-  });
-
-  if (editor.is_object_selected) {
-    std::string message = editor.current_selectable.is_entity
-      ? "Entity selected"
-      : "Object selected";
-
-    Tachyon_DrawUIText(tachyon, state.debug_text, {
+  {
+    Tachyon_DrawUIText(tachyon, state.debug_text_large, {
       .screen_x = tachyon->window_width / 2,
-      .screen_y = 60,
+      .screen_y = 30,
       .centered = true,
       .color = tVec3f(1.f),
-      .string = message
+      .string = "Level Editor"
     });
+
+    if (editor.is_object_selected) {
+      std::string message = editor.current_selectable.is_entity
+        ? "Entity selected"
+        : "Object selected";
+
+      Tachyon_DrawUIText(tachyon, state.debug_text, {
+        .screen_x = tachyon->window_width / 2,
+        .screen_y = 60,
+        .centered = true,
+        .color = tVec3f(1.f),
+        .string = message
+      });
+
+      if (editor.current_selectable.is_entity) {
+        auto& selected = editor.current_selectable;
+        auto& defaults = GetEntityDefaults(selected.entity_record.type);
+        // @todo @optimize
+        auto* entity = EntityManager::FindEntity(state, selected.entity_record);
+
+        Tachyon_DrawUIText(tachyon, state.debug_text, {
+          .screen_x = tachyon->window_width - 400,
+          .screen_y = 20,
+          .centered = false,
+          .color = tVec3f(1.f),
+          .string = "Entity: " + defaults.name
+        });
+
+        bool show_text_cursor = int(roundf(tachyon->running_time * 2.f)) % 2 == 0;
+
+        if (editor.setting_astro_start_time) {
+          Tachyon_DrawUIText(tachyon, state.debug_text, {
+            .screen_x = tachyon->window_width - 400,
+            .screen_y = 45,
+            .centered = false,
+            .color = tVec3f(1.f),
+            .string = "Astro start time: " + editor.edited_entity_property_value + std::string(show_text_cursor ? "|" : "")
+          });
+        } else {
+          Tachyon_DrawUIText(tachyon, state.debug_text, {
+            .screen_x = tachyon->window_width - 400,
+            .screen_y = 45,
+            .centered = false,
+            .color = tVec3f(1.f),
+            .string = "Astro start time: " + Serialize(entity->astro_start_time)
+          });
+        }
+
+        if (editor.setting_astro_end_time) {
+          Tachyon_DrawUIText(tachyon, state.debug_text, {
+            .screen_x = tachyon->window_width - 400,
+            .screen_y = 70,
+            .centered = false,
+            .color = tVec3f(1.f),
+            .string = "Astro end time: " + editor.edited_entity_property_value + std::string(show_text_cursor ? "|" : "")
+          });
+        } else {
+          Tachyon_DrawUIText(tachyon, state.debug_text, {
+            .screen_x = tachyon->window_width - 400,
+            .screen_y = 70,
+            .centered = false,
+            .color = tVec3f(1.f),
+            .string = "Astro end time: " + Serialize(entity->astro_end_time)
+          });
+        }
+      }
+    }
   }
 }

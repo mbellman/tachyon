@@ -44,9 +44,9 @@ namespace astro {
 
       for_entities(state.small_stone_bridges) {
         const auto& bridge = state.small_stone_bridges[i];
+        const float age = state.astro_time - bridge.astro_start_time;
         auto& base = objects(meshes.small_stone_bridge_base)[i];
         auto& columns = objects(meshes.small_stone_bridge_columns)[i];
-        // float life_progress = GetLivingEntityProgress(state, bridge, lifetime);
 
         base.position = bridge.position;
         base.scale = bridge.scale;
@@ -57,6 +57,9 @@ namespace astro {
         columns.scale = bridge.scale;
         columns.rotation = bridge.orientation;
         columns.color = bridge.tint;
+
+        if (age <= 5.f) base.scale = tVec3f(0.f);
+        if (age <= 0.f) columns.scale = tVec3f(0.f);
 
         commit(base);
         commit(columns);

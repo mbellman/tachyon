@@ -66,6 +66,12 @@ const static std::map<Uint8, tKey> controllerButtonMap = {
 
 void Tachyon_HandleInputEvent(Tachyon* tachyon, const SDL_Event& event) {
   switch (event.type) {
+    case SDL_TEXTINPUT: {
+      tachyon->text_input = event.text.text[0];
+
+      break;
+    }
+
     case SDL_KEYDOWN: {
       auto code = event.key.keysym.sym;
 
@@ -208,6 +214,7 @@ void Tachyon_HandleInputEvent(Tachyon* tachyon, const SDL_Event& event) {
 void Tachyon_ResetPerFrameInputState(Tachyon* tachyon) {
   tachyon->pressed_key_state = 0;
   tachyon->released_key_state = 0;
+  tachyon->text_input = (char)0;
   tachyon->mouse_delta_x = 0;
   tachyon->mouse_delta_y = 0;
   tachyon->wheel_direction = 0;
