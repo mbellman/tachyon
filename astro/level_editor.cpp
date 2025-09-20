@@ -5,6 +5,7 @@
 
 #include "astro/level_editor.h"
 #include "astro/data_loader.h"
+#include "astro/entities_and_objects.h"
 #include "astro/entity_manager.h"
 #include "astro/entity_dispatcher.h"
 #include "astro/object_manager.h"
@@ -15,13 +16,6 @@ enum GizmoAction {
   POSITION,
   SCALE,
   ROTATE
-};
-
-struct DecorativeMesh {
-  uint16 mesh_index;
-  std::string mesh_name;
-  tVec3f default_scale;
-  tVec3f default_color;
 };
 
 struct Selectable {
@@ -106,38 +100,6 @@ std::string SerializeObject(State& state, tObject& object) {
     Serialize(object.rotation) + "," +
     Serialize(object.color)
   );
-}
-
-/**
- * ----------------------------
- * Returns a list of all decorative meshes.
- * ----------------------------
- */
-std::vector<DecorativeMesh>& GetDecorativeMeshes(State& state) {
-  auto& meshes = state.meshes;
-
-  static std::vector<DecorativeMesh> decorative_meshes = {
-    {
-      .mesh_index = meshes.rock_1,
-      .mesh_name = "rock_1",
-      .default_scale = tVec3f(500.f),
-      .default_color = tVec3f(0.2f)
-    },
-    {
-      .mesh_index = meshes.ground_1,
-      .mesh_name = "ground_1",
-      .default_scale = tVec3f(2000.f),
-      .default_color = tVec3f(0.4f, 0.7f, 0.2f)
-    },
-    {
-      .mesh_index = meshes.flat_ground,
-      .mesh_name = "flat_ground",
-      .default_scale = tVec3f(5000.f, 1.f, 5000.f),
-      .default_color = tVec3f(0.4f, 0.5f, 0.1f)
-    }
-  };
-
-  return decorative_meshes;
 }
 
 /**
@@ -743,13 +705,14 @@ static void CreateEntity(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
 
   EntityType entity_type = entity_types[editor.current_entity_index];
+  auto& defaults = GetEntityDefaults(entity_type);
   GameEntity entity = EntityManager::CreateNewEntity(state, entity_type);
 
   entity.position = camera.position + camera.orientation.getDirection() * 7500.f;
-  // @temporary
-  entity.scale = tVec3f(500.f);
+  entity.scale = defaults.scale;
   entity.orientation = Quaternion(1.f, 0, 0, 0);
-  entity.tint = tVec3f(1.f);
+  entity.tint = defaults.tint;
+  // @temporary
   entity.astro_start_time = -50.f;
 
   EntityManager::SaveNewEntity(state, entity);
@@ -1086,13 +1049,16 @@ void LevelEditor::HandleLevelEditor(Tachyon* tachyon, State& state, const float 
   });
 
   if (editor.is_object_selected) {
-    // @temporary
+    std::string message = editor.current_selectable.is_entity
+      ? "Entity selected"
+      : "Object selected";
+
     Tachyon_DrawUIText(tachyon, state.debug_text, {
       .screen_x = tachyon->window_width / 2,
       .screen_y = 60,
       .centered = true,
       .color = tVec3f(1.f),
-      .string = "Object selected"
+      .string = message
     });
   }
 }

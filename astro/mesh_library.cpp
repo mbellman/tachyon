@@ -1,4 +1,5 @@
 #include "astro/mesh_library.h"
+#include "astro/entities_and_objects.h"
 
 #define CUBE_MESH(total) Tachyon_AddMesh(tachyon, Tachyon_CreateCubeMesh(), total)
 #define PLANE_MESH(total) Tachyon_AddMesh(tachyon, Tachyon_CreatePlaneMesh(), total)
