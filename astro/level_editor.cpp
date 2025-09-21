@@ -879,9 +879,6 @@ static void StartEditingEntityProperties(Tachyon* tachyon, State& state) {
   editor.is_editing_entity_properties = true;
   // @todo set editor step instead
   editor.editing_astro_start_time = true;
-
-  auto* entity = EntityManager::FindEntity(state, editor.current_selectable.entity_record);
-
   editor.edited_entity_property_value = "";
 }
 
@@ -913,7 +910,6 @@ static void HandleEntityPropertiesEditor(Tachyon* tachyon, State& state) {
 
     editor.editing_astro_start_time = false;
     editor.editing_astro_end_time = true;
-
     editor.edited_entity_property_value = "";
   }
   // 2. astro_end_time
@@ -927,9 +923,61 @@ static void HandleEntityPropertiesEditor(Tachyon* tachyon, State& state) {
 
     editor.editing_astro_end_time = false;
     editor.is_editing_entity_properties = false;
-
     editor.edited_entity_property_value = "";
   }
+}
+
+/**
+ * ----------------------------
+ * Displays information for the current-selected entity.
+ * ----------------------------
+ */
+static void DisplaySelectedEntityProperties(Tachyon* tachyon, State& state) {
+  auto& selected = editor.current_selectable;
+  auto& entity_name = GetEntityDefaults(selected.entity_record.type).name;
+  // @todo @optimize
+  auto* entity = EntityManager::FindEntity(state, selected.entity_record);
+  bool blink_text_cursor = int(roundf(tachyon->running_time * 2.f)) % 2 == 0;
+  std::string text_cursor = blink_text_cursor ? "|" : "";
+
+  static std::vector<std::string> labels;
+
+  labels.clear();
+  labels.push_back("Entity: " + entity_name);
+  labels.push_back("Entity ID: " + std::to_string(entity->id));
+
+  if (editor.editing_astro_start_time) {
+    labels.push_back(".astro_start_time: " + editor.edited_entity_property_value + text_cursor);
+  } else {
+    labels.push_back(".astro_start_time: " + Serialize(entity->astro_start_time));
+  }
+
+  if (editor.editing_astro_end_time) {
+    labels.push_back(".astro_end_time: " + editor.edited_entity_property_value + text_cursor);
+  } else {
+    labels.push_back(".astro_end_time: " + Serialize(entity->astro_end_time));
+  }
+
+  for (int32 i = 0; i < labels.size(); i++) {
+    auto& label = labels[i];
+
+    Tachyon_DrawUIText(tachyon, state.debug_text, {
+      .screen_x = tachyon->window_width - 400,
+      .screen_y = 20 + (i * 25),
+      .centered = false,
+      .color = tVec3f(1.f),
+      .string = label
+    });
+  }
+}
+
+/**
+ * ----------------------------
+ * Displays information for the current-selected object.
+ * ----------------------------
+ */
+static void DisplaySelectedObjectProperties(Tachyon* tachyon, State& state) {
+  // @todo
 }
 
 /**
@@ -937,7 +985,7 @@ static void HandleEntityPropertiesEditor(Tachyon* tachyon, State& state) {
  * Deletes the currently-selected entity or object.
  * ----------------------------
  */
-static void DeleteSelectedObject(Tachyon* tachyon, State& state) {
+static void DeleteSelected(Tachyon* tachyon, State& state) {
   auto& selected = editor.current_selectable;
 
   remove(selected.placeholder);
@@ -986,7 +1034,7 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
       did_press_key(tKey::BACKSPACE) &&
       !editor.is_editing_entity_properties
     ) {
-      DeleteSelectedObject(tachyon, state);
+      DeleteSelected(tachyon, state);
     }
 
     if (did_right_click_down()) {
@@ -1178,56 +1226,7 @@ void LevelEditor::HandleLevelEditor(Tachyon* tachyon, State& state, const float 
       });
 
       if (editor.current_selectable.is_entity) {
-        auto& selected = editor.current_selectable;
-        auto& defaults = GetEntityDefaults(selected.entity_record.type);
-        // @todo @optimize
-        auto* entity = EntityManager::FindEntity(state, selected.entity_record);
-
-        Tachyon_DrawUIText(tachyon, state.debug_text, {
-          .screen_x = tachyon->window_width - 400,
-          .screen_y = 20,
-          .centered = false,
-          .color = tVec3f(1.f),
-          .string = "Entity: " + defaults.name
-        });
-
-        bool show_text_cursor = int(roundf(tachyon->running_time * 2.f)) % 2 == 0;
-
-        if (editor.editing_astro_start_time) {
-          Tachyon_DrawUIText(tachyon, state.debug_text, {
-            .screen_x = tachyon->window_width - 400,
-            .screen_y = 45,
-            .centered = false,
-            .color = tVec3f(1.f),
-            .string = ".astro_start_time: " + editor.edited_entity_property_value + std::string(show_text_cursor ? "|" : "")
-          });
-        } else {
-          Tachyon_DrawUIText(tachyon, state.debug_text, {
-            .screen_x = tachyon->window_width - 400,
-            .screen_y = 45,
-            .centered = false,
-            .color = tVec3f(1.f),
-            .string = ".astro_start_time: " + Serialize(entity->astro_start_time)
-          });
-        }
-
-        if (editor.editing_astro_end_time) {
-          Tachyon_DrawUIText(tachyon, state.debug_text, {
-            .screen_x = tachyon->window_width - 400,
-            .screen_y = 70,
-            .centered = false,
-            .color = tVec3f(1.f),
-            .string = ".astro_end_time: " + editor.edited_entity_property_value + std::string(show_text_cursor ? "|" : "")
-          });
-        } else {
-          Tachyon_DrawUIText(tachyon, state.debug_text, {
-            .screen_x = tachyon->window_width - 400,
-            .screen_y = 70,
-            .centered = false,
-            .color = tVec3f(1.f),
-            .string = ".astro_end_time: " + Serialize(entity->astro_end_time)
-          });
-        }
+        DisplaySelectedEntityProperties(tachyon, state);
       }
     }
   }
