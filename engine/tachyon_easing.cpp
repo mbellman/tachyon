@@ -4,6 +4,10 @@ float Tachyon_Lerpf(const float a, const float b, const float alpha) {
   return a + (b - a) * alpha;
 }
 
+float Tachyon_EaseOutQuad(float t) {
+  return 1.f - (1.f - t) * (1.f - t);
+}
+
 float Tachyon_EaseInOutf(float t) {
   if (t < 0.5f) {
     return 2.f * t * t;

@@ -78,24 +78,28 @@ static void HandleBridgeCollisions(Tachyon* tachyon, State& state) {
 
     // @temporary
     // @todo properly handle collisions for different parts of the bridge
-    Plane plane = {
+    Plane bridge_plane = {
       small_bridge_points[0] * bridge.scale,
       small_bridge_points[1] * bridge.scale,
       small_bridge_points[2] * bridge.scale,
       small_bridge_points[3] * bridge.scale
     };
 
-    tMat4f m = bridge.orientation.toMatrix4f();
+    // @todo @optimize this need not be computed every frame
+    tMat4f r = bridge.orientation.toMatrix4f();
 
-    plane.p1 = bridge.position + m * plane.p1;
-    plane.p2 = bridge.position + m * plane.p2;
-    plane.p3 = bridge.position + m * plane.p3;
-    plane.p4 = bridge.position + m * plane.p4;
+    bridge_plane.p1 = bridge.position + r * bridge_plane.p1;
+    bridge_plane.p2 = bridge.position + r * bridge_plane.p2;
+    bridge_plane.p3 = bridge.position + r * bridge_plane.p3;
+    bridge_plane.p4 = bridge.position + r * bridge_plane.p4;
 
-    tVec3f point = state.player_position * tVec3f(1.f, 0, 1.f);
+    if (IsPointOnPlane(player_position.xz(), bridge_plane)) {
+      tVec3f bridge_to_player = player_position - bridge.position;
+      tVec3f player_position_in_bridge_space = r.inverse() * bridge_to_player;
+      float midpoint_ratio = 1.f - abs(player_position_in_bridge_space.x) / bridge.scale.x;
+      float floor_height = Tachyon_EaseOutQuad(midpoint_ratio);
 
-    if (IsPointOnPlane(point, plane)) {
-      player_position.y = 1000.f;
+      player_position.y = floor_height * bridge.scale.y / 2.75f;
     }
   }
 }
