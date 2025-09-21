@@ -5,6 +5,6 @@
 
 namespace astro {
   namespace CollisionSystem {
-    void HandleCollisions(State& state);
+    void HandleCollisions(Tachyon* Tachyon, State& state);
   }
 }

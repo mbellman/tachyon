@@ -213,7 +213,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
   MeshLibrary::AddMeshes(tachyon, state);
 
   // @todo move to ui.cpp
-  state.debug_text = Tachyon_CreateUIText("./fonts/CascadiaMonoNF.ttf", 20);
+  state.debug_text = Tachyon_CreateUIText("./fonts/CascadiaMonoNF.ttf", 19);
   state.debug_text_large = Tachyon_CreateUIText("./fonts/OpenSans-Regular.ttf", 32);
 
   Tachyon_InitializeObjects(tachyon);
@@ -249,7 +249,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
 
   HandleControls(tachyon, state, dt);
 
-  CollisionSystem::HandleCollisions(state);
+  CollisionSystem::HandleCollisions(tachyon, state);
 
   UpdatePlayer(tachyon, state);
   UpdateWaterPlane(tachyon, state);

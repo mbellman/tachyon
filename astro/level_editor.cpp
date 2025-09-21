@@ -929,6 +929,19 @@ static void HandleEntityPropertiesEditor(Tachyon* tachyon, State& state) {
 
 /**
  * ----------------------------
+ * Formatters for displaying different types of values in the editor HUD.
+ * ----------------------------
+ */
+static std::string FormatForDisplay(const tVec3f& vector) {
+  return std::format("{{ {:.1f}, {:.1f}, {:.1f} }}", vector.x, vector.y, vector.z);
+}
+
+static std::string FormatForDisplay(const Quaternion& q) {
+  return std::format("{{ {:.3f}, {:.3f}, {:.3f}, {:.3f} }}", q.x, q.y, q.z, q.w);
+}
+
+/**
+ * ----------------------------
  * Displays information for the current-selected entity.
  * ----------------------------
  */
@@ -945,6 +958,9 @@ static void DisplaySelectedEntityProperties(Tachyon* tachyon, State& state) {
   labels.clear();
   labels.push_back("Entity: " + entity_name);
   labels.push_back("Entity ID: " + std::to_string(entity->id));
+  labels.push_back("position: " + FormatForDisplay(entity->position));
+  labels.push_back("scale: " + FormatForDisplay(entity->scale));
+  labels.push_back("orientation: " + FormatForDisplay(entity->orientation));
 
   if (editor.editing_astro_start_time) {
     labels.push_back(".astro_start_time: " + editor.edited_entity_property_value + text_cursor);
@@ -962,7 +978,7 @@ static void DisplaySelectedEntityProperties(Tachyon* tachyon, State& state) {
     auto& label = labels[i];
 
     Tachyon_DrawUIText(tachyon, state.debug_text, {
-      .screen_x = tachyon->window_width - 400,
+      .screen_x = tachyon->window_width - 480,
       .screen_y = 20 + (i * 25),
       .centered = false,
       .color = tVec3f(1.f),
@@ -977,7 +993,28 @@ static void DisplaySelectedEntityProperties(Tachyon* tachyon, State& state) {
  * ----------------------------
  */
 static void DisplaySelectedObjectProperties(Tachyon* tachyon, State& state) {
-  // @todo
+  auto& object = editor.current_selectable.placeholder;
+
+  static std::vector<std::string> labels;
+
+  labels.clear();
+  labels.push_back("Mesh: " + std::to_string(object.mesh_index)); // @todo use name
+  labels.push_back("Object ID: " + std::to_string(object.object_id));
+  labels.push_back("position: " + FormatForDisplay(object.position));
+  labels.push_back("scale: " + FormatForDisplay(object.scale));
+  labels.push_back("rotation: " + FormatForDisplay(object.rotation));
+
+  for (int32 i = 0; i < labels.size(); i++) {
+    auto& label = labels[i];
+
+    Tachyon_DrawUIText(tachyon, state.debug_text, {
+      .screen_x = tachyon->window_width - 480,
+      .screen_y = 20 + (i * 25),
+      .centered = false,
+      .color = tVec3f(1.f),
+      .string = label
+    });
+  }
 }
 
 /**
@@ -1227,6 +1264,8 @@ void LevelEditor::HandleLevelEditor(Tachyon* tachyon, State& state, const float 
 
       if (editor.current_selectable.is_entity) {
         DisplaySelectedEntityProperties(tachyon, state);
+      } else {
+        DisplaySelectedObjectProperties(tachyon, state);
       }
     }
   }

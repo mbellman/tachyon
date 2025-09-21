@@ -2,36 +2,42 @@
 
 using namespace astro;
 
-static void HandleRadiusCollisions(State& state, const std::vector<GameEntity>& entities, float radius_scale) {
-  auto& player_position = state.player_position;
+constexpr static float player_radius = 600.f;
 
-  for_entities(entities) {
-    auto& entity = entities[i];
-    auto& position = entity.position;
+static inline void ResolveSingleRadiusCollision(State& state, const tVec3f& position, const tVec3f& scale, float radius_scale) {
+  float radius = scale.x > scale.z
+    ? radius_scale * scale.x
+    : radius_scale * scale.z;
 
-    float radius = entity.visible_scale.x > entity.visible_scale.z
-      ? 2.f * radius_scale * entity.visible_scale.x
-      : 2.f * radius_scale * entity.visible_scale.z;
+  // Skip small or invisible radii
+  if (radius < 0.1f) return;
 
-    // Skip small or invisible radii
-    if (radius < 0.1f) continue;
+  float dx = state.player_position.x - position.x;
+  float dz = state.player_position.z - position.z;
+  float distance = sqrtf(dx*dx + dz*dz) - player_radius;
+  
+  if (distance < radius) {
+    float ratio = radius / distance;
 
-    float dx = player_position.x - position.x;
-    float dz = player_position.z - position.z;
-    float distance = sqrtf(dx*dx + dz*dz);
-    
-    if (distance < radius) {
-      float ratio = radius / distance;
-
-      player_position.x = entity.position.x + dx * ratio;
-      player_position.z = entity.position.z + dz * ratio;
-    }
+    state.player_position.x = position.x + dx * ratio;
+    state.player_position.z = position.z + dz * ratio;
   }
 }
 
-void CollisionSystem::HandleCollisions(State& state) {
-  HandleRadiusCollisions(state, state.shrubs, 1.f);
-  HandleRadiusCollisions(state, state.oak_trees, 1.5f);
+void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
+  for_entities(state.shrubs) {
+    auto& entity = state.shrubs[i];
 
-  // @todo handle collisions for other entity types
+    ResolveSingleRadiusCollision(state, entity.position, entity.visible_scale, 1.5f);
+  }
+
+  for_entities(state.oak_trees) {
+    auto& entity = state.oak_trees[i];
+
+    ResolveSingleRadiusCollision(state, entity.position, entity.visible_scale, 1.5f);
+  }
+
+  for (auto& rock : objects(state.meshes.rock_1)) {
+    ResolveSingleRadiusCollision(state, rock.position, rock.scale, 1.f);
+  }
 }
