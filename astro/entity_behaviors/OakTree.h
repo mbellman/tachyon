@@ -44,7 +44,7 @@ namespace astro {
       // @todo @optimize only iterate over on-screen/in-range entities
       // once that list is built
       for_entities(state.oak_trees) {
-        const auto& tree = state.oak_trees[i];
+        auto& tree = state.oak_trees[i];
         float life_progress = GetLivingEntityProgress(state, tree, lifetime);
 
         // @todo factor
@@ -63,6 +63,9 @@ namespace astro {
 
         trunk.rotation = tree.orientation;
         trunk.color = tree.tint;
+
+        // Collision
+        tree.visible_scale = trunk.scale;
 
         commit(trunk);
       }

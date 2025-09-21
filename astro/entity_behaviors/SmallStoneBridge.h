@@ -43,10 +43,10 @@ namespace astro {
       const float lifetime = 60.f;
 
       for_entities(state.small_stone_bridges) {
-        const auto& bridge = state.small_stone_bridges[i];
-        const float age = state.astro_time - bridge.astro_start_time;
+        auto& bridge = state.small_stone_bridges[i];
         auto& base = objects(meshes.small_stone_bridge_base)[i];
         auto& columns = objects(meshes.small_stone_bridge_columns)[i];
+        const float age = state.astro_time - bridge.astro_start_time;
 
         base.position = bridge.position;
         base.scale = bridge.scale;
@@ -62,6 +62,9 @@ namespace astro {
         if (age < 3.f) columns.scale.y *= 0.5f;
         if (age < 1.5f) columns.scale.y *= 0.5f;
         if (age <= 0.f) columns.scale = tVec3f(0.f);
+
+        // Collision
+        bridge.visible_scale = base.scale;
 
         commit(base);
         commit(columns);

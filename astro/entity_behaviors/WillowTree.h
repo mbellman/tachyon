@@ -42,7 +42,7 @@ namespace astro {
       // @todo @optimize only iterate over on-screen/in-range entities
       // once that list is built
       for_entities(state.willow_trees) {
-        const auto& tree = state.willow_trees[i];
+        auto& tree = state.willow_trees[i];
 
         auto& trunk = objects(meshes.willow_tree_trunk)[i];
 
@@ -50,6 +50,9 @@ namespace astro {
         trunk.scale = tree.scale;
         trunk.rotation = tree.orientation;
         trunk.color = tree.tint;
+
+        // Collision
+        tree.visible_scale = trunk.scale;
 
         commit(trunk);
       }

@@ -41,7 +41,7 @@ namespace astro {
       const float lifetime = 60.f;
 
       for_entities(state.shrubs) {
-        const auto& shrub = state.shrubs[i];
+        auto& shrub = state.shrubs[i];
         float life_progress = GetLivingEntityProgress(state, shrub, lifetime);
 
         // @todo factor
@@ -54,6 +54,9 @@ namespace astro {
 
         branches.rotation = shrub.orientation;
         branches.color = shrub.tint;
+
+        // Collision
+        shrub.visible_scale = branches.scale;
 
         commit(branches);
       }
