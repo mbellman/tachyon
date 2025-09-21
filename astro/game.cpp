@@ -1,4 +1,5 @@
 #include "astro/game.h"
+#include "astro/collision_system.h"
 #include "astro/data_loader.h"
 #include "astro/entity_dispatcher.h"
 #include "astro/entity_manager.h"
@@ -208,35 +209,6 @@ static void HandleControls(Tachyon* tachyon, State& state, const float dt) {
   }
 }
 
-static void HandleCollisions(Tachyon* tachyon, State& state) {
-  auto& player_position = state.player_position;
-
-  for_entities(state.shrubs) {
-    auto& shrub = state.shrubs[i];
-    auto& position = shrub.position;
-
-    float radius = shrub.visible_scale.x > shrub.visible_scale.z
-      ? 2.f * shrub.visible_scale.x
-      : 2.f * shrub.visible_scale.z;
-
-    // Skip small or invisible shrubs
-    if (radius < 0.1f) continue;
-
-    float dx = player_position.x - position.x;
-    float dz = player_position.z - position.z;
-    float distance = sqrtf(dx*dx + dz*dz);
-    
-    if (distance < radius) {
-      float ratio = radius / distance;
-
-      player_position.x = shrub.position.x + dx * ratio;
-      player_position.z = shrub.position.z + dz * ratio;
-    }
-  }
-
-  // @todo handle collisions for other entity types
-}
-
 void astro::InitGame(Tachyon* tachyon, State& state) {
   MeshLibrary::AddMeshes(tachyon, state);
 
@@ -276,7 +248,8 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   }
 
   HandleControls(tachyon, state, dt);
-  HandleCollisions(tachyon, state);
+
+  CollisionSystem::HandleCollisions(state);
 
   UpdatePlayer(tachyon, state);
   UpdateWaterPlane(tachyon, state);
