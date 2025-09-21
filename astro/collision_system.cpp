@@ -22,9 +22,9 @@ static inline void ResolveSingleRadiusCollision(State& state, const tVec3f& posi
   if (distance < radius) {
     float ratio = radius / distance;
 
-    // Ensure the ratio is not too high to avoid large
+    // Ensure the ratio is kept small to avoid large
     // instantaneous displacements out of the radius
-    if (ratio > 2.f) ratio = 2.f;
+    if (ratio > 1.1f) ratio = 1.1f;
 
     state.player_position.x = position.x + dx * ratio;
     state.player_position.z = position.z + dz * ratio;

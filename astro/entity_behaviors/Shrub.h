@@ -47,10 +47,10 @@ namespace astro {
         // @todo factor
         auto& branches = objects(meshes.shrub_branches)[i];
 
-        branches.position = shrub.position;
-        branches.position.y = -1500.f + branches.scale.y;
-
         branches.scale = shrub.scale * sinf(life_progress * t_PI);
+        
+        branches.position = shrub.position;
+        branches.position.y -= (shrub.scale.y - branches.scale.y);
 
         branches.rotation = shrub.orientation;
         branches.color = shrub.tint;
