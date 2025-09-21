@@ -59,8 +59,8 @@ namespace astro {
         columns.color = bridge.tint;
 
         if (age < 5.f) base.scale = tVec3f(0.f);
-        if (age < 3.f) columns.scale.y *= 0.5f;
-        if (age < 1.5f) columns.scale.y *= 0.5f;
+        if (age < 4.f) columns.scale.y *= 0.5f;
+        if (age < 2.f) columns.scale.y *= 0.5f;
         if (age <= 0.f) columns.scale = tVec3f(0.f);
 
         // Collision

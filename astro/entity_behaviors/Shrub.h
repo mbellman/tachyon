@@ -38,7 +38,7 @@ namespace astro {
 
     timeEvolve() {
       auto& meshes = state.meshes;
-      const float lifetime = 60.f;
+      const float lifetime = 100.f;
 
       for_entities(state.shrubs) {
         auto& shrub = state.shrubs[i];
@@ -50,7 +50,7 @@ namespace astro {
         branches.position = shrub.position;
         branches.position.y = -1500.f + branches.scale.y;
 
-        branches.scale = shrub.scale * sinf(life_progress * 0.75f * t_PI);
+        branches.scale = shrub.scale * sinf(life_progress * t_PI);
 
         branches.rotation = shrub.orientation;
         branches.color = shrub.tint;
