@@ -67,6 +67,9 @@ namespace astro {
     float last_frame_left_trigger = 0.f;
     float last_frame_right_trigger = 0.f;
 
+    std::string dialogue_message = "";
+    float dialogue_start_time = 0.f;
+
     std::vector<GameEntity> shrubs;
     std::vector<GameEntity> oak_trees;
     std::vector<GameEntity> willow_trees;
