@@ -71,26 +71,24 @@ static void UpdateCamera(Tachyon* tachyon, State& state, const float dt) {
   int32 room_x = (int32)roundf(state.player_position.x / 16000.f);
   int32 room_z = (int32)roundf(state.player_position.z / 16000.f);
 
-  // @temporary
-  static tVec3f camera_shift;
-
+  // @todo refactor
   if (room_x != 0 || room_z != 0) {
     float player_speed = state.player_velocity.magnitude();
 
     if (player_speed > 0.01f) {
       tVec3f unit_velocity = state.player_velocity / player_speed;
-      tVec3f bias_direction = tVec3f(0, 0, 0.25f) * abs(unit_velocity.z);
+      tVec3f camera_bias = tVec3f(0, 0, 0.25f) * abs(unit_velocity.z);
+      tVec3f new_camera_shift = (unit_velocity + camera_bias) * 2000.f;
 
-      camera_shift = tVec3f::lerp(camera_shift, (unit_velocity + bias_direction) * 2.f * player_speed, 2.f * dt);
+      state.camera_shift = tVec3f::lerp(state.camera_shift, new_camera_shift, 2.f * dt);
     }
 
-    new_camera_position = state.player_position + camera_shift;
+    new_camera_position = state.player_position + state.camera_shift;
     new_camera_position.y += 10000.f;
     new_camera_position.z += 7000.f;
   }
 
   camera.position = tVec3f::lerp(camera.position, new_camera_position, 5.f * dt);
-
   camera.rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.9f);
 }
 
@@ -175,24 +173,24 @@ static void HandleControls(Tachyon* tachyon, State& state, const float dt) {
   // @todo refactor
   {
     if (is_key_held(tKey::ARROW_UP) || is_key_held(tKey::W)) {
-      state.player_position += tVec3f(0, 0, -1.f) * 6000.f * dt;
+      state.player_velocity += tVec3f(0, 0, -1.f) * 10000.f * dt;
     }
 
     if (is_key_held(tKey::ARROW_LEFT) || is_key_held(tKey::A)) {
-      state.player_position += tVec3f(-1.f, 0, 0) * 6000.f * dt;
+      state.player_velocity += tVec3f(-1.f, 0, 0) * 10000.f * dt;
     }
 
     if (is_key_held(tKey::ARROW_RIGHT) || is_key_held(tKey::D)) {
-      state.player_position += tVec3f(1.f, 0, 0) * 6000.f * dt;
+      state.player_velocity += tVec3f(1.f, 0, 0) * 10000.f * dt;
     }
 
     if (is_key_held(tKey::ARROW_DOWN) || is_key_held(tKey::S)) {
-      state.player_position += tVec3f(0, 0, 1.f) * 6000.f * dt;
+      state.player_velocity += tVec3f(0, 0, 1.f) * 10000.f * dt;
     }
 
-    state.player_velocity.x += tachyon->left_stick.x * 5000.f * dt;
-    state.player_velocity.z += tachyon->left_stick.y * 5000.f * dt;
-    state.player_velocity *= 1.f - 5.f * dt;
+    state.player_velocity.x += tachyon->left_stick.x * 10000.f * dt;
+    state.player_velocity.z += tachyon->left_stick.y * 10000.f * dt;
+    state.player_velocity *= 1.f - 10.f * dt;
 
     state.player_position += state.player_velocity * 5.f * dt;
 
