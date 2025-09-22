@@ -56,6 +56,7 @@ namespace astro {
 
     // @todo default this in game.cpp or elsewhere
     tVec3f player_position = tVec3f(0.f, 0.f, 3500.f);
+    tVec3f player_velocity;
 
     float astro_time = 0.f;
     float astro_turn_speed = 0.f;

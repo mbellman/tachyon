@@ -71,8 +71,20 @@ static void UpdateCamera(Tachyon* tachyon, State& state, const float dt) {
   int32 room_x = (int32)roundf(state.player_position.x / 16000.f);
   int32 room_z = (int32)roundf(state.player_position.z / 16000.f);
 
+  // @temporary
+  static tVec3f camera_shift;
+
   if (room_x != 0 || room_z != 0) {
-    new_camera_position = state.player_position;
+    float player_speed = state.player_velocity.magnitude();
+
+    if (player_speed > 0.01f) {
+      tVec3f unit_velocity = state.player_velocity / player_speed;
+      tVec3f bias_direction = tVec3f(0, 0, 0.25f) * abs(unit_velocity.z);
+
+      camera_shift = tVec3f::lerp(camera_shift, (unit_velocity + bias_direction) * 2.f * player_speed, 2.f * dt);
+    }
+
+    new_camera_position = state.player_position + camera_shift;
     new_camera_position.y += 10000.f;
     new_camera_position.z += 7000.f;
   }
@@ -178,8 +190,18 @@ static void HandleControls(Tachyon* tachyon, State& state, const float dt) {
       state.player_position += tVec3f(0, 0, 1.f) * 6000.f * dt;
     }
 
-    state.player_position.x += tachyon->left_stick.x * 6000.f * dt;
-    state.player_position.z += tachyon->left_stick.y * 6000.f * dt;
+    state.player_velocity.x += tachyon->left_stick.x * 5000.f * dt;
+    state.player_velocity.z += tachyon->left_stick.y * 5000.f * dt;
+    state.player_velocity *= 1.f - 5.f * dt;
+
+    state.player_position += state.player_velocity * 5.f * dt;
+
+    // state.player_velocity.debug();
+
+    add_dev_label("velocity", state.player_velocity.toString());
+
+    // state.player_position.x += tachyon->left_stick.x * 6000.f * dt;
+    // state.player_position.z += tachyon->left_stick.y * 6000.f * dt;
   }
 
   // Handle astro time actions
