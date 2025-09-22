@@ -62,6 +62,10 @@ namespace astro {
 
     float astro_time = 0.f;
     float astro_turn_speed = 0.f;
+    float astro_time_at_start_of_turn = 0.f;
+
+    float last_frame_left_trigger = 0.f;
+    float last_frame_right_trigger = 0.f;
 
     std::vector<GameEntity> shrubs;
     std::vector<GameEntity> oak_trees;

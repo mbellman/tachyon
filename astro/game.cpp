@@ -204,8 +204,21 @@ static void HandleControls(Tachyon* tachyon, State& state, const float dt) {
 
   // Handle astro time actions
   {
-    const float astro_turn_rate = 0.2f;
-    const float astro_slowdown_rate = 1.f;
+    const float astro_turn_rate = 0.8f;
+    const float astro_slowdown_rate = 3.f;
+
+    // @todo increase this once the appropriate item is obtained
+    float max_astro_time = 0.f;
+
+    bool started_turning = (
+      (state.last_frame_left_trigger == 0.f && tachyon->left_trigger != 0.f) ||
+      (state.last_frame_right_trigger == 0.f && tachyon->right_trigger != 0.f)
+    );
+
+    // Track the initial time when we start turning
+    if (started_turning) {
+      state.astro_time_at_start_of_turn = state.astro_time;
+    }
 
     // Handle reverse/forward turn actions
     state.astro_turn_speed -= tachyon->left_trigger * astro_turn_rate * dt;
@@ -213,8 +226,21 @@ static void HandleControls(Tachyon* tachyon, State& state, const float dt) {
 
     // Disable forward time changes past 0.
     // @todo allow this once the appropriate item is obtained
-    if (state.astro_time > 0.f && state.astro_turn_speed > 0.f) {
+    if (state.astro_time > max_astro_time && state.astro_turn_speed > 0.f) {
       state.astro_turn_speed = 0.f;
+    }
+
+    // Slow down toward time range boundaries
+    if (state.astro_turn_speed > 0.f) {
+      float slowdown_threshold = max_astro_time - (max_astro_time - state.astro_time_at_start_of_turn) * 0.1f;
+
+      if (state.astro_time > slowdown_threshold) {
+        float threshold_distance = abs(slowdown_threshold - state.astro_time);
+        float threshold_to_limit = max_astro_time - slowdown_threshold;
+        float slowdown_factor = 40.f * powf(threshold_distance / threshold_to_limit, 2.f);
+
+        state.astro_turn_speed *= 1.f - slowdown_factor * dt;
+      }
     }
 
     state.astro_time += state.astro_turn_speed * 100.f * dt;
@@ -226,6 +252,9 @@ static void HandleControls(Tachyon* tachyon, State& state, const float dt) {
     if (abs(state.astro_turn_speed) < 0.001f) {
       state.astro_turn_speed = 0.f;
     }
+
+    state.last_frame_left_trigger = tachyon->left_trigger;
+    state.last_frame_right_trigger = tachyon->right_trigger;
   }
 }
 
