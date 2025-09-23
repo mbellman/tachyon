@@ -239,6 +239,7 @@ struct Tachyon {
 
     // @todo allow multiple directional lights
     tVec3f primary_light_direction = tVec3f(0, -1.f, 0);
+    tVec3f primary_light_color = tVec3f(1.f);
   } scene;
 
   struct Fx {

@@ -23,6 +23,7 @@ uniform float scene_time;
 uniform float running_time;
 // @todo allow multiple directional lights
 uniform vec3 primary_light_direction;
+uniform vec3 primary_light_color;
 
 // @todo dev mode only
 uniform bool use_high_visibility_mode;
@@ -636,8 +637,6 @@ void main() {
 
   // Primary directional light
   {
-    const vec3 primary_light_color = vec3(1.0);
-
     out_color += GetDirectionalLightRadiance(L, primary_light_color, albedo, position, N, V, NdotV, roughness, metalness, clearcoat, subsurface, shadow);
   }
 

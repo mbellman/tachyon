@@ -826,9 +826,9 @@ static void RenderGlobalLighting(Tachyon* tachyon) {
   SetShaderVec3f(locations.camera_position, ctx.camera_position);
   SetShaderFloat(locations.scene_time, scene.scene_time);
   SetShaderFloat(locations.running_time, tachyon->running_time);
-  // @temporary
   // @todo allow multiple directional lights
   SetShaderVec3f(locations.primary_light_direction, scene.primary_light_direction);
+  SetShaderVec3f(locations.primary_light_color, scene.primary_light_color);
   SetShaderBool(locations.use_high_visibility_mode, tachyon->use_high_visibility_mode);
 
   RenderScreenQuad(tachyon);

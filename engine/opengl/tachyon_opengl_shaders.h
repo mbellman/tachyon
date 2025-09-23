@@ -60,6 +60,7 @@ struct tUniformLocations {
     running_time,
     // @todo allow multiple directional lights
     primary_light_direction,
+    primary_light_color,
     use_high_visibility_mode
   ) global_lighting;
 
