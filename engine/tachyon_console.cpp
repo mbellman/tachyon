@@ -13,6 +13,8 @@ void Tachyon_AddConsoleMessage(const std::string& message, const tVec3f& color) 
     .color = color
   });
 
+  printf("%s\n", message.c_str());
+
   if (console_messages.size() > 10) {
     console_messages.erase(console_messages.begin());
   }

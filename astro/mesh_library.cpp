@@ -1,5 +1,4 @@
 #include "astro/mesh_library.h"
-#include "astro/entities_and_objects.h"
 
 #define CUBE_MESH(total) Tachyon_AddMesh(tachyon, Tachyon_CreateCubeMesh(), total)
 #define PLANE_MESH(total) Tachyon_AddMesh(tachyon, Tachyon_CreatePlaneMesh(), total)
@@ -27,6 +26,25 @@ static void AddDecorativeMeshes(Tachyon* tachyon, State& state) {
   meshes.ground_1 = MODEL_MESH("./astro/3d_models/ground_1.obj", 5000);
 }
 
+static void AddEntityMeshes(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
+  // @todo factor
+  meshes.shrub_branches = CUBE_MESH(100);
+  meshes.oak_tree_trunk = CUBE_MESH(100);
+  meshes.willow_tree_trunk = CUBE_MESH(100);
+  meshes.small_stone_bridge_base = MODEL_MESH("./astro/3d_models/small_stone_bridge/base.obj", 100);
+  meshes.small_stone_bridge_columns = MODEL_MESH("./astro/3d_models/small_stone_bridge/columns.obj", 100);
+  meshes.wooden_gate_door = MODEL_MESH("./astro/3d_models/wooden_gate_door/door.obj", 100);
+
+  // @todo factor
+  meshes.shrub_placeholder = CUBE_MESH(100);
+  meshes.oak_tree_placeholder = CUBE_MESH(100);
+  meshes.willow_tree_placeholder = CUBE_MESH(100);
+  meshes.small_stone_bridge_placeholder = MODEL_MESH("./astro/3d_models/small_stone_bridge/placeholder.obj", 100);
+  meshes.wooden_gate_door_placeholder = MODEL_MESH("./astro/3d_models/wooden_gate_door/placeholder.obj", 100);
+}
+
 static void AddEditorMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
@@ -48,22 +66,8 @@ void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
 
   AddHUDMeshes(tachyon, state);
   AddDecorativeMeshes(tachyon, state);
+  AddEntityMeshes(tachyon, state);
 
   // @todo dev mode only
   AddEditorMeshes(tachyon, state);
-
-  // @todo factor
-  meshes.shrub_branches = CUBE_MESH(100);
-  meshes.oak_tree_trunk = CUBE_MESH(100);
-  meshes.willow_tree_trunk = CUBE_MESH(100);
-  meshes.small_stone_bridge_base = MODEL_MESH("./astro/3d_models/small_stone_bridge/base.obj", 100);
-  meshes.small_stone_bridge_columns = MODEL_MESH("./astro/3d_models/small_stone_bridge/columns.obj", 100);
-  meshes.wooden_gate_door = MODEL_MESH("./astro/3d_models/wooden_gate_door/door.obj", 100);
-
-  // @todo factor
-  meshes.shrub_placeholder = CUBE_MESH(100);
-  meshes.oak_tree_placeholder = CUBE_MESH(100);
-  meshes.willow_tree_placeholder = CUBE_MESH(100);
-  meshes.small_stone_bridge_placeholder = MODEL_MESH("./astro/3d_models/small_stone_bridge/placeholder.obj", 100);
-  meshes.wooden_gate_door_placeholder = MODEL_MESH("./astro/3d_models/wooden_gate_door/placeholder.obj", 100);
 }

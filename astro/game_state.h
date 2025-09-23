@@ -9,7 +9,7 @@
 #define for_entities(array) for (uint16 i = 0; i < (uint16)array.size(); i++)
 
 namespace astro {
-  struct MeshIds {
+  struct MeshIds : EntityMeshIds {
     uint16
       // Character meshes
       player,
@@ -26,27 +26,6 @@ namespace astro {
       flat_ground,
       rock_1,
       ground_1,
-
-      // SHRUB
-      shrub_placeholder,
-      shrub_branches,
-
-      // OAK_TREE
-      oak_tree_placeholder,
-      oak_tree_trunk,
-
-      // WILLOW_TREE
-      willow_tree_placeholder,
-      willow_tree_trunk,
-
-      // SMALL_STONE_BRIDGE
-      small_stone_bridge_placeholder,
-      small_stone_bridge_columns,
-      small_stone_bridge_base,
-
-      // WOODEN_GATE_DOOR
-      wooden_gate_door,
-      wooden_gate_door_placeholder,
 
       // Editor meshes
       // @todo dev mode only

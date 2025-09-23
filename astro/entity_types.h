@@ -5,6 +5,11 @@
 #include "engine/tachyon.h"
 
 namespace astro {
+  /**
+   * ----------------------------
+   * Entity type constants.
+   * ----------------------------
+   */
   enum EntityType {
     UNSPECIFIED = -1,
     SHRUB,
@@ -14,6 +19,11 @@ namespace astro {
     WOODEN_GATE_DOOR
   };
 
+  /**
+   * ----------------------------
+   * An iterable list of valid entity types.
+   * ----------------------------
+   */
   static std::vector<EntityType> entity_types = {
     SHRUB,
     OAK_TREE,
@@ -22,11 +32,21 @@ namespace astro {
     WOODEN_GATE_DOOR
   };
 
+  /**
+   * ----------------------------
+   * Entity identifier; used for lookup.
+   * ----------------------------
+   */
   struct EntityRecord {
     int32 id = -1;
     EntityType type = UNSPECIFIED;
   };
 
+  /**
+   * ----------------------------
+   * The primary game entity data structure.
+   * ----------------------------
+   */
   struct GameEntity : EntityRecord {
     // Customizable properties
     tVec3f position;
@@ -51,6 +71,40 @@ namespace astro {
     tVec3f visible_scale;
   };
 
+  /**
+   * ----------------------------
+   * Mesh IDs to use for different entity objects + placeholders.
+   * ----------------------------
+   */
+  struct EntityMeshIds {
+    uint16
+      // SHRUB
+      shrub_placeholder,
+      shrub_branches,
+
+      // OAK_TREE
+      oak_tree_placeholder,
+      oak_tree_trunk,
+
+      // WILLOW_TREE
+      willow_tree_placeholder,
+      willow_tree_trunk,
+
+      // SMALL_STONE_BRIDGE
+      small_stone_bridge_placeholder,
+      small_stone_bridge_columns,
+      small_stone_bridge_base,
+
+      // WOODEN_GATE_DOOR
+      wooden_gate_door,
+      wooden_gate_door_placeholder;
+  };
+
+  /**
+   * ----------------------------
+   * Default properties for entities.
+   * ----------------------------
+   */
   struct EntityDefaults {
     std::string name;
     tVec3f scale;
@@ -58,6 +112,11 @@ namespace astro {
     tVec3f tint;
   };
 
+  /**
+   * ----------------------------
+   * Defines default properties for different entities.
+   * ----------------------------
+   */
   static std::map<EntityType, EntityDefaults> entity_defaults_map = {
     { SHRUB, {
       .name = "Shrub",

@@ -7,6 +7,8 @@
 #include "astro/game_state.h"
 #include "astro/entity_types.h"
 
+// @todo rename object_lookup or similar
+
 namespace astro {
   struct DecorativeMesh {
     uint16 mesh_index;
@@ -14,15 +16,6 @@ namespace astro {
     tVec3f default_scale;
     tVec3f default_color;
   };
-
-  /**
-   * ----------------------------
-   * Returns the default properties for a given entity type.
-   * ----------------------------
-   */
-  static EntityDefaults& GetEntityDefaults(EntityType type) {
-    return entity_defaults_map.at(type);
-  }
 
   /**
    * ----------------------------

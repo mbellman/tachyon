@@ -10,6 +10,8 @@
 #include "astro/entity_dispatcher.h"
 #include "astro/object_manager.h"
 
+#define get_entity_defaults(__type) entity_defaults_map.at(__type)
+
 using namespace astro;
 
 enum GizmoAction {
@@ -560,7 +562,7 @@ static void CycleDecorativeMeshes(Tachyon* tachyon, State& state, int8 direction
   if (direction == 1) {
     editor.current_decorative_mesh_index++;
 
-    if (editor.current_decorative_mesh_index > decorative_meshes.size() - 1) {
+    if (editor.current_decorative_mesh_index > (int32)decorative_meshes.size() - 1) {
       editor.current_decorative_mesh_index = 0;
     }
   }
@@ -586,7 +588,7 @@ static void CycleEntities(Tachyon* tachyon, State& state, int8 direction) {
   if (direction == 1) {
     editor.current_entity_index++;
 
-    if (editor.current_entity_index > entity_types.size() - 1) {
+    if (editor.current_entity_index > (int32)entity_types.size() - 1) {
       editor.current_entity_index = 0;
     }
   }
@@ -599,7 +601,7 @@ static void CycleEntities(Tachyon* tachyon, State& state, int8 direction) {
   }
 
   auto entity_type = entity_types[editor.current_entity_index];
-  std::string entity_name = GetEntityDefaults(entity_type).name;
+  std::string& entity_name = get_entity_defaults(entity_type).name;
 
   show_alert_message("Active entity: " + entity_name);
 }
@@ -722,7 +724,7 @@ static void CreateEntity(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
 
   EntityType entity_type = entity_types[editor.current_entity_index];
-  auto& defaults = GetEntityDefaults(entity_type);
+  auto& defaults = get_entity_defaults(entity_type);
   GameEntity entity = EntityManager::CreateNewEntity(state, entity_type);
 
   entity.position = camera.position + camera.orientation.getDirection() * 7500.f;
@@ -947,7 +949,7 @@ static std::string FormatForDisplay(const Quaternion& q) {
  */
 static void DisplaySelectedEntityProperties(Tachyon* tachyon, State& state) {
   auto& selected = editor.current_selectable;
-  auto& entity_name = GetEntityDefaults(selected.entity_record.type).name;
+  auto& entity_name = get_entity_defaults(selected.entity_record.type).name;
   // @todo @optimize
   auto* entity = EntityManager::FindEntity(state, selected.entity_record);
   bool blink_text_cursor = int(roundf(tachyon->running_time * 2.f)) % 2 == 0;
@@ -974,7 +976,7 @@ static void DisplaySelectedEntityProperties(Tachyon* tachyon, State& state) {
     labels.push_back(".astro_end_time: " + Serialize(entity->astro_end_time));
   }
 
-  for (int32 i = 0; i < labels.size(); i++) {
+  for (int32 i = 0; i < (int32)labels.size(); i++) {
     auto& label = labels[i];
 
     Tachyon_DrawUIText(tachyon, state.debug_text, {
@@ -1004,7 +1006,7 @@ static void DisplaySelectedObjectProperties(Tachyon* tachyon, State& state) {
   labels.push_back("scale: " + FormatForDisplay(object.scale));
   labels.push_back("rotation: " + FormatForDisplay(object.rotation));
 
-  for (int32 i = 0; i < labels.size(); i++) {
+  for (int32 i = 0; i < (int32)labels.size(); i++) {
     auto& label = labels[i];
 
     Tachyon_DrawUIText(tachyon, state.debug_text, {
