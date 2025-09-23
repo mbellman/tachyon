@@ -238,12 +238,15 @@ static void HandleControls(Tachyon* tachyon, State& state, const float dt) {
   }
 
   // Handle astro turn actions
+  // @todo refactor
   {
     const float astro_turn_rate = 0.8f;
     const float astro_slowdown_rate = 3.f;
 
     // @todo increase this once the appropriate item is obtained
     float max_astro_time = 0.f;
+    // @todo decrease this once the appropriate item is obtained
+    float min_astro_time = -158.f;
 
     bool started_turning = (
       (state.last_frame_left_trigger == 0.f && tachyon->left_trigger != 0.f) ||
@@ -259,8 +262,7 @@ static void HandleControls(Tachyon* tachyon, State& state, const float dt) {
     state.astro_turn_speed -= tachyon->left_trigger * astro_turn_rate * dt;
     state.astro_turn_speed += tachyon->right_trigger * astro_turn_rate * dt;
 
-    // Disable forward time changes past 0
-    // @todo allow this once the appropriate item is obtained
+    // Prevent time changes past max time
     if (state.astro_time > max_astro_time && state.astro_turn_speed > 0.f) {
       state.astro_turn_speed = 0.f;
 
@@ -269,11 +271,20 @@ static void HandleControls(Tachyon* tachyon, State& state, const float dt) {
       }
     }
 
-    // Slow down toward time range boundaries
+    // Prevent time changes before min time
+    if (state.astro_time < min_astro_time && state.astro_turn_speed < 0.f) {
+      state.astro_turn_speed = 0.f;
+
+      if (state.astro_time_at_start_of_turn <= min_astro_time + 1.f) {
+        ShowDialogue(tachyon, state, "The astrolabe's mechanism resists.");
+      }
+    }
+
+    // Slow down toward max time
     if (state.astro_turn_speed > 0.f) {
       float slowdown_threshold = max_astro_time - (max_astro_time - state.astro_time_at_start_of_turn) * 0.1f;
 
-      if (abs(max_astro_time - slowdown_threshold) > 5.f) {
+      if (slowdown_threshold < max_astro_time - 5.f) {
         // Enforce a limit on how far away the slowdown threshold is
         // from the stopping value
         slowdown_threshold = max_astro_time - 5.f;
@@ -287,6 +298,29 @@ static void HandleControls(Tachyon* tachyon, State& state, const float dt) {
         state.astro_turn_speed *= 1.f - slowdown_factor * dt;
 
         ShowDialogue(tachyon, state, "The astrolabe stopped turning.");
+      }
+    }
+
+    // Slow down toward min time
+    if (state.astro_turn_speed < 0.f) {
+      float slowdown_threshold = min_astro_time + abs(state.astro_time_at_start_of_turn - min_astro_time) * 0.1f;
+
+      if (slowdown_threshold > min_astro_time + 5.f) {
+        // Enforce a limit on how far away the slowdown threshold is
+        // from the stopping value
+        slowdown_threshold = min_astro_time + 5.f;
+      }
+
+      if (state.astro_time < slowdown_threshold) {
+        float threshold_distance = abs(slowdown_threshold - state.astro_time);
+        float threshold_to_limit = abs(min_astro_time - slowdown_threshold);
+        float slowdown_factor = 40.f * powf(threshold_distance / threshold_to_limit, 2.f);
+
+        state.astro_turn_speed *= 1.f - slowdown_factor * dt;
+
+        if (state.astro_time_at_start_of_turn > min_astro_time + 1.f) {
+          ShowDialogue(tachyon, state, "The astrolabe stopped turning.");
+        }
       }
     }
 
