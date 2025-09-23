@@ -1,5 +1,7 @@
 #pragma once
 
+#include <map>
+
 #include "engine/tachyon.h"
 
 namespace astro {
@@ -8,14 +10,16 @@ namespace astro {
     SHRUB,
     OAK_TREE,
     WILLOW_TREE,
-    SMALL_STONE_BRIDGE
+    SMALL_STONE_BRIDGE,
+    WOODEN_GATE_DOOR
   };
 
   static std::vector<EntityType> entity_types = {
     SHRUB,
     OAK_TREE,
     WILLOW_TREE,
-    SMALL_STONE_BRIDGE
+    SMALL_STONE_BRIDGE,
+    WOODEN_GATE_DOOR
   };
 
   struct EntityRecord {
@@ -45,5 +49,45 @@ namespace astro {
     // number of actual collision bounds generated + checked
     // per frame can be very low.
     tVec3f visible_scale;
+  };
+
+  struct EntityDefaults {
+    std::string name;
+    tVec3f scale;
+    tVec3f orientation;
+    tVec3f tint;
+  };
+
+  static std::map<EntityType, EntityDefaults> entity_defaults_map = {
+    { SHRUB, {
+      .name = "Shrub",
+      .scale = tVec3f(500.f),
+      .tint = tVec3f(0.2f, 0.8f, 0.5f)
+    } },
+
+    { OAK_TREE, {
+      .name = "Oak Tree",
+      .scale = tVec3f(500.f, 2000.f, 500.f ),
+      .tint = tVec3f(1.f, 0.6f, 0.3f)
+    } },
+
+    // @todo
+    { WILLOW_TREE, {
+      .name = "Willow Tree",
+      .scale = tVec3f(500.f, 2000.f, 500.f ),
+      .tint = tVec3f(1.f, 0.6f, 0.3f )
+    } },
+
+    { SMALL_STONE_BRIDGE, {
+      .name = "Small Stone Bridge",
+      .scale = tVec3f(3000.f),
+      .tint = tVec3f(0.6f)
+    } },
+
+    { WOODEN_GATE_DOOR, {
+      .name = "Wooden Gate Door",
+      .scale = tVec3f(3500.f),
+      .tint = tVec3f(1.f, 0.6f, 0.2f)
+    } }
   };
 }

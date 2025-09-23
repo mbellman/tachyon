@@ -44,6 +44,10 @@ namespace astro {
       small_stone_bridge_columns,
       small_stone_bridge_base,
 
+      // WOODEN_GATE_DOOR
+      wooden_gate_door,
+      wooden_gate_door_placeholder,
+
       // Editor meshes
       // @todo dev mode only
       gizmo_arrow,
@@ -74,6 +78,7 @@ namespace astro {
     std::vector<GameEntity> oak_trees;
     std::vector<GameEntity> willow_trees;
     std::vector<GameEntity> small_stone_bridges;
+    std::vector<GameEntity> wooden_gate_doors;
 
     // @todo dev mode only
     tUIText* debug_text = nullptr;

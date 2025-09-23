@@ -22,9 +22,9 @@ static void AddHUDMeshes(Tachyon* tachyon, State& state) {
 static void AddDecorativeMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
-  meshes.flat_ground = PLANE_MESH(100);
-  meshes.rock_1 = MODEL_MESH("./astro/3d_models/rock_1.obj", 100);
-  meshes.ground_1 = MODEL_MESH("./astro/3d_models/ground_1.obj", 100);
+  meshes.flat_ground = PLANE_MESH(1000);
+  meshes.rock_1 = MODEL_MESH("./astro/3d_models/rock_1.obj", 5000);
+  meshes.ground_1 = MODEL_MESH("./astro/3d_models/ground_1.obj", 5000);
 }
 
 static void AddEditorMeshes(Tachyon* tachyon, State& state) {
@@ -58,10 +58,12 @@ void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
   meshes.willow_tree_trunk = CUBE_MESH(100);
   meshes.small_stone_bridge_base = MODEL_MESH("./astro/3d_models/small_stone_bridge/base.obj", 100);
   meshes.small_stone_bridge_columns = MODEL_MESH("./astro/3d_models/small_stone_bridge/columns.obj", 100);
+  meshes.wooden_gate_door = MODEL_MESH("./astro/3d_models/wooden_gate_door/door.obj", 100);
 
   // @todo factor
   meshes.shrub_placeholder = CUBE_MESH(100);
   meshes.oak_tree_placeholder = CUBE_MESH(100);
   meshes.willow_tree_placeholder = CUBE_MESH(100);
   meshes.small_stone_bridge_placeholder = MODEL_MESH("./astro/3d_models/small_stone_bridge/placeholder.obj", 100);
+  meshes.wooden_gate_door_placeholder = MODEL_MESH("./astro/3d_models/wooden_gate_door/placeholder.obj", 100);
 }

@@ -40,7 +40,6 @@ namespace astro {
 
     timeEvolve() {
       auto& meshes = state.meshes;
-      const float lifetime = 60.f;
 
       for_entities(state.small_stone_bridges) {
         auto& bridge = state.small_stone_bridges[i];
