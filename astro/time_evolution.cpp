@@ -4,7 +4,10 @@
 using namespace astro;
 
 void TimeEvolution::HandleAstroTime(Tachyon* tachyon, State& state, const float dt) {
-  state.astro_time += 0.01f * dt;
+  // @todo allow this once the appropriate item is obtained
+  if (state.astro_time < 0.f) {
+    state.astro_time += 0.01f * dt;
+  }
 
   for_all_entity_types() {
     EntityDispatcher::TimeEvolve(tachyon, state, type);

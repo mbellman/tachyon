@@ -102,6 +102,19 @@ namespace astro {
 
   /**
    * ----------------------------
+   * Supplies a series of containers for different entity types.
+   * ----------------------------
+   */
+  struct EntityContainers {
+    std::vector<GameEntity> shrubs;
+    std::vector<GameEntity> oak_trees;
+    std::vector<GameEntity> willow_trees;
+    std::vector<GameEntity> small_stone_bridges;
+    std::vector<GameEntity> wooden_gate_doors;
+  };
+
+  /**
+   * ----------------------------
    * Default properties for entities.
    * ----------------------------
    */

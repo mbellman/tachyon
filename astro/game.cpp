@@ -259,12 +259,12 @@ static void HandleControls(Tachyon* tachyon, State& state, const float dt) {
     state.astro_turn_speed -= tachyon->left_trigger * astro_turn_rate * dt;
     state.astro_turn_speed += tachyon->right_trigger * astro_turn_rate * dt;
 
-    // Disable forward time changes past 0.
+    // Disable forward time changes past 0
     // @todo allow this once the appropriate item is obtained
     if (state.astro_time > max_astro_time && state.astro_turn_speed > 0.f) {
       state.astro_turn_speed = 0.f;
 
-      if (state.astro_time_at_start_of_turn > 0.f) {
+      if (state.astro_time_at_start_of_turn >= 0.f) {
         ShowDialogue(tachyon, state, "The astrolabe's mechanism resists.");
       }
     }

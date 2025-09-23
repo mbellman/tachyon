@@ -34,7 +34,7 @@ namespace astro {
       gizmo_rotator;
   };
 
-  struct State {
+  struct State : EntityContainers {
     MeshIds meshes;
 
     // @todo default this in game.cpp or elsewhere
@@ -52,12 +52,6 @@ namespace astro {
 
     std::string dialogue_message = "";
     float dialogue_start_time = 0.f;
-
-    std::vector<GameEntity> shrubs;
-    std::vector<GameEntity> oak_trees;
-    std::vector<GameEntity> willow_trees;
-    std::vector<GameEntity> small_stone_bridges;
-    std::vector<GameEntity> wooden_gate_doors;
 
     // @todo dev mode only
     tUIText* debug_text = nullptr;
