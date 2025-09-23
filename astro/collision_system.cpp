@@ -99,7 +99,7 @@ static void HandleBridgeCollisions(Tachyon* tachyon, State& state) {
       float midpoint_ratio = 1.f - abs(player_position_in_bridge_space.x) / bridge.scale.x;
       float floor_height = Tachyon_EaseOutQuad(midpoint_ratio);
 
-      player_position.y = floor_height * bridge.scale.y / 2.75f;
+      player_position.y = floor_height * bridge.scale.y / 2.2f;
     }
   }
 }

@@ -30,6 +30,11 @@ static void UpdateWaterPlane(Tachyon* tachyon, State& state) {
   water_plane.color = tVec3f(0, 0.1f, 0.3f);
   water_plane.material = tVec4f(0.1f, 1.f, 0, 0.5f);
 
+  water_plane.position.y = -1800.f + 22.f * state.astro_time;
+
+  if (water_plane.position.y > -1800.f) water_plane.position.y = -1800.f;
+  if (water_plane.position.y < -3200.f) water_plane.position.y = -3200.f;
+
   commit(water_plane);
 }
 
@@ -259,7 +264,9 @@ static void HandleControls(Tachyon* tachyon, State& state, const float dt) {
     if (state.astro_time > max_astro_time && state.astro_turn_speed > 0.f) {
       state.astro_turn_speed = 0.f;
 
-      ShowDialogue(tachyon, state, "The astrolabe refuses to be turned.");
+      if (state.astro_time_at_start_of_turn > 0.f) {
+        ShowDialogue(tachyon, state, "The astrolabe's mechanism resists.");
+      }
     }
 
     // Slow down toward time range boundaries
