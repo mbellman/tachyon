@@ -1140,6 +1140,13 @@ static void SpawnEntityPlaceholders(Tachyon* tachyon, State& state) {
       auto& entity = entities[i];
       auto& placeholder = EntityDispatcher::CreatePlaceholder(tachyon, state, entity);
 
+      placeholder.position = entity.position;
+      placeholder.scale = entity.scale;
+      placeholder.rotation = entity.orientation;
+      placeholder.color = entity.tint;
+
+      commit(placeholder);
+
       TrackSelectableEntity(entity, placeholder);
     }
   }

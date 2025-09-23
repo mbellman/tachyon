@@ -20,16 +20,8 @@ namespace astro {
 
     createPlaceholder() {
       auto& meshes = state.meshes;
-      auto& placeholder = create(meshes.small_stone_bridge_placeholder);
 
-      placeholder.position = entity.position;
-      placeholder.scale = entity.scale;
-      placeholder.rotation = entity.orientation;
-      placeholder.color = entity.tint;
-
-      commit(placeholder);
-
-      return placeholder;
+      return create(meshes.small_stone_bridge_placeholder);
     }
 
     destroyPlaceholders() {
