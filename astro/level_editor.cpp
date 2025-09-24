@@ -687,10 +687,24 @@ static void MaybeMakeSelection(Tachyon* tachyon, State& state) {
 
 /**
  * ----------------------------
+ * Copies entity properties to its placeholder object.
+ * ----------------------------
+ */
+static void SyncEntityPlaceholder(Tachyon* tachyon, tObject& placeholder, const GameEntity& entity) {
+  placeholder.position = entity.position;
+  placeholder.scale = entity.scale;
+  placeholder.rotation = entity.orientation;
+  placeholder.color = entity.tint;
+
+  commit(placeholder);
+}
+
+/**
+ * ----------------------------
  * Creates a normal object and adds it to the scene.
  * ----------------------------
  */
-static void CreateDecorativeObject(Tachyon* tachyon, State& state) {
+static void CreateNewDecorativeObject(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
   auto& decorative_meshes = GetDecorativeMeshes(state);
   auto& current_decorative_mesh = decorative_meshes[editor.current_decorative_mesh_index];
@@ -720,7 +734,7 @@ static void CreateDecorativeObject(Tachyon* tachyon, State& state) {
  * Creates an entity and adds it to the scene.
  * ----------------------------
  */
-static void CreateEntity(Tachyon* tachyon, State& state) {
+static void CreateNewEntity(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
 
   EntityType entity_type = entity_types[editor.current_entity_index];
@@ -739,6 +753,7 @@ static void CreateEntity(Tachyon* tachyon, State& state) {
 
   auto& placeholder = EntityDispatcher::CreatePlaceholder(tachyon, state, entity);
 
+  SyncEntityPlaceholder(tachyon, placeholder, entity);
   TrackSelectableEntity(entity, placeholder);
 }
 
@@ -1121,9 +1136,9 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
 
     if (did_press_key(tKey::ENTER)) {
       if (editor.should_place_entity) {
-        CreateEntity(tachyon, state);
+        CreateNewEntity(tachyon, state);
       } else {
-        CreateDecorativeObject(tachyon, state);
+        CreateNewDecorativeObject(tachyon, state);
       }
     }
   }
@@ -1142,13 +1157,7 @@ static void SpawnEntityPlaceholders(Tachyon* tachyon, State& state) {
       auto& entity = entities[i];
       auto& placeholder = EntityDispatcher::CreatePlaceholder(tachyon, state, entity);
 
-      placeholder.position = entity.position;
-      placeholder.scale = entity.scale;
-      placeholder.rotation = entity.orientation;
-      placeholder.color = entity.tint;
-
-      commit(placeholder);
-
+      SyncEntityPlaceholder(tachyon, placeholder, entity);
       TrackSelectableEntity(entity, placeholder);
     }
   }
