@@ -36,6 +36,8 @@ static void UpdateWaterPlane(Tachyon* tachyon, State& state) {
   if (water_plane.position.y < -3200.f) water_plane.position.y = -3200.f;
 
   commit(water_plane);
+
+  state.water_level = water_plane.position.y;
 }
 
 // @todo move to its own file

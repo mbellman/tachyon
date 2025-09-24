@@ -16,7 +16,8 @@ namespace astro {
     OAK_TREE,
     WILLOW_TREE,
     SMALL_STONE_BRIDGE,
-    WOODEN_GATE_DOOR
+    WOODEN_GATE_DOOR,
+    RIVER_LOG
   };
 
   /**
@@ -29,7 +30,8 @@ namespace astro {
     OAK_TREE,
     WILLOW_TREE,
     SMALL_STONE_BRIDGE,
-    WOODEN_GATE_DOOR
+    WOODEN_GATE_DOOR,
+    RIVER_LOG
   };
 
   /**
@@ -90,6 +92,10 @@ namespace astro {
       willow_tree_placeholder,
       willow_tree_trunk,
 
+      // RIVER_LOG
+      river_log_placeholder,
+      river_log,
+
       // SMALL_STONE_BRIDGE
       small_stone_bridge_placeholder,
       small_stone_bridge_columns,
@@ -111,6 +117,7 @@ namespace astro {
     std::vector<GameEntity> willow_trees;
     std::vector<GameEntity> small_stone_bridges;
     std::vector<GameEntity> wooden_gate_doors;
+    std::vector<GameEntity> river_logs;
   };
 
   /**
@@ -128,6 +135,7 @@ namespace astro {
   /**
    * ----------------------------
    * Defines default properties for different entities.
+   * @todo add serialization ID
    * ----------------------------
    */
   static std::map<EntityType, EntityDefaults> entity_defaults_map = {
@@ -160,6 +168,12 @@ namespace astro {
       .name = "Wooden Gate Door",
       .scale = tVec3f(3500.f),
       .tint = tVec3f(1.f, 0.6f, 0.2f)
+    } },
+
+    { RIVER_LOG, {
+      .name = "River Log",
+      .scale = tVec3f(3000.f),
+      .tint = tVec3f(1.f, 0.5f, 0.1f)
     } }
   };
 }

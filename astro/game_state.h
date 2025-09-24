@@ -43,6 +43,8 @@ namespace astro {
 
     tVec3f camera_shift;
 
+    float water_level = -1800.f;
+
     float astro_time = 0.f;
     float astro_turn_speed = 0.f;
     float astro_time_at_start_of_turn = 0.f;

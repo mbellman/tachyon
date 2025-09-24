@@ -36,6 +36,7 @@ static void AddEntityMeshes(Tachyon* tachyon, State& state) {
   meshes.small_stone_bridge_base = MODEL_MESH("./astro/3d_models/small_stone_bridge/base.obj", 100);
   meshes.small_stone_bridge_columns = MODEL_MESH("./astro/3d_models/small_stone_bridge/columns.obj", 100);
   meshes.wooden_gate_door = MODEL_MESH("./astro/3d_models/wooden_gate_door/door.obj", 100);
+  meshes.river_log = MODEL_MESH("./astro/3d_models/river_log/log.obj", 100);
 
   // @todo factor
   meshes.shrub_placeholder = CUBE_MESH(100);
@@ -43,6 +44,7 @@ static void AddEntityMeshes(Tachyon* tachyon, State& state) {
   meshes.willow_tree_placeholder = CUBE_MESH(100);
   meshes.small_stone_bridge_placeholder = MODEL_MESH("./astro/3d_models/small_stone_bridge/placeholder.obj", 100);
   meshes.wooden_gate_door_placeholder = MODEL_MESH("./astro/3d_models/wooden_gate_door/placeholder.obj", 100);
+  meshes.river_log_placeholder = MODEL_MESH("./astro/3d_models/river_log/log.obj", 100);
 }
 
 static void AddEditorMeshes(Tachyon* tachyon, State& state) {
