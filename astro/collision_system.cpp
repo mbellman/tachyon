@@ -42,6 +42,14 @@ static inline bool IsPointOnPlane(const tVec3f& point, const Plane& plane) {
   return d1 && d2 && d3 && d4;
 }
 
+static inline bool IsPointWithRadiusOnPlane(const tVec3f& point, const float radius, const Plane& plane) {
+  tVec3f plane_midpoint = (plane.p1 + plane.p2 + plane.p3 + plane.p4) / 4.f;
+  tVec3f plane_to_point = point.xz() - plane_midpoint.xz();
+  tVec3f adjusted_point = point - plane_to_point.unit() * radius;
+
+  return IsPointOnPlane(adjusted_point, plane);
+}
+
 static inline void ResolveSingleRadiusCollision(State& state, const tVec3f& position, const tVec3f& scale, float radius_scale) {
   float radius = scale.x > scale.z
     ? radius_scale * scale.x
@@ -69,9 +77,36 @@ static inline void ResolveSingleRadiusCollision(State& state, const tVec3f& posi
   }
 }
 
-static void HandleBridgeCollisions(Tachyon* tachyon, State& state) {
-  auto& player_position = state.player_position;
+static void HandleFlatGroundCollisions(Tachyon* tachyon, State& state) {
+  state.player_position.y = state.water_level + 1500.f;
 
+  for (auto& ground : objects(state.meshes.flat_ground)) {
+    // @todo factor
+    Plane ground_plane = {
+      tVec3f(-1.f, 0, 1.f) * ground.scale,
+      tVec3f(1.f, 0, 1.f) * ground.scale,
+      tVec3f(1.f, 0, -1.f) * ground.scale,
+      tVec3f(-1.f, 0, -1.f) * ground.scale
+    };
+
+    tMat4f r = ground.rotation.toMatrix4f();
+
+    ground_plane.p1 = ground.position + r * ground_plane.p1;
+    ground_plane.p2 = ground.position + r * ground_plane.p2;
+    ground_plane.p3 = ground.position + r * ground_plane.p3;
+    ground_plane.p4 = ground.position + r * ground_plane.p4;
+
+    if (IsPointWithRadiusOnPlane(state.player_position, 600.f, ground_plane)) {
+      // @todo set to height of ground
+      state.player_position.y = 0.f;
+      state.is_on_solid_ground = true;
+
+      break;
+    }
+  }
+}
+
+static void HandleBridgeCollisions(Tachyon* tachyon, State& state) {
   for_entities(state.small_stone_bridges) {
     auto& bridge = state.small_stone_bridges[i];
 
@@ -98,15 +133,16 @@ static void HandleBridgeCollisions(Tachyon* tachyon, State& state) {
     bridge_plane.p3 = bridge.position + r * bridge_plane.p3;
     bridge_plane.p4 = bridge.position + r * bridge_plane.p4;
 
-    if (IsPointOnPlane(player_position.xz(), bridge_plane)) {
+    if (IsPointOnPlane(state.player_position.xz(), bridge_plane)) {
       // Figure out how far along the bridge the player is,
       // and set their height accordingly
-      tVec3f bridge_to_player = player_position - bridge.position;
+      tVec3f bridge_to_player = state.player_position - bridge.position;
       tVec3f player_position_in_bridge_space = r.inverse() * bridge_to_player;
       float midpoint_ratio = 1.f - abs(player_position_in_bridge_space.x) / bridge.scale.x;
       float floor_height = Tachyon_EaseOutQuad(midpoint_ratio);
 
-      player_position.y = floor_height * bridge.scale.y / 2.2f;
+      state.player_position.y = floor_height * bridge.scale.y / 2.2f;
+      state.is_on_solid_ground = true;
 
       break;
     }
@@ -114,8 +150,6 @@ static void HandleBridgeCollisions(Tachyon* tachyon, State& state) {
 }
 
 static void HandleRiverLogCollisions(Tachyon* tachyon, State& state) {
-  auto& player_position = state.player_position;
-
   for_entities(state.river_logs) {
     auto& entity = state.river_logs[i];
     auto& log = objects(state.meshes.river_log)[i];
@@ -141,50 +175,13 @@ static void HandleRiverLogCollisions(Tachyon* tachyon, State& state) {
     log_plane.p3 = log.position + r * log_plane.p3;
     log_plane.p4 = log.position + r * log_plane.p4;
 
-    if (IsPointOnPlane(player_position.xz(), log_plane)) {
+    if (IsPointOnPlane(state.player_position.xz(), log_plane)) {
       // @todo define a constant for player height
-      player_position.y = log.position.y + log.scale.y * 0.2f + 1500.f;
+      state.player_position.y = log.position.y + log.scale.y * 0.2f + 1500.f;
+      state.is_on_solid_ground = true;
 
       break;
     }
-  }
-}
-
-static void HandleFlatGroundCollisions(Tachyon* tachyon, State& state) {
-  state.player_position.y = state.water_level + 1500.f;
-
-  bool is_on_flat_ground = false;
-
-  for (auto& ground : objects(state.meshes.flat_ground)) {
-    // @todo factor
-    Plane ground_plane = {
-      tVec3f(-1.f, 0, 1.f) * ground.scale,
-      tVec3f(1.f, 0, 1.f) * ground.scale,
-      tVec3f(1.f, 0, -1.f) * ground.scale,
-      tVec3f(-1.f, 0, -1.f) * ground.scale
-    };
-
-    tMat4f r = ground.rotation.toMatrix4f();
-
-    ground_plane.p1 = ground.position + r * ground_plane.p1;
-    ground_plane.p2 = ground.position + r * ground_plane.p2;
-    ground_plane.p3 = ground.position + r * ground_plane.p3;
-    ground_plane.p4 = ground.position + r * ground_plane.p4;
-
-    if (IsPointOnPlane(state.player_position.xz(), ground_plane)) {
-      // @todo handle gravity
-      state.player_position.y = 0.f;
-
-      is_on_flat_ground = true;
-
-      break;
-    }
-  }
-
-  if (!is_on_flat_ground) {
-    // @todo take the last plane we were on, figure out which edge we left,
-    // and direct the player along that line
-    state.player_position = state.last_player_position;
   }
 }
 
@@ -205,7 +202,15 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
     ResolveSingleRadiusCollision(state, rock.position, rock.scale, 1.f);
   }
 
+  state.is_on_solid_ground = false;
+
   HandleFlatGroundCollisions(tachyon, state);
   HandleBridgeCollisions(tachyon, state);
   HandleRiverLogCollisions(tachyon, state);
+
+  if (!state.is_on_solid_ground) {
+    // @todo take the last plane we were on, figure out which edge we left,
+    // and direct the player along that line
+    state.player_position.y = state.water_level + 1500.f;
+  }
 }

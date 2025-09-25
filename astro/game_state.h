@@ -41,6 +41,7 @@ namespace astro {
     tVec3f player_position = tVec3f(0.f, 0.f, 3500.f);
     tVec3f last_player_position;
     tVec3f player_velocity;
+    bool is_on_solid_ground = false;
 
     tVec3f camera_shift;
 
