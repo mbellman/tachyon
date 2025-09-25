@@ -1011,11 +1011,13 @@ static void DisplaySelectedEntityProperties(Tachyon* tachyon, State& state) {
  */
 static void DisplaySelectedObjectProperties(Tachyon* tachyon, State& state) {
   auto& object = editor.current_selectable.placeholder;
+  uint16 total = objects(object.mesh_index).total_active;
 
   static std::vector<std::string> labels;
 
   labels.clear();
-  labels.push_back("Mesh: " + std::to_string(object.mesh_index)); // @todo use name
+  // @todo use name
+  labels.push_back("Mesh: " + std::to_string(object.mesh_index) + " (" + std::to_string(total) + " active)");
   labels.push_back("Object ID: " + std::to_string(object.object_id));
   labels.push_back("position: " + FormatForDisplay(object.position));
   labels.push_back("scale: " + FormatForDisplay(object.scale));

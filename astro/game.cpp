@@ -33,7 +33,7 @@ static void UpdateWaterPlane(Tachyon* tachyon, State& state) {
   water_plane.position.y = -1800.f + 22.f * state.astro_time;
 
   if (water_plane.position.y > -1800.f) water_plane.position.y = -1800.f;
-  if (water_plane.position.y < -3200.f) water_plane.position.y = -3200.f;
+  if (water_plane.position.y < -4000.f) water_plane.position.y = -4000.f;
 
   commit(water_plane);
 

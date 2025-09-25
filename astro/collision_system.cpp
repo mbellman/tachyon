@@ -11,6 +11,13 @@ static std::vector<tVec3f> small_bridge_points = {
   tVec3f(-1.f, 0, -0.65f)
 };
 
+static std::vector<tVec3f> river_log_points = {
+  tVec3f(-0.2f, 0, 1.f),
+  tVec3f(0.2f, 0, 1.f),
+  tVec3f(0.2f, 0, -1.f),
+  tVec3f(-0.2f, 0, -1.f)
+};
+
 struct Plane {
   tVec3f p1, p2, p3, p4;
 };
@@ -65,9 +72,6 @@ static inline void ResolveSingleRadiusCollision(State& state, const tVec3f& posi
 static void HandleBridgeCollisions(Tachyon* tachyon, State& state) {
   auto& player_position = state.player_position;
 
-  // @todo handle gravity
-  player_position.y = 0.f;
-
   for_entities(state.small_stone_bridges) {
     auto& bridge = state.small_stone_bridges[i];
 
@@ -94,12 +98,48 @@ static void HandleBridgeCollisions(Tachyon* tachyon, State& state) {
     bridge_plane.p4 = bridge.position + r * bridge_plane.p4;
 
     if (IsPointOnPlane(player_position.xz(), bridge_plane)) {
+      // Figure out how far along the bridge the player is,
+      // and set their height accordingly
       tVec3f bridge_to_player = player_position - bridge.position;
       tVec3f player_position_in_bridge_space = r.inverse() * bridge_to_player;
       float midpoint_ratio = 1.f - abs(player_position_in_bridge_space.x) / bridge.scale.x;
       float floor_height = Tachyon_EaseOutQuad(midpoint_ratio);
 
       player_position.y = floor_height * bridge.scale.y / 2.2f;
+    }
+  }
+}
+
+static void HandleRiverLogCollisions(Tachyon* tachyon, State& state) {
+  auto& player_position = state.player_position;
+
+  for_entities(state.river_logs) {
+    auto& entity = state.river_logs[i];
+    auto& log = objects(state.meshes.river_log)[i];
+
+    if (entity.visible_scale == tVec3f(0.f)) {
+      continue;
+    }
+
+    // @temporary
+    Plane log_plane = {
+      river_log_points[0] * entity.scale,
+      river_log_points[1] * entity.scale,
+      river_log_points[2] * entity.scale,
+      river_log_points[3] * entity.scale
+    };
+
+    // @todo @optimize this need not be computed every frame
+    tMat4f r = log.rotation.toMatrix4f();
+
+    log_plane.p1 = log.position + r * log_plane.p1;
+    log_plane.p2 = log.position + r * log_plane.p2;
+    log_plane.p3 = log.position + r * log_plane.p3;
+    log_plane.p4 = log.position + r * log_plane.p4;
+
+    if (IsPointOnPlane(player_position.xz(), log_plane)) {
+      // @todo define a constant for player height
+      player_position.y = log.position.y + log.scale.y * 0.2f + 1500.f;
     }
   }
 }
@@ -121,5 +161,9 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
     ResolveSingleRadiusCollision(state, rock.position, rock.scale, 1.f);
   }
 
+  // @todo handle gravity
+  state.player_position.y = 0.f;
+
   HandleBridgeCollisions(tachyon, state);
+  HandleRiverLogCollisions(tachyon, state);
 }
