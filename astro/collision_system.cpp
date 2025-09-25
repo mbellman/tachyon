@@ -153,6 +153,8 @@ static void HandleRiverLogCollisions(Tachyon* tachyon, State& state) {
 static void HandleFlatGroundCollisions(Tachyon* tachyon, State& state) {
   state.player_position.y = state.water_level + 1500.f;
 
+  bool is_on_flat_ground = false;
+
   for (auto& ground : objects(state.meshes.flat_ground)) {
     // @todo factor
     Plane ground_plane = {
@@ -173,8 +175,16 @@ static void HandleFlatGroundCollisions(Tachyon* tachyon, State& state) {
       // @todo handle gravity
       state.player_position.y = 0.f;
 
+      is_on_flat_ground = true;
+
       break;
     }
+  }
+
+  if (!is_on_flat_ground) {
+    // @todo take the last plane we were on, figure out which edge we left,
+    // and direct the player along that line
+    state.player_position = state.last_player_position;
   }
 }
 

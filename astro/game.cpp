@@ -391,6 +391,9 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
 
   TimeEvolution::HandleAstroTime(tachyon, state, dt);
 
+  // @todo HandleFrameEnd()
+  state.last_player_position = state.player_position;
+
   // @todo move to ui.cpp
   // @todo debug mode only
   ShowGameStats(tachyon, state);
