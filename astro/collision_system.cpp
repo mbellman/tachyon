@@ -81,6 +81,7 @@ static void HandleBridgeCollisions(Tachyon* tachyon, State& state) {
     }
 
     // @temporary
+    // @todo factor
     // @todo properly handle collisions for different parts of the bridge
     Plane bridge_plane = {
       small_bridge_points[0] * bridge.scale,
@@ -106,6 +107,8 @@ static void HandleBridgeCollisions(Tachyon* tachyon, State& state) {
       float floor_height = Tachyon_EaseOutQuad(midpoint_ratio);
 
       player_position.y = floor_height * bridge.scale.y / 2.2f;
+
+      break;
     }
   }
 }
@@ -121,6 +124,7 @@ static void HandleRiverLogCollisions(Tachyon* tachyon, State& state) {
       continue;
     }
 
+    // @todo factor
     // @temporary
     Plane log_plane = {
       river_log_points[0] * entity.scale,
@@ -140,6 +144,36 @@ static void HandleRiverLogCollisions(Tachyon* tachyon, State& state) {
     if (IsPointOnPlane(player_position.xz(), log_plane)) {
       // @todo define a constant for player height
       player_position.y = log.position.y + log.scale.y * 0.2f + 1500.f;
+
+      break;
+    }
+  }
+}
+
+static void HandleFlatGroundCollisions(Tachyon* tachyon, State& state) {
+  state.player_position.y = state.water_level + 1500.f;
+
+  for (auto& ground : objects(state.meshes.flat_ground)) {
+    // @todo factor
+    Plane ground_plane = {
+      tVec3f(-1.f, 0, 1.f) * ground.scale,
+      tVec3f(1.f, 0, 1.f) * ground.scale,
+      tVec3f(1.f, 0, -1.f) * ground.scale,
+      tVec3f(-1.f, 0, -1.f) * ground.scale
+    };
+
+    tMat4f r = ground.rotation.toMatrix4f();
+
+    ground_plane.p1 = ground.position + r * ground_plane.p1;
+    ground_plane.p2 = ground.position + r * ground_plane.p2;
+    ground_plane.p3 = ground.position + r * ground_plane.p3;
+    ground_plane.p4 = ground.position + r * ground_plane.p4;
+
+    if (IsPointOnPlane(state.player_position.xz(), ground_plane)) {
+      // @todo handle gravity
+      state.player_position.y = 0.f;
+
+      break;
     }
   }
 }
@@ -161,9 +195,7 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
     ResolveSingleRadiusCollision(state, rock.position, rock.scale, 1.f);
   }
 
-  // @todo handle gravity
-  state.player_position.y = 0.f;
-
+  HandleFlatGroundCollisions(tachyon, state);
   HandleBridgeCollisions(tachyon, state);
   HandleRiverLogCollisions(tachyon, state);
 }
