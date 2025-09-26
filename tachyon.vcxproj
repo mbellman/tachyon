@@ -117,10 +117,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="astro\collision_system.h" />
+    <ClInclude Include="astro\control_system.h" />
     <ClInclude Include="astro\data_loader.h" />
     <ClInclude Include="astro\entities_and_objects.h" />
     <ClInclude Include="astro\entity_behaviors\behavior.h" />
+    <ClInclude Include="astro\entity_behaviors\LowGuard.h" />
     <ClInclude Include="astro\entity_behaviors\OakTree.h" />
+    <ClInclude Include="astro\entity_behaviors\RiverLog.h" />
     <ClInclude Include="astro\entity_behaviors\Shrub.h" />
     <ClInclude Include="astro\entity_behaviors\SmallStoneBridge.h" />
     <ClInclude Include="astro\entity_behaviors\WillowTree.h" />
@@ -272,6 +275,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="astro\collision_system.cpp" />
+    <ClCompile Include="astro\control_system.cpp" />
     <ClCompile Include="astro\data_loader.cpp" />
     <ClCompile Include="astro\entity_dispatcher.cpp" />
     <ClCompile Include="astro\entity_manager.cpp" />
