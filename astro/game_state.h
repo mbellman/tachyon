@@ -40,7 +40,16 @@ namespace astro {
   };
 
   struct Spells {
+    // Stun
     float last_stun_time = 0.f;
+    int32 stun_light_id = -1;
+
+    // Homing
+    float last_homing_time = 0.f;
+    EntityRecord homing_target_entity;
+    // @temporary
+    // @todo allow multiple homing lights
+    int32 homing_light_id = -1;
   };
 
   struct State : EntityContainers {
@@ -57,7 +66,7 @@ namespace astro {
     tVec3f camera_shift;
 
     float water_level = -1800.f;
-    
+
     float astro_time = 0.f;
     float astro_turn_speed = 0.f;
     float astro_time_at_start_of_turn = 0.f;
