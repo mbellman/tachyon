@@ -52,6 +52,8 @@ static inline tVec3f GetOversteppedEdge(const tVec3f& point, const Plane& plane)
     return plane.p1 - plane.p4;
   }
 
+  // We .unit() the returned value, so ensure its magnitude is not zero
+  // in the fallback case, which would cause divide-by-zero issues
   return tVec3f(1.f, 0, 0);
 }
 
@@ -204,6 +206,16 @@ static void HandleRiverLogCollisions(Tachyon* tachyon, State& state) {
   }
 }
 
+static void HandleMovementOffSolidGround(Tachyon* tachyon, State& state) {
+  tVec3f edge = GetOversteppedEdge(state.player_position, state.last_plane_walked_on);
+  float edge_movement_dot = tVec3f::dot(state.player_velocity, edge);
+  tVec3f corrected_direction = edge_movement_dot > 0.f ? edge.unit() : edge.invert().unit();
+  tVec3f rebound_direction = tVec3f::cross(tVec3f(0, 1.f, 0), edge.unit());
+
+  state.player_position = state.last_solid_ground_position + rebound_direction * 5.f;
+  state.player_velocity = corrected_direction * state.player_velocity.magnitude();
+}
+
 void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   for_entities(state.shrubs) {
     auto& entity = state.shrubs[i];
@@ -228,13 +240,6 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   HandleRiverLogCollisions(tachyon, state);
 
   if (!state.is_on_solid_ground) {
-    // @todo take the last plane we were on, figure out which edge we left,
-    // and direct the player along that line
-    auto& last_plane = state.last_plane_walked_on;
-    tVec3f edge = GetOversteppedEdge(state.player_position, last_plane);
-    tVec3f rebound_direction = tVec3f::cross(tVec3f(0, 1.f, 0), edge.unit());
-
-    state.player_position = state.last_solid_ground_position + rebound_direction * 5.f;
-    state.player_velocity = edge.unit() * state.player_velocity.magnitude();
+    HandleMovementOffSolidGround(tachyon, state);
   }
 }
