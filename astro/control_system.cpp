@@ -144,12 +144,60 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
   state.last_frame_right_trigger = tachyon->right_trigger;
 }
 
+// @todo move to magic_system.cpp
+static void CastStun(Tachyon* tachyon, State& state) {
+  state.spells.last_stun_time = tachyon->running_time;
+
+  // Stun light
+  tachyon->point_lights.push_back({
+    .radius = 0.f,
+    .color = tVec3f(1.f, 0.8f, 0.4f),
+    .power = 5.f
+  });
+}
+
+// @todo move to magic_system.cpp
+static void HandleSpells(Tachyon* tachyon, State& state) {
+  if (tachyon->point_lights.size() == 0) {
+    return;
+  }
+
+  // Stun spells
+  {
+    auto& light = tachyon->point_lights.back();
+    float t = (tachyon->running_time - state.spells.last_stun_time) / 3.f;
+    if (t > 1.f) t = 1.f;
+
+    light.position = state.player_position + tVec3f(800.f, 1000.f, -800.f);
+    light.radius = 25000.f * Tachyon_EaseInOutf(t);
+    light.power = 5.f * powf(1.f - t, 2.f);
+  }
+}
+
 static void HandleMagicControls(Tachyon* tachyon, State& state, const float dt) {
-  // @todo
+  // X
+  if (did_press_key(tKey::CONTROLLER_A)) {
+  }
+
+  // O
+  if (did_press_key(tKey::CONTROLLER_B)) {
+    CastStun(tachyon, state);
+  }
+
+  // Square
+  if (did_press_key(tKey::CONTROLLER_X)) {
+  }
+
+  // Triangle
+  if (did_press_key(tKey::CONTROLLER_Y)) {
+  }
 }
 
 void ControlSystem::HandleControls(Tachyon* tachyon, State& state, const float dt) {
   HandlePlayerMovementControls(tachyon, state, dt);
   HandleAstroControls(tachyon, state, dt);
   HandleMagicControls(tachyon, state, dt);
+
+  // @temporary
+  HandleSpells(tachyon, state);
 }

@@ -39,6 +39,10 @@ namespace astro {
     tVec3f p1, p2, p3, p4;
   };
 
+  struct Spells {
+    float last_stun_time = 0.f;
+  };
+
   struct State : EntityContainers {
     MeshIds meshes;
 
@@ -53,10 +57,12 @@ namespace astro {
     tVec3f camera_shift;
 
     float water_level = -1800.f;
-
+    
     float astro_time = 0.f;
     float astro_turn_speed = 0.f;
     float astro_time_at_start_of_turn = 0.f;
+
+    Spells spells;
 
     float last_frame_left_trigger = 0.f;
     float last_frame_right_trigger = 0.f;
