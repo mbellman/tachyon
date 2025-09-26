@@ -39,11 +39,11 @@ namespace astro {
         float surface_oscillation = sinf(tachyon->running_time * 0.6f + entity.position.x);
         float swivel_oscillation = sinf(tachyon->running_time + entity.position.x);
 
-        float surface = 150.f * sinf(surface_oscillation);
+        float surface_height = -trunk.scale.y * 0.15f + trunk.scale.y * 0.04f * sinf(surface_oscillation);
         Quaternion swivel = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 0.025f * swivel_oscillation);
 
         trunk.position = entity.position;
-        trunk.position.y = state.water_level + surface;
+        trunk.position.y = state.water_level + surface_height;
         trunk.rotation = entity.orientation * swivel;
         trunk.color = entity.tint;
         trunk.scale = entity.scale;
