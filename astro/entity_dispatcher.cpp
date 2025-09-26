@@ -2,6 +2,7 @@
 
 #include "astro/entity_dispatcher.h"
 
+#include "astro/entity_behaviors/LowGuard.h"
 #include "astro/entity_behaviors/OakTree.h"
 #include "astro/entity_behaviors/RiverLog.h"
 #include "astro/entity_behaviors/Shrub.h"
@@ -46,6 +47,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
     dispatch_GetEntityContainer(SMALL_STONE_BRIDGE, state.small_stone_bridges);
     dispatch_GetEntityContainer(WOODEN_GATE_DOOR, state.wooden_gate_doors);
     dispatch_GetEntityContainer(RIVER_LOG, state.river_logs);
+    dispatch_GetEntityContainer(LOW_GUARD, state.low_guards);
 
     default:
       // @todo log error
@@ -62,6 +64,7 @@ void EntityDispatcher::SpawnObjects(Tachyon* tachyon, State& state, const GameEn
     dispatch_SpawnObjects(SMALL_STONE_BRIDGE, SmallStoneBridge);
     dispatch_SpawnObjects(WOODEN_GATE_DOOR, WoodenGateDoor);
     dispatch_SpawnObjects(RIVER_LOG, RiverLog);
+    dispatch_SpawnObjects(LOW_GUARD, LowGuard);
 
     default:
       // @todo log error
@@ -78,6 +81,7 @@ void EntityDispatcher::DestroyObjects(Tachyon* tachyon, State& state, EntityType
     dispatch_DestroyObjects(SMALL_STONE_BRIDGE, SmallStoneBridge);
     dispatch_DestroyObjects(WOODEN_GATE_DOOR, WoodenGateDoor);
     dispatch_DestroyObjects(RIVER_LOG, RiverLog);
+    dispatch_DestroyObjects(LOW_GUARD, LowGuard);
 
     default:
       // @todo log error
@@ -88,12 +92,14 @@ void EntityDispatcher::DestroyObjects(Tachyon* tachyon, State& state, EntityType
 
 tObject& EntityDispatcher::CreatePlaceholder(Tachyon* tachyon, State& state, const GameEntity& entity) {
   switch (entity.type) {
+    // @todo we no longer need to pass the entity here
     dispatch_CreatePlaceholder(SHRUB, Shrub, entity);
     dispatch_CreatePlaceholder(OAK_TREE, OakTree, entity);
     dispatch_CreatePlaceholder(WILLOW_TREE, WillowTree, entity);
     dispatch_CreatePlaceholder(SMALL_STONE_BRIDGE, SmallStoneBridge, entity);
     dispatch_CreatePlaceholder(WOODEN_GATE_DOOR, WoodenGateDoor, entity);
     dispatch_CreatePlaceholder(RIVER_LOG, RiverLog, entity);
+    dispatch_CreatePlaceholder(LOW_GUARD, LowGuard, entity);
 
     default:
       // @todo log error
@@ -110,6 +116,7 @@ void EntityDispatcher::DestroyPlaceholders(Tachyon* tachyon, State& state, Entit
     dispatch_DestroyPlaceholders(SMALL_STONE_BRIDGE, SmallStoneBridge);
     dispatch_DestroyPlaceholders(WOODEN_GATE_DOOR, WoodenGateDoor);
     dispatch_DestroyPlaceholders(RIVER_LOG, RiverLog);
+    dispatch_DestroyPlaceholders(LOW_GUARD, LowGuard);
 
     default:
       // @todo log error
@@ -126,6 +133,7 @@ void EntityDispatcher::TimeEvolve(Tachyon* tachyon, State& state, EntityType typ
     dispatch_TimeEvolve(SMALL_STONE_BRIDGE, SmallStoneBridge);
     dispatch_TimeEvolve(WOODEN_GATE_DOOR, WoodenGateDoor);
     dispatch_TimeEvolve(RIVER_LOG, RiverLog);
+    dispatch_TimeEvolve(LOW_GUARD, LowGuard);
 
     default:
       // @todo log error

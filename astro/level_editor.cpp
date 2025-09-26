@@ -1208,6 +1208,7 @@ void LevelEditor::OpenLevelEditor(Tachyon* tachyon, State& state) {
   objects(meshes.small_stone_bridge_columns).disabled = true;
   objects(meshes.wooden_gate_door).disabled = true;
   objects(meshes.river_log).disabled = true;
+  objects(meshes.low_guard).disabled = true;
 
   editor.selectables.clear();
 
@@ -1242,6 +1243,7 @@ void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
   objects(meshes.small_stone_bridge_columns).disabled = false;
   objects(meshes.wooden_gate_door).disabled = false;
   objects(meshes.river_log).disabled = false;
+  objects(meshes.low_guard).disabled = false;
 
   if (editor.is_object_selected) {
     DeselectCurrent(tachyon, state);

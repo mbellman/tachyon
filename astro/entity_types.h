@@ -17,7 +17,8 @@ namespace astro {
     WILLOW_TREE,
     SMALL_STONE_BRIDGE,
     WOODEN_GATE_DOOR,
-    RIVER_LOG
+    RIVER_LOG,
+    LOW_GUARD
   };
 
   /**
@@ -31,7 +32,8 @@ namespace astro {
     WILLOW_TREE,
     SMALL_STONE_BRIDGE,
     WOODEN_GATE_DOOR,
-    RIVER_LOG
+    RIVER_LOG,
+    LOW_GUARD
   };
 
   /**
@@ -102,8 +104,12 @@ namespace astro {
       small_stone_bridge_base,
 
       // WOODEN_GATE_DOOR
+      wooden_gate_door_placeholder,
       wooden_gate_door,
-      wooden_gate_door_placeholder;
+      
+      // LOW_GUARD
+      low_guard_placeholder,
+      low_guard;
   };
 
   /**
@@ -118,6 +124,7 @@ namespace astro {
     std::vector<GameEntity> small_stone_bridges;
     std::vector<GameEntity> wooden_gate_doors;
     std::vector<GameEntity> river_logs;
+    std::vector<GameEntity> low_guards;
   };
 
   /**
@@ -174,6 +181,12 @@ namespace astro {
       .name = "River Log",
       .scale = tVec3f(3000.f),
       .tint = tVec3f(1.f, 0.5f, 0.1f)
+    } },
+
+    { LOW_GUARD, {
+      .name = "Low Guard",
+      .scale = tVec3f(600.f, 1500.f, 600.f ),
+      .tint = tVec3f(0.7f)
     } }
   };
 }
