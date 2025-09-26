@@ -18,10 +18,10 @@ void TimeEvolution::HandleAstroTime(Tachyon* tachyon, State& state, const float 
   auto& light_color = tachyon->scene.primary_light_color;
   
   tVec3f start_direction = tVec3f(-1.f, -1.f, 0.2f);
-  tVec3f start_color = tVec3f(1.f);
+  tVec3f start_color =  tVec3f(1.f);
 
   tVec3f end_direction = tVec3f(0.2, -1.f, 1.f);
-  tVec3f end_color = tVec3f(1.f, 0.3f, 0.1f);
+  tVec3f end_color = tVec3f(1.f, 0.1f, 0.1f);
 
   float alpha = -1.f * (state.astro_time / 250.f);
   
