@@ -34,14 +34,21 @@ namespace astro {
       gizmo_rotator;
   };
 
+  // @todo move to engine?
+  struct Plane {
+    tVec3f p1, p2, p3, p4;
+  };
+
   struct State : EntityContainers {
     MeshIds meshes;
 
     // @todo default this in game.cpp or elsewhere
     tVec3f player_position = tVec3f(0.f, 0.f, 3500.f);
     tVec3f last_player_position;
+    tVec3f last_solid_ground_position;
     tVec3f player_velocity;
     bool is_on_solid_ground = false;
+    Plane last_plane_walked_on;
 
     tVec3f camera_shift;
 

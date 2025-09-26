@@ -18,10 +18,6 @@ static std::vector<tVec3f> river_log_points = {
   tVec3f(-0.2f, 0, -1.f)
 };
 
-struct Plane {
-  tVec3f p1, p2, p3, p4;
-};
-
 // @temporary
 // @todo replace with proper line/plane collision checks
 static inline bool IsPointInsideEdge(const tVec3f& point, const tVec3f& e1, const tVec3f& e2) {
@@ -40,6 +36,23 @@ static inline bool IsPointOnPlane(const tVec3f& point, const Plane& plane) {
   bool d4 = IsPointInsideEdge(point, plane.p1, plane.p4);
 
   return d1 && d2 && d3 && d4;
+}
+
+static inline tVec3f GetOversteppedEdge(const tVec3f& point, const Plane& plane) {
+  if (!IsPointInsideEdge(point, plane.p2, plane.p1)) {
+    return plane.p2 - plane.p1;
+  }
+  else if (!IsPointInsideEdge(point, plane.p3, plane.p2)) {
+    return plane.p3 - plane.p2;
+  }
+  else if (!IsPointInsideEdge(point, plane.p4, plane.p3)) {
+    return plane.p4 - plane.p3;
+  }
+  else if (!IsPointInsideEdge(point, plane.p1, plane.p4)) {
+    return plane.p1 - plane.p4;
+  }
+
+  return tVec3f(1.f, 0, 0);
 }
 
 static inline bool IsPointWithRadiusOnPlane(const tVec3f& point, const float radius, const Plane& plane) {
@@ -96,10 +109,12 @@ static void HandleFlatGroundCollisions(Tachyon* tachyon, State& state) {
     ground_plane.p3 = ground.position + r * ground_plane.p3;
     ground_plane.p4 = ground.position + r * ground_plane.p4;
 
-    if (IsPointWithRadiusOnPlane(state.player_position, 600.f, ground_plane)) {
+    if (IsPointWithRadiusOnPlane(state.player_position, 400.f, ground_plane)) {
       // @todo set to height of ground
       state.player_position.y = 0.f;
+      state.last_solid_ground_position = state.player_position;
       state.is_on_solid_ground = true;
+      state.last_plane_walked_on = ground_plane;
 
       break;
     }
@@ -142,7 +157,9 @@ static void HandleBridgeCollisions(Tachyon* tachyon, State& state) {
       float floor_height = Tachyon_EaseOutQuad(midpoint_ratio);
 
       state.player_position.y = floor_height * bridge.scale.y / 2.2f;
+      state.last_solid_ground_position = state.player_position;
       state.is_on_solid_ground = true;
+      state.last_plane_walked_on = bridge_plane;
 
       break;
     }
@@ -178,7 +195,9 @@ static void HandleRiverLogCollisions(Tachyon* tachyon, State& state) {
     if (IsPointOnPlane(state.player_position.xz(), log_plane)) {
       // @todo define a constant for player height
       state.player_position.y = log.position.y + log.scale.y * 0.2f + 1500.f;
+      state.last_solid_ground_position = state.player_position;
       state.is_on_solid_ground = true;
+      state.last_plane_walked_on = log_plane;
 
       break;
     }
@@ -211,6 +230,11 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   if (!state.is_on_solid_ground) {
     // @todo take the last plane we were on, figure out which edge we left,
     // and direct the player along that line
-    state.player_position.y = state.water_level + 1500.f;
+    auto& last_plane = state.last_plane_walked_on;
+    tVec3f edge = GetOversteppedEdge(state.player_position, last_plane);
+    tVec3f rebound_direction = tVec3f::cross(tVec3f(0, 1.f, 0), edge.unit());
+
+    state.player_position = state.last_solid_ground_position + rebound_direction * 5.f;
+    state.player_velocity = edge.unit() * state.player_velocity.magnitude();
   }
 }

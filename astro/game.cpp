@@ -10,9 +10,11 @@
 
 using namespace astro;
 
-static void UpdatePlayer(Tachyon* tachyon, State& state) {
-  auto& player = objects(state.meshes.player)[0];
-  
+static void UpdatePlayer(Tachyon* tachyon, State& state, const float dt) {
+  state.player_position += state.player_velocity * 5.f * dt;
+
+  auto& player = objects(state.meshes.player)[0]; 
+
   player.position = state.player_position;
   // @temporary
   player.scale = tVec3f(600.f, 1500.f, 600.f);
@@ -236,7 +238,6 @@ static void HandleControls(Tachyon* tachyon, State& state, const float dt) {
     }
 
     state.player_velocity *= 1.f - 10.f * dt;
-    state.player_position += state.player_velocity * 5.f * dt;
   }
 
   // Handle astro turn actions
@@ -384,7 +385,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
 
   CollisionSystem::HandleCollisions(tachyon, state);
 
-  UpdatePlayer(tachyon, state);
+  UpdatePlayer(tachyon, state, dt);
   UpdateWaterPlane(tachyon, state);
   UpdateCamera(tachyon, state, dt);
   UpdateAstrolabe(tachyon, state);
