@@ -177,6 +177,20 @@ float GetAverageShadowFactor(sampler2D shadow_map, vec3 light_space_position, in
   const vec2 texel_size = 1.0 / vec2(2048.0);
   float t = fract(running_time);
 
+  const float[] biases = {
+    0.0002,
+    0.0004,
+    0.0008,
+    0.0008
+  };
+
+  const float[] spatial_spread_per_cascade = {
+    2.0,
+    1.0,
+    1.5,
+    0.75
+  };
+
   const vec2[] offsets = {
     vec2(0.0),
     vec2(noise(1.0 + t), noise(2.0 + t)),
@@ -185,14 +199,7 @@ float GetAverageShadowFactor(sampler2D shadow_map, vec3 light_space_position, in
     vec2(noise(7.0 + t), noise(8.0 + t)),
   };
 
-  const float[] spatial_spread_per_cascade = {
-    2.0,
-    1.0,
-    1.5,
-    2.0
-  };
-
-  const float bias = 0.001;
+  const float bias = biases[cascade_index];
   const float spread = spatial_spread_per_cascade[cascade_index];
 
   float shadow_factor = 0.0;
