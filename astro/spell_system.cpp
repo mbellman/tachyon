@@ -13,6 +13,7 @@ static void HandleActiveStunSpell(Tachyon* tachyon, State& state) {
   auto& light = *get_point_light(spells.stun_light_id);
   float t = (tachyon->running_time - spells.last_stun_time) / 3.f;
   if (t > 1.f) t = 1.f;
+  t = sqrtf(t);
 
   light.position = state.player_position + tVec3f(800.f, 1000.f, -800.f);
   light.position.y += sqrtf(t) * 1200.f;
@@ -34,24 +35,49 @@ static void HandleActiveHomingSpell(Tachyon* tachyon, State& state, const float 
     return;
   }
 
-  float t = tachyon->running_time - spells.last_homing_time;
+  float time_since_casting = tachyon->running_time - spells.last_homing_time;
 
   for (int32 i = 0; i < 3; i++) {
-    float speed_alpha = t - float(i) * 0.4f;
-    if (speed_alpha < 0.f) speed_alpha = 0.f;
-
     auto& light = *get_point_light(spells.homing_light_ids[i]);
-    float speed = Tachyon_Lerpf(2000.f, 10000.f, speed_alpha);
-    // @todo target_entity->visible_position
-    tVec3f target_direction = target_entity->position - light.position;
 
-    if (speed_alpha > 0.f) {
-      light.position += target_direction.unit() * speed * dt;
-    }
-
-    light.radius = 3000.f;
+    // Set static light parameters
     light.color = tVec3f(0.1f, 0.3f, 1.f);
     light.power = 5.f;
+
+    // Define an adjusted time value for each light so they can behave in succession
+    float t = time_since_casting - float(i) * 0.4f;
+    if (t < 0.f) t = 0.f;
+
+    // Circle the player
+    if (t < 2.f) {
+      float alpha = t / 2.f;
+      float theta = -alpha * t_TAU * 1.25f;
+      float circle_radius = sqrtf(alpha) * 2000.f;
+
+      const static tVec3f start = { 0.f, 0.f, 1.f };
+      tVec3f offset = start;
+
+      offset.x = start.x * cosf(theta) - start.z * sinf(theta);
+      offset.z = start.x * sinf(theta) + start.z * cosf(theta);
+
+      light.position = state.player_position + offset * circle_radius;
+      light.radius = 3000.f * alpha;
+    }
+
+    // Target the enemy
+    else {
+      float alpha = t - 2.f;
+      float speed = Tachyon_Lerpf(7000.f, 16000.f, alpha);
+
+      // @todo target_entity->visible_position
+      tVec3f target_direction = target_entity->position - light.position;
+
+      if (t > 0.f) {
+        light.position += target_direction.unit() * speed * dt;
+      }
+
+      light.radius = 3000.f;
+    }
   }
 }
 
