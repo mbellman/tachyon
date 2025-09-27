@@ -198,7 +198,7 @@ static void HandleDialogue(Tachyon* tachyon, State& state) {
 }
 
 // @todo move to procedural_generation.cpp
-static void GenerateProceduralObjects(Tachyon* tachyon, State& state) {
+static void GenerateProceduralGrass(Tachyon* tachyon, State& state) {
   for (auto& plane : objects(state.meshes.ground_1)) {
     float x_min = plane.position.x - plane.scale.x;
     float x_max = plane.position.x + plane.scale.x;
@@ -206,15 +206,28 @@ static void GenerateProceduralObjects(Tachyon* tachyon, State& state) {
     float z_min = plane.position.z - plane.scale.z;
     float z_max = plane.position.z + plane.scale.z;
 
+    tVec3f direction = plane.rotation.getDirection();
+    float theta = atan2f(direction.z, direction.x) + t_HALF_PI;
+
     for (uint16 i = 0; i < 20; i++) {
       auto& grass = create(state.meshes.grass);
 
+      // @todo account for ground_1 rotation
       float x = Tachyon_GetRandom(x_min, x_max);
       float z = Tachyon_GetRandom(z_min, z_max);
 
-      grass.position.x = x;
+      float mx = x - plane.position.x;
+      float mz = z - plane.position.z;
+
+      float fx = mx;
+      float fz = mz;
+
+      fx = plane.position.x + (mx * cosf(theta) - mz * sinf(theta));
+      fz = plane.position.z + (mx * sinf(theta) + mz * cosf(theta));
+
+      grass.position.x = fx;
       grass.position.y = -1200.f;
-      grass.position.z = z;
+      grass.position.z = fz;
 
       grass.scale = tVec3f(1000.f);
       grass.color = tVec3f(0.1f, 0.7f, 0.1f);
@@ -236,7 +249,7 @@ static void HandleProceduralObjects(Tachyon* tachyon, State& state) {
 
     for (auto& grass : objects(state.meshes.grass)) {
       float alpha = state.astro_time + grass.position.x;
-      float angle = float(int(growth_rate * alpha / t_TAU - 0.8f)) * 1.3f;
+      float angle = grass.position.x + float(int(growth_rate * alpha / t_TAU - 0.8f)) * 1.3f;
 
       grass.position.y = -1500.f;
       grass.scale = tVec3f(1200.f) * (0.5f + 0.5f * sinf(growth_rate * alpha));
@@ -259,7 +272,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
   ObjectManager::CreateObjects(tachyon, state);
   DataLoader::LoadLevelData(tachyon, state);
 
-  GenerateProceduralObjects(tachyon, state);
+  GenerateProceduralGrass(tachyon, state);
 
   // @todo default this somewhere, or load in from save
   tachyon->scene.camera.position = tVec3f(0.f, 10000.f, 10000.f);
