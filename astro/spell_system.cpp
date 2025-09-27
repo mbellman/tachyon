@@ -69,13 +69,13 @@ static void HandleActiveHomingSpell(Tachyon* tachyon, State& state, const float 
       float alpha = t - 2.f;
       float speed = Tachyon_Lerpf(7000.f, 16000.f, alpha);
 
+      // @todo use player direction
+      tVec3f player_forward = tVec3f(0, 0, -1.f);
       // @todo target_entity->visible_position
-      tVec3f target_direction = target_entity->position - light.position;
+      tVec3f light_to_target = target_entity->position - light.position;
+      tVec3f direction = tVec3f::lerp(player_forward.unit(), light_to_target.unit(), alpha);
 
-      if (t > 0.f) {
-        light.position += target_direction.unit() * speed * dt;
-      }
-
+      light.position += direction.unit() * speed * dt;
       light.radius = 3000.f;
     }
   }

@@ -30,7 +30,7 @@ static void UpdateWaterPlane(Tachyon* tachyon, State& state) {
 
   // @temporary
   water_plane.position = tVec3f(0, -3000.f, 0);
-  water_plane.scale = tVec3f(40000.f, 1.f, 40000.f);
+  water_plane.scale = tVec3f(100000.f, 1.f, 100000.f);
   water_plane.color = tVec3f(0, 0.1f, 0.3f);
   water_plane.material = tVec4f(0.1f, 1.f, 0, 0.5f);
 
