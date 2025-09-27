@@ -197,6 +197,56 @@ static void HandleDialogue(Tachyon* tachyon, State& state) {
   }
 }
 
+// @todo move to procedural_generation.cpp
+static void GenerateProceduralObjects(Tachyon* tachyon, State& state) {
+  for (auto& plane : objects(state.meshes.ground_1)) {
+    float x_min = plane.position.x - plane.scale.x;
+    float x_max = plane.position.x + plane.scale.x;
+
+    float z_min = plane.position.z - plane.scale.z;
+    float z_max = plane.position.z + plane.scale.z;
+
+    for (uint16 i = 0; i < 20; i++) {
+      auto& grass = create(state.meshes.grass);
+
+      float x = Tachyon_GetRandom(x_min, x_max);
+      float z = Tachyon_GetRandom(z_min, z_max);
+
+      grass.position.x = x;
+      grass.position.y = -1200.f;
+      grass.position.z = z;
+
+      grass.scale = tVec3f(1000.f);
+      grass.color = tVec3f(0.1f, 0.7f, 0.1f);
+
+      commit(grass);
+    }
+  }
+
+  printf("Generated %d grass objects\n", objects(state.meshes.grass).total_active);
+}
+
+// @todo move to procedural_generation.cpp
+// @todo call in time_evolution.cpp
+static void HandleProceduralObjects(Tachyon* tachyon, State& state) {
+  // Grass
+  // @todo only update grass near the player
+  {
+    float growth_rate = 0.6f;
+
+    for (auto& grass : objects(state.meshes.grass)) {
+      float alpha = state.astro_time + grass.position.x;
+      float angle = float(int(growth_rate * alpha / t_TAU - 0.8f)) * 1.3f;
+
+      grass.position.y = -1500.f;
+      grass.scale = tVec3f(1200.f) * (0.5f + 0.5f * sinf(growth_rate * alpha));
+      grass.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), angle);
+
+      commit(grass);
+    }
+  }
+}
+
 void astro::InitGame(Tachyon* tachyon, State& state) {
   MeshLibrary::AddMeshes(tachyon, state);
 
@@ -208,6 +258,8 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
 
   ObjectManager::CreateObjects(tachyon, state);
   DataLoader::LoadLevelData(tachyon, state);
+
+  GenerateProceduralObjects(tachyon, state);
 
   // @todo default this somewhere, or load in from save
   tachyon->scene.camera.position = tVec3f(0.f, 10000.f, 10000.f);
@@ -248,6 +300,9 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
 
   SpellSystem::HandleSpells(tachyon, state, dt);
   TimeEvolution::HandleAstroTime(tachyon, state, dt);
+
+  // @todo call this in TimeEvolution::HandleAstroTime() once it is moved
+  HandleProceduralObjects(tachyon, state);
 
   // @todo HandleFrameEnd()
   state.last_player_position = state.player_position;

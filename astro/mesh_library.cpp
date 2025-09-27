@@ -64,9 +64,12 @@ static void AddEditorMeshes(Tachyon* tachyon, State& state) {
 void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
+  // @temporary
   meshes.player = CUBE_MESH(1);
-
   meshes.water_plane = PLANE_MESH(1);
+
+  // @temporary
+  meshes.grass = MODEL_MESH("./astro/3d_models/grass.obj", 5000);
 
   AddHUDMeshes(tachyon, state);
   AddDecorativeMeshes(tachyon, state);

@@ -17,6 +17,9 @@ namespace astro {
       // Static environment meshes
       water_plane,
 
+      // Procedural meshes
+      grass,
+
       // HUD meshes
       astrolabe_base,
       astrolabe_ring,
