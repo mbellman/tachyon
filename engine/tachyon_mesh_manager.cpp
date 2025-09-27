@@ -5,6 +5,8 @@
 #include "engine/tachyon_loaders.h"
 #include "engine/tachyon_mesh_manager.h"
 
+static int32 running_point_light_id = 0;
+
 static inline float EaseInOut(float t) {
   return -(cosf(t_PI * t) - 1.f) / 2.f;
 }
@@ -702,4 +704,23 @@ void Tachyon_UseLodByDistance(Tachyon* tachyon, const uint16 mesh_index, const f
 
   record.lod_3.base_instance = record.lod_1.base_instance + pivot2;
   record.lod_3.instance_count = group.total_active - pivot2;
+}
+
+int32 Tachyon_CreatePointLight(Tachyon* tachyon) {
+  tPointLight light;
+  light.id = running_point_light_id++;
+
+  tachyon->point_lights.push_back(light);
+
+  return light.id;
+}
+
+tPointLight* Tachyon_GetPointLight(Tachyon* tachyon, int32 light_id) {
+  for (auto& light : tachyon->point_lights) {
+    if (light.id == light_id) {
+      return &light;
+    }
+  }
+
+  return nullptr;
 }

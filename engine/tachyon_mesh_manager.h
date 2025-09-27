@@ -11,6 +11,8 @@
 #define remove_all(__mesh_index) Tachyon_RemoveAllObjects(tachyon, __mesh_index);
 #define commit(__object) Tachyon_CommitObject(tachyon, __object)
 #define get_live_object(__object) Tachyon_GetLiveObject(tachyon, __object)
+#define create_point_light() Tachyon_CreatePointLight(tachyon)
+#define get_point_light(__light_id) Tachyon_GetPointLight(tachyon, __light_id);
 
 tMesh Tachyon_LoadMesh(const char* path, const tVec3f& axis_factors = tVec3f(1.f));
 tMesh Tachyon_CreatePlaneMesh();
@@ -29,3 +31,5 @@ tObject* Tachyon_GetLiveObject(Tachyon* tachyon, const tObject& object);
 uint16 Tachyon_PartitionObjectsByDistance(Tachyon* tachyon, tObjectGroup& group, const uint16 start, const float distance);
 void Tachyon_UseLodByDistance(Tachyon* tachyon, const uint16 mesh_index, const float distance);
 void Tachyon_UseLodByDistance(Tachyon* tachyon, const uint16 mesh_index, const float distance, const float distance2);
+int32 Tachyon_CreatePointLight(Tachyon* tachyon);
+tPointLight* Tachyon_GetPointLight(Tachyon* tachyon, int32 light_id);

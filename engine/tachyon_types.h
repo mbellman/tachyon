@@ -150,6 +150,7 @@ struct tMeshPack {
 };
 
 struct tPointLight {
+  int16 id = -1;
   tVec3f position;
   float radius = 1000.f;
   tVec3f color = tVec3f(1.f);
