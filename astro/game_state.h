@@ -47,9 +47,7 @@ namespace astro {
     // Homing
     float last_homing_time = 0.f;
     EntityRecord homing_target_entity;
-    // @temporary
-    // @todo allow multiple homing lights
-    int32 homing_light_id = -1;
+    int32 homing_light_ids[3] = { -1, -1, -1 };
   };
 
   struct State : EntityContainers {
