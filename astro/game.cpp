@@ -7,6 +7,7 @@
 #include "astro/level_editor.h"
 #include "astro/mesh_library.h"
 #include "astro/object_manager.h"
+#include "astro/spell_system.h"
 #include "astro/time_evolution.h"
 
 using namespace astro;
@@ -177,7 +178,7 @@ static void UpdateAstrolabe(Tachyon* tachyon, State& state) {
   commit(hand);
 }
 
-// @todo move elsewhere
+// @todo dialogue_system.cpp
 static void HandleDialogue(Tachyon* tachyon, State& state) {
   float dialogue_age = tachyon->running_time - state.dialogue_start_time;
 
@@ -245,6 +246,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   UpdateCamera(tachyon, state, dt);
   UpdateAstrolabe(tachyon, state);
 
+  SpellSystem::HandleSpells(tachyon, state, dt);
   TimeEvolution::HandleAstroTime(tachyon, state, dt);
 
   // @todo HandleFrameEnd()
