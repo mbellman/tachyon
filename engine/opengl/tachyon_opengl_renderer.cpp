@@ -389,6 +389,17 @@ static void HandleDevModeInputs(Tachyon* tachyon) {
   }
 }
 
+static void RenderDevLabels(Tachyon* tachyon, int32 y_offset) {
+  // Custom dev labels
+  for (auto& dev_label : tachyon->dev_labels) {
+    auto full_label = dev_label.label + ": " + dev_label.message;
+
+    RenderText(tachyon, tachyon->developer_overlay_font, full_label.c_str(), 10, y_offset, tachyon->window_width, tVec3f(1.f), tVec4f(0.2f, 0.2f, 1.f, 0.4f));
+
+    y_offset += 24;
+  }
+}
+
 static void RenderDebugLabels(Tachyon* tachyon) {
   auto& renderer = get_renderer();
   auto& ctx = renderer.ctx;
@@ -448,13 +459,7 @@ static void RenderDebugLabels(Tachyon* tachyon) {
     y_offset += 25;
 
     // Custom dev labels
-    for (auto& dev_label : tachyon->dev_labels) {
-      auto full_label = dev_label.label + ": " + dev_label.message;
-
-      RenderText(tachyon, tachyon->developer_overlay_font, full_label.c_str(), 10, y_offset, tachyon->window_width, tVec3f(1.f), tVec4f(0.2f, 0.2f, 1.f, 0.4f));
-
-      y_offset += 24;
-    }
+    RenderDevLabels(tachyon, y_offset);
   }
 
   // Console messages
@@ -1237,7 +1242,7 @@ void Tachyon_OpenGL_RenderScene(Tachyon* tachyon) {
   if (tachyon->show_developer_tools) {
     RenderDebugLabels(tachyon);
   } else {
-    // Simple FPS label
+    // Simple FPS label + dev labels
     // @todo factor
     auto frame_fps = uint32(1000000.f / (float)tachyon->last_frame_time_in_microseconds);
     uint32 average_fps = 0;
@@ -1256,7 +1261,8 @@ void Tachyon_OpenGL_RenderScene(Tachyon* tachyon) {
 
     auto label = std::to_string(average_fps) + "fps";
 
-    RenderText(tachyon, tachyon->developer_overlay_font, label.c_str(), 10, 10, 1920, tVec3f(1.f), tVec4f(0.f));
+    RenderText(tachyon, tachyon->developer_overlay_font, label.c_str(), 10, 10, 1920, tVec3f(1.f), tVec4f(0, 0, 0, 0.6f));
+    RenderDevLabels(tachyon, 50);
   }
 
   RenderAlertMessage(tachyon);

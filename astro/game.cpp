@@ -237,6 +237,8 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
     return;
   }
 
+  add_dev_label("Hey", "hello");
+
   ControlSystem::HandleControls(tachyon, state, dt);
 
   HandleDialogue(tachyon, state);
