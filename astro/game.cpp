@@ -255,7 +255,17 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   ProceduralGeneration::HandleProceduralObjects(tachyon, state);
 
   // @todo HandleFrameEnd()
-  state.last_player_position = state.player_position;
+  {
+    auto& fx = tachyon->fx;
+
+    state.last_player_position = state.player_position;
+
+    fx.accumulation_blur_factor = sqrtf(abs(state.astro_turn_speed * 4.f));
+
+    if (fx.accumulation_blur_factor > 0.95f) {
+      fx.accumulation_blur_factor = 0.95f;
+    }
+  }
 
   // @todo move to ui.cpp
   // @todo debug mode only

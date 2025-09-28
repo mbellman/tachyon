@@ -3,6 +3,7 @@
 uniform sampler2D in_normal_and_depth;
 uniform usampler2D in_color_and_material;
 uniform sampler2D in_temporal_data;
+uniform sampler2D previous_color_and_depth;
 
 uniform sampler2D in_shadow_map_cascade_1;
 uniform sampler2D in_shadow_map_cascade_2;
@@ -24,6 +25,7 @@ uniform float running_time;
 // @todo allow multiple directional lights
 uniform vec3 primary_light_direction;
 uniform vec3 primary_light_color;
+uniform float accumulation_blur_factor;
 
 // @todo dev mode only
 uniform bool use_high_visibility_mode;
@@ -716,6 +718,12 @@ void main() {
 
   out_color -= ssao;
   // out_color -= ssao * (0.5 + 0.5 * shadow);
+
+  vec3 previous_color = texture(previous_color_and_depth, fragUv).rgb;
+
+  if (accumulation_blur_factor > 0.0) {
+    out_color = mix(out_color, previous_color, accumulation_blur_factor);
+  }
 
   out_color_and_depth = vec4(out_color, frag_normal_and_depth.w);
   out_temporal_data = vec4(ssao, shadow, 0, frag_normal_and_depth.w);

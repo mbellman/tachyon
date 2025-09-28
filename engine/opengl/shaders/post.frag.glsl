@@ -284,6 +284,7 @@ void main() {
 
   const float contrast = 1.15;
   const float brightness = 0.05;
+
   post_color.rgb = ((post_color.rgb - 0.5) * max(contrast, 0)) + 0.5;
   post_color.rgb += brightness;
 

@@ -246,6 +246,9 @@ struct Tachyon {
   struct Fx {
     // Cosmodrone
     float scan_time = 4.f;
+
+    // Alchemist's Astrolabe (?)
+    float accumulation_blur_factor = 0.f;
   } fx;
 
   // @todo dev mode only

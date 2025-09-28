@@ -42,6 +42,7 @@ struct tUniformLocations {
     in_normal_and_depth,
     in_color_and_material,
     in_temporal_data,
+    previous_color_and_depth,
     in_shadow_map_cascade_1,
     in_shadow_map_cascade_2,
     in_shadow_map_cascade_3,
@@ -61,7 +62,8 @@ struct tUniformLocations {
     // @todo allow multiple directional lights
     primary_light_direction,
     primary_light_color,
-    use_high_visibility_mode
+    use_high_visibility_mode,
+    accumulation_blur_factor
   ) global_lighting;
 
   uniform_locations(

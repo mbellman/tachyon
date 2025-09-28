@@ -93,6 +93,7 @@ static void StoreShaderUniforms(tOpenGLShaders& shaders) {
   store_shader_uniform(global_lighting, in_normal_and_depth);
   store_shader_uniform(global_lighting, in_color_and_material);
   store_shader_uniform(global_lighting, in_temporal_data);
+  store_shader_uniform(global_lighting, previous_color_and_depth);
   store_shader_uniform(global_lighting, in_shadow_map_cascade_1);
   store_shader_uniform(global_lighting, in_shadow_map_cascade_2);
   store_shader_uniform(global_lighting, in_shadow_map_cascade_3);
@@ -112,6 +113,7 @@ static void StoreShaderUniforms(tOpenGLShaders& shaders) {
   // @todo allow multiple directional lights
   store_shader_uniform(global_lighting, primary_light_direction);
   store_shader_uniform(global_lighting, primary_light_color);
+  store_shader_uniform(global_lighting, accumulation_blur_factor);
   store_shader_uniform(global_lighting, use_high_visibility_mode);
 
   store_shader_uniform(point_lights, in_normal_and_depth);

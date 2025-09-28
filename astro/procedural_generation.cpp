@@ -48,22 +48,22 @@ static void GenerateProceduralGrass(Tachyon* tachyon, State& state) {
 static void HandleProceduralGrass(Tachyon* tachyon, State& state) {
   profiler_start("HandleProceduralGrass()");
 
-  float growth_rate = 0.8f;
-
-  static tVec3f offsets[] = {
+  static const tVec3f offsets[] = {
     tVec3f(0, 0, 0),
     tVec3f(-200.f, 0, 150.f),
     tVec3f(250.f, 0, 300.f),
     tVec3f(100.f, 0, -250.f)
   };
 
-  static float scales[] = {
+  static const float scales[] = {
     1200.f,
     1000.f,
     1400.f,
     800.f,
     950.f
   };
+
+  const float growth_rate = 0.7f;
 
   // @todo @optimize only update grass near the player
   for (auto& grass : objects(state.meshes.grass)) {
@@ -74,7 +74,7 @@ static void HandleProceduralGrass(Tachyon* tachyon, State& state) {
     tVec3f base_position = grass.position;
 
     grass.position += offsets[iteration % 4];
-    grass.scale = tVec3f(scales[iteration % 5]) * (0.5f + 0.5f * sinf(growth_rate * alpha));
+    grass.scale = tVec3f(scales[iteration % 5]) * sqrtf(0.5f + 0.5f * sinf(growth_rate * alpha));
     grass.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), rotation_angle);
 
     commit(grass);

@@ -815,6 +815,7 @@ static void RenderGlobalLighting(Tachyon* tachyon) {
   SetShaderInt(locations.in_normal_and_depth, G_BUFFER_NORMALS_AND_DEPTH);
   SetShaderInt(locations.in_color_and_material, G_BUFFER_COLOR_AND_MATERIAL);
   SetShaderInt(locations.in_temporal_data, ACCUMULATION_TEMPORAL_DATA);
+  SetShaderInt(locations.previous_color_and_depth, ACCUMULATION_COLOR_AND_DEPTH);
   SetShaderInt(locations.in_shadow_map_cascade_1, DIRECTIONAL_SHADOW_MAP_CASCADE_1);
   SetShaderInt(locations.in_shadow_map_cascade_2, DIRECTIONAL_SHADOW_MAP_CASCADE_2);
   SetShaderInt(locations.in_shadow_map_cascade_3, DIRECTIONAL_SHADOW_MAP_CASCADE_3);
@@ -834,6 +835,7 @@ static void RenderGlobalLighting(Tachyon* tachyon) {
   // @todo allow multiple directional lights
   SetShaderVec3f(locations.primary_light_direction, scene.primary_light_direction);
   SetShaderVec3f(locations.primary_light_color, scene.primary_light_color);
+  SetShaderFloat(locations.accumulation_blur_factor, tachyon->fx.accumulation_blur_factor);
   SetShaderBool(locations.use_high_visibility_mode, tachyon->use_high_visibility_mode);
 
   RenderScreenQuad(tachyon);
