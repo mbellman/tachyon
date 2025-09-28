@@ -216,6 +216,8 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
 }
 
 void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
+  profiler_start("UpdateGame()");
+
   auto& scene = tachyon->scene;
 
   // Toggle level editor with E
@@ -236,8 +238,6 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
 
     return;
   }
-
-  add_dev_label("Hey", "hello");
 
   ControlSystem::HandleControls(tachyon, state, dt);
 
@@ -260,4 +260,6 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   // @todo move to ui.cpp
   // @todo debug mode only
   ShowGameStats(tachyon, state);
+
+  profiler_end();
 }

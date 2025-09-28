@@ -45,6 +45,8 @@ static void GenerateProceduralGrass(Tachyon* tachyon, State& state) {
 }
 
 static void HandleProceduralGrass(Tachyon* tachyon, State& state) {
+  profiler_start("HandleProceduralGrass()");
+
   float growth_rate = 0.6f;
 
   // @todo only update grass near the player
@@ -58,6 +60,8 @@ static void HandleProceduralGrass(Tachyon* tachyon, State& state) {
 
     commit(grass);
   }
+
+  profiler_end();
 }
 
 void ProceduralGeneration::RebuildProceduralObjects(Tachyon* tachyon, State& state) {
