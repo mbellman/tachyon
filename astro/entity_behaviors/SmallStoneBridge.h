@@ -4,6 +4,14 @@
 
 namespace astro {
   behavior SmallStoneBridge {
+    addMeshes() {
+      auto& meshes = state.meshes;
+
+      meshes.small_stone_bridge_placeholder = MODEL_MESH("./astro/3d_models/small_stone_bridge/placeholder.obj", 500);
+      meshes.small_stone_bridge_base = MODEL_MESH("./astro/3d_models/small_stone_bridge/base.obj", 500);
+      meshes.small_stone_bridge_columns = MODEL_MESH("./astro/3d_models/small_stone_bridge/columns.obj", 500);
+    }
+
     spawned() {
       auto& meshes = state.meshes;
 

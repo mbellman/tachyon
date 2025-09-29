@@ -4,7 +4,13 @@
 #include "astro/entity_types.h"
 #include "astro/game_state.h"
 
+// @todo move to engine
+#define CUBE_MESH(total) Tachyon_AddMesh(tachyon, Tachyon_CreateCubeMesh(), total)
+#define PLANE_MESH(total) Tachyon_AddMesh(tachyon, Tachyon_CreatePlaneMesh(), total)
+#define MODEL_MESH(path, total) Tachyon_AddMesh(tachyon, Tachyon_LoadMesh(path), total)
+
 #define behavior struct
+#define addMeshes() static void _AddMeshes(Tachyon* tachyon, State& state)
 #define spawned() static void _SpawnObjects(Tachyon* tachyon, State& state)
 #define destroyed() static void _DestroyObjects(Tachyon* tachyon, State& state)
 #define createPlaceholder() static tObject& _CreatePlaceholder(Tachyon* tachyon, State& state, const GameEntity& entity)

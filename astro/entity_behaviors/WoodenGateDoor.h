@@ -4,6 +4,13 @@
 
 namespace astro {
   behavior WoodenGateDoor {
+    addMeshes() {
+      auto& meshes = state.meshes;
+
+      meshes.wooden_gate_door_placeholder = MODEL_MESH("./astro/3d_models/wooden_gate_door/placeholder.obj", 500);
+      meshes.wooden_gate_door = MODEL_MESH("./astro/3d_models/wooden_gate_door/door.obj", 500);
+    }
+
     spawned() {
       auto& meshes = state.meshes;
 

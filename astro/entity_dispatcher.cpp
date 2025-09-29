@@ -16,6 +16,11 @@ using namespace astro;
   case __entity_type:\
     return __entities\
 
+#define dispatch_AddMeshes(__entity_type, __Behavior)\
+  case __entity_type:\
+    __Behavior::_AddMeshes(tachyon, state);\
+    break\
+
 #define dispatch_SpawnObjects(__entity_type, __Behavior)\
   case __entity_type:\
     return __Behavior::_SpawnObjects(tachyon, state)\
@@ -48,6 +53,23 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
     dispatch_GetEntityContainer(WOODEN_GATE_DOOR, state.wooden_gate_doors);
     dispatch_GetEntityContainer(RIVER_LOG, state.river_logs);
     dispatch_GetEntityContainer(LOW_GUARD, state.low_guards);
+
+    default:
+      // @todo log error
+      exit(0);
+      break;
+  }
+}
+
+void EntityDispatcher::AddMeshes(Tachyon* tachyon, State& state, EntityType type) {
+  switch (type) {
+    dispatch_AddMeshes(SHRUB, Shrub);
+    dispatch_AddMeshes(OAK_TREE, OakTree);
+    dispatch_AddMeshes(WILLOW_TREE, WillowTree);
+    dispatch_AddMeshes(SMALL_STONE_BRIDGE, SmallStoneBridge);
+    dispatch_AddMeshes(WOODEN_GATE_DOOR, WoodenGateDoor);
+    dispatch_AddMeshes(RIVER_LOG, RiverLog);
+    dispatch_AddMeshes(LOW_GUARD, LowGuard);
 
     default:
       // @todo log error

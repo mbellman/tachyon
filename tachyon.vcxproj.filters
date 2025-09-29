@@ -444,6 +444,27 @@
     <ClInclude Include="astro\entities_and_objects.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="astro\entity_descriptions\description.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\entity_descriptions\OakTree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\entity_descriptions\Shrub.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\entity_dispatcher.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\entity_types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\spell_system.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\procedural_generation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="astro\entity_behaviors\behavior.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -466,27 +487,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="astro\entity_behaviors\WoodenGateDoor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="astro\entity_descriptions\description.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="astro\entity_descriptions\OakTree.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="astro\entity_descriptions\Shrub.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="astro\entity_dispatcher.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="astro\entity_types.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="astro\spell_system.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="astro\procedural_generation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,4 +1,5 @@
 #include "astro/mesh_library.h"
+#include "astro/entity_dispatcher.h"
 
 #define CUBE_MESH(total) Tachyon_AddMesh(tachyon, Tachyon_CreateCubeMesh(), total)
 #define PLANE_MESH(total) Tachyon_AddMesh(tachyon, Tachyon_CreatePlaneMesh(), total)
@@ -29,24 +30,9 @@ static void AddDecorativeMeshes(Tachyon* tachyon, State& state) {
 static void AddEntityMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
-  // @todo factor
-  meshes.shrub_branches = CUBE_MESH(500);
-  meshes.oak_tree_trunk = CUBE_MESH(500);
-  meshes.willow_tree_trunk = CUBE_MESH(500);
-  meshes.small_stone_bridge_base = MODEL_MESH("./astro/3d_models/small_stone_bridge/base.obj", 500);
-  meshes.small_stone_bridge_columns = MODEL_MESH("./astro/3d_models/small_stone_bridge/columns.obj", 500);
-  meshes.wooden_gate_door = MODEL_MESH("./astro/3d_models/wooden_gate_door/door.obj", 500);
-  meshes.river_log = MODEL_MESH("./astro/3d_models/river_log/log.obj", 500);
-  meshes.low_guard = CUBE_MESH(500);
-
-  // @todo factor
-  meshes.shrub_placeholder = CUBE_MESH(500);
-  meshes.oak_tree_placeholder = CUBE_MESH(500);
-  meshes.willow_tree_placeholder = CUBE_MESH(500);
-  meshes.small_stone_bridge_placeholder = MODEL_MESH("./astro/3d_models/small_stone_bridge/placeholder.obj", 500);
-  meshes.wooden_gate_door_placeholder = MODEL_MESH("./astro/3d_models/wooden_gate_door/placeholder.obj", 500);
-  meshes.river_log_placeholder = MODEL_MESH("./astro/3d_models/river_log/log.obj", 500);
-  meshes.low_guard_placeholder = CUBE_MESH(500);
+  for_all_entity_types() {
+    EntityDispatcher::AddMeshes(tachyon, state, type);
+  }
 }
 
 static void AddEditorMeshes(Tachyon* tachyon, State& state) {

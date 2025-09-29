@@ -4,6 +4,13 @@
 
 namespace astro {
   behavior RiverLog {
+    addMeshes() {
+      auto& meshes = state.meshes;
+
+      meshes.river_log_placeholder = MODEL_MESH("./astro/3d_models/river_log/log.obj", 500);
+      meshes.river_log = MODEL_MESH("./astro/3d_models/river_log/log.obj", 500);
+    }
+
     spawned() {
       auto& meshes = state.meshes;
 

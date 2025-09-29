@@ -4,6 +4,13 @@
 
 namespace astro {
   behavior LowGuard {
+    addMeshes() {
+      auto& meshes = state.meshes;
+
+      meshes.low_guard_placeholder = CUBE_MESH(500);
+      meshes.low_guard = CUBE_MESH(500);
+    }
+
     spawned() {
       auto& meshes = state.meshes;
 

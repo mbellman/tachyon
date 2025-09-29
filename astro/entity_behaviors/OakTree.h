@@ -4,6 +4,11 @@
 
 namespace astro {
   behavior OakTree {
+    addMeshes() {
+      state.meshes.oak_tree_placeholder = CUBE_MESH(500);
+      state.meshes.oak_tree_trunk = CUBE_MESH(500);
+    }
+
     spawned() {
       auto& meshes = state.meshes;
 

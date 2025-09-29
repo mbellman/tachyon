@@ -4,6 +4,11 @@
 
 namespace astro {
   behavior WillowTree {
+    addMeshes() {
+      state.meshes.willow_tree_placeholder = CUBE_MESH(500);
+      state.meshes.willow_tree_trunk = CUBE_MESH(500);
+    }
+
     spawned() {
       auto& meshes = state.meshes;
 

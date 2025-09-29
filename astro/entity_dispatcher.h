@@ -13,6 +13,7 @@ namespace astro {
   namespace EntityDispatcher {
     std::vector<GameEntity>& GetEntityContainer(State& state, EntityType type);
 
+    void AddMeshes(Tachyon* tachyon, State& state, EntityType type);
     void SpawnObjects(Tachyon* tachyon, State& state, const GameEntity& entity);
     void DestroyObjects(Tachyon* tachyon, State& state, EntityType type);
     tObject& CreatePlaceholder(Tachyon* tachyon, State& state, const GameEntity& entity);

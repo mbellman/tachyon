@@ -4,6 +4,11 @@
 
 namespace astro {
   behavior Shrub {
+    addMeshes() {
+      state.meshes.shrub_placeholder = CUBE_MESH(500);
+      state.meshes.shrub_branches = CUBE_MESH(500);
+    }
+
     spawned() {
       auto& meshes = state.meshes;
 
