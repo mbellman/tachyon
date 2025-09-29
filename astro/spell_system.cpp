@@ -65,6 +65,7 @@ static void HandleActiveHomingSpell(Tachyon* tachyon, State& state, const float 
     }
 
     // Target the enemy
+    // @todo disappear once the lights hit the target
     else {
       float alpha = t - 2.f;
       float speed = Tachyon_Lerpf(7000.f, 16000.f, alpha);
