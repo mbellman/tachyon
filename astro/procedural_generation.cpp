@@ -42,7 +42,12 @@ static void GenerateProceduralGrass(Tachyon* tachyon, State& state) {
     }
   }
 
-  printf("Generated %d grass objects\n", objects(state.meshes.grass).total_active);
+  // @todo dev mode only
+  {
+    std::string message = "Generated " + std::to_string(objects(state.meshes.grass).total_active) + " grass objects";
+  
+    console_log(message);
+  }
 }
 
 static void HandleProceduralGrass(Tachyon* tachyon, State& state) {

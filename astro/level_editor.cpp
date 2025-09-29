@@ -9,6 +9,7 @@
 #include "astro/entity_manager.h"
 #include "astro/entity_dispatcher.h"
 #include "astro/object_manager.h"
+#include "astro/procedural_generation.h"
 
 #define get_entity_defaults(__type) entity_defaults_map.at(__type)
 
@@ -646,6 +647,8 @@ static void DeselectCurrent(Tachyon* tachyon, State& state) {
   DestroyGizmo(tachyon, state);
   SyncSelectables(tachyon);
   SaveLevelData(tachyon, state);
+
+  ProceduralGeneration::RebuildProceduralObjects(tachyon, state);
 }
 
 /**
@@ -1247,6 +1250,8 @@ void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
 
   if (editor.is_object_selected) {
     DeselectCurrent(tachyon, state);
+  } else {
+    ProceduralGeneration::RebuildProceduralObjects(tachyon, state);
   }
 
   SaveLevelData(tachyon, state);

@@ -400,86 +400,85 @@ static void RenderDevLabels(Tachyon* tachyon, int32 y_offset) {
   }
 }
 
+static void RenderConsoleMessages(Tachyon* tachyon) {
+  auto now = Tachyon_GetMicroseconds();
+  auto& console_messages = Tachyon_GetConsoleMessages();
+  int32 y_offset = tachyon->window_height - console_messages.size() * 30 - 10;
+
+  for (auto& console_message : console_messages) {
+    auto& message = console_message.message;
+    auto& color = console_message.color;
+    auto age = std::min((uint64)20000000, now - console_message.time);
+    auto time_left = 20000000 - age;
+    auto alpha = std::min(1.f, (float)time_left / 1000000.f);
+
+    RenderText(tachyon, tachyon->developer_overlay_font, message.c_str(), 10, y_offset, tachyon->window_width, tVec4f(color, alpha), tVec4f(0.f));
+
+    y_offset += 30;
+  }
+}
+
 static void RenderDebugLabels(Tachyon* tachyon) {
   auto& renderer = get_renderer();
   auto& ctx = renderer.ctx;
 
   // Developer overlay
-  {
-    #define String(v) std::to_string(v)
+  #define String(v) std::to_string(v)
 
-    GLint gpu_available = 0;
-    GLint gpu_total = 0;
-    const char* gpu_vendor = (const char*)glGetString(GL_VENDOR);
-    const char* gpu_model = (const char*)glGetString(GL_RENDERER);
+  GLint gpu_available = 0;
+  GLint gpu_total = 0;
+  const char* gpu_vendor = (const char*)glGetString(GL_VENDOR);
+  const char* gpu_model = (const char*)glGetString(GL_RENDERER);
 
-    if (strcmp(gpu_vendor, "NVIDIA Corporation") == 0) {
-      glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &gpu_available);
-      glGetIntegerv(GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX, &gpu_total);
-    }
-
-    auto render_fps = uint32(1000000.f / (float)renderer.last_render_time_in_microseconds);
-    auto frame_fps = uint32(1000000.f / (float)tachyon->last_frame_time_in_microseconds);
-    auto used_gpu_memory = (gpu_total - gpu_available) / 1000;
-    auto total_gpu_memory = gpu_total / 1000;
-
-    std::vector<std::string> labels = {
-      "View: " + std::string(renderer.show_g_buffer_view ? "G-BUFFER" : "DEFAULT"),
-      "Resolution: " + String(ctx.internal_width) + " x " + String(ctx.internal_height),
-      "V-Sync: " + std::string(SDL_GL_GetSwapInterval() ? "ON" : "OFF"),
-      "GPU Model: " + std::string(gpu_model),
-      "GPU Memory: " + String(used_gpu_memory) + "MB / " + String(total_gpu_memory) + "MB",
-      "Render time: " + String(renderer.last_render_time_in_microseconds) + "us (" + String(render_fps) + "fps)",
-      "Frame time: " + String(tachyon->last_frame_time_in_microseconds) + "us (" + String(frame_fps) + "fps)",
-      "Meshes: " + String(renderer.total_meshes_drawn),
-      "Triangles: " + String(renderer.total_triangles),
-      "  (Cascade 0): " + String(renderer.total_triangles_by_cascade[0]),
-      "  (Cascade 1): " + String(renderer.total_triangles_by_cascade[1]),
-      "  (Cascade 2): " + String(renderer.total_triangles_by_cascade[2]),
-      "  (Cascade 3): " + String(renderer.total_triangles_by_cascade[3]),
-      "Vertices: " + String(renderer.total_vertices),
-      "  (Cascade 0): " + String(renderer.total_vertices_by_cascade[0]),
-      "  (Cascade 1): " + String(renderer.total_vertices_by_cascade[1]),
-      "  (Cascade 2): " + String(renderer.total_vertices_by_cascade[2]),
-      "  (Cascade 3): " + String(renderer.total_vertices_by_cascade[3]),
-      "Point lights: " + String(renderer.total_point_lights_drawn),
-      "Draw calls: " + String(renderer.total_draw_calls),
-      "Running time: " + String(tachyon->running_time)
-    };
-
-    // Engine labels
-    int32 y_offset = 10;
-
-    for (auto& label : labels) {
-      RenderText(tachyon, tachyon->developer_overlay_font, label.c_str(), 10, y_offset, tachyon->window_width, tVec3f(1.f), tVec4f(0.f, 0.f, 0.f, 0.6f));
-
-      y_offset += 22;
-    }
-
-    y_offset += 25;
-
-    // Custom dev labels
-    RenderDevLabels(tachyon, y_offset);
+  if (strcmp(gpu_vendor, "NVIDIA Corporation") == 0) {
+    glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &gpu_available);
+    glGetIntegerv(GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX, &gpu_total);
   }
 
-  // Console messages
-  {
-    auto now = Tachyon_GetMicroseconds();
-    auto& console_messages = Tachyon_GetConsoleMessages();
-    int32 y_offset = tachyon->window_height - console_messages.size() * 30 - 10;
+  auto render_fps = uint32(1000000.f / (float)renderer.last_render_time_in_microseconds);
+  auto frame_fps = uint32(1000000.f / (float)tachyon->last_frame_time_in_microseconds);
+  auto used_gpu_memory = (gpu_total - gpu_available) / 1000;
+  auto total_gpu_memory = gpu_total / 1000;
 
-    for (auto& console_message : console_messages) {
-      auto& message = console_message.message;
-      auto& color = console_message.color;
-      auto age = std::min((uint64)20000000, now - console_message.time);
-      auto time_left = 20000000 - age;
-      auto alpha = std::min(1.f, (float)time_left / 1000000.f);
+  std::vector<std::string> labels = {
+    "View: " + std::string(renderer.show_g_buffer_view ? "G-BUFFER" : "DEFAULT"),
+    "Resolution: " + String(ctx.internal_width) + " x " + String(ctx.internal_height),
+    "V-Sync: " + std::string(SDL_GL_GetSwapInterval() ? "ON" : "OFF"),
+    "GPU Model: " + std::string(gpu_model),
+    "GPU Memory: " + String(used_gpu_memory) + "MB / " + String(total_gpu_memory) + "MB",
+    "Render time: " + String(renderer.last_render_time_in_microseconds) + "us (" + String(render_fps) + "fps)",
+    "Frame time: " + String(tachyon->last_frame_time_in_microseconds) + "us (" + String(frame_fps) + "fps)",
+    "Meshes: " + String(renderer.total_meshes_drawn),
+    "Triangles: " + String(renderer.total_triangles),
+    "  (Cascade 0): " + String(renderer.total_triangles_by_cascade[0]),
+    "  (Cascade 1): " + String(renderer.total_triangles_by_cascade[1]),
+    "  (Cascade 2): " + String(renderer.total_triangles_by_cascade[2]),
+    "  (Cascade 3): " + String(renderer.total_triangles_by_cascade[3]),
+    "Vertices: " + String(renderer.total_vertices),
+    "  (Cascade 0): " + String(renderer.total_vertices_by_cascade[0]),
+    "  (Cascade 1): " + String(renderer.total_vertices_by_cascade[1]),
+    "  (Cascade 2): " + String(renderer.total_vertices_by_cascade[2]),
+    "  (Cascade 3): " + String(renderer.total_vertices_by_cascade[3]),
+    "Point lights: " + String(renderer.total_point_lights_drawn),
+    "Draw calls: " + String(renderer.total_draw_calls),
+    "Running time: " + String(tachyon->running_time)
+  };
 
-      RenderText(tachyon, tachyon->developer_overlay_font, message.c_str(), 10, y_offset, tachyon->window_width, tVec4f(color, alpha), tVec4f(0.f));
+  #undef String
 
-      y_offset += 30;
-    }
+  // Engine labels
+  int32 y_offset = 10;
+
+  for (auto& label : labels) {
+    RenderText(tachyon, tachyon->developer_overlay_font, label.c_str(), 10, y_offset, tachyon->window_width, tVec3f(1.f), tVec4f(0.f, 0.f, 0.f, 0.6f));
+
+    y_offset += 22;
   }
+
+  y_offset += 25;
+
+  RenderDevLabels(tachyon, y_offset);
+  RenderConsoleMessages(tachyon);
 }
 
 static void RenderAlertMessage(Tachyon* tachyon) {
@@ -1244,7 +1243,7 @@ void Tachyon_OpenGL_RenderScene(Tachyon* tachyon) {
   if (tachyon->show_developer_tools) {
     RenderDebugLabels(tachyon);
   } else {
-    // Simple FPS label + dev labels
+    // Simple FPS label + dev labels + console messages
     // @todo factor
     auto frame_fps = uint32(1000000.f / (float)tachyon->last_frame_time_in_microseconds);
     uint32 average_fps = 0;
@@ -1265,6 +1264,7 @@ void Tachyon_OpenGL_RenderScene(Tachyon* tachyon) {
 
     RenderText(tachyon, tachyon->developer_overlay_font, label.c_str(), 10, 10, 1920, tVec3f(1.f), tVec4f(0, 0, 0, 0.6f));
     RenderDevLabels(tachyon, 50);
+    RenderConsoleMessages(tachyon);
   }
 
   RenderAlertMessage(tachyon);
