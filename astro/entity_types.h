@@ -18,7 +18,8 @@ namespace astro {
     SMALL_STONE_BRIDGE,
     WOODEN_GATE_DOOR,
     RIVER_LOG,
-    LOW_GUARD
+    LOW_GUARD,
+    BANDIT
   };
 
   /**
@@ -33,7 +34,8 @@ namespace astro {
     SMALL_STONE_BRIDGE,
     WOODEN_GATE_DOOR,
     RIVER_LOG,
-    LOW_GUARD
+    LOW_GUARD,
+    BANDIT
   };
 
   /**
@@ -109,7 +111,13 @@ namespace astro {
       
       // LOW_GUARD
       low_guard_placeholder,
-      low_guard;
+      low_guard,
+      
+      // BANDIT
+      bandit_placeholder,
+      bandit
+
+      ;
   };
 
   /**
@@ -125,6 +133,7 @@ namespace astro {
     std::vector<GameEntity> wooden_gate_doors;
     std::vector<GameEntity> river_logs;
     std::vector<GameEntity> low_guards;
+    std::vector<GameEntity> bandits;
   };
 
   /**
@@ -187,6 +196,12 @@ namespace astro {
       .name = "Low Guard",
       .scale = tVec3f(600.f, 1500.f, 600.f ),
       .tint = tVec3f(0.7f)
+    } },
+
+    { BANDIT, {
+      .name = "Bandit",
+      .scale = tVec3f(600.f, 1500.f, 600.f ),
+      .tint = tVec3f(0.2f)
     } }
   };
 }

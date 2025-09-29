@@ -2,6 +2,7 @@
 
 #include "astro/entity_dispatcher.h"
 
+#include "astro/entity_behaviors/Bandit.h"
 #include "astro/entity_behaviors/LowGuard.h"
 #include "astro/entity_behaviors/OakTree.h"
 #include "astro/entity_behaviors/RiverLog.h"
@@ -43,6 +44,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
     dispatch_GetEntityContainer(WOODEN_GATE_DOOR, state.wooden_gate_doors);
     dispatch_GetEntityContainer(RIVER_LOG, state.river_logs);
     dispatch_GetEntityContainer(LOW_GUARD, state.low_guards);
+    dispatch_GetEntityContainer(BANDIT, state.bandits);
 
     default:
       // @todo log error
@@ -60,6 +62,7 @@ void EntityDispatcher::AddMeshes(Tachyon* tachyon, State& state, EntityType type
     dispatch_AddMeshes(WOODEN_GATE_DOOR, WoodenGateDoor);
     dispatch_AddMeshes(RIVER_LOG, RiverLog);
     dispatch_AddMeshes(LOW_GUARD, LowGuard);
+    dispatch_AddMeshes(BANDIT, Bandit);
 
     default:
       printf("Failed to add meshes for entity type: %d\n", type);
@@ -77,6 +80,7 @@ const std::vector<uint16>& EntityDispatcher::GetMeshes(State& state, EntityType 
     dispatch_GetMeshes(WOODEN_GATE_DOOR, WoodenGateDoor);
     dispatch_GetMeshes(RIVER_LOG, RiverLog);
     dispatch_GetMeshes(LOW_GUARD, LowGuard);
+    dispatch_GetMeshes(BANDIT, Bandit);
 
     default:
       printf("Failed to get meshes for entity type: %d\n", type);
@@ -94,6 +98,7 @@ uint16 EntityDispatcher::GetPlaceholderMesh(State& state, EntityType type) {
     dispatch_GetPlaceholderMesh(WOODEN_GATE_DOOR, WoodenGateDoor);
     dispatch_GetPlaceholderMesh(RIVER_LOG, RiverLog);
     dispatch_GetPlaceholderMesh(LOW_GUARD, LowGuard);
+    dispatch_GetPlaceholderMesh(BANDIT, Bandit);
 
     default:
       printf("Failed to get placeholder mesh for entity type: %d\n", type);
@@ -111,9 +116,11 @@ void EntityDispatcher::TimeEvolve(Tachyon* tachyon, State& state, EntityType typ
     dispatch_TimeEvolve(WOODEN_GATE_DOOR, WoodenGateDoor);
     dispatch_TimeEvolve(RIVER_LOG, RiverLog);
     dispatch_TimeEvolve(LOW_GUARD, LowGuard);
+    dispatch_TimeEvolve(BANDIT, Bandit);
 
     default:
       // @todo log error
+      printf("Failed to time-evolve entity type: %d\n", type);
       exit(0);
       break;
   }

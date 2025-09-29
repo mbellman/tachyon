@@ -58,6 +58,7 @@ void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
   meshes.grass = MODEL_MESH("./astro/3d_models/grass.obj", 5000);
   meshes.small_grass = MODEL_MESH("./astro/3d_models/grass.obj", 10000);
 
+  mesh(meshes.grass).shadow_cascade_ceiling = 2;
   mesh(meshes.small_grass).shadow_cascade_ceiling = 0;
 
   AddHUDMeshes(tachyon, state);
