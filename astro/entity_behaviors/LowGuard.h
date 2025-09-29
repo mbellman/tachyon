@@ -5,34 +5,18 @@
 namespace astro {
   behavior LowGuard {
     addMeshes() {
-      auto& meshes = state.meshes;
-
       meshes.low_guard_placeholder = CUBE_MESH(500);
       meshes.low_guard = CUBE_MESH(500);
     }
 
-    spawned() {
-      auto& meshes = state.meshes;
-
-      create(meshes.low_guard);
+    getMeshes() {
+      return_meshes({
+        meshes.low_guard
+      });
     }
 
-    destroyed() {
-      auto& meshes = state.meshes;
-
-      RemoveLastObject(tachyon, meshes.low_guard);
-    }
-
-    createPlaceholder() {
-      auto& meshes = state.meshes;
-
-      return create(meshes.low_guard_placeholder);
-    }
-
-    destroyPlaceholders() {
-      auto& meshes = state.meshes;
-
-      remove_all(meshes.low_guard_placeholder);
+    getPlaceholderMesh() {
+      return meshes.low_guard_placeholder;
     }
 
     timeEvolve() {

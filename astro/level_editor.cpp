@@ -704,7 +704,36 @@ static void SyncEntityPlaceholder(Tachyon* tachyon, tObject& placeholder, const 
 
 /**
  * ----------------------------
+ * Creates and tracks a placeholder object for an entity.
+ * ----------------------------
+ */
+static void SpawnEntityPlaceholder(Tachyon* tachyon, State& state, GameEntity& entity) {
+  auto placeholder_mesh_id = EntityDispatcher::GetPlaceholderMesh(state, entity.type);
+  auto& placeholder = create(placeholder_mesh_id);
+
+  SyncEntityPlaceholder(tachyon, placeholder, entity);
+  TrackSelectableEntity(entity, placeholder);
+}
+
+/**
+ * ----------------------------
+ * Creates objects and a placeholder for an entity.
+ * ----------------------------
+ */
+static void SpawnEntityObjects(Tachyon* tachyon, State& state, GameEntity& entity) {
+  auto& mesh_ids = EntityDispatcher::GetMeshes(state, entity.type);
+
+  for (auto mesh_id : mesh_ids) {
+    create(mesh_id);
+  }
+
+  SpawnEntityPlaceholder(tachyon, state, entity);
+}
+
+/**
+ * ----------------------------
  * Creates a normal object and adds it to the scene.
+ * @todo rename to reflect this is for the current-selected type
  * ----------------------------
  */
 static void CreateNewDecorativeObject(Tachyon* tachyon, State& state) {
@@ -735,6 +764,7 @@ static void CreateNewDecorativeObject(Tachyon* tachyon, State& state) {
 /**
  * ----------------------------
  * Creates an entity and adds it to the scene.
+ * @todo rename to reflect this is for the current-selected type
  * ----------------------------
  */
 static void CreateNewEntity(Tachyon* tachyon, State& state) {
@@ -752,12 +782,8 @@ static void CreateNewEntity(Tachyon* tachyon, State& state) {
   entity.astro_start_time = -50.f;
 
   EntityManager::SaveNewEntity(state, entity);
-  EntityDispatcher::SpawnObjects(tachyon, state, entity);
 
-  auto& placeholder = EntityDispatcher::CreatePlaceholder(tachyon, state, entity);
-
-  SyncEntityPlaceholder(tachyon, placeholder, entity);
-  TrackSelectableEntity(entity, placeholder);
+  SpawnEntityObjects(tachyon, state, entity);
 }
 
 /**
@@ -1041,6 +1067,22 @@ static void DisplaySelectedObjectProperties(Tachyon* tachyon, State& state) {
 
 /**
  * ----------------------------
+ * Removes the last object of a given mesh.
+ * ----------------------------
+ */
+static void RemoveLastObject(Tachyon* tachyon, uint16 mesh_index) {
+  auto& objects = objects(mesh_index);
+  uint16 total_active = objects.total_active;
+
+  if (total_active > 0) {
+    auto& last_object = objects[total_active - 1];
+  
+    remove(last_object);
+  }
+}
+
+/**
+ * ----------------------------
  * Deletes the currently-selected entity or object.
  * ----------------------------
  */
@@ -1053,7 +1095,13 @@ static void DeleteSelected(Tachyon* tachyon, State& state) {
     ForgetSelectableEntity(selected.entity_record.id);
 
     EntityManager::DeleteEntity(state, selected.entity_record);
-    EntityDispatcher::DestroyObjects(tachyon, state, selected.entity_record.type);
+
+    // Remove objects associated with the entity
+    auto& mesh_ids = EntityDispatcher::GetMeshes(state, selected.entity_record.type);
+
+    for (auto mesh_id : mesh_ids) {
+      RemoveLastObject(tachyon, mesh_id);
+    }
   } else {
     ForgetSelectableObject(selected.placeholder);
   }
@@ -1160,10 +1208,8 @@ static void SpawnEntityPlaceholders(Tachyon* tachyon, State& state) {
   for_all_entity_types() {
     for_entities_of_type(type) {
       auto& entity = entities[i];
-      auto& placeholder = EntityDispatcher::CreatePlaceholder(tachyon, state, entity);
 
-      SyncEntityPlaceholder(tachyon, placeholder, entity);
-      TrackSelectableEntity(entity, placeholder);
+      SpawnEntityPlaceholder(tachyon, state, entity);
     }
   }
 }
@@ -1188,7 +1234,9 @@ static void TrackDecorativeObjects(Tachyon* tachyon, State& state) {
  */
 static void RemoveEntityPlaceholders(Tachyon* tachyon, State& state) {
   for_all_entity_types() {
-    EntityDispatcher::DestroyPlaceholders(tachyon, state, type);
+    auto placeholder_mesh_id = EntityDispatcher::GetPlaceholderMesh(state, type);
+
+    remove_all(placeholder_mesh_id);
   }
 }
 
@@ -1203,15 +1251,14 @@ void LevelEditor::OpenLevelEditor(Tachyon* tachyon, State& state) {
   objects(meshes.astrolabe_ring).disabled = true;
   objects(meshes.astrolabe_hand).disabled = true;
 
-  // @todo iterate over entity types + meshes for that entity
-  objects(meshes.oak_tree_trunk).disabled = true;
-  objects(meshes.willow_tree_trunk).disabled = true;
-  objects(meshes.shrub_branches).disabled = true;
-  objects(meshes.small_stone_bridge_base).disabled = true;
-  objects(meshes.small_stone_bridge_columns).disabled = true;
-  objects(meshes.wooden_gate_door).disabled = true;
-  objects(meshes.river_log).disabled = true;
-  objects(meshes.low_guard).disabled = true;
+  // Disable all in-game entity objects, since we use placeholders in the editor
+  for_all_entity_types() {
+    auto& mesh_ids = EntityDispatcher::GetMeshes(state, type);
+
+    for (auto mesh_id : mesh_ids) {
+      objects(mesh_id).disabled = true;
+    }
+  }
 
   editor.selectables.clear();
 
@@ -1238,15 +1285,14 @@ void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
   objects(meshes.astrolabe_ring).disabled = false;
   objects(meshes.astrolabe_hand).disabled = false;
 
-  // @todo iterate over entity types + meshes for that entity
-  objects(meshes.oak_tree_trunk).disabled = false;
-  objects(meshes.willow_tree_trunk).disabled = false;
-  objects(meshes.shrub_branches).disabled = false;
-  objects(meshes.small_stone_bridge_base).disabled = false;
-  objects(meshes.small_stone_bridge_columns).disabled = false;
-  objects(meshes.wooden_gate_door).disabled = false;
-  objects(meshes.river_log).disabled = false;
-  objects(meshes.low_guard).disabled = false;
+  // Re-enable all in-game entity objects
+  for_all_entity_types() {
+    auto& mesh_ids = EntityDispatcher::GetMeshes(state, type);
+
+    for (auto mesh_id : mesh_ids) {
+      objects(mesh_id).disabled = false;
+    }
+  }
 
   if (editor.is_object_selected) {
     DeselectCurrent(tachyon, state);

@@ -18,26 +18,16 @@ using namespace astro;
 
 #define dispatch_AddMeshes(__entity_type, __Behavior)\
   case __entity_type:\
-    __Behavior::_AddMeshes(tachyon, state);\
+    __Behavior::_AddMeshes(tachyon, state.meshes);\
     break\
 
-#define dispatch_SpawnObjects(__entity_type, __Behavior)\
+#define dispatch_GetMeshes(__entity_type, __Behavior)\
   case __entity_type:\
-    return __Behavior::_SpawnObjects(tachyon, state)\
+    return __Behavior::_GetMeshes(state.meshes)\
 
-#define dispatch_DestroyObjects(__entity_type, __Behavior)\
+#define dispatch_GetPlaceholderMesh(__entity_type, __Behavior)\
   case __entity_type:\
-    __Behavior::_DestroyObjects(tachyon, state);\
-    break\
-
-#define dispatch_CreatePlaceholder(__entity_type, __Behavior, __entity)\
-  case __entity_type:\
-    return __Behavior::_CreatePlaceholder(tachyon, state, __entity)\
-
-#define dispatch_DestroyPlaceholders(__entity_type, __Behavior)\
-  case __entity_type:\
-    __Behavior::_DestroyPlaceholders(tachyon, state);\
-    break\
+    return __Behavior::_GetPlaceholderMesh(state.meshes);
 
 #define dispatch_TimeEvolve(__entity_type, __Behavior)\
   case __entity_type:\
@@ -72,76 +62,41 @@ void EntityDispatcher::AddMeshes(Tachyon* tachyon, State& state, EntityType type
     dispatch_AddMeshes(LOW_GUARD, LowGuard);
 
     default:
-      // @todo log error
+      printf("Failed to add meshes for entity type: %d\n", type);
       exit(0);
       break;
   }
 }
 
-void EntityDispatcher::SpawnObjects(Tachyon* tachyon, State& state, const GameEntity& entity) {
-  switch (entity.type) {
-    dispatch_SpawnObjects(SHRUB, Shrub);
-    dispatch_SpawnObjects(OAK_TREE, OakTree);
-    dispatch_SpawnObjects(WILLOW_TREE, WillowTree);
-    dispatch_SpawnObjects(SMALL_STONE_BRIDGE, SmallStoneBridge);
-    dispatch_SpawnObjects(WOODEN_GATE_DOOR, WoodenGateDoor);
-    dispatch_SpawnObjects(RIVER_LOG, RiverLog);
-    dispatch_SpawnObjects(LOW_GUARD, LowGuard);
-
-    default:
-      // @todo log error
-      exit(0);
-      break;
-  }
-}
-
-void EntityDispatcher::DestroyObjects(Tachyon* tachyon, State& state, EntityType type) {
+const std::vector<uint16>& EntityDispatcher::GetMeshes(State& state, EntityType type) {
   switch (type) {
-    dispatch_DestroyObjects(SHRUB, Shrub);
-    dispatch_DestroyObjects(OAK_TREE, OakTree);
-    dispatch_DestroyObjects(WILLOW_TREE, WillowTree);
-    dispatch_DestroyObjects(SMALL_STONE_BRIDGE, SmallStoneBridge);
-    dispatch_DestroyObjects(WOODEN_GATE_DOOR, WoodenGateDoor);
-    dispatch_DestroyObjects(RIVER_LOG, RiverLog);
-    dispatch_DestroyObjects(LOW_GUARD, LowGuard);
+    dispatch_GetMeshes(SHRUB, Shrub);
+    dispatch_GetMeshes(OAK_TREE, OakTree);
+    dispatch_GetMeshes(WILLOW_TREE, WillowTree);
+    dispatch_GetMeshes(SMALL_STONE_BRIDGE, SmallStoneBridge);
+    dispatch_GetMeshes(WOODEN_GATE_DOOR, WoodenGateDoor);
+    dispatch_GetMeshes(RIVER_LOG, RiverLog);
+    dispatch_GetMeshes(LOW_GUARD, LowGuard);
 
     default:
-      // @todo log error
+      printf("Failed to get meshes for entity type: %d\n", type);
       exit(0);
       break;
   }
 }
 
-tObject& EntityDispatcher::CreatePlaceholder(Tachyon* tachyon, State& state, const GameEntity& entity) {
-  switch (entity.type) {
-    // @todo we no longer need to pass the entity here
-    dispatch_CreatePlaceholder(SHRUB, Shrub, entity);
-    dispatch_CreatePlaceholder(OAK_TREE, OakTree, entity);
-    dispatch_CreatePlaceholder(WILLOW_TREE, WillowTree, entity);
-    dispatch_CreatePlaceholder(SMALL_STONE_BRIDGE, SmallStoneBridge, entity);
-    dispatch_CreatePlaceholder(WOODEN_GATE_DOOR, WoodenGateDoor, entity);
-    dispatch_CreatePlaceholder(RIVER_LOG, RiverLog, entity);
-    dispatch_CreatePlaceholder(LOW_GUARD, LowGuard, entity);
-
-    default:
-      // @todo log error
-      exit(0);
-      break;
-  }
-}
-
-void EntityDispatcher::DestroyPlaceholders(Tachyon* tachyon, State& state, EntityType type) {
+uint16 EntityDispatcher::GetPlaceholderMesh(State& state, EntityType type) {
   switch (type) {
-    dispatch_DestroyPlaceholders(SHRUB, Shrub);
-    dispatch_DestroyPlaceholders(OAK_TREE, OakTree);
-    dispatch_DestroyPlaceholders(WILLOW_TREE, WillowTree);
-    dispatch_DestroyPlaceholders(SMALL_STONE_BRIDGE, SmallStoneBridge);
-    dispatch_DestroyPlaceholders(WOODEN_GATE_DOOR, WoodenGateDoor);
-    dispatch_DestroyPlaceholders(RIVER_LOG, RiverLog);
-    dispatch_DestroyPlaceholders(LOW_GUARD, LowGuard);
+    dispatch_GetPlaceholderMesh(SHRUB, Shrub);
+    dispatch_GetPlaceholderMesh(OAK_TREE, OakTree);
+    dispatch_GetPlaceholderMesh(WILLOW_TREE, WillowTree);
+    dispatch_GetPlaceholderMesh(SMALL_STONE_BRIDGE, SmallStoneBridge);
+    dispatch_GetPlaceholderMesh(WOODEN_GATE_DOOR, WoodenGateDoor);
+    dispatch_GetPlaceholderMesh(RIVER_LOG, RiverLog);
+    dispatch_GetPlaceholderMesh(LOW_GUARD, LowGuard);
 
     default:
-      // @todo log error
+      printf("Failed to get placeholder mesh for entity type: %d\n", type);
       exit(0);
       break;
   }

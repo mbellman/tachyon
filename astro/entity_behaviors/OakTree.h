@@ -5,32 +5,18 @@
 namespace astro {
   behavior OakTree {
     addMeshes() {
-      state.meshes.oak_tree_placeholder = CUBE_MESH(500);
-      state.meshes.oak_tree_trunk = CUBE_MESH(500);
+      meshes.oak_tree_placeholder = CUBE_MESH(500);
+      meshes.oak_tree_trunk = CUBE_MESH(500);
     }
 
-    spawned() {
-      auto& meshes = state.meshes;
-
-      create(meshes.oak_tree_trunk);
+    getMeshes() {
+      return_meshes({
+        meshes.oak_tree_trunk
+      });
     }
 
-    destroyed() {
-      auto& meshes = state.meshes;
-
-      RemoveLastObject(tachyon, meshes.oak_tree_trunk);
-    }
-
-    createPlaceholder() {
-      auto& meshes = state.meshes;
-
-      return create(meshes.oak_tree_placeholder);
-    }
-
-    destroyPlaceholders() {
-      auto& meshes = state.meshes;
-
-      remove_all(meshes.oak_tree_placeholder);
+    getPlaceholderMesh() {
+      return meshes.oak_tree_placeholder;
     }
 
     timeEvolve() {

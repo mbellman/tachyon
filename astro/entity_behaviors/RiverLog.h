@@ -5,34 +5,18 @@
 namespace astro {
   behavior RiverLog {
     addMeshes() {
-      auto& meshes = state.meshes;
-
       meshes.river_log_placeholder = MODEL_MESH("./astro/3d_models/river_log/log.obj", 500);
       meshes.river_log = MODEL_MESH("./astro/3d_models/river_log/log.obj", 500);
     }
 
-    spawned() {
-      auto& meshes = state.meshes;
-
-      create(meshes.river_log);
+    getMeshes() {
+      return_meshes({
+        meshes.river_log
+      });
     }
 
-    destroyed() {
-      auto& meshes = state.meshes;
-
-      RemoveLastObject(tachyon, meshes.river_log);
-    }
-
-    createPlaceholder() {
-      auto& meshes = state.meshes;
-
-      return create(meshes.river_log_placeholder);
-    }
-
-    destroyPlaceholders() {
-      auto& meshes = state.meshes;
-
-      remove_all(meshes.river_log_placeholder);
+    getPlaceholderMesh() {
+      return meshes.river_log_placeholder;
     }
 
     timeEvolve() {

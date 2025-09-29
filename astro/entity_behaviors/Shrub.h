@@ -5,32 +5,18 @@
 namespace astro {
   behavior Shrub {
     addMeshes() {
-      state.meshes.shrub_placeholder = CUBE_MESH(500);
-      state.meshes.shrub_branches = CUBE_MESH(500);
+      meshes.shrub_placeholder = CUBE_MESH(500);
+      meshes.shrub_branches = CUBE_MESH(500);
     }
 
-    spawned() {
-      auto& meshes = state.meshes;
-
-      create(meshes.shrub_branches);
+    getMeshes() {
+      return_meshes({
+        meshes.shrub_branches
+      });
     }
 
-    destroyed() {
-      auto& meshes = state.meshes;
-
-      RemoveLastObject(tachyon, meshes.shrub_branches);
-    }
-
-    createPlaceholder() {
-      auto& meshes = state.meshes;
-
-      return create(meshes.shrub_placeholder);
-    }
-
-    destroyPlaceholders() {
-      auto& meshes = state.meshes;
-
-      remove_all(meshes.shrub_placeholder);
+    getPlaceholderMesh() {
+      return meshes.shrub_placeholder;
     }
 
     timeEvolve() {

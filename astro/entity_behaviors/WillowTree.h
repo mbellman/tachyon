@@ -5,32 +5,18 @@
 namespace astro {
   behavior WillowTree {
     addMeshes() {
-      state.meshes.willow_tree_placeholder = CUBE_MESH(500);
-      state.meshes.willow_tree_trunk = CUBE_MESH(500);
+      meshes.willow_tree_placeholder = CUBE_MESH(500);
+      meshes.willow_tree_trunk = CUBE_MESH(500);
     }
 
-    spawned() {
-      auto& meshes = state.meshes;
-
-      create(meshes.willow_tree_trunk);
+    getMeshes() {
+      return_meshes({
+        meshes.willow_tree_trunk
+      });
     }
 
-    destroyed() {
-      auto& meshes = state.meshes;
-
-      RemoveLastObject(tachyon, meshes.willow_tree_trunk);
-    }
-
-    createPlaceholder() {
-      auto& meshes = state.meshes;
-
-      return create(meshes.willow_tree_placeholder);
-    }
-
-    destroyPlaceholders() {
-      auto& meshes = state.meshes;
-
-      remove_all(meshes.shrub_placeholder);
+    getPlaceholderMesh() {
+      return meshes.willow_tree_placeholder;
     }
 
     timeEvolve() {

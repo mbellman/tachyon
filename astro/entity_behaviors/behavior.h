@@ -9,12 +9,14 @@
 #define PLANE_MESH(total) Tachyon_AddMesh(tachyon, Tachyon_CreatePlaneMesh(), total)
 #define MODEL_MESH(path, total) Tachyon_AddMesh(tachyon, Tachyon_LoadMesh(path), total)
 
+#define return_meshes(...)\
+  static std::vector<uint16> __mesh_list = __VA_ARGS__;\
+  return __mesh_list;\
+
 #define behavior struct
-#define addMeshes() static void _AddMeshes(Tachyon* tachyon, State& state)
-#define spawned() static void _SpawnObjects(Tachyon* tachyon, State& state)
-#define destroyed() static void _DestroyObjects(Tachyon* tachyon, State& state)
-#define createPlaceholder() static tObject& _CreatePlaceholder(Tachyon* tachyon, State& state, const GameEntity& entity)
-#define destroyPlaceholders() static void _DestroyPlaceholders(Tachyon* tachyon, State& state)
+#define addMeshes() static void _AddMeshes(Tachyon* tachyon, MeshIds& meshes)
+#define getMeshes() static const std::vector<uint16>& _GetMeshes(const MeshIds& meshes)
+#define getPlaceholderMesh() static uint16 _GetPlaceholderMesh(const MeshIds& meshes)
 #define timeEvolve() static void _TimeEvolve(Tachyon* tachyon, State& state)
 
 namespace astro {

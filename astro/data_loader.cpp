@@ -67,6 +67,7 @@ void DataLoader::LoadLevelData(Tachyon* tachyon, State& state) {
     if (line[0] == '@') {
       // Entity
       auto parts = SplitString(line, ",");
+      // @todo use constant IDs which map to entity types
       EntityType entity_type = (EntityType)stoi(parts[0].substr(1));
       GameEntity entity = EntityManager::CreateNewEntity(state, entity_type);
 
@@ -78,7 +79,12 @@ void DataLoader::LoadLevelData(Tachyon* tachyon, State& state) {
       entity.astro_end_time = parsef(15);
 
       EntityManager::SaveNewEntity(state, entity);
-      EntityDispatcher::SpawnObjects(tachyon, state, entity);
+
+      auto& mesh_ids = EntityDispatcher::GetMeshes(state, entity.type);
+
+      for (auto mesh_id : mesh_ids) {
+        create(mesh_id);
+      }
     }
     else if (line[0] == '$') {
       // Object
