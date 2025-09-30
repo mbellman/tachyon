@@ -13,6 +13,7 @@
 #define get_live_object(__object) Tachyon_GetLiveObject(tachyon, __object)
 #define create_point_light() Tachyon_CreatePointLight(tachyon)
 #define get_point_light(__light_id) Tachyon_GetPointLight(tachyon, __light_id);
+#define remove_point_light(__light) Tachyon_RemovePointLight(tachyon, __light);
 
 tMesh Tachyon_LoadMesh(const char* path, const tVec3f& axis_factors = tVec3f(1.f));
 tMesh Tachyon_CreatePlaneMesh();
@@ -33,3 +34,4 @@ void Tachyon_UseLodByDistance(Tachyon* tachyon, const uint16 mesh_index, const f
 void Tachyon_UseLodByDistance(Tachyon* tachyon, const uint16 mesh_index, const float distance, const float distance2);
 int32 Tachyon_CreatePointLight(Tachyon* tachyon);
 tPointLight* Tachyon_GetPointLight(Tachyon* tachyon, int32 light_id);
+void Tachyon_RemovePointLight(Tachyon* tachyon, tPointLight& light);

@@ -724,3 +724,15 @@ tPointLight* Tachyon_GetPointLight(Tachyon* tachyon, int32 light_id) {
 
   return nullptr;
 }
+
+void Tachyon_RemovePointLight(Tachyon* tachyon, tPointLight& light) {
+  auto& point_lights = tachyon->point_lights;
+
+  for (size_t i = 0; i < point_lights.size(); i++) {
+    if (light.id == point_lights[i].id) {
+      point_lights.erase(point_lights.begin() + i);
+
+      break;
+    }
+  }
+}
