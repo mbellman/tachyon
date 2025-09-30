@@ -123,7 +123,7 @@ static void UpdateAstrolabe(Tachyon* tachyon, State& state) {
 
 // @todo target_system.cpp
 static void StoreClosestEnemy(State& state, EntityRecord& record) {
-  const float target_distance_limit = 8000.f;
+  float target_distance_limit = state.has_target ? 14000.f : 8000.f;
   float closest_distance = target_distance_limit;
 
   // @todo refactor
@@ -225,8 +225,8 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
 
   TimeEvolution::UpdateAstroTime(tachyon, state, dt);
   ProceduralGeneration::UpdateProceduralObjects(tachyon, state);
-  UpdatePlayer(tachyon, state, dt);
   CameraSystem::UpdateCamera(tachyon, state, dt);
+  UpdatePlayer(tachyon, state, dt);
   UpdateWaterPlane(tachyon, state);
   UpdateAstrolabe(tachyon, state);
 
