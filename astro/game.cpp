@@ -182,19 +182,16 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   }
 
   ControlSystem::HandleControls(tachyon, state, dt);
-
+  CollisionSystem::HandleCollisions(tachyon, state);
+  SpellSystem::HandleSpells(tachyon, state, dt);
   HandleDialogue(tachyon, state);
 
-  CollisionSystem::HandleCollisions(tachyon, state);
-  CameraSystem::UpdateCamera(tachyon, state, dt);
-
+  TimeEvolution::UpdateAstroTime(tachyon, state, dt);
+  ProceduralGeneration::UpdateProceduralObjects(tachyon, state);
   UpdatePlayer(tachyon, state, dt);
   UpdateWaterPlane(tachyon, state);
   UpdateAstrolabe(tachyon, state);
-
-  SpellSystem::HandleSpells(tachyon, state, dt);
-  TimeEvolution::HandleAstroTime(tachyon, state, dt);
-  ProceduralGeneration::HandleProceduralObjects(tachyon, state);
+  CameraSystem::UpdateCamera(tachyon, state, dt);
 
   // @todo HandleFrameEnd()
   {

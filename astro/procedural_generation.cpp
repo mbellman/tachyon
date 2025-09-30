@@ -88,8 +88,8 @@ static void GenerateProceduralSmallGrass(Tachyon* tachyon, State& state) {
   }
 }
 
-static void HandleProceduralGrass(Tachyon* tachyon, State& state) {
-  profiler_start("HandleProceduralGrass()");
+static void UpdateProceduralGrass(Tachyon* tachyon, State& state) {
+  profiler_start("UpdateProceduralGrass()");
 
   static const tVec3f offsets[] = {
     tVec3f(0, 0, 0),
@@ -137,8 +137,8 @@ static void HandleProceduralGrass(Tachyon* tachyon, State& state) {
   profiler_end();
 }
 
-static void HandleProceduralSmallGrass(Tachyon* tachyon, State& state) {
-  profiler_start("HandleProceduralSmallGrass()");
+static void UpdateProceduralSmallGrass(Tachyon* tachyon, State& state) {
+  profiler_start("UpdateProceduralSmallGrass()");
 
   static const tVec3f offsets[] = {
     tVec3f(0, 0, 0),
@@ -191,8 +191,8 @@ void ProceduralGeneration::RebuildProceduralObjects(Tachyon* tachyon, State& sta
   GenerateProceduralSmallGrass(tachyon, state);
 }
 
-void ProceduralGeneration::HandleProceduralObjects(Tachyon* tachyon, State& state) {
+void ProceduralGeneration::UpdateProceduralObjects(Tachyon* tachyon, State& state) {
   // @todo refactor these two
-  HandleProceduralGrass(tachyon, state);
-  HandleProceduralSmallGrass(tachyon, state);
+  UpdateProceduralGrass(tachyon, state);
+  UpdateProceduralSmallGrass(tachyon, state);
 }

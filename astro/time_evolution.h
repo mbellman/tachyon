@@ -5,6 +5,6 @@
 
 namespace astro {
   namespace TimeEvolution {
-    void HandleAstroTime(Tachyon* tachyon, State& state, const float dt);
+    void UpdateAstroTime(Tachyon* tachyon, State& state, const float dt);
   }
 }

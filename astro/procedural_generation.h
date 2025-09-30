@@ -6,6 +6,6 @@
 namespace astro {
   namespace ProceduralGeneration {
     void RebuildProceduralObjects(Tachyon* tachyon, State& state);
-    void HandleProceduralObjects(Tachyon* tachyon, State& state);
+    void UpdateProceduralObjects(Tachyon* tachyon, State& state);
   }
 }
