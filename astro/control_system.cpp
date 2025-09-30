@@ -23,24 +23,26 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state, const f
     tachyon->right_trigger == 0.f &&
     abs(state.astro_turn_speed) < 0.1f
   ) {
+    float movement_speed = is_key_held(tKey::CONTROLLER_A) ? 14000.f : 8000.f;
+
     if (is_key_held(tKey::ARROW_UP) || is_key_held(tKey::W)) {
-      state.player_velocity += tVec3f(0, 0, -1.f) * 10000.f * dt;
+      state.player_velocity += tVec3f(0, 0, -1.f) * movement_speed * dt;
     }
 
     if (is_key_held(tKey::ARROW_LEFT) || is_key_held(tKey::A)) {
-      state.player_velocity += tVec3f(-1.f, 0, 0) * 10000.f * dt;
+      state.player_velocity += tVec3f(-1.f, 0, 0) * movement_speed * dt;
     }
 
     if (is_key_held(tKey::ARROW_RIGHT) || is_key_held(tKey::D)) {
-      state.player_velocity += tVec3f(1.f, 0, 0) * 10000.f * dt;
+      state.player_velocity += tVec3f(1.f, 0, 0) * movement_speed * dt;
     }
 
     if (is_key_held(tKey::ARROW_DOWN) || is_key_held(tKey::S)) {
-      state.player_velocity += tVec3f(0, 0, 1.f) * 10000.f * dt;
+      state.player_velocity += tVec3f(0, 0, 1.f) * movement_speed * dt;
     }
 
-    state.player_velocity.x += tachyon->left_stick.x * 10000.f * dt;
-    state.player_velocity.z += tachyon->left_stick.y * 10000.f * dt;
+    state.player_velocity.x += tachyon->left_stick.x * movement_speed * dt;
+    state.player_velocity.z += tachyon->left_stick.y * movement_speed * dt;
   }
 
   state.player_velocity *= 1.f - 10.f * dt;
