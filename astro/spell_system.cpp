@@ -3,6 +3,36 @@
 
 using namespace astro;
 
+static void StoreClosestEnemy(Tachyon* tachyon, State& state, EntityRecord& record) {
+  float closest_distance = std::numeric_limits<float>::max();
+
+  // @todo refactor
+  for_entities(state.low_guards) {
+    auto& entity = state.low_guards[i];
+    float distance = (state.player_position - entity.position).magnitude();
+
+    if (distance < closest_distance) {
+      closest_distance = distance;
+
+      record.id = entity.id;
+      record.type = entity.type;
+    }
+  }
+
+  // @todo refactor
+  for_entities(state.bandits) {
+    auto& entity = state.bandits[i];
+    float distance = (state.player_position - entity.position).magnitude();
+
+    if (distance < closest_distance) {
+      closest_distance = distance;
+
+      record.id = entity.id;
+      record.type = entity.type;
+    }
+  }
+}
+
 static void HandleActiveStunSpell(Tachyon* tachyon, State& state) {
   auto& spells = state.spells;
 
@@ -104,20 +134,7 @@ void SpellSystem::CastHoming(Tachyon* tachyon, State& state) {
     light.power = 0.f;
   }
 
-  float closest = std::numeric_limits<float>::max();
-
-  // @todo factor/introduce a targeting system
-  for_entities(state.low_guards) {
-    auto& entity = state.low_guards[i];
-    float distance = (state.player_position - entity.position).magnitude();
-
-    if (distance < closest) {
-      closest = distance;
-
-      spells.homing_target_entity.id = entity.id;
-      spells.homing_target_entity.type = entity.type;
-    }
-  }
+  StoreClosestEnemy(tachyon, state, spells.homing_target_entity);
 }
 
 void SpellSystem::HandleSpells(Tachyon* tachyon, State& state, const float dt) {
