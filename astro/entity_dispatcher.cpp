@@ -48,6 +48,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
 
     default:
       // @todo log error
+      printf("Failed to get container for entity type: %d\n", type);
       exit(0);
       break;
   }

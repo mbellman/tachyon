@@ -122,9 +122,12 @@ static void UpdateAstrolabe(Tachyon* tachyon, State& state) {
 }
 
 // @todo target_system.cpp
-static void StoreClosestEnemy(State& state, EntityRecord& record) {
+static void StoreClosestEnemy(Tachyon* tachyon, State& state, EntityRecord& record) {
   float target_distance_limit = state.has_target ? 14000.f : 8000.f;
   float closest_distance = target_distance_limit;
+
+  record.id = -1;
+  record.type = UNSPECIFIED;
 
   // @todo refactor
   for_entities(state.low_guards) {
@@ -152,7 +155,13 @@ static void StoreClosestEnemy(State& state, EntityRecord& record) {
     }
   }
 
-  state.has_target = closest_distance < target_distance_limit;
+  if (!state.has_target && closest_distance < target_distance_limit) {
+    state.has_target = true;
+    state.target_start_time = tachyon->running_time;
+  }
+  else if (closest_distance == target_distance_limit) {
+    state.has_target = false;
+  }
 }
 
 // @todo dialogue_system.cpp
@@ -221,7 +230,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   HandleDialogue(tachyon, state);
 
   // @todo target_system.cpp
-  StoreClosestEnemy(state, state.target_entity);
+  StoreClosestEnemy(tachyon, state, state.target_entity);
 
   TimeEvolution::UpdateAstroTime(tachyon, state, dt);
   ProceduralGeneration::UpdateProceduralObjects(tachyon, state);

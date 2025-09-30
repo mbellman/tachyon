@@ -25,20 +25,28 @@ static void HandleActiveStunSpell(Tachyon* tachyon, State& state) {
 static void HandleActiveHomingSpell(Tachyon* tachyon, State& state, const float dt) {
   auto& spells = state.spells;
 
-  if (spells.homing_light_ids[0] == -1) {
+  if (
+    spells.homing_light_ids[0] == -1 &&
+    spells.homing_light_ids[1] == -1 &&
+    spells.homing_light_ids[2] == -1
+  ) {
     return;
   }
 
-  auto* target_entity = EntityManager::FindEntity(state, spells.homing_target_entity);
-  
-  if (target_entity == nullptr) {
-    return;
-  }
-
+  // @todo state.game_time - spells.last_homing_time
   float time_since_casting = tachyon->running_time - spells.last_homing_time;
 
   for (int32 i = 0; i < 3; i++) {
-    auto& light = *get_point_light(spells.homing_light_ids[i]);
+    auto* light_pointer = get_point_light(spells.homing_light_ids[i]);
+
+    if (light_pointer == nullptr) {
+      // Clear out any references to removed lights
+      spells.homing_light_ids[i] = -1;
+
+      continue;
+    }
+
+    auto& light = *light_pointer;
 
     // Set static light parameters
     light.color = tVec3f(0.1f, 0.3f, 1.f);
@@ -49,10 +57,12 @@ static void HandleActiveHomingSpell(Tachyon* tachyon, State& state, const float 
     if (t < 0.f) t = 0.f;
 
     // Circle the player
-    if (t < 2.f) {
+    if (t < 2.f || state.target_entity.type == UNSPECIFIED) {
       float alpha = t / 2.f;
+      float clamped_alpha = alpha > 1.f ? 1.f : alpha;
+
       float theta = -alpha * t_TAU * 1.25f;
-      float circle_radius = sqrtf(alpha) * 2000.f;
+      float circle_radius = sqrtf(clamped_alpha) * 2000.f;
 
       const static tVec3f start = { 0.f, 0.f, 1.f };
       tVec3f offset = start;
@@ -61,23 +71,36 @@ static void HandleActiveHomingSpell(Tachyon* tachyon, State& state, const float 
       offset.z = start.x * sinf(theta) + start.z * cosf(theta);
 
       light.position = state.player_position + offset * circle_radius;
-      light.radius = 3000.f * alpha;
+      light.radius = 3000.f * clamped_alpha;
+
+      if (t > 5.f) {
+        // @todo use a dissipation effect
+        remove_point_light(light);
+      }
     }
 
     // Target the enemy
     // @todo disappear once the lights hit the target
     else {
-      float alpha = t - 2.f;
+      float alpha = std::min(t - 2.f, tachyon->running_time - state.target_start_time);
       float speed = Tachyon_Lerpf(7000.f, 16000.f, alpha);
+      auto* target_entity = EntityManager::FindEntity(state, state.target_entity);
 
       // @todo use player direction
       tVec3f player_forward = tVec3f(0, 0, -1.f);
       // @todo target_entity->visible_position
       tVec3f light_to_target = target_entity->position - light.position;
-      tVec3f direction = tVec3f::lerp(player_forward.unit(), light_to_target.unit(), alpha);
+      float target_distance = light_to_target.magnitude();
+      tVec3f unit_light_to_target = light_to_target / target_distance;
+      tVec3f direction = tVec3f::lerp(player_forward.unit(), unit_light_to_target, alpha);
 
       light.position += direction.unit() * speed * dt;
       light.radius = 3000.f;
+
+      if (target_distance < 200.f) {
+        // @todo use a dissipation effect
+        remove_point_light(light);
+      }
     }
   }
 }
