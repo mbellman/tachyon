@@ -1,4 +1,5 @@
 #include "astro/camera_system.h"
+#include "astro/entity_manager.h"
 
 using namespace astro;
 
@@ -50,7 +51,14 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) 
       state.camera_shift = tVec3f::lerp(state.camera_shift, new_camera_shift, 2.f * dt);
     }
 
-    new_camera_position = state.player_position + state.camera_shift;
+    if (state.has_target) {
+      auto* entity = EntityManager::FindEntity(state, state.target_entity);
+
+      new_camera_position = tVec3f::lerp(state.player_position, entity->position, 0.3f);
+    } else {
+      new_camera_position = state.player_position + state.camera_shift;
+    }
+
     new_camera_position.y += 10000.f;
     new_camera_position.z += 7000.f;
   }

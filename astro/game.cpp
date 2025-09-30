@@ -123,7 +123,8 @@ static void UpdateAstrolabe(Tachyon* tachyon, State& state) {
 
 // @todo target_system.cpp
 static void StoreClosestEnemy(State& state, EntityRecord& record) {
-  float closest_distance = std::numeric_limits<float>::max();
+  const float target_distance_limit = 8000.f;
+  float closest_distance = target_distance_limit;
 
   // @todo refactor
   for_entities(state.low_guards) {
@@ -150,6 +151,8 @@ static void StoreClosestEnemy(State& state, EntityRecord& record) {
       record.type = entity.type;
     }
   }
+
+  state.has_target = closest_distance < target_distance_limit;
 }
 
 // @todo dialogue_system.cpp

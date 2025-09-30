@@ -76,6 +76,7 @@ namespace astro {
     Plane last_plane_walked_on;
 
     EntityRecord target_entity;
+    bool has_target = false;
 
     tVec3f camera_shift;
 
