@@ -501,6 +501,16 @@ static void RenderAlertMessage(Tachyon* tachyon) {
   }
 }
 
+static bool HasObjectsOfMeshType(Tachyon* tachyon, tMeshType type) {
+  for (auto& record : tachyon->mesh_pack.mesh_records) {
+    if (record.type == type && record.group.total_active > 0) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 static void UpdateRendererContext(Tachyon* tachyon) {
   auto& ctx = get_renderer().ctx;
   auto& scene = tachyon->scene;
@@ -853,7 +863,7 @@ static void RenderPostMeshes(Tachyon* tachyon) {
     : renderer.accumulation_buffer_b;
 
   // Wireframes
-  {
+  if (HasObjectsOfMeshType(tachyon, WIREFRAME_MESH)) {
     auto& shader = renderer.shaders.wireframe_mesh;
     auto& locations = renderer.shaders.locations.wireframe_mesh;
 
@@ -870,7 +880,7 @@ static void RenderPostMeshes(Tachyon* tachyon) {
   }
 
   // Volumetrics (@todo rename Atmospheres)
-  {
+  if (HasObjectsOfMeshType(tachyon, VOLUMETRIC_MESH)) {
     auto& shader = renderer.shaders.volumetric_mesh;
     auto& locations = renderer.shaders.locations.volumetric_mesh;
 
@@ -884,10 +894,16 @@ static void RenderPostMeshes(Tachyon* tachyon) {
     RenderMeshesByType(tachyon, VOLUMETRIC_MESH);
   }
 
-  // Fire
-  {
-    glDepthMask(false);
+  // Check for transparent mesh types and disable depth writing accordingly
+  bool has_fire_meshes = HasObjectsOfMeshType(tachyon, FIRE_MESH);
+  bool has_ion_thruster_meshes = HasObjectsOfMeshType(tachyon, ION_THRUSTER_MESH);
 
+  if (has_fire_meshes || has_ion_thruster_meshes) {
+    glDepthMask(false);
+  }
+
+  // Fire
+  if (has_fire_meshes) {
     auto& shader = renderer.shaders.fire_mesh;
     auto& locations = renderer.shaders.locations.fire_mesh;
 
@@ -901,7 +917,7 @@ static void RenderPostMeshes(Tachyon* tachyon) {
   }
 
   // Ion thrusters
-  {
+  if (has_ion_thruster_meshes) {
     auto& shader = renderer.shaders.ion_thruster_mesh;
     auto& locations = renderer.shaders.locations.ion_thruster_mesh;
 
@@ -911,7 +927,10 @@ static void RenderPostMeshes(Tachyon* tachyon) {
     SetShaderFloat(locations.scene_time, scene.scene_time);
 
     RenderMeshesByType(tachyon, ION_THRUSTER_MESH);
+  }
 
+  // Restore depth writing if we disabled it for transparent mesh types
+  if (has_fire_meshes || has_ion_thruster_meshes) {
     glDepthMask(true);
   }
 
