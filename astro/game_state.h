@@ -75,6 +75,8 @@ namespace astro {
     bool is_on_solid_ground = false;
     Plane last_plane_walked_on;
 
+    EntityRecord target_entity;
+
     tVec3f camera_shift;
 
     float water_level = -1800.f;

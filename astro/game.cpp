@@ -121,6 +121,37 @@ static void UpdateAstrolabe(Tachyon* tachyon, State& state) {
   commit(hand);
 }
 
+// @todo target_system.cpp
+static void StoreClosestEnemy(State& state, EntityRecord& record) {
+  float closest_distance = std::numeric_limits<float>::max();
+
+  // @todo refactor
+  for_entities(state.low_guards) {
+    auto& entity = state.low_guards[i];
+    float distance = (state.player_position - entity.position).magnitude();
+
+    if (distance < closest_distance) {
+      closest_distance = distance;
+
+      record.id = entity.id;
+      record.type = entity.type;
+    }
+  }
+
+  // @todo refactor
+  for_entities(state.bandits) {
+    auto& entity = state.bandits[i];
+    float distance = (state.player_position - entity.position).magnitude();
+
+    if (distance < closest_distance) {
+      closest_distance = distance;
+
+      record.id = entity.id;
+      record.type = entity.type;
+    }
+  }
+}
+
 // @todo dialogue_system.cpp
 static void HandleDialogue(Tachyon* tachyon, State& state) {
   float dialogue_age = tachyon->running_time - state.dialogue_start_time;
@@ -186,12 +217,15 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   SpellSystem::HandleSpells(tachyon, state, dt);
   HandleDialogue(tachyon, state);
 
+  // @todo target_system.cpp
+  StoreClosestEnemy(state, state.target_entity);
+
   TimeEvolution::UpdateAstroTime(tachyon, state, dt);
   ProceduralGeneration::UpdateProceduralObjects(tachyon, state);
   UpdatePlayer(tachyon, state, dt);
+  CameraSystem::UpdateCamera(tachyon, state, dt);
   UpdateWaterPlane(tachyon, state);
   UpdateAstrolabe(tachyon, state);
-  CameraSystem::UpdateCamera(tachyon, state, dt);
 
   // @todo HandleFrameEnd()
   {
