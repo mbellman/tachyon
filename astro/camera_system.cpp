@@ -38,13 +38,17 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) 
       // Target camera
       auto* entity = EntityManager::FindEntity(state, state.target_entity);
       float distance = (state.player_position - entity->position).magnitude();
-      float ratio = 1.f - distance / 14000.f;
-      if (ratio < 0.f) ratio = 0.f;
 
-      new_camera_position = tVec3f::lerp(state.player_position, entity->position, ratio);
-      delta_factor = Tachyon_Lerpf(5.f, 2.f, sqrtf(ratio));
+      float distance_ratio = 1.f - distance / 14000.f;
+      if (distance_ratio < 0.f) distance_ratio = 0.f;
 
-      state.camera_shift = tVec3f::lerp(state.camera_shift, tVec3f(0, 0, 1000.f), 2.f * dt);
+      float time_ratio = (tachyon->running_time - state.target_start_time) / 1.f;
+      if (time_ratio > 1.f) time_ratio = 1.f;
+
+      new_camera_position = tVec3f::lerp(state.player_position, entity->position, distance_ratio);
+      delta_factor = Tachyon_Lerpf(1.f, 5.f, time_ratio);
+
+      state.camera_shift = tVec3f::lerp(state.camera_shift, tVec3f(0, 0, 1000.f), time_ratio);
     }
     else if (player_speed > 0.01f) {
       // Walking camera
