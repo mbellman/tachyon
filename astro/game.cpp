@@ -201,7 +201,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
 }
 
 void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
-  profiler_start("UpdateGame()");
+  profile("UpdateGame()");
 
   auto& scene = tachyon->scene;
 
@@ -255,7 +255,4 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
     // @todo debug mode only
     ShowGameStats(tachyon, state);
   }
-
-
-  profiler_end();
 }

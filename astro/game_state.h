@@ -8,16 +8,6 @@
 
 #define for_entities(array) for (uint16 i = 0; i < (uint16)array.size(); i++)
 
-// @todo move elsewhere
-#define profiler_start(message)\
-  uint64 __start_time = Tachyon_GetMicroseconds();\
-  const char* __message = message;\
-
-// @todo move elsewhere
-#define profiler_end()\
-  uint64 __time = Tachyon_GetMicroseconds() - __start_time;\
-  add_dev_label(__message, std::to_string(__time) + "us");\
-
 namespace astro {
   struct MeshIds : EntityMeshIds {
     uint16

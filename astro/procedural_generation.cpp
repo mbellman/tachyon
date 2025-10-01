@@ -89,7 +89,7 @@ static void GenerateProceduralSmallGrass(Tachyon* tachyon, State& state) {
 }
 
 static void UpdateProceduralGrass(Tachyon* tachyon, State& state) {
-  profiler_start("UpdateProceduralGrass()");
+  profile("UpdateProceduralGrass()");
 
   static const tVec3f offsets[] = {
     tVec3f(0, 0, 0),
@@ -133,12 +133,10 @@ static void UpdateProceduralGrass(Tachyon* tachyon, State& state) {
     grass.position.x = base_position.x;
     grass.position.z = base_position.z;
   }
-
-  profiler_end();
 }
 
 static void UpdateProceduralSmallGrass(Tachyon* tachyon, State& state) {
-  profiler_start("UpdateProceduralSmallGrass()");
+  profile("UpdateProceduralSmallGrass()");
 
   static const tVec3f offsets[] = {
     tVec3f(0, 0, 0),
@@ -181,8 +179,6 @@ static void UpdateProceduralSmallGrass(Tachyon* tachyon, State& state) {
     grass.position.x = base_position.x;
     grass.position.z = base_position.z;
   }
-
-  profiler_end();
 }
 
 void ProceduralGeneration::RebuildProceduralObjects(Tachyon* tachyon, State& state) {
