@@ -46,6 +46,7 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) 
       if (time_ratio > 1.f) time_ratio = 1.f;
 
       new_camera_position = tVec3f::lerp(state.player_position, target.visible_position, distance_ratio);
+      new_camera_position.y = 2000.f * distance_ratio;
       delta_factor = Tachyon_Lerpf(1.f, 5.f, time_ratio);
 
       state.camera_shift = tVec3f::lerp(state.camera_shift, tVec3f(0, 0, 1000.f), time_ratio);
