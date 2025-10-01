@@ -78,6 +78,9 @@ void DataLoader::LoadLevelData(Tachyon* tachyon, State& state) {
       entity.astro_start_time = parsef(14);
       entity.astro_end_time = parsef(15);
 
+      // Set base visible position
+      entity.visible_position = entity.position;
+
       EntityManager::SaveNewEntity(state, entity);
 
       auto& mesh_ids = EntityDispatcher::GetMeshes(state, entity.type);

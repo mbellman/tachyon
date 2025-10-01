@@ -75,6 +75,8 @@ namespace astro {
     // number of actual collision bounds generated + checked
     // per frame can be very low.
     tVec3f visible_scale;
+
+    tVec3f visible_position;
   };
 
   /**

@@ -132,7 +132,7 @@ static void StoreClosestEnemy(Tachyon* tachyon, State& state, EntityRecord& reco
   // @todo refactor
   for_entities(state.low_guards) {
     auto& entity = state.low_guards[i];
-    float distance = (state.player_position - entity.position).magnitude();
+    float distance = (state.player_position - entity.visible_position).magnitude();
 
     if (distance < closest_distance) {
       closest_distance = distance;
@@ -145,7 +145,7 @@ static void StoreClosestEnemy(Tachyon* tachyon, State& state, EntityRecord& reco
   // @todo refactor
   for_entities(state.bandits) {
     auto& entity = state.bandits[i];
-    float distance = (state.player_position - entity.position).magnitude();
+    float distance = (state.player_position - entity.visible_position).magnitude();
 
     if (distance < closest_distance) {
       closest_distance = distance;
@@ -186,7 +186,7 @@ static void HandleDialogue(Tachyon* tachyon, State& state) {
 void astro::InitGame(Tachyon* tachyon, State& state) {
   MeshLibrary::AddMeshes(tachyon, state);
 
-  // @todo move to ui.cpp
+  // @todo ui.cpp
   state.debug_text = Tachyon_CreateUIText("./fonts/CascadiaMonoNF.ttf", 19);
   state.debug_text_large = Tachyon_CreateUIText("./fonts/OpenSans-Regular.ttf", 32);
 
@@ -250,11 +250,12 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
     if (fx.accumulation_blur_factor > 0.95f) {
       fx.accumulation_blur_factor = 0.95f;
     }
+
+    // @todo ui.cpp
+    // @todo debug mode only
+    ShowGameStats(tachyon, state);
   }
 
-  // @todo move to ui.cpp
-  // @todo debug mode only
-  ShowGameStats(tachyon, state);
 
   profiler_end();
 }
