@@ -15,16 +15,42 @@
 using namespace astro;
 
 static void UpdatePlayer(Tachyon* tachyon, State& state, const float dt) {
-  state.player_position += state.player_velocity * 5.f * dt;
+  // Update position
+  {
+    state.player_position += state.player_velocity * 5.f * dt;
+  }
 
-  auto& player = objects(state.meshes.player)[0]; 
+  // Update facing direction
+  {
+    tVec3f target_facing_direction = state.player_facing_direction;
+    float turning_speed = 5.f;
 
-  player.position = state.player_position;
-  // @temporary
-  player.scale = tVec3f(600.f, 1500.f, 600.f);
-  player.color = tVec3f(0, 0.2f, 1.f);
+    if (state.has_target) {
+      auto& target = *EntityManager::FindEntity(state, state.target_entity);
 
-  commit(player);
+      target_facing_direction = (target.visible_position - state.player_position).unit();
+      turning_speed = 10.f;
+    }
+    else if (state.player_velocity.magnitude() > 0.01f) {
+      target_facing_direction = state.player_velocity.unit();
+    }
+
+    state.player_facing_direction = tVec3f::lerp(state.player_facing_direction, target_facing_direction, turning_speed * dt).unit();
+  }
+
+  // Update model
+  {
+    auto& player = objects(state.meshes.player)[0]; 
+
+    player.position = state.player_position;
+    // @temporary
+    player.scale = tVec3f(600.f, 1500.f, 600.f);
+    player.color = tVec3f(0, 0.2f, 1.f);
+
+    player.rotation = Quaternion::FromDirection(state.player_facing_direction, tVec3f(0, 1.f, 0));
+
+    commit(player);
+  }
 }
 
 static void UpdateWaterPlane(Tachyon* tachyon, State& state) {
@@ -123,7 +149,7 @@ static void UpdateAstrolabe(Tachyon* tachyon, State& state) {
 
 // @todo target_system.cpp
 static void StoreClosestEnemy(Tachyon* tachyon, State& state, EntityRecord& record) {
-  float target_distance_limit = state.has_target ? 14000.f : 10000.f;
+  float target_distance_limit = state.has_target ? 14000.f : 12000.f;
   float closest_distance = target_distance_limit;
 
   record.id = -1;

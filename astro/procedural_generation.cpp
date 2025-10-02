@@ -110,7 +110,6 @@ static void UpdateProceduralGrass(Tachyon* tachyon, State& state) {
 
   auto& player_position = state.player_position;
 
-  // @todo @optimize only update grass near the player
   for (auto& grass : objects(state.meshes.grass)) {
     if (abs(grass.position.x - player_position.x) > 15000.f || abs(grass.position.z - player_position.z) > 15000.f) {
       continue;

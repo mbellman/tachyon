@@ -57,11 +57,13 @@ namespace astro {
   struct State : EntityContainers {
     MeshIds meshes;
 
-    // @todo default this in game.cpp or elsewhere
+    // @todo default this
     tVec3f player_position = tVec3f(0.f, 0.f, 3500.f);
     tVec3f last_player_position;
     tVec3f last_solid_ground_position;
     tVec3f player_velocity;
+    // @todo default this
+    tVec3f player_facing_direction = tVec3f(1.f, 0, 0);
     bool is_on_solid_ground = false;
     Plane last_plane_walked_on;
 
