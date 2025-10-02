@@ -49,7 +49,7 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) 
       new_camera_position.y = 2000.f * distance_ratio;
       delta_factor = Tachyon_Lerpf(1.f, 5.f, time_ratio);
 
-      state.camera_shift = tVec3f::lerp(state.camera_shift, tVec3f(0, 0, 1000.f), time_ratio);
+      state.camera_shift = tVec3f::lerp(state.camera_shift, tVec3f(0, 0, 2000.f), time_ratio);
     }
     else if (player_speed > 0.01f) {
       // Walking camera

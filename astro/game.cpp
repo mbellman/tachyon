@@ -123,7 +123,7 @@ static void UpdateAstrolabe(Tachyon* tachyon, State& state) {
 
 // @todo target_system.cpp
 static void StoreClosestEnemy(Tachyon* tachyon, State& state, EntityRecord& record) {
-  float target_distance_limit = state.has_target ? 14000.f : 8000.f;
+  float target_distance_limit = state.has_target ? 14000.f : 10000.f;
   float closest_distance = target_distance_limit;
 
   record.id = -1;
