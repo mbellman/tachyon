@@ -2,37 +2,47 @@
 
 using namespace astro;
 
+struct Bounds2D {
+  float x[2];
+  float z[2];
+};
+
+static Bounds2D GetObjectBounds2D(const tObject& object, const float edge) {
+  Bounds2D bounds;
+
+  bounds.x[0] = object.position.x - object.scale.x * 0.8f;
+  bounds.x[1] = object.position.x + object.scale.x * 0.8f;
+
+  bounds.z[0] = object.position.z - object.scale.z * 0.8f;
+  bounds.z[1] = object.position.z + object.scale.z * 0.8f;
+
+  return bounds;
+}
+
 static void GenerateProceduralGrass(Tachyon* tachyon, State& state) {
   remove_all(state.meshes.grass);
 
+  // @todo factor
   for (auto& ground : objects(state.meshes.ground_1)) {
-    float x_min = ground.position.x - ground.scale.x * 0.8f;
-    float x_max = ground.position.x + ground.scale.x * 0.8f;
-
-    float z_min = ground.position.z - ground.scale.z * 0.8f;
-    float z_max = ground.position.z + ground.scale.z * 0.8f;
-
+    auto bounds = GetObjectBounds2D(ground, 0.8f);
     tVec3f direction = ground.rotation.getDirection();
     float theta = atan2f(direction.z, direction.x) + t_HALF_PI;
 
     for (uint16 i = 0; i < 20; i++) {
       auto& grass = create(state.meshes.grass);
 
-      float x = Tachyon_GetRandom(x_min, x_max);
-      float z = Tachyon_GetRandom(z_min, z_max);
+      float x = Tachyon_GetRandom(bounds.x[0], bounds.x[1]);
+      float z = Tachyon_GetRandom(bounds.z[0], bounds.z[1]);
 
-      float mx = x - ground.position.x;
-      float mz = z - ground.position.z;
+      float lx = x - ground.position.x;
+      float lz = z - ground.position.z;
 
-      float fx = mx;
-      float fz = mz;
+      float wx = ground.position.x + (lx * cosf(theta) - lz * sinf(theta));
+      float wz = ground.position.z + (lx * sinf(theta) + lz * cosf(theta));
 
-      fx = ground.position.x + (mx * cosf(theta) - mz * sinf(theta));
-      fz = ground.position.z + (mx * sinf(theta) + mz * cosf(theta));
-
-      grass.position.x = fx;
+      grass.position.x = wx;
       grass.position.y = -1500.f;
-      grass.position.z = fz;
+      grass.position.z = wz;
 
       grass.scale = tVec3f(1000.f);
       grass.color = tVec4f(0.1f, 0.3f, 0.1f, 0.2f);
@@ -53,23 +63,30 @@ static void GenerateProceduralGrass(Tachyon* tachyon, State& state) {
 static void GenerateProceduralSmallGrass(Tachyon* tachyon, State& state) {
   remove_all(state.meshes.small_grass);
 
+  // @todo factor
   for (auto& plane : objects(state.meshes.flat_ground)) {
-    float x_min = plane.position.x - plane.scale.x * 0.8f;
-    float x_max = plane.position.x + plane.scale.x * 0.8f;
-
-    float z_min = plane.position.z - plane.scale.z * 0.8f;
-    float z_max = plane.position.z + plane.scale.z * 0.8f;
-
-    float area = (x_max - x_min) * (z_max - z_min);
-
+    auto bounds = GetObjectBounds2D(plane, 0.95f);
+    float area = (bounds.x[1] - bounds.x[0]) * (bounds.z[1] - bounds.z[0]);
     uint16 total_grass = uint16(area / 2000000.f);
+
+    tVec3f direction = plane.rotation.getDirection();
+    float theta = atan2f(direction.z, direction.x) + t_HALF_PI;
 
     for (uint16 i = 0; i < total_grass; i++) {
       auto& grass = create(state.meshes.small_grass);
 
-      grass.position.x = Tachyon_GetRandom(x_min, x_max);
+      float x = Tachyon_GetRandom(bounds.x[0], bounds.x[1]);
+      float z = Tachyon_GetRandom(bounds.z[0], bounds.z[1]);
+
+      float lx = x - plane.position.x;
+      float lz = z - plane.position.z;
+
+      float wx = plane.position.x + (lx * cosf(theta) - lz * sinf(theta));
+      float wz = plane.position.z + (lx * sinf(theta) + lz * cosf(theta));
+
+      grass.position.x = wx;
       grass.position.y = -1500.f;
-      grass.position.z = Tachyon_GetRandom(z_min, z_max);
+      grass.position.z = wz;
 
       grass.scale = tVec3f(Tachyon_GetRandom(200.f, 500.f));
       grass.color = tVec4f(0.2f, 0.8f, 0.2f, 0.2f);
@@ -89,8 +106,6 @@ static void GenerateProceduralSmallGrass(Tachyon* tachyon, State& state) {
 }
 
 static void UpdateProceduralGrass(Tachyon* tachyon, State& state) {
-  profile("UpdateProceduralGrass()");
-
   static const tVec3f offsets[] = {
     tVec3f(0, 0, 0),
     tVec3f(-200.f, 0, 150.f),
@@ -116,7 +131,7 @@ static void UpdateProceduralGrass(Tachyon* tachyon, State& state) {
     }
 
     float alpha = state.astro_time + grass.position.x + grass.position.z;
-    int iteration = int(growth_rate * alpha / t_TAU - 0.8f);
+    int iteration = (int)abs(growth_rate * alpha / t_TAU - 0.8f);
     float rotation_angle = grass.position.x + float(iteration) * 1.3f;
 
     tVec3f base_position = grass.position;
@@ -135,8 +150,6 @@ static void UpdateProceduralGrass(Tachyon* tachyon, State& state) {
 }
 
 static void UpdateProceduralSmallGrass(Tachyon* tachyon, State& state) {
-  profile("UpdateProceduralSmallGrass()");
-
   static const tVec3f offsets[] = {
     tVec3f(0, 0, 0),
     tVec3f(-200.f, 0, 150.f),
@@ -162,7 +175,7 @@ static void UpdateProceduralSmallGrass(Tachyon* tachyon, State& state) {
     }
 
     float alpha = state.astro_time + grass.position.x + grass.position.z;
-    int iteration = int(growth_rate * alpha / t_TAU - 0.8f);
+    int iteration = (int)abs(growth_rate * alpha / t_TAU - 0.8f);
     float rotation_angle = grass.position.x + float(iteration) * 1.3f;
 
     tVec3f base_position = grass.position;
@@ -187,6 +200,8 @@ void ProceduralGeneration::RebuildProceduralObjects(Tachyon* tachyon, State& sta
 }
 
 void ProceduralGeneration::UpdateProceduralObjects(Tachyon* tachyon, State& state) {
+  profile("UpdateProceduralObjects()");
+
   // @todo refactor these two
   UpdateProceduralGrass(tachyon, state);
   UpdateProceduralSmallGrass(tachyon, state);
