@@ -91,18 +91,18 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
 
   // Slow down toward max time
   if (state.astro_turn_speed > 0.f) {
-    float slowdown_threshold = max_astro_time - (max_astro_time - state.astro_time_at_start_of_turn) * 0.1f;
+    float slowdown_threshold = max_astro_time - (max_astro_time - state.astro_time_at_start_of_turn) * 0.2f;
 
-    if (slowdown_threshold < max_astro_time - 5.f) {
+    if (slowdown_threshold < max_astro_time - 10.f) {
       // Enforce a limit on how far away the slowdown threshold is
       // from the stopping value
-      slowdown_threshold = max_astro_time - 5.f;
+      slowdown_threshold = max_astro_time - 10.f;
     }
 
     if (state.astro_time > slowdown_threshold) {
       float threshold_distance = abs(slowdown_threshold - state.astro_time);
       float threshold_to_limit = max_astro_time - slowdown_threshold;
-      float slowdown_factor = 40.f * powf(threshold_distance / threshold_to_limit, 2.f);
+      float slowdown_factor = 20.f * powf(threshold_distance / threshold_to_limit, 2.f);
 
       state.astro_turn_speed *= 1.f - slowdown_factor * dt;
 
@@ -112,18 +112,18 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
 
   // Slow down toward min time
   if (state.astro_turn_speed < 0.f) {
-    float slowdown_threshold = min_astro_time + abs(state.astro_time_at_start_of_turn - min_astro_time) * 0.1f;
+    float slowdown_threshold = min_astro_time + abs(state.astro_time_at_start_of_turn - min_astro_time) * 0.2f;
 
-    if (slowdown_threshold > min_astro_time + 5.f) {
+    if (slowdown_threshold > min_astro_time + 10.f) {
       // Enforce a limit on how far away the slowdown threshold is
       // from the stopping value
-      slowdown_threshold = min_astro_time + 5.f;
+      slowdown_threshold = min_astro_time + 10.f;
     }
 
     if (state.astro_time < slowdown_threshold) {
       float threshold_distance = abs(slowdown_threshold - state.astro_time);
       float threshold_to_limit = abs(min_astro_time - slowdown_threshold);
-      float slowdown_factor = 40.f * powf(threshold_distance / threshold_to_limit, 2.f);
+      float slowdown_factor = 20.f * powf(threshold_distance / threshold_to_limit, 2.f);
 
       state.astro_turn_speed *= 1.f - slowdown_factor * dt;
 

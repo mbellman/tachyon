@@ -271,7 +271,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
 
     state.last_player_position = state.player_position;
 
-    fx.accumulation_blur_factor = sqrtf(abs(state.astro_turn_speed * 4.f));
+    fx.accumulation_blur_factor = sqrtf(abs(state.astro_turn_speed)) * 4.f;
 
     if (fx.accumulation_blur_factor > 0.95f) {
       fx.accumulation_blur_factor = 0.95f;
