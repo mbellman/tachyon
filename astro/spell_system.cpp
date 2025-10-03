@@ -11,7 +11,7 @@ static void HandleActiveStunSpell(Tachyon* tachyon, State& state) {
   }
 
   auto& light = *get_point_light(spells.stun_light_id);
-  float t = (tachyon->running_time - spells.last_stun_time) / 3.f;
+  float t = (tachyon->running_time - spells.stun_start_time) / 3.f;
   if (t > 1.f) t = 1.f;
   t = sqrtf(t);
 
@@ -26,22 +26,23 @@ static void HandleActiveHomingSpell(Tachyon* tachyon, State& state, const float 
   auto& spells = state.spells;
 
   if (
-    spells.homing_light_ids[0] == -1 &&
-    spells.homing_light_ids[1] == -1 &&
-    spells.homing_light_ids[2] == -1
+    spells.homing_orbs[0].light_id == -1 &&
+    spells.homing_orbs[1].light_id == -1 &&
+    spells.homing_orbs[2].light_id == -1
   ) {
     return;
   }
 
-  // @todo state.game_time - spells.last_homing_time
-  float time_since_casting = tachyon->running_time - spells.last_homing_time;
+  // @todo state.game_time - spells.homing_start_time
+  float time_since_casting = tachyon->running_time - spells.homing_start_time;
 
   for (int32 i = 0; i < 3; i++) {
-    auto* light_pointer = get_point_light(spells.homing_light_ids[i]);
+    auto& orb = spells.homing_orbs[i];
+    auto* light_pointer = get_point_light(orb.light_id);
 
     if (light_pointer == nullptr) {
       // Clear out any references to removed lights
-      spells.homing_light_ids[i] = -1;
+      orb.light_id = -1;
 
       continue;
     }
@@ -50,21 +51,21 @@ static void HandleActiveHomingSpell(Tachyon* tachyon, State& state, const float 
 
     // Set static light parameters
     light.color = tVec3f(0.1f, 0.3f, 1.f);
-    light.power = 5.f;
-
-    // Define an adjusted time value for each light so they can behave in succession
-    float t = time_since_casting - float(i) * 0.4f;
-    if (t < 0.f) t = 0.f;
+    light.power = 3.f;
 
     // Circle the player
-    if (t < 2.f || state.target_entity.type == UNSPECIFIED) {
-      float alpha = t / 2.f;
+    if (!orb.is_targeting) {
+      // Define an adjusted time value for each light so they can behave in succession
+      float t = time_since_casting - float(i) * 0.4f;
+      if (t < 0.f) t = 0.f;
+ 
+      float alpha = t;
       float clamped_alpha = alpha > 1.f ? 1.f : alpha;
 
-      float theta = -alpha * t_TAU * 1.25f;
-      float circle_radius = sqrtf(clamped_alpha) * 2000.f;
+      float theta = -alpha * t_TAU * 0.5f;
+      float circle_radius = 1000.f + sqrtf(clamped_alpha) * 1000.f;
 
-      const static tVec3f start = { 0.f, 0.f, 1.f };
+      tVec3f start = spells.homing_start_direction;
       tVec3f offset = start;
 
       offset.x = start.x * cosf(theta) - start.z * sinf(theta);
@@ -73,6 +74,20 @@ static void HandleActiveHomingSpell(Tachyon* tachyon, State& state, const float 
       light.position = state.player_position + offset * circle_radius;
       light.radius = 3000.f * clamped_alpha;
 
+      if (state.target_entity.type != UNSPECIFIED) {
+        auto& target = *EntityManager::FindEntity(state, state.target_entity);
+        tVec3f light_to_target = target.visible_position - light.position;
+        float target_angle = atan2f(light_to_target.z, light_to_target.x) + t_HALF_PI;
+        float base_angle = atan2f(spells.homing_start_direction.z, spells.homing_start_direction.x);
+        float arc_angle = base_angle + theta;
+        float angle_delta = fmod(abs(target_angle - arc_angle), t_TAU);
+
+        if (t > 1.f && angle_delta < 0.1f) {
+          orb.is_targeting = true;
+          orb.targeting_start_time = tachyon->running_time;
+        }
+      }
+
       if (t > 5.f) {
         // @todo use a dissipation effect
         remove_point_light(light);
@@ -80,18 +95,17 @@ static void HandleActiveHomingSpell(Tachyon* tachyon, State& state, const float 
     }
 
     // Target the enemy
-    // @todo disappear once the lights hit the target
-    else {
-      float alpha = std::min(t - 2.f, tachyon->running_time - state.target_start_time);
+    else if (state.target_entity.type != UNSPECIFIED) {
+      float t = tachyon->running_time - orb.targeting_start_time;
+      float alpha = std::min(t, tachyon->running_time - state.target_start_time);
       float speed = Tachyon_Lerpf(7000.f, 16000.f, alpha);
       auto* target_entity = EntityManager::FindEntity(state, state.target_entity);
 
       tVec3f light_to_target = target_entity->visible_position - light.position;
       float target_distance = light_to_target.magnitude();
       tVec3f unit_light_to_target = light_to_target / target_distance;
-      tVec3f direction = tVec3f::lerp(state.player_facing_direction, unit_light_to_target, alpha);
 
-      light.position += direction.unit() * speed * dt;
+      light.position += unit_light_to_target * speed * dt;
       light.radius = 3000.f;
 
       if (target_distance < 200.f) {
@@ -105,21 +119,36 @@ static void HandleActiveHomingSpell(Tachyon* tachyon, State& state, const float 
 void SpellSystem::CastStun(Tachyon* tachyon, State& state) {
   auto& spells = state.spells;
 
-  spells.last_stun_time = tachyon->running_time;
+  spells.stun_start_time = tachyon->running_time;
   spells.stun_light_id = create_point_light();
 }
 
 void SpellSystem::CastHoming(Tachyon* tachyon, State& state) {
   auto& spells = state.spells;
 
-  spells.last_homing_time = tachyon->running_time;
+  spells.homing_start_time = tachyon->running_time;
+  // @todo ensure that homing spells can find a target
+  // if one hasn't been selected yet, but stick to the
+  // first target they do select
   spells.homing_target_entity = state.target_entity;
+  spells.homing_start_direction = state.player_facing_direction;
 
-  // Create lights
+  // Create homing orbs
   for (int32 i = 0; i < 3; i++) {
-    spells.homing_light_ids[i] = create_point_light();
+    auto& orb = spells.homing_orbs[i];
+    auto* existing_light = get_point_light(orb.light_id);
 
-    auto& light = *get_point_light(spells.homing_light_ids[i]);
+    // Removing existing orb lights, if any
+    if (existing_light != nullptr) {
+      // @todo use a dissipation effect
+      remove_point_light(*existing_light);
+    }
+
+    orb.light_id = create_point_light();
+    orb.is_targeting = false;
+    orb.targeting_start_time = 0.f;
+
+    auto& light = *get_point_light(orb.light_id);
 
     light.position = state.player_position;
     light.power = 0.f;

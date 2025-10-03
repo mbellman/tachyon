@@ -43,15 +43,22 @@ namespace astro {
     tVec3f p1, p2, p3, p4;
   };
 
+  struct HomingOrb {
+    int32 light_id = -1;
+    float targeting_start_time = 0.f;
+    bool is_targeting = false;
+  };
+
   struct Spells {
     // Stun
-    float last_stun_time = 0.f;
+    float stun_start_time = 0.f;
     int32 stun_light_id = -1;
 
     // Homing
-    float last_homing_time = 0.f;
+    float homing_start_time = 0.f;
+    tVec3f homing_start_direction;
     EntityRecord homing_target_entity;
-    int32 homing_light_ids[3] = { -1, -1, -1 };
+    HomingOrb homing_orbs[3];
   };
 
   struct State : EntityContainers {
