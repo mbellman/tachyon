@@ -53,6 +53,8 @@ static void HandleHomingSpellCircling(Tachyon* tachyon, State& state, HomingOrb&
   offset.x = start.x * cosf(theta) - start.z * sinf(theta);
   offset.z = start.x * sinf(theta) + start.z * cosf(theta);
 
+  tVec3f previous_light_position = light.position;
+
   light.position = state.player_position + offset * circle_radius;
   light.radius = 3000.f * clamped_alpha;
 
@@ -71,12 +73,13 @@ static void HandleHomingSpellCircling(Tachyon* tachyon, State& state, HomingOrb&
     float base_angle = atan2f(spells.homing_start_direction.z, spells.homing_start_direction.x);
     float global_angle = base_angle + theta;
 
-    float angle_delta = fmod(abs(target_angle - global_angle), t_TAU);
+    float angle_delta = (float)fmod(abs(target_angle - global_angle), t_TAU);
 
     if (angle_delta < 0.1f) {
       // Fire toward the target entity
       orb.is_targeting = true;
       orb.targeting_start_time = tachyon->running_time;
+      orb.targeting_start_direction = (light.position - previous_light_position).unit();
     }
   }
 
@@ -88,14 +91,17 @@ static void HandleHomingSpellCircling(Tachyon* tachyon, State& state, HomingOrb&
 
 static void HandleHomingSpellTargeting(Tachyon* tachyon, State& state, HomingOrb& orb, tPointLight& light, const float dt) {
   float t = tachyon->running_time - orb.targeting_start_time;
+  if (t > 1.f) t = 1.f;
+
   float speed = Tachyon_Lerpf(5000.f, 16000.f, t);
   auto& target_entity = *EntityManager::FindEntity(state, state.target_entity);
 
   tVec3f light_to_target = target_entity.visible_position - light.position;
   float target_distance = light_to_target.magnitude();
   tVec3f unit_light_to_target = light_to_target / target_distance;
+  tVec3f direction = tVec3f::lerp(orb.targeting_start_direction, unit_light_to_target, sqrtf(t)).unit();
 
-  light.position += unit_light_to_target * speed * dt;
+  light.position += direction * speed * dt;
   light.radius = 3000.f;
 
   if (target_distance < 200.f) {
