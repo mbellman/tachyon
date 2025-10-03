@@ -3,6 +3,11 @@
 
 using namespace astro;
 
+/**
+ * ----------------------------
+ * Stun spell helper functions.
+ * ----------------------------
+ */
 static void HandleActiveStunSpell(Tachyon* tachyon, State& state) {
   auto& spells = state.spells;
 
@@ -20,6 +25,83 @@ static void HandleActiveStunSpell(Tachyon* tachyon, State& state) {
   light.radius = 25000.f * Tachyon_EaseInOutf(t);
   light.color = tVec3f(1.f, 0.8f, 0.4f),
   light.power = 5.f * powf(1.f - t, 2.f);
+}
+
+/**
+ * ----------------------------
+ * Homing spell helper functions.
+ * ----------------------------
+ */
+static void HandleHomingSpellCircling(Tachyon* tachyon, State& state, HomingOrb& orb, tPointLight& light, const int index) {
+  auto& spells = state.spells;
+  float time_since_casting = tachyon->running_time - spells.homing_start_time;
+
+  // Define an adjusted time value for homing lights, base on index,
+  // so each one can behave in succession
+  float t = time_since_casting - float(index) * 0.4f;
+  if (t < 0.f) t = 0.f;
+
+  float alpha = t;
+  float clamped_alpha = alpha > 1.f ? 1.f : alpha;
+
+  float theta = -alpha * t_TAU * 0.5f;
+  float circle_radius = 1000.f + sqrtf(clamped_alpha) * 1000.f;
+
+  tVec3f start = spells.homing_start_direction;
+  tVec3f offset = start;
+
+  offset.x = start.x * cosf(theta) - start.z * sinf(theta);
+  offset.z = start.x * sinf(theta) + start.z * cosf(theta);
+
+  light.position = state.player_position + offset * circle_radius;
+  light.radius = 3000.f * clamped_alpha;
+
+  if (state.target_entity.type != UNSPECIFIED) {
+    // When we have a target, wait until we're within angular range
+    // and then fire the orb toward it
+    auto& target = *EntityManager::FindEntity(state, state.target_entity);
+    tVec3f light_to_target = target.visible_position - light.position;
+
+    // Get the light -> target line angle
+    float target_angle = atan2f(light_to_target.z, light_to_target.x) + t_HALF_PI;
+
+    // Get the current angle of the circling orb. We have to use the
+    // starting direction angle and the current theta to determine
+    // its proper world/global angle.
+    float base_angle = atan2f(spells.homing_start_direction.z, spells.homing_start_direction.x);
+    float global_angle = base_angle + theta;
+
+    float angle_delta = fmod(abs(target_angle - global_angle), t_TAU);
+
+    if (angle_delta < 0.1f) {
+      // Fire toward the target entity
+      orb.is_targeting = true;
+      orb.targeting_start_time = tachyon->running_time;
+    }
+  }
+
+  if (t > 5.f) {
+    // @todo use a dissipation effect
+    remove_point_light(light);
+  }
+}
+
+static void HandleHomingSpellTargeting(Tachyon* tachyon, State& state, HomingOrb& orb, tPointLight& light, const float dt) {
+  float t = tachyon->running_time - orb.targeting_start_time;
+  float speed = Tachyon_Lerpf(5000.f, 16000.f, t);
+  auto& target_entity = *EntityManager::FindEntity(state, state.target_entity);
+
+  tVec3f light_to_target = target_entity.visible_position - light.position;
+  float target_distance = light_to_target.magnitude();
+  tVec3f unit_light_to_target = light_to_target / target_distance;
+
+  light.position += unit_light_to_target * speed * dt;
+  light.radius = 3000.f;
+
+  if (target_distance < 200.f) {
+    // @todo use a dissipation effect
+    remove_point_light(light);
+  }
 }
 
 static void HandleActiveHomingSpell(Tachyon* tachyon, State& state, const float dt) {
@@ -53,65 +135,11 @@ static void HandleActiveHomingSpell(Tachyon* tachyon, State& state, const float 
     light.color = tVec3f(0.1f, 0.3f, 1.f);
     light.power = 3.f;
 
-    // Circle the player
     if (!orb.is_targeting) {
-      // Define an adjusted time value for each light so they can behave in succession
-      float t = time_since_casting - float(i) * 0.4f;
-      if (t < 0.f) t = 0.f;
- 
-      float alpha = t;
-      float clamped_alpha = alpha > 1.f ? 1.f : alpha;
-
-      float theta = -alpha * t_TAU * 0.5f;
-      float circle_radius = 1000.f + sqrtf(clamped_alpha) * 1000.f;
-
-      tVec3f start = spells.homing_start_direction;
-      tVec3f offset = start;
-
-      offset.x = start.x * cosf(theta) - start.z * sinf(theta);
-      offset.z = start.x * sinf(theta) + start.z * cosf(theta);
-
-      light.position = state.player_position + offset * circle_radius;
-      light.radius = 3000.f * clamped_alpha;
-
-      if (state.target_entity.type != UNSPECIFIED) {
-        auto& target = *EntityManager::FindEntity(state, state.target_entity);
-        tVec3f light_to_target = target.visible_position - light.position;
-        float target_angle = atan2f(light_to_target.z, light_to_target.x) + t_HALF_PI;
-        float base_angle = atan2f(spells.homing_start_direction.z, spells.homing_start_direction.x);
-        float arc_angle = base_angle + theta;
-        float angle_delta = fmod(abs(target_angle - arc_angle), t_TAU);
-
-        if (t > 1.f && angle_delta < 0.1f) {
-          orb.is_targeting = true;
-          orb.targeting_start_time = tachyon->running_time;
-        }
-      }
-
-      if (t > 5.f) {
-        // @todo use a dissipation effect
-        remove_point_light(light);
-      }
+      HandleHomingSpellCircling(tachyon, state, orb, light, i);
     }
-
-    // Target the enemy
     else if (state.target_entity.type != UNSPECIFIED) {
-      float t = tachyon->running_time - orb.targeting_start_time;
-      float alpha = std::min(t, tachyon->running_time - state.target_start_time);
-      float speed = Tachyon_Lerpf(7000.f, 16000.f, alpha);
-      auto* target_entity = EntityManager::FindEntity(state, state.target_entity);
-
-      tVec3f light_to_target = target_entity->visible_position - light.position;
-      float target_distance = light_to_target.magnitude();
-      tVec3f unit_light_to_target = light_to_target / target_distance;
-
-      light.position += unit_light_to_target * speed * dt;
-      light.radius = 3000.f;
-
-      if (target_distance < 200.f) {
-        // @todo use a dissipation effect
-        remove_point_light(light);
-      }
+      HandleHomingSpellTargeting(tachyon, state, orb, light, dt);
     }
   }
 }
