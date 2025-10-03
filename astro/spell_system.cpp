@@ -79,6 +79,7 @@ static void HandleHomingSpellCircling(Tachyon* tachyon, State& state, HomingOrb&
       // Fire toward the target entity
       orb.is_targeting = true;
       orb.targeting_start_time = tachyon->running_time;
+      orb.targeting_start_speed = (light.position - previous_light_position).magnitude() * 200.f;
       orb.targeting_start_direction = (light.position - previous_light_position).unit();
     }
   }
@@ -93,13 +94,13 @@ static void HandleHomingSpellTargeting(Tachyon* tachyon, State& state, HomingOrb
   float t = tachyon->running_time - orb.targeting_start_time;
   if (t > 1.f) t = 1.f;
 
-  float speed = Tachyon_Lerpf(5000.f, 16000.f, t);
   auto& target_entity = *EntityManager::FindEntity(state, state.target_entity);
-
+  
   tVec3f light_to_target = target_entity.visible_position - light.position;
   float target_distance = light_to_target.magnitude();
   tVec3f unit_light_to_target = light_to_target / target_distance;
   tVec3f direction = tVec3f::lerp(orb.targeting_start_direction, unit_light_to_target, sqrtf(t)).unit();
+  float speed = Tachyon_Lerpf(orb.targeting_start_speed, 16000.f, t);
 
   light.position += direction * speed * dt;
   light.radius = 3000.f;

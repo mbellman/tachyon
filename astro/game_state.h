@@ -46,6 +46,7 @@ namespace astro {
   struct HomingOrb {
     int32 light_id = -1;
     float targeting_start_time = 0.f;
+    float targeting_start_speed = 0.f;
     tVec3f targeting_start_direction;
     bool is_targeting = false;
   };
