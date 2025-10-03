@@ -7,14 +7,14 @@ struct Bounds2D {
   float z[2];
 };
 
-static Bounds2D GetObjectBounds2D(const tObject& object, const float edge) {
+static Bounds2D GetObjectBounds2D(const tObject& object, const float scale_factor) {
   Bounds2D bounds;
 
-  bounds.x[0] = object.position.x - object.scale.x * 0.8f;
-  bounds.x[1] = object.position.x + object.scale.x * 0.8f;
+  bounds.x[0] = object.position.x - object.scale.x * scale_factor;
+  bounds.x[1] = object.position.x + object.scale.x * scale_factor;
 
-  bounds.z[0] = object.position.z - object.scale.z * 0.8f;
-  bounds.z[1] = object.position.z + object.scale.z * 0.8f;
+  bounds.z[0] = object.position.z - object.scale.z * scale_factor;
+  bounds.z[1] = object.position.z + object.scale.z * scale_factor;
 
   return bounds;
 }
