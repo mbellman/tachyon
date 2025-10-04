@@ -21,19 +21,25 @@ namespace astro {
 
     timeEvolve() {
       auto& meshes = state.meshes;
-      const float lifetime = 100.f;
 
       for_entities(state.wooden_gate_doors) {
         auto& entity = state.wooden_gate_doors[i];
         auto& door = objects(meshes.wooden_gate_door)[i];
-        const float age = state.astro_time - entity.astro_start_time;
+
+        bool is_active = (
+          state.astro_time >= entity.astro_start_time &&
+          state.astro_time <= entity.astro_end_time
+        );
 
         door.position = entity.position;
-        door.scale = entity.scale;
         door.rotation = entity.orientation;
         door.color = entity.tint;
 
-        if (age < 0.f) door.scale = tVec3f(0.f);
+        if (is_active) {
+          door.scale = entity.scale;
+        } else {
+          door.scale = tVec3f(0.f);
+        }
 
         entity.visible_scale = door.scale;
 

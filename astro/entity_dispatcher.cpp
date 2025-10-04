@@ -8,6 +8,7 @@
 #include "astro/entity_behaviors/RiverLog.h"
 #include "astro/entity_behaviors/Shrub.h"
 #include "astro/entity_behaviors/SmallStoneBridge.h"
+#include "astro/entity_behaviors/StoneWall.h"
 #include "astro/entity_behaviors/WillowTree.h"
 #include "astro/entity_behaviors/WoodenGateDoor.h"
 
@@ -37,14 +38,15 @@ using namespace astro;
 
 std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, EntityType type) {
   switch (type) {
-    dispatch_GetEntityContainer(SHRUB, state.shrubs);
-    dispatch_GetEntityContainer(OAK_TREE, state.oak_trees);
-    dispatch_GetEntityContainer(WILLOW_TREE, state.willow_trees);
-    dispatch_GetEntityContainer(SMALL_STONE_BRIDGE, state.small_stone_bridges);
-    dispatch_GetEntityContainer(WOODEN_GATE_DOOR, state.wooden_gate_doors);
-    dispatch_GetEntityContainer(RIVER_LOG, state.river_logs);
-    dispatch_GetEntityContainer(LOW_GUARD, state.low_guards);
     dispatch_GetEntityContainer(BANDIT, state.bandits);
+    dispatch_GetEntityContainer(LOW_GUARD, state.low_guards);
+    dispatch_GetEntityContainer(OAK_TREE, state.oak_trees);
+    dispatch_GetEntityContainer(RIVER_LOG, state.river_logs);
+    dispatch_GetEntityContainer(SHRUB, state.shrubs);
+    dispatch_GetEntityContainer(SMALL_STONE_BRIDGE, state.small_stone_bridges);
+    dispatch_GetEntityContainer(STONE_WALL, state.stone_walls);
+    dispatch_GetEntityContainer(WILLOW_TREE, state.willow_trees);
+    dispatch_GetEntityContainer(WOODEN_GATE_DOOR, state.wooden_gate_doors);
 
     default:
       // @todo log error
@@ -56,14 +58,15 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
 
 void EntityDispatcher::AddMeshes(Tachyon* tachyon, State& state, EntityType type) {
   switch (type) {
-    dispatch_AddMeshes(SHRUB, Shrub);
-    dispatch_AddMeshes(OAK_TREE, OakTree);
-    dispatch_AddMeshes(WILLOW_TREE, WillowTree);
-    dispatch_AddMeshes(SMALL_STONE_BRIDGE, SmallStoneBridge);
-    dispatch_AddMeshes(WOODEN_GATE_DOOR, WoodenGateDoor);
-    dispatch_AddMeshes(RIVER_LOG, RiverLog);
-    dispatch_AddMeshes(LOW_GUARD, LowGuard);
     dispatch_AddMeshes(BANDIT, Bandit);
+    dispatch_AddMeshes(LOW_GUARD, LowGuard);
+    dispatch_AddMeshes(OAK_TREE, OakTree);
+    dispatch_AddMeshes(RIVER_LOG, RiverLog);
+    dispatch_AddMeshes(SHRUB, Shrub);
+    dispatch_AddMeshes(SMALL_STONE_BRIDGE, SmallStoneBridge);
+    dispatch_AddMeshes(STONE_WALL, StoneWall);
+    dispatch_AddMeshes(WILLOW_TREE, WillowTree);
+    dispatch_AddMeshes(WOODEN_GATE_DOOR, WoodenGateDoor);
 
     default:
       printf("Failed to add meshes for entity type: %d\n", type);
@@ -74,14 +77,15 @@ void EntityDispatcher::AddMeshes(Tachyon* tachyon, State& state, EntityType type
 
 const std::vector<uint16>& EntityDispatcher::GetMeshes(State& state, EntityType type) {
   switch (type) {
-    dispatch_GetMeshes(SHRUB, Shrub);
-    dispatch_GetMeshes(OAK_TREE, OakTree);
-    dispatch_GetMeshes(WILLOW_TREE, WillowTree);
-    dispatch_GetMeshes(SMALL_STONE_BRIDGE, SmallStoneBridge);
-    dispatch_GetMeshes(WOODEN_GATE_DOOR, WoodenGateDoor);
-    dispatch_GetMeshes(RIVER_LOG, RiverLog);
-    dispatch_GetMeshes(LOW_GUARD, LowGuard);
     dispatch_GetMeshes(BANDIT, Bandit);
+    dispatch_GetMeshes(LOW_GUARD, LowGuard);
+    dispatch_GetMeshes(OAK_TREE, OakTree);
+    dispatch_GetMeshes(RIVER_LOG, RiverLog);
+    dispatch_GetMeshes(SHRUB, Shrub);
+    dispatch_GetMeshes(SMALL_STONE_BRIDGE, SmallStoneBridge);
+    dispatch_GetMeshes(STONE_WALL, StoneWall);
+    dispatch_GetMeshes(WILLOW_TREE, WillowTree);
+    dispatch_GetMeshes(WOODEN_GATE_DOOR, WoodenGateDoor);
 
     default:
       printf("Failed to get meshes for entity type: %d\n", type);
@@ -92,14 +96,15 @@ const std::vector<uint16>& EntityDispatcher::GetMeshes(State& state, EntityType 
 
 uint16 EntityDispatcher::GetPlaceholderMesh(State& state, EntityType type) {
   switch (type) {
-    dispatch_GetPlaceholderMesh(SHRUB, Shrub);
-    dispatch_GetPlaceholderMesh(OAK_TREE, OakTree);
-    dispatch_GetPlaceholderMesh(WILLOW_TREE, WillowTree);
-    dispatch_GetPlaceholderMesh(SMALL_STONE_BRIDGE, SmallStoneBridge);
-    dispatch_GetPlaceholderMesh(WOODEN_GATE_DOOR, WoodenGateDoor);
-    dispatch_GetPlaceholderMesh(RIVER_LOG, RiverLog);
-    dispatch_GetPlaceholderMesh(LOW_GUARD, LowGuard);
     dispatch_GetPlaceholderMesh(BANDIT, Bandit);
+    dispatch_GetPlaceholderMesh(LOW_GUARD, LowGuard);
+    dispatch_GetPlaceholderMesh(OAK_TREE, OakTree);
+    dispatch_GetPlaceholderMesh(RIVER_LOG, RiverLog);
+    dispatch_GetPlaceholderMesh(SHRUB, Shrub);
+    dispatch_GetPlaceholderMesh(SMALL_STONE_BRIDGE, SmallStoneBridge);
+    dispatch_GetPlaceholderMesh(STONE_WALL, StoneWall);
+    dispatch_GetPlaceholderMesh(WILLOW_TREE, WillowTree);
+    dispatch_GetPlaceholderMesh(WOODEN_GATE_DOOR, WoodenGateDoor);
 
     default:
       printf("Failed to get placeholder mesh for entity type: %d\n", type);
@@ -110,14 +115,15 @@ uint16 EntityDispatcher::GetPlaceholderMesh(State& state, EntityType type) {
 
 void EntityDispatcher::TimeEvolve(Tachyon* tachyon, State& state, EntityType type) {
   switch (type) {
-    dispatch_TimeEvolve(SHRUB, Shrub);
-    dispatch_TimeEvolve(OAK_TREE, OakTree);
-    dispatch_TimeEvolve(WILLOW_TREE, WillowTree);
-    dispatch_TimeEvolve(SMALL_STONE_BRIDGE, SmallStoneBridge);
-    dispatch_TimeEvolve(WOODEN_GATE_DOOR, WoodenGateDoor);
-    dispatch_TimeEvolve(RIVER_LOG, RiverLog);
-    dispatch_TimeEvolve(LOW_GUARD, LowGuard);
     dispatch_TimeEvolve(BANDIT, Bandit);
+    dispatch_TimeEvolve(LOW_GUARD, LowGuard);
+    dispatch_TimeEvolve(OAK_TREE, OakTree);
+    dispatch_TimeEvolve(RIVER_LOG, RiverLog);
+    dispatch_TimeEvolve(SHRUB, Shrub);
+    dispatch_TimeEvolve(SMALL_STONE_BRIDGE, SmallStoneBridge);
+    dispatch_TimeEvolve(STONE_WALL, StoneWall);
+    dispatch_TimeEvolve(WILLOW_TREE, WillowTree);
+    dispatch_TimeEvolve(WOODEN_GATE_DOOR, WoodenGateDoor);
 
     default:
       // @todo log error
