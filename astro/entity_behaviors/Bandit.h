@@ -29,32 +29,42 @@ namespace astro {
         auto& bandit = objects(meshes.bandit)[i];
 
         bool active = (
-          state.astro_time > entity.astro_start_time &&
-          state.astro_time < entity.astro_end_time
+          state.astro_time >= entity.astro_start_time &&
+          state.astro_time <= entity.astro_end_time
         );
 
         if (active) {
           entity.visible_scale = entity.scale;
 
-          // Bandit movement AI
-          // @temporary
-          // @todo refactor
           float astro_speed = abs(state.astro_turn_speed);
 
           if (astro_speed > 0.f) {
             if (astro_speed < 0.1f) {
-              // Do nothing
+              // Reset
+              // @todo factor
+              entity.visible_position = entity.position;
             }
             else if (astro_speed < 0.2f && entity.visible_position != entity.position) {
               // Jitter the visible position as turn speed picks up to suggest movement
+              // @todo factor
               entity.visible_position.x += Tachyon_GetRandom(-400.f, 400.f);
               entity.visible_position.z += Tachyon_GetRandom(-400.f, 400.f);
             }
+            else if (state.astro_time - entity.astro_start_time < 5.f) {
+              // Jitter the visible position as turn speed picks up to suggest movement
+              // @todo factor
+              entity.visible_position.x += Tachyon_GetRandom(-200.f, 200.f);
+              entity.visible_position.z += Tachyon_GetRandom(-200.f, 200.f);
+            }
             else {
-              // Once we're turning fast enough, reset the position completely
+              // Reset
+              // @todo factor
               entity.visible_position = entity.position;
             }
           } else {
+            // Bandit enemy AI
+            // @temporary
+            // @todo refactor
             tVec3f entity_to_player = state.player_position - entity.visible_position;
             float player_distance = entity_to_player.magnitude();
             tVec3f player_direction = entity_to_player / player_distance;
@@ -64,8 +74,10 @@ namespace astro {
             }
           }
         } else {
-          // Hide and do nothing while not within active time range
+          // Hide and reset
+          // @todo factor
           entity.visible_scale = tVec3f(0.f);
+          entity.visible_position = entity.position;
         }
 
         bandit.position = entity.visible_position;
