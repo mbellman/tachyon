@@ -76,7 +76,8 @@ static void ShowGameStats(Tachyon* tachyon, State& state) {
   std::string stat_messages[] = {
     "Player " + state.player_position.toString(),
     "Camera " + tachyon->scene.camera.position.toString(),
-    "Astro time: " + std::to_string(state.astro_time)
+    "Astro time: " + std::to_string(state.astro_time),
+    "Astro turn speed: " + std::to_string(state.astro_turn_speed)
   };
 
   for (uint8 i = 0; i < std::size(stat_messages); i++) {

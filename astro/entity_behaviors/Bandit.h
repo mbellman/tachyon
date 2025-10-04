@@ -39,22 +39,23 @@ namespace astro {
           float astro_speed = abs(state.astro_turn_speed);
 
           if (astro_speed > 0.f) {
-            if (astro_speed < 0.1f) {
-              // Reset
-              // @todo factor
-              entity.visible_position = entity.position;
+            if (astro_speed < 0.05f) {
+              // Do nothing
             }
-            else if (astro_speed < 0.2f && entity.visible_position != entity.position) {
-              // Jitter the visible position as turn speed picks up to suggest movement
-              // @todo factor
-              entity.visible_position.x += Tachyon_GetRandom(-400.f, 400.f);
-              entity.visible_position.z += Tachyon_GetRandom(-400.f, 400.f);
-            }
-            else if (state.astro_time - entity.astro_start_time < 5.f) {
+            else if (
+              state.astro_time - entity.astro_start_time < 5.f ||
+              entity.astro_end_time - state.astro_time < 5.f
+            ) {
               // Jitter the visible position as turn speed picks up to suggest movement
               // @todo factor
               entity.visible_position.x += Tachyon_GetRandom(-200.f, 200.f);
               entity.visible_position.z += Tachyon_GetRandom(-200.f, 200.f);
+            }
+            else if (astro_speed < 0.2f && entity.visible_position != entity.position) {
+              // Jitter the visible position as turn speed picks up to suggest movement
+              // @todo factor
+              entity.visible_position.x += Tachyon_GetRandom(-50.f, 50.f);
+              entity.visible_position.z += Tachyon_GetRandom(-50.f, 50.f);
             }
             else {
               // Reset
