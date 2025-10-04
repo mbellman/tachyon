@@ -160,7 +160,7 @@ static void StoreClosestEnemy(Tachyon* tachyon, State& state, EntityRecord& reco
     auto& entity = state.low_guards[i];
     float distance = (state.player_position - entity.visible_position).magnitude();
 
-    if (distance < closest_distance) {
+    if (distance < closest_distance && entity.visible_scale.x != 0.f) {
       closest_distance = distance;
 
       record.id = entity.id;
@@ -173,7 +173,7 @@ static void StoreClosestEnemy(Tachyon* tachyon, State& state, EntityRecord& reco
     auto& entity = state.bandits[i];
     float distance = (state.player_position - entity.visible_position).magnitude();
 
-    if (distance < closest_distance) {
+    if (distance < closest_distance && entity.visible_scale.x != 0.f) {
       closest_distance = distance;
 
       record.id = entity.id;
