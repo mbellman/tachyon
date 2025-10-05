@@ -153,6 +153,11 @@ static void HandleActiveHomingSpell(Tachyon* tachyon, State& state, const float 
 
 void SpellSystem::CastStun(Tachyon* tachyon, State& state) {
   auto& spells = state.spells;
+  auto* stun_light = get_point_light(spells.stun_light_id);
+
+  if (stun_light != nullptr) {
+    remove_point_light(*stun_light);
+  }
 
   spells.stun_start_time = tachyon->running_time;
   spells.stun_light_id = create_point_light();

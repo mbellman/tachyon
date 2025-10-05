@@ -47,7 +47,7 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) 
       new_camera_position = tVec3f::lerp(state.player_position, target.visible_position, 0.5f * distance_ratio);
       new_camera_position += state.player_facing_direction * 2000.f * sqrtf(distance_ratio);
       new_camera_position.y = 2000.f * distance_ratio;
-      new_camera_position.z += abs(state.player_facing_direction.z) * 2000.f * distance_ratio;
+      new_camera_position.z += abs(state.player_facing_direction.z) * 3000.f * distance_ratio;
 
       state.camera_shift = tVec3f::lerp(state.camera_shift, tVec3f(0.f), time_ratio);
     }
@@ -59,12 +59,14 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) 
       // this special case, the slower camera shift lerp causes the camera to "curve"
       // as it returns to its expected position, which looks odd. 
       new_camera_position = state.player_position;
+      new_camera_position.z += 500.f;
 
       state.camera_shift = state.player_facing_direction * 3000.f;
     }
     else {
       // Walking/standing still camera
       new_camera_position = state.player_position;
+      new_camera_position.z += 500.f;
 
       state.camera_shift = tVec3f::lerp(state.camera_shift, state.player_facing_direction * 3000.f, 1.f * dt);
     }
