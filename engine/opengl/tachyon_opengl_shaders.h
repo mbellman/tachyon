@@ -28,7 +28,9 @@ struct tUniformLocations {
     view_projection_matrix,
     transform_origin,
     has_texture,
-    albedo_texture
+    albedo_texture,
+    is_grass,
+    scene_time
   ) main_geometry;
 
   uniform_locations(

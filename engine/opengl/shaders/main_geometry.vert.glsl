@@ -1,8 +1,9 @@
 #version 460 core
 
-// uniform sampler2D meshTexture;
 uniform mat4 view_projection_matrix;
 uniform vec3 transform_origin;
+uniform bool is_grass;
+uniform float scene_time;
 
 layout (location = 0) in vec3 vertexPosition;
 layout (location = 1) in vec3 vertexNormal;
@@ -42,13 +43,22 @@ uvec4 SurfaceToUVec4(uint surface) {
 void main() {
   mat3 normal_matrix = transpose(inverse(mat3(modelMatrix)));
 
-  // For the vertex transform, start by just applying rotation.
-  // Translation should be offset by the transform origin.
+  // For the vertex transform, start by just applying rotation + scale
   vec3 model_space_position = mat3(modelMatrix) * vertexPosition;
-  vec3 translation = vec3(modelMatrix[3][0], modelMatrix[3][1], modelMatrix[3][2]);
 
-  // Apply translation, offset by the origin
+  // Then apply translation, offset by the transform origin
+  vec3 translation = vec3(modelMatrix[3][0], modelMatrix[3][1], modelMatrix[3][2]);
   vec3 world_space_position = model_space_position + (translation - transform_origin);
+
+  if (is_grass) {
+    float model_y = model_space_position.y;
+    float vertex_y = vertexPosition.y;
+    float drift = 0.1 * model_y * (vertex_y * vertex_y);
+    float alpha = scene_time + modelMatrix[3][0];
+
+    world_space_position.x += drift * sin(alpha);
+    world_space_position.z += drift * cos(1.5 * alpha);
+  }
 
   gl_Position = view_projection_matrix * vec4(world_space_position, 1.0);
 

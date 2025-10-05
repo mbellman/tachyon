@@ -687,8 +687,19 @@ static void RenderPbrMeshes(Tachyon* tachyon) {
   SetShaderBool(locations.has_texture, false);
   SetShaderMat4f(locations.view_projection_matrix, ctx.view_projection_matrix);
   SetShaderVec3f(locations.transform_origin, tachyon->scene.transform_origin);
-
+  
+  // Render regular, untextured PBR meshes
   RenderMeshesByType(tachyon, PBR_MESH);
+  
+  // Render grass PBR meshes
+  if (HasObjectsOfMeshType(tachyon, GRASS_MESH)) {
+    SetShaderBool(locations.is_grass, true);
+    SetShaderFloat(locations.scene_time, tachyon->scene.scene_time);
+
+    RenderMeshesByType(tachyon, GRASS_MESH);
+
+    SetShaderBool(locations.is_grass, false);
+  }
 
   SetShaderBool(locations.has_texture, true);
   SetShaderInt(locations.albedo_texture, 0);
@@ -769,7 +780,8 @@ static void RenderShadowMaps(Tachyon* tachyon) {
       if (
         record.group.disabled ||
         record.group.total_active == 0 ||
-        record.type != PBR_MESH ||
+        // @todo render grass with animation
+        (record.type != PBR_MESH && record.type != GRASS_MESH) ||
         record.shadow_cascade_ceiling <= cascade_index
       ) {
         continue;
@@ -895,15 +907,15 @@ static void RenderPostMeshes(Tachyon* tachyon) {
   }
 
   // Check for transparent mesh types and disable depth writing accordingly
-  bool has_fire_meshes = HasObjectsOfMeshType(tachyon, FIRE_MESH);
-  bool has_ion_thruster_meshes = HasObjectsOfMeshType(tachyon, ION_THRUSTER_MESH);
+  bool has_fire_objects = HasObjectsOfMeshType(tachyon, FIRE_MESH);
+  bool has_ion_thruster_objects = HasObjectsOfMeshType(tachyon, ION_THRUSTER_MESH);
 
-  if (has_fire_meshes || has_ion_thruster_meshes) {
+  if (has_fire_objects || has_ion_thruster_objects) {
     glDepthMask(false);
   }
 
   // Fire
-  if (has_fire_meshes) {
+  if (has_fire_objects) {
     auto& shader = renderer.shaders.fire_mesh;
     auto& locations = renderer.shaders.locations.fire_mesh;
 
@@ -917,7 +929,7 @@ static void RenderPostMeshes(Tachyon* tachyon) {
   }
 
   // Ion thrusters
-  if (has_ion_thruster_meshes) {
+  if (has_ion_thruster_objects) {
     auto& shader = renderer.shaders.ion_thruster_mesh;
     auto& locations = renderer.shaders.locations.ion_thruster_mesh;
 
@@ -930,7 +942,7 @@ static void RenderPostMeshes(Tachyon* tachyon) {
   }
 
   // Restore depth writing if we disabled it for transparent mesh types
-  if (has_fire_meshes || has_ion_thruster_meshes) {
+  if (has_fire_objects || has_ion_thruster_objects) {
     glDepthMask(true);
   }
 

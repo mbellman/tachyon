@@ -234,6 +234,8 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
 
   // @todo default this somewhere, or load in from save
   tachyon->scene.camera.position = tVec3f(0.f, 10000.f, 10000.f);
+
+  tachyon->scene.scene_time = 0.f;
 }
 
 void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
@@ -287,6 +289,8 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
     if (fx.accumulation_blur_factor > max_blur_factor) {
       fx.accumulation_blur_factor = max_blur_factor;
     }
+
+    tachyon->scene.scene_time += dt;
 
     // @todo ui.cpp
     // @todo debug mode only

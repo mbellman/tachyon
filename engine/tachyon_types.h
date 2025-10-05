@@ -119,7 +119,8 @@ enum tMeshType {
   VOLUMETRIC_MESH,
   FIRE_MESH,
   ION_THRUSTER_MESH,
-  WIREFRAME_MESH
+  WIREFRAME_MESH,
+  GRASS_MESH
 };
 
 struct tMeshGeometry {

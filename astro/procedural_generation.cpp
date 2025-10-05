@@ -41,7 +41,7 @@ static void GenerateProceduralGrass(Tachyon* tachyon, State& state) {
       float wz = ground.position.z + (lx * sinf(theta) + lz * cosf(theta));
 
       grass.position.x = wx;
-      grass.position.y = -1500.f;
+      grass.position.y = ground.position.y + 0.2f * ground.scale.y;
       grass.position.z = wz;
 
       grass.scale = tVec3f(1000.f);
