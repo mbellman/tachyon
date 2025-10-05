@@ -751,7 +751,12 @@ static void CreateNewDecorativeObject(Tachyon* tachyon, State& state) {
   if (current_decorative_mesh.mesh_index == state.meshes.flat_ground) {
     object.position = camera.position + camera.orientation.getDirection() * abs(camera.position.y) * 1.5f;
     object.position.y = -1500.f;
-  } else {
+  }
+  else if (current_decorative_mesh.mesh_index == state.meshes.dirt_path) {
+    object.position = camera.position + camera.orientation.getDirection() * abs(camera.position.y) * 1.5f;
+    object.position.y = -1450.f;
+  }
+  else {
     object.position = camera.position + camera.orientation.getDirection() * 7500.f;
   }
 
@@ -811,6 +816,9 @@ static void HandleSelectedObjectPositionActions(Tachyon* tachyon, State& state) 
   if (placeholder.mesh_index == state.meshes.flat_ground) {
     placeholder.position.y = -1500.f;
   }
+  else if (placeholder.mesh_index == state.meshes.dirt_path) {
+    placeholder.position.y = -1450.f;
+  }
 
   // @optimize We don't need to do this every time the object is moved!
   // It would be perfectly acceptable to do this on deselection.
@@ -851,7 +859,10 @@ static void HandleSelectedObjectScaleActions(Tachyon* tachyon, State& state) {
   }
 
   // @temporary
-  if (placeholder.mesh_index == state.meshes.flat_ground) {
+  if (
+    placeholder.mesh_index == state.meshes.flat_ground ||
+    placeholder.mesh_index == state.meshes.dirt_path
+  ) {
     placeholder.scale.y = 1.f;
   }
 
