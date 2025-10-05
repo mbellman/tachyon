@@ -10,7 +10,7 @@ void TimeEvolution::UpdateAstroTime(Tachyon* tachyon, State& state, const float 
   }
 
   for_all_entity_types() {
-    EntityDispatcher::TimeEvolve(tachyon, state, type);
+    EntityDispatcher::TimeEvolve(tachyon, state, type, dt);
   }
 
   // @temporary
@@ -20,7 +20,7 @@ void TimeEvolution::UpdateAstroTime(Tachyon* tachyon, State& state, const float 
   tVec3f start_direction = tVec3f(-1.f, -1.f, 0.2f);
   tVec3f start_color =  tVec3f(1.f);
 
-  tVec3f end_direction = tVec3f(0.2, -1.f, 1.f);
+  tVec3f end_direction = tVec3f(0.2f, -1.f, 1.f);
   tVec3f end_color = tVec3f(1.f, 0.1f, 0.1f);
 
   float alpha = -1.f * (state.astro_time / 250.f);

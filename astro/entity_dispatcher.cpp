@@ -33,7 +33,7 @@ using namespace astro;
 
 #define dispatch_TimeEvolve(__entity_type, __Behavior)\
   case __entity_type:\
-    __Behavior::_TimeEvolve(tachyon, state);\
+    __Behavior::_TimeEvolve(tachyon, state, dt);\
     break\
 
 std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, EntityType type) {
@@ -113,7 +113,7 @@ uint16 EntityDispatcher::GetPlaceholderMesh(State& state, EntityType type) {
   }
 }
 
-void EntityDispatcher::TimeEvolve(Tachyon* tachyon, State& state, EntityType type) {
+void EntityDispatcher::TimeEvolve(Tachyon* tachyon, State& state, EntityType type, const float dt) {
   switch (type) {
     dispatch_TimeEvolve(BANDIT, Bandit);
     dispatch_TimeEvolve(LOW_GUARD, LowGuard);

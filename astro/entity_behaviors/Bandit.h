@@ -71,7 +71,7 @@ namespace astro {
             tVec3f player_direction = entity_to_player / player_distance;
 
             if (player_distance < 12000.f) {
-              entity.visible_position += player_direction * 1000.f * 1.f / 60.f;
+              entity.visible_position += player_direction * 2000.f * dt;
             }
           }
         } else {

@@ -22,19 +22,19 @@ static void UpdatePlayer(Tachyon* tachyon, State& state, const float dt) {
 
   // Update facing direction
   {
-    tVec3f target_facing_direction = state.player_facing_direction;
+    tVec3f desired_facing_direction = state.player_facing_direction;
     float turning_speed = 5.f;
 
     if (state.has_target) {
       // When we have a target, face it and turn much more quickly
       auto& target = *EntityManager::FindEntity(state, state.target_entity);
 
-      target_facing_direction = (target.visible_position - state.player_position).unit();
+      desired_facing_direction = (target.visible_position - state.player_position).unit();
       turning_speed = 10.f;
     }
     else if (state.player_velocity.magnitude() > 0.01f) {
       // Without a target, use our velocity vector to influence facing direction
-      target_facing_direction = state.player_velocity.unit();
+      desired_facing_direction = state.player_velocity.unit();
     }
 
     // When astro turning, don't change our facing direction at all,
@@ -44,7 +44,7 @@ static void UpdatePlayer(Tachyon* tachyon, State& state, const float dt) {
       turning_speed = 0.f;
     }
 
-    state.player_facing_direction = tVec3f::lerp(state.player_facing_direction, target_facing_direction, turning_speed * dt).unit();
+    state.player_facing_direction = tVec3f::lerp(state.player_facing_direction, desired_facing_direction, turning_speed * dt).unit();
   }
 
   // Update model
@@ -278,13 +278,14 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   // @todo HandleFrameEnd()
   {
     auto& fx = tachyon->fx;
+    float max_blur_factor = 0.98f - 5.f * dt;
 
     state.last_player_position = state.player_position;
 
     fx.accumulation_blur_factor = sqrtf(abs(state.astro_turn_speed)) * 4.f;
 
-    if (fx.accumulation_blur_factor > 0.95f) {
-      fx.accumulation_blur_factor = 0.95f;
+    if (fx.accumulation_blur_factor > max_blur_factor) {
+      fx.accumulation_blur_factor = max_blur_factor;
     }
 
     // @todo ui.cpp

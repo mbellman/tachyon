@@ -17,7 +17,7 @@
 #define addMeshes() static void _AddMeshes(Tachyon* tachyon, MeshIds& meshes)
 #define getMeshes() static const std::vector<uint16>& _GetMeshes(const MeshIds& meshes)
 #define getPlaceholderMesh() static uint16 _GetPlaceholderMesh(const MeshIds& meshes)
-#define timeEvolve() static void _TimeEvolve(Tachyon* tachyon, State& state)
+#define timeEvolve() static void _TimeEvolve(Tachyon* tachyon, State& state, const float dt)
 
 namespace astro {
   // @todo move this into engine
