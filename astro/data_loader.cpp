@@ -101,6 +101,12 @@ void DataLoader::LoadLevelData(Tachyon* tachyon, State& state) {
       object.rotation = parse_quaternion(7, 8, 9, 10);
       object.color.rgba = stoi(parts[11]);
 
+      // @temporary
+      // @todo set mesh material properties
+      if (mesh_id == state.meshes.ground_1) {
+        object.material = tVec4f(0.9f, 0, 0, 0.1f);
+      }
+
       commit(object);
     }
   }

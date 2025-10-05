@@ -54,7 +54,7 @@ void main() {
     float model_y = model_space_position.y;
     float vertex_y = vertexPosition.y;
     float drift = 0.1 * model_y * (vertex_y * vertex_y);
-    float alpha = scene_time + modelMatrix[3][0];
+    float alpha = 2.0 * scene_time + modelMatrix[3][0];
 
     world_space_position.x += drift * sin(alpha);
     world_space_position.z += drift * cos(1.5 * alpha);

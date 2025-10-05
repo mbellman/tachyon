@@ -5,6 +5,7 @@
 #define ENABLE_CHROMATIC_ABERRATION 0
 
 #define ENABLE_COSMODRONE_FX 0
+#define ENABLE_ASTRO_FX 1
 
 uniform sampler2D in_color_and_depth;
 uniform mat4 inverse_projection_matrix;
@@ -216,9 +217,16 @@ void main() {
     #endif
 
     // Depth fog
-    float depth_factor = 0.25 * pow(color_and_depth.w, 300.0);
+    #if ENABLE_ASTRO_FX
+      float depth_factor = 0.5 * pow(color_and_depth.w, 20.0);
 
-    post_color = mix(post_color, vec3(0.2, 0.4, 0.6), depth_factor);
+      post_color = mix(post_color, vec3(0.6, 0.4, 0.4), depth_factor);
+    #else
+      float depth_factor = 0.25 * pow(color_and_depth.w, 300.0);
+
+      post_color = mix(post_color, vec3(0.2, 0.4, 0.6), depth_factor);
+    #endif
+
     post_color = mix(post_color, vec3(0.8, 0.9, 1.0), depth_factor * pow(VdotD, 10.0));
     post_color = mix(post_color, vec3(2.0), depth_factor * pow(VdotD, 300.0));
 
