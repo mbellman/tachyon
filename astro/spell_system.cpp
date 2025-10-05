@@ -44,7 +44,7 @@ static void HandleHomingSpellCircling(Tachyon* tachyon, State& state, HomingOrb&
   float alpha = t;
   float clamped_alpha = alpha > 1.f ? 1.f : alpha;
 
-  float theta = -alpha * t_TAU * 0.5f;
+  float theta = -alpha * t_TAU * 0.75f;
   float circle_radius = 1000.f + sqrtf(clamped_alpha) * 1000.f;
 
   tVec3f start = spells.homing_start_direction;

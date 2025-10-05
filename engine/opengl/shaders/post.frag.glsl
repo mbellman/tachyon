@@ -210,9 +210,10 @@ void main() {
     vec3 position = GetWorldPosition(color_and_depth.w, fragUv, inverse_projection_matrix, inverse_view_matrix);
     vec3 D = normalize(position - camera_position);
     float VdotD = max(0.0, -dot(D, primary_light_direction));
-    vec4 volumetric_fog = GetVolumetricFogColorAndThickness(world_depth, D);
 
     #if ENABLE_COSMODRONE_FX
+      vec4 volumetric_fog = GetVolumetricFogColorAndThickness(world_depth, D);
+
       post_color = mix(post_color, volumetric_fog.rgb, volumetric_fog.w);
     #endif
 
@@ -221,10 +222,12 @@ void main() {
       float depth_factor = 0.5 * pow(color_and_depth.w, 20.0);
 
       post_color = mix(post_color, vec3(0.6, 0.4, 0.4), depth_factor);
-    #else
+    #elif ENABLE_COSMODRONE_FX
       float depth_factor = 0.25 * pow(color_and_depth.w, 300.0);
 
       post_color = mix(post_color, vec3(0.2, 0.4, 0.6), depth_factor);
+    #else
+      float depth_factor = 0.25 * pow(color_and_depth.w, 300.0);
     #endif
 
     post_color = mix(post_color, vec3(0.8, 0.9, 1.0), depth_factor * pow(VdotD, 10.0));

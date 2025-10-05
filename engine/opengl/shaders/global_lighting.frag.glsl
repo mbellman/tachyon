@@ -396,7 +396,7 @@ float GetSunGlareFactor(vec3 sky_direction) {
 }
 
 // @todo allow game-specific implementation
-vec3 GetSkyColor(vec3 sky_direction, float sun_glare_factor) {
+vec3 Cosmodrone_GetSkyColor(vec3 sky_direction, float sun_glare_factor) {
   vec3 sun_direction = -primary_light_direction;
   vec3 planet_direction = vec3(0, -1, 0);
 
@@ -463,6 +463,16 @@ vec3 GetSkyColor(vec3 sky_direction, float sun_glare_factor) {
   sky_color.z = clamp(sky_color.z, 0.0, 1.0);
 
   return sky_color;
+}
+
+vec3 GetSkyColor(vec3 sky_direction, float sun_glare_factor) {
+  float up_dot = 0.5 + 0.5 * max(0.0, dot(sky_direction, vec3(0, 1.0, 0)));
+
+  return vec3(
+    0.8,
+    0.2,
+    up_dot
+  );
 }
 
 vec3 GetReflectionColor(vec3 R) {
