@@ -26,13 +26,22 @@ static void UpdatePlayer(Tachyon* tachyon, State& state, const float dt) {
     float turning_speed = 5.f;
 
     if (state.has_target) {
+      // When we have a target, face it and turn much more quickly
       auto& target = *EntityManager::FindEntity(state, state.target_entity);
 
       target_facing_direction = (target.visible_position - state.player_position).unit();
       turning_speed = 10.f;
     }
     else if (state.player_velocity.magnitude() > 0.01f) {
+      // Without a target, use our velocity vector to influence facing direction
       target_facing_direction = state.player_velocity.unit();
+    }
+
+    // When astro turning, don't change our facing direction at all,
+    // since targeted entities may jitter and jump about rapidly,
+    // and we don't want the facing direction being thrown off
+    if (abs(state.astro_turn_speed) > 0.05f) {
+      turning_speed = 0.f;
     }
 
     state.player_facing_direction = tVec3f::lerp(state.player_facing_direction, target_facing_direction, turning_speed * dt).unit();
@@ -150,7 +159,7 @@ static void UpdateAstrolabe(Tachyon* tachyon, State& state) {
 
 // @todo target_system.cpp
 static void StoreClosestEnemy(Tachyon* tachyon, State& state, EntityRecord& record) {
-  float target_distance_limit = state.has_target ? 14000.f : 12000.f;
+  const float target_distance_limit = 12000.f;
   float closest_distance = target_distance_limit;
 
   record.id = -1;
