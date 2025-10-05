@@ -79,7 +79,7 @@ static void HandleHomingSpellCircling(Tachyon* tachyon, State& state, HomingOrb&
       // Fire toward the target entity
       orb.is_targeting = true;
       orb.targeting_start_time = tachyon->running_time;
-      orb.targeting_start_speed = (light.position - previous_light_position).magnitude() * 3000.f * dt;
+      orb.targeting_start_speed = (light.position - previous_light_position).magnitude() * 18000.f * dt;
       orb.targeting_start_direction = (light.position - previous_light_position).unit();
     }
   }

@@ -30,19 +30,19 @@ namespace astro {
         .mesh_index = meshes.rock_1,
         .mesh_name = "rock_1",
         .default_scale = tVec3f(500.f),
-        .default_color = tVec3f(0.2f)
+        .default_color = tVec3f(0.3f)
       },
       {
         .mesh_index = meshes.ground_1,
         .mesh_name = "ground_1",
         .default_scale = tVec3f(2000.f),
-        .default_color = tVec3f(0.4f, 0.7f, 0.2f)
+        .default_color = tVec3f(0.1f, 0.2f, 0.1f)
       },
       {
         .mesh_index = meshes.flat_ground,
         .mesh_name = "flat_ground",
         .default_scale = tVec3f(5000.f, 1.f, 5000.f),
-        .default_color = tVec3f(0.4f, 0.5f, 0.1f)
+        .default_color = tVec3f(0.3f, 0.5f, 0.1f)
       }
     };
 
