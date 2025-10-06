@@ -214,21 +214,21 @@ bool CollisionSystem::IsPointOnPlane(const tVec3f& point, const Plane& plane) {
   return d1 && d2 && d3 && d4;
 }
 
-Plane CollisionSystem::GetObjectPlane(const tObject& object) {
-  Plane object_plane;
-  object_plane.p1 = tVec3f(-1.f, 0, 1.f) * object.scale;
-  object_plane.p2 = tVec3f(1.f, 0, 1.f) * object.scale;
-  object_plane.p3 = tVec3f(1.f, 0, -1.f) * object.scale;
-  object_plane.p4 = tVec3f(-1.f, 0, -1.f) * object.scale;
+Plane CollisionSystem::GetEntityPlane(const GameEntity& entity) {
+  Plane plane;
+  plane.p1 = tVec3f(-1.f, 0, 1.f) * entity.scale;
+  plane.p2 = tVec3f(1.f, 0, 1.f) * entity.scale;
+  plane.p3 = tVec3f(1.f, 0, -1.f) * entity.scale;
+  plane.p4 = tVec3f(-1.f, 0, -1.f) * entity.scale;
 
-  tMat4f r = object.rotation.toMatrix4f();
+  tMat4f r = entity.orientation.toMatrix4f();
 
-  object_plane.p1 = object.position + r * object_plane.p1;
-  object_plane.p2 = object.position + r * object_plane.p2;
-  object_plane.p3 = object.position + r * object_plane.p3;
-  object_plane.p4 = object.position + r * object_plane.p4;
+  plane.p1 = entity.position + r * plane.p1;
+  plane.p2 = entity.position + r * plane.p2;
+  plane.p3 = entity.position + r * plane.p3;
+  plane.p4 = entity.position + r * plane.p4;
 
-  return object_plane;
+  return plane;
 }
 
 void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {

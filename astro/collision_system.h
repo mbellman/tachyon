@@ -6,7 +6,7 @@
 namespace astro {
   namespace CollisionSystem {
     void HandleCollisions(Tachyon* Tachyon, State& state);
-    Plane GetObjectPlane(const tObject& object);
+    Plane GetEntityPlane(const GameEntity& entity);
     bool IsPointOnPlane(const tVec3f& point, const Plane& plane);
   }
 }
