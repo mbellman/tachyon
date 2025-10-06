@@ -70,9 +70,15 @@ namespace astro {
             float player_distance = entity_to_player.magnitude();
             tVec3f player_direction = entity_to_player / player_distance;
 
-            if (player_distance < 12000.f) {
+            if (player_distance < 10000.f) {
               if (player_distance > 3000.f) {
-                entity.visible_position += player_direction * 4000.f * dt;
+                float time_since_last_stun = tachyon->running_time - state.spells.stun_start_time;
+
+                if (time_since_last_stun < 4.f) {
+                  entity.visible_position -= player_direction * 500.f * dt;
+                } else {
+                  entity.visible_position += player_direction * 3000.f * dt;
+                }
               } else {
                 // @todo strafe around the player
               }
