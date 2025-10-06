@@ -1,6 +1,7 @@
 #pragma once
 
 #include "astro/entity_behaviors/behavior.h"
+#include "astro/ui_system.h"
 
 namespace astro {
   behavior Bandit {
@@ -33,6 +34,7 @@ namespace astro {
           state.astro_time <= entity.astro_end_time
         );
 
+        // @todo factor
         if (active) {
           entity.visible_scale = entity.scale;
 
@@ -75,9 +77,17 @@ namespace astro {
                 float time_since_last_stun = tachyon->running_time - state.spells.stun_start_time;
 
                 if (time_since_last_stun < 4.f) {
+                  // Stunned
+                  // @todo allow this to happen at any distance
                   entity.visible_position -= player_direction * 500.f * dt;
+
+                  UISystem::ShowDialogue(tachyon, state, "Argh! The bastard blinded me!");
                 } else {
+                  // Chasing the player
                   entity.visible_position += player_direction * 3000.f * dt;
+
+                  // @todo Noticed
+                  UISystem::ShowDialogue(tachyon, state, "Look, we've got one!");
                 }
               } else {
                 // @todo strafe around the player

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "astro/entity_behaviors/behavior.h"
+#include "astro/ui_system.h"
 
 namespace astro {
   behavior LowGuard {
@@ -33,6 +34,7 @@ namespace astro {
           state.astro_time <= entity.astro_end_time
         );
 
+        // @todo factor
         if (active) {
           entity.visible_scale = entity.scale;
 
@@ -63,7 +65,20 @@ namespace astro {
               entity.visible_position = entity.position;
             }
           } else {
-            // @todo Low Guard enemy AI
+            float player_distance = (state.player_position - entity.visible_position).magnitude();
+
+            if (player_distance < 8000.f) {
+              float time_since_last_stun = tachyon->running_time - state.spells.stun_start_time;
+
+              
+              if (time_since_last_stun < 4.f) {
+                // Stunned
+                UISystem::ShowDialogue(tachyon, state, "Wha...?! I-I can't see! Stop him!");
+              } else {
+                // Noticed
+                UISystem::ShowDialogue(tachyon, state, "You there! Retreat, at once!");
+              }
+            }
           }
         } else {
           // Hide and reset
