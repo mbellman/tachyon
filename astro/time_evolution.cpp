@@ -4,6 +4,8 @@
 using namespace astro;
 
 void TimeEvolution::UpdateAstroTime(Tachyon* tachyon, State& state, const float dt) {
+  profile("UpdateAstroTime()");
+
   // @todo allow this once the appropriate item is obtained
   if (state.astro_time < 0.f) {
     state.astro_time += 0.01f * dt;

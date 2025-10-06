@@ -32,6 +32,7 @@ tObject* Tachyon_GetLiveObject(Tachyon* tachyon, const tObject& object);
 uint16 Tachyon_PartitionObjectsByDistance(Tachyon* tachyon, tObjectGroup& group, const uint16 start, const float distance);
 void Tachyon_UseLodByDistance(Tachyon* tachyon, const uint16 mesh_index, const float distance);
 void Tachyon_UseLodByDistance(Tachyon* tachyon, const uint16 mesh_index, const float distance, const float distance2);
+void Tachyon_ShowAllObjects(Tachyon* tachyon, uint16 mesh_index);
 int32 Tachyon_CreatePointLight(Tachyon* tachyon);
 tPointLight* Tachyon_GetPointLight(Tachyon* tachyon, int32 light_id);
 void Tachyon_RemovePointLight(Tachyon* tachyon, tPointLight& light);

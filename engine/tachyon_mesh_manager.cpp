@@ -706,6 +706,14 @@ void Tachyon_UseLodByDistance(Tachyon* tachyon, const uint16 mesh_index, const f
   record.lod_3.instance_count = group.total_active - pivot2;
 }
 
+void Tachyon_ShowAllObjects(Tachyon* tachyon, uint16 mesh_index) {
+  auto& record = tachyon->mesh_pack.mesh_records[mesh_index];
+
+  record.lod_1.instance_count = record.group.total_active;
+  record.lod_2.instance_count = 0;
+  record.lod_3.instance_count = 0;
+}
+
 int32 Tachyon_CreatePointLight(Tachyon* tachyon) {
   tPointLight light;
   light.id = running_point_light_id++;
