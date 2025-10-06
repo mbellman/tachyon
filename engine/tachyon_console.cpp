@@ -64,7 +64,7 @@ void Tachyon_ProcessConsoleMessages() {
   auto now = Tachyon_GetMicroseconds();
 
   for (int32 i = console_messages.size() - 1; i >= 0; i--) {
-    if (now - console_messages[i].time > 20000000) {
+    if (now - console_messages[i].time > CONSOLE_MESSAGE_DURATION) {
       console_messages.erase(console_messages.begin() + i);
     }
   }

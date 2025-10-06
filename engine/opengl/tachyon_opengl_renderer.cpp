@@ -408,8 +408,8 @@ static void RenderConsoleMessages(Tachyon* tachyon) {
   for (auto& console_message : console_messages) {
     auto& message = console_message.message;
     auto& color = console_message.color;
-    auto age = std::min((uint64)20000000, now - console_message.time);
-    auto time_left = 20000000 - age;
+    auto age = std::min(CONSOLE_MESSAGE_DURATION, now - console_message.time);
+    auto time_left = CONSOLE_MESSAGE_DURATION - age;
     auto alpha = std::min(1.f, (float)time_left / 1000000.f);
 
     RenderText(tachyon, tachyon->developer_overlay_font, message.c_str(), 10, y_offset, tachyon->window_width, tVec4f(color, alpha), tVec4f(0.f));
