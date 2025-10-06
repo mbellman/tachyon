@@ -232,6 +232,8 @@ Plane CollisionSystem::GetEntityPlane(const GameEntity& entity) {
 }
 
 void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
+  profile("HandleCollisions()");
+
   for_entities(state.shrubs) {
     auto& entity = state.shrubs[i];
 

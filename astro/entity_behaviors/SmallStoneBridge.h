@@ -40,7 +40,7 @@ namespace astro {
         columns.rotation = bridge.orientation;
         columns.color = bridge.tint;
 
-        if (age < 5.f) base.scale = tVec3f(0.f);
+        if (age < 8.f) base.scale = tVec3f(0.f);
         if (age < 4.f) columns.scale.y *= 0.5f;
         if (age < 2.f) columns.scale.y *= 0.5f;
         if (age <= 0.f) columns.scale = tVec3f(0.f);

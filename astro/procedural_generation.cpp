@@ -78,7 +78,7 @@ static void GenerateProceduralSmallGrass(Tachyon* tachyon, State& state) {
   for (auto& plane : objects(state.meshes.flat_ground)) {
     auto bounds = GetObjectBounds2D(plane, 0.95f);
     float area = (bounds.x[1] - bounds.x[0]) * (bounds.z[1] - bounds.z[0]);
-    uint16 total_grass = uint16(area / 2000000.f);
+    uint16 total_grass = uint16(area / 1500000.f);
 
     tVec3f direction = plane.rotation.getDirection();
     float theta = atan2f(direction.z, direction.x) + t_HALF_PI;

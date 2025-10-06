@@ -219,6 +219,20 @@ static void HandleDialogue(Tachyon* tachyon, State& state) {
   }
 }
 
+static void UpdateLevelsOfDetail(Tachyon* tachyon, State& state) {
+  profile("UpdateLevelsOfDetail()");
+
+  auto& meshes = state.meshes;
+
+  // Decorative objects
+  Tachyon_UseLodByDistance(tachyon, meshes.rock_1, 30000.f);
+  Tachyon_UseLodByDistance(tachyon, meshes.ground_1, 30000.f);
+
+  // Procedural objects
+  Tachyon_UseLodByDistance(tachyon, meshes.grass, 30000.f);
+  Tachyon_UseLodByDistance(tachyon, meshes.small_grass, 30000.f);
+}
+
 void astro::InitGame(Tachyon* tachyon, State& state) {
   MeshLibrary::AddMeshes(tachyon, state);
 
@@ -276,6 +290,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   UpdatePlayer(tachyon, state, dt);
   UpdateWaterPlane(tachyon, state);
   UpdateAstrolabe(tachyon, state);
+  UpdateLevelsOfDetail(tachyon, state);
 
   // @todo HandleFrameEnd()
   {
