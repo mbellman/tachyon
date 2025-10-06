@@ -38,7 +38,7 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) 
       auto& target = *EntityManager::FindEntity(state, state.target_entity);
       float distance = (state.player_position - target.visible_position).magnitude();
 
-      float distance_ratio = 1.f - distance / 12000.f;
+      float distance_ratio = 1.f - distance / 10000.f;
       if (distance_ratio < 0.f) distance_ratio = 0.f;
 
       float time_ratio = (tachyon->running_time - state.target_start_time) / 1.f;
@@ -59,16 +59,18 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) 
       // this special case, the slower camera shift lerp causes the camera to "curve"
       // as it returns to its expected position, which looks odd. 
       new_camera_position = state.player_position;
-      new_camera_position.z += 500.f;
 
-      state.camera_shift = state.player_facing_direction * 3000.f;
+      state.camera_shift = state.player_facing_direction * tVec3f(0.5f, 0, 1.f) * 800.f;
     }
     else {
       // Walking/standing still camera
       new_camera_position = state.player_position;
-      new_camera_position.z += 500.f;
 
-      state.camera_shift = tVec3f::lerp(state.camera_shift, state.player_facing_direction * 3000.f, 1.f * dt);
+      float shift_amount = std::max(player_speed * 2.f, 800.f);
+
+      tVec3f desired_camera_shift = state.player_facing_direction * tVec3f(0.5f, 0, 1.f) * shift_amount;
+
+      state.camera_shift = tVec3f::lerp(state.camera_shift, desired_camera_shift, dt);
     }
 
     new_camera_position += state.camera_shift;

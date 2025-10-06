@@ -159,7 +159,7 @@ static void UpdateAstrolabe(Tachyon* tachyon, State& state) {
 
 // @todo target_system.cpp
 static void StoreClosestEnemy(Tachyon* tachyon, State& state, EntityRecord& record) {
-  const float target_distance_limit = 12000.f;
+  const float target_distance_limit = 10000.f;
   float closest_distance = target_distance_limit;
 
   record.id = -1;
@@ -233,6 +233,15 @@ static void UpdateLevelsOfDetail(Tachyon* tachyon, State& state) {
   Tachyon_UseLodByDistance(tachyon, meshes.small_grass, 30000.f);
 }
 
+static void DisableLevelsOfDetail(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
+  Tachyon_ShowAllObjects(tachyon, meshes.rock_1);
+  Tachyon_ShowAllObjects(tachyon, meshes.ground_1);
+  Tachyon_ShowAllObjects(tachyon, meshes.grass);
+  Tachyon_ShowAllObjects(tachyon, meshes.small_grass);
+}
+
 void astro::InitGame(Tachyon* tachyon, State& state) {
   MeshLibrary::AddMeshes(tachyon, state);
 
@@ -271,6 +280,8 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
 
   // @todo dev mode only
   if (state.is_level_editor_open) {
+    DisableLevelsOfDetail(tachyon, state);
+
     LevelEditor::HandleLevelEditor(tachyon, state, dt);
 
     return;
