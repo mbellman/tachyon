@@ -3,6 +3,7 @@
 #include "astro/entity_dispatcher.h"
 
 #include "astro/entity_behaviors/Bandit.h"
+#include "astro/entity_behaviors/DirtPath.h"
 #include "astro/entity_behaviors/LowGuard.h"
 #include "astro/entity_behaviors/OakTree.h"
 #include "astro/entity_behaviors/RiverLog.h"
@@ -39,6 +40,7 @@ using namespace astro;
 std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, EntityType type) {
   switch (type) {
     dispatch_GetEntityContainer(BANDIT, state.bandits);
+    dispatch_GetEntityContainer(DIRT_PATH, state.dirt_paths);
     dispatch_GetEntityContainer(LOW_GUARD, state.low_guards);
     dispatch_GetEntityContainer(OAK_TREE, state.oak_trees);
     dispatch_GetEntityContainer(RIVER_LOG, state.river_logs);
@@ -50,7 +52,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
 
     default:
       // @todo log error
-      printf("Failed to get container for entity type: %d\n", type);
+      printf("EntityDispatcher: Failed to get container for entity type: %d\n", type);
       exit(0);
       break;
   }
@@ -59,6 +61,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
 void EntityDispatcher::AddMeshes(Tachyon* tachyon, State& state, EntityType type) {
   switch (type) {
     dispatch_AddMeshes(BANDIT, Bandit);
+    dispatch_AddMeshes(DIRT_PATH, DirtPath);
     dispatch_AddMeshes(LOW_GUARD, LowGuard);
     dispatch_AddMeshes(OAK_TREE, OakTree);
     dispatch_AddMeshes(RIVER_LOG, RiverLog);
@@ -69,7 +72,7 @@ void EntityDispatcher::AddMeshes(Tachyon* tachyon, State& state, EntityType type
     dispatch_AddMeshes(WOODEN_GATE_DOOR, WoodenGateDoor);
 
     default:
-      printf("Failed to add meshes for entity type: %d\n", type);
+      printf("EntityDispatcher: Failed to add meshes for entity type: %d\n", type);
       exit(0);
       break;
   }
@@ -78,6 +81,7 @@ void EntityDispatcher::AddMeshes(Tachyon* tachyon, State& state, EntityType type
 const std::vector<uint16>& EntityDispatcher::GetMeshes(State& state, EntityType type) {
   switch (type) {
     dispatch_GetMeshes(BANDIT, Bandit);
+    dispatch_GetMeshes(DIRT_PATH, DirtPath);
     dispatch_GetMeshes(LOW_GUARD, LowGuard);
     dispatch_GetMeshes(OAK_TREE, OakTree);
     dispatch_GetMeshes(RIVER_LOG, RiverLog);
@@ -88,7 +92,7 @@ const std::vector<uint16>& EntityDispatcher::GetMeshes(State& state, EntityType 
     dispatch_GetMeshes(WOODEN_GATE_DOOR, WoodenGateDoor);
 
     default:
-      printf("Failed to get meshes for entity type: %d\n", type);
+      printf("EntityDispatcher: Failed to get meshes for entity type: %d\n", type);
       exit(0);
       break;
   }
@@ -97,6 +101,7 @@ const std::vector<uint16>& EntityDispatcher::GetMeshes(State& state, EntityType 
 uint16 EntityDispatcher::GetPlaceholderMesh(State& state, EntityType type) {
   switch (type) {
     dispatch_GetPlaceholderMesh(BANDIT, Bandit);
+    dispatch_GetPlaceholderMesh(DIRT_PATH, DirtPath);
     dispatch_GetPlaceholderMesh(LOW_GUARD, LowGuard);
     dispatch_GetPlaceholderMesh(OAK_TREE, OakTree);
     dispatch_GetPlaceholderMesh(RIVER_LOG, RiverLog);
@@ -107,7 +112,7 @@ uint16 EntityDispatcher::GetPlaceholderMesh(State& state, EntityType type) {
     dispatch_GetPlaceholderMesh(WOODEN_GATE_DOOR, WoodenGateDoor);
 
     default:
-      printf("Failed to get placeholder mesh for entity type: %d\n", type);
+      printf("EntityDispatcher: Failed to get placeholder mesh for entity type: %d\n", type);
       exit(0);
       break;
   }
@@ -116,6 +121,7 @@ uint16 EntityDispatcher::GetPlaceholderMesh(State& state, EntityType type) {
 void EntityDispatcher::TimeEvolve(Tachyon* tachyon, State& state, EntityType type, const float dt) {
   switch (type) {
     dispatch_TimeEvolve(BANDIT, Bandit);
+    dispatch_TimeEvolve(DIRT_PATH, DirtPath);
     dispatch_TimeEvolve(LOW_GUARD, LowGuard);
     dispatch_TimeEvolve(OAK_TREE, OakTree);
     dispatch_TimeEvolve(RIVER_LOG, RiverLog);
@@ -126,8 +132,7 @@ void EntityDispatcher::TimeEvolve(Tachyon* tachyon, State& state, EntityType typ
     dispatch_TimeEvolve(WOODEN_GATE_DOOR, WoodenGateDoor);
 
     default:
-      // @todo log error
-      printf("Failed to time-evolve entity type: %d\n", type);
+      printf("EntityDispatcher: Failed to time-evolve entity type: %d\n", type);
       exit(0);
       break;
   }

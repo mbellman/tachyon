@@ -25,10 +25,8 @@ static void AddDecorativeMeshes(Tachyon* tachyon, State& state) {
   meshes.flat_ground = PLANE_MESH(1000);
   meshes.rock_1 = MODEL_MESH("./astro/3d_models/rock_1.obj", 5000);
   meshes.ground_1 = MODEL_MESH("./astro/3d_models/ground_1.obj", 5000);
-  meshes.dirt_path = PLANE_MESH(1000);
 
   mesh(meshes.flat_ground).shadow_cascade_ceiling = 0;
-  mesh(meshes.dirt_path).shadow_cascade_ceiling = 0;
 }
 
 static void AddEntityMeshes(Tachyon* tachyon, State& state) {
@@ -37,6 +35,11 @@ static void AddEntityMeshes(Tachyon* tachyon, State& state) {
   for_all_entity_types() {
     EntityDispatcher::AddMeshes(tachyon, state, type);
   }
+
+  // @temporary
+  // @todo define in entity defaults
+  mesh(meshes.dirt_path_placeholder).shadow_cascade_ceiling = 0;
+  mesh(meshes.dirt_path).shadow_cascade_ceiling = 0;
 }
 
 static void AddEditorMeshes(Tachyon* tachyon, State& state) {
@@ -59,6 +62,7 @@ void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
   meshes.water_plane = PLANE_MESH(1);
 
   // @temporary
+  // @todo AddProceduralMeshes()
   meshes.grass = MODEL_MESH("./astro/3d_models/grass.obj", 5000);
   meshes.small_grass = MODEL_MESH("./astro/3d_models/grass.obj", 10000);
 

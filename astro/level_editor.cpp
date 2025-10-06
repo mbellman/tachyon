@@ -752,10 +752,6 @@ static void CreateNewDecorativeObject(Tachyon* tachyon, State& state) {
     object.position = camera.position + camera.orientation.getDirection() * abs(camera.position.y) * 1.5f;
     object.position.y = -1500.f;
   }
-  else if (current_decorative_mesh.mesh_index == state.meshes.dirt_path) {
-    object.position = camera.position + camera.orientation.getDirection() * abs(camera.position.y) * 1.5f;
-    object.position.y = -1450.f;
-  }
   else {
     object.position = camera.position + camera.orientation.getDirection() * 7500.f;
   }
@@ -785,6 +781,14 @@ static void CreateNewEntity(Tachyon* tachyon, State& state) {
   entity.tint = defaults.tint;
   // @temporary
   entity.astro_start_time = -50.f;
+
+  // @temporary
+  // @todo define various restrictions/defaults on how certain
+  // decorative mesh objects are spawned or can be manipulated
+  if (entity_type == DIRT_PATH) {
+    entity.position = camera.position + camera.orientation.getDirection() * abs(camera.position.y) * 1.5f;
+    entity.position.y = -1450.f;
+  }
 
   EntityManager::SaveNewEntity(state, entity);
 
@@ -816,7 +820,7 @@ static void HandleSelectedObjectPositionActions(Tachyon* tachyon, State& state) 
   if (placeholder.mesh_index == state.meshes.flat_ground) {
     placeholder.position.y = -1500.f;
   }
-  else if (placeholder.mesh_index == state.meshes.dirt_path) {
+  else if (placeholder.mesh_index == state.meshes.dirt_path_placeholder) {
     placeholder.position.y = -1450.f;
   }
 
@@ -861,7 +865,7 @@ static void HandleSelectedObjectScaleActions(Tachyon* tachyon, State& state) {
   // @temporary
   if (
     placeholder.mesh_index == state.meshes.flat_ground ||
-    placeholder.mesh_index == state.meshes.dirt_path
+    placeholder.mesh_index == state.meshes.dirt_path_placeholder
   ) {
     placeholder.scale.y = 1.f;
   }

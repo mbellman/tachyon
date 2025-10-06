@@ -469,9 +469,9 @@ vec3 GetSkyColor(vec3 sky_direction, float sun_glare_factor) {
   float up_dot = 0.5 + 0.5 * max(0.0, dot(sky_direction, vec3(0, 1.0, 0)));
 
   return normalize(vec3(
-    0.8,
+    sqrt(1.0 - up_dot),
     0.2,
-    2.0 * up_dot
+    pow(up_dot, 2.0)
   ));
 }
 

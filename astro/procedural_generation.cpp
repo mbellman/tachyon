@@ -68,7 +68,8 @@ static void GenerateProceduralSmallGrass(Tachyon* tachyon, State& state) {
 
   std::vector<Plane> dirt_path_planes;
 
-  for (auto& path : objects(state.meshes.dirt_path)) {
+  // @todo iterate over entities and use those
+  for (auto& path : objects(state.meshes.dirt_path_placeholder)) {
     auto plane = CollisionSystem::GetObjectPlane(path);
 
     dirt_path_planes.push_back(plane);

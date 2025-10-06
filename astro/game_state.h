@@ -30,7 +30,6 @@ namespace astro {
       flat_ground,
       rock_1,
       ground_1,
-      dirt_path,
 
       // Editor meshes
       // @todo dev mode only

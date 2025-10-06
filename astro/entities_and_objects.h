@@ -43,12 +43,6 @@ namespace astro {
         .mesh_name = "flat_ground",
         .default_scale = tVec3f(5000.f, 1.f, 5000.f),
         .default_color = tVec3f(0.3f, 0.5f, 0.1f)
-      },
-      {
-        .mesh_index = meshes.dirt_path,
-        .mesh_name = "dirt_path",
-        .default_scale = tVec3f(2000.f, 1.f, 2000.f),
-        .default_color = tVec3f(0.7f, 0.4f, 0.1f)
       }
     };
 

@@ -20,7 +20,8 @@ namespace astro {
     RIVER_LOG,
     LOW_GUARD,
     BANDIT,
-    STONE_WALL
+    STONE_WALL,
+    DIRT_PATH
   };
 
   /**
@@ -37,7 +38,8 @@ namespace astro {
     RIVER_LOG,
     LOW_GUARD,
     BANDIT,
-    STONE_WALL
+    STONE_WALL,
+    DIRT_PATH
   };
 
   /**
@@ -123,7 +125,11 @@ namespace astro {
 
       // STONE_WALL,
       stone_wall_placeholder,
-      stone_wall
+      stone_wall,
+
+      // DIRT_PATH,
+      dirt_path_placeholder,
+      dirt_path
 
       ;
   };
@@ -134,6 +140,7 @@ namespace astro {
    * ----------------------------
    */
   struct EntityContainers {
+    std::vector<GameEntity> dirt_paths;
     std::vector<GameEntity> shrubs;
     std::vector<GameEntity> oak_trees;
     std::vector<GameEntity> willow_trees;
@@ -164,6 +171,12 @@ namespace astro {
    * ----------------------------
    */
   static std::map<EntityType, EntityDefaults> entity_defaults_map = {
+    { DIRT_PATH, {
+      .name = "Dirt Path",
+      .scale = tVec3f(2000.f, 1.f, 2000.f),
+      .tint = tVec3f(0.7f, 0.3f, 0.1f)
+    } },
+
     { SHRUB, {
       .name = "Shrub",
       .scale = tVec3f(500.f),
