@@ -27,17 +27,6 @@ static inline bool IsPointInsideEdge(const tVec3f& point, const tVec3f& e1, cons
   ) > 0.f;
 }
 
-// @temporary
-// @todo replace with proper line/plane collision checks
-static inline bool IsPointOnPlane(const tVec3f& point, const Plane& plane) {
-  bool d1 = IsPointInsideEdge(point, plane.p2, plane.p1);
-  bool d2 = IsPointInsideEdge(point, plane.p3, plane.p2);
-  bool d3 = IsPointInsideEdge(point, plane.p4, plane.p3);
-  bool d4 = IsPointInsideEdge(point, plane.p1, plane.p4);
-
-  return d1 && d2 && d3 && d4;
-}
-
 static inline tVec3f GetOversteppedEdge(const tVec3f& point, const Plane& plane) {
   if (!IsPointInsideEdge(point, plane.p2, plane.p1)) {
     return plane.p2 - plane.p1;
@@ -62,7 +51,7 @@ static inline bool IsPointWithRadiusOnPlane(const tVec3f& point, const float rad
   tVec3f plane_to_point = point.xz() - plane_midpoint.xz();
   tVec3f adjusted_point = point - plane_to_point.unit() * radius;
 
-  return IsPointOnPlane(adjusted_point, plane);
+  return CollisionSystem::IsPointOnPlane(adjusted_point, plane);
 }
 
 static inline void ResolveSingleRadiusCollision(State& state, const tVec3f& position, const tVec3f& scale, float radius_scale) {
@@ -150,7 +139,7 @@ static void HandleBridgeCollisions(Tachyon* tachyon, State& state) {
     bridge_plane.p3 = bridge.position + r * bridge_plane.p3;
     bridge_plane.p4 = bridge.position + r * bridge_plane.p4;
 
-    if (IsPointOnPlane(state.player_position.xz(), bridge_plane)) {
+    if (CollisionSystem::IsPointOnPlane(state.player_position.xz(), bridge_plane)) {
       // Figure out how far along the bridge the player is,
       // and set their height accordingly
       tVec3f bridge_to_player = state.player_position - bridge.position;
@@ -194,7 +183,7 @@ static void HandleRiverLogCollisions(Tachyon* tachyon, State& state) {
     log_plane.p3 = log.position + r * log_plane.p3;
     log_plane.p4 = log.position + r * log_plane.p4;
 
-    if (IsPointOnPlane(state.player_position.xz(), log_plane)) {
+    if (CollisionSystem::IsPointOnPlane(state.player_position.xz(), log_plane)) {
       // @todo define a constant for player height
       state.player_position.y = log.position.y + log.scale.y * 0.2f + 1500.f;
       state.last_solid_ground_position = state.player_position;
@@ -214,6 +203,32 @@ static void HandleMovementOffSolidGround(Tachyon* tachyon, State& state) {
 
   state.player_position = state.last_solid_ground_position + rebound_direction * 5.f;
   state.player_velocity = corrected_direction * state.player_velocity.magnitude();
+}
+
+bool CollisionSystem::IsPointOnPlane(const tVec3f& point, const Plane& plane) {
+  bool d1 = IsPointInsideEdge(point, plane.p2, plane.p1);
+  bool d2 = IsPointInsideEdge(point, plane.p3, plane.p2);
+  bool d3 = IsPointInsideEdge(point, plane.p4, plane.p3);
+  bool d4 = IsPointInsideEdge(point, plane.p1, plane.p4);
+
+  return d1 && d2 && d3 && d4;
+}
+
+Plane CollisionSystem::GetObjectPlane(const tObject& object) {
+  Plane object_plane;
+  object_plane.p1 = tVec3f(-1.f, 0, 1.f) * object.scale;
+  object_plane.p2 = tVec3f(1.f, 0, 1.f) * object.scale;
+  object_plane.p3 = tVec3f(1.f, 0, -1.f) * object.scale;
+  object_plane.p4 = tVec3f(-1.f, 0, -1.f) * object.scale;
+
+  tMat4f r = object.rotation.toMatrix4f();
+
+  object_plane.p1 = object.position + r * object_plane.p1;
+  object_plane.p2 = object.position + r * object_plane.p2;
+  object_plane.p3 = object.position + r * object_plane.p3;
+  object_plane.p4 = object.position + r * object_plane.p4;
+
+  return object_plane;
 }
 
 void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {

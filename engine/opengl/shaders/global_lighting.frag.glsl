@@ -468,11 +468,11 @@ vec3 Cosmodrone_GetSkyColor(vec3 sky_direction, float sun_glare_factor) {
 vec3 GetSkyColor(vec3 sky_direction, float sun_glare_factor) {
   float up_dot = 0.5 + 0.5 * max(0.0, dot(sky_direction, vec3(0, 1.0, 0)));
 
-  return vec3(
+  return normalize(vec3(
     0.8,
     0.2,
-    up_dot
-  );
+    2.0 * up_dot
+  ));
 }
 
 vec3 GetReflectionColor(vec3 R) {

@@ -221,17 +221,16 @@ void main() {
     #if ENABLE_ASTRO_FX
       float depth_factor = 0.5 * pow(color_and_depth.w, 20.0);
 
-      post_color = mix(post_color, vec3(0.6, 0.4, 0.4), depth_factor);
+      post_color = mix(post_color, vec3(0.2, 0.4, 0.5), depth_factor);
     #elif ENABLE_COSMODRONE_FX
       float depth_factor = 0.25 * pow(color_and_depth.w, 300.0);
 
       post_color = mix(post_color, vec3(0.2, 0.4, 0.6), depth_factor);
+      post_color = mix(post_color, vec3(0.8, 0.9, 1.0), depth_factor * pow(VdotD, 10.0));
+      post_color = mix(post_color, vec3(2.0), depth_factor * pow(VdotD, 300.0));
     #else
       float depth_factor = 0.25 * pow(color_and_depth.w, 300.0);
     #endif
-
-    post_color = mix(post_color, vec3(0.8, 0.9, 1.0), depth_factor * pow(VdotD, 10.0));
-    post_color = mix(post_color, vec3(2.0), depth_factor * pow(VdotD, 300.0));
 
     if (color_and_depth.w < 1.0) {
       post_color += mix(vec3(0), vec3(0.05, 0.1, 0.2), min(1.0, world_depth / 10000000.0));

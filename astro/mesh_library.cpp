@@ -27,6 +27,7 @@ static void AddDecorativeMeshes(Tachyon* tachyon, State& state) {
   meshes.ground_1 = MODEL_MESH("./astro/3d_models/ground_1.obj", 5000);
   meshes.dirt_path = PLANE_MESH(1000);
 
+  mesh(meshes.flat_ground).shadow_cascade_ceiling = 0;
   mesh(meshes.dirt_path).shadow_cascade_ceiling = 0;
 }
 

@@ -1,4 +1,5 @@
 #include "astro/procedural_generation.h"
+#include "astro/collision_system.h"
 
 using namespace astro;
 
@@ -61,7 +62,17 @@ static void GenerateProceduralGrass(Tachyon* tachyon, State& state) {
 }
 
 static void GenerateProceduralSmallGrass(Tachyon* tachyon, State& state) {
+  auto start = Tachyon_GetMicroseconds();
+
   remove_all(state.meshes.small_grass);
+
+  std::vector<Plane> dirt_path_planes;
+
+  for (auto& path : objects(state.meshes.dirt_path)) {
+    auto plane = CollisionSystem::GetObjectPlane(path);
+
+    dirt_path_planes.push_back(plane);
+  }
 
   // @todo factor
   for (auto& plane : objects(state.meshes.flat_ground)) {
@@ -73,8 +84,6 @@ static void GenerateProceduralSmallGrass(Tachyon* tachyon, State& state) {
     float theta = atan2f(direction.z, direction.x) + t_HALF_PI;
 
     for (uint16 i = 0; i < total_grass; i++) {
-      auto& grass = create(state.meshes.small_grass);
-
       float x = Tachyon_GetRandom(bounds.x[0], bounds.x[1]);
       float z = Tachyon_GetRandom(bounds.z[0], bounds.z[1]);
 
@@ -83,6 +92,20 @@ static void GenerateProceduralSmallGrass(Tachyon* tachyon, State& state) {
 
       float wx = plane.position.x + (lx * cosf(theta) - lz * sinf(theta));
       float wz = plane.position.z + (lx * sinf(theta) + lz * cosf(theta));
+
+      bool is_on_dirt_path = false;
+
+      for (auto& plane : dirt_path_planes) {
+        if (CollisionSystem::IsPointOnPlane(tVec3f(wx, 0, wz), plane)) {
+          is_on_dirt_path = true;
+
+          break;
+        }
+      }
+
+      if (is_on_dirt_path) continue;
+
+      auto& grass = create(state.meshes.small_grass);
 
       grass.position.x = wx;
       grass.position.y = -1500.f;
@@ -99,7 +122,9 @@ static void GenerateProceduralSmallGrass(Tachyon* tachyon, State& state) {
 
   // @todo dev mode only
   {
-    std::string message = "Generated " + std::to_string(objects(state.meshes.small_grass).total_active) + " small grass objects";
+    uint64 duration = Tachyon_GetMicroseconds() - start;
+
+    std::string message = "Generated " + std::to_string(objects(state.meshes.small_grass).total_active) + " small grass objects (" + std::to_string(duration) + "us)";
   
     console_log(message);
   }
