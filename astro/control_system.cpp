@@ -1,21 +1,8 @@
 #include "astro/control_system.h"
 #include "astro/spell_system.h"
+#include "astro/ui_system.h"
 
 using namespace astro;
-
-// @todo move elsewhere
-static void ShowDialogue(Tachyon* tachyon, State& state, const std::string& message) {
-  if (
-    state.dialogue_message == message &&
-    tachyon->running_time - state.dialogue_start_time < 6.f
-  ) {
-    // Don't re-show currently-displayed dialogue
-    return;
-  }
-
-  state.dialogue_message = message;
-  state.dialogue_start_time = tachyon->running_time;
-}
 
 static void HandlePlayerMovementControls(Tachyon* tachyon, State& state, const float dt) {
   if (
@@ -76,7 +63,7 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
     state.astro_turn_speed = 0.f;
 
     if (state.astro_time_at_start_of_turn >= -1.f) {
-      ShowDialogue(tachyon, state, "The astrolabe's mechanism resists.");
+      UISystem::ShowDialogue(tachyon, state, "The astrolabe's mechanism resists.");
     }
   }
 
@@ -85,7 +72,7 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
     state.astro_turn_speed = 0.f;
 
     if (state.astro_time_at_start_of_turn <= min_astro_time + 1.f) {
-      ShowDialogue(tachyon, state, "The astrolabe's mechanism resists.");
+      UISystem::ShowDialogue(tachyon, state, "The astrolabe's mechanism resists.");
     }
   }
 
@@ -106,7 +93,9 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
 
       state.astro_turn_speed *= 1.f - slowdown_factor * dt;
 
-      ShowDialogue(tachyon, state, "The astrolabe stopped turning.");
+      if (abs(state.astro_time - max_astro_time) < 2.f) {
+        UISystem::ShowDialogue(tachyon, state, "The astrolabe stopped turning.");
+      }
     }
   }
 
@@ -127,8 +116,11 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
 
       state.astro_turn_speed *= 1.f - slowdown_factor * dt;
 
-      if (state.astro_time_at_start_of_turn > min_astro_time + 1.f) {
-        ShowDialogue(tachyon, state, "The astrolabe stopped turning.");
+      if (
+        state.astro_time_at_start_of_turn > min_astro_time + 1.f &&
+        abs(state.astro_time - min_astro_time) < 2.f
+      ) {
+        UISystem::ShowDialogue(tachyon, state, "The astrolabe stopped turning.");
       }
     }
   }

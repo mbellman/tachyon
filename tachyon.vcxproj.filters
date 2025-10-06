@@ -495,6 +495,15 @@
     <ClInclude Include="astro\entity_behaviors\Bandit.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="astro\entity_behaviors\DirtPath.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\entity_behaviors\StoneWall.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\ui_system.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -648,6 +657,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="astro\camera_system.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="astro\ui_system.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

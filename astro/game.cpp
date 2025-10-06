@@ -115,13 +115,13 @@ static void UpdateAstrolabe(Tachyon* tachyon, State& state) {
   200.f;
 
   base.color = tVec3f(1.f, 0.6f, 0.2f);
-  base.material = tVec4f(0.1f, 1.f, 0, 0.5f);
+  base.material = tVec4f(0.1f, 1.f, 0, 0.2f);
 
   ring.color = tVec3f(0.2f, 0.4f, 1.f);
   ring.material = tVec4f(0.2f, 1.f, 0, 0);
 
   hand.color = tVec3f(1.f, 0.6f, 0.2f);
-  hand.material = tVec4f(0.1f, 1.f, 0, 1.f);
+  hand.material = tVec4f(0.1f, 1.f, 0, 0.6f);
 
   base.rotation =
   ring.rotation =
