@@ -20,6 +20,37 @@ namespace astro {
       return meshes.bandit_placeholder;
     }
 
+    handleEnemyBehavior() {
+      // Bandit enemy AI
+      // @temporary
+      // @todo refactor
+      tVec3f entity_to_player = state.player_position - entity.visible_position;
+      float player_distance = entity_to_player.magnitude();
+      tVec3f player_direction = entity_to_player / player_distance;
+
+      if (player_distance < 10000.f) {
+        if (player_distance > 3000.f) {
+          float time_since_last_stun = tachyon->running_time - state.spells.stun_start_time;
+
+          if (time_since_last_stun < 4.f) {
+            // Stunned
+            // @todo allow this to happen at any distance
+            entity.visible_position -= player_direction * 500.f * dt;
+
+            UISystem::ShowDialogue(tachyon, state, "Argh! The bastard blinded me!");
+          } else {
+            // Chasing the player
+            entity.visible_position += player_direction * 3000.f * dt;
+
+            // @todo Noticed
+            UISystem::ShowDialogue(tachyon, state, "Look, we've got one!");
+          }
+        } else {
+          // @todo strafe around the player
+        }
+      }
+    }
+
     timeEvolve() {
       auto& meshes = state.meshes;
 
@@ -48,16 +79,10 @@ namespace astro {
               state.astro_time - entity.astro_start_time < 5.f ||
               entity.astro_end_time - state.astro_time < 5.f
             ) {
-              // Jitter the visible position as turn speed picks up to suggest movement
-              // @todo factor
-              entity.visible_position.x += Tachyon_GetRandom(-200.f, 200.f);
-              entity.visible_position.z += Tachyon_GetRandom(-200.f, 200.f);
+              Jitter(entity, 200.f);
             }
             else if (astro_speed < 0.2f && entity.visible_position != entity.position) {
-              // Jitter the visible position as turn speed picks up to suggest movement
-              // @todo factor
-              entity.visible_position.x += Tachyon_GetRandom(-50.f, 50.f);
-              entity.visible_position.z += Tachyon_GetRandom(-50.f, 50.f);
+              Jitter(entity, 50.f);
             }
             else {
               // Reset
@@ -65,34 +90,7 @@ namespace astro {
               entity.visible_position = entity.position;
             }
           } else {
-            // Bandit enemy AI
-            // @temporary
-            // @todo refactor
-            tVec3f entity_to_player = state.player_position - entity.visible_position;
-            float player_distance = entity_to_player.magnitude();
-            tVec3f player_direction = entity_to_player / player_distance;
-
-            if (player_distance < 10000.f) {
-              if (player_distance > 3000.f) {
-                float time_since_last_stun = tachyon->running_time - state.spells.stun_start_time;
-
-                if (time_since_last_stun < 4.f) {
-                  // Stunned
-                  // @todo allow this to happen at any distance
-                  entity.visible_position -= player_direction * 500.f * dt;
-
-                  UISystem::ShowDialogue(tachyon, state, "Argh! The bastard blinded me!");
-                } else {
-                  // Chasing the player
-                  entity.visible_position += player_direction * 3000.f * dt;
-
-                  // @todo Noticed
-                  UISystem::ShowDialogue(tachyon, state, "Look, we've got one!");
-                }
-              } else {
-                // @todo strafe around the player
-              }
-            }
+            handle_enemy_behavior(Bandit);
           }
         } else {
           // Hide and reset

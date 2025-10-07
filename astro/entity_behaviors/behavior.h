@@ -18,6 +18,9 @@
 #define getMeshes() static const std::vector<uint16>& _GetMeshes(const MeshIds& meshes)
 #define getPlaceholderMesh() static uint16 _GetPlaceholderMesh(const MeshIds& meshes)
 #define timeEvolve() static void _TimeEvolve(Tachyon* tachyon, State& state, const float dt)
+#define handleEnemyBehavior() static void _HandleEnemyBehavior(Tachyon* tachyon, State& state, GameEntity& entity, const float dt)
+
+#define handle_enemy_behavior(__behavior) __behavior::_HandleEnemyBehavior(tachyon, state, entity, dt)
 
 namespace astro {
   // @todo move this into engine
@@ -39,5 +42,10 @@ namespace astro {
     if (entity_age > lifetime) return 1.f;
 
     return entity_age / lifetime;
+  }
+
+  static void Jitter(GameEntity& entity, const float amount) {
+    entity.visible_position.x += Tachyon_GetRandom(-amount, amount);
+    entity.visible_position.z += Tachyon_GetRandom(-amount, amount);
   }
 }

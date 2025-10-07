@@ -20,6 +20,23 @@ namespace astro {
       return meshes.low_guard_placeholder;
     }
 
+    handleEnemyBehavior() {
+      float player_distance = (state.player_position - entity.visible_position).magnitude();
+
+      if (player_distance < 8000.f) {
+        float time_since_last_stun = tachyon->running_time - state.spells.stun_start_time;
+
+        
+        if (time_since_last_stun < 4.f) {
+          // Stunned
+          UISystem::ShowDialogue(tachyon, state, "Wha...?! I can't see! Stop him!");
+        } else {
+          // Noticed
+          UISystem::ShowDialogue(tachyon, state, "You there! Retreat, at once!");
+        }
+      }
+    }
+
     timeEvolve() {
       auto& meshes = state.meshes;
 
@@ -48,16 +65,10 @@ namespace astro {
               state.astro_time - entity.astro_start_time < 5.f ||
               entity.astro_end_time - state.astro_time < 5.f
             ) {
-              // Jitter the visible position as turn speed picks up to suggest movement
-              // @todo factor
-              entity.visible_position.x += Tachyon_GetRandom(-200.f, 200.f);
-              entity.visible_position.z += Tachyon_GetRandom(-200.f, 200.f);
+              Jitter(entity, 200.f);
             }
             else if (astro_speed < 0.2f && entity.visible_position != entity.position) {
-              // Jitter the visible position as turn speed picks up to suggest movement
-              // @todo factor
-              entity.visible_position.x += Tachyon_GetRandom(-50.f, 50.f);
-              entity.visible_position.z += Tachyon_GetRandom(-50.f, 50.f);
+              Jitter(entity, 50.f);
             }
             else {
               // Reset
@@ -65,20 +76,7 @@ namespace astro {
               entity.visible_position = entity.position;
             }
           } else {
-            float player_distance = (state.player_position - entity.visible_position).magnitude();
-
-            if (player_distance < 8000.f) {
-              float time_since_last_stun = tachyon->running_time - state.spells.stun_start_time;
-
-              
-              if (time_since_last_stun < 4.f) {
-                // Stunned
-                UISystem::ShowDialogue(tachyon, state, "Wha...?! I-I can't see! Stop him!");
-              } else {
-                // Noticed
-                UISystem::ShowDialogue(tachyon, state, "You there! Retreat, at once!");
-              }
-            }
+            handle_enemy_behavior(LowGuard);
           }
         } else {
           // Hide and reset

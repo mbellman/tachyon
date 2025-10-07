@@ -54,6 +54,23 @@ namespace astro {
 
   /**
    * ----------------------------
+   * Enemy-related structures.
+   * ----------------------------
+   */
+  enum EnemyMood {
+    IDLE,
+    NOTICED,
+    AGITATED,
+    FEARFUL
+  };
+
+  struct EnemyState {
+    EnemyMood mood = IDLE;
+    float health = 100.f;
+  };
+
+  /**
+   * ----------------------------
    * The primary game entity data structure.
    * ----------------------------
    */
@@ -81,6 +98,9 @@ namespace astro {
     tVec3f visible_scale;
 
     tVec3f visible_position;
+
+    // Only used for certain game entities
+    EnemyState enemy_state;
   };
 
   /**
