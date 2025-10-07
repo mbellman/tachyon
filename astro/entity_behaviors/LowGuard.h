@@ -49,6 +49,7 @@ namespace astro {
         }
       } else {
         // Out of range
+        enemy.mood = ENEMY_IDLE;
       }
     }
 

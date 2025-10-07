@@ -50,9 +50,13 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) 
       if (stun_factor > 1.f) stun_factor = 1.f;
 
       new_camera_position = tVec3f::lerp(state.player_position, target.visible_position, 0.5f * distance_ratio);
-      new_camera_position += state.player_facing_direction * 2000.f * sqrtf(distance_ratio);
-      new_camera_position.y = 3000.f * distance_ratio + 1000.f * stun_factor;
+ 
+      new_camera_position.y = 3000.f * distance_ratio;
+      new_camera_position.y += 1000.f * stun_factor;
+
       new_camera_position.z += abs(state.player_facing_direction.z) * 3000.f * sqrtf(distance_ratio);
+      new_camera_position.z += 1000.f * (1.f - abs(state.player_facing_direction.z));
+      new_camera_position.z += 1000.f * stun_factor;
 
       state.camera_shift = tVec3f::lerp(state.camera_shift, tVec3f(0.f), time_ratio);
     }
