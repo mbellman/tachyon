@@ -456,9 +456,6 @@
     <ClInclude Include="astro\entity_dispatcher.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="astro\entity_types.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="astro\spell_system.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -502,6 +499,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="astro\ui_system.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\entities.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

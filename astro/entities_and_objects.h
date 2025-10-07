@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "astro/game_state.h"
-#include "astro/entity_types.h"
+#include "astro/entities.h"
 
 // @todo rename object_lookup or similar
 

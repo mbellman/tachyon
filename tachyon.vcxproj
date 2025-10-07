@@ -120,6 +120,7 @@
     <ClInclude Include="astro\collision_system.h" />
     <ClInclude Include="astro\control_system.h" />
     <ClInclude Include="astro\data_loader.h" />
+    <ClInclude Include="astro\entities.h" />
     <ClInclude Include="astro\entities_and_objects.h" />
     <ClInclude Include="astro\entity_behaviors\Bandit.h" />
     <ClInclude Include="astro\entity_behaviors\behavior.h" />
@@ -137,7 +138,6 @@
     <ClInclude Include="astro\entity_descriptions\Shrub.h" />
     <ClInclude Include="astro\entity_dispatcher.h" />
     <ClInclude Include="astro\entity_manager.h" />
-    <ClInclude Include="astro\entity_types.h" />
     <ClInclude Include="astro\game.h" />
     <ClInclude Include="astro\game_state.h" />
     <ClInclude Include="astro\level_editor.h" />

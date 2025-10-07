@@ -228,12 +228,12 @@ static void UpdateLevelsOfDetail(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   // Decorative objects
-  Tachyon_UseLodByDistance(tachyon, meshes.rock_1, 30000.f);
-  Tachyon_UseLodByDistance(tachyon, meshes.ground_1, 30000.f);
+  Tachyon_UseLodByDistance(tachyon, meshes.rock_1, 35000.f);
+  Tachyon_UseLodByDistance(tachyon, meshes.ground_1, 35000.f);
 
   // Procedural objects
-  Tachyon_UseLodByDistance(tachyon, meshes.grass, 30000.f);
-  Tachyon_UseLodByDistance(tachyon, meshes.small_grass, 30000.f);
+  Tachyon_UseLodByDistance(tachyon, meshes.grass, 35000.f);
+  Tachyon_UseLodByDistance(tachyon, meshes.small_grass, 35000.f);
 }
 
 static void DisableLevelsOfDetail(Tachyon* tachyon, State& state) {

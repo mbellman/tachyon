@@ -4,7 +4,7 @@
 
 #include "engine/tachyon_aliases.h"
 #include "engine/tachyon_types.h"
-#include "astro/entity_types.h"
+#include "astro/entities.h"
 
 #define for_entities(array) for (uint16 i = 0; i < (uint16)array.size(); i++)
 

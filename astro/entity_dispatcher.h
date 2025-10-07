@@ -1,6 +1,6 @@
 #pragma once
 
-#include "astro/entity_types.h"
+#include "astro/entities.h"
 #include "astro/game_state.h"
 
 #define for_all_entity_types() for (auto type : entity_types)
