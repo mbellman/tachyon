@@ -25,12 +25,11 @@ static void UpdatePlayer(Tachyon* tachyon, State& state, const float dt) {
     tVec3f desired_facing_direction = state.player_facing_direction;
     float turning_speed = 5.f;
 
-    if (state.has_target) {
-      // When we have a target, face it and turn much more quickly
+    if (state.has_target && !state.is_escaping_target) {
+      // When we're focused on a target, face it and turn much more quickly
       auto& target = *EntityManager::FindEntity(state, state.target_entity);
 
       desired_facing_direction = (target.visible_position - state.player_position).unit();
-      turning_speed = 10.f;
     }
     else if (state.player_velocity.magnitude() > 0.01f) {
       // Without a target, use our velocity vector to influence facing direction
@@ -157,7 +156,7 @@ static void UpdateAstrolabe(Tachyon* tachyon, State& state) {
   commit(hand);
 }
 
-// @todo target_system.cpp
+// @todo targeting.cpp
 static void StoreClosestEnemy(Tachyon* tachyon, State& state, EntityRecord& record) {
   const float target_distance_limit = 10000.f;
   float closest_distance = target_distance_limit;
@@ -189,7 +188,7 @@ static void StoreClosestEnemy(Tachyon* tachyon, State& state, EntityRecord& reco
     }
   }
 
-  if (closest_distance == target_distance_limit || state.is_escaping_target) {
+  if (closest_distance == target_distance_limit) {
     state.has_target = false;
 
     record.id = -1;
@@ -295,7 +294,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   SpellSystem::HandleSpells(tachyon, state, dt);
   HandleDialogue(tachyon, state);
 
-  // @todo target_system.cpp
+  // @todo targeting.cpp
   StoreClosestEnemy(tachyon, state, state.target_entity);
 
   TimeEvolution::UpdateAstroTime(tachyon, state, dt);

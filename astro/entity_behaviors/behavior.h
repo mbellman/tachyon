@@ -23,19 +23,6 @@
 #define handle_enemy_behavior(__behavior) __behavior::_HandleEnemyBehavior(tachyon, state, entity, dt)
 
 namespace astro {
-  // @todo move this into engine
-  static void RemoveLastObject(Tachyon* tachyon, uint16 mesh_index) {
-    auto& objects = objects(mesh_index);
-    uint16 total_active = objects.total_active;
-
-    if (total_active > 0) {
-      auto& last_object = objects[total_active - 1];
-    
-      remove(last_object);
-    }
-  }
-
-  // @todo move elsewhere
   static float GetLivingEntityProgress(State& state, const GameEntity& entity, const float lifetime) {
     float entity_age = state.astro_time - entity.astro_start_time;
     if (entity_age < 0.f) return 0.f;

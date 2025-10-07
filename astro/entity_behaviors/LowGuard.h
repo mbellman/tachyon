@@ -21,19 +21,34 @@ namespace astro {
     }
 
     handleEnemyBehavior() {
-      float player_distance = (state.player_position - entity.visible_position).magnitude();
+      tVec3f entity_to_player = state.player_position - entity.visible_position;
+      float player_distance = entity_to_player.magnitude();
+      auto& enemy = entity.enemy_state;
 
-      if (player_distance < 8000.f) {
+      // Combat
+      if (player_distance < 10000.f) {
+        tVec3f player_direction = entity_to_player / player_distance;
         float time_since_last_stun = tachyon->running_time - state.spells.stun_start_time;
 
-        
         if (time_since_last_stun < 4.f) {
           // Stunned
-          UISystem::ShowDialogue(tachyon, state, "Wha...?! I can't see! Stop him!");
-        } else {
+          UISystem::ShowDialogue(tachyon, state, "Wha...?! What have you done? I'm unable to see!");
+
+          enemy.mood = ENEMY_AGITATED;
+        }
+        else if (enemy.mood == ENEMY_IDLE) {
           // Noticed
           UISystem::ShowDialogue(tachyon, state, "You there! Retreat, at once!");
+
+          enemy.mood = ENEMY_ENGAGED;
         }
+        else if (enemy.mood == ENEMY_ENGAGED && player_distance < 5000.f) {
+          UISystem::ShowDialogue(tachyon, state, "Cease your trespass! Or I shall strike!");
+
+          enemy.mood = ENEMY_AGITATED;
+        }
+      } else {
+        // Out of range
       }
     }
 
@@ -58,6 +73,8 @@ namespace astro {
           float astro_speed = abs(state.astro_turn_speed);
 
           if (astro_speed > 0.f) {
+            entity.enemy_state.mood = ENEMY_IDLE;
+
             if (astro_speed < 0.05f) {
               // Do nothing
             }

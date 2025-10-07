@@ -21,33 +21,50 @@ namespace astro {
     }
 
     handleEnemyBehavior() {
-      // Bandit enemy AI
-      // @temporary
-      // @todo refactor
       tVec3f entity_to_player = state.player_position - entity.visible_position;
       float player_distance = entity_to_player.magnitude();
-      tVec3f player_direction = entity_to_player / player_distance;
+      auto& enemy = entity.enemy_state;
 
+      // Combat
       if (player_distance < 10000.f) {
-        if (player_distance > 3000.f) {
-          float time_since_last_stun = tachyon->running_time - state.spells.stun_start_time;
+        tVec3f player_direction = entity_to_player / player_distance;
+        float time_since_casting_stun = tachyon->running_time - state.spells.stun_start_time;
 
-          if (time_since_last_stun < 4.f) {
-            // Stunned
-            // @todo allow this to happen at any distance
-            entity.visible_position -= player_direction * 500.f * dt;
+        if (time_since_casting_stun < 4.f) {
+          // Stunned
+          float knockback_factor = 3.f * time_since_casting_stun * (1.f - time_since_casting_stun);
+          if (knockback_factor > 1.f) knockback_factor = 1.f;
+          if (knockback_factor < 0.f) knockback_factor = 0.f;
 
-            UISystem::ShowDialogue(tachyon, state, "Argh! The bastard blinded me!");
-          } else {
-            // Chasing the player
-            entity.visible_position += player_direction * 3000.f * dt;
+          entity.visible_position -= player_direction * knockback_factor * 3000.f * dt;
 
-            // @todo Noticed
-            UISystem::ShowDialogue(tachyon, state, "Look, we've got one!");
+          UISystem::ShowDialogue(tachyon, state, "Argh! The bastard blinded me!");
+
+          enemy.mood = ENEMY_AGITATED;
+        }
+        else if (player_distance > 3000.f) {
+          // Non-strafing combat
+          float time_since_casting_stun = tachyon->running_time - state.spells.stun_start_time;
+
+          // Chase the player
+          entity.visible_position += player_direction * 3000.f * dt;
+
+          // Mood dialogue
+          if (enemy.mood == ENEMY_AGITATED) {
+            UISystem::ShowDialogue(tachyon, state, "Fool! You're in for it now!");
           }
-        } else {
+          else if (enemy.mood == ENEMY_IDLE) {
+            UISystem::ShowDialogue(tachyon, state, "Look, we've got one!");
+
+            enemy.mood = ENEMY_ENGAGED;
+          }
+        }
+        else {
+          // Strafing combat
           // @todo strafe around the player
         }
+      } else {
+        // Out of range
       }
     }
 
@@ -72,6 +89,8 @@ namespace astro {
           float astro_speed = abs(state.astro_turn_speed);
 
           if (astro_speed > 0.f) {
+            entity.enemy_state.mood = ENEMY_IDLE;
+
             if (astro_speed < 0.05f) {
               // Do nothing
             }

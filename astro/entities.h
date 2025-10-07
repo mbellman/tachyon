@@ -58,14 +58,14 @@ namespace astro {
    * ----------------------------
    */
   enum EnemyMood {
-    IDLE,
-    NOTICED,
-    AGITATED,
-    FEARFUL
+    ENEMY_IDLE,
+    ENEMY_ENGAGED,
+    ENEMY_AGITATED,
+    ENEMY_FEARFUL
   };
 
   struct EnemyState {
-    EnemyMood mood = IDLE;
+    EnemyMood mood = ENEMY_IDLE;
     float health = 100.f;
   };
 
