@@ -161,9 +161,7 @@ static void UpdateAstrolabe(Tachyon* tachyon, State& state) {
 static void StoreClosestEnemy(Tachyon* tachyon, State& state, EntityRecord& record) {
   const float target_distance_limit = 10000.f;
   float closest_distance = target_distance_limit;
-
-  record.id = -1;
-  record.type = UNSPECIFIED;
+  EntityRecord candidate;
 
   // @todo refactor
   for_entities(state.low_guards) {
@@ -173,8 +171,8 @@ static void StoreClosestEnemy(Tachyon* tachyon, State& state, EntityRecord& reco
     if (distance < closest_distance && entity.visible_scale.x != 0.f) {
       closest_distance = distance;
 
-      record.id = entity.id;
-      record.type = entity.type;
+      candidate.id = entity.id;
+      candidate.type = entity.type;
     }
   }
 
@@ -186,17 +184,22 @@ static void StoreClosestEnemy(Tachyon* tachyon, State& state, EntityRecord& reco
     if (distance < closest_distance && entity.visible_scale.x != 0.f) {
       closest_distance = distance;
 
-      record.id = entity.id;
-      record.type = entity.type;
+      candidate.id = entity.id;
+      candidate.type = entity.type;
     }
   }
 
   if (!state.has_target && closest_distance < target_distance_limit) {
     state.has_target = true;
     state.target_start_time = tachyon->running_time;
+
+    record = candidate;
   }
   else if (closest_distance == target_distance_limit) {
     state.has_target = false;
+
+    record.id = -1;
+    record.type = UNSPECIFIED;
   }
 }
 
