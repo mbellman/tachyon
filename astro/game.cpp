@@ -189,17 +189,17 @@ static void StoreClosestEnemy(Tachyon* tachyon, State& state, EntityRecord& reco
     }
   }
 
-  if (!state.has_target && closest_distance < target_distance_limit) {
-    state.has_target = true;
-    state.target_start_time = tachyon->running_time;
-
-    record = candidate;
-  }
-  else if (closest_distance == target_distance_limit) {
+  if (closest_distance == target_distance_limit || state.is_escaping_target) {
     state.has_target = false;
 
     record.id = -1;
     record.type = UNSPECIFIED;
+  }
+  else if (!state.has_target) {
+    state.has_target = true;
+    state.target_start_time = tachyon->running_time;
+
+    record = candidate;
   }
 }
 

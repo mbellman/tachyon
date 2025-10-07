@@ -10,6 +10,7 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state, const f
     tachyon->right_trigger == 0.f &&
     abs(state.astro_turn_speed) < 0.1f
   ) {
+    // Directional movement
     float movement_speed = is_key_held(tKey::CONTROLLER_A) ? 14000.f : 8000.f;
 
     if (is_key_held(tKey::ARROW_UP) || is_key_held(tKey::W)) {
@@ -30,6 +31,19 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state, const f
 
     state.player_velocity.x += tachyon->left_stick.x * movement_speed * dt;
     state.player_velocity.z += tachyon->left_stick.y * movement_speed * dt;
+
+    // Double-tapping A/X to escape enemies
+    if (did_press_key(tKey::CONTROLLER_A)) {
+      if (tachyon->running_time - state.last_run_input_time < 0.3f) {
+        state.is_escaping_target = true;
+      }
+
+      state.last_run_input_time = tachyon->running_time;
+    }
+
+    if (!is_key_held(tKey::CONTROLLER_A)) {
+      state.is_escaping_target = false;
+    }
   }
 
   state.player_velocity *= 1.f - 10.f * dt;
