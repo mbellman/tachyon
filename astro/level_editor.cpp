@@ -874,13 +874,17 @@ static void HandleSelectedObjectScaleActions(Tachyon* tachyon, State& state) {
 
   if (abs(tachyon->mouse_delta_x) > abs(tachyon->mouse_delta_y)) {
     tVec3f camera_left = camera.orientation.getLeftDirection();
+
+    // The scale axis must be ascertained over several steps.
+    // First, we get the object axis most similar to camera-left.
     tVec3f scale_axis = GetClosestObjectAxis(placeholder, camera_left);
 
-    if (abs(scale_axis.x) > abs(scale_axis.z)) {
-      scale_axis = tVec3f(scale_axis.x, 0, 0).unit();
-    } else {
-      scale_axis = tVec3f(0, 0, scale_axis.z).unit();
-    }
+    // Next, we inverse transform the object axis into a world axis.
+    // This doesn't mean we'll be scaling the object along the world axis,
+    // but scaling the object along x or z is the same operation regardless
+    // of its rotation, so we have to treat that as a globally stable thing.
+    scale_axis = placeholder.rotation.toMatrix4f().inverse() * scale_axis;
+    scale_axis = GetClosestWorldAxis(scale_axis);
 
     // Ensure dragging the mouse right or left always scales in the correct direction,
     // regardless of which direction we're looking along X or Z
