@@ -45,18 +45,30 @@ namespace astro {
         else if (player_distance > 3000.f) {
           // Non-strafing combat
           float time_since_casting_stun = tachyon->running_time - state.spells.stun_start_time;
+          float targeting_duration = tachyon->running_time - state.target_start_time;
 
           // Chase the player
           entity.visible_position += player_direction * 3000.f * dt;
 
-          // Mood dialogue
           if (enemy.mood == ENEMY_AGITATED) {
-            UISystem::ShowDialogue(tachyon, state, "Fool! You're in for it now!");
+            show_random_dialogue({
+              "Scoundrel! You're in for it now!",
+              "Oh, you're dead!"
+            });
           }
           else if (enemy.mood == ENEMY_IDLE) {
-            UISystem::ShowDialogue(tachyon, state, "Look, we've got one!");
+            show_random_dialogue({
+              "Look, we've got one!",
+              "He looks good for the taking!"
+            });
 
             enemy.mood = ENEMY_ENGAGED;
+          }
+          else if (enemy.mood == ENEMY_ENGAGED && targeting_duration > 5.f) {
+            show_random_dialogue({
+              "I'll make quick work of this one!",
+              "No need to make things difficult!"
+            });
           }
         }
         else {

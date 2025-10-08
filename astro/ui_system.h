@@ -5,6 +5,6 @@
 
 namespace astro {
   namespace UISystem {
-    void ShowDialogue(Tachyon* tachyon, State& state, const std::string& message);
+    void ShowDialogue(Tachyon* tachyon, State& state, const char* message);
   }
 }

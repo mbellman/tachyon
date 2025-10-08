@@ -3,6 +3,7 @@
 #include "engine/tachyon.h"
 #include "astro/entities.h"
 #include "astro/game_state.h"
+#include "astro/ui_system.h"
 
 // @todo move to engine
 #define CUBE_MESH(total) Tachyon_AddMesh(tachyon, Tachyon_CreateCubeMesh(), total)
@@ -22,6 +23,12 @@
 
 #define handle_enemy_behavior(__behavior) __behavior::_HandleEnemyBehavior(tachyon, state, entity, dt)
 
+#define show_random_dialogue(...)\
+  {\
+    const char* __messages[] = __VA_ARGS__;\
+    ShowRandomDialog(tachyon, state, __messages);\
+  }\
+
 namespace astro {
   static float GetLivingEntityProgress(State& state, const GameEntity& entity, const float lifetime) {
     float entity_age = state.astro_time - entity.astro_start_time;
@@ -34,5 +41,24 @@ namespace astro {
   static void Jitter(GameEntity& entity, const float amount) {
     entity.visible_position.x += Tachyon_GetRandom(-amount, amount);
     entity.visible_position.z += Tachyon_GetRandom(-amount, amount);
+  }
+
+  template<typename T, int N>
+  static void ShowRandomDialog(Tachyon* tachyon, State& state, T(&messages)[N]) {
+    // First, check to see whether we're invoking this on a set of
+    // messages which has already been used for the current dialogue.
+    // We don't want to rapidly cycle between random dialogue lines,
+    // so suppress further dialogue until the current one has cleared.
+    //
+    // @optimize don't require N messages to be string-compared per invocation
+    for (int i = 0; i < N; i++) {
+      if (state.dialogue_message == messages[i]) {
+        return;
+      }
+    }
+
+    int index = Tachyon_GetRandom(0, N - 1);
+
+    UISystem::ShowDialogue(tachyon, state, messages[index]);
   }
 }

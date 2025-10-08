@@ -14,3 +14,7 @@ float Tachyon_GetRandom() {
 float Tachyon_GetRandom(float low, float high) {
   return low + Tachyon_GetRandom() * (high - low);
 }
+
+int Tachyon_GetRandom(int low, int high) {
+  return low + int(Tachyon_GetRandom() * (high - low + 1));
+}

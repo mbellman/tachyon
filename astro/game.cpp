@@ -199,10 +199,14 @@ static void StoreClosestEnemy(Tachyon* tachyon, State& state, EntityRecord& reco
     state.target_start_time = tachyon->running_time;
 
     record = candidate;
+
+    if (is_key_held(tKey::CONTROLLER_A)) {
+      state.is_escaping_target = true;
+    }
   }
 }
 
-// @todo dialogue_system.cpp
+// @todo move to ui_system.cpp
 static void HandleDialogue(Tachyon* tachyon, State& state) {
   float dialogue_age = tachyon->running_time - state.dialogue_start_time;
 
@@ -218,6 +222,9 @@ static void HandleDialogue(Tachyon* tachyon, State& state) {
       .alpha = alpha,
       .string = state.dialogue_message
     });
+  } else {
+    state.dialogue_message = "";
+    state.dialogue_start_time = 0.f;
   }
 }
 
