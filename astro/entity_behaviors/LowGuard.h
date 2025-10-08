@@ -32,18 +32,27 @@ namespace astro {
 
         if (time_since_last_stun < 4.f) {
           // Stunned
-          UISystem::ShowDialogue(tachyon, state, "Wha...?! What have you done? I'm unable to see!");
+          show_random_dialogue({
+            "Wha...?! I've been blinded!",
+            "What was that light? I cannot see!"
+          });
 
           enemy.mood = ENEMY_AGITATED;
         }
         else if (enemy.mood == ENEMY_IDLE) {
           // Noticed
-          UISystem::ShowDialogue(tachyon, state, "You there! Retreat, at once!");
+          show_random_dialogue({
+            "You there! Retreat, at once!",
+            "Knave! Be on your way!"
+          });
 
           enemy.mood = ENEMY_ENGAGED;
         }
         else if (enemy.mood == ENEMY_ENGAGED && player_distance < 5000.f) {
-          UISystem::ShowDialogue(tachyon, state, "Cease your trespass! Or I shall strike!");
+          show_random_dialogue({
+            "Cease your trespass! Or I shall strike!",
+            "Stay back, or I shall arrest you!"
+          });
 
           enemy.mood = ENEMY_AGITATED;
         }

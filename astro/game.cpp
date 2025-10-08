@@ -242,13 +242,13 @@ static void UpdateLevelsOfDetail(Tachyon* tachyon, State& state) {
   Tachyon_UseLodByDistance(tachyon, meshes.small_grass, 35000.f);
 }
 
-static void DisableLevelsOfDetail(Tachyon* tachyon, State& state) {
+static void ShowHighestLevelsOfDetail(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
-  Tachyon_ShowAllObjects(tachyon, meshes.rock_1);
-  Tachyon_ShowAllObjects(tachyon, meshes.ground_1);
-  Tachyon_ShowAllObjects(tachyon, meshes.grass);
-  Tachyon_ShowAllObjects(tachyon, meshes.small_grass);
+  Tachyon_ShowHighestLevelsOfDetail(tachyon, meshes.rock_1);
+  Tachyon_ShowHighestLevelsOfDetail(tachyon, meshes.ground_1);
+  Tachyon_ShowHighestLevelsOfDetail(tachyon, meshes.grass);
+  Tachyon_ShowHighestLevelsOfDetail(tachyon, meshes.small_grass);
 }
 
 void astro::InitGame(Tachyon* tachyon, State& state) {
@@ -289,7 +289,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
 
   // @todo dev mode only
   if (state.is_level_editor_open) {
-    DisableLevelsOfDetail(tachyon, state);
+    ShowHighestLevelsOfDetail(tachyon, state);
 
     LevelEditor::HandleLevelEditor(tachyon, state, dt);
 

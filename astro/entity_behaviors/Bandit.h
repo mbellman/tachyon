@@ -45,7 +45,7 @@ namespace astro {
         else if (player_distance > 3000.f) {
           // Non-strafing combat
           float time_since_casting_stun = tachyon->running_time - state.spells.stun_start_time;
-          float targeting_duration = tachyon->running_time - state.target_start_time;
+          float dialogue_duration = tachyon->running_time - state.dialogue_start_time;
 
           // Chase the player
           entity.visible_position += player_direction * 3000.f * dt;
@@ -64,10 +64,10 @@ namespace astro {
 
             enemy.mood = ENEMY_ENGAGED;
           }
-          else if (enemy.mood == ENEMY_ENGAGED && targeting_duration > 5.f) {
+          else if (enemy.mood == ENEMY_ENGAGED && dialogue_duration > 5.f) {
             show_random_dialogue({
               "I'll make quick work of this one!",
-              "No need to make things difficult!"
+              "You're only making this difficult for yourself!"
             });
           }
         }
