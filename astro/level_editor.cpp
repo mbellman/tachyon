@@ -181,6 +181,33 @@ static tVec3f GetClosestWorldAxis(const tVec3f& vector) {
 
 /**
  * ----------------------------
+ * Finds the object axis most similar to a given vector.
+ * ----------------------------
+ */
+static tVec3f GetClosestObjectAxis(const tObject& object, const tVec3f& vector) {
+  tVec3f object_up = object.rotation.getUpDirection();
+  tVec3f object_right = object.rotation.getLeftDirection().invert();
+  tVec3f object_forward = object.rotation.getDirection();
+
+  float dot_up = tVec3f::dot(vector, object_up);
+  float dot_right = tVec3f::dot(vector, object_right);
+  float dot_forward = tVec3f::dot(vector, object_forward);
+
+  float up_factor = abs(dot_up);
+  float right_factor = abs(dot_right);
+  float forward_factor = abs(dot_forward);
+
+  if (up_factor > right_factor && up_factor > forward_factor) {
+    return dot_up < 0.f ? object_up.invert() : object_up;
+  } else if (right_factor > up_factor && right_factor > forward_factor) {
+    return dot_right < 0.f ? object_right.invert() : object_right;    
+  } else {
+    return dot_forward < 0.f ? object_forward.invert() : object_forward;
+  }
+}
+
+/**
+ * ----------------------------
  * Sets the camera upon opening the editor.
  * ----------------------------
  */
@@ -423,6 +450,10 @@ static void UpdateGizmoFromMesh(Tachyon* tachyon, State& state, uint16 mesh_inde
   left.position = position;
   forward.position = position;
 
+  up.rotation = placeholder.rotation;
+  left.rotation = placeholder.rotation * Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), t_HALF_PI);
+  forward.rotation = placeholder.rotation * Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), -t_HALF_PI);
+
   commit(up);
   commit(left);
   commit(forward);
@@ -454,15 +485,10 @@ static void UpdateScaleGizmo(Tachyon* tachyon, State& state) {
 static void UpdateRotationGizmo(Tachyon* tachyon, State& state) {
   UpdateGizmoFromMesh(tachyon, state, state.meshes.gizmo_rotator);
 
-  auto& up = objects(state.meshes.gizmo_rotator)[0];
-  auto& left = objects(state.meshes.gizmo_rotator)[1];
+  auto& placeholder = editor.current_selectable.placeholder;
   auto& forward = objects(state.meshes.gizmo_rotator)[2];
 
-  auto& current_object = editor.current_selectable.placeholder;
-
-  up.rotation = current_object.rotation;
-  left.rotation = current_object.rotation * Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), t_HALF_PI);
-  forward.rotation = current_object.rotation * Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -t_HALF_PI);
+  forward.rotation = placeholder.rotation * Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -t_HALF_PI);
 
   commit(forward);
 }
@@ -807,7 +833,7 @@ static void HandleSelectedObjectPositionActions(Tachyon* tachyon, State& state) 
 
   if (abs(tachyon->mouse_delta_x) > abs(tachyon->mouse_delta_y)) {
     tVec3f camera_left = camera.orientation.getLeftDirection();
-    tVec3f move_axis = GetClosestWorldAxis(camera_left);
+    tVec3f move_axis = GetClosestObjectAxis(placeholder, camera_left);
 
     placeholder.position -= move_axis * move_speed * (float)tachyon->mouse_delta_x;
   } else {
@@ -848,7 +874,13 @@ static void HandleSelectedObjectScaleActions(Tachyon* tachyon, State& state) {
 
   if (abs(tachyon->mouse_delta_x) > abs(tachyon->mouse_delta_y)) {
     tVec3f camera_left = camera.orientation.getLeftDirection();
-    tVec3f scale_axis = GetClosestWorldAxis(camera_left);
+    tVec3f scale_axis = GetClosestObjectAxis(placeholder, camera_left);
+
+    if (abs(scale_axis.x) > abs(scale_axis.z)) {
+      scale_axis = tVec3f(scale_axis.x, 0, 0).unit();
+    } else {
+      scale_axis = tVec3f(0, 0, scale_axis.z).unit();
+    }
 
     // Ensure dragging the mouse right or left always scales in the correct direction,
     // regardless of which direction we're looking along X or Z
