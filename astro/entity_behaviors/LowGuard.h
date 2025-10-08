@@ -34,7 +34,7 @@ namespace astro {
           // Stunned
           show_random_dialogue({
             "Wha...?! I've been blinded!",
-            "What was that light? I cannot see!"
+            "That light! I cannot see him!"
           });
 
           enemy.mood = ENEMY_AGITATED;
@@ -43,7 +43,7 @@ namespace astro {
           // Noticed
           show_random_dialogue({
             "You there! Retreat, at once!",
-            "Knave! Be on your way!"
+            "Foul knave! Be on your way!"
           });
 
           enemy.mood = ENEMY_ENGAGED;
