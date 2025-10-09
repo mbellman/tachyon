@@ -302,7 +302,26 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   HandleDialogue(tachyon, state);
 
   // @todo targeting.cpp
-  StoreClosestEnemy(tachyon, state, state.target_entity);
+  {
+    StoreClosestEnemy(tachyon, state, state.target_entity);
+
+    auto& reticle = objects(state.meshes.target_reticle)[0];
+
+    if (state.has_target) {
+      auto& entity = *EntityManager::FindEntity(state, state.target_entity);
+
+      reticle.position = entity.visible_position;
+      reticle.position.y += entity.visible_scale.y + 800.f;
+
+      reticle.scale = tVec3f(300.f);
+      reticle.color = tVec4f(1.f, 0.8f, 0.2f, 0.4f);
+      reticle.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 2.f * tachyon->running_time);
+    } else {
+      reticle.scale = tVec3f(0.f);
+    }
+
+    commit(reticle);
+  }
 
   TimeEvolution::UpdateAstroTime(tachyon, state, dt);
   ProceduralGeneration::UpdateProceduralObjects(tachyon, state);

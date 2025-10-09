@@ -12,4 +12,5 @@ void ObjectManager::CreateObjects(Tachyon* tachyon, State& state) {
   create(meshes.astrolabe_base);
   create(meshes.astrolabe_ring);
   create(meshes.astrolabe_hand);
+  create(meshes.target_reticle);
 }

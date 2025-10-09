@@ -25,6 +25,7 @@ namespace astro {
       astrolabe_base,
       astrolabe_ring,
       astrolabe_hand,
+      target_reticle,
 
       // Decorative meshes
       flat_ground,
