@@ -23,13 +23,18 @@
 
 #define handle_enemy_behavior(__behavior) __behavior::_HandleEnemyBehavior(tachyon, state, entity, dt)
 
-#define show_random_dialogue(...)\
+#define play_random_dialogue(...)\
   {\
-    const char* __messages[] = __VA_ARGS__;\
-    ShowRandomDialog(tachyon, state, __messages);\
+    std::initializer_list<Dialogue> __messages = __VA_ARGS__;\
+    PlayRandomDialogue(tachyon, state, __messages);\
   }\
 
 namespace astro {
+  struct Dialogue {
+    const char* text = nullptr;
+    const char* sound = nullptr;
+  };
+
   static float GetLivingEntityProgress(State& state, const GameEntity& entity, const float lifetime) {
     float entity_age = state.astro_time - entity.astro_start_time;
     if (entity_age < 0.f) return 0.f;
@@ -43,22 +48,30 @@ namespace astro {
     entity.visible_position.z += Tachyon_GetRandom(-amount, amount);
   }
 
-  template<typename T, int N>
-  static void ShowRandomDialog(Tachyon* tachyon, State& state, T(&messages)[N]) {
+  static void PlayRandomDialogue(Tachyon* tachyon, State& state, std::initializer_list<Dialogue>& dialogues) {
     // First, check to see whether we're invoking this on a set of
     // messages which has already been used for the current dialogue.
     // We don't want to rapidly cycle between random dialogue lines,
     // so suppress further dialogue until the current one has cleared.
     //
     // @optimize don't require N messages to be string-compared per invocation
-    for (int i = 0; i < N; i++) {
-      if (state.dialogue_message == messages[i]) {
+    int total = dialogues.size();
+
+    for (int i = 0; i < total; i++) {
+      auto& dialogue = *(dialogues.begin() + i);
+
+      if (state.dialogue_message == dialogue.text) {
         return;
       }
     }
 
-    int index = Tachyon_GetRandom(0, N - 1);
+    int index = Tachyon_GetRandom(0, total - 1);
+    auto& dialogue = *(dialogues.begin() + index);
 
-    UISystem::ShowDialogue(tachyon, state, messages[index]);
+    UISystem::ShowDialogue(tachyon, state, dialogue.text);
+
+    if (dialogue.sound != nullptr) {
+      Tachyon_PlaySound(dialogue.sound);
+    }
   }
 }

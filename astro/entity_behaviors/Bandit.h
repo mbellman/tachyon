@@ -39,15 +39,23 @@ namespace astro {
           entity.visible_position -= player_direction * knockback_factor * 3000.f * dt;
 
           if (enemy.mood == ENEMY_AGITATED) {
-            show_random_dialogue({
-              "Agh! You filthy coward!",
-              "Wretched little bastard!"
+            play_random_dialogue({
+              {
+                .text = "Agh! You filthy coward!",
+                .sound = ""
+              },
+              {
+                .text = "Wretched little bastard!",
+                .sound = ""
+              }
             });
           } else {
-            UISystem::ShowDialogue(tachyon, state, "Argh! The bastard blinded me!");
-
-            // @temporary
-            Tachyon_PlaySound("./astro/audio/bandit/blinded.mp3");
+            play_random_dialogue({
+              {
+                .text = "Argh! The bastard blinded me!",
+                .sound = "./astro/audio/bandit/blinded.mp3"
+              }
+            });
           }
         }
         else if (time_since_casting_stun < 4.f) {
@@ -62,28 +70,49 @@ namespace astro {
           entity.visible_position += player_direction * 3000.f * dt;
 
           if (enemy.mood == ENEMY_AGITATED) {
-            show_random_dialogue({
-              "Dirty rat! You're in for it now!",
-              "Oh, you're dead!",
-              "Now you've asked for it!"
+            play_random_dialogue({
+              {
+                .text = "Dirty rat! You're in for it now!",
+                .sound = ""
+              },
+              {
+                .text = "Dirty rat! You're in for it now!",
+                .sound = ""
+              },
+              {
+                .text = "Now you've asked for it!",
+                .sound = ""
+              }
             });
           }
           else if (enemy.mood == ENEMY_IDLE) {
-            show_random_dialogue({
-              "Look, we've got one!",
-              "All by our lonesome, are we?"
+            play_random_dialogue({
+              {
+                .text = "Look, we've got one!",
+                .sound = "./astro/audio/bandit/got_one.mp3"
+              },
+              {
+                .text = "All by our lonesome, are we?",
+                .sound = "./astro/audio/bandit/lonesome.mp3"
+              }
             });
-
-            // @temporary
-            Tachyon_PlaySound("./astro/audio/bandit/got_one.mp3");
 
             enemy.mood = ENEMY_ENGAGED;
           }
           else if (enemy.mood == ENEMY_ENGAGED && dialogue_duration > 5.f) {
-            show_random_dialogue({
-              "I'll make quick work of him!",
-              "Let's not make this difficult!",
-              "Oi, where do you think you're going?"
+            play_random_dialogue({
+              {
+                .text = "I'll make quick work of him!",
+                .sound = ""
+              },
+              {
+                .text = "Let's not make this difficult!",
+                .sound = ""
+              },
+              {
+                .text = "Oi, where do you think you're going?",
+                .sound = ""
+              }
             });
           }
         }

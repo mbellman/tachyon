@@ -32,29 +32,44 @@ namespace astro {
 
         if (time_since_last_stun < 4.f) {
           // Stunned
-          show_random_dialogue({
-            "Wha...?! I've been blinded!",
-            "That blinding light! Where did you go?"
+          play_random_dialogue({
+            {
+              .text = "Wha...?! I've been blinded!",
+              .sound = ""
+            },
+            {
+              .text = "I'm blinded! Where did the scoundrel go?",
+              .sound = ""
+            }
           });
 
           enemy.mood = ENEMY_AGITATED;
         }
         else if (enemy.mood == ENEMY_IDLE) {
           // Noticed
-          show_random_dialogue({
-            "You there! Retreat, at once!",
-            "Foul knave! Be on your way!"
+          play_random_dialogue({
+            {
+              .text = "You there! Retreat, at once!",
+              .sound = "./astro/audio/low_guard/retreat_at_once.mp3"
+            },
+            {
+              .text = "Foul knave! Be on your way!",
+              .sound = ""
+            }
           });
-
-          // @temporary
-          Tachyon_PlaySound("./astro/audio/low_guard/retreat_at_once.mp3");
 
           enemy.mood = ENEMY_ENGAGED;
         }
         else if (enemy.mood == ENEMY_ENGAGED && player_distance < 5000.f) {
-          show_random_dialogue({
-            "Cease your trespass! Or I shall strike!",
-            "Stay back, or I shall arrest you!"
+          play_random_dialogue({
+            {
+              .text = "Cease your trespass! Or I shall strike!",
+              .sound = "./astro/audio/low_guard/trespass.mp3"
+            },
+            {
+              .text = "Stay back, or I shall arrest you!",
+              .sound = ""
+            }
           });
 
           enemy.mood = ENEMY_AGITATED;
