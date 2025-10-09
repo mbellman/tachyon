@@ -30,7 +30,7 @@ namespace astro {
         tVec3f player_direction = entity_to_player / player_distance;
         float time_since_casting_stun = tachyon->running_time - state.spells.stun_start_time;
 
-        if (time_since_casting_stun < 4.f) {
+        if (time_since_casting_stun < 3.f) {
           // Stunned
           float knockback_factor = 3.f * time_since_casting_stun * (1.f - time_since_casting_stun);
           if (knockback_factor > 1.f) knockback_factor = 1.f;
@@ -38,8 +38,19 @@ namespace astro {
 
           entity.visible_position -= player_direction * knockback_factor * 3000.f * dt;
 
-          UISystem::ShowDialogue(tachyon, state, "Argh! The bastard blinded me!");
+          if (enemy.mood == ENEMY_AGITATED) {
+            show_random_dialogue({
+              "Agh! You filthy coward!",
+              "Wretched little bastard!"
+            });
+          } else {
+            UISystem::ShowDialogue(tachyon, state, "Argh! The bastard blinded me!");
 
+            // @temporary
+            Tachyon_PlaySound("./astro/audio/bandit/blinded.mp3");
+          }
+        }
+        else if (time_since_casting_stun < 4.f) {
           enemy.mood = ENEMY_AGITATED;
         }
         else if (player_distance > 3000.f) {
@@ -52,22 +63,24 @@ namespace astro {
 
           if (enemy.mood == ENEMY_AGITATED) {
             show_random_dialogue({
-              "Scoundrel! You're in for it now!",
-              "Oh, you're dead!"
+              "Dirty rat! You're in for it now!",
+              "Oh, you're dead!",
+              "Now you've asked for it!"
             });
           }
           else if (enemy.mood == ENEMY_IDLE) {
             show_random_dialogue({
               "Look, we've got one!",
-              "He looks good for the taking!"
+              "All by our lonesome, are we?"
             });
 
             enemy.mood = ENEMY_ENGAGED;
           }
           else if (enemy.mood == ENEMY_ENGAGED && dialogue_duration > 5.f) {
             show_random_dialogue({
-              "I'll make quick work of this one!",
-              "You're only making this difficult for yourself!"
+              "I'll make quick work of him!",
+              "Let's not make this difficult!",
+              "Oi, where do you think you're going?"
             });
           }
         }

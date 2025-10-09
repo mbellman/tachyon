@@ -6,6 +6,7 @@
 #include "engine/tachyon_console.h"
 #include "engine/tachyon_input.h"
 #include "engine/tachyon_life_cycle.h"
+#include "engine/tachyon_sound.h"
 #include "engine/tachyon_timer.h"
 #include "engine/tachyon_ui.h"
 #include "engine/opengl/tachyon_opengl_renderer.h"
@@ -93,6 +94,8 @@ Tachyon* Tachyon_Init() {
 
   auto* tachyon = new Tachyon;
 
+  Tachyon_InitSoundEngine();
+
   SDL_GameControllerAddMappingsFromFile("./controllers.txt");
 
   tachyon->is_controller_connected = SDL_GameControllerOpen(0);
@@ -179,6 +182,8 @@ void Tachyon_HandleWindowResize(Tachyon* tachyon) {
 void Tachyon_Exit(Tachyon* tachyon) {
   // @todo dev mode only
   TTF_CloseFont(tachyon->developer_overlay_font);
+  
+  Tachyon_ExitSoundEngine();
 
   if (tachyon->renderer != nullptr) {
     DestroyRenderer(tachyon);

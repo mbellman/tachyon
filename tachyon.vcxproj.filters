@@ -504,6 +504,12 @@
     <ClInclude Include="astro\entities.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="external\miniaudio\miniaudio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\tachyon_sound.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -660,6 +666,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="astro\ui_system.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\miniaudio\miniaudio.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\tachyon_sound.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
