@@ -74,6 +74,9 @@ namespace astro {
               "All by our lonesome, are we?"
             });
 
+            // @temporary
+            Tachyon_PlaySound("./astro/audio/bandit/got_one.mp3");
+
             enemy.mood = ENEMY_ENGAGED;
           }
           else if (enemy.mood == ENEMY_ENGAGED && dialogue_duration > 5.f) {

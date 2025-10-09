@@ -34,7 +34,7 @@ namespace astro {
           // Stunned
           show_random_dialogue({
             "Wha...?! I've been blinded!",
-            "That light! I cannot see him!"
+            "That blinding light! Where did you go?"
           });
 
           enemy.mood = ENEMY_AGITATED;
@@ -45,6 +45,9 @@ namespace astro {
             "You there! Retreat, at once!",
             "Foul knave! Be on your way!"
           });
+
+          // @temporary
+          Tachyon_PlaySound("./astro/audio/low_guard/retreat_at_once.mp3");
 
           enemy.mood = ENEMY_ENGAGED;
         }
