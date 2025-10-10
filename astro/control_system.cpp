@@ -193,11 +193,9 @@ static void HandleSpellControls(Tachyon* tachyon, State& state) {
 }
 
 static void HandleTargetingControls(Tachyon* tachyon, State& state) {
-  if (did_press_key(tKey::CONTROLLER_R1)) {
+  if (did_press_key(tKey::CONTROLLER_L1) || did_press_key(tKey::CONTROLLER_R1)) {
     Targeting::SelectNearestAccessibleTarget(tachyon, state);
   }
-
-  // @todo deselection
 }
 
 void ControlSystem::HandleControls(Tachyon* tachyon, State& state, const float dt) {

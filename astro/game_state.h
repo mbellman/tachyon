@@ -80,7 +80,7 @@ namespace astro {
     float last_walk_sound_time = 0.f;
     uint8 walk_cycle = 0;
 
-    EntityRecord target_entity;
+    EntityRecord target_entity; // @todo rename target_entity_record
     float target_start_time = 0.f;
     float last_run_input_time = 0.f;
     bool has_target = false;
