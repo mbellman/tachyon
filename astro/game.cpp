@@ -11,6 +11,7 @@
 #include "astro/procedural_generation.h"
 #include "astro/sfx.h"
 #include "astro/spell_system.h"
+#include "astro/targeting.h"
 #include "astro/time_evolution.h"
 
 using namespace astro;
@@ -26,7 +27,7 @@ static void UpdatePlayer(Tachyon* tachyon, State& state, const float dt) {
     tVec3f desired_facing_direction = state.player_facing_direction;
     float turning_speed = 5.f;
 
-    if (state.has_target && !state.is_escaping_target) {
+    if (state.has_target) {
       // When we're focused on a target, face it and turn much more quickly
       auto& target = *EntityManager::FindEntity(state, state.target_entity);
 
@@ -137,56 +138,6 @@ static void UpdateAstrolabe(Tachyon* tachyon, State& state) {
   commit(base);
   commit(ring);
   commit(hand);
-}
-
-// @todo targeting.cpp
-static void StoreClosestEnemy(Tachyon* tachyon, State& state, EntityRecord& record) {
-  const float target_distance_limit = 10000.f;
-  float closest_distance = target_distance_limit;
-  EntityRecord candidate;
-
-  // @todo refactor
-  for_entities(state.low_guards) {
-    auto& entity = state.low_guards[i];
-    float distance = (state.player_position - entity.visible_position).magnitude();
-
-    if (distance < closest_distance && entity.visible_scale.x != 0.f) {
-      closest_distance = distance;
-
-      candidate.id = entity.id;
-      candidate.type = entity.type;
-    }
-  }
-
-  // @todo refactor
-  for_entities(state.bandits) {
-    auto& entity = state.bandits[i];
-    float distance = (state.player_position - entity.visible_position).magnitude();
-
-    if (distance < closest_distance && entity.visible_scale.x != 0.f) {
-      closest_distance = distance;
-
-      candidate.id = entity.id;
-      candidate.type = entity.type;
-    }
-  }
-
-  if (closest_distance == target_distance_limit) {
-    state.has_target = false;
-
-    record.id = -1;
-    record.type = UNSPECIFIED;
-  }
-  else if (!state.has_target) {
-    state.has_target = true;
-    state.target_start_time = tachyon->running_time;
-
-    record = candidate;
-
-    if (is_key_held(tKey::CONTROLLER_A)) {
-      state.is_escaping_target = true;
-    }
-  }
 }
 
 // @todo move to ui_system.cpp
@@ -333,28 +284,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   SpellSystem::HandleSpells(tachyon, state, dt);
   HandleDialogue(tachyon, state);
   HandleWalkSounds(tachyon, state);
-
-  // @todo targeting.cpp
-  {
-    StoreClosestEnemy(tachyon, state, state.target_entity);
-
-    auto& reticle = objects(state.meshes.target_reticle)[0];
-
-    if (state.has_target) {
-      auto& entity = *EntityManager::FindEntity(state, state.target_entity);
-
-      reticle.position = entity.visible_position;
-      reticle.position.y += entity.visible_scale.y + 800.f;
-
-      reticle.scale = tVec3f(300.f);
-      reticle.color = tVec4f(1.f, 0.8f, 0.2f, 0.4f);
-      reticle.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 2.f * tachyon->running_time);
-    } else {
-      reticle.scale = tVec3f(0.f);
-    }
-
-    commit(reticle);
-  }
+  Targeting::HandleCurrentTarget(tachyon, state);
 
   TimeEvolution::UpdateAstroTime(tachyon, state, dt);
   ProceduralGeneration::UpdateProceduralObjects(tachyon, state);

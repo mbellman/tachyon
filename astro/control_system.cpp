@@ -1,6 +1,7 @@
 #include "astro/control_system.h"
 #include "astro/sfx.h"
 #include "astro/spell_system.h"
+#include "astro/targeting.h"
 #include "astro/ui_system.h"
 
 using namespace astro;
@@ -36,14 +37,10 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state, const f
     // Double-tapping A/X to escape enemies
     if (did_press_key(tKey::CONTROLLER_A)) {
       if (tachyon->running_time - state.last_run_input_time < 0.3f) {
-        state.is_escaping_target = true;
+        Targeting::DeselectCurrentTarget(tachyon, state);
       }
 
       state.last_run_input_time = tachyon->running_time;
-    }
-
-    if (!is_key_held(tKey::CONTROLLER_A)) {
-      state.is_escaping_target = false;
     }
   }
 
@@ -195,8 +192,17 @@ static void HandleSpellControls(Tachyon* tachyon, State& state) {
   }
 }
 
+static void HandleTargetingControls(Tachyon* tachyon, State& state) {
+  if (did_press_key(tKey::CONTROLLER_R1)) {
+    Targeting::SelectNearestAccessibleTarget(tachyon, state);
+  }
+
+  // @todo deselection
+}
+
 void ControlSystem::HandleControls(Tachyon* tachyon, State& state, const float dt) {
   HandlePlayerMovementControls(tachyon, state, dt);
   HandleAstroControls(tachyon, state, dt);
   HandleSpellControls(tachyon, state);
+  HandleTargetingControls(tachyon, state);
 }

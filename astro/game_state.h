@@ -84,7 +84,6 @@ namespace astro {
     float target_start_time = 0.f;
     float last_run_input_time = 0.f;
     bool has_target = false;
-    bool is_escaping_target = false;
 
     tVec3f camera_shift;
 

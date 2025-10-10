@@ -513,6 +513,9 @@
     <ClInclude Include="astro\sfx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="astro\targeting.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -678,6 +681,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="astro\sfx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="astro\targeting.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
