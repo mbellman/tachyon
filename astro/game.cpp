@@ -247,13 +247,13 @@ static void HandleWalkSounds(Tachyon* tachyon, State& state) {
     auto cycle = state.walk_cycle++;
 
     if (cycle == 0) {
-      Sfx::PlaySound(SFX_GROUND_WALK_1, 0.1f);
+      Sfx::PlaySound(SFX_GROUND_WALK_1, 0.3f);
     }
     else if (cycle == 1) {
-      Sfx::PlaySound(SFX_GROUND_WALK_2, 0.1f);
+      Sfx::PlaySound(SFX_GROUND_WALK_2, 0.3f);
     }
     else if (cycle == 2) {
-      Sfx::PlaySound(SFX_GROUND_WALK_3, 0.1f);
+      Sfx::PlaySound(SFX_GROUND_WALK_3, 0.3f);
 
       state.walk_cycle = 0;
     }

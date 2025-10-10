@@ -116,7 +116,9 @@ namespace astro {
 
       // OAK_TREE
       oak_tree_placeholder,
+      oak_tree_roots,
       oak_tree_trunk,
+      oak_tree_branches,
 
       // WILLOW_TREE
       willow_tree_placeholder,
