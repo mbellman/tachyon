@@ -20,11 +20,11 @@ tSoundResource Tachyon_CreateSound(const char* file_path) {
   return resource;
 }
 
-void Tachyon_PlaySound(tSoundResource& resource) {
+void Tachyon_PlaySound(tSoundResource& resource, const float volume) {
   auto* sound = (ma_sound*)resource.data;
 
   ma_sound_seek_to_pcm_frame(sound, 0);
-  ma_sound_set_fade_in_milliseconds(sound, -1, 1.f, 0);
+  ma_sound_set_fade_in_milliseconds(sound, -1, volume, 0);
   ma_sound_start(sound);
 }
 

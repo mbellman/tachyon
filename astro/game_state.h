@@ -77,6 +77,9 @@ namespace astro {
     bool is_on_solid_ground = false;
     Plane last_plane_walked_on;
 
+    float last_walk_sound_time = 0.f;
+    uint8 walk_cycle = 0;
+
     EntityRecord target_entity;
     float target_start_time = 0.f;
     float last_run_input_time = 0.f;

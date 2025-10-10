@@ -3,11 +3,15 @@
 namespace astro {
   enum Sound {
     SFX_ASTRO_START,
-    SFX_ASTRO_END
+    SFX_ASTRO_END,
+
+    SFX_GROUND_WALK_1,
+    SFX_GROUND_WALK_2,
+    SFX_GROUND_WALK_3
   };
 
   namespace Sfx {
-    void PlaySound(Sound sound);
+    void PlaySound(Sound sound, const float volume = 1.f);
     void FadeOutSound(Sound sound);
   }
 }

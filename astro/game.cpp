@@ -9,6 +9,7 @@
 #include "astro/mesh_library.h"
 #include "astro/object_manager.h"
 #include "astro/procedural_generation.h"
+#include "astro/sfx.h"
 #include "astro/spell_system.h"
 #include "astro/time_evolution.h"
 
@@ -78,24 +79,6 @@ static void UpdateWaterPlane(Tachyon* tachyon, State& state) {
   commit(water_plane);
 
   state.water_level = water_plane.position.y;
-}
-
-static void ShowGameStats(Tachyon* tachyon, State& state) {
-  std::string stat_messages[] = {
-    "Player " + state.player_position.toString(),
-    "Camera " + tachyon->scene.camera.position.toString(),
-    "Astro time: " + std::to_string(state.astro_time),
-    "Astro turn speed: " + std::to_string(state.astro_turn_speed)
-  };
-
-  for (uint8 i = 0; i < std::size(stat_messages); i++) {
-    Tachyon_DrawUIText(tachyon, state.debug_text, {
-      .screen_x = tachyon->window_width - 570,
-      .screen_y = 20 + (i * 25),
-      .centered = false,
-      .string = stat_messages[i]
-    });
-  }
 }
 
 // @todo cleanup
@@ -251,6 +234,55 @@ static void ShowHighestLevelsOfDetail(Tachyon* tachyon, State& state) {
   Tachyon_ShowHighestLevelsOfDetail(tachyon, meshes.small_grass);
 }
 
+static void HandleWalkSounds(Tachyon* tachyon, State& state) {
+  float player_speed = state.player_velocity.magnitude();
+
+  if (player_speed < 200.f) {
+    return;
+  }
+
+  // @todo base cycle time on player speed
+  // @todo 3d positioned sfx
+  if (tachyon->running_time - state.last_walk_sound_time > 0.3f) {
+    auto cycle = state.walk_cycle++;
+
+    if (cycle == 0) {
+      Sfx::PlaySound(SFX_GROUND_WALK_1, 0.1f);
+    }
+    else if (cycle == 1) {
+      Sfx::PlaySound(SFX_GROUND_WALK_2, 0.1f);
+    }
+    else if (cycle == 2) {
+      Sfx::PlaySound(SFX_GROUND_WALK_3, 0.1f);
+
+      state.walk_cycle = 0;
+    }
+
+    state.last_walk_sound_time = tachyon->running_time;
+  }
+}
+
+static void ShowGameStats(Tachyon* tachyon, State& state) {
+  float player_speed = state.player_velocity.magnitude();
+
+  std::string stat_messages[] = {
+    "Player " + state.player_position.toString(),
+    "Speed " + std::to_string(player_speed),
+    "Camera " + tachyon->scene.camera.position.toString(),
+    "Astro time: " + std::to_string(state.astro_time),
+    "Astro turn speed: " + std::to_string(state.astro_turn_speed)
+  };
+
+  for (uint8 i = 0; i < std::size(stat_messages); i++) {
+    Tachyon_DrawUIText(tachyon, state.debug_text, {
+      .screen_x = tachyon->window_width - 570,
+      .screen_y = 20 + (i * 25),
+      .centered = false,
+      .string = stat_messages[i]
+    });
+  }
+}
+
 void astro::InitGame(Tachyon* tachyon, State& state) {
   MeshLibrary::AddMeshes(tachyon, state);
 
@@ -300,6 +332,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   CollisionSystem::HandleCollisions(tachyon, state);
   SpellSystem::HandleSpells(tachyon, state, dt);
   HandleDialogue(tachyon, state);
+  HandleWalkSounds(tachyon, state);
 
   // @todo targeting.cpp
   {
