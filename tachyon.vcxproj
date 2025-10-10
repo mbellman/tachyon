@@ -144,6 +144,7 @@
     <ClInclude Include="astro\mesh_library.h" />
     <ClInclude Include="astro\object_manager.h" />
     <ClInclude Include="astro\procedural_generation.h" />
+    <ClInclude Include="astro\sfx.h" />
     <ClInclude Include="astro\spell_system.h" />
     <ClInclude Include="astro\time_evolution.h" />
     <ClInclude Include="astro\ui_system.h" />
@@ -294,6 +295,7 @@
     <ClCompile Include="astro\mesh_library.cpp" />
     <ClCompile Include="astro\object_manager.cpp" />
     <ClCompile Include="astro\procedural_generation.cpp" />
+    <ClCompile Include="astro\sfx.cpp" />
     <ClCompile Include="astro\spell_system.cpp" />
     <ClCompile Include="astro\time_evolution.cpp" />
     <ClCompile Include="astro\ui_system.cpp" />

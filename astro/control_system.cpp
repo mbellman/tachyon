@@ -1,4 +1,5 @@
 #include "astro/control_system.h"
+#include "astro/sfx.h"
 #include "astro/spell_system.h"
 #include "astro/ui_system.h"
 
@@ -58,6 +59,8 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
   // @todo decrease this once the appropriate item is obtained
   float min_astro_time = -158.f;
 
+  float previous_astro_turn_speed = state.astro_turn_speed;
+
   bool started_turning = (
     (state.last_frame_left_trigger == 0.f && tachyon->left_trigger != 0.f) ||
     (state.last_frame_right_trigger == 0.f && tachyon->right_trigger != 0.f)
@@ -66,6 +69,9 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
   // Track the initial time when we start turning
   if (started_turning) {
     state.astro_time_at_start_of_turn = state.astro_time;
+
+    Sfx::FadeOutSound(SFX_ASTRO_END);
+    Sfx::PlaySound(SFX_ASTRO_START);
   }
 
   // Handle reverse/forward turn actions
@@ -141,12 +147,31 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
 
   state.astro_time += state.astro_turn_speed * 100.f * dt;
 
-  // Reduce turn rate gradually
-  state.astro_turn_speed *= 1.f - astro_slowdown_rate * dt;
+  if (tachyon->left_trigger == 0.f && tachyon->right_trigger == 0.f) {
+    // Reduce turn rate gradually
+    state.astro_turn_speed *= 1.f - astro_slowdown_rate * dt;
 
-  // Stop turning at a low enough speed
-  if (abs(state.astro_turn_speed) < 0.001f) {
-    state.astro_turn_speed = 0.f;
+    // Stop turning at a low enough speed
+    if (abs(state.astro_turn_speed) < 0.001f) {
+      state.astro_turn_speed = 0.f;
+    }
+  }
+  else if (state.astro_turn_speed > 0.25f) {
+    // Cap forward speed
+    state.astro_turn_speed = 0.25f;
+  }
+  else if (state.astro_turn_speed < -0.25f) {
+    // Cap reverse speed
+    state.astro_turn_speed = -0.25f;
+  }
+
+  // Sound effects for stopping astro turn
+  if (
+    abs(previous_astro_turn_speed) >= 0.1f &&
+    abs(state.astro_turn_speed) < 0.1f
+  ) {
+    Sfx::FadeOutSound(SFX_ASTRO_START);
+    Sfx::PlaySound(SFX_ASTRO_END);
   }
 
   state.last_frame_left_trigger = tachyon->left_trigger;
