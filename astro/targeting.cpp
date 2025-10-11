@@ -69,8 +69,9 @@ void Targeting::HandleCurrentTarget(Tachyon* tachyon, State& state) {
 
     reticle.position = entity.visible_position;
     reticle.position.y += entity.visible_scale.y + 800.f;
+    reticle.position.y += 100.f * sinf(t_TAU * tachyon->running_time);
 
-    reticle.scale = tVec3f(300.f);
+    reticle.scale = tVec3f(400.f);
     reticle.color = tVec4f(1.f, 0.8f, 0.2f, 0.4f);
     reticle.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 2.f * tachyon->running_time);
 
@@ -78,7 +79,19 @@ void Targeting::HandleCurrentTarget(Tachyon* tachyon, State& state) {
       Targeting::DeselectCurrentTarget(tachyon, state);
     }
   } else {
-    reticle.scale = tVec3f(0.f);
+    auto closest_target = GetClosestNonSelectedTarget(state);
+
+    if (closest_target.type != UNSPECIFIED) {
+      auto& entity = *EntityManager::FindEntity(state, closest_target);
+
+      reticle.position = entity.visible_position;
+      reticle.position.y += entity.visible_scale.y + 800.f;
+
+      reticle.scale = tVec3f(250.f);
+      reticle.color = tVec4f(1.f, 0.5f, 0.1f, 0.4f);
+    } else {
+      reticle.scale = tVec3f(0.f);
+    }
   }
 
   commit(reticle);
