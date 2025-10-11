@@ -193,12 +193,36 @@ static void HandleSpellControls(Tachyon* tachyon, State& state) {
 }
 
 static void HandleTargetingControls(Tachyon* tachyon, State& state) {
-  if (did_press_key(tKey::CONTROLLER_L1) || did_press_key(tKey::CONTROLLER_R1)) {
-    Targeting::SelectNearestAccessibleTarget(tachyon, state);
+  // @todo remove click handling
+  if (did_press_key(tKey::CONTROLLER_L1) || did_right_click_down()) {
+    if (!state.has_target) {
+      Targeting::SelectNextClosestAccessibleTarget(tachyon, state);
+    } else {
+      Targeting::SelectClosestAccessibleTarget(tachyon, state);
+    }
+  }
+
+  // @todo remove click handling
+  if (did_press_key(tKey::CONTROLLER_R1) || did_left_click_down()) {
+    Targeting::SelectClosestAccessibleTarget(tachyon, state);
   }
 }
 
 void ControlSystem::HandleControls(Tachyon* tachyon, State& state, const float dt) {
+  // @temporary
+  if (is_key_held(tKey::NUM_1)) {
+    tachyon->left_trigger = 1.f;
+  } else {
+    tachyon->left_trigger = 0.f;
+  }
+
+  // @temporary
+  if (is_key_held(tKey::NUM_3)) {
+    tachyon->right_trigger = 1.f;
+  } else {
+    tachyon->right_trigger = 0.f;
+  }
+
   HandlePlayerMovementControls(tachyon, state, dt);
   HandleAstroControls(tachyon, state, dt);
   HandleSpellControls(tachyon, state);

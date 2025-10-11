@@ -84,7 +84,7 @@ void Targeting::HandleCurrentTarget(Tachyon* tachyon, State& state) {
   commit(reticle);
 }
 
-void Targeting::SelectNearestAccessibleTarget(Tachyon* tachyon, State& state) {
+void Targeting::SelectClosestAccessibleTarget(Tachyon* tachyon, State& state) {
   auto target_record = GetClosestNonSelectedTarget(state);
 
   if (target_record.type == UNSPECIFIED || target_record.id == -1) {
@@ -96,6 +96,13 @@ void Targeting::SelectNearestAccessibleTarget(Tachyon* tachyon, State& state) {
     state.target_start_time = tachyon->running_time;
     state.target_entity = target_record;
   }
+}
+
+void Targeting::SelectNextClosestAccessibleTarget(Tachyon* tachyon, State& state) {
+  // Call SelectClosestAccessibleTarget() twice to have the second call
+  // "skip" the initially-selected target and select the next-closest
+  Targeting::SelectClosestAccessibleTarget(tachyon, state);
+  Targeting::SelectClosestAccessibleTarget(tachyon, state);
 }
 
 void Targeting::DeselectCurrentTarget(Tachyon* tachyon, State& state) {

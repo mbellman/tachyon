@@ -207,7 +207,7 @@ namespace astro {
 
     { OAK_TREE, {
       .name = "Oak Tree",
-      .scale = tVec3f(500.f, 2000.f, 500.f ),
+      .scale = tVec3f(2000.f),
       .tint = tVec3f(1.f, 0.4f, 0.2f)
     } },
 
