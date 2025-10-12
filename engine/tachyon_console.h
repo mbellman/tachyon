@@ -10,9 +10,9 @@
 #define add_console_message(message, color) Tachyon_AddConsoleMessage(message, color)
 #define console_log(value) Tachyon_Log(value);
 
-#define show_alert_message(message)\
-  tachyon->alert_message = message;\
-  tachyon->last_alert_message_time = tachyon->running_time;\
+#define show_overlay_message(message)\
+  tachyon->overlay_message = message;\
+  tachyon->last_overlay_message_time = tachyon->running_time;\
 
 struct tConsoleMessage {
   uint64 time;

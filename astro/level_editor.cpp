@@ -601,7 +601,7 @@ static void CycleDecorativeMeshes(Tachyon* tachyon, State& state, int8 direction
     }
   }
 
-  show_alert_message("Active mesh: " + decorative_meshes[editor.current_decorative_mesh_index].mesh_name);
+  show_overlay_message("Active mesh: " + decorative_meshes[editor.current_decorative_mesh_index].mesh_name);
 }
 
 /**
@@ -630,7 +630,7 @@ static void CycleEntities(Tachyon* tachyon, State& state, int8 direction) {
   auto entity_type = entity_types[editor.current_entity_index];
   std::string& entity_name = get_entity_defaults(entity_type).name;
 
-  show_alert_message("Active entity: " + entity_name);
+  show_overlay_message("Active entity: " + entity_name);
 }
 
 /**
@@ -1176,9 +1176,9 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
     tachyon->use_high_visibility_mode = !tachyon->use_high_visibility_mode;
 
     if (tachyon->use_high_visibility_mode) {
-      show_alert_message("Lighting disabled");
+      show_overlay_message("Lighting disabled");
     } else {
-      show_alert_message("Lighting enabled");
+      show_overlay_message("Lighting enabled");
     }
   }
 
@@ -1296,7 +1296,7 @@ void LevelEditor::OpenLevelEditor(Tachyon* tachyon, State& state) {
 
   state.is_level_editor_open = true;
 
-  show_alert_message("Entering editor");
+  show_overlay_message("Entering editor");
 
   objects(meshes.astrolabe_base).disabled = true;
   objects(meshes.astrolabe_ring).disabled = true;
@@ -1330,7 +1330,7 @@ void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
   tachyon->use_high_visibility_mode = false;
   state.is_level_editor_open = false;
 
-  show_alert_message("Leaving editor");
+  show_overlay_message("Leaving editor");
 
   objects(meshes.astrolabe_base).disabled = false;
   objects(meshes.astrolabe_ring).disabled = false;

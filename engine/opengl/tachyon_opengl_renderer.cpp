@@ -368,9 +368,9 @@ static void HandleDevModeInputs(Tachyon* tachyon) {
     renderer.show_g_buffer_view = !renderer.show_g_buffer_view;
 
     if (renderer.show_g_buffer_view) {
-      show_alert_message("[Tachyon] G-Buffer View");
+      show_overlay_message("[Tachyon] G-Buffer View");
     } else {
-      show_alert_message("[Tachyon] Default View");
+      show_overlay_message("[Tachyon] Default View");
     }
   }
 
@@ -385,7 +385,7 @@ static void HandleDevModeInputs(Tachyon* tachyon) {
     SDL_GL_SetSwapInterval(swap_interval ? 0 : 1);
 
     add_console_message(message, tVec3f(1.f));
-    show_alert_message(message);
+    show_overlay_message(message);
   }
 }
 
@@ -482,15 +482,15 @@ static void RenderDebugLabels(Tachyon* tachyon) {
 }
 
 static void RenderAlertMessage(Tachyon* tachyon) {
-  float alert_age = tachyon->running_time - tachyon->last_alert_message_time;
+  float alert_age = tachyon->running_time - tachyon->last_overlay_message_time;
 
   if (
-    tachyon->alert_message != "" &&
-    tachyon->last_alert_message_time != 0.f &&
+    tachyon->overlay_message != "" &&
+    tachyon->last_overlay_message_time != 0.f &&
     alert_age < 3.f
   ) {
-    auto* font = tachyon->alert_message_font;
-    auto& message = tachyon->alert_message;
+    auto* font = tachyon->overlay_message_font;
+    auto& message = tachyon->overlay_message;
     int32 x = tachyon->window_width / 2;
     int32 y = tachyon->window_height / 2.5f;
     int32 wrap_width = tachyon->window_width;
