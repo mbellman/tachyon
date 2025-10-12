@@ -1292,11 +1292,12 @@ static void RemoveEntityPlaceholders(Tachyon* tachyon, State& state) {
 }
 
 void LevelEditor::OpenLevelEditor(Tachyon* tachyon, State& state) {
+  auto& fx = tachyon->fx;
   auto& meshes = state.meshes;
 
-  state.is_level_editor_open = true;
-
   show_overlay_message("Entering editor");
+
+  state.is_level_editor_open = true;
 
   objects(meshes.astrolabe_base).disabled = true;
   objects(meshes.astrolabe_ring).disabled = true;
@@ -1316,6 +1317,8 @@ void LevelEditor::OpenLevelEditor(Tachyon* tachyon, State& state) {
   SpawnEntityPlaceholders(tachyon, state);
   TrackDecorativeObjects(tachyon, state);
   InitEditorCamera(tachyon, state);
+
+  fx.accumulation_blur_factor = 0.f;
 }
 
 void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
