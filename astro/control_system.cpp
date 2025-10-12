@@ -13,7 +13,7 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state, const f
     abs(state.astro_turn_speed) < 0.1f
   ) {
     // Directional movement
-    float movement_speed = is_key_held(tKey::CONTROLLER_A) ? 14000.f : 8000.f;
+    float movement_speed = is_key_held(tKey::CONTROLLER_A) || is_key_held(tKey::SHIFT) ? 14000.f : 8000.f;
 
     if (is_key_held(tKey::ARROW_UP) || is_key_held(tKey::W)) {
       state.player_velocity += tVec3f(0, 0, -1.f) * movement_speed * dt;
