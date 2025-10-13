@@ -23,10 +23,10 @@
 
 #define handle_enemy_behavior(__behavior) __behavior::_HandleEnemyBehavior(tachyon, state, entity, dt)
 
-#define play_random_dialogue(...)\
+#define play_random_dialogue(entity, ...)\
   {\
     std::initializer_list<Dialogue> __messages = __VA_ARGS__;\
-    PlayRandomDialogue(tachyon, state, __messages);\
+    PlayRandomDialogue(tachyon, state, entity, __messages);\
   }\
 
 namespace astro {
@@ -60,14 +60,19 @@ namespace astro {
     return (
       state.astro_time >= entity.astro_start_time &&
       state.astro_time <= entity.astro_end_time
-    );;
+    );
   }
 
-  static void PlayRandomDialogue(Tachyon* tachyon, State& state, std::initializer_list<Dialogue>& dialogues) {
-    // First, check to see whether we're invoking this on a set of
-    // messages which has already been used for the current dialogue.
-    // We don't want to rapidly cycle between random dialogue lines,
-    // so suppress further dialogue until the current one has cleared.
+  static void PlayRandomDialogue(Tachyon* tachyon, State& state, GameEntity& entity, std::initializer_list<Dialogue>& dialogues) {
+    if (!IsSameEntity(entity, state.speaking_entity_record)) {
+      // @todo fallback sound? grunt?
+      return;
+    }
+
+    // Check to see whether we're invoking this on a set of essages
+    // which has already been used for the current dialogue. We don't
+    // want to rapidly cycle between random dialogue lines, so suppress
+    // further dialogue until the current one has cleared.
     //
     // @optimize don't require N messages to be string-compared per invocation
     int total = dialogues.size();
@@ -83,9 +88,12 @@ namespace astro {
     int index = Tachyon_GetRandom(0, total - 1);
     auto& dialogue = *(dialogues.begin() + index);
 
+    // console_log(dialogue.text);
+
     UISystem::ShowDialogue(tachyon, state, dialogue.text);
 
-    if (dialogue.sound != nullptr) {
+    if (strcmp(dialogue.sound, "") != 0) {
+      // console_log("Playing sound: " + std::string(dialogue.sound));
       Tachyon_PlaySound(dialogue.sound);
     }
   }

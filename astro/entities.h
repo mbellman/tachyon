@@ -48,8 +48,8 @@ namespace astro {
    * ----------------------------
    */
   struct EntityRecord {
-    int32 id = -1;
     EntityType type = UNSPECIFIED;
+    int32 id = -1;
   };
 
   /**

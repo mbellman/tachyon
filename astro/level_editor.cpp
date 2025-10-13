@@ -324,8 +324,8 @@ static void TrackSelectableEntity(GameEntity& entity, tObject& placeholder) {
   editor.selectables.push_back({
     .is_entity = true,
     .entity_record = {
-      entity.id,
-      entity.type
+      entity.type,
+      entity.id
     },
     .placeholder = placeholder,
   });

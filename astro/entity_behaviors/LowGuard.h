@@ -1,6 +1,7 @@
 #pragma once
 
 #include "astro/entity_behaviors/behavior.h"
+#include "astro/targeting.h"
 #include "astro/ui_system.h"
 
 namespace astro {
@@ -32,7 +33,7 @@ namespace astro {
 
         if (time_since_last_stun < 4.f) {
           // Stunned
-          play_random_dialogue({
+          play_random_dialogue(entity, {
             {
               .text = "Wha...?! I've been blinded!",
               .sound = ""
@@ -47,7 +48,11 @@ namespace astro {
         }
         else if (enemy.mood == ENEMY_IDLE) {
           // Noticed
-          play_random_dialogue({
+          enemy.mood = ENEMY_ENGAGED;
+
+          Targeting::SetSpeakingEntity(state, entity);
+
+          play_random_dialogue(entity, {
             {
               .text = "You there! Retreat, at once!",
               .sound = "./astro/audio/low_guard/retreat_at_once.mp3"
@@ -57,11 +62,11 @@ namespace astro {
               .sound = ""
             }
           });
-
-          enemy.mood = ENEMY_ENGAGED;
         }
         else if (enemy.mood == ENEMY_ENGAGED && player_distance < 5000.f) {
-          play_random_dialogue({
+          enemy.mood = ENEMY_AGITATED;
+
+          play_random_dialogue(entity, {
             {
               .text = "Cease your trespass! Or I shall strike!",
               .sound = "./astro/audio/low_guard/trespass.mp3"
@@ -71,8 +76,6 @@ namespace astro {
               .sound = ""
             }
           });
-
-          enemy.mood = ENEMY_AGITATED;
         }
       } else {
         // Out of range

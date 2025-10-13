@@ -3,10 +3,18 @@
 
 using namespace astro;
 
+const static float target_distance_limit = 10000.f;
+
+static inline void ResetEntityRecord(EntityRecord& record) {
+  record.type = UNSPECIFIED;
+  record.id = -1;
+}
+
 static EntityRecord GetClosestNonSelectedTarget(State& state) {
-  const float target_distance_limit = 10000.f;
   float closest_distance = target_distance_limit;
   EntityRecord candidate;
+
+  ResetEntityRecord(candidate);
 
   // @todo factor
   for_entities(state.low_guards) {
@@ -44,15 +52,10 @@ static EntityRecord GetClosestNonSelectedTarget(State& state) {
     }
   }
 
-  if (closest_distance == target_distance_limit) {
-    candidate.type = UNSPECIFIED;
-    candidate.id = -1;
-  }
-
   return candidate;
 }
 
-void Targeting::HandleCurrentTarget(Tachyon* tachyon, State& state) {
+static void HandleTargetReticle(Tachyon* tachyon, State& state) {
   auto& reticle = objects(state.meshes.target_reticle)[0];
 
   if (state.has_target) {
@@ -89,6 +92,33 @@ void Targeting::HandleCurrentTarget(Tachyon* tachyon, State& state) {
   commit(reticle);
 }
 
+static void HandleSpeakingEntity(State& state) {
+  if (state.speaking_entity_record.type == UNSPECIFIED) {
+    // Try to select a speaking entity among those within range
+    auto closest_target = GetClosestNonSelectedTarget(state);
+
+    Targeting::SetSpeakingEntity(state, closest_target);
+  }
+  else {
+    auto& entity = *EntityManager::FindEntity(state, state.speaking_entity_record);
+    float player_distance = (state.player_position - entity.visible_position).magnitude();
+
+    if (player_distance > target_distance_limit) {
+      // If the speaking entity goes out of range, reset our stored speaking entity
+      ResetEntityRecord(state.speaking_entity_record);
+    }
+  }
+}
+
+void Targeting::HandleTargets(Tachyon* tachyon, State& state) {
+  HandleTargetReticle(tachyon, state);
+  HandleSpeakingEntity(state);
+}
+
+void Targeting::SetSpeakingEntity(State& state, EntityRecord& record) {
+  state.speaking_entity_record = record;
+}
+
 void Targeting::SelectClosestAccessibleTarget(Tachyon* tachyon, State& state) {
   auto target_record = GetClosestNonSelectedTarget(state);
 
@@ -100,6 +130,8 @@ void Targeting::SelectClosestAccessibleTarget(Tachyon* tachyon, State& state) {
     state.has_target = true;
     state.target_start_time = tachyon->running_time;
     state.target_entity = target_record;
+
+    Targeting::SetSpeakingEntity(state, target_record);
   }
 }
 
@@ -113,6 +145,9 @@ void Targeting::SelectNextClosestAccessibleTarget(Tachyon* tachyon, State& state
 void Targeting::DeselectCurrentTarget(Tachyon* tachyon, State& state) {
   state.has_target = false;
 
-  state.target_entity.type = UNSPECIFIED;
-  state.target_entity.id = -1;
+  if (IsSameEntity(state.target_entity, state.speaking_entity_record)) {
+    ResetEntityRecord(state.speaking_entity_record);
+  }
+
+  ResetEntityRecord(state.target_entity);
 }

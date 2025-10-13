@@ -221,7 +221,8 @@ static void ShowGameStats(Tachyon* tachyon, State& state) {
     "Speed " + std::to_string(player_speed),
     "Camera " + tachyon->scene.camera.position.toString(),
     "Astro time: " + std::to_string(state.astro_time),
-    "Astro turn speed: " + std::to_string(state.astro_turn_speed)
+    "Astro turn speed: " + std::to_string(state.astro_turn_speed),
+    "Speaking entity: " + std::to_string(state.speaking_entity_record.id)
   };
 
   for (uint8 i = 0; i < std::size(stat_messages); i++) {
@@ -284,7 +285,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   SpellSystem::HandleSpells(tachyon, state, dt);
   HandleDialogue(tachyon, state);
   HandleWalkSounds(tachyon, state);
-  Targeting::HandleCurrentTarget(tachyon, state);
+  Targeting::HandleTargets(tachyon, state);
 
   TimeEvolution::UpdateAstroTime(tachyon, state, dt);
   ProceduralGeneration::UpdateProceduralObjects(tachyon, state);

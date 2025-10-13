@@ -1,6 +1,7 @@
 #pragma once
 
 #include "astro/entity_behaviors/behavior.h"
+#include "astro/targeting.h"
 #include "astro/ui_system.h"
 
 namespace astro {
@@ -30,16 +31,10 @@ namespace astro {
         tVec3f player_direction = entity_to_player / player_distance;
         float time_since_casting_stun = tachyon->running_time - state.spells.stun_start_time;
 
-        if (time_since_casting_stun < 3.f) {
-          // Stunned
-          float knockback_factor = 3.f * time_since_casting_stun * (1.f - time_since_casting_stun);
-          if (knockback_factor > 1.f) knockback_factor = 1.f;
-          if (knockback_factor < 0.f) knockback_factor = 0.f;
-
-          entity.visible_position -= player_direction * knockback_factor * 3000.f * dt;
-
+        if (time_since_casting_stun < 0.25f) {
+          // Caught in the initial blast of a stun spell
           if (enemy.mood == ENEMY_AGITATED) {
-            play_random_dialogue({
+            play_random_dialogue(entity, {
               {
                 .text = "Agh! You filthy coward!",
                 .sound = ""
@@ -50,7 +45,7 @@ namespace astro {
               }
             });
           } else {
-            play_random_dialogue({
+            play_random_dialogue(entity, {
               {
                 .text = "Argh! The bastard blinded me!",
                 .sound = "./astro/audio/bandit/blinded.mp3"
@@ -58,8 +53,19 @@ namespace astro {
             });
           }
         }
-        else if (time_since_casting_stun < 4.f) {
+        else if (time_since_casting_stun < 0.5f) {
+          // Agitate stunned enemies after a delay to allow
+          // distinct engaged + already-agitated dialogue lines
           enemy.mood = ENEMY_AGITATED;
+        }
+
+        if (time_since_casting_stun < 3.f) {
+          // Stunned
+          float knockback_factor = 3.f * time_since_casting_stun * (1.f - time_since_casting_stun);
+          if (knockback_factor > 1.f) knockback_factor = 1.f;
+          if (knockback_factor < 0.f) knockback_factor = 0.f;
+
+          entity.visible_position -= player_direction * knockback_factor * 3000.f * dt;
         }
         else if (player_distance > 3000.f) {
           // Non-strafing combat
@@ -90,24 +96,12 @@ namespace astro {
             }
           }
 
-          if (enemy.mood == ENEMY_AGITATED) {
-            play_random_dialogue({
-              {
-                .text = "Dirty rat! You're in for it now!",
-                .sound = ""
-              },
-              {
-                .text = "Dirty rat! You're in for it now!",
-                .sound = ""
-              },
-              {
-                .text = "Now you've asked for it!",
-                .sound = ""
-              }
-            });
-          }
-          else if (enemy.mood == ENEMY_IDLE) {
-            play_random_dialogue({
+          if (enemy.mood == ENEMY_IDLE) {
+            enemy.mood = ENEMY_ENGAGED;
+
+            Targeting::SetSpeakingEntity(state, entity);
+
+            play_random_dialogue(entity, {
               {
                 .text = "Look, we've got one!",
                 .sound = "./astro/audio/bandit/got_one.mp3"
@@ -117,11 +111,9 @@ namespace astro {
                 .sound = "./astro/audio/bandit/lonesome.mp3"
               }
             });
-
-            enemy.mood = ENEMY_ENGAGED;
           }
           else if (enemy.mood == ENEMY_ENGAGED && dialogue_duration > 5.f) {
-            play_random_dialogue({
+            play_random_dialogue(entity, {
               {
                 .text = "I'll make quick work of him!",
                 .sound = ""
@@ -132,6 +124,22 @@ namespace astro {
               },
               {
                 .text = "Oi, where do you think you're going?",
+                .sound = ""
+              }
+            });
+          }
+          else if (enemy.mood == ENEMY_AGITATED && dialogue_duration > 5.f) {
+            play_random_dialogue(entity, {
+              {
+                .text = "Dirty rat! You're in for it now!",
+                .sound = ""
+              },
+              {
+                .text = "Dirty rat! You're in for it now!",
+                .sound = ""
+              },
+              {
+                .text = "Now you've asked for it!",
                 .sound = ""
               }
             });

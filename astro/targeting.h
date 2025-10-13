@@ -5,7 +5,8 @@
 
 namespace astro {
   namespace Targeting {
-    void HandleCurrentTarget(Tachyon* tachyon, State& state);
+    void HandleTargets(Tachyon* tachyon, State& state);
+    void SetSpeakingEntity(State& state, EntityRecord& record);
     void SelectClosestAccessibleTarget(Tachyon* tachyon, State& state);
     void SelectNextClosestAccessibleTarget(Tachyon* tachyon, State& state);
     void DeselectCurrentTarget(Tachyon* tachyon, State& state);
