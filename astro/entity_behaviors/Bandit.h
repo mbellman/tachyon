@@ -69,6 +69,8 @@ namespace astro {
           // Chase the player
           entity.visible_position += player_direction * 3000.f * dt;
 
+          FacePlayer(entity, state);
+
           // @todo perform collision checks on all appropriate entity types
           // @todo perform collision checks against environment
           // @todo pathfinding
@@ -138,6 +140,7 @@ namespace astro {
         else {
           // Strafing combat
           // @todo strafe around the player
+          FacePlayer(entity, state);
         }
       } else {
         // Out of range
@@ -153,19 +156,20 @@ namespace astro {
         auto& entity = state.bandits[i];
         auto& bandit = objects(meshes.bandit)[i];
 
-        bool active = (
+        bool active_time = (
           state.astro_time >= entity.astro_start_time &&
           state.astro_time <= entity.astro_end_time
         );
 
         // @todo factor
-        if (active) {
+        if (active_time) {
           entity.visible_scale = entity.scale;
 
           float astro_speed = abs(state.astro_turn_speed);
 
           if (astro_speed > 0.f) {
             entity.enemy_state.mood = ENEMY_IDLE;
+            entity.visible_rotation = entity.orientation;
 
             if (astro_speed < 0.05f) {
               // Do nothing
@@ -196,7 +200,7 @@ namespace astro {
 
         bandit.position = entity.visible_position;
         bandit.scale = entity.visible_scale;
-        bandit.rotation = entity.orientation;
+        bandit.rotation = entity.visible_rotation;
         bandit.color = entity.tint;
 
         commit(bandit);

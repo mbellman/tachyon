@@ -79,7 +79,7 @@ namespace astro {
     tVec3f position;
     tVec3f scale;
     tVec3f tint;
-    Quaternion orientation = Quaternion(1.f, 0, 0, 0);
+    Quaternion orientation = Quaternion(1.f, 0, 0, 0); // @todo rename rotation
     float astro_start_time = 0.f;
     float astro_end_time = 0.f;
 
@@ -98,6 +98,7 @@ namespace astro {
     tVec3f visible_scale;
 
     tVec3f visible_position;
+    Quaternion visible_rotation;
 
     // Only used for certain game entities
     EnemyState enemy_state;

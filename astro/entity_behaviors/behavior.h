@@ -48,6 +48,13 @@ namespace astro {
     entity.visible_position.z += Tachyon_GetRandom(-amount, amount);
   }
 
+  static void FacePlayer(GameEntity& entity, State& state) {
+    tVec3f entity_to_player = state.player_position - entity.visible_position;
+    Quaternion facing_direction = Quaternion::FromDirection(entity_to_player.unit(), tVec3f(0, 1.f, 0));
+
+    entity.visible_rotation = facing_direction;
+  }
+
   static void PlayRandomDialogue(Tachyon* tachyon, State& state, std::initializer_list<Dialogue>& dialogues) {
     // First, check to see whether we're invoking this on a set of
     // messages which has already been used for the current dialogue.
