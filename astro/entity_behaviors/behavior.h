@@ -48,11 +48,19 @@ namespace astro {
     entity.visible_position.z += Tachyon_GetRandom(-amount, amount);
   }
 
+  // @todo allow a tweening factor
   static void FacePlayer(GameEntity& entity, State& state) {
     tVec3f entity_to_player = state.player_position - entity.visible_position;
     Quaternion facing_direction = Quaternion::FromDirection(entity_to_player.unit(), tVec3f(0, 1.f, 0));
 
     entity.visible_rotation = facing_direction;
+  }
+
+  static inline bool IsDuringActiveTime(const GameEntity& entity, const State& state) {
+    return (
+      state.astro_time >= entity.astro_start_time &&
+      state.astro_time <= entity.astro_end_time
+    );;
   }
 
   static void PlayRandomDialogue(Tachyon* tachyon, State& state, std::initializer_list<Dialogue>& dialogues) {

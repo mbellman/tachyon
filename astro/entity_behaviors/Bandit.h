@@ -154,15 +154,10 @@ namespace astro {
       // once that list is built
       for_entities(state.bandits) {
         auto& entity = state.bandits[i];
-        auto& bandit = objects(meshes.bandit)[i];
-
-        bool active_time = (
-          state.astro_time >= entity.astro_start_time &&
-          state.astro_time <= entity.astro_end_time
-        );
+        auto& model = objects(meshes.bandit)[i];
 
         // @todo factor
-        if (active_time) {
+        if (IsDuringActiveTime(entity, state)) {
           entity.visible_scale = entity.scale;
 
           float astro_speed = abs(state.astro_turn_speed);
@@ -198,12 +193,12 @@ namespace astro {
           entity.visible_position = entity.position;
         }
 
-        bandit.position = entity.visible_position;
-        bandit.scale = entity.visible_scale;
-        bandit.rotation = entity.visible_rotation;
-        bandit.color = entity.tint;
+        model.position = entity.visible_position;
+        model.scale = entity.visible_scale;
+        model.rotation = entity.visible_rotation;
+        model.color = entity.tint;
 
-        commit(bandit);
+        commit(model);
       }
     }
   };

@@ -87,15 +87,10 @@ namespace astro {
       // once that list is built
       for_entities(state.low_guards) {
         auto& entity = state.low_guards[i];
-        auto& guard = objects(meshes.low_guard)[i];
-
-        bool active = (
-          state.astro_time >= entity.astro_start_time &&
-          state.astro_time <= entity.astro_end_time
-        );
+        auto& model = objects(meshes.low_guard)[i];
 
         // @todo factor
-        if (active) {
+        if (IsDuringActiveTime(entity, state)) {
           entity.visible_scale = entity.scale;
 
           float astro_speed = abs(state.astro_turn_speed);
@@ -130,12 +125,12 @@ namespace astro {
           entity.visible_position = entity.position;
         }
 
-        guard.position = entity.visible_position;
-        guard.scale = entity.visible_scale;
-        guard.rotation = entity.orientation;
-        guard.color = entity.tint;
+        model.position = entity.visible_position;
+        model.scale = entity.visible_scale;
+        model.rotation = entity.orientation;
+        model.color = entity.tint;
 
-        commit(guard);
+        commit(model);
       }
     }
   };
