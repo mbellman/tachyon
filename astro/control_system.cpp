@@ -42,6 +42,15 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state, const f
 
       state.last_run_input_time = tachyon->running_time;
     }
+
+    // Tapping A/X quickly to dodge
+    if (
+      state.has_target &&
+      did_release_key(tKey::CONTROLLER_A) &&
+      tachyon->running_time - state.last_run_input_time < 0.3f
+    ) {
+      state.player_velocity *= 4.f;
+    }
   }
 
   state.player_velocity *= 1.f - 10.f * dt;
@@ -68,7 +77,7 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
     state.astro_time_at_start_of_turn = state.astro_time;
 
     Sfx::FadeOutSound(SFX_ASTRO_END);
-    Sfx::PlaySound(SFX_ASTRO_START);
+    Sfx::PlaySound(SFX_ASTRO_START, 0.5f);
   }
 
   // Handle reverse/forward turn actions
@@ -168,7 +177,7 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
     abs(state.astro_turn_speed) < 0.1f
   ) {
     Sfx::FadeOutSound(SFX_ASTRO_START);
-    Sfx::PlaySound(SFX_ASTRO_END);
+    Sfx::PlaySound(SFX_ASTRO_END, 0.5f);
   }
 
   state.last_frame_left_trigger = tachyon->left_trigger;
