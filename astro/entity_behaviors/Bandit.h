@@ -69,6 +69,25 @@ namespace astro {
           // Chase the player
           entity.visible_position += player_direction * 3000.f * dt;
 
+          // @todo perform collision checks on all appropriate entity types
+          // @todo perform collision checks against environment
+          // @todo pathfinding
+          for_entities(state.bandits) {
+            auto& bandit = state.bandits[i];
+
+            if (IsSameEntity(entity, bandit)) {
+              continue;
+            }
+
+            tVec3f entity_to_entity = entity.visible_position.xz() - bandit.visible_position.xz();
+            float distance = entity_to_entity.magnitude();
+            float minimum_distance = 1.6f * (entity.visible_scale.x + bandit.visible_scale.x);
+
+            if (distance < minimum_distance) {
+              entity.visible_position = bandit.visible_position + entity_to_entity.unit() * minimum_distance;
+            }
+          }
+
           if (enemy.mood == ENEMY_AGITATED) {
             play_random_dialogue({
               {

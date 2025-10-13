@@ -209,20 +209,6 @@ static void HandleTargetingControls(Tachyon* tachyon, State& state) {
 }
 
 void ControlSystem::HandleControls(Tachyon* tachyon, State& state, const float dt) {
-  // @temporary
-  if (is_key_held(tKey::NUM_1)) {
-    tachyon->left_trigger = 1.f;
-  } else {
-    tachyon->left_trigger = 0.f;
-  }
-
-  // @temporary
-  if (is_key_held(tKey::NUM_3)) {
-    tachyon->right_trigger = 1.f;
-  } else {
-    tachyon->right_trigger = 0.f;
-  }
-
   HandlePlayerMovementControls(tachyon, state, dt);
   HandleAstroControls(tachyon, state, dt);
   HandleSpellControls(tachyon, state);

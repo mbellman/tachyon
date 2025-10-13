@@ -3,14 +3,6 @@
 
 using namespace astro;
 
-static inline bool IsSame(GameEntity& entity, EntityRecord& record) {
-  return entity.type == record.type && entity.id == record.id;
-}
-
-static inline bool IsSame(EntityRecord& record_a, EntityRecord& record_b) {
-  return record_a.type == record_b.type && record_a.id == record_b.id;
-}
-
 static EntityRecord GetClosestNonSelectedTarget(State& state) {
   const float target_distance_limit = 10000.f;
   float closest_distance = target_distance_limit;
@@ -20,7 +12,7 @@ static EntityRecord GetClosestNonSelectedTarget(State& state) {
   for_entities(state.low_guards) {
     auto& entity = state.low_guards[i];
 
-    if (IsSame(entity, state.target_entity)) {
+    if (IsSameEntity(entity, state.target_entity)) {
       continue;
     }
 
@@ -38,7 +30,7 @@ static EntityRecord GetClosestNonSelectedTarget(State& state) {
   for_entities(state.bandits) {
     auto& entity = state.bandits[i];
 
-    if (IsSame(entity, state.target_entity)) {
+    if (IsSameEntity(entity, state.target_entity)) {
       continue;
     }
 
@@ -104,7 +96,7 @@ void Targeting::SelectClosestAccessibleTarget(Tachyon* tachyon, State& state) {
     return;
   }
 
-  if (!state.has_target || !IsSame(target_record, state.target_entity)) {
+  if (!state.has_target || !IsSameEntity(target_record, state.target_entity)) {
     state.has_target = true;
     state.target_start_time = tachyon->running_time;
     state.target_entity = target_record;

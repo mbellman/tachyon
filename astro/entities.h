@@ -254,4 +254,17 @@ namespace astro {
       .tint = tVec3f(0.2f)
     } }
   };
+
+  /**
+   * ----------------------------
+   * Entity utilities.
+   * ----------------------------
+   */
+  static inline bool IsSameEntity(GameEntity& entity, EntityRecord& record) {
+    return entity.type == record.type && entity.id == record.id;
+  }
+
+  static inline bool IsSameEntity(EntityRecord& record_a, EntityRecord& record_b) {
+    return record_a.type == record_b.type && record_a.id == record_b.id;
+  }
 }
