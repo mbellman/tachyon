@@ -5,6 +5,18 @@ using namespace astro;
 
 const static float target_distance_limit = 10000.f;
 
+static int32 FindRecordIndex(std::vector<EntityRecord>& records, EntityRecord& record) {
+  for (size_t i = 0; i < records.size(); i++) {
+    auto& compared = records[i];
+
+    if (IsSameEntity(record, compared)) {
+      return (int32)i;
+    }
+  }
+
+  return -1;
+}
+
 static inline void ResetEntityRecord(EntityRecord& record) {
   record.type = UNSPECIFIED;
   record.id = -1;
@@ -126,6 +138,18 @@ static void PickSpeakingEntity(State& state) {
   }
 }
 
+static inline bool ShouldSelectTarget(State& state, EntityRecord& record) {
+  return !state.has_target || !IsSameEntity(record, state.target_entity);
+}
+
+static void SelectTarget(Tachyon* tachyon, State& state, EntityRecord& target) {
+  state.has_target = true;
+  state.target_start_time = tachyon->running_time;
+  state.target_entity = target;
+
+  Targeting::SetSpeakingEntity(state, target);
+}
+
 void Targeting::HandleTargets(Tachyon* tachyon, State& state) {
   TrackTargetableEntities(state);
   UpdateTargetReticle(tachyon, state);
@@ -136,27 +160,60 @@ void Targeting::SetSpeakingEntity(State& state, EntityRecord& record) {
   state.speaking_entity_record = record;
 }
 
-void Targeting::SelectClosestAccessibleTarget(Tachyon* tachyon, State& state) {
-  auto target_record = GetClosestNonSelectedTarget(state);
+void Targeting::SelectNextAccessibleTarget(Tachyon* tachyon, State& state) {
+  EntityRecord new_target;
 
-  if (target_record.type == UNSPECIFIED || target_record.id == -1) {
+  ResetEntityRecord(new_target);
+
+  if (state.has_target) {
+    auto index = FindRecordIndex(state.targetable_entities, state.target_entity);
+
+    if (index > -1) {
+      if (index < state.targetable_entities.size() - 1) {
+        new_target = state.targetable_entities[index + 1];
+      } else {
+        new_target = state.targetable_entities[0];
+      }
+    }
+  } else {
+    new_target = GetClosestNonSelectedTarget(state);
+  }
+
+  if (new_target.type == UNSPECIFIED || new_target.id == -1) {
     return;
   }
 
-  if (!state.has_target || !IsSameEntity(target_record, state.target_entity)) {
-    state.has_target = true;
-    state.target_start_time = tachyon->running_time;
-    state.target_entity = target_record;
-
-    Targeting::SetSpeakingEntity(state, target_record);
+  if (ShouldSelectTarget(state, new_target)) {
+    SelectTarget(tachyon, state, new_target);
   }
 }
 
-void Targeting::SelectNextClosestAccessibleTarget(Tachyon* tachyon, State& state) {
-  // Call SelectClosestAccessibleTarget() twice to have the second call
-  // "skip" the initially-selected target and select the next-closest
-  Targeting::SelectClosestAccessibleTarget(tachyon, state);
-  Targeting::SelectClosestAccessibleTarget(tachyon, state);
+void Targeting::SelectPreviousAccessibleTarget(Tachyon* tachyon, State& state) {
+  EntityRecord new_target;
+
+  ResetEntityRecord(new_target);
+
+  if (state.has_target) {
+    auto index = FindRecordIndex(state.targetable_entities, state.target_entity);
+
+    if (index > -1) {
+      if (index > 0) {
+        new_target = state.targetable_entities[index - 1];
+      } else {
+        new_target = state.targetable_entities.back();
+      }
+    }
+  } else {
+    new_target = GetClosestNonSelectedTarget(state);
+  }
+
+  if (new_target.type == UNSPECIFIED || new_target.id == -1) {
+    return;
+  }
+
+  if (ShouldSelectTarget(state, new_target)) {
+    SelectTarget(tachyon, state, new_target);
+  }
 }
 
 void Targeting::DeselectCurrentTarget(Tachyon* tachyon, State& state) {
