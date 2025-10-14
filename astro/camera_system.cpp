@@ -71,17 +71,17 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) 
 
       tVec3f shift_direction = state.player_facing_direction + tVec3f(0, 0, 0.25f);
 
-      state.camera_shift = shift_direction * tVec3f(0.5f, 0, 1.f) * 800.f;
+      state.camera_shift = shift_direction * tVec3f(0.5f, 0, 1.f) * 1500.f;
     }
     else {
       // Walking/standing still camera
       new_camera_position = state.player_position;
 
-      float shift_amount = std::max(player_speed * 2.f, 800.f);
+      float shift_amount = std::max(player_speed * 1.5f, 1500.f);
       tVec3f shift_direction = state.player_facing_direction + tVec3f(0, 0, 0.25f);
       tVec3f desired_camera_shift = shift_direction * tVec3f(0.5f, 0, 1.f) * shift_amount;
 
-      state.camera_shift = tVec3f::lerp(state.camera_shift, desired_camera_shift, dt);
+      state.camera_shift = tVec3f::lerp(state.camera_shift, desired_camera_shift, 5.f * dt);
     }
 
     new_camera_position += state.camera_shift;

@@ -56,11 +56,13 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state, const f
 
     // Tapping A/X quickly to dodge
     if (
-      state.has_target &&
+      state.targetable_entities.size() > 0 &&
       did_release_key(tKey::CONTROLLER_A) &&
+      tachyon->running_time - state.last_dodge_time > 0.25f &&
       tachyon->running_time - state.last_run_input_time < 0.3f
     ) {
       state.player_velocity *= 4.f;
+      state.last_dodge_time = tachyon->running_time;
     }
   }
 

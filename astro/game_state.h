@@ -74,16 +74,17 @@ namespace astro {
     tVec3f player_velocity;
     // @todo default this
     tVec3f player_facing_direction = tVec3f(1.f, 0, 0);
-    bool is_on_solid_ground = false;
     Plane last_plane_walked_on;
-
+    bool is_on_solid_ground = false;
+    
     float last_walk_sound_time = 0.f;
     uint8 walk_cycle = 0;
-
+    
     EntityRecord target_entity; // @todo rename target_entity_record
     EntityRecord speaking_entity_record;
     float target_start_time = 0.f;
     float last_run_input_time = 0.f;
+    float last_dodge_time = 0.f;
     bool has_target = false;
     std::vector<EntityRecord> targetable_entities;
 

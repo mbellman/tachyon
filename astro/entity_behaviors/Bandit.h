@@ -22,7 +22,7 @@ namespace astro {
     }
 
     handleEnemyBehavior() {
-      tVec3f entity_to_player = state.player_position - entity.visible_position;
+      tVec3f entity_to_player = state.player_position.xz() - entity.visible_position.xz();
       float player_distance = entity_to_player.magnitude();
       auto& enemy = entity.enemy_state;
 
@@ -149,6 +149,12 @@ namespace astro {
           // Strafing combat
           // @todo strafe around the player
           FacePlayer(entity, state);
+
+          float minimum_distance = 1.6f * (entity.visible_scale.x + 500.f);
+
+          if (player_distance < minimum_distance) {
+            entity.visible_position = state.player_position + player_direction.invert() * minimum_distance;
+          }
         }
       } else {
         // Out of range
