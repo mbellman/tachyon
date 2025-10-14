@@ -55,44 +55,54 @@ static EntityRecord GetClosestNonSelectedTarget(State& state) {
   return candidate;
 }
 
-static void HandleTargetReticle(Tachyon* tachyon, State& state) {
+static void HandleActiveTargetReticle(Tachyon* tachyon, State& state) {
   auto& reticle = objects(state.meshes.target_reticle)[0];
+  auto& entity = *EntityManager::FindEntity(state, state.target_entity);
+  float entity_distance = (state.player_position - entity.visible_position).magnitude();
 
-  if (state.has_target) {
-    auto& entity = *EntityManager::FindEntity(state, state.target_entity);
-    float entity_distance = (state.player_position - entity.visible_position).magnitude();
+  reticle.position = entity.visible_position;
+  reticle.position.y += entity.visible_scale.y + 800.f;
+  reticle.position.y += 100.f * sinf(t_TAU * tachyon->running_time);
 
-    reticle.position = entity.visible_position;
-    reticle.position.y += entity.visible_scale.y + 800.f;
-    reticle.position.y += 100.f * sinf(t_TAU * tachyon->running_time);
+  reticle.scale = tVec3f(400.f);
+  reticle.color = tVec4f(1.f, 0.8f, 0.2f, 0.4f);
+  reticle.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 2.f * tachyon->running_time);
 
-    reticle.scale = tVec3f(400.f);
-    reticle.color = tVec4f(1.f, 0.8f, 0.2f, 0.4f);
-    reticle.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 2.f * tachyon->running_time);
-
-    if (entity_distance > 10000.f || entity.visible_scale.x == 0.f) {
-      Targeting::DeselectCurrentTarget(tachyon, state);
-    }
-  } else {
-    auto closest_target = GetClosestNonSelectedTarget(state);
-
-    if (closest_target.type != UNSPECIFIED) {
-      auto& entity = *EntityManager::FindEntity(state, closest_target);
-
-      reticle.position = entity.visible_position;
-      reticle.position.y += entity.visible_scale.y + 800.f;
-
-      reticle.scale = tVec3f(250.f);
-      reticle.color = tVec4f(1.f, 0.5f, 0.1f, 0.4f);
-    } else {
-      reticle.scale = tVec3f(0.f);
-    }
+  if (entity_distance > 10000.f || entity.visible_scale.x == 0.f) {
+    Targeting::DeselectCurrentTarget(tachyon, state);
   }
 
   commit(reticle);
 }
 
-static void HandleSpeakingEntity(State& state) {
+static void HandleTargetPreviewReticle(Tachyon* tachyon, State& state) {
+  auto& reticle = objects(state.meshes.target_reticle)[0];
+  auto closest_target = GetClosestNonSelectedTarget(state);
+
+  if (closest_target.type != UNSPECIFIED) {
+    auto& entity = *EntityManager::FindEntity(state, closest_target);
+
+    reticle.position = entity.visible_position;
+    reticle.position.y += entity.visible_scale.y + 800.f;
+
+    reticle.scale = tVec3f(250.f);
+    reticle.color = tVec4f(1.f, 0.5f, 0.1f, 0.4f);
+  } else {
+    reticle.scale = tVec3f(0.f);
+  }
+
+  commit(reticle);
+}
+
+static void UpdateTargetReticle(Tachyon* tachyon, State& state) {
+  if (state.has_target) {
+    HandleActiveTargetReticle(tachyon, state);
+  } else {
+    HandleTargetPreviewReticle(tachyon, state);
+  }
+}
+
+static void PickSpeakingEntity(State& state) {
   if (state.speaking_entity_record.type == UNSPECIFIED) {
     // Try to select a speaking entity among those within range
     auto closest_target = GetClosestNonSelectedTarget(state);
@@ -111,8 +121,8 @@ static void HandleSpeakingEntity(State& state) {
 }
 
 void Targeting::HandleTargets(Tachyon* tachyon, State& state) {
-  HandleTargetReticle(tachyon, state);
-  HandleSpeakingEntity(state);
+  UpdateTargetReticle(tachyon, state);
+  PickSpeakingEntity(state);
 }
 
 void Targeting::SetSpeakingEntity(State& state, EntityRecord& record) {

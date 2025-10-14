@@ -1302,6 +1302,7 @@ void LevelEditor::OpenLevelEditor(Tachyon* tachyon, State& state) {
   objects(meshes.astrolabe_base).disabled = true;
   objects(meshes.astrolabe_ring).disabled = true;
   objects(meshes.astrolabe_hand).disabled = true;
+  objects(meshes.target_reticle).disabled = true;
 
   // Disable all in-game entity objects, since we use placeholders in the editor
   for_all_entity_types() {
@@ -1338,6 +1339,7 @@ void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
   objects(meshes.astrolabe_base).disabled = false;
   objects(meshes.astrolabe_ring).disabled = false;
   objects(meshes.astrolabe_hand).disabled = false;
+  objects(meshes.target_reticle).disabled = false;
 
   // Re-enable all in-game entity objects
   for_all_entity_types() {
