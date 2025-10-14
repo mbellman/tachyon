@@ -85,6 +85,7 @@ namespace astro {
     float target_start_time = 0.f;
     float last_run_input_time = 0.f;
     bool has_target = false;
+    std::vector<EntityRecord> targetable_entities;
 
     tVec3f camera_shift;
 

@@ -10,6 +10,7 @@ static inline void ResetEntityRecord(EntityRecord& record) {
   record.id = -1;
 }
 
+// @todo @optimize use state.targetable_entities
 static EntityRecord GetClosestNonSelectedTarget(State& state) {
   float closest_distance = target_distance_limit;
   EntityRecord candidate;
@@ -28,9 +29,7 @@ static EntityRecord GetClosestNonSelectedTarget(State& state) {
 
     if (distance < closest_distance && entity.visible_scale.x != 0.f) {
       closest_distance = distance;
-
-      candidate.id = entity.id;
-      candidate.type = entity.type;
+      candidate = GetRecord(entity);
     }
   }
 
@@ -46,13 +45,35 @@ static EntityRecord GetClosestNonSelectedTarget(State& state) {
 
     if (distance < closest_distance && entity.visible_scale.x != 0.f) {
       closest_distance = distance;
-
-      candidate.id = entity.id;
-      candidate.type = entity.type;
+      candidate = GetRecord(entity);
     }
   }
 
   return candidate;
+}
+
+static void TrackTargetableEntities(State& state) {
+  state.targetable_entities.clear();
+
+  // @todo factor
+  for_entities(state.low_guards) {
+    auto& entity = state.low_guards[i];
+    float player_distance = tVec3f::distance(entity.position, state.player_position);
+
+    if (player_distance < target_distance_limit) {
+      state.targetable_entities.push_back(GetRecord(entity));
+    }
+  }
+
+  // @todo factor
+  for_entities(state.bandits) {
+    auto& entity = state.bandits[i];
+    float player_distance = tVec3f::distance(entity.position, state.player_position);
+
+    if (player_distance < target_distance_limit) {
+      state.targetable_entities.push_back(GetRecord(entity));
+    }
+  }
 }
 
 static void HandleActiveTargetReticle(Tachyon* tachyon, State& state) {
@@ -121,6 +142,7 @@ static void PickSpeakingEntity(State& state) {
 }
 
 void Targeting::HandleTargets(Tachyon* tachyon, State& state) {
+  TrackTargetableEntities(state);
   UpdateTargetReticle(tachyon, state);
   PickSpeakingEntity(state);
 }

@@ -29,6 +29,7 @@ struct tVec3f {
   void operator/=(const float f);
 
   static tVec3f cross(const tVec3f& v1, const tVec3f& v2);
+  static float distance(const tVec3f& v1, const tVec3f& v2);
   static float dot(const tVec3f& v1, const tVec3f& v2);
   static tVec3f lerp(const tVec3f& v1, const tVec3f& v2, const float alpha);
 

@@ -481,7 +481,7 @@ static void RenderDebugLabels(Tachyon* tachyon) {
   RenderConsoleMessages(tachyon);
 }
 
-static void RenderAlertMessage(Tachyon* tachyon) {
+static void RenderOverlayMessage(Tachyon* tachyon) {
   float alert_age = tachyon->running_time - tachyon->last_overlay_message_time;
 
   if (
@@ -492,7 +492,7 @@ static void RenderAlertMessage(Tachyon* tachyon) {
     auto* font = tachyon->overlay_message_font;
     auto& message = tachyon->overlay_message;
     int32 x = tachyon->window_width / 2;
-    int32 y = tachyon->window_height / 2.5f;
+    int32 y = int32(tachyon->window_height / 2.5f);
     int32 wrap_width = tachyon->window_width;
     float alpha = alert_age < 2.f ? 1.f : (3.f - alert_age);
     auto font_color = tVec4f(1.f, alpha);
@@ -1298,7 +1298,7 @@ void Tachyon_OpenGL_RenderScene(Tachyon* tachyon) {
     RenderConsoleMessages(tachyon);
   }
 
-  RenderAlertMessage(tachyon);
+  RenderOverlayMessage(tachyon);
 
   SDL_GL_SwapWindow(tachyon->sdl_window);
 

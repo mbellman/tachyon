@@ -323,10 +323,7 @@ static void TrackDecorativeObject(tObject& object) {
 static void TrackSelectableEntity(GameEntity& entity, tObject& placeholder) {
   editor.selectables.push_back({
     .is_entity = true,
-    .entity_record = {
-      entity.type,
-      entity.id
-    },
+    .entity_record = GetRecord(entity),
     .placeholder = placeholder,
   });
 }

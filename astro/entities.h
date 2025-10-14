@@ -268,4 +268,11 @@ namespace astro {
   static inline bool IsSameEntity(EntityRecord& record_a, EntityRecord& record_b) {
     return record_a.type == record_b.type && record_a.id == record_b.id;
   }
+
+  static inline EntityRecord GetRecord(GameEntity& entity) {
+    return {
+      .type = entity.type,
+      .id = entity.id
+    };
+  }
 }
