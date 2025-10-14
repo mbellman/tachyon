@@ -1,4 +1,5 @@
 #include "astro/control_system.h"
+#include "astro/entity_manager.h"
 #include "astro/sfx.h"
 #include "astro/spell_system.h"
 #include "astro/targeting.h"
@@ -36,8 +37,18 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state, const f
 
     // Double-tapping A/X to escape enemies
     if (did_press_key(tKey::CONTROLLER_A)) {
-      if (tachyon->running_time - state.last_run_input_time < 0.3f) {
-        Targeting::DeselectCurrentTarget(tachyon, state);
+      if (
+        tachyon->running_time - state.last_run_input_time < 0.3f &&
+        state.has_target
+      ) {
+        auto& target = *EntityManager::FindEntity(state, state.target_entity);
+        tVec3f unit_velocity = state.player_velocity.unit();
+        tVec3f unit_target_to_player = (state.player_position - target.visible_position).unit();
+
+        // Require that we're actually dodging/dashing away from the enemy to deselect it
+        if (tVec3f::dot(unit_velocity, unit_target_to_player) > 0.7f) {
+          Targeting::DeselectCurrentTarget(tachyon, state);
+        }
       }
 
       state.last_run_input_time = tachyon->running_time;
