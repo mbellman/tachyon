@@ -10,42 +10,27 @@ static inline void ResetEntityRecord(EntityRecord& record) {
   record.id = -1;
 }
 
-// @todo @optimize use state.targetable_entities
+// @todo @optimize this function is kind of dumb now.
+// the lookup to resolve entities is unnecessary if we
+// precompute this stuff in TrackTargetableEntities()
+// and use that information where needed.
 static EntityRecord GetClosestNonSelectedTarget(State& state) {
   float closest_distance = target_distance_limit;
   EntityRecord candidate;
 
   ResetEntityRecord(candidate);
 
-  // @todo factor
-  for_entities(state.low_guards) {
-    auto& entity = state.low_guards[i];
-
-    if (IsSameEntity(entity, state.target_entity)) {
+  for (auto& record : state.targetable_entities) {
+    if (IsSameEntity(record, state.target_entity)) {
       continue;
     }
 
-    float distance = (state.player_position - entity.visible_position).magnitude();
+    auto& entity = *EntityManager::FindEntity(state, record);
+    float distance = tVec3f::distance(state.player_position, entity.visible_position);
 
     if (distance < closest_distance && entity.visible_scale.x != 0.f) {
       closest_distance = distance;
-      candidate = GetRecord(entity);
-    }
-  }
-
-  // @todo factor
-  for_entities(state.bandits) {
-    auto& entity = state.bandits[i];
-
-    if (IsSameEntity(entity, state.target_entity)) {
-      continue;
-    }
-
-    float distance = (state.player_position - entity.visible_position).magnitude();
-
-    if (distance < closest_distance && entity.visible_scale.x != 0.f) {
-      closest_distance = distance;
-      candidate = GetRecord(entity);
+      candidate = record;
     }
   }
 
@@ -58,7 +43,7 @@ static void TrackTargetableEntities(State& state) {
   // @todo factor
   for_entities(state.low_guards) {
     auto& entity = state.low_guards[i];
-    float player_distance = tVec3f::distance(entity.position, state.player_position);
+    float player_distance = tVec3f::distance(entity.visible_position, state.player_position);
 
     if (player_distance < target_distance_limit) {
       state.targetable_entities.push_back(GetRecord(entity));
@@ -68,7 +53,7 @@ static void TrackTargetableEntities(State& state) {
   // @todo factor
   for_entities(state.bandits) {
     auto& entity = state.bandits[i];
-    float player_distance = tVec3f::distance(entity.position, state.player_position);
+    float player_distance = tVec3f::distance(entity.visible_position, state.player_position);
 
     if (player_distance < target_distance_limit) {
       state.targetable_entities.push_back(GetRecord(entity));

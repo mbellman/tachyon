@@ -280,12 +280,12 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
     return;
   }
 
+  Targeting::HandleTargets(tachyon, state);
   ControlSystem::HandleControls(tachyon, state, dt);
   CollisionSystem::HandleCollisions(tachyon, state);
   SpellSystem::HandleSpells(tachyon, state, dt);
   HandleDialogue(tachyon, state);
   HandleWalkSounds(tachyon, state);
-  Targeting::HandleTargets(tachyon, state);
 
   TimeEvolution::UpdateAstroTime(tachyon, state, dt);
   ProceduralGeneration::UpdateProceduralObjects(tachyon, state);
