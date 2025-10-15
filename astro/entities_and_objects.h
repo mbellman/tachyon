@@ -17,6 +17,8 @@ namespace astro {
     tVec3f default_color;
   };
 
+  static std::string unknown_name = "Unknown";
+
   /**
    * ----------------------------
    * Returns a list of all decorative meshes.
@@ -47,5 +49,20 @@ namespace astro {
     };
 
     return decorative_meshes;
+  }
+
+  /**
+   * ----------------------------
+   * Returns a list of all decorative meshes.
+   * ----------------------------
+   */
+  static std::string& GetDecorativeMeshName(State& state, uint16 mesh_index) {
+    for (auto& mesh : GetDecorativeMeshes(state)) {
+      if (mesh.mesh_index == mesh_index) {
+        return mesh.mesh_name;
+      }
+    }
+
+    return unknown_name;
   }
 }

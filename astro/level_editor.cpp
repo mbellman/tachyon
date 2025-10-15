@@ -1042,30 +1042,34 @@ static std::string FormatForDisplay(const Quaternion& q) {
 static void DisplaySelectedEntityProperties(Tachyon* tachyon, State& state) {
   auto& selected = editor.current_selectable;
   auto& entity_name = get_entity_defaults(selected.entity_record.type).name;
-  // @todo @optimize
-  auto* entity = EntityManager::FindEntity(state, selected.entity_record);
-  bool blink_text_cursor = int(roundf(tachyon->running_time * 2.f)) % 2 == 0;
-  std::string text_cursor = blink_text_cursor ? "|" : "";
+  auto& entity = *EntityManager::FindEntity(state, selected.entity_record);
+  int32 total_active = EntityDispatcher::GetEntityContainer(state, entity.type).size();
+  auto& mesh = mesh(selected.placeholder.mesh_index);
+  int32 total_verts = mesh.lod_1.vertex_end - mesh.lod_1.vertex_start;
 
   static std::vector<std::string> labels;
 
   labels.clear();
-  labels.push_back("Entity: " + entity_name);
-  labels.push_back("Entity ID: " + std::to_string(entity->id));
-  labels.push_back("position: " + FormatForDisplay(entity->position));
-  labels.push_back("scale: " + FormatForDisplay(entity->scale));
-  labels.push_back("orientation: " + FormatForDisplay(entity->orientation));
+  labels.push_back("Entity: " + entity_name + " (" + std::to_string(total_active) + " active)");
+  labels.push_back("Vertices: " + std::to_string(total_verts));
+  labels.push_back("Entity ID: " + std::to_string(entity.id));
+  labels.push_back("position: " + FormatForDisplay(entity.position));
+  labels.push_back("scale: " + FormatForDisplay(entity.scale));
+  labels.push_back("orientation: " + FormatForDisplay(entity.orientation));
+
+  bool blink_text_cursor = int(roundf(tachyon->running_time * 2.f)) % 2 == 0;
+  std::string text_cursor = blink_text_cursor ? "|" : "";
 
   if (editor.editing_astro_start_time) {
     labels.push_back(".astro_start_time: " + editor.edited_entity_property_value + text_cursor);
   } else {
-    labels.push_back(".astro_start_time: " + Serialize(entity->astro_start_time));
+    labels.push_back(".astro_start_time: " + Serialize(entity.astro_start_time));
   }
 
   if (editor.editing_astro_end_time) {
     labels.push_back(".astro_end_time: " + editor.edited_entity_property_value + text_cursor);
   } else {
-    labels.push_back(".astro_end_time: " + Serialize(entity->astro_end_time));
+    labels.push_back(".astro_end_time: " + Serialize(entity.astro_end_time));
   }
 
   for (int32 i = 0; i < (int32)labels.size(); i++) {
@@ -1088,13 +1092,17 @@ static void DisplaySelectedEntityProperties(Tachyon* tachyon, State& state) {
  */
 static void DisplaySelectedObjectProperties(Tachyon* tachyon, State& state) {
   auto& object = editor.current_selectable.placeholder;
-  uint16 total = objects(object.mesh_index).total_active;
+  auto& mesh = mesh(object.mesh_index);
+  auto& mesh_name = GetDecorativeMeshName(state, object.mesh_index);
+  uint16 total_active = objects(object.mesh_index).total_active;
+  int32 total_verts = mesh.lod_1.vertex_end - mesh.lod_1.vertex_start;
 
   static std::vector<std::string> labels;
 
   labels.clear();
   // @todo use name
-  labels.push_back("Mesh: " + std::to_string(object.mesh_index) + " (" + std::to_string(total) + " active)");
+  labels.push_back("Mesh: " + mesh_name + " (" + std::to_string(total_active) + " active)");
+  labels.push_back("Vertices: " + std::to_string(total_verts));
   labels.push_back("Object ID: " + std::to_string(object.object_id));
   labels.push_back("position: " + FormatForDisplay(object.position));
   labels.push_back("scale: " + FormatForDisplay(object.scale));
