@@ -53,7 +53,7 @@ namespace astro {
 
   /**
    * ----------------------------
-   * Returns a list of all decorative meshes.
+   * Returns the name of a given mesh.
    * ----------------------------
    */
   static std::string& GetDecorativeMeshName(State& state, uint16 mesh_index) {

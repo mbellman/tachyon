@@ -1,6 +1,7 @@
 #pragma once
 
 #include "astro/entity_behaviors/behavior.h"
+#include "astro/character_dialogue.h"
 #include "astro/targeting.h"
 #include "astro/ui_system.h"
 

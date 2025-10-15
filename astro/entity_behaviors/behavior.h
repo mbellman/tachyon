@@ -10,11 +10,12 @@
 #define PLANE_MESH(total) Tachyon_AddMesh(tachyon, Tachyon_CreatePlaneMesh(), total)
 #define MODEL_MESH(path, total) Tachyon_AddMesh(tachyon, Tachyon_LoadMesh(path), total)
 
+#define behavior struct
+
 #define return_meshes(...)\
   static std::vector<uint16> __mesh_list = __VA_ARGS__;\
   return __mesh_list;\
 
-#define behavior struct
 #define addMeshes() static void _AddMeshes(Tachyon* tachyon, MeshIds& meshes)
 #define getMeshes() static const std::vector<uint16>& _GetMeshes(const MeshIds& meshes)
 #define getPlaceholderMesh() static uint16 _GetPlaceholderMesh(const MeshIds& meshes)
@@ -23,18 +24,7 @@
 
 #define handle_enemy_behavior(__behavior) __behavior::_HandleEnemyBehavior(tachyon, state, entity, dt)
 
-#define play_random_dialogue(entity, ...)\
-  {\
-    std::initializer_list<Dialogue> __messages = __VA_ARGS__;\
-    PlayRandomDialogue(tachyon, state, entity, __messages);\
-  }\
-
 namespace astro {
-  struct Dialogue {
-    const char* text = nullptr;
-    const char* sound = nullptr;
-  };
-
   static float GetLivingEntityProgress(State& state, const GameEntity& entity, const float lifetime) {
     float entity_age = state.astro_time - entity.astro_start_time;
     if (entity_age < 0.f) return 0.f;
@@ -61,40 +51,5 @@ namespace astro {
       state.astro_time >= entity.astro_start_time &&
       state.astro_time <= entity.astro_end_time
     );
-  }
-
-  static void PlayRandomDialogue(Tachyon* tachyon, State& state, GameEntity& entity, std::initializer_list<Dialogue>& dialogues) {
-    if (!IsSameEntity(entity, state.speaking_entity_record)) {
-      // @todo fallback sound? grunt?
-      return;
-    }
-
-    // Check to see whether we're invoking this on a set of essages
-    // which has already been used for the current dialogue. We don't
-    // want to rapidly cycle between random dialogue lines, so suppress
-    // further dialogue until the current one has cleared.
-    //
-    // @optimize don't require N messages to be string-compared per invocation
-    int total = dialogues.size();
-
-    for (int i = 0; i < total; i++) {
-      auto& dialogue = *(dialogues.begin() + i);
-
-      if (state.dialogue_message == dialogue.text) {
-        return;
-      }
-    }
-
-    int index = Tachyon_GetRandom(0, total - 1);
-    auto& dialogue = *(dialogues.begin() + index);
-
-    // console_log(dialogue.text);
-
-    UISystem::ShowDialogue(tachyon, state, dialogue.text);
-
-    if (strcmp(dialogue.sound, "") != 0) {
-      // console_log("Playing sound: " + std::string(dialogue.sound));
-      Tachyon_PlaySound(dialogue.sound);
-    }
   }
 }
