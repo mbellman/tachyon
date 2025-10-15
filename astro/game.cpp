@@ -174,6 +174,14 @@ static void UpdateLevelsOfDetail(Tachyon* tachyon, State& state) {
   // Procedural objects
   Tachyon_UseLodByDistance(tachyon, meshes.grass, 35000.f);
   Tachyon_UseLodByDistance(tachyon, meshes.small_grass, 35000.f);
+
+  // Entity parts
+  Tachyon_UseLodByDistance(tachyon, meshes.oak_tree_roots, 40000.f);
+  Tachyon_UseLodByDistance(tachyon, meshes.oak_tree_trunk, 40000.f);
+  Tachyon_UseLodByDistance(tachyon, meshes.oak_tree_branches, 40000.f);
+
+  Tachyon_UseLodByDistance(tachyon, meshes.flowers_stalks, 35000.f);
+  Tachyon_UseLodByDistance(tachyon, meshes.flowers_petals, 35000.f);
 }
 
 static void ShowHighestLevelsOfDetail(Tachyon* tachyon, State& state) {
