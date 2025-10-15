@@ -1046,12 +1046,13 @@ static void DisplaySelectedEntityProperties(Tachyon* tachyon, State& state) {
   int32 total_active = EntityDispatcher::GetEntityContainer(state, entity.type).size();
   auto& mesh = mesh(selected.placeholder.mesh_index);
   int32 total_verts = mesh.lod_1.vertex_end - mesh.lod_1.vertex_start;
+  int32 summed_verts = total_active * total_verts;
 
   static std::vector<std::string> labels;
 
   labels.clear();
   labels.push_back("Entity: " + entity_name + " (" + std::to_string(total_active) + " active)");
-  labels.push_back("Vertices: " + std::to_string(total_verts));
+  labels.push_back("Vertices: " + std::to_string(total_verts) + " [" + std::to_string(summed_verts) + "]");
   labels.push_back("Entity ID: " + std::to_string(entity.id));
   labels.push_back("position: " + FormatForDisplay(entity.position));
   labels.push_back("scale: " + FormatForDisplay(entity.scale));
@@ -1096,13 +1097,13 @@ static void DisplaySelectedObjectProperties(Tachyon* tachyon, State& state) {
   auto& mesh_name = GetDecorativeMeshName(state, object.mesh_index);
   uint16 total_active = objects(object.mesh_index).total_active;
   int32 total_verts = mesh.lod_1.vertex_end - mesh.lod_1.vertex_start;
+  int32 summed_verts = total_active * total_verts;
 
   static std::vector<std::string> labels;
 
   labels.clear();
-  // @todo use name
   labels.push_back("Mesh: " + mesh_name + " (" + std::to_string(total_active) + " active)");
-  labels.push_back("Vertices: " + std::to_string(total_verts));
+  labels.push_back("Vertices: " + std::to_string(total_verts) + " [" + std::to_string(summed_verts) + "]");
   labels.push_back("Object ID: " + std::to_string(object.object_id));
   labels.push_back("position: " + FormatForDisplay(object.position));
   labels.push_back("scale: " + FormatForDisplay(object.scale));
