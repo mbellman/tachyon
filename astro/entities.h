@@ -21,7 +21,8 @@ namespace astro {
     LOW_GUARD,
     BANDIT,
     STONE_WALL,
-    DIRT_PATH
+    DIRT_PATH,
+    FLOWERS
   };
 
   /**
@@ -39,7 +40,8 @@ namespace astro {
     LOW_GUARD,
     BANDIT,
     STONE_WALL,
-    DIRT_PATH
+    DIRT_PATH,
+    FLOWERS
   };
 
   /**
@@ -152,7 +154,12 @@ namespace astro {
 
       // DIRT_PATH,
       dirt_path_placeholder,
-      dirt_path
+      dirt_path,
+
+      // FLOWERS
+      flowers_placeholder,
+      flowers_stalks,
+      flowers_petals
 
       ;
   };
@@ -165,6 +172,7 @@ namespace astro {
   struct EntityContainers {
     std::vector<GameEntity> dirt_paths;
     std::vector<GameEntity> shrubs;
+    std::vector<GameEntity> flowers;
     std::vector<GameEntity> oak_trees;
     std::vector<GameEntity> willow_trees;
     std::vector<GameEntity> small_stone_bridges;
@@ -204,6 +212,12 @@ namespace astro {
       .name = "Shrub",
       .scale = tVec3f(500.f),
       .tint = tVec3f(0.2f, 0.8f, 0.5f)
+    } },
+
+    { FLOWERS, {
+      .name = "Flowers",
+      .scale = tVec3f(2000.f),
+      .tint = tVec3f(0.2f, 0.6f, 0.3f)
     } },
 
     { OAK_TREE, {

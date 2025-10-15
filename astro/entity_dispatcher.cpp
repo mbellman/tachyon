@@ -8,6 +8,7 @@
 #include "astro/entity_behaviors/OakTree.h"
 #include "astro/entity_behaviors/RiverLog.h"
 #include "astro/entity_behaviors/Shrub.h"
+#include "astro/entity_behaviors/Flowers.h"
 #include "astro/entity_behaviors/SmallStoneBridge.h"
 #include "astro/entity_behaviors/StoneWall.h"
 #include "astro/entity_behaviors/WillowTree.h"
@@ -45,6 +46,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
     dispatch_GetEntityContainer(OAK_TREE, state.oak_trees);
     dispatch_GetEntityContainer(RIVER_LOG, state.river_logs);
     dispatch_GetEntityContainer(SHRUB, state.shrubs);
+    dispatch_GetEntityContainer(FLOWERS, state.flowers);
     dispatch_GetEntityContainer(SMALL_STONE_BRIDGE, state.small_stone_bridges);
     dispatch_GetEntityContainer(STONE_WALL, state.stone_walls);
     dispatch_GetEntityContainer(WILLOW_TREE, state.willow_trees);
@@ -66,6 +68,7 @@ void EntityDispatcher::AddMeshes(Tachyon* tachyon, State& state, EntityType type
     dispatch_AddMeshes(OAK_TREE, OakTree);
     dispatch_AddMeshes(RIVER_LOG, RiverLog);
     dispatch_AddMeshes(SHRUB, Shrub);
+    dispatch_AddMeshes(FLOWERS, Flowers);
     dispatch_AddMeshes(SMALL_STONE_BRIDGE, SmallStoneBridge);
     dispatch_AddMeshes(STONE_WALL, StoneWall);
     dispatch_AddMeshes(WILLOW_TREE, WillowTree);
@@ -86,6 +89,7 @@ const std::vector<uint16>& EntityDispatcher::GetMeshes(State& state, EntityType 
     dispatch_GetMeshes(OAK_TREE, OakTree);
     dispatch_GetMeshes(RIVER_LOG, RiverLog);
     dispatch_GetMeshes(SHRUB, Shrub);
+    dispatch_GetMeshes(FLOWERS, Flowers);
     dispatch_GetMeshes(SMALL_STONE_BRIDGE, SmallStoneBridge);
     dispatch_GetMeshes(STONE_WALL, StoneWall);
     dispatch_GetMeshes(WILLOW_TREE, WillowTree);
@@ -106,6 +110,7 @@ uint16 EntityDispatcher::GetPlaceholderMesh(State& state, EntityType type) {
     dispatch_GetPlaceholderMesh(OAK_TREE, OakTree);
     dispatch_GetPlaceholderMesh(RIVER_LOG, RiverLog);
     dispatch_GetPlaceholderMesh(SHRUB, Shrub);
+    dispatch_GetPlaceholderMesh(FLOWERS, Flowers);
     dispatch_GetPlaceholderMesh(SMALL_STONE_BRIDGE, SmallStoneBridge);
     dispatch_GetPlaceholderMesh(STONE_WALL, StoneWall);
     dispatch_GetPlaceholderMesh(WILLOW_TREE, WillowTree);
@@ -126,6 +131,7 @@ void EntityDispatcher::TimeEvolve(Tachyon* tachyon, State& state, EntityType typ
     dispatch_TimeEvolve(OAK_TREE, OakTree);
     dispatch_TimeEvolve(RIVER_LOG, RiverLog);
     dispatch_TimeEvolve(SHRUB, Shrub);
+    dispatch_TimeEvolve(FLOWERS, Flowers);
     dispatch_TimeEvolve(SMALL_STONE_BRIDGE, SmallStoneBridge);
     dispatch_TimeEvolve(STONE_WALL, StoneWall);
     dispatch_TimeEvolve(WILLOW_TREE, WillowTree);

@@ -77,6 +77,11 @@ void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
   AddDecorativeMeshes(tachyon, state);
   AddEntityMeshes(tachyon, state);
 
+  mesh(meshes.flowers_stalks).type = GRASS_MESH;
+  mesh(meshes.flowers_petals).type = GRASS_MESH;
+  mesh(meshes.flowers_stalks).shadow_cascade_ceiling = 2;
+  mesh(meshes.flowers_petals).shadow_cascade_ceiling = 2;
+
   // @todo dev mode only
   AddEditorMeshes(tachyon, state);
 }
