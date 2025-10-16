@@ -36,7 +36,8 @@ namespace astro {
       // @todo dev mode only
       gizmo_arrow,
       gizmo_resizer,
-      gizmo_rotator;
+      gizmo_rotator,
+      editor_placer;
   };
 
   // @todo move to engine?
@@ -76,10 +77,10 @@ namespace astro {
     tVec3f player_facing_direction = tVec3f(1.f, 0, 0);
     Plane last_plane_walked_on;
     bool is_on_solid_ground = false;
-    
+
     float last_walk_sound_time = 0.f;
     uint8 walk_cycle = 0;
-    
+
     EntityRecord target_entity; // @todo rename target_entity_record
     EntityRecord speaking_entity_record;
     float target_start_time = 0.f;

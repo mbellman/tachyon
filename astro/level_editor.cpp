@@ -36,6 +36,7 @@ struct LevelEditorState {
   int32 current_entity_index = 0;
 
   bool is_object_selected = false;
+  bool is_in_placement_mode = false;
   bool should_place_entity = false;
 
   // @todo improve how we manage editing steps
@@ -200,7 +201,7 @@ static tVec3f GetClosestObjectAxis(const tObject& object, const tVec3f& vector) 
   if (up_factor > right_factor && up_factor > forward_factor) {
     return dot_up < 0.f ? object_up.invert() : object_up;
   } else if (right_factor > up_factor && right_factor > forward_factor) {
-    return dot_right < 0.f ? object_right.invert() : object_right;    
+    return dot_right < 0.f ? object_right.invert() : object_right;
   } else {
     return dot_forward < 0.f ? object_forward.invert() : object_forward;
   }
@@ -274,15 +275,15 @@ static void HandleCameraActions(Tachyon* tachyon, State& state, const float dt) 
       if (is_key_held(tKey::W)) {
         camera.position += camera.orientation.getDirection() * camera_movement_speed * dt;
       }
-  
+
       if (is_key_held(tKey::A)) {
         camera.position += camera.orientation.getLeftDirection() * camera_movement_speed * dt;
       }
-  
+
       if (is_key_held(tKey::D)) {
         camera.position += camera.orientation.getLeftDirection().invert() * camera_movement_speed * dt;
       }
-  
+
       if (is_key_held(tKey::S)) {
         camera.position += camera.orientation.getDirection().invert() * camera_movement_speed * dt;
       }
@@ -535,6 +536,49 @@ static void DestroyGizmo(Tachyon* tachyon, State& state) {
   remove_all(meshes.gizmo_arrow);
   remove_all(meshes.gizmo_resizer);
   remove_all(meshes.gizmo_rotator);
+}
+
+/**
+ * ----------------------------
+ * Creates the entity/object placer.
+ * ----------------------------
+ */
+static void CreatePlacer(Tachyon* tachyon, State& state) {
+  create(state.meshes.editor_placer);
+}
+
+/**
+ * ----------------------------
+ * Handles updates for the entity/object placer.
+ * ----------------------------
+ */
+static void UpdatePlacer(Tachyon* tachyon, State& state) {
+  auto& camera = tachyon->scene.camera;
+  tVec3f camera_direction = camera.orientation.getDirection();
+  float dot = tVec3f::dot(camera_direction, tVec3f(0, -1.f, 0));
+  float camera_height = camera.position.y - -1500.f;
+  float distance = -camera_height / camera_direction.y;
+  if (distance > 50000.f) distance = 50000.f;
+
+  auto& placer = objects(state.meshes.editor_placer)[0];
+
+  placer.position = camera.position + camera_direction * distance;
+  placer.position.y = -1500.f;
+
+  placer.scale = tVec3f(2000.f);
+  placer.color = tVec4f(1.f, 0.4f, 0.1f, 0.6f);
+  placer.rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -t_HALF_PI);
+
+  commit(placer);
+}
+
+/**
+ * ----------------------------
+ * Destroys the entity/object placer.
+ * ----------------------------
+ */
+static void DestroyPlacer(Tachyon* tachyon, State& state) {
+  remove_all(state.meshes.editor_placer);
 }
 
 /**
@@ -1133,7 +1177,7 @@ static void RemoveLastObject(Tachyon* tachyon, uint16 mesh_index) {
 
   if (total_active > 0) {
     auto& last_object = objects[total_active - 1];
-  
+
     remove(last_object);
   }
 }
@@ -1245,11 +1289,19 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
     }
 
     if (did_press_key(tKey::ENTER)) {
-      if (editor.should_place_entity) {
-        CreateNewEntity(tachyon, state);
+      editor.is_in_placement_mode = !editor.is_in_placement_mode;
+
+      if (editor.is_in_placement_mode) {
+        CreatePlacer(tachyon, state);
       } else {
-        CreateNewDecorativeObject(tachyon, state);
+        DestroyPlacer(tachyon, state);
       }
+
+      // if (editor.should_place_entity) {
+      //   CreateNewEntity(tachyon, state);
+      // } else {
+      //   CreateNewDecorativeObject(tachyon, state);
+      // }
     }
   }
 }
@@ -1328,6 +1380,52 @@ void LevelEditor::OpenLevelEditor(Tachyon* tachyon, State& state) {
   fx.accumulation_blur_factor = 0.f;
 }
 
+void LevelEditor::HandleLevelEditor(Tachyon* tachyon, State& state, const float dt) {
+  if (is_window_focused()) {
+    HandleCameraActions(tachyon, state, dt);
+    HandleEditorActions(tachyon, state);
+  }
+
+  if (editor.is_object_selected) {
+    UpdateCurrentGizmo(tachyon, state);
+  }
+
+  if (editor.is_in_placement_mode) {
+    UpdatePlacer(tachyon, state);
+  }
+
+  // @todo create a HandleUI() method
+  {
+    Tachyon_DrawUIText(tachyon, state.debug_text_large, {
+      .screen_x = tachyon->window_width / 2,
+      .screen_y = 30,
+      .centered = true,
+      .color = tVec3f(1.f),
+      .string = "Level Editor"
+    });
+
+    if (editor.is_object_selected) {
+      std::string message = editor.current_selectable.is_entity
+        ? "Entity selected"
+        : "Object selected";
+
+      Tachyon_DrawUIText(tachyon, state.debug_text, {
+        .screen_x = tachyon->window_width / 2,
+        .screen_y = 60,
+        .centered = true,
+        .color = tVec3f(1.f),
+        .string = message
+      });
+
+      if (editor.current_selectable.is_entity) {
+        DisplaySelectedEntityProperties(tachyon, state);
+      } else {
+        DisplaySelectedObjectProperties(tachyon, state);
+      }
+    }
+  }
+}
+
 void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
   if (editor.is_editing_entity_properties) {
     // If we happened to hit the E key while editing entity properties,
@@ -1365,47 +1463,11 @@ void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
   SaveLevelData(tachyon, state);
   RemoveEntityPlaceholders(tachyon, state);
 
+  if (editor.is_in_placement_mode) {
+    DestroyPlacer(tachyon, state);
+
+    editor.is_in_placement_mode = false;
+  }
+
   editor.selectables.clear();
-}
-
-void LevelEditor::HandleLevelEditor(Tachyon* tachyon, State& state, const float dt) {
-  if (is_window_focused()) {
-    HandleCameraActions(tachyon, state, dt);
-    HandleEditorActions(tachyon, state);
-  }
-
-  if (editor.is_object_selected) {
-    UpdateCurrentGizmo(tachyon, state);
-  }
-
-  // @todo create a HandleUI() method
-  {
-    Tachyon_DrawUIText(tachyon, state.debug_text_large, {
-      .screen_x = tachyon->window_width / 2,
-      .screen_y = 30,
-      .centered = true,
-      .color = tVec3f(1.f),
-      .string = "Level Editor"
-    });
-
-    if (editor.is_object_selected) {
-      std::string message = editor.current_selectable.is_entity
-        ? "Entity selected"
-        : "Object selected";
-
-      Tachyon_DrawUIText(tachyon, state.debug_text, {
-        .screen_x = tachyon->window_width / 2,
-        .screen_y = 60,
-        .centered = true,
-        .color = tVec3f(1.f),
-        .string = message
-      });
-
-      if (editor.current_selectable.is_entity) {
-        DisplaySelectedEntityProperties(tachyon, state);
-      } else {
-        DisplaySelectedObjectProperties(tachyon, state);
-      }
-    }
-  }
 }

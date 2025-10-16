@@ -50,7 +50,7 @@ static void UpdatePlayer(Tachyon* tachyon, State& state, const float dt) {
 
   // Update model
   {
-    auto& player = objects(state.meshes.player)[0]; 
+    auto& player = objects(state.meshes.player)[0];
 
     player.position = state.player_position;
     // @temporary
@@ -267,6 +267,8 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
 
   auto& scene = tachyon->scene;
 
+  tachyon->scene.scene_time += dt;
+
   // Toggle level editor with E
   // @todo dev mode only
   {
@@ -316,7 +318,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
       fx.accumulation_blur_factor = max_blur_factor;
     }
 
-    tachyon->scene.scene_time += dt;
+    // tachyon->scene.scene_time += dt;
 
     // @todo ui.cpp
     // @todo debug mode only
