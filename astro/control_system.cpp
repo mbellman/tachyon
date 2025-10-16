@@ -81,13 +81,15 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
   float previous_astro_turn_speed = state.astro_turn_speed;
 
   bool started_turning = (
-    (state.last_frame_left_trigger == 0.f && tachyon->left_trigger != 0.f) ||
-    (state.last_frame_right_trigger == 0.f && tachyon->right_trigger != 0.f)
+    (tachyon->left_trigger > 0.f && state.last_frame_left_trigger == 0.f) ||
+    (tachyon->right_trigger > 0.f && state.last_frame_right_trigger == 0.f)
   );
 
   bool stopped_turning = false;
 
   // Track the initial time when we start turning
+  // so we can determine when to start slowing down
+  // before hitting min/max time
   if (started_turning) {
     state.astro_time_at_start_of_turn = state.astro_time;
   }
@@ -131,8 +133,10 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
 
       state.astro_turn_speed *= 1.f - slowdown_factor * dt;
 
-      if (abs(state.astro_time - max_astro_time) < 2.f) {
+      if (abs(max_astro_time - state.astro_time) < 2.f) {
         UISystem::ShowDialogue(tachyon, state, "The astrolabe stopped turning.");
+
+        stopped_turning = true;
       }
     }
   }
@@ -159,6 +163,8 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
         abs(state.astro_time - min_astro_time) < 2.f
       ) {
         UISystem::ShowDialogue(tachyon, state, "The astrolabe stopped turning.");
+
+        stopped_turning = true;
       }
     }
   }
@@ -170,7 +176,7 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
     state.astro_turn_speed *= 1.f - astro_slowdown_rate * dt;
 
     // Stop turning at a low enough speed
-    if (abs(state.astro_turn_speed) < 0.001f) {
+    if (abs(state.astro_turn_speed) < 0.01f) {
       state.astro_turn_speed = 0.f;
     }
   }
@@ -185,8 +191,15 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
 
   // Check for stopped astro turns
   if (
+    // Turning against min/max astro time
     (started_turning && state.astro_turn_speed == 0.f) ||
-    (abs(previous_astro_turn_speed) >= 0.1f && abs(state.astro_turn_speed) < 0.1f)
+    // Turn slowing down below a given threshold
+    (
+      abs(previous_astro_turn_speed) >= 0.1f &&
+      abs(state.astro_turn_speed) < 0.1f &&
+      (tachyon->left_trigger == 0.f || state.astro_time <= min_astro_time) &&
+      (tachyon->right_trigger == 0.f || state.astro_time >= max_astro_time)
+    )
   ) {
     stopped_turning = true;
   }
