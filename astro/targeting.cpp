@@ -79,12 +79,12 @@ static void HandleActiveTargetReticle(Tachyon* tachyon, State& state) {
   float entity_distance = (state.player_position - entity.visible_position).magnitude();
 
   reticle.position = entity.visible_position;
-  reticle.position.y += entity.visible_scale.y + 800.f;
+  reticle.position.y += entity.visible_scale.y + 1600.f;
   reticle.position.y += 100.f * sinf(t_TAU * tachyon->running_time);
 
   reticle.scale = tVec3f(400.f);
   reticle.color = tVec4f(1.f, 0.8f, 0.2f, 0.4f);
-  reticle.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 2.f * tachyon->running_time);
+  reticle.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -2.f * tachyon->running_time);
 
   if (entity_distance > 10000.f || entity.visible_scale.x == 0.f) {
     Targeting::DeselectCurrentTarget(tachyon, state);
@@ -101,10 +101,11 @@ static void HandleTargetPreviewReticle(Tachyon* tachyon, State& state) {
     auto& entity = *EntityManager::FindEntity(state, closest_target);
 
     reticle.position = entity.visible_position;
-    reticle.position.y += entity.visible_scale.y + 800.f;
+    reticle.position.y += entity.visible_scale.y + 1600.f;
+    reticle.position.y += 100.f * sinf(t_TAU * tachyon->running_time);
 
     reticle.scale = tVec3f(250.f);
-    reticle.color = tVec4f(1.f, 0.5f, 0.1f, 0.4f);
+    reticle.color = tVec4f(1.f, 0.3f, 0.1f, 0.4f);
   } else {
     reticle.scale = tVec3f(0.f);
   }

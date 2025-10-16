@@ -93,22 +93,22 @@ namespace astro {
           tVec3f facing_direction = GetFacingDirection(entity);
 
           bool can_notice_player = (
-            tVec3f::dot(facing_direction, player_direction) > 0.3f ||
+            tVec3f::dot(facing_direction, player_direction) > 0.4f ||
             player_distance < 4000.f
           );
 
           // Chase the player when not idle
           if (enemy.mood != ENEMY_IDLE) {
             entity.visible_position += player_direction * 3000.f * dt;
-  
+
             FacePlayer(entity, state);
           }
 
           if (enemy.mood == ENEMY_IDLE && can_notice_player) {
             enemy.mood = ENEMY_ENGAGED;
-            
+
             Targeting::SetSpeakingEntity(state, entity);
-            
+
             play_random_dialogue(entity, bandit_dialogue_noticed);
 
             // @todo alert nearby entities
