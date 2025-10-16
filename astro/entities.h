@@ -265,7 +265,7 @@ namespace astro {
 
     { BANDIT, {
       .name = "Bandit",
-      .scale = tVec3f(600.f, 1500.f, 600.f ),
+      .scale = tVec3f(1500.f),
       .tint = tVec3f(0.2f)
     } }
   };

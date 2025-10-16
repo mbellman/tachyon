@@ -8,8 +8,8 @@
 namespace astro {
   behavior Bandit {
     addMeshes() {
-      meshes.bandit_placeholder = CUBE_MESH(500);
-      meshes.bandit = CUBE_MESH(500);
+      meshes.bandit_placeholder = MODEL_MESH("./astro/3d_models/bandit/placeholder.obj", 500);
+      meshes.bandit = MODEL_MESH("./astro/3d_models/bandit/bandit.obj", 500);
     }
 
     getMeshes() {
@@ -63,7 +63,7 @@ namespace astro {
 
             tVec3f entity_to_entity = entity.visible_position.xz() - bandit.visible_position.xz();
             float distance = entity_to_entity.magnitude();
-            float minimum_distance = 1.6f * (entity.visible_scale.x + bandit.visible_scale.x);
+            float minimum_distance = 0.7f * (entity.visible_scale.x + bandit.visible_scale.x);
 
             if (distance < minimum_distance) {
               entity.visible_position = bandit.visible_position + entity_to_entity.unit() * minimum_distance;
@@ -72,7 +72,7 @@ namespace astro {
 
           // Player collision
           // @todo factor
-          float minimum_distance = 1.6f * (entity.visible_scale.x + 500.f);
+          float minimum_distance = 0.7f * entity.visible_scale.x + 500.f;
 
           if (player_distance < minimum_distance) {
             entity.visible_position = state.player_position + player_direction.invert() * minimum_distance;
@@ -89,20 +89,29 @@ namespace astro {
         }
         else if (player_distance > 3000.f) {
           // Non-strafing combat
-          float time_since_casting_stun = tachyon->running_time - state.spells.stun_start_time;
           float dialogue_duration = tachyon->running_time - state.dialogue_start_time;
+          tVec3f facing_direction = GetFacingDirection(entity);
 
-          // Chase the player
-          entity.visible_position += player_direction * 3000.f * dt;
+          bool can_notice_player = (
+            tVec3f::dot(facing_direction, player_direction) > 0.3f ||
+            player_distance < 4000.f
+          );
 
-          FacePlayer(entity, state);
+          // Chase the player when not idle
+          if (enemy.mood != ENEMY_IDLE) {
+            entity.visible_position += player_direction * 3000.f * dt;
+  
+            FacePlayer(entity, state);
+          }
 
-          if (enemy.mood == ENEMY_IDLE) {
+          if (enemy.mood == ENEMY_IDLE && can_notice_player) {
             enemy.mood = ENEMY_ENGAGED;
-
+            
             Targeting::SetSpeakingEntity(state, entity);
-
+            
             play_random_dialogue(entity, bandit_dialogue_noticed);
+
+            // @todo alert nearby entities
           }
           else if (enemy.mood == ENEMY_ENGAGED && dialogue_duration > 5.f) {
             play_random_dialogue(entity, bandit_dialogue_engaged);

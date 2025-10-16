@@ -46,6 +46,11 @@ namespace astro {
     entity.visible_rotation = facing_direction;
   }
 
+  static tVec3f GetFacingDirection(GameEntity& entity) {
+    // @todo why do we have to invert this?
+    return entity.visible_rotation.getDirection().invert();
+  }
+
   static inline bool IsDuringActiveTime(const GameEntity& entity, const State& state) {
     return (
       state.astro_time >= entity.astro_start_time &&
