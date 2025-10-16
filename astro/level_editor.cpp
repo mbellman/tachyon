@@ -37,7 +37,7 @@ struct LevelEditorState {
 
   bool is_object_selected = false;
   bool is_in_placement_mode = false;
-  bool should_place_entity = false;
+  bool is_placing_entity = false;
 
   // @todo improve how we manage editing steps
   bool is_editing_entity_properties = false;
@@ -566,7 +566,7 @@ static void UpdatePlacer(Tachyon* tachyon, State& state) {
   placer.position.y = -1500.f;
 
   placer.scale = tVec3f(2000.f);
-  placer.color = tVec4f(1.f, 0.4f, 0.1f, 0.6f);
+  placer.color = tVec4f(0.7f, 0.1f, 0.1f, 0.6f);
   placer.rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -t_HALF_PI);
 
   commit(placer);
@@ -623,7 +623,7 @@ static void CycleGizmoAction(Tachyon* tachyon, State& state, int8 direction) {
  * ----------------------------
  */
 static void CycleDecorativeMeshes(Tachyon* tachyon, State& state, int8 direction) {
-  editor.should_place_entity = false;
+  editor.is_placing_entity = false;
 
   auto& decorative_meshes = GetDecorativeMeshes(state);
 
@@ -651,7 +651,7 @@ static void CycleDecorativeMeshes(Tachyon* tachyon, State& state, int8 direction
  * ----------------------------
  */
 static void CycleEntities(Tachyon* tachyon, State& state, int8 direction) {
-  editor.should_place_entity = true;
+  editor.is_placing_entity = true;
 
   if (direction == 1) {
     editor.current_entity_index++;
@@ -1080,6 +1080,25 @@ static std::string FormatForDisplay(const Quaternion& q) {
 
 /**
  * ----------------------------
+ * Renders a series of info labels in the upper right of the screen.
+ * ----------------------------
+ */
+static void RenderInfoLabels(Tachyon* tachyon, State& state, const std::vector<std::string>& labels) {
+  for (int32 i = 0; (int32)i < labels.size(); i++) {
+    auto& label = labels[i];
+
+    Tachyon_DrawUIText(tachyon, state.debug_text, {
+      .screen_x = tachyon->window_width - 480,
+      .screen_y = 20 + (i * 25),
+      .centered = false,
+      .color = tVec3f(1.f),
+      .string = label
+    });
+  }
+}
+
+/**
+ * ----------------------------
  * Displays information for the current-selected entity.
  * ----------------------------
  */
@@ -1117,17 +1136,7 @@ static void DisplaySelectedEntityProperties(Tachyon* tachyon, State& state) {
     labels.push_back(".astro_end_time: " + Serialize(entity.astro_end_time));
   }
 
-  for (int32 i = 0; i < (int32)labels.size(); i++) {
-    auto& label = labels[i];
-
-    Tachyon_DrawUIText(tachyon, state.debug_text, {
-      .screen_x = tachyon->window_width - 480,
-      .screen_y = 20 + (i * 25),
-      .centered = false,
-      .color = tVec3f(1.f),
-      .string = label
-    });
-  }
+  RenderInfoLabels(tachyon, state, labels);
 }
 
 /**
@@ -1153,17 +1162,7 @@ static void DisplaySelectedObjectProperties(Tachyon* tachyon, State& state) {
   labels.push_back("scale: " + FormatForDisplay(object.scale));
   labels.push_back("rotation: " + FormatForDisplay(object.rotation));
 
-  for (int32 i = 0; i < (int32)labels.size(); i++) {
-    auto& label = labels[i];
-
-    Tachyon_DrawUIText(tachyon, state.debug_text, {
-      .screen_x = tachyon->window_width - 480,
-      .screen_y = 20 + (i * 25),
-      .centered = false,
-      .color = tVec3f(1.f),
-      .string = label
-    });
-  }
+  RenderInfoLabels(tachyon, state, labels);
 }
 
 /**
@@ -1297,7 +1296,7 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
         DestroyPlacer(tachyon, state);
       }
 
-      // if (editor.should_place_entity) {
+      // if (editor.is_placing_entity) {
       //   CreateNewEntity(tachyon, state);
       // } else {
       //   CreateNewDecorativeObject(tachyon, state);
@@ -1349,6 +1348,95 @@ static void RemoveEntityPlaceholders(Tachyon* tachyon, State& state) {
   }
 }
 
+/**
+ * ----------------------------
+ * Displays decorative object placement details.
+ * ----------------------------
+ */
+static void DisplayObjectPlacementLabels(Tachyon* tachyon, State& state) {
+  auto& decorative_mesh = GetDecorativeMeshes(state)[editor.current_decorative_mesh_index];
+  auto& mesh = mesh(decorative_mesh.mesh_index);
+  auto& mesh_name = GetDecorativeMeshName(state, decorative_mesh.mesh_index);
+  uint16 total_active = objects(decorative_mesh.mesh_index).total_active;
+  int32 total_verts = mesh.lod_1.vertex_end - mesh.lod_1.vertex_start;
+  int32 summed_verts = total_active * total_verts;
+
+  static std::vector<std::string> labels;
+
+  labels.clear();
+  labels.push_back("Mesh: " + mesh_name + " (" + std::to_string(total_active) + " active)");
+  labels.push_back("Vertices: " + std::to_string(total_verts) + " [" + std::to_string(summed_verts) + "]");
+
+  RenderInfoLabels(tachyon, state, labels);
+}
+
+/**
+ * ----------------------------
+ * Displays entity placement details.
+ * ----------------------------
+ */
+static void DisplayEntityPlacementLabels(Tachyon* tachyon, State& state) {
+  EntityType entity_type = entity_types[editor.current_entity_index];
+  auto& defaults = get_entity_defaults(entity_type);
+  auto& entity_name = defaults.name;
+  uint16 mesh_index = EntityDispatcher::GetPlaceholderMesh(state, entity_type);
+  int32 total_active = EntityDispatcher::GetEntityContainer(state, entity_type).size();
+  auto& mesh = mesh(mesh_index);
+  int32 total_verts = mesh.lod_1.vertex_end - mesh.lod_1.vertex_start;
+  int32 summed_verts = total_active * total_verts;
+
+  static std::vector<std::string> labels;
+
+  labels.clear();
+  labels.push_back("Entity: " + entity_name + " (" + std::to_string(total_active) + " active)");
+  labels.push_back("Vertices: " + std::to_string(total_verts) + " [" + std::to_string(summed_verts) + "]");
+
+  RenderInfoLabels(tachyon, state, labels);
+}
+
+/**
+ * ----------------------------
+ * Displays UI and HUD elements.
+ * ----------------------------
+ */
+static void HandleUI(Tachyon* tachyon, State& state) {
+  Tachyon_DrawUIText(tachyon, state.debug_text_large, {
+    .screen_x = tachyon->window_width / 2,
+    .screen_y = 30,
+    .centered = true,
+    .color = tVec3f(1.f),
+    .string = "Level Editor"
+  });
+
+  if (editor.is_in_placement_mode) {
+    if (editor.is_placing_entity) {
+      DisplayEntityPlacementLabels(tachyon, state);
+    } else {
+      DisplayObjectPlacementLabels(tachyon, state);
+    }
+  }
+
+  if (editor.is_object_selected) {
+    std::string message = editor.current_selectable.is_entity
+      ? "Entity selected"
+      : "Object selected";
+
+    Tachyon_DrawUIText(tachyon, state.debug_text, {
+      .screen_x = tachyon->window_width / 2,
+      .screen_y = 60,
+      .centered = true,
+      .color = tVec3f(1.f),
+      .string = message
+    });
+
+    if (editor.current_selectable.is_entity) {
+      DisplaySelectedEntityProperties(tachyon, state);
+    } else {
+      DisplaySelectedObjectProperties(tachyon, state);
+    }
+  }
+}
+
 void LevelEditor::OpenLevelEditor(Tachyon* tachyon, State& state) {
   auto& fx = tachyon->fx;
   auto& meshes = state.meshes;
@@ -1394,36 +1482,7 @@ void LevelEditor::HandleLevelEditor(Tachyon* tachyon, State& state, const float 
     UpdatePlacer(tachyon, state);
   }
 
-  // @todo create a HandleUI() method
-  {
-    Tachyon_DrawUIText(tachyon, state.debug_text_large, {
-      .screen_x = tachyon->window_width / 2,
-      .screen_y = 30,
-      .centered = true,
-      .color = tVec3f(1.f),
-      .string = "Level Editor"
-    });
-
-    if (editor.is_object_selected) {
-      std::string message = editor.current_selectable.is_entity
-        ? "Entity selected"
-        : "Object selected";
-
-      Tachyon_DrawUIText(tachyon, state.debug_text, {
-        .screen_x = tachyon->window_width / 2,
-        .screen_y = 60,
-        .centered = true,
-        .color = tVec3f(1.f),
-        .string = message
-      });
-
-      if (editor.current_selectable.is_entity) {
-        DisplaySelectedEntityProperties(tachyon, state);
-      } else {
-        DisplaySelectedObjectProperties(tachyon, state);
-      }
-    }
-  }
+  HandleUI(tachyon, state);
 }
 
 void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
