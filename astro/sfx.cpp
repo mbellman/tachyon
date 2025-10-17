@@ -8,9 +8,12 @@ using namespace astro;
 static std::map<Sound, const char*> sound_file_map = {
   { SFX_ASTRO_START, "./astro/audio/astro_start.wav" },
   { SFX_ASTRO_END, "./astro/audio/astro_end.wav" },
+
   { SFX_GROUND_WALK_1, "./astro/audio/ground_walk_1.wav" },
   { SFX_GROUND_WALK_2, "./astro/audio/ground_walk_2.wav" },
-  { SFX_GROUND_WALK_3, "./astro/audio/ground_walk_3.wav" }
+  { SFX_GROUND_WALK_3, "./astro/audio/ground_walk_3.wav" },
+
+  { SFX_SPELL_STUN, "./astro/audio/spell_stun.wav" }
 };
 
 static std::map<Sound, tSoundResource> resource_cache;

@@ -40,6 +40,18 @@ uvec4 SurfaceToUVec4(uint surface) {
   return uvec4(rg, ba, roughness_metalness, clearcoat_subsurface);
 }
 
+float GetFoliageLocalWind(mat4 model_matrix, float wind_speed, float wind_strength) {
+  // Have wind "flow" across the environment along x,
+  // using model_x as a base for determining periodic strength
+  float model_x = model_matrix[3][0];
+
+  return wind_strength * (0.6 + 0.4 * sin(wind_speed * scene_time - model_matrix[3][0] * 0.0005));
+}
+
+float GetFoliageDriftIntensity(float wind, float vertex_y) {
+  return wind * min(1.0, vertex_y * vertex_y);
+}
+
 void main() {
   mat3 normal_matrix = transpose(inverse(mat3(modelMatrix)));
 
@@ -50,18 +62,24 @@ void main() {
   vec3 translation = vec3(modelMatrix[3][0], modelMatrix[3][1], modelMatrix[3][2]);
   vec3 world_space_position = model_space_position + (translation - transform_origin);
 
+  // @todo separate foliage shader?
+  // @todo handle foliage behavior in shadow map pass
   if (is_grass) {
     float model_y = model_space_position.y;
     float vertex_y = vertexPosition.y;
-    // Have wind "flow" across the environment along x,
-    // using model_x as a base for determining periodic strength
-    float wind = (0.6 + 0.4 * sin(2.0 * scene_time - modelMatrix[3][0] * 0.0005));
-    // Calculate the current drift intensity
-    float drift = 2.0 * wind * (0.1 * model_y * (vertex_y * vertex_y));
+
+    // Calculate wind
+    float wind_strength = 200.0;
+    float wind_speed = 2.0;
+    float local_wind = GetFoliageLocalWind(modelMatrix, wind_speed, wind_strength);
+
+    // Calculate the local drift intensity
+    float drift_factor = GetFoliageDriftIntensity(local_wind, vertex_y);
+
     float alpha = 2.0 * scene_time + modelMatrix[3][0];
 
-    world_space_position.x += drift * sin(alpha);
-    world_space_position.z += drift * cos(1.5 * alpha);
+    world_space_position.x += drift_factor * sin(alpha);
+    world_space_position.z += drift_factor * cos(1.5 * alpha);
   }
 
   gl_Position = view_projection_matrix * vec4(world_space_position, 1.0);

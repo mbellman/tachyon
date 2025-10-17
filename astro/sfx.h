@@ -7,7 +7,9 @@ namespace astro {
 
     SFX_GROUND_WALK_1,
     SFX_GROUND_WALK_2,
-    SFX_GROUND_WALK_3
+    SFX_GROUND_WALK_3,
+
+    SFX_SPELL_STUN
   };
 
   namespace Sfx {
