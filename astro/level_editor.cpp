@@ -1368,6 +1368,12 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
       // }
     }
 
+    if (did_right_click_down() && editor.is_in_placement_mode) {
+      editor.is_in_placement_mode = false;
+
+      DestroyPlacer(tachyon, state);
+    }
+
     if (did_press_key(tKey::R)) {
       RespawnPlayer(tachyon, state);
     }

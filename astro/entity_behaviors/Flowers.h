@@ -34,9 +34,7 @@ namespace astro {
         auto& stalks = objects(meshes.flowers_stalks)[i];
 
         stalks.scale = entity.scale * growth;
-        
         stalks.position = entity.position;
-
         stalks.rotation = entity.orientation;
         stalks.color = entity.tint;
         stalks.material = tVec4f(0.8f, 0, 0, 0.6f);
@@ -45,10 +43,9 @@ namespace astro {
         auto& petals = objects(meshes.flowers_petals)[i];
 
         petals.scale = entity.scale * growth;
-        
         petals.position = entity.position;
-
         petals.rotation = entity.orientation;
+
         {
           // @todo make dynamic
           tVec3f blossom_color = tVec3f(1.f, 0.3f, 0.5f);

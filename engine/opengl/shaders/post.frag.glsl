@@ -147,7 +147,7 @@ BilinearSample GetBilinearTextureSample( sampler2D sam, vec2 uv ) {
 void main() {
   #if ENABLE_IMAGE_SMOOTHING
     BilinearSample color_and_depth_sample = GetBilinearTextureSample(in_color_and_depth, fragUv);
- 
+
     vec4 color_and_depth;
     // Use the filtered color sample
     color_and_depth.rgb = color_and_depth_sample.filtered.rgb;
@@ -220,6 +220,14 @@ void main() {
     // Depth fog
     #if ENABLE_ASTRO_FX
       float depth_factor = 0.5 * pow(color_and_depth.w, 20.0);
+
+      // float fog_thickness =
+      //   (0.5 + 0.5 * sin(position.x * 0.0002)) *
+      //   (0.5 + 0.5 * cos(position.z * 0.0002));
+
+      // depth_factor = 0.5 + 0.3 * fog_thickness * depth_factor;
+
+      // if (depth_factor > 1.0) depth_factor = 1.0;
 
       post_color = mix(post_color, vec3(0.2, 0.4, 0.5), depth_factor);
     #elif ENABLE_COSMODRONE_FX

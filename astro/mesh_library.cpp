@@ -29,6 +29,8 @@ static void AddDecorativeMeshes(Tachyon* tachyon, State& state) {
   meshes.ground_1 = MODEL_MESH("./astro/3d_models/ground_1.obj", 5000);
 
   mesh(meshes.flat_ground).shadow_cascade_ceiling = 0;
+  mesh(meshes.rock_1).shadow_cascade_ceiling = 2;
+  mesh(meshes.ground_1).shadow_cascade_ceiling = 2;
 }
 
 static void AddEntityMeshes(Tachyon* tachyon, State& state) {
@@ -42,6 +44,12 @@ static void AddEntityMeshes(Tachyon* tachyon, State& state) {
   // @todo define in entity defaults
   mesh(meshes.dirt_path_placeholder).shadow_cascade_ceiling = 0;
   mesh(meshes.dirt_path).shadow_cascade_ceiling = 0;
+
+  mesh(meshes.flowers_stalks).type = GRASS_MESH;
+  mesh(meshes.flowers_petals).type = GRASS_MESH;
+  mesh(meshes.flowers_placeholder).shadow_cascade_ceiling = 2;
+  mesh(meshes.flowers_stalks).shadow_cascade_ceiling = 2;
+  mesh(meshes.flowers_petals).shadow_cascade_ceiling = 2;
 }
 
 static void AddEditorMeshes(Tachyon* tachyon, State& state) {
@@ -71,22 +79,19 @@ void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
 
   // @temporary
   // @todo AddProceduralMeshes()
-  meshes.grass = MODEL_MESH("./astro/3d_models/grass.obj", 10000);
-  meshes.small_grass = MODEL_MESH("./astro/3d_models/grass.obj", 50000);
+  {
+    meshes.grass = MODEL_MESH("./astro/3d_models/grass.obj", 20000);
+    meshes.small_grass = MODEL_MESH("./astro/3d_models/grass.obj", 50000);
 
-  mesh(meshes.grass).type = GRASS_MESH;
-  mesh(meshes.grass).shadow_cascade_ceiling = 2;
-  mesh(meshes.small_grass).type = GRASS_MESH;
-  mesh(meshes.small_grass).shadow_cascade_ceiling = 0;
+    mesh(meshes.grass).type = GRASS_MESH;
+    mesh(meshes.grass).shadow_cascade_ceiling = 2;
+    mesh(meshes.small_grass).type = GRASS_MESH;
+    mesh(meshes.small_grass).shadow_cascade_ceiling = 0;
+  }
 
   AddHUDMeshes(tachyon, state);
   AddDecorativeMeshes(tachyon, state);
   AddEntityMeshes(tachyon, state);
-
-  mesh(meshes.flowers_stalks).type = GRASS_MESH;
-  mesh(meshes.flowers_petals).type = GRASS_MESH;
-  mesh(meshes.flowers_stalks).shadow_cascade_ceiling = 2;
-  mesh(meshes.flowers_petals).shadow_cascade_ceiling = 2;
 
   // @todo dev mode only
   AddEditorMeshes(tachyon, state);

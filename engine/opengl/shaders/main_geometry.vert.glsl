@@ -53,7 +53,11 @@ void main() {
   if (is_grass) {
     float model_y = model_space_position.y;
     float vertex_y = vertexPosition.y;
-    float drift = 0.1 * model_y * (vertex_y * vertex_y);
+    // Have wind "flow" across the environment along x,
+    // using model_x as a base for determining periodic strength
+    float wind = (0.6 + 0.4 * sin(2.0 * scene_time - modelMatrix[3][0] * 0.0005));
+    // Calculate the current drift intensity
+    float drift = 2.0 * wind * (0.1 * model_y * (vertex_y * vertex_y));
     float alpha = 2.0 * scene_time + modelMatrix[3][0];
 
     world_space_position.x += drift * sin(alpha);

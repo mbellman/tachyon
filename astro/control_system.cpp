@@ -76,7 +76,8 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
   // @todo increase this once the appropriate item is obtained
   float max_astro_time = 0.f;
   // @todo decrease this once the appropriate item is obtained
-  float min_astro_time = -158.f;
+  // float min_astro_time = -158.f;
+  float min_astro_time = -76.f;
 
   float previous_astro_turn_speed = state.astro_turn_speed;
 
@@ -208,13 +209,13 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
   // Sound effects for stopping/starting astro turn
   if (stopped_turning && !state.played_stopping_turn_sound) {
     Sfx::FadeOutSound(SFX_ASTRO_START);
-    Sfx::PlaySound(SFX_ASTRO_END, 0.7f);
+    Sfx::PlaySound(SFX_ASTRO_END, 1.f);
 
     state.played_stopping_turn_sound = true;
   }
   else if (started_turning) {
     Sfx::FadeOutSound(SFX_ASTRO_END);
-    Sfx::PlaySound(SFX_ASTRO_START, 0.5f);
+    Sfx::PlaySound(SFX_ASTRO_START, 0.8f);
 
     state.played_stopping_turn_sound = false;
   }
