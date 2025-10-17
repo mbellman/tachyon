@@ -1243,6 +1243,27 @@ static void DeleteSelected(Tachyon* tachyon, State& state) {
 
 /**
  * ----------------------------
+ * Respawns the player near the camera.
+ * ----------------------------
+ */
+static void RespawnPlayer(Tachyon* tachyon, State& state) {
+  auto& camera = tachyon->scene.camera;
+  tVec3f camera_direction = camera.orientation.getDirection();
+  float camera_height = camera.position.y - -1500.f;
+  float distance = -camera_height / camera_direction.y;
+
+  state.player_position = camera.position + camera_direction * distance;
+  state.player_position.y = 0.f;
+
+  auto& player = objects(state.meshes.player)[0];
+
+  player.position = state.player_position;
+
+  commit(player);
+}
+
+/**
+ * ----------------------------
  * Handles inputs while the editor is open.
  * ----------------------------
  */
@@ -1339,6 +1360,10 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
       // } else {
       //   CreateNewDecorativeObject(tachyon, state);
       // }
+    }
+
+    if (did_press_key(tKey::R)) {
+      RespawnPlayer(tachyon, state);
     }
   }
 }

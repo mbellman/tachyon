@@ -250,6 +250,10 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
     ResolveSingleRadiusCollision(state, rock.position, rock.scale, 1.f);
   }
 
+  for (auto& ground : objects(state.meshes.ground_1)) {
+    ResolveSingleRadiusCollision(state, ground.position, ground.scale, 0.8f);
+  }
+
   state.is_on_solid_ground = false;
 
   HandleFlatGroundCollisions(tachyon, state);

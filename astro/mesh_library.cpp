@@ -67,6 +67,8 @@ void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
   meshes.player = CUBE_MESH(1);
   meshes.water_plane = PLANE_MESH(1);
 
+  mesh(meshes.water_plane).shadow_cascade_ceiling = 0;
+
   // @temporary
   // @todo AddProceduralMeshes()
   meshes.grass = MODEL_MESH("./astro/3d_models/grass.obj", 10000);
