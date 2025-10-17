@@ -56,7 +56,7 @@ static void GenerateProceduralGrass(Tachyon* tachyon, State& state) {
   // @todo dev mode only
   {
     std::string message = "Generated " + std::to_string(objects(state.meshes.grass).total_active) + " grass objects";
-  
+
     console_log(message);
   }
 }
@@ -115,7 +115,7 @@ static void GenerateProceduralSmallGrass(Tachyon* tachyon, State& state) {
       grass.color = tVec4f(0.2f, 0.8f, 0.2f, 0.2f);
       grass.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), Tachyon_GetRandom(0.f, t_TAU));
       grass.material = tVec4f(0.8f, 0, 0, 1.f);
- 
+
       commit(grass);
     }
   }
@@ -125,7 +125,7 @@ static void GenerateProceduralSmallGrass(Tachyon* tachyon, State& state) {
     uint64 duration = Tachyon_GetMicroseconds() - start;
 
     std::string message = "Generated " + std::to_string(objects(state.meshes.small_grass).total_active) + " small grass objects (" + std::to_string(duration) + "us)";
-  
+
     console_log(message);
   }
 }
@@ -183,11 +183,11 @@ static void UpdateProceduralSmallGrass(Tachyon* tachyon, State& state) {
   };
 
   static const float scales[] = {
-    200.f,
-    500.f,
     300.f,
-    400.f,
-    250.f
+    600.f,
+    500.f,
+    450.f,
+    400.f
   };
 
   const float growth_rate = 0.7f;

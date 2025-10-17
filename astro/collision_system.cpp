@@ -254,6 +254,8 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
     ResolveSingleRadiusCollision(state, ground.position, ground.scale, 0.8f);
   }
 
+  // Assume we're not on solid ground until a
+  // ground-related collision determines otherwise
   state.is_on_solid_ground = false;
 
   HandleFlatGroundCollisions(tachyon, state);

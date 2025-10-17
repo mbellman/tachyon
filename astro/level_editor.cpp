@@ -864,6 +864,8 @@ static void CreateNewDecorativeObject(Tachyon* tachyon, State& state) {
 
   TrackDecorativeObject(object);
 
+  ProceduralGeneration::RebuildProceduralObjects(tachyon, state);
+
   if (!editor.is_in_placement_mode) {
     MakeSelection(tachyon, state, editor.selectables.back());
   }
@@ -890,6 +892,8 @@ static void CreateNewEntity(Tachyon* tachyon, State& state) {
   EntityManager::SaveNewEntity(state, entity);
 
   SpawnEntityObjects(tachyon, state, entity);
+
+  ProceduralGeneration::RebuildProceduralObjects(tachyon, state);
 }
 
 /**
@@ -1237,6 +1241,8 @@ static void DeleteSelected(Tachyon* tachyon, State& state) {
   }
 
   DestroyGizmo(tachyon, state);
+
+  ProceduralGeneration::RebuildProceduralObjects(tachyon, state);
 
   editor.is_object_selected = false;
 }
