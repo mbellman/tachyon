@@ -34,7 +34,8 @@ void Tachyon_PlaySound(tSoundResource& resource, const float volume) {
 void Tachyon_FadeOutSound(tSoundResource& resource) {
   auto* sound = (ma_sound*)resource.data;
 
-  ma_sound_set_fade_in_milliseconds(sound, -1, 0, 1000);
+  // @todo make fade-out time customizable
+  ma_sound_set_fade_in_milliseconds(sound, -1, 0, 500);
 }
 
 void Tachyon_StopSound(tSoundResource& resource) {
