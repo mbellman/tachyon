@@ -799,34 +799,74 @@ static void SpawnEntityObjects(Tachyon* tachyon, State& state, GameEntity& entit
 
 /**
  * ----------------------------
+ * Returns the position a new object or entity should spawn at when placed.
+ * @todo remove the legacy non-placement-mode conditions
+ * ----------------------------
+ */
+static tVec3f GetPlacementPosition(Tachyon* tachyon, State& state) {
+  auto& camera = tachyon->scene.camera;
+
+  if (editor.is_in_placement_mode) {
+    auto& placer = objects(state.meshes.editor_placer)[0];
+
+    return placer.position;
+  }
+  else if (editor.is_placing_entity) {
+    EntityType entity_type = entity_types[editor.current_entity_index];
+    auto& defaults = get_entity_defaults(entity_type);
+
+    // @temporary
+    // @todo define various restrictions/defaults on how certain
+    // decorative mesh objects are spawned or can be manipulated
+    if (entity_type == DIRT_PATH) {
+      tVec3f position = camera.position + camera.orientation.getDirection() * abs(camera.position.y) * 1.5f;
+      position.y = -1450.f;
+
+      return position;
+    } else {
+      return camera.position + camera.orientation.getDirection() * 7500.f;
+    }
+  }
+  else {
+    auto& decorative_meshes = GetDecorativeMeshes(state);
+    auto& current_decorative_mesh = decorative_meshes[editor.current_decorative_mesh_index];
+
+    // @temporary
+    // @todo define various restrictions/defaults on how certain
+    // decorative mesh objects are spawned or can be manipulated
+    if (current_decorative_mesh.mesh_index == state.meshes.flat_ground) {
+      tVec3f position = camera.position + camera.orientation.getDirection() * abs(camera.position.y) * 1.5f;
+      position.y = -1500.f;
+
+      return position;
+    } else {
+      return camera.position + camera.orientation.getDirection() * 7500.f;
+    }
+  }
+}
+
+/**
+ * ----------------------------
  * Creates a normal object and adds it to the scene.
  * @todo rename to reflect this is for the current-selected type
  * ----------------------------
  */
 static void CreateNewDecorativeObject(Tachyon* tachyon, State& state) {
-  auto& camera = tachyon->scene.camera;
   auto& decorative_meshes = GetDecorativeMeshes(state);
   auto& current_decorative_mesh = decorative_meshes[editor.current_decorative_mesh_index];
   auto& object = create(current_decorative_mesh.mesh_index);
 
+  object.position = GetPlacementPosition(tachyon, state);
   object.scale = current_decorative_mesh.default_scale;
   object.color = current_decorative_mesh.default_color;
-
-  // @temporary
-  // @todo define various restrictions/defaults on how certain
-  // decorative mesh objects are spawned or can be manipulated
-  if (current_decorative_mesh.mesh_index == state.meshes.flat_ground) {
-    object.position = camera.position + camera.orientation.getDirection() * abs(camera.position.y) * 1.5f;
-    object.position.y = -1500.f;
-  }
-  else {
-    object.position = camera.position + camera.orientation.getDirection() * 7500.f;
-  }
 
   commit(object);
 
   TrackDecorativeObject(object);
-  MakeSelection(tachyon, state, editor.selectables.back());
+
+  if (!editor.is_in_placement_mode) {
+    MakeSelection(tachyon, state, editor.selectables.back());
+  }
 }
 
 /**
@@ -836,26 +876,16 @@ static void CreateNewDecorativeObject(Tachyon* tachyon, State& state) {
  * ----------------------------
  */
 static void CreateNewEntity(Tachyon* tachyon, State& state) {
-  auto& camera = tachyon->scene.camera;
-
   EntityType entity_type = entity_types[editor.current_entity_index];
   auto& defaults = get_entity_defaults(entity_type);
   GameEntity entity = EntityManager::CreateNewEntity(state, entity_type);
 
-  entity.position = camera.position + camera.orientation.getDirection() * 7500.f;
+  entity.position = GetPlacementPosition(tachyon, state);
   entity.scale = defaults.scale;
   entity.orientation = Quaternion(1.f, 0, 0, 0);
   entity.tint = defaults.tint;
   // @temporary
   entity.astro_start_time = -50.f;
-
-  // @temporary
-  // @todo define various restrictions/defaults on how certain
-  // decorative mesh objects are spawned or can be manipulated
-  if (entity_type == DIRT_PATH) {
-    entity.position = camera.position + camera.orientation.getDirection() * abs(camera.position.y) * 1.5f;
-    entity.position.y = -1450.f;
-  }
 
   EntityManager::SaveNewEntity(state, entity);
 
@@ -1218,7 +1248,15 @@ static void DeleteSelected(Tachyon* tachyon, State& state) {
  */
 static void HandleEditorActions(Tachyon* tachyon, State& state) {
   if (did_left_click_down() && !editor.is_object_selected) {
-    MaybeMakeSelection(tachyon, state);
+    if (editor.is_in_placement_mode) {
+      if (editor.is_placing_entity) {
+        CreateNewEntity(tachyon, state);
+      } else {
+        CreateNewDecorativeObject(tachyon, state);
+      }
+    } else {
+      MaybeMakeSelection(tachyon, state);
+    }
   }
 
   if (did_press_key(tKey::CONTROL)) {
