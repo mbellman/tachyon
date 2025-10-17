@@ -92,6 +92,7 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
   // before hitting min/max time
   if (started_turning) {
     state.astro_time_at_start_of_turn = state.astro_time;
+    state.played_stopping_turn_sound = false;
   }
 
   // Handle reverse/forward turn actions
