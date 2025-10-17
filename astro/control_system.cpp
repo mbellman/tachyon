@@ -205,13 +205,17 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
   }
 
   // Sound effects for stopping/starting astro turn
-  if (stopped_turning) {
+  if (stopped_turning && !state.played_stopping_turn_sound) {
     Sfx::FadeOutSound(SFX_ASTRO_START);
-    Sfx::PlaySound(SFX_ASTRO_END, 0.5f);
+    Sfx::PlaySound(SFX_ASTRO_END, 0.7f);
+
+    state.played_stopping_turn_sound = true;
   }
   else if (started_turning) {
     Sfx::FadeOutSound(SFX_ASTRO_END);
     Sfx::PlaySound(SFX_ASTRO_START, 0.5f);
+
+    state.played_stopping_turn_sound = false;
   }
 
   state.last_frame_left_trigger = tachyon->left_trigger;
