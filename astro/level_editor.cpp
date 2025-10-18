@@ -1170,6 +1170,11 @@ static void DisplaySelectedEntityProperties(Tachyon* tachyon, State& state) {
     labels.push_back(".astro_end_time: " + Serialize(entity.astro_end_time));
   }
 
+  if (entity.type == ITEM_PICKUP) {
+    // @todo allow editing + serialization
+    labels.push_back(".item_name:");
+  }
+
   RenderInfoLabels(tachyon, state, labels);
 }
 

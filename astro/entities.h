@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <string>
 
 #include "engine/tachyon.h"
 
@@ -22,7 +23,8 @@ namespace astro {
     BANDIT,
     STONE_WALL,
     DIRT_PATH,
-    FLOWERS
+    FLOWERS,
+    ITEM_PICKUP
   };
 
   /**
@@ -41,7 +43,8 @@ namespace astro {
     BANDIT,
     STONE_WALL,
     DIRT_PATH,
-    FLOWERS
+    FLOWERS,
+    ITEM_PICKUP
   };
 
   /**
@@ -102,8 +105,16 @@ namespace astro {
     tVec3f visible_position;
     Quaternion visible_rotation;
 
-    // Only used for certain game entities
+    // Only used for enemy entities
     EnemyState enemy_state;
+
+    // Only used for item pickup entities. We could use an internal ID,
+    // but those IDs might not remain constant as item types are introduced
+    // or eliminated, and using a readable item name is more ergonomic,
+    // particularly for editing. We have to look up the actual item details
+    // in a hash map when we create the object for it and pick it up, but
+    // we can eat the cost for that.
+    std::string item_name = "";
   };
 
   /**
@@ -139,11 +150,11 @@ namespace astro {
       // WOODEN_GATE_DOOR
       wooden_gate_door_placeholder,
       wooden_gate_door,
-      
+
       // LOW_GUARD
       low_guard_placeholder,
       low_guard,
-      
+
       // BANDIT
       bandit_placeholder,
       bandit,
@@ -159,7 +170,10 @@ namespace astro {
       // FLOWERS
       flowers_placeholder,
       flowers_stalks,
-      flowers_petals
+      flowers_petals,
+
+      // ITEM_PICKUP
+      item_pickup_placeholder
 
       ;
   };
@@ -170,6 +184,7 @@ namespace astro {
    * ----------------------------
    */
   struct EntityContainers {
+    std::vector<GameEntity> item_pickups;
     std::vector<GameEntity> dirt_paths;
     std::vector<GameEntity> shrubs;
     std::vector<GameEntity> flowers;
@@ -202,6 +217,12 @@ namespace astro {
    * ----------------------------
    */
   static std::map<EntityType, EntityDefaults> entity_defaults_map = {
+    { ITEM_PICKUP, {
+      .name = "Item Pickup",
+      .scale = tVec3f(1000.f),
+      .tint = tVec3f(0.3f, 0.6f, 1.f)
+    } },
+
     { DIRT_PATH, {
       .name = "Dirt Path",
       .scale = tVec3f(2000.f, 1.f, 2000.f),

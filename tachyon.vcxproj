@@ -142,6 +142,7 @@
     <ClInclude Include="astro\entity_manager.h" />
     <ClInclude Include="astro\game.h" />
     <ClInclude Include="astro\game_state.h" />
+    <ClInclude Include="astro\items.h" />
     <ClInclude Include="astro\level_editor.h" />
     <ClInclude Include="astro\mesh_library.h" />
     <ClInclude Include="astro\object_manager.h" />
@@ -294,6 +295,7 @@
     <ClCompile Include="astro\entity_dispatcher.cpp" />
     <ClCompile Include="astro\entity_manager.cpp" />
     <ClCompile Include="astro\game.cpp" />
+    <ClCompile Include="astro\items.cpp" />
     <ClCompile Include="astro\level_editor.cpp" />
     <ClCompile Include="astro\mesh_library.cpp" />
     <ClCompile Include="astro\object_manager.cpp" />

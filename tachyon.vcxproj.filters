@@ -522,6 +522,9 @@
     <ClInclude Include="astro\character_dialogue.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="astro\items.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -690,6 +693,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="astro\targeting.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="astro\items.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

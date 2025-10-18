@@ -251,6 +251,28 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   }
 
   for (auto& ground : objects(state.meshes.ground_1)) {
+    bool has_collision = true;
+
+    // @optimize Don't do this in an inner loop here!
+    // Look up ground_1 objects close to bridge entities
+    // ahead of time, store them in a collision list, and
+    // loop over those collision bounds instead of all
+    // of the objects in the outer loop. We probably need
+    // to loop over collision bounds in the first place,
+    // rather than just collidable objects.
+    for_entities(state.small_stone_bridges) {
+      auto& entity = state.small_stone_bridges[i];
+      float distance_threshold = entity.visible_scale.x * 1.5f;
+
+      if (tVec3f::distance(ground.position, entity.visible_position) < distance_threshold) {
+        has_collision = false;
+
+        break;
+      }
+    }
+
+    if (!has_collision) continue;
+
     ResolveSingleRadiusCollision(state, ground.position, ground.scale, 0.8f);
   }
 

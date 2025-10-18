@@ -2,6 +2,7 @@
 
 using namespace astro;
 
+// @todo remove
 void ObjectManager::CreateObjects(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
