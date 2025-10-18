@@ -45,7 +45,7 @@ float GetFoliageLocalWind(mat4 model_matrix, float wind_speed, float wind_streng
   // using model_x as a base for determining periodic strength
   float model_x = model_matrix[3][0];
 
-  return wind_strength * (0.6 + 0.4 * sin(wind_speed * scene_time - model_matrix[3][0] * 0.0005));
+  return wind_strength * (0.7 + 0.3 * sin(wind_speed * scene_time - model_matrix[3][0] * 0.0005));
 }
 
 float GetFoliageDriftIntensity(float wind, float vertex_y) {

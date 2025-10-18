@@ -20,6 +20,31 @@ static Bounds2D GetObjectBounds2D(const tObject& object, const float scale_facto
   return bounds;
 }
 
+static std::vector<Plane>& GetDirtPathPlanes(Tachyon* tachyon, State& state) {
+  static std::vector<Plane> planes;
+
+  planes.clear();
+
+  for_entities(state.dirt_paths) {
+    auto& path = state.dirt_paths[i];
+    auto plane = CollisionSystem::CreatePlane(path.position, path.scale, path.orientation);
+
+    planes.push_back(plane);
+  }
+
+  return planes;
+}
+
+static bool IsWithinAnyPlane(const std::vector<Plane>& planes, const tVec3f& position) {
+  for (auto& plane : planes) {
+    if (CollisionSystem::IsPointOnPlane(position, plane)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 static void GenerateProceduralGrass(Tachyon* tachyon, State& state) {
   remove_all(state.meshes.grass);
 
@@ -66,13 +91,7 @@ static void GenerateProceduralSmallGrass(Tachyon* tachyon, State& state) {
 
   remove_all(state.meshes.small_grass);
 
-  std::vector<Plane> dirt_path_planes;
-
-  for_entities(state.dirt_paths) {
-    auto plane = CollisionSystem::GetEntityPlane(state.dirt_paths[i]);
-
-    dirt_path_planes.push_back(plane);
-  }
+  auto& dirt_path_planes = GetDirtPathPlanes(tachyon, state);
 
   // @todo factor
   for (auto& plane : objects(state.meshes.flat_ground)) {
@@ -93,24 +112,15 @@ static void GenerateProceduralSmallGrass(Tachyon* tachyon, State& state) {
       float wx = plane.position.x + (lx * cosf(theta) - lz * sinf(theta));
       float wz = plane.position.z + (lx * sinf(theta) + lz * cosf(theta));
 
-      bool is_on_dirt_path = false;
+      tVec3f position = tVec3f(wx, -1500.f, wz);
 
-      for (auto& plane : dirt_path_planes) {
-        if (CollisionSystem::IsPointOnPlane(tVec3f(wx, 0, wz), plane)) {
-          is_on_dirt_path = true;
-
-          break;
-        }
+      if (IsWithinAnyPlane(dirt_path_planes, position)) {
+        continue;
       }
-
-      if (is_on_dirt_path) continue;
 
       auto& grass = create(state.meshes.small_grass);
 
-      grass.position.x = wx;
-      grass.position.y = -1500.f;
-      grass.position.z = wz;
-
+      grass.position = position;
       grass.scale = tVec3f(Tachyon_GetRandom(200.f, 500.f));
       grass.color = tVec4f(0.2f, 0.8f, 0.2f, 0.2f);
       grass.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), Tachyon_GetRandom(0.f, t_TAU));
@@ -127,6 +137,45 @@ static void GenerateProceduralSmallGrass(Tachyon* tachyon, State& state) {
     std::string message = "Generated " + std::to_string(objects(state.meshes.small_grass).total_active) + " small grass objects (" + std::to_string(duration) + "us)";
 
     console_log(message);
+  }
+}
+
+// @todo UpdateProceduralFlowers()
+static void GenerateProceduralFlowers(Tachyon* tachyon, State& state) {
+  remove_all(state.meshes.flower);
+
+  auto& dirt_path_planes = GetDirtPathPlanes(tachyon, state);
+
+  // @temporary
+  std::vector<Plane> flat_ground_planes;
+
+  for (auto& ground : objects(state.meshes.flat_ground)) {
+    auto plane = CollisionSystem::CreatePlane(ground.position, ground.scale, ground.rotation);
+
+    flat_ground_planes.push_back(plane);
+  }
+
+  for (int i = 0; i < 1000; i++) {
+    // @todo use clustering behavior
+    tVec3f position;
+    position.x = Tachyon_GetRandom(-50000.f, 50000.f);
+    position.y = -1470.f;
+    position.z = Tachyon_GetRandom(-50000.f, 50000.f);
+
+    if (
+      IsWithinAnyPlane(dirt_path_planes, position) ||
+      !IsWithinAnyPlane(flat_ground_planes, position)
+    ) {
+      continue;
+    }
+
+    auto& flower = create(state.meshes.flower);
+
+    flower.position = position;
+    flower.scale = tVec3f(250.f);
+    flower.color = tVec3f(1.f, 0.1f, 0.1f);
+
+    commit(flower);
   }
 }
 
@@ -222,6 +271,7 @@ void ProceduralGeneration::RebuildProceduralObjects(Tachyon* tachyon, State& sta
   // @todo refactor these two
   GenerateProceduralGrass(tachyon, state);
   GenerateProceduralSmallGrass(tachyon, state);
+  GenerateProceduralFlowers(tachyon, state);
 }
 
 void ProceduralGeneration::UpdateProceduralObjects(Tachyon* tachyon, State& state) {

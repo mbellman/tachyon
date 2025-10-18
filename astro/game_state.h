@@ -6,6 +6,7 @@
 #include "engine/tachyon_types.h"
 #include "astro/entities.h"
 
+// @todo pass entity variable name
 #define for_entities(array) for (uint16 i = 0; i < (uint16)array.size(); i++)
 
 namespace astro {
@@ -20,6 +21,7 @@ namespace astro {
       // Procedural meshes
       grass,
       small_grass,
+      flower,
 
       // HUD meshes
       astrolabe_rear,

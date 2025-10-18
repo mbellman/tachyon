@@ -214,19 +214,19 @@ bool CollisionSystem::IsPointOnPlane(const tVec3f& point, const Plane& plane) {
   return d1 && d2 && d3 && d4;
 }
 
-Plane CollisionSystem::GetEntityPlane(const GameEntity& entity) {
+Plane CollisionSystem::CreatePlane(const tVec3f& position, const tVec3f& scale, const Quaternion& rotation) {
   Plane plane;
-  plane.p1 = tVec3f(-1.f, 0, 1.f) * entity.scale;
-  plane.p2 = tVec3f(1.f, 0, 1.f) * entity.scale;
-  plane.p3 = tVec3f(1.f, 0, -1.f) * entity.scale;
-  plane.p4 = tVec3f(-1.f, 0, -1.f) * entity.scale;
+  plane.p1 = tVec3f(-1.f, 0, 1.f) * scale;
+  plane.p2 = tVec3f(1.f, 0, 1.f) * scale;
+  plane.p3 = tVec3f(1.f, 0, -1.f) * scale;
+  plane.p4 = tVec3f(-1.f, 0, -1.f) * scale;
 
-  tMat4f r = entity.orientation.toMatrix4f();
+  tMat4f rotation_matrix = rotation.toMatrix4f();
 
-  plane.p1 = entity.position + r * plane.p1;
-  plane.p2 = entity.position + r * plane.p2;
-  plane.p3 = entity.position + r * plane.p3;
-  plane.p4 = entity.position + r * plane.p4;
+  plane.p1 = position + rotation_matrix * plane.p1;
+  plane.p2 = position + rotation_matrix * plane.p2;
+  plane.p3 = position + rotation_matrix * plane.p3;
+  plane.p4 = position + rotation_matrix * plane.p4;
 
   return plane;
 }
