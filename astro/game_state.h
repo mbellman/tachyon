@@ -22,6 +22,7 @@ namespace astro {
       small_grass,
 
       // HUD meshes
+      astrolabe_rear,
       astrolabe_base,
       astrolabe_ring,
       astrolabe_hand,

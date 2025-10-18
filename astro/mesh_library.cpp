@@ -10,11 +10,13 @@ using namespace astro;
 static void AddHUDMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
+  meshes.astrolabe_rear = MODEL_MESH("./astro/3d_models/astrolabe_rear.obj", 1);
   meshes.astrolabe_base = MODEL_MESH("./astro/3d_models/astrolabe_base.obj", 1);
   meshes.astrolabe_ring = MODEL_MESH("./astro/3d_models/astrolabe_ring.obj", 1);
   meshes.astrolabe_hand = MODEL_MESH("./astro/3d_models/astrolabe_hand.obj", 1);
   meshes.target_reticle = MODEL_MESH("./astro/3d_models/target_reticle.obj", 1);
 
+  mesh(meshes.astrolabe_rear).shadow_cascade_ceiling = 0;
   mesh(meshes.astrolabe_base).shadow_cascade_ceiling = 0;
   mesh(meshes.astrolabe_ring).shadow_cascade_ceiling = 0;
   mesh(meshes.astrolabe_hand).shadow_cascade_ceiling = 0;

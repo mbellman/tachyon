@@ -88,28 +88,35 @@ static void UpdateAstrolabe(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
   auto& meshes = state.meshes;
 
+  auto& rear = objects(meshes.astrolabe_rear)[0];
   auto& base = objects(meshes.astrolabe_base)[0];
   auto& ring = objects(meshes.astrolabe_ring)[0];
   auto& hand = objects(meshes.astrolabe_hand)[0];
 
+  rear.scale =
   base.scale =
   ring.scale =
   hand.scale =
-  tVec3f(200.f, 220.f, 200.f);
+  tVec3f(200.f);
+
+  rear.color = tVec3f(0.1f);
+  rear.material = tVec4f(0, 1.f, 0, 0);
 
   base.color = tVec3f(0.7f, 0.5f, 0.2f);
   base.material = tVec4f(0, 1.f, 1.f, 0.4f);
 
-  ring.color = tVec3f(0.2f, 0.4f, 1.f);
+  ring.color = tVec3f(0.5f, 0.7f, 1.f);
   ring.material = tVec4f(0, 1.f, 0, 0);
 
-  hand.color = tVec3f(1.f, 0.5f, 0.1f);
+  hand.color = tVec3f(0.7f, 0.3f, 0.1f);
   hand.material = tVec4f(0.1f, 1.f, 0, 0);
 
+  rear.rotation =
   base.rotation =
   ring.rotation =
   (
     Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -0.9f) *
+    // Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), -0.05f) *
     Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -t_HALF_PI * 0.85f)
   );
 
@@ -122,9 +129,10 @@ static void UpdateAstrolabe(Tachyon* tachyon, State& state) {
   ring.rotation =
   (
     base.rotation *
-    Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -state.astro_time * 0.015f)
+    Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -state.astro_time * 0.0825f - 0.04f)
   );
 
+  rear.position =
   base.position =
   ring.position =
   hand.position =
@@ -134,6 +142,11 @@ static void UpdateAstrolabe(Tachyon* tachyon, State& state) {
     camera.rotation.getLeftDirection() * 1200.f +
     camera.rotation.getUpDirection() * tVec3f(1.f, -1.f, 1.f) * 580.f
   );
+
+  rear.position += camera.rotation.getLeftDirection() * 2.f;
+  rear.position += camera.rotation.getUpDirection() * 16.f;
+
+  hand.position -= camera.rotation.getLeftDirection() * 6.f;
 
   // Add light for visibility
   {
@@ -150,10 +163,11 @@ static void UpdateAstrolabe(Tachyon* tachyon, State& state) {
     light->position = base.position + tVec3f(-10.f, -4.f, 8.f);
     light->radius = 300.f;
     light->color = tVec3f(1.f, 0.8f, 0.4f);
-    light->power = 2.f + 20.f * abs(state.astro_turn_speed);
+    light->power = 0.5f + 20.f * abs(state.astro_turn_speed);
     light->glow_power = 0.f;
   }
 
+  commit(rear);
   commit(base);
   commit(ring);
   commit(hand);

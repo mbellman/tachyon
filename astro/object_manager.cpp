@@ -9,6 +9,7 @@ void ObjectManager::CreateObjects(Tachyon* tachyon, State& state) {
 
   create(meshes.water_plane);
 
+  create(meshes.astrolabe_rear);
   create(meshes.astrolabe_base);
   create(meshes.astrolabe_ring);
   create(meshes.astrolabe_hand);
