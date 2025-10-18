@@ -7,6 +7,7 @@ struct Light {
   float radius;
   vec3 color;
   float power;
+  float glow_power;
 };
 
 uniform sampler2D in_normal_and_depth;
@@ -14,6 +15,7 @@ uniform usampler2D in_color_and_material;
 uniform mat4 inverse_projection_matrix;
 uniform mat4 inverse_view_matrix;
 uniform vec3 camera_position;
+uniform float accumulation_blur_factor;
 
 noperspective in vec2 fragUv;
 flat in Light light;
@@ -154,9 +156,19 @@ void main() {
   vec3 V = normalize(camera_position - position);
   vec3 L = surface_to_light / light_distance;
 
+
   out_color += GetPointLightRadiance(position, light_distance, N, L, V, material);
-  out_color += light.color * GetGlowFactor(position) * min(1.0, light.power);
+  out_color += light.color * GetGlowFactor(position) * min(1.0, light.power) * light.glow_power;
   // out_color += light.color * 0.1;
+
+  // Reduce the light contribution in proportion to the accumulation blur effect,
+  // which otherwise causes the light itself to accumulate and wash out the picture.
+  // Based on a cursory test, this appears to be framerate-independent, which we want.
+  {
+    float blur_reduction_factor = pow(1.0 - accumulation_blur_factor, 2.2);
+
+    out_color *= blur_reduction_factor;
+  }
 
   #if USE_GAMMA_CORRECTION == 1
     out_color *= light.color;

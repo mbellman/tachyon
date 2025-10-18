@@ -125,6 +125,7 @@ static void StoreShaderUniforms(tOpenGLShaders& shaders) {
   store_shader_uniform(point_lights, inverse_projection_matrix);
   store_shader_uniform(point_lights, inverse_view_matrix);
   store_shader_uniform(point_lights, camera_position);
+  store_shader_uniform(point_lights, accumulation_blur_factor);
 
   store_shader_uniform(wireframe_mesh, view_projection_matrix);
   store_shader_uniform(wireframe_mesh, transform_origin);

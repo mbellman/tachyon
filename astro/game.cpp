@@ -95,16 +95,16 @@ static void UpdateAstrolabe(Tachyon* tachyon, State& state) {
   base.scale =
   ring.scale =
   hand.scale =
-  200.f;
+  tVec3f(200.f, 220.f, 200.f);
 
-  base.color = tVec3f(1.f, 0.6f, 0.2f);
-  base.material = tVec4f(0.1f, 1.f, 0, 0.2f);
+  base.color = tVec3f(0.7f, 0.5f, 0.2f);
+  base.material = tVec4f(0, 1.f, 1.f, 0.4f);
 
   ring.color = tVec3f(0.2f, 0.4f, 1.f);
-  ring.material = tVec4f(0.2f, 1.f, 0, 0);
+  ring.material = tVec4f(0, 1.f, 0, 0);
 
-  hand.color = tVec3f(1.f, 0.6f, 0.2f);
-  hand.material = tVec4f(0.1f, 1.f, 0, 0.6f);
+  hand.color = tVec3f(1.f, 0.5f, 0.1f);
+  hand.material = tVec4f(0.1f, 1.f, 0, 0);
 
   base.rotation =
   ring.rotation =
@@ -132,8 +132,27 @@ static void UpdateAstrolabe(Tachyon* tachyon, State& state) {
     camera.position +
     camera.rotation.getDirection() * tVec3f(1.f, -1.f, 1.f) * 2000.f +
     camera.rotation.getLeftDirection() * 1200.f +
-    camera.rotation.getUpDirection() * tVec3f(1.f, -1.f, 1.f) * 600.f
+    camera.rotation.getUpDirection() * tVec3f(1.f, -1.f, 1.f) * 580.f
   );
+
+  // Add light for visibility
+  {
+    // @temporary
+    // @todo put a light id in state
+    static int32 light_id = -1;
+
+    if (light_id == -1) {
+      light_id = create_point_light();
+    }
+
+    auto* light = get_point_light(light_id);
+
+    light->position = base.position + tVec3f(-10.f, -4.f, 8.f);
+    light->radius = 300.f;
+    light->color = tVec3f(1.f, 0.8f, 0.4f);
+    light->power = 2.f + 20.f * abs(state.astro_turn_speed);
+    light->glow_power = 0.f;
+  }
 
   commit(base);
   commit(ring);

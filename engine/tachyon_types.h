@@ -156,6 +156,7 @@ struct tPointLight {
   float radius = 1000.f;
   tVec3f color = tVec3f(1.f);
   float power = 1.f;
+  float glow_power = 1.f;
 };
 
 // @todo dev mode only

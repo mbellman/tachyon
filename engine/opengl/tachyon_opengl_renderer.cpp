@@ -687,10 +687,10 @@ static void RenderPbrMeshes(Tachyon* tachyon) {
   SetShaderBool(locations.has_texture, false);
   SetShaderMat4f(locations.view_projection_matrix, ctx.view_projection_matrix);
   SetShaderVec3f(locations.transform_origin, tachyon->scene.transform_origin);
-  
+
   // Render regular, untextured PBR meshes
   RenderMeshesByType(tachyon, PBR_MESH);
-  
+
   // Render grass PBR meshes
   if (HasObjectsOfMeshType(tachyon, GRASS_MESH)) {
     SetShaderBool(locations.is_grass, true);
@@ -978,6 +978,7 @@ static void RenderPointLights(Tachyon* tachyon) {
   SetShaderMat4f(locations.inverse_projection_matrix, ctx.inverse_projection_matrix);
   SetShaderMat4f(locations.inverse_view_matrix, ctx.inverse_view_matrix);
   SetShaderVec3f(locations.camera_position, ctx.camera_position);
+  SetShaderFloat(locations.accumulation_blur_factor, tachyon->fx.accumulation_blur_factor);
 
   // @todo avoid reallocating each frame
   std::vector<tOpenGLPointLightDiscInstance> instances;

@@ -174,5 +174,9 @@ tOpenGLLightDisc Tachyon_CreateOpenGLPointLightDisc(Tachyon* tachyon) {
   glVertexAttribPointer(6, 1, GL_FLOAT, GL_FALSE, sizeof(Disc), (void*)(offsetof(Disc, light) + offsetof(Light, power)));
   glVertexAttribDivisor(6, 1);
 
+  glEnableVertexAttribArray(7);
+  glVertexAttribPointer(7, 1, GL_FLOAT, GL_FALSE, sizeof(Disc), (void*)(offsetof(Disc, light) + offsetof(Light, glow_power)));
+  glVertexAttribDivisor(7, 1);
+
   return disc;
 }
