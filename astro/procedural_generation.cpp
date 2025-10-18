@@ -20,22 +20,36 @@ static Bounds2D GetObjectBounds2D(const tObject& object, const float scale_facto
   return bounds;
 }
 
-static std::vector<Plane>& GetDirtPathPlanes(Tachyon* tachyon, State& state) {
-  static std::vector<Plane> planes;
+static std::vector<Plane> GetEntityPlanes(const std::vector<GameEntity>& entities) {
+  // @allocation
+  std::vector<Plane> planes;
 
-  planes.clear();
-
-  for_entities(state.dirt_paths) {
-    auto& path = state.dirt_paths[i];
-    auto plane = CollisionSystem::CreatePlane(path.position, path.scale, path.orientation);
+  for_entities(entities) {
+    auto& entity = entities[i];
+    auto plane = CollisionSystem::CreatePlane(entity.position, entity.scale, entity.orientation);
 
     planes.push_back(plane);
   }
 
+  // @allocation
   return planes;
 }
 
-static bool IsWithinAnyPlane(const std::vector<Plane>& planes, const tVec3f& position) {
+static std::vector<Plane> GetObjectPlanes(Tachyon* tachyon, uint16 mesh_index) {
+  // @allocation
+  std::vector<Plane> planes;
+
+  for (auto& object : objects(mesh_index)) {
+    auto plane = CollisionSystem::CreatePlane(object.position, object.scale, object.rotation);
+
+    planes.push_back(plane);
+  }
+
+  // @allocation
+  return planes;
+}
+
+static bool IsPointOnAnyPlane(const tVec3f& position, const std::vector<Plane>& planes) {
   for (auto& plane : planes) {
     if (CollisionSystem::IsPointOnPlane(position, plane)) {
       return true;
@@ -91,7 +105,7 @@ static void GenerateProceduralSmallGrass(Tachyon* tachyon, State& state) {
 
   remove_all(state.meshes.small_grass);
 
-  auto& dirt_path_planes = GetDirtPathPlanes(tachyon, state);
+  auto dirt_path_planes = GetEntityPlanes(state.dirt_paths);
 
   // @todo factor
   for (auto& plane : objects(state.meshes.flat_ground)) {
@@ -114,7 +128,7 @@ static void GenerateProceduralSmallGrass(Tachyon* tachyon, State& state) {
 
       tVec3f position = tVec3f(wx, -1500.f, wz);
 
-      if (IsWithinAnyPlane(dirt_path_planes, position)) {
+      if (IsPointOnAnyPlane(position, dirt_path_planes)) {
         continue;
       }
 
@@ -144,16 +158,8 @@ static void GenerateProceduralSmallGrass(Tachyon* tachyon, State& state) {
 static void GenerateProceduralFlowers(Tachyon* tachyon, State& state) {
   remove_all(state.meshes.flower);
 
-  auto& dirt_path_planes = GetDirtPathPlanes(tachyon, state);
-
-  // @temporary
-  std::vector<Plane> flat_ground_planes;
-
-  for (auto& ground : objects(state.meshes.flat_ground)) {
-    auto plane = CollisionSystem::CreatePlane(ground.position, ground.scale, ground.rotation);
-
-    flat_ground_planes.push_back(plane);
-  }
+  auto dirt_path_planes = GetEntityPlanes(state.dirt_paths);
+  auto flat_ground_planes = GetObjectPlanes(tachyon, state.meshes.flat_ground);
 
   for (int i = 0; i < 1000; i++) {
     // @todo use clustering behavior
@@ -163,8 +169,8 @@ static void GenerateProceduralFlowers(Tachyon* tachyon, State& state) {
     position.z = Tachyon_GetRandom(-50000.f, 50000.f);
 
     if (
-      IsWithinAnyPlane(dirt_path_planes, position) ||
-      !IsWithinAnyPlane(flat_ground_planes, position)
+      IsPointOnAnyPlane(position, dirt_path_planes) ||
+      !IsPointOnAnyPlane(position, flat_ground_planes)
     ) {
       continue;
     }

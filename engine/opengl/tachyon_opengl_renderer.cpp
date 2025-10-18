@@ -632,7 +632,7 @@ static void RenderMeshesByType(Tachyon* tachyon, tMeshType type) {
   glBindVertexArray(gl_mesh_pack.vao);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gl_mesh_pack.ebo);
 
-  // @todo avoid allocating + deleting each frame
+  // @allocation
   std::vector<DrawElementsIndirectCommand> commands;
 
   auto& records = tachyon->mesh_pack.mesh_records;
@@ -718,7 +718,7 @@ static void RenderPbrMeshes(Tachyon* tachyon) {
       glActiveTexture(GL_TEXTURE0);
       glBindTexture(GL_TEXTURE_2D, gl_texture.texture_id);
 
-      // @todo avoid allocating + deleting each frame
+      // @allocation
       std::vector<DrawElementsIndirectCommand> commands;
 
       AddDrawElementsIndirectCommands(commands, record, renderer.total_triangles, renderer.total_vertices);
@@ -769,7 +769,7 @@ static void RenderShadowMaps(Tachyon* tachyon) {
     SetShaderMat4f(locations.light_matrix, light_matrix);
     SetShaderVec3f(locations.transform_origin, tachyon->scene.transform_origin);
 
-    // @todo avoid allocating + deleting each frame
+    // @allocation
     std::vector<DrawElementsIndirectCommand> commands;
 
     auto& records = tachyon->mesh_pack.mesh_records;
@@ -980,7 +980,7 @@ static void RenderPointLights(Tachyon* tachyon) {
   SetShaderVec3f(locations.camera_position, ctx.camera_position);
   SetShaderFloat(locations.accumulation_blur_factor, tachyon->fx.accumulation_blur_factor);
 
-  // @todo avoid reallocating each frame
+  // @allocation
   std::vector<tOpenGLPointLightDiscInstance> instances;
   // @todo put in ctx
   auto aspect_ratio = float(ctx.internal_width) / float(ctx.internal_height);
