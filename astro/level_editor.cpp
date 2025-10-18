@@ -766,6 +766,12 @@ static void SyncEntityPlaceholder(Tachyon* tachyon, tObject& placeholder, const 
   placeholder.rotation = entity.orientation;
   placeholder.color = entity.tint;
 
+  // @temporary
+  // @todo allow entity placeholder default material
+  if (entity.type == ITEM_PICKUP) {
+    placeholder.material = tVec4f(0.2f, 0, 0.5f, 0.5f);
+  }
+
   commit(placeholder);
 }
 

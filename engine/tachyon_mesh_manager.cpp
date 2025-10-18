@@ -301,6 +301,7 @@ tMesh Tachyon_CreateCubeMesh() {
   return mesh;
 }
 
+// @todo assert divisions > 2
 tMesh Tachyon_CreateSphereMesh(uint8 divisions) {
   tMesh mesh;
 

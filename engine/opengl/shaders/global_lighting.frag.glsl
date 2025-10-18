@@ -688,7 +688,7 @@ void main() {
   {
     vec3 R = reflect(-V, N);
     vec3 reflection = GetReflectionColor(R);
-    float factor = 0.4 * shadow * (NdotL > 0.0 ? 0.0 : 1.0);
+    float factor = 0.4 * shadow * (NdotL > 0.0 ? pow(1.0 - NdotL, 8.0) : 1.0);
 
     out_color += albedo * reflection * metalness * (1.0 - roughness) * factor;
   }

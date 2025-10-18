@@ -5,7 +5,7 @@
 namespace astro {
   behavior ItemPickup {
     addMeshes() {
-      meshes.item_pickup_placeholder = CUBE_MESH(500);
+      meshes.item_pickup_placeholder = SPHERE_MESH(500);
     }
 
     getMeshes() {

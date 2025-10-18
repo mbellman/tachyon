@@ -67,6 +67,8 @@ namespace astro {
         else if (enemy.mood == ENEMY_ENGAGED && player_distance < 5000.f) {
           enemy.mood = ENEMY_AGITATED;
 
+          Targeting::SetSpeakingEntity(state, entity);
+
           play_random_dialogue(entity, {
             {
               .text = "Cease your trespass! Or I shall strike!",

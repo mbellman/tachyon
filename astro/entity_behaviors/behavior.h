@@ -7,6 +7,7 @@
 
 // @todo move to engine
 #define CUBE_MESH(total) Tachyon_AddMesh(tachyon, Tachyon_CreateCubeMesh(), total)
+#define SPHERE_MESH(total) Tachyon_AddMesh(tachyon, Tachyon_CreateSphereMesh(20), total)
 #define PLANE_MESH(total) Tachyon_AddMesh(tachyon, Tachyon_CreatePlaneMesh(), total)
 #define MODEL_MESH(path, total) Tachyon_AddMesh(tachyon, Tachyon_LoadMesh(path), total)
 
