@@ -30,6 +30,9 @@ namespace astro {
       astrolabe_hand,
       target_reticle,
 
+      // Item meshes
+      item_astro_part,
+
       // Decorative meshes
       flat_ground,
       rock_1,
@@ -48,6 +51,11 @@ namespace astro {
     tVec3f p1, p2, p3, p4;
   };
 
+  /**
+   * ----------------------------
+   * Spellcasting
+   * ----------------------------
+   */
   struct HomingOrb {
     int32 light_id = -1;
     float targeting_start_time = 0.f;
@@ -66,6 +74,22 @@ namespace astro {
     tVec3f homing_start_direction;
     EntityRecord homing_target_entity;
     HomingOrb homing_orbs[3];
+  };
+
+  /**
+   * ----------------------------
+   * Items and inventory management
+   * ----------------------------
+   */
+  enum ItemType {
+    ITEM_UNSPECIFIED = -1,
+    ASTROLABE_LOWER_LEFT,
+    ASTROLABE_LOWER_RIGHT,
+    ASTROLABE_UPPER_RIGHT
+  };
+
+  struct Item {
+
   };
 
   struct State : EntityContainers {

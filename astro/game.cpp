@@ -5,6 +5,7 @@
 #include "astro/data_loader.h"
 #include "astro/entity_dispatcher.h"
 #include "astro/entity_manager.h"
+#include "astro/items.h"
 #include "astro/level_editor.h"
 #include "astro/mesh_library.h"
 #include "astro/object_manager.h"
@@ -116,7 +117,6 @@ static void UpdateAstrolabe(Tachyon* tachyon, State& state) {
   ring.rotation =
   (
     Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -0.9f) *
-    // Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), -0.05f) *
     Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -t_HALF_PI * 0.85f)
   );
 
@@ -289,6 +289,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
 
   ObjectManager::CreateObjects(tachyon, state);
   DataLoader::LoadLevelData(tachyon, state);
+  Items::SpawnItemObjects(tachyon, state);
   ProceduralGeneration::RebuildProceduralObjects(tachyon, state);
 
   // @todo default this somewhere, or load in from save
@@ -329,6 +330,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   ControlSystem::HandleControls(tachyon, state, dt);
   CollisionSystem::HandleCollisions(tachyon, state);
   SpellSystem::HandleSpells(tachyon, state, dt);
+  Items::HandleItemPickup(tachyon, state);
   HandleDialogue(tachyon, state);
   HandleWalkSounds(tachyon, state);
 

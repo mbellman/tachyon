@@ -8,6 +8,7 @@
 #include "astro/entities_and_objects.h"
 #include "astro/entity_manager.h"
 #include "astro/entity_dispatcher.h"
+#include "astro/items.h"
 #include "astro/object_manager.h"
 #include "astro/procedural_generation.h"
 
@@ -261,7 +262,7 @@ static void HandleCameraActions(Tachyon* tachyon, State& state, const float dt) 
 
   // Object swiveling or mouse panning
   {
-    if (!is_left_mouse_held_down()) {
+    if (!is_left_mouse_held_down() && !editor.is_editing_entity_properties) {
       if (is_key_held(tKey::SHIFT) && editor.is_anything_selected) {
         HandleSelectedObjectCameraSwiveling(tachyon, state);
       } else {
@@ -1650,6 +1651,8 @@ void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
   } else {
     ProceduralGeneration::RebuildProceduralObjects(tachyon, state);
   }
+
+  Items::SpawnItemObjects(tachyon, state);
 
   SaveLevelData(tachyon, state);
   RemoveEntityPlaceholders(tachyon, state);

@@ -35,6 +35,12 @@ static void AddDecorativeMeshes(Tachyon* tachyon, State& state) {
   mesh(meshes.ground_1).shadow_cascade_ceiling = 2;
 }
 
+static void AddItemMeshes(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
+  meshes.item_astro_part = CUBE_MESH(3);
+}
+
 static void AddEntityMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
@@ -98,6 +104,7 @@ void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
 
   AddHUDMeshes(tachyon, state);
   AddDecorativeMeshes(tachyon, state);
+  AddItemMeshes(tachyon, state);
   AddEntityMeshes(tachyon, state);
 
   // @todo dev mode only
