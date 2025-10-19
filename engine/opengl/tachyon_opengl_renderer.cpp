@@ -478,7 +478,10 @@ static void RenderDebugLabels(Tachyon* tachyon) {
   y_offset += 25;
 
   RenderDevLabels(tachyon, y_offset);
-  RenderConsoleMessages(tachyon);
+
+  if (tachyon->show_console_output) {
+    RenderConsoleMessages(tachyon);
+  }
 }
 
 static void RenderOverlayMessage(Tachyon* tachyon) {
@@ -1292,7 +1295,10 @@ void Tachyon_OpenGL_RenderScene(Tachyon* tachyon) {
 
     RenderText(tachyon, tachyon->developer_overlay_font, label.c_str(), 10, 10, 1920, tVec3f(1.f), tVec4f(0, 0, 0, 0.6f));
     RenderDevLabels(tachyon, 50);
-    RenderConsoleMessages(tachyon);
+
+    if (tachyon->show_console_output) {
+      RenderConsoleMessages(tachyon);
+    }
   }
 
   RenderOverlayMessage(tachyon);

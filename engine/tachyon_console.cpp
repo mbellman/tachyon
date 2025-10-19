@@ -56,7 +56,7 @@ const std::vector<tConsoleMessage>& Tachyon_GetConsoleMessages() {
   return console_messages;
 }
 
-void Tachyon_ProcessConsoleMessages() {
+void Tachyon_ManageConsoleMessageLifetimes() {
   if (console_messages.size() == 0) {
     return;
   }

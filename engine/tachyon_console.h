@@ -32,4 +32,4 @@ void Tachyon_Log(const bool value);
 void Tachyon_Log(const tVec3f& vector);
 void Tachyon_Log(const Quaternion& q);
 const std::vector<tConsoleMessage>& Tachyon_GetConsoleMessages();
-void Tachyon_ProcessConsoleMessages();
+void Tachyon_ManageConsoleMessageLifetimes();

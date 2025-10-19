@@ -69,6 +69,16 @@ static void HandleEvents(Tachyon* tachyon) {
   if (did_press_key(tKey::T) && tachyon->hotkeys_enabled) {
     tachyon->show_developer_tools = !tachyon->show_developer_tools;
   }
+
+  if (did_press_key(tKey::C) && tachyon->hotkeys_enabled) {
+    tachyon->show_console_output = !tachyon->show_console_output;
+
+    if (tachyon->show_console_output) {
+      show_overlay_message("[Tachyon] Console enabled");
+    } else {
+      show_overlay_message("[Tachyon] Console disabled");
+    }
+  }
 }
 
 static void RenderScene(Tachyon* tachyon) {
@@ -142,7 +152,7 @@ void Tachyon_EndFrame(Tachyon* tachyon) {
 
   Tachyon_ResetPerFrameInputState(tachyon);
   Tachyon_ClearUIDrawCommands(tachyon);
-  Tachyon_ProcessConsoleMessages();
+  Tachyon_ManageConsoleMessageLifetimes();
 
   tachyon->last_frame_time_in_microseconds = Tachyon_GetMicroseconds() - tachyon->frame_start_time_in_microseconds;
   tachyon->running_time += (float)tachyon->last_frame_time_in_microseconds / 1000000.f;
