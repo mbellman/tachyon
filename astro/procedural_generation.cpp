@@ -154,7 +154,6 @@ static void GenerateProceduralSmallGrass(Tachyon* tachyon, State& state) {
   }
 }
 
-// @todo UpdateProceduralFlowers()
 static void GenerateProceduralFlowers(Tachyon* tachyon, State& state) {
   log_time("GenerateProceduralFlowers()");
 
@@ -275,6 +274,23 @@ static void UpdateProceduralSmallGrass(Tachyon* tachyon, State& state) {
   }
 }
 
+static void UpdateProceduralFlowers(Tachyon* tachyon, State& state) {
+  auto& player_position = state.player_position;
+
+  for (auto& flower : objects(state.meshes.flower)) {
+    if (abs(flower.position.x - player_position.x) > 15000.f || abs(flower.position.z - player_position.z) > 15000.f) {
+      continue;
+    }
+
+    float alpha = 0.5f * state.astro_time + flower.position.x + flower.position.z;
+
+    flower.scale.x = 250.f * (0.5f + 0.5 * sinf(alpha));
+    flower.scale.z = 250.f * (0.5f + 0.5 * sinf(alpha));
+
+    commit(flower);
+  }
+}
+
 void ProceduralGeneration::RebuildProceduralObjects(Tachyon* tachyon, State& state) {
   // @todo refactor these two
   GenerateProceduralGrass(tachyon, state);
@@ -288,4 +304,6 @@ void ProceduralGeneration::UpdateProceduralObjects(Tachyon* tachyon, State& stat
   // @todo refactor these two
   UpdateProceduralGrass(tachyon, state);
   UpdateProceduralSmallGrass(tachyon, state);
+
+  UpdateProceduralFlowers(tachyon, state);
 }

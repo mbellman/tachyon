@@ -196,6 +196,7 @@ static void UpdateAstrolabe(Tachyon* tachyon, State& state) {
   {
     // @temporary
     // @todo put a light id in state
+    // @todo destroy light when opening the editor
     static int32 light_id = -1;
 
     if (light_id == -1) {
