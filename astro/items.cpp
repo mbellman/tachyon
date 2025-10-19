@@ -70,14 +70,30 @@ void Items::HandleItemPickup(Tachyon* tachyon, State& state) {
   // @todo iterate over item_pickup entities instead
   for (auto& part : objects(meshes.item_astro_part)) {
     if (tVec3f::distance(player_position, part.position) < 700.f) {
-      // @todo update messaging
-      UISystem::ShowDialogue(tachyon, state, "Acquired the astrolabe's lower-left plate.");
+      // @todo per-item messaging
+      UISystem::ShowDialogue(tachyon, state, "Acquired lower-left astrolabe fragment.");
       // @temporary
       Sfx::PlaySound(SFX_SPELL_STUN);
 
       remove(part);
 
+      // @temporary
+      Item item;
+      item.type = ASTROLABE_LOWER_LEFT;
+
+      state.inventory.push_back(item);
+
       break;
     }
   }
+}
+
+bool Items::HasItem(const State& state, ItemType item_type) {
+  for (auto& item : state.inventory) {
+    if (item.type == item_type) {
+      return true;
+    }
+  }
+
+  return false;
 }

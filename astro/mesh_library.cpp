@@ -10,14 +10,18 @@ using namespace astro;
 static void AddHUDMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
-  meshes.astrolabe_rear = MODEL_MESH("./astro/3d_models/astrolabe_rear.obj", 1);
-  meshes.astrolabe_base = MODEL_MESH("./astro/3d_models/astrolabe_base.obj", 1);
-  meshes.astrolabe_ring = MODEL_MESH("./astro/3d_models/astrolabe_ring.obj", 1);
-  meshes.astrolabe_hand = MODEL_MESH("./astro/3d_models/astrolabe_hand.obj", 1);
-  meshes.target_reticle = MODEL_MESH("./astro/3d_models/target_reticle.obj", 1);
+  meshes.astrolabe_rear =        MODEL_MESH("./astro/3d_models/astrolabe_rear.obj", 1);
+  meshes.astrolabe_base =        MODEL_MESH("./astro/3d_models/astrolabe_base.obj", 1);
+  meshes.astrolabe_fragment_ul = MODEL_MESH("./astro/3d_models/astrolabe_fragment_ul.obj", 1);
+  meshes.astrolabe_fragment_ll = MODEL_MESH("./astro/3d_models/astrolabe_fragment_ll.obj", 1);
+  meshes.astrolabe_ring =        MODEL_MESH("./astro/3d_models/astrolabe_ring.obj", 1);
+  meshes.astrolabe_hand =        MODEL_MESH("./astro/3d_models/astrolabe_hand.obj", 1);
+  meshes.target_reticle =        MODEL_MESH("./astro/3d_models/target_reticle.obj", 1);
 
   mesh(meshes.astrolabe_rear).shadow_cascade_ceiling = 0;
   mesh(meshes.astrolabe_base).shadow_cascade_ceiling = 0;
+  mesh(meshes.astrolabe_fragment_ul).shadow_cascade_ceiling = 0;
+  mesh(meshes.astrolabe_fragment_ll).shadow_cascade_ceiling = 0;
   mesh(meshes.astrolabe_ring).shadow_cascade_ceiling = 0;
   mesh(meshes.astrolabe_hand).shadow_cascade_ceiling = 0;
   mesh(meshes.target_reticle).shadow_cascade_ceiling = 0;
@@ -27,8 +31,8 @@ static void AddDecorativeMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   meshes.flat_ground = PLANE_MESH(1000);
-  meshes.rock_1 = MODEL_MESH("./astro/3d_models/rock_1.obj", 5000);
-  meshes.ground_1 = MODEL_MESH("./astro/3d_models/ground_1.obj", 5000);
+  meshes.rock_1 =      MODEL_MESH("./astro/3d_models/rock_1.obj", 5000);
+  meshes.ground_1 =    MODEL_MESH("./astro/3d_models/ground_1.obj", 5000);
 
   mesh(meshes.flat_ground).shadow_cascade_ceiling = 0;
   mesh(meshes.rock_1).shadow_cascade_ceiling = 2;
@@ -63,7 +67,7 @@ static void AddEntityMeshes(Tachyon* tachyon, State& state) {
 static void AddEditorMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
-  meshes.gizmo_arrow = MODEL_MESH("./astro/3d_models/editor/gizmo_arrow.obj", 3);
+  meshes.gizmo_arrow =   MODEL_MESH("./astro/3d_models/editor/gizmo_arrow.obj", 3);
   meshes.gizmo_resizer = MODEL_MESH("./astro/3d_models/editor/gizmo_resizer.obj", 3);
   meshes.gizmo_rotator = MODEL_MESH("./astro/3d_models/editor/gizmo_rotator.obj", 3);
   meshes.editor_placer = MODEL_MESH("./astro/3d_models/editor/placer.obj", 1);
@@ -90,9 +94,9 @@ void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
   // @temporary
   // @todo AddProceduralMeshes()
   {
-    meshes.grass = MODEL_MESH("./astro/3d_models/grass.obj", 20000);
+    meshes.grass =       MODEL_MESH("./astro/3d_models/grass.obj", 20000);
     meshes.small_grass = MODEL_MESH("./astro/3d_models/grass.obj", 50000);
-    meshes.flower = MODEL_MESH("./astro/3d_models/flower.obj", 10000);
+    meshes.flower =      MODEL_MESH("./astro/3d_models/flower.obj", 10000);
 
     mesh(meshes.grass).type = GRASS_MESH;
     mesh(meshes.grass).shadow_cascade_ceiling = 2;

@@ -10,6 +10,11 @@
 #define for_entities(array) for (uint16 i = 0; i < (uint16)array.size(); i++)
 
 namespace astro {
+  /**
+   * ----------------------------
+   * Meshes
+   * ----------------------------
+   */
   struct MeshIds : EntityMeshIds {
     uint16
       // Character meshes
@@ -26,6 +31,8 @@ namespace astro {
       // HUD meshes
       astrolabe_rear,
       astrolabe_base,
+      astrolabe_fragment_ul,
+      astrolabe_fragment_ll,
       astrolabe_ring,
       astrolabe_hand,
       target_reticle,
@@ -89,9 +96,14 @@ namespace astro {
   };
 
   struct Item {
-
+    ItemType type = ITEM_UNSPECIFIED;
   };
 
+  /**
+   * ----------------------------
+   * Game state
+   * ----------------------------
+   */
   struct State : EntityContainers {
     MeshIds meshes;
 
@@ -126,6 +138,8 @@ namespace astro {
     bool played_stopping_turn_sound = false;
 
     Spells spells;
+
+    std::vector<Item> inventory;
 
     float last_frame_left_trigger = 0.f;
     float last_frame_right_trigger = 0.f;

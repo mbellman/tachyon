@@ -85,6 +85,10 @@ static void UpdateWaterPlane(Tachyon* tachyon, State& state) {
 
 // @todo cleanup
 // @todo move elsewhere
+//
+// @todo figure out a better way to display the astrolabe
+// orthographically + with the correct aspect ratio, still
+// allowing it to receive lighting somehow?
 static void UpdateAstrolabe(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
   auto& meshes = state.meshes;
@@ -126,11 +130,28 @@ static void UpdateAstrolabe(Tachyon* tachyon, State& state) {
     Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -state.astro_time * 0.02f)
   );
 
-  ring.rotation =
-  (
-    base.rotation *
-    Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -state.astro_time * 0.0412f - 0.04f)
-  );
+  // Ring behavior
+  {
+    float ring_angle = -state.astro_time * 0.0412f - 0.04f;
+
+    if (state.astro_time < -76.f) {
+      // @hack Tweaky alignment stuff for the rotating ring
+      //
+      // @todo as unscrupulous as this correction is, we might be able
+      // to get away with correcting the hand rotation as well and then
+      // using equidistant min/max time segments, which would bring us
+      // closer to normalizing some of this.
+      float correction = state.astro_time + 76.f;
+
+      ring_angle += correction * 0.0022f;
+    }
+
+    ring.rotation =
+    (
+      base.rotation *
+      Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), ring_angle)
+    );
+  }
 
   rear.position =
   base.position =
@@ -147,6 +168,29 @@ static void UpdateAstrolabe(Tachyon* tachyon, State& state) {
   rear.position += camera.rotation.getUpDirection() * 16.f;
 
   hand.position -= camera.rotation.getLeftDirection() * 6.f;
+
+  // Fragments
+  {
+    auto& fragment_ul = objects(meshes.astrolabe_fragment_ul)[0];
+    auto& fragment_ll = objects(meshes.astrolabe_fragment_ll)[0];
+
+    fragment_ul.position = base.position;
+    fragment_ul.scale = base.scale;
+    fragment_ul.rotation = base.rotation;
+    fragment_ul.color = base.color;
+    fragment_ul.material = base.material;
+
+    if (Items::HasItem(state, ASTROLABE_LOWER_LEFT)) {
+      fragment_ll.position = base.position;
+      fragment_ll.scale = base.scale;
+      fragment_ll.rotation = base.rotation;
+      fragment_ll.color = base.color;
+      fragment_ll.material = base.material;
+    }
+
+    commit(fragment_ul);
+    commit(fragment_ll);
+  }
 
   // Add light for visibility
   {

@@ -9,5 +9,6 @@ namespace astro {
     ItemType GetItemType(const std::string& item_name);
     void SpawnItemObjects(Tachyon* tachyon, State& state);
     void HandleItemPickup(Tachyon* tachyon, State& state);
+    bool HasItem(const State& state, ItemType item_type);
   }
 }
