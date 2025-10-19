@@ -35,7 +35,7 @@ struct LevelEditorState {
   int32 current_decorative_mesh_index = 0;
   int32 current_entity_index = 0;
 
-  bool is_object_selected = false;
+  bool is_anything_selected = false;
   bool is_in_placement_mode = false;
   bool is_placing_entity = false;
 
@@ -43,6 +43,7 @@ struct LevelEditorState {
   bool is_editing_entity_properties = false;
   bool editing_astro_start_time = false;
   bool editing_astro_end_time = false;
+  bool editing_item_pickup_name = false;
   std::string edited_entity_property_value = "";
 } editor;
 
@@ -106,7 +107,8 @@ std::string SerializeEntity(const GameEntity& entity) {
     Serialize(entity.orientation) + "," +
     Serialize(entity.tint) + "," +
     std::to_string(entity.astro_start_time) + "," +
-    std::to_string(entity.astro_end_time)
+    std::to_string(entity.astro_end_time) + "," +
+    entity.item_pickup_name
   );
 }
 
@@ -260,7 +262,7 @@ static void HandleCameraActions(Tachyon* tachyon, State& state, const float dt) 
   // Object swiveling or mouse panning
   {
     if (!is_left_mouse_held_down()) {
-      if (is_key_held(tKey::SHIFT) && editor.is_object_selected) {
+      if (is_key_held(tKey::SHIFT) && editor.is_anything_selected) {
         HandleSelectedObjectCameraSwiveling(tachyon, state);
       } else {
         camera.orientation.yaw += tachyon->mouse_delta_x * camera_panning_speed * dt;
@@ -676,11 +678,108 @@ static void CycleEntities(Tachyon* tachyon, State& state, int8 direction) {
 
 /**
  * ----------------------------
+ * Initiates the entity property editor flow.
+ * ----------------------------
+ */
+static void StartEditingEntityProperties(Tachyon* tachyon) {
+  editor.is_editing_entity_properties = true;
+  // @todo set editor step instead
+  editor.editing_astro_start_time = true;
+  editor.editing_astro_end_time = false;
+  editor.editing_item_pickup_name = false;
+  editor.edited_entity_property_value = "";
+
+  // Ensure engine hotkeys don't accidentally trigger while typing
+  tachyon->hotkeys_enabled = false;
+}
+
+/**
+ * ----------------------------
+ * Exits the entity property editor flow.
+ * ----------------------------
+ */
+static void StopEditingEntityProperties(Tachyon* tachyon) {
+  editor.is_editing_entity_properties = false;
+  // @todo reset editor step instead
+  editor.editing_astro_start_time = false;
+  editor.editing_astro_end_time = false;
+  editor.editing_item_pickup_name = false;
+  editor.edited_entity_property_value = "";
+
+  // Restore engine hotkey behavior
+  tachyon->hotkeys_enabled = true;
+}
+
+/**
+ * ----------------------------
+ * Flow for editing selected entity properties.
+ * ----------------------------
+ */
+static void HandleEntityPropertiesEditor(Tachyon* tachyon, State& state) {
+  auto& entity_record = editor.current_selectable.entity_record;
+  auto& property_value = editor.edited_entity_property_value;
+
+  if (get_text_input()) {
+    property_value += get_text_input();
+  }
+
+  if (did_press_key(tKey::BACKSPACE) && property_value.size() > 0) {
+    property_value.pop_back();
+  }
+
+  // 1. astro_start_time
+  if (
+    editor.editing_astro_start_time &&
+    did_press_key(tKey::ENTER)
+  ) {
+    auto* entity = EntityManager::FindEntity(state, entity_record);
+
+    entity->astro_start_time = ToFloat(property_value, entity->astro_start_time);
+
+    editor.editing_astro_start_time = false;
+    editor.editing_astro_end_time = true;
+    editor.edited_entity_property_value = "";
+  }
+  // 2. astro_end_time
+  else if (
+    editor.editing_astro_end_time &&
+    did_press_key(tKey::ENTER)
+  ) {
+    auto* entity = EntityManager::FindEntity(state, entity_record);
+
+    entity->astro_end_time = ToFloat(property_value, entity->astro_end_time);
+
+    editor.editing_astro_end_time = false;
+    editor.edited_entity_property_value = "";
+
+    if (entity->type != ITEM_PICKUP) {
+      StopEditingEntityProperties(tachyon);
+    } else {
+      editor.editing_item_pickup_name = true;
+    }
+  }
+  // 3. item_pickup_name
+  else if (
+    editor.editing_item_pickup_name &&
+    did_press_key(tKey::ENTER)
+  ) {
+    auto* entity = EntityManager::FindEntity(state, entity_record);
+
+    if (property_value != "") {
+      entity->item_pickup_name = property_value;
+    }
+
+    StopEditingEntityProperties(tachyon);
+  }
+}
+
+/**
+ * ----------------------------
  * Selects a given Selectable, either an entity or plain object.
  * ----------------------------
  */
 static void MakeSelection(Tachyon* tachyon, State& state, Selectable& selectable) {
-  editor.is_object_selected = true;
+  editor.is_anything_selected = true;
   editor.current_selectable = selectable;
   editor.current_gizmo_action = POSITION;
 
@@ -709,8 +808,9 @@ static void DeselectCurrent(Tachyon* tachyon, State& state) {
 
   commit(live_placeholder);
 
-  editor.is_object_selected = false;
+  editor.is_anything_selected = false;
 
+  StopEditingEntityProperties(tachyon);
   DestroyGizmo(tachyon, state);
   SyncSelectables(tachyon);
   SaveLevelData(tachyon, state);
@@ -1050,63 +1150,6 @@ static void HandleSelectedObjectActions(Tachyon* tachyon, State& state) {
 
 /**
  * ----------------------------
- * Initiates the entity property editor flow.
- * ----------------------------
- */
-static void StartEditingEntityProperties(Tachyon* tachyon, State& state) {
-  editor.is_editing_entity_properties = true;
-  // @todo set editor step instead
-  editor.editing_astro_start_time = true;
-  editor.edited_entity_property_value = "";
-}
-
-/**
- * ----------------------------
- * Flow for editing selected entity properties.
- * ----------------------------
- */
-static void HandleEntityPropertiesEditor(Tachyon* tachyon, State& state) {
-  auto& entity_record = editor.current_selectable.entity_record;
-  auto& property_value = editor.edited_entity_property_value;
-
-  if (get_text_input()) {
-    property_value += get_text_input();
-  }
-
-  if (did_press_key(tKey::BACKSPACE) && property_value.size() > 0) {
-    property_value.pop_back();
-  }
-
-  // 1. astro_start_time
-  if (
-    editor.editing_astro_start_time &&
-    did_press_key(tKey::ENTER)
-  ) {
-    auto* entity = EntityManager::FindEntity(state, entity_record);
-
-    entity->astro_start_time = ToFloat(property_value, entity->astro_start_time);
-
-    editor.editing_astro_start_time = false;
-    editor.editing_astro_end_time = true;
-    editor.edited_entity_property_value = "";
-  }
-  // 2. astro_end_time
-  else if (
-    editor.editing_astro_end_time &&
-    did_press_key(tKey::ENTER)
-  ) {
-    auto* entity = EntityManager::FindEntity(state, entity_record);
-
-    entity->astro_end_time = ToFloat(property_value, entity->astro_end_time);
-
-    editor.editing_astro_end_time = false;
-    editor.is_editing_entity_properties = false;
-    editor.edited_entity_property_value = "";
-  }
-}
-
-/**
- * ----------------------------
  * Formatters for displaying different types of values in the editor HUD.
  * ----------------------------
  */
@@ -1176,9 +1219,13 @@ static void DisplaySelectedEntityProperties(Tachyon* tachyon, State& state) {
     labels.push_back(".astro_end_time: " + Serialize(entity.astro_end_time));
   }
 
+  // @todo serialization
   if (entity.type == ITEM_PICKUP) {
-    // @todo allow editing + serialization
-    labels.push_back(".item_name:");
+    if (editor.editing_item_pickup_name) {
+      labels.push_back(".item_pickup_name: " + editor.edited_entity_property_value + text_cursor);
+    } else {
+      labels.push_back(".item_pickup_name: " + entity.item_pickup_name);
+    }
   }
 
   RenderInfoLabels(tachyon, state, labels);
@@ -1255,7 +1302,7 @@ static void DeleteSelected(Tachyon* tachyon, State& state) {
 
   ProceduralGeneration::RebuildProceduralObjects(tachyon, state);
 
-  editor.is_object_selected = false;
+  editor.is_anything_selected = false;
 }
 
 /**
@@ -1285,7 +1332,7 @@ static void RespawnPlayer(Tachyon* tachyon, State& state) {
  * ----------------------------
  */
 static void HandleEditorActions(Tachyon* tachyon, State& state) {
-  if (did_left_click_down() && !editor.is_object_selected) {
+  if (did_left_click_down() && !editor.is_anything_selected) {
     if (editor.is_in_placement_mode) {
       if (editor.is_placing_entity) {
         CreateNewEntity(tachyon, state);
@@ -1307,7 +1354,7 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
     }
   }
 
-  if (editor.is_object_selected) {
+  if (editor.is_anything_selected) {
     // Selected object/entity actions
     if (is_left_mouse_held_down()) {
       HandleSelectedObjectActions(tachyon, state);
@@ -1337,10 +1384,7 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
       editor.current_selectable.is_entity &&
       !editor.is_editing_entity_properties
     ) {
-      StartEditingEntityProperties(tachyon, state);
-      editor.is_editing_entity_properties = true;
-      // @todo set editor step instead
-      editor.editing_astro_start_time = true;
+      StartEditingEntityProperties(tachyon);
     }
     else if (editor.is_editing_entity_properties) {
       HandleEntityPropertiesEditor(tachyon, state);
@@ -1502,7 +1546,7 @@ static void HandleUI(Tachyon* tachyon, State& state) {
     }
   }
 
-  if (editor.is_object_selected) {
+  if (editor.is_anything_selected) {
     std::string message = editor.current_selectable.is_entity
       ? "Entity selected"
       : "Object selected";
@@ -1561,7 +1605,7 @@ void LevelEditor::HandleLevelEditor(Tachyon* tachyon, State& state, const float 
     HandleEditorActions(tachyon, state);
   }
 
-  if (editor.is_object_selected) {
+  if (editor.is_anything_selected) {
     UpdateCurrentGizmo(tachyon, state);
   }
 
@@ -1601,7 +1645,7 @@ void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
     }
   }
 
-  if (editor.is_object_selected) {
+  if (editor.is_anything_selected) {
     DeselectCurrent(tachyon, state);
   } else {
     ProceduralGeneration::RebuildProceduralObjects(tachyon, state);

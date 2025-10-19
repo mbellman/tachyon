@@ -364,7 +364,7 @@ static void HandleDevModeInputs(Tachyon* tachyon) {
   auto& renderer = get_renderer();
 
   // Toggle the G-Buffer view with TAB
-  if (did_press_key(tKey::TAB)) {
+  if (did_press_key(tKey::TAB) && tachyon->hotkeys_enabled) {
     renderer.show_g_buffer_view = !renderer.show_g_buffer_view;
 
     if (renderer.show_g_buffer_view) {
@@ -375,7 +375,7 @@ static void HandleDevModeInputs(Tachyon* tachyon) {
   }
 
   // Toggle V-Sync with V
-  if (did_press_key(tKey::V)) {
+  if (did_press_key(tKey::V) && tachyon->hotkeys_enabled) {
     auto swap_interval = SDL_GL_GetSwapInterval();
 
     std::string message =

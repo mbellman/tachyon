@@ -9,6 +9,7 @@
 using namespace astro;
 
 static std::vector<std::string> SplitString(const std::string& str, const std::string& delimiter) {
+  // @allocation
   std::vector<std::string> values;
   uint32 offset = 0;
   uint32 found = 0;
@@ -23,6 +24,7 @@ static std::vector<std::string> SplitString(const std::string& str, const std::s
   // Include the remaining string segment after the final delimiter
   values.push_back(str.substr(offset, str.size() - offset));
 
+  // @allocation
   return values;
 }
 
@@ -57,7 +59,7 @@ uint16 DataLoader::MeshIdToIndex(State& state, uint16 mesh_id) {
 void DataLoader::LoadLevelData(Tachyon* tachyon, State& state) {
   auto start = Tachyon_GetMicroseconds();
   auto level_data = Tachyon_GetFileContents("./astro/level_data/level.txt");
-  auto lines = SplitString(level_data, "\n");
+  auto lines = SplitString(level_data, "\n");  // @allocation
 
   #define parsef(i) stof(parts[i])
   #define parse_vec3f(i1, i2, i3) tVec3f(parsef(i1), parsef(i2), parsef(i3))
@@ -66,7 +68,7 @@ void DataLoader::LoadLevelData(Tachyon* tachyon, State& state) {
   for (auto& line : lines) {
     if (line[0] == '@') {
       // Entity
-      auto parts = SplitString(line, ",");
+      auto parts = SplitString(line, ",");  // @allocation
       // @todo use constant IDs which map to entity types
       EntityType entity_type = (EntityType)stoi(parts[0].substr(1));
       GameEntity entity = EntityManager::CreateNewEntity(state, entity_type);
@@ -91,7 +93,7 @@ void DataLoader::LoadLevelData(Tachyon* tachyon, State& state) {
     }
     else if (line[0] == '$') {
       // Object
-      auto parts = SplitString(line, ",");
+      auto parts = SplitString(line, ",");  // @allocation
       uint16 mesh_id = stoi(parts[0].substr(1));
       auto mesh_index = MeshIdToIndex(state, mesh_id);
       auto& object = create(mesh_index);

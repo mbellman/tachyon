@@ -114,7 +114,7 @@ namespace astro {
     // particularly for editing. We have to look up the actual item details
     // in a hash map when we create the object for it and pick it up, but
     // we can eat the cost for that.
-    std::string item_name = "";
+    std::string item_pickup_name = "";
   };
 
   /**

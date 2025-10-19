@@ -165,7 +165,7 @@ static void GenerateProceduralFlowers(Tachyon* tachyon, State& state) {
     // @todo use clustering behavior
     tVec3f position;
     position.x = Tachyon_GetRandom(-50000.f, 50000.f);
-    position.y = -1470.f;
+    position.y = -1460.f;
     position.z = Tachyon_GetRandom(-50000.f, 50000.f);
 
     if (

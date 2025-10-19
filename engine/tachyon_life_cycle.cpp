@@ -66,7 +66,7 @@ static void HandleEvents(Tachyon* tachyon) {
     Tachyon_HandleInputEvent(tachyon, event);
   }
 
-  if (did_press_key(tKey::T)) {
+  if (did_press_key(tKey::T) && tachyon->hotkeys_enabled) {
     tachyon->show_developer_tools = !tachyon->show_developer_tools;
   }
 }
@@ -182,7 +182,7 @@ void Tachyon_HandleWindowResize(Tachyon* tachyon) {
 void Tachyon_Exit(Tachyon* tachyon) {
   // @todo dev mode only
   TTF_CloseFont(tachyon->developer_overlay_font);
-  
+
   Tachyon_ExitSoundEngine();
 
   if (tachyon->renderer != nullptr) {
