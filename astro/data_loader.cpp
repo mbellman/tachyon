@@ -57,7 +57,8 @@ uint16 DataLoader::MeshIdToIndex(State& state, uint16 mesh_id) {
 // until later in development, when we have some kind of binary data or intermediate
 // representation which can be rapidly parsed and converted into entities/objects.
 void DataLoader::LoadLevelData(Tachyon* tachyon, State& state) {
-  auto start = Tachyon_GetMicroseconds();
+  log_time("LoadLevelData()");
+
   auto level_data = Tachyon_GetFileContents("./astro/level_data/level.txt");
   auto lines = SplitString(level_data, "\n");  // @allocation
 
@@ -79,6 +80,10 @@ void DataLoader::LoadLevelData(Tachyon* tachyon, State& state) {
       entity.tint = parse_vec3f(11, 12, 13);
       entity.astro_start_time = parsef(14);
       entity.astro_end_time = parsef(15);
+
+      if (entity_type == ITEM_PICKUP) {
+        entity.item_pickup_name = parts[16];
+      }
 
       // Set base visible position
       entity.visible_position = entity.position;
@@ -116,8 +121,4 @@ void DataLoader::LoadLevelData(Tachyon* tachyon, State& state) {
   #undef parsef
   #undef parse_vec3f
   #undef parse_quaternion
-
-  auto total_time = Tachyon_GetMicroseconds() - start;
-
-  add_console_message("Loaded level data in " + std::to_string(total_time) + "us", tVec3f(1.f));
 }

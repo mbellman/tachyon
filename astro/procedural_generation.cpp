@@ -60,6 +60,8 @@ static bool IsPointOnAnyPlane(const tVec3f& position, const std::vector<Plane>& 
 }
 
 static void GenerateProceduralGrass(Tachyon* tachyon, State& state) {
+  log_time("GenerateProceduralGrass()");
+
   remove_all(state.meshes.grass);
 
   // @todo factor
@@ -101,7 +103,7 @@ static void GenerateProceduralGrass(Tachyon* tachyon, State& state) {
 }
 
 static void GenerateProceduralSmallGrass(Tachyon* tachyon, State& state) {
-  auto start = Tachyon_GetMicroseconds();
+  log_time("GenerateProceduralSmallGrass()");
 
   remove_all(state.meshes.small_grass);
 
@@ -146,9 +148,7 @@ static void GenerateProceduralSmallGrass(Tachyon* tachyon, State& state) {
 
   // @todo dev mode only
   {
-    uint64 duration = Tachyon_GetMicroseconds() - start;
-
-    std::string message = "Generated " + std::to_string(objects(state.meshes.small_grass).total_active) + " small grass objects (" + std::to_string(duration) + "us)";
+    std::string message = "Generated " + std::to_string(objects(state.meshes.small_grass).total_active) + " small grass objects";
 
     console_log(message);
   }
@@ -156,6 +156,8 @@ static void GenerateProceduralSmallGrass(Tachyon* tachyon, State& state) {
 
 // @todo UpdateProceduralFlowers()
 static void GenerateProceduralFlowers(Tachyon* tachyon, State& state) {
+  log_time("GenerateProceduralFlowers()");
+
   remove_all(state.meshes.flower);
 
   auto dirt_path_planes = GetEntityPlanes(state.dirt_paths);

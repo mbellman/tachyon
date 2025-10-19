@@ -71,6 +71,8 @@ static void AddEditorMeshes(Tachyon* tachyon, State& state) {
 }
 
 void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
+  log_time("AddMeshes()");
+
   auto& meshes = state.meshes;
 
   // @temporary
