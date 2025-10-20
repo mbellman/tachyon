@@ -223,11 +223,14 @@ void main() {
       vec3 fog_color = vec3(0.2, 0.4, 0.5);
       // vec3 fog_color = vec3(0.8, 0.7, 0.6);
 
-      // float fog_thickness =
-      //   (0.5 + 0.5 * sin(position.x * 0.0002)) *
-      //   (0.5 + 0.5 * cos(position.z * 0.0002));
+      // fog_color = vec3(0.1, 0.2, 0.3);
 
-      // depth_factor = 0.4 + 0.6 * fog_thickness * depth_factor;
+      // float fog_thickness =
+      //   5.0 *
+      //   (0.5 + 0.5 * sin(position.x * 0.0001)) *
+      //   (0.5 + 0.5 * cos(position.z * 0.0001));
+
+      // depth_factor = 0.6 + 0.4 * fog_thickness * depth_factor;
 
       // if (depth_factor > 1.0) depth_factor = 1.0;
       // if (color_and_depth.w < 0.9) depth_factor = 0.0;
