@@ -59,6 +59,13 @@ static bool IsPointOnAnyPlane(const tVec3f& position, const std::vector<Plane>& 
   return false;
 }
 
+/* ---------------------------- */
+
+/**
+ * ----------------------------
+ * Grass
+ * ----------------------------
+ */
 static void GenerateProceduralGrass(Tachyon* tachyon, State& state) {
   log_time("GenerateProceduralGrass()");
 
@@ -102,6 +109,55 @@ static void GenerateProceduralGrass(Tachyon* tachyon, State& state) {
   }
 }
 
+static void UpdateProceduralGrass(Tachyon* tachyon, State& state) {
+  static const tVec3f offsets[] = {
+    tVec3f(0, 0, 0),
+    tVec3f(-200.f, 0, 150.f),
+    tVec3f(250.f, 0, 300.f),
+    tVec3f(100.f, 0, -250.f)
+  };
+
+  static const float scales[] = {
+    1200.f,
+    1000.f,
+    1400.f,
+    800.f,
+    950.f
+  };
+
+  const float growth_rate = 0.7f;
+
+  auto& player_position = state.player_position;
+
+  for (auto& grass : objects(state.meshes.grass)) {
+    if (abs(grass.position.x - player_position.x) > 15000.f || abs(grass.position.z - player_position.z) > 15000.f) {
+      continue;
+    }
+
+    float alpha = state.astro_time + grass.position.x + grass.position.z;
+    int iteration = (int)abs(growth_rate * alpha / t_TAU - 0.8f);
+    float rotation_angle = grass.position.x + float(iteration) * 1.3f;
+
+    tVec3f base_position = grass.position;
+
+    grass.position += offsets[iteration % 4];
+    grass.scale = tVec3f(scales[iteration % 5]) * 1.2f * sqrtf(0.5f + 0.5f * sinf(growth_rate * alpha));
+    grass.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), rotation_angle);
+
+    commit(grass);
+
+    // Restore the grass position after commit, so its position
+    // does not drift over time
+    grass.position.x = base_position.x;
+    grass.position.z = base_position.z;
+  }
+}
+
+/**
+ * ----------------------------
+ * Small grass
+ * ----------------------------
+ */
 static void GenerateProceduralSmallGrass(Tachyon* tachyon, State& state) {
   log_time("GenerateProceduralSmallGrass()");
 
@@ -154,82 +210,6 @@ static void GenerateProceduralSmallGrass(Tachyon* tachyon, State& state) {
   }
 }
 
-static void GenerateProceduralFlowers(Tachyon* tachyon, State& state) {
-  log_time("GenerateProceduralFlowers()");
-
-  remove_all(state.meshes.flower);
-
-  auto dirt_path_planes = GetEntityPlanes(state.dirt_paths);
-  auto flat_ground_planes = GetObjectPlanes(tachyon, state.meshes.flat_ground);
-
-  for (int i = 0; i < 1000; i++) {
-    // @todo use clustering behavior
-    tVec3f position;
-    position.x = Tachyon_GetRandom(-50000.f, 50000.f);
-    position.y = -1460.f;
-    position.z = Tachyon_GetRandom(-50000.f, 50000.f);
-
-    if (
-      IsPointOnAnyPlane(position, dirt_path_planes) ||
-      !IsPointOnAnyPlane(position, flat_ground_planes)
-    ) {
-      continue;
-    }
-
-    auto& flower = create(state.meshes.flower);
-
-    flower.position = position;
-    flower.scale = tVec3f(250.f);
-    flower.color = tVec3f(1.f, 0.1f, 0.1f);
-
-    commit(flower);
-  }
-}
-
-static void UpdateProceduralGrass(Tachyon* tachyon, State& state) {
-  static const tVec3f offsets[] = {
-    tVec3f(0, 0, 0),
-    tVec3f(-200.f, 0, 150.f),
-    tVec3f(250.f, 0, 300.f),
-    tVec3f(100.f, 0, -250.f)
-  };
-
-  static const float scales[] = {
-    1200.f,
-    1000.f,
-    1400.f,
-    800.f,
-    950.f
-  };
-
-  const float growth_rate = 0.7f;
-
-  auto& player_position = state.player_position;
-
-  for (auto& grass : objects(state.meshes.grass)) {
-    if (abs(grass.position.x - player_position.x) > 15000.f || abs(grass.position.z - player_position.z) > 15000.f) {
-      continue;
-    }
-
-    float alpha = state.astro_time + grass.position.x + grass.position.z;
-    int iteration = (int)abs(growth_rate * alpha / t_TAU - 0.8f);
-    float rotation_angle = grass.position.x + float(iteration) * 1.3f;
-
-    tVec3f base_position = grass.position;
-
-    grass.position += offsets[iteration % 4];
-    grass.scale = tVec3f(scales[iteration % 5]) * 1.2f * sqrtf(0.5f + 0.5f * sinf(growth_rate * alpha));
-    grass.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), rotation_angle);
-
-    commit(grass);
-
-    // Restore the grass position after commit, so its position
-    // does not drift over time
-    grass.position.x = base_position.x;
-    grass.position.z = base_position.z;
-  }
-}
-
 static void UpdateProceduralSmallGrass(Tachyon* tachyon, State& state) {
   static const tVec3f offsets[] = {
     tVec3f(0, 0, 0),
@@ -274,28 +254,127 @@ static void UpdateProceduralSmallGrass(Tachyon* tachyon, State& state) {
   }
 }
 
-static void UpdateProceduralFlowers(Tachyon* tachyon, State& state) {
+/**
+ * ----------------------------
+ * Ground flowers
+ * ----------------------------
+ */
+static void GenerateProceduralGroundFlowers(Tachyon* tachyon, State& state) {
+  log_time("GenerateProceduralGroundFlowers()");
+
+  remove_all(state.meshes.flower);
+
+  auto dirt_path_planes = GetEntityPlanes(state.dirt_paths);
+  auto flat_ground_planes = GetObjectPlanes(tachyon, state.meshes.flat_ground);
+
+  for (int i = 0; i < 2000; i++) {
+    tVec3f center;
+    center.x = Tachyon_GetRandom(-150000.f, 150000.f);
+    center.y = -1460.f;
+    center.z = Tachyon_GetRandom(-150000.f, 150000.f);
+
+    for (int i = 0; i < 4; i++) {
+      tVec3f position;
+      position.x = center.x + Tachyon_GetRandom(-1500.f, 1500.f);
+      position.y = center.y;
+      position.z = center.z + Tachyon_GetRandom(-1500.f, 1500.f);
+
+      if (
+        IsPointOnAnyPlane(position, dirt_path_planes) ||
+        !IsPointOnAnyPlane(position, flat_ground_planes)
+      ) {
+        continue;
+      }
+
+      auto& flower = create(state.meshes.flower);
+
+      flower.position = position;
+      flower.scale = tVec3f(250.f);
+      flower.color = tVec3f(1.f, 0.1f, 0.1f);
+
+      commit(flower);
+    }
+  }
+
+  // @todo dev mode only
+  {
+    std::string message = "Generated " + std::to_string(objects(state.meshes.flower).total_active) + " ground flower objects";
+
+    console_log(message);
+  }
+}
+
+static void UpdateProceduralGroundFlowers(Tachyon* tachyon, State& state) {
+  static const tVec3f offsets[] = {
+    tVec3f(0, 0, 0),
+    tVec3f(-500.f, 0, 450.f),
+    tVec3f(350.f, 0, 400.f),
+    tVec3f(600.f, 0, -350.f)
+  };
+
+  const float growth_rate = 0.7f;
+
   auto& player_position = state.player_position;
+
+  tVec3f sprouting_color = tVec3f(0.1f, 0.6f, 0.1f);
+  tVec3f blossom_color = tVec3f(1.f, 0.1f, 0.1f);
+  tVec3f wilted_color = tVec3f(0.1f);
 
   for (auto& flower : objects(state.meshes.flower)) {
     if (abs(flower.position.x - player_position.x) > 15000.f || abs(flower.position.z - player_position.z) > 15000.f) {
       continue;
     }
 
-    float alpha = 0.5f * state.astro_time + flower.position.x + flower.position.z;
+    float variance = fmodf(abs(flower.position.x + flower.position.z), 10.f);
+    float alpha = 0.5f * (state.astro_time - -500.f) + variance;
+    float lifetime = t_PI + t_HALF_PI;
+    float generations = alpha / lifetime;
+    float life_progress = (generations - (int)generations);
+    int iteration = (int)generations + (int)abs(flower.position.x);
+    float growth, wilting;
+    tVec3f color;
 
-    flower.scale.x = 250.f * (0.5f + 0.5 * sinf(alpha));
-    flower.scale.z = 250.f * (0.5f + 0.5 * sinf(alpha));
+    if (life_progress < 0.5f) {
+      // life_progress 0.0 -> 0.5 => growth 0.0 -> 250.0
+      growth = 500.f * life_progress;
+      wilting = 0.f;
+      color = tVec3f::lerp(sprouting_color, blossom_color, 2.f * life_progress);
+    }
+    else if (life_progress < 0.8f) {
+      growth = 250.f;
+      wilting = 0.f;
+      color = blossom_color;
+    }
+    else {
+      // life_progress 0.8 -> 1.0 => wilting 0.0 -> 1.0
+      wilting = 1.f - 5.f * (1.f - life_progress);
+      // life_progress 0.8 -> 1.0 => growth 250.0 -> 200.0
+      growth = 250.f - 50.f * wilting;
+      color = tVec3f::lerp(blossom_color, wilted_color, wilting);
+    }
+
+    flower.scale.x = growth;
+    flower.scale.y = 250.f * (1.f - wilting);
+    flower.scale.z = growth;
+    flower.color = color;
+
+    tVec3f base_position = flower.position;
+
+    flower.position = base_position + offsets[iteration % 5];
 
     commit(flower);
+
+    flower.position = base_position;
   }
 }
+
+/* ---------------------------- */
 
 void ProceduralGeneration::RebuildProceduralObjects(Tachyon* tachyon, State& state) {
   // @todo refactor these two
   GenerateProceduralGrass(tachyon, state);
   GenerateProceduralSmallGrass(tachyon, state);
-  GenerateProceduralFlowers(tachyon, state);
+  GenerateProceduralGroundFlowers(tachyon, state);
 }
 
 void ProceduralGeneration::UpdateProceduralObjects(Tachyon* tachyon, State& state) {
@@ -305,5 +384,5 @@ void ProceduralGeneration::UpdateProceduralObjects(Tachyon* tachyon, State& stat
   UpdateProceduralGrass(tachyon, state);
   UpdateProceduralSmallGrass(tachyon, state);
 
-  UpdateProceduralFlowers(tachyon, state);
+  UpdateProceduralGroundFlowers(tachyon, state);
 }
