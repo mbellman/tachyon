@@ -1,4 +1,5 @@
 #include "astro/control_system.h"
+#include "astro/astrolabe.h"
 #include "astro/entity_manager.h"
 #include "astro/items.h"
 #include "astro/sfx.h"
@@ -70,32 +71,12 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state, const f
   state.player_velocity *= 1.f - 10.f * dt;
 }
 
-static float GetMaxAstroTime(const State& state) {
-  if (Items::HasItem(state, ASTROLABE_UPPER_RIGHT)) {
-    return 76.f;
-  }
-
-  return 0.f;
-}
-
-static float GetMinAstroTime(const State& state) {
-  if (Items::HasItem(state, ASTROLABE_LOWER_LEFT)) {
-    return -157.f;
-  }
-
-  if (Items::HasItem(state, ASTROLABE_LOWER_RIGHT)) {
-    // @todo
-  }
-
-  return -76.f;
-}
-
 static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) {
   const float astro_turn_rate = 0.8f;
   const float astro_slowdown_rate = 3.f;
 
-  float max_astro_time = GetMaxAstroTime(state);
-  float min_astro_time = GetMinAstroTime(state);
+  float max_astro_time = Astrolabe::GetMaxAstroTime(state);
+  float min_astro_time = Astrolabe::GetMinAstroTime(state);
 
   float previous_astro_turn_speed = state.astro_turn_speed;
 
