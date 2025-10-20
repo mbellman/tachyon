@@ -20,7 +20,7 @@ struct tConsoleMessage {
   tVec3f color;
 };
 
-const static uint64 CONSOLE_MESSAGE_DURATION = 10000000;
+const static uint64 CONSOLE_MESSAGE_DURATION = 20000000;
 
 void Tachyon_AddConsoleMessage(const std::string& message, const tVec3f& color);
 void Tachyon_Log(const char* message);
@@ -33,3 +33,4 @@ void Tachyon_Log(const tVec3f& vector);
 void Tachyon_Log(const Quaternion& q);
 const std::vector<tConsoleMessage>& Tachyon_GetConsoleMessages();
 void Tachyon_ManageConsoleMessageLifetimes();
+void Tachyon_ClearConsole();
