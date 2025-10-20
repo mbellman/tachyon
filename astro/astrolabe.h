@@ -5,11 +5,20 @@
 
 namespace astro {
   struct TimePeriods {
+    // Age of ???
     float future = 76.f;
-    float age_of_auspice = 0.f;
+
+    // Age of Auspice
+    float present = 0.f;
+
+    // Age of Accord
     float past = -76.f;
+
+    // Age of ???
     float distant_past = -157.f;
-    float age_of_yore = -230.f;
+
+    // Age of Yore
+    float very_distant_past = -230.f;
   };
 
   static TimePeriods astro_time_periods;

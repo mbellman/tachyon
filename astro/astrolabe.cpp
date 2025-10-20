@@ -152,12 +152,12 @@ float Astrolabe::GetMaxAstroTime(const State& state) {
     return astro_time_periods.future;
   }
 
-  return astro_time_periods.age_of_auspice;
+  return astro_time_periods.present;
 }
 
 float Astrolabe::GetMinAstroTime(const State& state) {
   if (Items::HasItem(state, ASTROLABE_LOWER_RIGHT)) {
-    return astro_time_periods.age_of_yore;
+    return astro_time_periods.very_distant_past;
   }
 
   if (Items::HasItem(state, ASTROLABE_LOWER_LEFT)) {
