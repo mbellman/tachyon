@@ -127,6 +127,10 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
       slowdown_threshold = max_astro_time - 10.f;
     }
 
+    if (slowdown_threshold > max_astro_time - 8.f) {
+      slowdown_threshold = max_astro_time - 8.f;
+    }
+
     if (state.astro_time > slowdown_threshold) {
       float threshold_distance = abs(slowdown_threshold - state.astro_time);
       float threshold_to_limit = max_astro_time - slowdown_threshold;
@@ -150,6 +154,10 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
       // Enforce a limit on how far away the slowdown threshold is
       // from the stopping value
       slowdown_threshold = min_astro_time + 10.f;
+    }
+
+    if (slowdown_threshold < min_astro_time + 8.f) {
+      slowdown_threshold = min_astro_time + 8.f;
     }
 
     if (state.astro_time < slowdown_threshold) {
