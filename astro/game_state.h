@@ -31,6 +31,7 @@ namespace astro {
       // HUD meshes
       astrolabe_rear,
       astrolabe_base,
+      astrolabe_plate,
       astrolabe_fragment_ul,
       astrolabe_fragment_ll,
       astrolabe_ring,

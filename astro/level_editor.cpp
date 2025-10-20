@@ -1576,8 +1576,10 @@ void LevelEditor::OpenLevelEditor(Tachyon* tachyon, State& state) {
 
   state.is_level_editor_open = true;
 
+  // @todo factor
   objects(meshes.astrolabe_rear).disabled = true;
   objects(meshes.astrolabe_base).disabled = true;
+  objects(meshes.astrolabe_plate).disabled = true;
   objects(meshes.astrolabe_fragment_ul).disabled = true;
   objects(meshes.astrolabe_fragment_ll).disabled = true;
   objects(meshes.astrolabe_ring).disabled = true;
@@ -1633,8 +1635,10 @@ void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
 
   show_overlay_message("Leaving editor");
 
+  // @todo factor
   objects(meshes.astrolabe_rear).disabled = false;
   objects(meshes.astrolabe_base).disabled = false;
+  objects(meshes.astrolabe_plate).disabled = false;
   objects(meshes.astrolabe_fragment_ul).disabled = false;
   objects(meshes.astrolabe_fragment_ll).disabled = false;
   objects(meshes.astrolabe_ring).disabled = false;

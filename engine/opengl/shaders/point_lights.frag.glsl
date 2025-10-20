@@ -156,7 +156,6 @@ void main() {
   vec3 V = normalize(camera_position - position);
   vec3 L = surface_to_light / light_distance;
 
-
   out_color += GetPointLightRadiance(position, light_distance, N, L, V, material);
   out_color += light.color * GetGlowFactor(position) * min(1.0, light.power) * light.glow_power;
   // out_color += light.color * 0.1;
@@ -174,6 +173,13 @@ void main() {
     out_color *= light.color;
     out_color = pow(out_color, vec3(1.0 / 2.2));
   #endif
+
+  // @hack allow materials to opt into a special reduced lighting contribution
+  // mode by setting roughness and metalness to 0. Used for visual effect and
+  // not physical accuracy.
+  if (material.roughness == 0.0 && material.metalness == 0.0) {
+    out_color *= 0.2;
+  }
 
   out_color_and_depth = vec4(out_color, 0);
 }
