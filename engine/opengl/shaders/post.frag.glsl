@@ -220,16 +220,19 @@ void main() {
     // Depth fog
     #if ENABLE_ASTRO_FX
       float depth_factor = 0.5 * pow(color_and_depth.w, 20.0);
+      vec3 fog_color = vec3(0.2, 0.4, 0.5);
+      // vec3 fog_color = vec3(0.8, 0.7, 0.6);
 
       // float fog_thickness =
       //   (0.5 + 0.5 * sin(position.x * 0.0002)) *
       //   (0.5 + 0.5 * cos(position.z * 0.0002));
 
-      // depth_factor = 0.5 + 0.3 * fog_thickness * depth_factor;
+      // depth_factor = 0.4 + 0.6 * fog_thickness * depth_factor;
 
       // if (depth_factor > 1.0) depth_factor = 1.0;
+      // if (color_and_depth.w < 0.9) depth_factor = 0.0;
 
-      post_color = mix(post_color, vec3(0.2, 0.4, 0.5), depth_factor);
+      post_color = mix(post_color, fog_color, depth_factor);
     #elif ENABLE_COSMODRONE_FX
       float depth_factor = 0.25 * pow(color_and_depth.w, 300.0);
 

@@ -8,8 +8,8 @@ static tVec3f GetLightColor(const float astro_time) {
   auto& periods = astro_time_periods;
 
   tVec3f present_color = tVec3f(1.f);
-  tVec3f past_color = tVec3f(1.f, 0.6f, 0.3f);
-  tVec3f distant_past_color = tVec3f(0.2f, 0.5f, 1.f);
+  tVec3f past_color = tVec3f(1.f, 0.3f, 0.6f);
+  tVec3f distant_past_color = tVec3f(0.3f, 0.5f, 1.f);
 
   if (astro_time <= periods.present && astro_time > periods.past) {
     float age_duration = periods.present - periods.past;
@@ -23,6 +23,11 @@ static tVec3f GetLightColor(const float astro_time) {
     float alpha = (astro_time - periods.distant_past) / age_duration;
 
     return tVec3f::lerp(distant_past_color, past_color, alpha);
+  }
+
+  if (astro_time < periods.distant_past) {
+    // @todo lerp between very distant past -> distant past
+    return distant_past_color;
   }
 
   return present_color;
@@ -45,6 +50,14 @@ void TimeEvolution::UpdateAstroTime(Tachyon* tachyon, State& state, const float 
   float alpha = -1.f * (state.astro_time / 250.f);
 
   light_color = GetLightColor(state.astro_time);
+
+  if (state.astro_turn_speed != 0.f) {
+    tVec3f night_color = tVec3f(0.2f, 0.4f, 1.f);
+    float strength = 0.5f * abs(state.astro_turn_speed) / 0.25f;
+    float alpha = strength * (0.5f + 0.5f * sinf(state.astro_time * 0.4f));
+
+    light_color = tVec3f::lerp(light_color, night_color, alpha);
+  }
 
   // @todo unit() this in the renderer
   light_direction = tVec3f::lerp(start_direction, end_direction, alpha).unit();

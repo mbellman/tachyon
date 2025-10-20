@@ -524,13 +524,15 @@ float GetSSAO(int total_samples, float depth, vec3 position, vec3 normal, float 
     }
   }
 
-  const float near_ssao = 0.5;
-  const float far_ssao = 0.6;
+  return ssao / float(total_samples) * 0.5;
 
-  float ssao_intensity = mix(near_ssao, far_ssao, pow(depth, 30.0));
-  ssao_intensity = mix(ssao_intensity, 0.0, pow(depth, 1000.0));
+  // const float near_ssao = 0.5;
+  // const float far_ssao = 0.6;
 
-  return ssao / float(total_samples) * ssao_intensity;
+  // float ssao_intensity = mix(near_ssao, far_ssao, pow(depth, 30.0));
+  // ssao_intensity = mix(ssao_intensity, 0.0, pow(depth, 1000.0));
+
+  // return ssao / float(total_samples) * ssao_intensity;
 }
 
 vec2 GetDenoisedTemporalData(float ssao, float shadow, float depth, vec2 temporal_uv) {
