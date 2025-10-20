@@ -18,7 +18,7 @@ static void SpawnItemObject(Tachyon* tachyon, State& state, const tVec3f& positi
   switch (item_type) {
     // Astrolabe parts
     case ASTROLABE_LOWER_LEFT:
-    caseASTROLABE_LOWER_RIGHT:
+    case ASTROLABE_LOWER_RIGHT:
     case ASTROLABE_UPPER_RIGHT: {
       auto& item = create(meshes.item_astro_part);
 
