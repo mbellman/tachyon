@@ -247,8 +247,7 @@ static void UpdateProceduralSmallGrass(Tachyon* tachyon, State& state) {
 
     commit(grass);
 
-    // Restore the grass position after commit, so its position
-    // does not drift over time
+    // Restore position after commit to avoid drift
     grass.position.x = base_position.x;
     grass.position.z = base_position.z;
   }
@@ -313,8 +312,10 @@ static void UpdateProceduralGroundFlowers(Tachyon* tachyon, State& state) {
   };
 
   const float growth_rate = 0.7f;
+  const float lifetime = t_PI + t_HALF_PI;
 
   auto& player_position = state.player_position;
+  float base_time_progress = 0.5f * (state.astro_time - -500.f);
 
   tVec3f sprouting_color = tVec3f(0.1f, 0.6f, 0.1f);
   tVec3f blossom_color = tVec3f(1.f, 0.1f, 0.1f);
@@ -325,46 +326,72 @@ static void UpdateProceduralGroundFlowers(Tachyon* tachyon, State& state) {
       continue;
     }
 
-    float variance = fmodf(abs(flower.position.x + flower.position.z), 10.f);
-    float alpha = 0.5f * (state.astro_time - -500.f) + variance;
-    float lifetime = t_PI + t_HALF_PI;
-    float generations = alpha / lifetime;
-    float life_progress = (generations - (int)generations);
-    int iteration = (int)generations + (int)abs(flower.position.x);
-    float growth, wilting;
+    float alpha_variation = fmodf(abs(flower.position.x + flower.position.z), 10.f);
+    float alpha = base_time_progress + alpha_variation;
+    float life_cycles = alpha / lifetime;
+    float life_progress = (life_cycles - (int)life_cycles);
+    int life_cycle = (int)life_cycles + (int)abs(flower.position.x);
+    float growth_factor;
+    float wilting_factor;
     tVec3f color;
 
     if (life_progress < 0.5f) {
-      // life_progress 0.0 -> 0.5 => growth 0.0 -> 250.0
-      growth = 500.f * life_progress;
-      wilting = 0.f;
+      // life_progress 0.0 -> 0.5 => growth_factor 0.0 -> 250.0
+      growth_factor = 500.f * life_progress;
+      wilting_factor = 0.f;
       color = tVec3f::lerp(sprouting_color, blossom_color, 2.f * life_progress);
     }
     else if (life_progress < 0.8f) {
-      growth = 250.f;
-      wilting = 0.f;
+      growth_factor = 250.f;
+      wilting_factor = 0.f;
       color = blossom_color;
     }
     else {
-      // life_progress 0.8 -> 1.0 => wilting 0.0 -> 1.0
-      wilting = 1.f - 5.f * (1.f - life_progress);
-      // life_progress 0.8 -> 1.0 => growth 250.0 -> 200.0
-      growth = 250.f - 50.f * wilting;
-      color = tVec3f::lerp(blossom_color, wilted_color, wilting);
+      // life_progress 0.8 -> 1.0 => wilting_factor 0.0 -> 1.0
+      wilting_factor = 1.f - 5.f * (1.f - life_progress);
+      // life_progress 0.8 -> 1.0 => growth_factor 250.0 -> 200.0
+      growth_factor = 250.f - 50.f * wilting_factor;
+      color = tVec3f::lerp(blossom_color, wilted_color, wilting_factor);
     }
-
-    flower.scale.x = growth;
-    flower.scale.y = 250.f * (1.f - wilting);
-    flower.scale.z = growth;
-    flower.color = color;
 
     tVec3f base_position = flower.position;
 
-    flower.position = base_position + offsets[iteration % 5];
+    flower.scale.x = growth_factor;
+    flower.scale.y = 250.f * (1.f - wilting_factor);
+    flower.scale.z = growth_factor;
+    flower.color = color;
+    flower.position = base_position + offsets[life_cycle % 5];
 
     commit(flower);
 
+    // Restore position after commit to avoid drift
     flower.position = base_position;
+  }
+}
+
+/**
+ * ----------------------------
+ * Bush flowers
+ * ----------------------------
+ */
+static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
+  profile("UpdateBushFlowers()");
+
+  auto& player_position = state.player_position;
+
+  for_entities(state.flowers) {
+    auto& entity = state.flowers[i];
+    auto& position = entity.visible_position;
+
+    if (entity.visible_scale.x < 500.f) {
+      continue;
+    }
+
+    float distance = tVec3f::distance(entity.visible_position, player_position);
+
+    if (distance < 15000.f) {
+      // @todo
+    }
   }
 }
 
@@ -385,4 +412,5 @@ void ProceduralGeneration::UpdateProceduralObjects(Tachyon* tachyon, State& stat
   UpdateProceduralSmallGrass(tachyon, state);
 
   UpdateProceduralGroundFlowers(tachyon, state);
+  UpdateBushFlowers(tachyon, state);
 }
