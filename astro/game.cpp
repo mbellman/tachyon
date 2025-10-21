@@ -118,7 +118,7 @@ static void UpdateLevelsOfDetail(Tachyon* tachyon, State& state) {
   // Procedural objects
   Tachyon_UseLodByDistance(tachyon, meshes.grass, 35000.f);
   Tachyon_UseLodByDistance(tachyon, meshes.small_grass, 35000.f);
-  Tachyon_UseLodByDistance(tachyon, meshes.flower, 35000.f);
+  Tachyon_UseLodByDistance(tachyon, meshes.ground_flower, 35000.f);
 
   // Entity parts
   Tachyon_UseLodByDistance(tachyon, meshes.oak_tree_roots, 40000.f);
@@ -134,7 +134,7 @@ static void ShowHighestLevelsOfDetail(Tachyon* tachyon, State& state) {
   Tachyon_ShowHighestLevelsOfDetail(tachyon, meshes.ground_1);
   Tachyon_ShowHighestLevelsOfDetail(tachyon, meshes.grass);
   Tachyon_ShowHighestLevelsOfDetail(tachyon, meshes.small_grass);
-  Tachyon_ShowHighestLevelsOfDetail(tachyon, meshes.flower);
+  Tachyon_ShowHighestLevelsOfDetail(tachyon, meshes.ground_flower);
 }
 
 static void HandleWalkSounds(Tachyon* tachyon, State& state) {

@@ -26,7 +26,8 @@ namespace astro {
       // Procedural meshes
       grass,
       small_grass,
-      flower,
+      ground_flower,
+      bush_flower,
 
       // HUD meshes
       astrolabe_rear,

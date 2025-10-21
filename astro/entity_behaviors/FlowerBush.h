@@ -66,6 +66,7 @@ namespace astro {
 
         // Collision
         entity.visible_scale = leaves.scale;
+        entity.visible_position = entity.position;
 
         commit(leaves);
         // commit(petals);

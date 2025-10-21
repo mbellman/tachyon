@@ -1,5 +1,6 @@
 #include "astro/procedural_generation.h"
 #include "astro/collision_system.h"
+#include "astro/entity_behaviors/behavior.h"
 
 using namespace astro;
 
@@ -59,6 +60,47 @@ static bool IsPointOnAnyPlane(const tVec3f& position, const std::vector<Plane>& 
   return false;
 }
 
+struct FlowerBloomParameters {
+  // @todo
+};
+
+static void UpdateBloomingFlower(tObject& flower, const tVec3f& blossom_color, const float max_size, const float base_time_progress, const float lifetime) {
+  const tVec3f sprouting_color = tVec3f(0.1f, 0.6f, 0.1f);
+  const tVec3f wilted_color = tVec3f(0.1f);
+
+  float alpha_variation = fmodf(abs(flower.position.x + flower.position.z), 10.f);
+  float alpha = base_time_progress + alpha_variation;
+  float life_cycles = alpha / lifetime;
+  float life_progress = (life_cycles - (int)life_cycles);
+  float growth_factor;
+  float wilting_factor;
+  tVec3f color;
+
+  if (life_progress < 0.5f) {
+    // life_progress 0.0 -> 0.5 => growth_factor 0.0 -> 1.0
+    growth_factor = 2.f * life_progress;
+    wilting_factor = 0.f;
+    color = tVec3f::lerp(sprouting_color, blossom_color, 2.f * life_progress);
+  }
+  else if (life_progress < 0.8f) {
+    growth_factor = 1.f;
+    wilting_factor = 0.f;
+    color = blossom_color;
+  }
+  else {
+    // life_progress 0.8 -> 1.0 => wilting_factor 0.0 -> 1.0
+    wilting_factor = 1.f - 5.f * (1.f - life_progress);
+    // life_progress 0.8 -> 1.0 => growth_factor 1.0 -> 0.6
+    growth_factor = 1.f - 0.4f * wilting_factor;
+    color = tVec3f::lerp(blossom_color, wilted_color, wilting_factor);
+  }
+
+  flower.scale.x = growth_factor * max_size;
+  flower.scale.y = max_size * (1.f - wilting_factor);
+  flower.scale.z = growth_factor * max_size;
+  flower.color = color;
+}
+
 /* ---------------------------- */
 
 /**
@@ -66,8 +108,8 @@ static bool IsPointOnAnyPlane(const tVec3f& position, const std::vector<Plane>& 
  * Grass
  * ----------------------------
  */
-static void GenerateProceduralGrass(Tachyon* tachyon, State& state) {
-  log_time("GenerateProceduralGrass()");
+static void GenerateGrass(Tachyon* tachyon, State& state) {
+  log_time("GenerateGrass()");
 
   remove_all(state.meshes.grass);
 
@@ -109,7 +151,9 @@ static void GenerateProceduralGrass(Tachyon* tachyon, State& state) {
   }
 }
 
-static void UpdateProceduralGrass(Tachyon* tachyon, State& state) {
+static void UpdateGrass(Tachyon* tachyon, State& state) {
+  profile("UpdateGrass()");
+
   static const tVec3f offsets[] = {
     tVec3f(0, 0, 0),
     tVec3f(-200.f, 0, 150.f),
@@ -158,8 +202,8 @@ static void UpdateProceduralGrass(Tachyon* tachyon, State& state) {
  * Small grass
  * ----------------------------
  */
-static void GenerateProceduralSmallGrass(Tachyon* tachyon, State& state) {
-  log_time("GenerateProceduralSmallGrass()");
+static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
+  log_time("GenerateSmallGrass()");
 
   remove_all(state.meshes.small_grass);
 
@@ -210,7 +254,9 @@ static void GenerateProceduralSmallGrass(Tachyon* tachyon, State& state) {
   }
 }
 
-static void UpdateProceduralSmallGrass(Tachyon* tachyon, State& state) {
+static void UpdateSmallGrass(Tachyon* tachyon, State& state) {
+  profile("UpdateSmallGrass()");
+
   static const tVec3f offsets[] = {
     tVec3f(0, 0, 0),
     tVec3f(-200.f, 0, 150.f),
@@ -258,13 +304,15 @@ static void UpdateProceduralSmallGrass(Tachyon* tachyon, State& state) {
  * Ground flowers
  * ----------------------------
  */
-static void GenerateProceduralGroundFlowers(Tachyon* tachyon, State& state) {
-  log_time("GenerateProceduralGroundFlowers()");
+static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
+  log_time("GenerateGroundFlowers()");
 
-  remove_all(state.meshes.flower);
+  auto& meshes = state.meshes;
+
+  remove_all(meshes.ground_flower);
 
   auto dirt_path_planes = GetEntityPlanes(state.dirt_paths);
-  auto flat_ground_planes = GetObjectPlanes(tachyon, state.meshes.flat_ground);
+  auto flat_ground_planes = GetObjectPlanes(tachyon, meshes.flat_ground);
 
   for (int i = 0; i < 2000; i++) {
     tVec3f center;
@@ -285,7 +333,7 @@ static void GenerateProceduralGroundFlowers(Tachyon* tachyon, State& state) {
         continue;
       }
 
-      auto& flower = create(state.meshes.flower);
+      auto& flower = create(meshes.ground_flower);
 
       flower.position = position;
       flower.scale = tVec3f(250.f);
@@ -297,13 +345,15 @@ static void GenerateProceduralGroundFlowers(Tachyon* tachyon, State& state) {
 
   // @todo dev mode only
   {
-    std::string message = "Generated " + std::to_string(objects(state.meshes.flower).total_active) + " ground flower objects";
+    std::string message = "Generated " + std::to_string(objects(meshes.ground_flower).total_active) + " ground flower objects";
 
     console_log(message);
   }
 }
 
-static void UpdateProceduralGroundFlowers(Tachyon* tachyon, State& state) {
+static void UpdateGroundFlowers(Tachyon* tachyon, State& state) {
+  profile("UpdateGroundFlowers()");
+
   static const tVec3f offsets[] = {
     tVec3f(0, 0, 0),
     tVec3f(-500.f, 0, 450.f),
@@ -311,17 +361,16 @@ static void UpdateProceduralGroundFlowers(Tachyon* tachyon, State& state) {
     tVec3f(600.f, 0, -350.f)
   };
 
-  const float growth_rate = 0.7f;
   const float lifetime = t_PI + t_HALF_PI;
+
+  const tVec3f sprouting_color = tVec3f(0.1f, 0.6f, 0.1f);
+  const tVec3f blossom_color = tVec3f(1.f, 0.1f, 0.1f);
+  const tVec3f wilted_color = tVec3f(0.1f);
 
   auto& player_position = state.player_position;
   float base_time_progress = 0.5f * (state.astro_time - -500.f);
 
-  tVec3f sprouting_color = tVec3f(0.1f, 0.6f, 0.1f);
-  tVec3f blossom_color = tVec3f(1.f, 0.1f, 0.1f);
-  tVec3f wilted_color = tVec3f(0.1f);
-
-  for (auto& flower : objects(state.meshes.flower)) {
+  for (auto& flower : objects(state.meshes.ground_flower)) {
     if (abs(flower.position.x - player_position.x) > 15000.f || abs(flower.position.z - player_position.z) > 15000.f) {
       continue;
     }
@@ -329,38 +378,13 @@ static void UpdateProceduralGroundFlowers(Tachyon* tachyon, State& state) {
     float alpha_variation = fmodf(abs(flower.position.x + flower.position.z), 10.f);
     float alpha = base_time_progress + alpha_variation;
     float life_cycles = alpha / lifetime;
-    float life_progress = (life_cycles - (int)life_cycles);
     int life_cycle = (int)life_cycles + (int)abs(flower.position.x);
-    float growth_factor;
-    float wilting_factor;
-    tVec3f color;
-
-    if (life_progress < 0.5f) {
-      // life_progress 0.0 -> 0.5 => growth_factor 0.0 -> 250.0
-      growth_factor = 500.f * life_progress;
-      wilting_factor = 0.f;
-      color = tVec3f::lerp(sprouting_color, blossom_color, 2.f * life_progress);
-    }
-    else if (life_progress < 0.8f) {
-      growth_factor = 250.f;
-      wilting_factor = 0.f;
-      color = blossom_color;
-    }
-    else {
-      // life_progress 0.8 -> 1.0 => wilting_factor 0.0 -> 1.0
-      wilting_factor = 1.f - 5.f * (1.f - life_progress);
-      // life_progress 0.8 -> 1.0 => growth_factor 250.0 -> 200.0
-      growth_factor = 250.f - 50.f * wilting_factor;
-      color = tVec3f::lerp(blossom_color, wilted_color, wilting_factor);
-    }
 
     tVec3f base_position = flower.position;
 
-    flower.scale.x = growth_factor;
-    flower.scale.y = 250.f * (1.f - wilting_factor);
-    flower.scale.z = growth_factor;
-    flower.color = color;
     flower.position = base_position + offsets[life_cycle % 5];
+
+    UpdateBloomingFlower(flower, blossom_color, 250.f, base_time_progress, lifetime);
 
     commit(flower);
 
@@ -374,10 +398,25 @@ static void UpdateProceduralGroundFlowers(Tachyon* tachyon, State& state) {
  * Bush flowers
  * ----------------------------
  */
+static void GenerateBushFlowers(Tachyon* tachyon, State& state) {
+  remove_all(state.meshes.bush_flower);
+
+  for (int i = 0; i < 200; i++) {
+    create(state.meshes.bush_flower);
+  }
+}
+
 static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
   profile("UpdateBushFlowers()");
 
+  const tVec3f blossom_color = tVec3f(1.f, 0.6f, 0.1f);
+  const float spawn_radius = 1200.f;
+  const float half_spawn_radius = spawn_radius * 0.5f;
+  const float lifetime = 15.f;
+
   auto& player_position = state.player_position;
+  float base_time_progress = 0.5f * (state.astro_time - -500.f);
+  uint16 index = 0;
 
   for_entities(state.flower_bushes) {
     auto& entity = state.flower_bushes[i];
@@ -389,28 +428,58 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
 
     float distance = tVec3f::distance(entity.visible_position, player_position);
 
-    if (distance < 15000.f) {
-      // @todo
+    if (distance < 18000.f) {
+      float entity_life_progress = GetLivingEntityProgress(state, entity, 100.f);
+      float flower_size = 400.f * sqrtf(sinf(entity_life_progress * t_PI));
+
+      float ex = abs(entity.visible_position.x);
+      float ez = abs(entity.visible_position.z);
+
+      for (int i = 0; i < 3; i++) {
+        auto& flower = objects(state.meshes.bush_flower)[index++];
+
+        float offset_x = fmodf(ex + 723.f * (float)i, spawn_radius) - half_spawn_radius;
+        float offset_z = fmodf(ez + 723.f * (float)i, spawn_radius) - half_spawn_radius;
+
+        flower.position = entity.visible_position;
+        flower.position.x += offset_x;
+        flower.position.y += entity.visible_scale.y * 0.4f;
+        flower.position.z += offset_z;
+
+        UpdateBloomingFlower(flower, blossom_color, flower_size, base_time_progress, lifetime);
+
+        flower.material = tVec4f(0.5f, 0, 0, 0.2f);
+
+        commit(flower);
+      }
     }
   }
+
+  // @todo description
+  auto& mesh = mesh(state.meshes.bush_flower);
+
+  mesh.lod_2.base_instance = 0;
+  mesh.lod_1.instance_count = index;
 }
 
 /* ---------------------------- */
 
 void ProceduralGeneration::RebuildProceduralObjects(Tachyon* tachyon, State& state) {
   // @todo refactor these two
-  GenerateProceduralGrass(tachyon, state);
-  GenerateProceduralSmallGrass(tachyon, state);
-  GenerateProceduralGroundFlowers(tachyon, state);
+  GenerateGrass(tachyon, state);
+  GenerateSmallGrass(tachyon, state);
+
+  GenerateGroundFlowers(tachyon, state);
+  GenerateBushFlowers(tachyon, state);
 }
 
 void ProceduralGeneration::UpdateProceduralObjects(Tachyon* tachyon, State& state) {
   profile("UpdateProceduralObjects()");
 
   // @todo refactor these two
-  UpdateProceduralGrass(tachyon, state);
-  UpdateProceduralSmallGrass(tachyon, state);
+  UpdateGrass(tachyon, state);
+  UpdateSmallGrass(tachyon, state);
 
-  UpdateProceduralGroundFlowers(tachyon, state);
+  UpdateGroundFlowers(tachyon, state);
   UpdateBushFlowers(tachyon, state);
 }
