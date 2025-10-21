@@ -101,7 +101,7 @@ Quaternion Quaternion::slerp(const Quaternion& q1, const Quaternion& q2, float a
   w1 = q1.w;
   x1 = q1.x;
   y1 = q1.y;
-  z1 = q1.z; 
+  z1 = q1.z;
 
   w2 = q2.w;
   x2 = q2.x;
@@ -181,10 +181,20 @@ tVec3f Quaternion::getLeftDirection() const {
 }
 
 tMat4f Quaternion::toMatrix4f() const {
+  float xx2 = 2*x*x;
+  float xy2 = 2*x*y;
+  float xz2 = 2*x*z;
+  float xw2 = 2*x*w;
+  float yy2 = 2*y*y;
+  float yz2 = 2*y*z;
+  float yw2 = 2*y*w;
+  float zz2 = 2*z*z;
+  float zw2 = 2*z*w;
+
   return {
-    1 - 2 * y * y - 2 * z * z, 2 * x * y - 2 * z * w, 2 * x * z + 2 * y * w, 0.f,
-    2 * x * y + 2 * z * w, 1 - 2 * x * x - 2 * z * z, 2 * y * z - 2 * x * w, 0.f,
-    2 * x * z - 2 * y * w, 2 * y * z + 2 * x * w, 1 - 2 * x * x - 2 * y * y, 0.f,
+    1.f - yy2 - zz2, xy2 - zw2, xz2 + yw2, 0.f,
+    xy2 + zw2, 1.f - xx2 - zz2, yz2 - xw2, 0.f,
+    xz2 - yw2, yz2 + xw2, 1.f - xx2 - yy2, 0.f,
     0.f, 0.f, 0.f, 1.f
   };
 }

@@ -277,47 +277,29 @@ tMat4f tMat4f::scale(const tVec3f& scale) {
 }
 
 tMat4f tMat4f::transformation(const tVec3f& translation, const tVec3f& scale, const Quaternion& rotation) {
-  tMat4f m_transform;
-  tMat4f m_scale = tMat4f::scale(scale);
-  tMat4f m_rotation = rotation.toMatrix4f();
+  tMat4f matrix;
+  tMat4f r = rotation.toMatrix4f();
 
-  // Declares a small float buffer which helps reduce the number
-  // of cache misses in the scale * rotation loop. Scale terms
-  // can be written in sequentially, followed by rotation terms,
-  // followed by a sequential read when multiplying the buffered
-  // terms. Confers a ~5-10% speedup, which is appreciable once
-  // the number of transforms per frame reaches into the thousands.
-  float v[6];
+  // Rotation * Scale
+  matrix.m[0] = r.m[0] * scale.x;
+  matrix.m[1] = r.m[1] * scale.y;
+  matrix.m[2] = r.m[2] * scale.z;
 
-  // Accumulate rotation * scale
-  for (uint32 r = 0; r < 3; r++) {
-    // Store rotation terms
-    v[0] = m_rotation.m[r * 4];
-    v[2] = m_rotation.m[r * 4 + 1];
-    v[4] = m_rotation.m[r * 4 + 2];
+  matrix.m[4] = r.m[4] * scale.x;
+  matrix.m[5] = r.m[5] * scale.y;
+  matrix.m[6] = r.m[6] * scale.z;
 
-    for (uint32 c = 0; c < 3; c++) {
-      // Store scale terms
-      v[1] = m_scale.m[c];
-      v[3] = m_scale.m[4 + c];
-      v[5] = m_scale.m[8 + c];
+  matrix.m[8] = r.m[8] * scale.x;
+  matrix.m[9] = r.m[9] * scale.y;
+  matrix.m[10] = r.m[10] * scale.z;
 
-      // rotation * scale
-      m_transform.m[r * 4 + c] = (
-        v[0] * v[1] +
-        v[2] * v[3] +
-        v[4] * v[5]
-      );
-    }
-  }
+  // Translation
+  matrix.m[3] = translation.x;
+  matrix.m[7] = translation.y;
+  matrix.m[11] = translation.z;
+  matrix.m[15] = 1.f;
 
-  // Apply translation directly
-  m_transform.m[3] = translation.x;
-  m_transform.m[7] = translation.y;
-  m_transform.m[11] = translation.z;
-  m_transform.m[15] = 1.f;
-
-  return m_transform;
+  return matrix;
 }
 
 tMat4f tMat4f::translation(const tVec3f& translation) {
