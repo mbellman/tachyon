@@ -498,9 +498,14 @@ const vec3[] ssao_sample_points = {
   vec3(0.175674, 0.013574, 0.87342)
 };
 
-float GetSSAO(int total_samples, float depth, vec3 position, vec3 normal, float seed) {
-  float linear_depth = GetLinearDepth(depth, Z_NEAR, Z_FAR);
-  float radius = mix(5.0, 10000000.0, linear_depth);
+// @todo use renderer resolution
+const vec2 texel_size = 1.0 / vec2(1920.0, 1080.0);
+
+const float ssao_temporal_denoising_strength = 1.0;
+const float shadow_temporal_denoising_strength = 0.2;
+const float spatial_spread = 2.0;
+
+float GetSSAO(int total_samples, float depth, vec3 position, vec3 normal, float seed, float radius) {
   float ssao = 0.0;
 
   vec3 random_vector = vec3(noise(1.0 + seed), noise(2.0 + seed), noise(3.0 + seed));
@@ -525,14 +530,6 @@ float GetSSAO(int total_samples, float depth, vec3 position, vec3 normal, float 
   }
 
   return ssao / float(total_samples) * 0.5;
-
-  // const float near_ssao = 0.5;
-  // const float far_ssao = 0.6;
-
-  // float ssao_intensity = mix(near_ssao, far_ssao, pow(depth, 30.0));
-  // ssao_intensity = mix(ssao_intensity, 0.0, pow(depth, 1000.0));
-
-  // return ssao / float(total_samples) * ssao_intensity;
 }
 
 vec2 GetDenoisedTemporalData(float ssao, float shadow, float depth, vec2 temporal_uv) {
@@ -542,12 +539,6 @@ vec2 GetDenoisedTemporalData(float ssao, float shadow, float depth, vec2 tempora
   if (temporal_uv.x < 0.0 || temporal_uv.x > 1.0 || temporal_uv.y < 0.0 || temporal_uv.y > 1.0) {
     return vec2(ssao, shadow);
   }
-
-  // @todo use renderer resolution
-  const vec2 texel_size = 1.0 / vec2(1920.0, 1080.0);
-  const float ssao_temporal_denoising_strength = 1.0;
-  const float shadow_temporal_denoising_strength = 0.2;
-  const float spatial_spread = 2.0;
 
   float world_depth = GetWorldDepth(depth, Z_NEAR, Z_FAR);
 
@@ -639,7 +630,24 @@ void main() {
   vec2 temporal_uv = GetScreenCoordinates(previous_view_position, projection_matrix);
 
   // Denoised SSAO/shadow
-  float ssao = GetSSAO(12, frag_normal_and_depth.w, position, frag_normal_and_depth.xyz, fract(running_time));
+  #define USE_FAST_SSAO 1
+
+  #if USE_FAST_SSAO == 1
+    float ssao;
+
+    ssao += GetSSAO(1, frag_normal_and_depth.w, position, frag_normal_and_depth.xyz, fract(running_time), 250.0);
+    ssao += GetSSAO(1, frag_normal_and_depth.w, position, frag_normal_and_depth.xyz, fract(running_time), 2000.0);
+    ssao += GetSSAO(1, frag_normal_and_depth.w, position, frag_normal_and_depth.xyz, fract(running_time), 4000.0);
+    ssao += GetSSAO(1, frag_normal_and_depth.w, position, frag_normal_and_depth.xyz, fract(running_time), 8000.0);
+    ssao += GetSSAO(1, frag_normal_and_depth.w, position, frag_normal_and_depth.xyz, fract(running_time), 10000.0);
+    ssao += GetSSAO(1, frag_normal_and_depth.w, position, frag_normal_and_depth.xyz, fract(running_time), 12000.0);
+    ssao *= 0.15;
+  #else
+    float linear_depth = GetLinearDepth(frag_normal_and_depth.w, Z_NEAR, Z_FAR);
+    float radius = mix(5.0, 10000000.0, linear_depth);
+    float ssao = GetSSAO(12, frag_normal_and_depth.w, position, frag_normal_and_depth.xyz, fract(running_time), radius);
+  #endif
+
   float shadow = GetPrimaryLightShadowFactor(position);
   vec2 denoised_temporal_data = GetDenoisedTemporalData(ssao, shadow, frag_normal_and_depth.w, temporal_uv);
 
