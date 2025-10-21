@@ -59,11 +59,10 @@ static void AddEntityMeshes(Tachyon* tachyon, State& state) {
   mesh(meshes.dirt_path_placeholder).shadow_cascade_ceiling = 0;
   mesh(meshes.dirt_path).shadow_cascade_ceiling = 0;
 
-  mesh(meshes.flowers_stalks).type = GRASS_MESH;
-  mesh(meshes.flowers_petals).type = GRASS_MESH;
-  mesh(meshes.flowers_placeholder).shadow_cascade_ceiling = 2;
-  mesh(meshes.flowers_stalks).shadow_cascade_ceiling = 2;
-  mesh(meshes.flowers_petals).shadow_cascade_ceiling = 2;
+  mesh(meshes.flower_bush_placeholder).type = GRASS_MESH;
+  mesh(meshes.flower_bush_leaves).type = GRASS_MESH;
+  mesh(meshes.flower_bush_placeholder).shadow_cascade_ceiling = 2;
+  mesh(meshes.flower_bush_leaves).shadow_cascade_ceiling = 2;
 }
 
 static void AddEditorMeshes(Tachyon* tachyon, State& state) {

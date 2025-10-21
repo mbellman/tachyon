@@ -379,8 +379,8 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
 
   auto& player_position = state.player_position;
 
-  for_entities(state.flowers) {
-    auto& entity = state.flowers[i];
+  for_entities(state.flower_bushes) {
+    auto& entity = state.flower_bushes[i];
     auto& position = entity.visible_position;
 
     if (entity.visible_scale.x < 500.f) {

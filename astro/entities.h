@@ -23,7 +23,7 @@ namespace astro {
     BANDIT,
     STONE_WALL,
     DIRT_PATH,
-    FLOWERS,
+    FLOWER_BUSH,
     ITEM_PICKUP
   };
 
@@ -43,7 +43,7 @@ namespace astro {
     BANDIT,
     STONE_WALL,
     DIRT_PATH,
-    FLOWERS,
+    FLOWER_BUSH,
     ITEM_PICKUP
   };
 
@@ -167,10 +167,9 @@ namespace astro {
       dirt_path_placeholder,
       dirt_path,
 
-      // FLOWERS
-      flowers_placeholder,
-      flowers_stalks,
-      flowers_petals,
+      // FLOWER_BUSH
+      flower_bush_placeholder,
+      flower_bush_leaves,
 
       // ITEM_PICKUP
       item_pickup_placeholder
@@ -187,7 +186,7 @@ namespace astro {
     std::vector<GameEntity> item_pickups;
     std::vector<GameEntity> dirt_paths;
     std::vector<GameEntity> shrubs;
-    std::vector<GameEntity> flowers;
+    std::vector<GameEntity> flower_bushes;
     std::vector<GameEntity> oak_trees;
     std::vector<GameEntity> willow_trees;
     std::vector<GameEntity> small_stone_bridges;
@@ -235,8 +234,8 @@ namespace astro {
       .tint = tVec3f(0.2f, 0.8f, 0.5f)
     } },
 
-    { FLOWERS, {
-      .name = "Flowers",
+    { FLOWER_BUSH, {
+      .name = "Flower Bush",
       .scale = tVec3f(2000.f),
       .tint = tVec3f(0.2f, 0.6f, 0.3f)
     } },

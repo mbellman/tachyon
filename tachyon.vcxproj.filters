@@ -516,9 +516,6 @@
     <ClInclude Include="astro\targeting.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="astro\entity_behaviors\Flowers.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="astro\character_dialogue.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -529,6 +526,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="astro\astrolabe.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\entity_behaviors\FlowerBush.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
