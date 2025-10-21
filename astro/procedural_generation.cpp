@@ -66,7 +66,7 @@ struct FlowerBloomParameters {
 
 static void UpdateBloomingFlower(tObject& flower, const tVec3f& blossom_color, const float max_size, const float base_time_progress, const float lifetime) {
   const tVec3f sprouting_color = tVec3f(0.1f, 0.6f, 0.1f);
-  const tVec3f wilted_color = tVec3f(0.1f);
+  const tVec3f wilted_color = tVec3f(0.2f, 0.1f, 0.1f);
 
   float alpha_variation = fmodf(abs(flower.position.x + flower.position.z), 10.f);
   float alpha = base_time_progress + alpha_variation;
@@ -95,9 +95,11 @@ static void UpdateBloomingFlower(tObject& flower, const tVec3f& blossom_color, c
     color = tVec3f::lerp(blossom_color, wilted_color, wilting_factor);
   }
 
-  flower.scale.x = growth_factor * max_size;
-  flower.scale.y = max_size * (1.f - wilting_factor);
-  flower.scale.z = growth_factor * max_size;
+  float xz_scale = growth_factor * (1.f - 0.5f * wilting_factor);
+
+  flower.scale.x = xz_scale * max_size;
+  flower.scale.y = max_size * (1.f - 0.8f * wilting_factor);
+  flower.scale.z = xz_scale * max_size;
   flower.color = color;
 }
 
