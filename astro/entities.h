@@ -24,7 +24,8 @@ namespace astro {
     STONE_WALL,
     DIRT_PATH,
     FLOWER_BUSH,
-    ITEM_PICKUP
+    ITEM_PICKUP,
+    GLOW_FLOWER
   };
 
   /**
@@ -44,7 +45,8 @@ namespace astro {
     STONE_WALL,
     DIRT_PATH,
     FLOWER_BUSH,
-    ITEM_PICKUP
+    ITEM_PICKUP,
+    GLOW_FLOWER
   };
 
   /**
@@ -115,6 +117,9 @@ namespace astro {
     // in a hash map when we create the object for it and pick it up, but
     // we can eat the cost for that.
     std::string item_pickup_name = "";
+
+    // For entities which spawn light sources
+    int32 light_id = -1;
   };
 
   /**
@@ -172,7 +177,11 @@ namespace astro {
       flower_bush_leaves,
 
       // ITEM_PICKUP
-      item_pickup_placeholder
+      item_pickup_placeholder,
+
+      // GLOW_FLOWER
+      glow_flower_placeholder,
+      glow_flower_petals
 
       ;
   };
@@ -187,6 +196,7 @@ namespace astro {
     std::vector<GameEntity> dirt_paths;
     std::vector<GameEntity> shrubs;
     std::vector<GameEntity> flower_bushes;
+    std::vector<GameEntity> glow_flowers;
     std::vector<GameEntity> oak_trees;
     std::vector<GameEntity> willow_trees;
     std::vector<GameEntity> small_stone_bridges;
@@ -238,6 +248,12 @@ namespace astro {
       .name = "Flower Bush",
       .scale = tVec3f(2000.f),
       .tint = tVec3f(0.2f, 0.6f, 0.3f)
+    } },
+
+    { GLOW_FLOWER, {
+      .name = "Glow Flower",
+      .scale = tVec3f(600.f),
+      .tint = tVec3f(0.2f, 0.4f, 1.f)
     } },
 
     { OAK_TREE, {

@@ -1287,6 +1287,12 @@ static void DeleteSelected(Tachyon* tachyon, State& state) {
   if (selected.is_entity) {
     ForgetSelectableEntity(selected.entity_record.id);
 
+    auto& entity = *EntityManager::FindEntity(state, selected.entity_record);
+
+    if (entity.light_id > -1) {
+      remove_point_light(entity.light_id);
+    }
+
     EntityManager::DeleteEntity(state, selected.entity_record);
 
     // Remove objects associated with the entity

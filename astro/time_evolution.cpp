@@ -9,7 +9,7 @@ static tVec3f GetLightColor(const float astro_time) {
 
   tVec3f present_color = tVec3f(1.f);
   tVec3f past_color = tVec3f(1.f, 0.3f, 0.6f);
-  tVec3f distant_past_color = tVec3f(0.3f, 0.5f, 2.f);
+  tVec3f distant_past_color = tVec3f(0.6f, 0.5f, 2.f);
 
   if (astro_time <= periods.present && astro_time > periods.past) {
     float age_duration = periods.present - periods.past;
