@@ -26,7 +26,7 @@ float Tachyon_EaseInOutf(float t) {
 float Tachyon_EaseOutBackf(float t) {
   float c1 = 2.f;
   float c3 = c1 + 1.f;
+  float t_1 = t - 1.f;
 
-  // @todo @optimize
-  return 1.f + c3 * pow(t - 1.f, 3.f) + c1 * powf(t - 1.f, 2.f);
+  return 1.f + c3 * (t_1 * t_1 * t_1) + c1 * (t_1 * t_1);
 }
