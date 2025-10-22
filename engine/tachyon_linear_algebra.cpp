@@ -177,6 +177,15 @@ tVec4f tMat4f::operator*(const tVec4f& vector) const {
   );
 }
 
+tVec4f tVec4f::lerp(const tVec4f& v1, const tVec4f& v2, const float alpha) {
+  return {
+    Tachyon_Lerpf(v1.x, v2.x, alpha),
+    Tachyon_Lerpf(v1.y, v2.y, alpha),
+    Tachyon_Lerpf(v1.z, v2.z, alpha),
+    Tachyon_Lerpf(v1.w, v2.w, alpha),
+  };
+}
+
 tMat4f tMat4f::inverse() const {
   float A2323 = m[10] * m[15] - m[11] * m[14];
   float A1323 = m[9] * m[15] - m[11] * m[13];

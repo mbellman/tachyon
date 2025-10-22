@@ -55,6 +55,8 @@ struct tVec4f {
 
   tVec4f operator*(const tVec4f& v) const;
 
+  static tVec4f lerp(const tVec4f& v1, const tVec4f& v2, const float alpha);
+
   tVec3f homogenize() const;
 };
 
