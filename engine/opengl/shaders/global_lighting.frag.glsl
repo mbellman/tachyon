@@ -479,6 +479,8 @@ vec3 GetReflectionColor(vec3 R) {
   return GetSkyColor(R, 0.0);
 }
 
+#define USE_FAST_SSAO 1
+
 const vec3[] ssao_sample_points = {
   vec3(0.021429, 0.059112, 0.07776),
   vec3(0.042287, -0.020052, 0.092332),
@@ -630,22 +632,22 @@ void main() {
   vec2 temporal_uv = GetScreenCoordinates(previous_view_position, projection_matrix);
 
   // Denoised SSAO/shadow
-  #define USE_FAST_SSAO 1
-
   #if USE_FAST_SSAO == 1
-    float ssao;
+    float ssao = 0.0;
+    float depth = frag_normal_and_depth.w;
+    float seed = fract(running_time);
 
-    ssao += GetSSAO(1, frag_normal_and_depth.w, position, frag_normal_and_depth.xyz, fract(running_time), 250.0);
-    ssao += GetSSAO(1, frag_normal_and_depth.w, position, frag_normal_and_depth.xyz, fract(running_time), 2000.0);
-    ssao += GetSSAO(1, frag_normal_and_depth.w, position, frag_normal_and_depth.xyz, fract(running_time), 4000.0);
-    ssao += GetSSAO(1, frag_normal_and_depth.w, position, frag_normal_and_depth.xyz, fract(running_time), 8000.0);
-    ssao += GetSSAO(1, frag_normal_and_depth.w, position, frag_normal_and_depth.xyz, fract(running_time), 10000.0);
-    ssao += GetSSAO(1, frag_normal_and_depth.w, position, frag_normal_and_depth.xyz, fract(running_time), 12000.0);
+    ssao += GetSSAO(1, depth, position, N, seed, 250.0);
+    ssao += GetSSAO(1, depth, position, N, seed, 2000.0);
+    ssao += GetSSAO(1, depth, position, N, seed, 4000.0);
+    ssao += GetSSAO(1, depth, position, N, seed, 8000.0);
+    ssao += GetSSAO(1, depth, position, N, seed, 10000.0);
+    ssao += GetSSAO(1, depth, position, N, seed, 12000.0);
     ssao *= 0.15;
   #else
     float linear_depth = GetLinearDepth(frag_normal_and_depth.w, Z_NEAR, Z_FAR);
     float radius = mix(5.0, 10000000.0, linear_depth);
-    float ssao = GetSSAO(12, frag_normal_and_depth.w, position, frag_normal_and_depth.xyz, fract(running_time), radius);
+    float ssao = GetSSAO(12, frag_normal_and_depth.w, position, N, fract(running_time), radius);
   #endif
 
   float shadow = GetPrimaryLightShadowFactor(position);

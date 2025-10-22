@@ -235,6 +235,10 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
     return;
   }
 
+  if (did_press_key(tKey::SPACE)) {
+    state.show_game_stats = !state.show_game_stats;
+  }
+
   Targeting::HandleTargets(tachyon, state);
   ControlSystem::HandleControls(tachyon, state, dt);
   CollisionSystem::HandleCollisions(tachyon, state);
@@ -268,6 +272,10 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
 
     // @todo ui.cpp
     // @todo debug mode only
-    ShowGameStats(tachyon, state);
+    if (state.show_game_stats) {
+      ShowGameStats(tachyon, state);
+    } else {
+      tachyon->dev_labels.clear();
+    }
   }
 }

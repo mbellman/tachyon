@@ -987,7 +987,7 @@ static void RenderPointLights(Tachyon* tachyon) {
   for (uint32 i = 0; i < tachyon->point_lights.size(); i++) {
     auto& light = tachyon->point_lights[i];
 
-    if (light.power == 0.f) {
+    if (light.power == 0.f || light.radius < 1.f) {
       continue;
     }
 

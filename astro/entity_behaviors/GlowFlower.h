@@ -48,7 +48,7 @@ namespace astro {
 
           light.position = entity.visible_position;
           light.position.y = entity.visible_position.y + entity.visible_scale.y * 0.25f;
-          light.radius = 600.f * (petals.scale.x / entity.scale.x);
+          light.radius = 600.f * (entity.visible_scale.x / entity.scale.x);
           light.color = tVec3f(0.1f, 0.4f, 1.f);
           light.power = 2.f;
         }
