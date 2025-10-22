@@ -16,6 +16,7 @@ static void HandleActiveStunSpell(Tachyon* tachyon, State& state) {
   }
 
   auto& light = *get_point_light(spells.stun_light_id);
+
   float t = (tachyon->running_time - spells.stun_start_time) / 3.f;
   if (t > 1.f) t = 1.f;
   t = sqrtf(t);
@@ -25,6 +26,13 @@ static void HandleActiveStunSpell(Tachyon* tachyon, State& state) {
   light.radius = 25000.f * Tachyon_EaseInOutf(t);
   light.color = tVec3f(1.f, 0.8f, 0.4f),
   light.power = 5.f * powf(1.f - t, 2.f);
+
+  // Move the stun start time backward whenever we start astro turning.
+  // Casting stun and then advancing or reversing time should effectively
+  // "fast-forward" the stun effect and bring it to a quicker completion state,
+  // as not to let it have any inadvertent effects on affected entities
+  // during time changes.
+  spells.stun_start_time -= abs(state.astro_turn_speed);
 }
 
 /**
@@ -95,7 +103,7 @@ static void HandleHomingSpellTargeting(Tachyon* tachyon, State& state, HomingOrb
   if (t > 1.f) t = 1.f;
 
   auto& target_entity = *EntityManager::FindEntity(state, state.target_entity);
-  
+
   tVec3f light_to_target = target_entity.visible_position - light.position;
   float target_distance = light_to_target.magnitude();
   tVec3f unit_light_to_target = light_to_target / target_distance;

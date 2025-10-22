@@ -42,7 +42,7 @@ namespace astro {
         float player_distance = tVec3f::distance(player_position, entity.visible_position);
         float t = time_since_casting_stun - player_distance * 0.0001f;
 
-        if (t < activation_duration) {
+        if (t < activation_duration && (life_progress > 0.f && life_progress < 1.f)) {
           activation = t;
           if (activation < 0.f) activation = 0.f;
           if (activation > 1.f) activation = 1.f;

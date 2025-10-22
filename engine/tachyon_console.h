@@ -6,6 +6,7 @@
 #include "engine/tachyon_aliases.h"
 #include "engine/tachyon_linear_algebra.h"
 #include "engine/tachyon_quaternion.h"
+#include "engine/tachyon_types.h"
 
 #define add_console_message(message, color) Tachyon_AddConsoleMessage(message, color)
 #define console_log(value) Tachyon_Log(value);
@@ -33,4 +34,4 @@ void Tachyon_Log(const tVec3f& vector);
 void Tachyon_Log(const Quaternion& q);
 const std::vector<tConsoleMessage>& Tachyon_GetConsoleMessages();
 void Tachyon_ManageConsoleMessageLifetimes();
-void Tachyon_ClearConsole();
+void Tachyon_ClearConsole(Tachyon* tachyon);

@@ -70,10 +70,12 @@ void Tachyon_ManageConsoleMessageLifetimes() {
   }
 }
 
-void Tachyon_ClearConsole() {
+void Tachyon_ClearConsole(Tachyon* tachyon) {
   auto now = Tachyon_GetMicroseconds();
 
   for (auto& message : console_messages) {
     message.time = now - (CONSOLE_MESSAGE_DURATION - 1000000);
   }
+
+  show_overlay_message("[Tachyon] Console cleared");
 }

@@ -71,8 +71,7 @@ static void HandleEvents(Tachyon* tachyon) {
   }
 
   if (did_press_key(tKey::C) && tachyon->hotkeys_enabled) {
-    Tachyon_ClearConsole();
-    show_overlay_message("[Tachyon] Console cleared");
+    Tachyon_ClearConsole(tachyon);
   }
 }
 
