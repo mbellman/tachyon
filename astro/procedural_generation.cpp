@@ -315,6 +315,7 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
 
   auto dirt_path_planes = GetEntityPlanes(state.dirt_paths);
   auto flat_ground_planes = GetObjectPlanes(tachyon, meshes.flat_ground);
+  // @todo check ground_1 planes
 
   for (int i = 0; i < 2000; i++) {
     tVec3f center;
@@ -464,6 +465,54 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
   mesh.lod_1.instance_count = index;
 }
 
+/**
+ * ----------------------------
+ * Dirt paths
+ * ----------------------------
+ */
+static void GenerateDirtPaths(Tachyon* tachyon, State& state) {
+  log_time("GenerateDirtPaths()");
+
+  remove_all(state.meshes.p_dirt_path);
+
+  for_entities(state.dirt_path_nodes) {
+    auto& entity_a = state.dirt_path_nodes[i];
+
+    for_entities(state.dirt_path_nodes) {
+      auto& entity_b = state.dirt_path_nodes[i];
+
+      if (IsSameEntity(entity_a, entity_b)) {
+        continue;
+      }
+
+      tVec3f connection = entity_a.position - entity_b.position;
+
+      if (connection.magnitude() < 10000.f) {
+        auto& c = create(state.meshes.p_dirt_path);
+
+        // @temporary
+        c.position = (entity_a.position + entity_b.position) / 2.f;
+        c.position.y = -1200.f;
+        c.scale = tVec3f(300.f);
+        c.color = tVec3f(0.2f, 0.4f, 1.f);
+
+        commit(c);
+      }
+    }
+  }
+
+  // @todo dev mode only
+  {
+    std::string message = "Generated " + std::to_string(objects(state.meshes.p_dirt_path).total_active) + " dirt path objects";
+
+    console_log(message);
+  }
+}
+
+static void UpdateDirtPaths(Tachyon* tachyon, State& state) {
+
+}
+
 /* ---------------------------- */
 
 void ProceduralGeneration::RebuildProceduralObjects(Tachyon* tachyon, State& state) {
@@ -473,6 +522,8 @@ void ProceduralGeneration::RebuildProceduralObjects(Tachyon* tachyon, State& sta
 
   GenerateGroundFlowers(tachyon, state);
   GenerateBushFlowers(tachyon, state);
+
+  GenerateDirtPaths(tachyon, state);
 }
 
 void ProceduralGeneration::UpdateProceduralObjects(Tachyon* tachyon, State& state) {

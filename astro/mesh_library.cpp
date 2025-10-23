@@ -41,12 +41,6 @@ static void AddDecorativeMeshes(Tachyon* tachyon, State& state) {
   mesh(meshes.ground_1).shadow_cascade_ceiling = 2;
 }
 
-static void AddItemMeshes(Tachyon* tachyon, State& state) {
-  auto& meshes = state.meshes;
-
-  meshes.item_astro_part = CUBE_MESH(3);
-}
-
 static void AddEntityMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
@@ -68,6 +62,34 @@ static void AddEntityMeshes(Tachyon* tachyon, State& state) {
   mesh(meshes.glow_flower_placeholder).shadow_cascade_ceiling = 2;
   mesh(meshes.glow_flower_petals).type = GRASS_MESH;
   mesh(meshes.glow_flower_petals).shadow_cascade_ceiling = 2;
+}
+
+static void AddItemMeshes(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
+  meshes.item_astro_part = CUBE_MESH(3);
+}
+
+static void AddProceduralMeshes(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
+  meshes.grass         = MODEL_MESH("./astro/3d_models/grass.obj", 20000);
+  meshes.small_grass   = MODEL_MESH("./astro/3d_models/grass.obj", 50000);
+  meshes.ground_flower = MODEL_MESH("./astro/3d_models/flower.obj", 10000);
+  meshes.bush_flower   = MODEL_MESH("./astro/3d_models/flower.obj", 1000);
+  meshes.p_dirt_path   = CUBE_MESH(10000);
+
+  mesh(meshes.grass).type = GRASS_MESH;
+  mesh(meshes.grass).shadow_cascade_ceiling = 2;
+
+  mesh(meshes.small_grass).type = GRASS_MESH;
+  mesh(meshes.small_grass).shadow_cascade_ceiling = 0;
+
+  mesh(meshes.ground_flower).type = GRASS_MESH;
+  mesh(meshes.ground_flower).shadow_cascade_ceiling = 2;
+
+  mesh(meshes.bush_flower).type = GRASS_MESH;
+  mesh(meshes.bush_flower).shadow_cascade_ceiling = 2;
 }
 
 static void AddEditorMeshes(Tachyon* tachyon, State& state) {
@@ -97,31 +119,11 @@ void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
 
   mesh(meshes.water_plane).shadow_cascade_ceiling = 0;
 
-  // @temporary
-  // @todo AddProceduralMeshes()
-  {
-    meshes.grass         = MODEL_MESH("./astro/3d_models/grass.obj", 20000);
-    meshes.small_grass   = MODEL_MESH("./astro/3d_models/grass.obj", 50000);
-    meshes.ground_flower = MODEL_MESH("./astro/3d_models/flower.obj", 10000);
-    meshes.bush_flower   = MODEL_MESH("./astro/3d_models/flower.obj", 1000);
-
-    mesh(meshes.grass).type = GRASS_MESH;
-    mesh(meshes.grass).shadow_cascade_ceiling = 2;
-
-    mesh(meshes.small_grass).type = GRASS_MESH;
-    mesh(meshes.small_grass).shadow_cascade_ceiling = 0;
-
-    mesh(meshes.ground_flower).type = GRASS_MESH;
-    mesh(meshes.ground_flower).shadow_cascade_ceiling = 2;
-
-    mesh(meshes.bush_flower).type = GRASS_MESH;
-    mesh(meshes.bush_flower).shadow_cascade_ceiling = 2;
-  }
-
   AddHUDMeshes(tachyon, state);
   AddDecorativeMeshes(tachyon, state);
-  AddItemMeshes(tachyon, state);
   AddEntityMeshes(tachyon, state);
+  AddItemMeshes(tachyon, state);
+  AddProceduralMeshes(tachyon, state);
 
   // @todo dev mode only
   AddEditorMeshes(tachyon, state);

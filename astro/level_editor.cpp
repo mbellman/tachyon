@@ -258,7 +258,7 @@ static void HandleCameraActions(Tachyon* tachyon, State& state, const float dt) 
   auto& camera = tachyon->scene.camera;
 
   const float camera_panning_speed = 0.2f;
-  const float camera_movement_speed = is_key_held(tKey::SPACE) ? 10000.f : 5000.f;
+  const float camera_movement_speed = is_key_held(tKey::SPACE) ? 30000.f : 5000.f;
 
   // Object swiveling or mouse panning
   {
@@ -916,11 +916,21 @@ static void SpawnEntityObjects(Tachyon* tachyon, State& state, GameEntity& entit
  * @todo remove the legacy non-placement-mode conditions
  * ----------------------------
  */
-static tVec3f GetPlacementPosition(Tachyon* tachyon, State& state) {
+static tVec3f GetSpawnPosition(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
 
   if (editor.is_in_placement_mode) {
     auto& placer = objects(state.meshes.editor_placer)[0];
+
+    if (editor.is_placing_entity) {
+      // @temporary
+      // @todo define entity placement defaults
+      EntityType entity_type = entity_types[editor.current_entity_index];
+
+      if (entity_type == DIRT_PATH_NODE) {
+        return placer.position + tVec3f(0, 1500.f, 0);
+      }
+    }
 
     return placer.position;
   }
@@ -969,7 +979,7 @@ static void CreateNewDecorativeObject(Tachyon* tachyon, State& state) {
   auto& current_decorative_mesh = decorative_meshes[editor.current_decorative_mesh_index];
   auto& object = create(current_decorative_mesh.mesh_index);
 
-  object.position = GetPlacementPosition(tachyon, state);
+  object.position = GetSpawnPosition(tachyon, state);
   object.scale = current_decorative_mesh.default_scale;
   object.color = current_decorative_mesh.default_color;
 
@@ -995,7 +1005,7 @@ static void CreateNewEntity(Tachyon* tachyon, State& state) {
   auto& defaults = get_entity_defaults(entity_type);
   GameEntity entity = EntityManager::CreateNewEntity(state, entity_type);
 
-  entity.position = GetPlacementPosition(tachyon, state);
+  entity.position = GetSpawnPosition(tachyon, state);
   entity.scale = defaults.scale;
   entity.orientation = Quaternion(1.f, 0, 0, 0);
   entity.tint = defaults.tint;

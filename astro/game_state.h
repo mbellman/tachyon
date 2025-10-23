@@ -28,6 +28,7 @@ namespace astro {
       small_grass,
       ground_flower,
       bush_flower,
+      p_dirt_path,
 
       // HUD meshes
       astrolabe_rear,
