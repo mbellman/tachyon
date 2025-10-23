@@ -869,8 +869,14 @@ static void SyncEntityPlaceholder(Tachyon* tachyon, tObject& placeholder, const 
 
   // @temporary
   // @todo allow entity placeholder default material
-  if (entity.type == ITEM_PICKUP) {
-    placeholder.material = tVec4f(0.2f, 0, 0.5f, 0.5f);
+  {
+    if (entity.type == ITEM_PICKUP) {
+      placeholder.material = tVec4f(0.2f, 0, 0.5f, 0.5f);
+    }
+
+    if (entity.type == DIRT_PATH_NODE) {
+      placeholder.material = tVec4f(0.2f, 0, 0.5f, 0.5f);
+    }
   }
 
   commit(placeholder);

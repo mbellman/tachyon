@@ -25,7 +25,8 @@ namespace astro {
     DIRT_PATH,
     FLOWER_BUSH,
     ITEM_PICKUP,
-    GLOW_FLOWER
+    GLOW_FLOWER,
+    DIRT_PATH_NODE
   };
 
   /**
@@ -46,7 +47,8 @@ namespace astro {
     DIRT_PATH,
     FLOWER_BUSH,
     ITEM_PICKUP,
-    GLOW_FLOWER
+    GLOW_FLOWER,
+    DIRT_PATH_NODE
   };
 
   /**
@@ -181,7 +183,10 @@ namespace astro {
 
       // GLOW_FLOWER
       glow_flower_placeholder,
-      glow_flower_petals
+      glow_flower_petals,
+
+      // DIRT_PATH_NODE,
+      dirt_path_node_placeholder
 
       ;
   };
@@ -194,6 +199,7 @@ namespace astro {
   struct EntityContainers {
     std::vector<GameEntity> item_pickups;
     std::vector<GameEntity> dirt_paths;
+    std::vector<GameEntity> dirt_path_nodes;
     std::vector<GameEntity> shrubs;
     std::vector<GameEntity> flower_bushes;
     std::vector<GameEntity> glow_flowers;
@@ -235,6 +241,12 @@ namespace astro {
     { DIRT_PATH, {
       .name = "Dirt Path",
       .scale = tVec3f(2000.f, 1.f, 2000.f),
+      .tint = tVec3f(0.7f, 0.3f, 0.1f)
+    } },
+
+    { DIRT_PATH_NODE, {
+      .name = "Dirt Path Node",
+      .scale = tVec3f(1000.f),
       .tint = tVec3f(0.7f, 0.3f, 0.1f)
     } },
 

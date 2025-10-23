@@ -4,6 +4,7 @@
 
 #include "astro/entity_behaviors/Bandit.h"
 #include "astro/entity_behaviors/DirtPath.h"
+#include "astro/entity_behaviors/DirthPathNode.h"
 #include "astro/entity_behaviors/FlowerBush.h"
 #include "astro/entity_behaviors/GlowFlower.h"
 #include "astro/entity_behaviors/ItemPickup.h"
@@ -44,6 +45,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
   switch (type) {
     dispatch_GetEntityContainer(BANDIT, state.bandits);
     dispatch_GetEntityContainer(DIRT_PATH, state.dirt_paths);
+    dispatch_GetEntityContainer(DIRT_PATH_NODE, state.dirt_path_nodes);
     dispatch_GetEntityContainer(ITEM_PICKUP, state.item_pickups);
     dispatch_GetEntityContainer(LOW_GUARD, state.low_guards);
     dispatch_GetEntityContainer(OAK_TREE, state.oak_trees);
@@ -68,6 +70,7 @@ void EntityDispatcher::AddMeshes(Tachyon* tachyon, State& state, EntityType type
   switch (type) {
     dispatch_AddMeshes(BANDIT, Bandit);
     dispatch_AddMeshes(DIRT_PATH, DirtPath);
+    dispatch_AddMeshes(DIRT_PATH_NODE, DirtPathNode);
     dispatch_AddMeshes(ITEM_PICKUP, ItemPickup);
     dispatch_AddMeshes(LOW_GUARD, LowGuard);
     dispatch_AddMeshes(OAK_TREE, OakTree);
@@ -91,6 +94,7 @@ const std::vector<uint16>& EntityDispatcher::GetMeshes(State& state, EntityType 
   switch (type) {
     dispatch_GetMeshes(BANDIT, Bandit);
     dispatch_GetMeshes(DIRT_PATH, DirtPath);
+    dispatch_GetMeshes(DIRT_PATH_NODE, DirtPathNode);
     dispatch_GetMeshes(ITEM_PICKUP, ItemPickup);
     dispatch_GetMeshes(LOW_GUARD, LowGuard);
     dispatch_GetMeshes(OAK_TREE, OakTree);
@@ -114,6 +118,7 @@ uint16 EntityDispatcher::GetPlaceholderMesh(State& state, EntityType type) {
   switch (type) {
     dispatch_GetPlaceholderMesh(BANDIT, Bandit);
     dispatch_GetPlaceholderMesh(DIRT_PATH, DirtPath);
+    dispatch_GetPlaceholderMesh(DIRT_PATH_NODE, DirtPathNode);
     dispatch_GetPlaceholderMesh(ITEM_PICKUP, ItemPickup);
     dispatch_GetPlaceholderMesh(LOW_GUARD, LowGuard);
     dispatch_GetPlaceholderMesh(OAK_TREE, OakTree);
@@ -137,6 +142,7 @@ void EntityDispatcher::TimeEvolve(Tachyon* tachyon, State& state, EntityType typ
   switch (type) {
     dispatch_TimeEvolve(BANDIT, Bandit);
     dispatch_TimeEvolve(DIRT_PATH, DirtPath);
+    dispatch_TimeEvolve(DIRT_PATH_NODE, DirtPathNode);
     dispatch_TimeEvolve(ITEM_PICKUP, ItemPickup);
     dispatch_TimeEvolve(LOW_GUARD, LowGuard);
     dispatch_TimeEvolve(OAK_TREE, OakTree);
