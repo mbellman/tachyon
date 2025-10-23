@@ -30,7 +30,7 @@ namespace astro {
       // Combat
       if (player_distance < 10000.f) {
         tVec3f player_direction = entity_to_player / player_distance;
-        float time_since_last_stun = tachyon->running_time - state.spells.stun_start_time;
+        float time_since_last_stun = tachyon->scene.scene_time - state.spells.stun_start_time;
 
         if (time_since_last_stun < 4.f) {
           // Stunned

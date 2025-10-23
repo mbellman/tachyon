@@ -55,13 +55,13 @@ namespace astro {
    * @todo should these be loaded in from a file instead?
    * ----------------------------
    */
-  static DialogueList bandit_dialogue_stunned_agitated = {
+  static DialogueList bandit_dialogue_stunned_idle = {
     {
-      .text = "Agh! You filthy coward!",
+      .text = "Where on earth did that come from?",
       .sound = ""
     },
     {
-      .text = "Wretched little bastard!",
+      .text = "Who goes there?",
       .sound = ""
     }
   };
@@ -70,6 +70,17 @@ namespace astro {
     {
       .text = "Argh! The bastard blinded me!",
       .sound = "./astro/audio/bandit/blinded.mp3"
+    }
+  };
+
+  static DialogueList bandit_dialogue_stunned_agitated = {
+    {
+      .text = "Agh! You filthy coward!",
+      .sound = ""
+    },
+    {
+      .text = "Wretched little bastard!",
+      .sound = ""
     }
   };
 

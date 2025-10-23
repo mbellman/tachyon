@@ -37,7 +37,7 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) 
       // Target camera
       auto& target = *EntityManager::FindEntity(state, state.target_entity);
       float distance = (state.player_position - target.visible_position).magnitude();
-      float time_since_casting_stun = tachyon->running_time - state.spells.stun_start_time;
+      float time_since_casting_stun = tachyon->scene.scene_time - state.spells.stun_start_time;
 
       float distance_ratio = 1.f - distance / 10000.f;
       if (distance_ratio < 0.f) distance_ratio = 0.f;
@@ -50,7 +50,7 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) 
       if (stun_factor > 1.f) stun_factor = 1.f;
 
       new_camera_position = tVec3f::lerp(state.player_position, target.visible_position, 0.5f * distance_ratio);
- 
+
       new_camera_position.y = 3000.f * distance_ratio;
       new_camera_position.y += 1000.f * stun_factor;
 
@@ -66,7 +66,7 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) 
       // the camera more smoothly blends back into its expected position when a targeted
       // entity ends its lifespan and disappears during an astro turn action. Without
       // this special case, the slower camera shift lerp causes the camera to "curve"
-      // as it returns to its expected position, which looks odd. 
+      // as it returns to its expected position, which looks odd.
       new_camera_position = state.player_position;
 
       tVec3f shift_direction = state.player_facing_direction + tVec3f(0, 0, 0.25f);

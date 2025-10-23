@@ -149,6 +149,7 @@ void Tachyon_EndFrame(Tachyon* tachyon) {
   Tachyon_ManageConsoleMessageLifetimes();
 
   tachyon->last_frame_time_in_microseconds = Tachyon_GetMicroseconds() - tachyon->frame_start_time_in_microseconds;
+  // @todo just pass dt and increment by that
   tachyon->running_time += (float)tachyon->last_frame_time_in_microseconds / 1000000.f;
   tachyon->dev_labels.clear();
 }

@@ -17,7 +17,7 @@ static void HandleActiveStunSpell(Tachyon* tachyon, State& state) {
 
   auto& light = *get_point_light(spells.stun_light_id);
 
-  float t = (tachyon->running_time - spells.stun_start_time) / 3.f;
+  float t = (tachyon->scene.scene_time - spells.stun_start_time) / 3.f;
   if (t > 1.f) t = 1.f;
   t = sqrtf(t);
 
@@ -167,7 +167,7 @@ void SpellSystem::CastStun(Tachyon* tachyon, State& state) {
     remove_point_light(*stun_light);
   }
 
-  spells.stun_start_time = tachyon->running_time;
+  spells.stun_start_time = tachyon->scene.scene_time;
   spells.stun_light_id = create_point_light();
 }
 

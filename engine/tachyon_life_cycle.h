@@ -8,7 +8,7 @@
 #define Tachyon_RunMainLoop(code)\
   while (tachyon->is_running) {\
     Tachyon_StartFrame(tachyon);\
-    float dt = tachyon->last_frame_time_in_microseconds / 1000000.f;\
+    float dt = (float)tachyon->last_frame_time_in_microseconds / 1000000.f;\
     if (dt > MAX_DT) dt = MAX_DT;\
     code;\
     Tachyon_EndFrame(tachyon);\

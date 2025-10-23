@@ -30,22 +30,32 @@ namespace astro {
       // Player-in-range behavior
       if (player_distance < 10000.f) {
         tVec3f player_direction = entity_to_player / player_distance;
-        float time_since_casting_stun = tachyon->running_time - state.spells.stun_start_time;
+        float time_since_casting_stun = tachyon->scene.scene_time - state.spells.stun_start_time;
 
         // Stunned dialogue + mood changes
         {
-          if (time_since_casting_stun < 0.25f) {
+          if (time_since_casting_stun == 0.f) {
             // Caught in the initial blast of a stun spell
-            if (enemy.mood == ENEMY_AGITATED) {
-              play_random_dialogue(entity, bandit_dialogue_stunned_agitated);
-            } else {
-              play_random_dialogue(entity, bandit_dialogue_stunned_engaged);
+
+            if (enemy.mood == ENEMY_IDLE) {
+              // Stunned while idle
+              play_random_dialogue(entity, bandit_dialogue_stunned_idle);
+
+              // Idle -> Engaged
+              // @todo ENEMY_STARTLED
+              enemy.mood = ENEMY_ENGAGED;
             }
-          }
-          else if (time_since_casting_stun < 0.5f) {
-            // Agitate stunned enemies after a delay to allow
-            // distinct engaged + already-agitated dialogue lines
-            enemy.mood = ENEMY_AGITATED;
+            else if (enemy.mood == ENEMY_AGITATED) {
+              // Stunned while agitated
+              play_random_dialogue(entity, bandit_dialogue_stunned_agitated);
+            }
+            else {
+              // Stunned while engaged
+              play_random_dialogue(entity, bandit_dialogue_stunned_engaged);
+
+              // Engaged -> Agitated
+              enemy.mood = ENEMY_AGITATED;
+            }
           }
         }
 
@@ -79,7 +89,7 @@ namespace astro {
           }
         }
 
-        if (time_since_casting_stun < 3.f) {
+        if (time_since_casting_stun < 3.f && enemy.mood != ENEMY_IDLE) {
           // Stunned knockback
           float knockback_factor = 3.f * time_since_casting_stun * (1.f - time_since_casting_stun);
           if (knockback_factor > 1.f) knockback_factor = 1.f;
@@ -88,7 +98,7 @@ namespace astro {
           entity.visible_position -= player_direction * knockback_factor * 3000.f * dt;
         }
         else if (player_distance > 3000.f) {
-          // Non-strafing combat
+          // Non-close-quarters behavior
           float dialogue_duration = tachyon->running_time - state.dialogue_start_time;
           tVec3f facing_direction = GetFacingDirection(entity);
 
@@ -105,6 +115,7 @@ namespace astro {
           }
 
           if (enemy.mood == ENEMY_IDLE && can_notice_player) {
+            // Bandit engaging the player
             enemy.mood = ENEMY_ENGAGED;
 
             Targeting::SetSpeakingEntity(state, entity);
@@ -114,14 +125,16 @@ namespace astro {
             // @todo alert nearby entities
           }
           else if (enemy.mood == ENEMY_ENGAGED && dialogue_duration > 5.f) {
+            // Bandit behaving in an engaged state
             play_random_dialogue(entity, bandit_dialogue_engaged);
           }
           else if (enemy.mood == ENEMY_AGITATED && dialogue_duration > 5.f) {
+            // Bandit behaving in an agitated state
             play_random_dialogue(entity, bandit_dialogue_agitated);
           }
         }
         else {
-          // Strafing combat
+          // Close-quarters behavior
           // @todo strafe around the player
           FacePlayer(entity, state);
         }
