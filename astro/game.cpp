@@ -237,10 +237,6 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
 
   if (did_press_key(tKey::SPACE)) {
     state.show_game_stats = !state.show_game_stats;
-
-    if (!state.show_game_stats) {
-      Tachyon_ClearConsole(tachyon);
-    }
   }
 
   Targeting::HandleTargets(tachyon, state);
