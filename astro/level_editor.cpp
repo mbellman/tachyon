@@ -875,7 +875,7 @@ static void SyncEntityPlaceholder(Tachyon* tachyon, tObject& placeholder, const 
     }
 
     if (entity.type == DIRT_PATH_NODE) {
-      placeholder.material = tVec4f(0.2f, 0, 0.5f, 0.5f);
+      placeholder.material = tVec4f(1.f, 0, 0, 0.2f);
     }
   }
 
@@ -1622,6 +1622,8 @@ void LevelEditor::OpenLevelEditor(Tachyon* tachyon, State& state) {
   SpawnEntityPlaceholders(tachyon, state);
   TrackDecorativeObjects(tachyon, state);
   InitEditorCamera(tachyon, state);
+
+  ProceduralGeneration::RebuildProceduralObjects(tachyon, state);
 
   fx.accumulation_blur_factor = 0.f;
 }

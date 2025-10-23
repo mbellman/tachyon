@@ -405,7 +405,7 @@ static void GenerateBushFlowers(Tachyon* tachyon, State& state) {
   remove_all(state.meshes.bush_flower);
 
   for (int i = 0; i < 200; i++) {
-    create(state.meshes.bush_flower);
+    commit(create(state.meshes.bush_flower));
   }
 }
 
@@ -473,6 +473,11 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
 static void GenerateDirtPaths(Tachyon* tachyon, State& state) {
   log_time("GenerateDirtPaths()");
 
+  // @temporary
+  // @todo remove regular dirt path entities
+  objects(state.meshes.dirt_path_placeholder).disabled = true;
+  objects(state.meshes.dirt_path).disabled = true;
+
   remove_all(state.meshes.p_dirt_path);
 
   for_entities(state.dirt_path_nodes) {
@@ -486,17 +491,26 @@ static void GenerateDirtPaths(Tachyon* tachyon, State& state) {
       }
 
       tVec3f connection = entity_a.position - entity_b.position;
+      float distance = connection.magnitude();
 
-      if (connection.magnitude() < 10000.f) {
-        auto& c = create(state.meshes.p_dirt_path);
+      if (distance < 10000.f && entity_a.position.x < entity_b.position.x) {
+        int total_segments = int(distance / 1100.f);
 
-        // @temporary
-        c.position = (entity_a.position + entity_b.position) / 2.f;
-        c.position.y = -1200.f;
-        c.scale = tVec3f(300.f);
-        c.color = tVec3f(0.2f, 0.4f, 1.f);
+        for (int i = 0; i < total_segments; i++) {
+          auto& path = create(state.meshes.p_dirt_path);
+          float alpha = float(i) / float(total_segments - 1);
 
-        commit(c);
+          // @temporary
+          path.position = tVec3f::lerp(entity_a.position, entity_b.position, alpha);
+          path.position.y = -1470.f;
+          path.scale = tVec3f::lerp(entity_a.scale, entity_b.scale, alpha) * 1.3f;
+          path.scale.y = 1.f;
+          path.color = tVec3f(0.7f, 0.3f, 0.1f);
+
+          path.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), fmodf(path.position.x, t_TAU));
+
+          commit(path);
+        }
       }
     }
   }
