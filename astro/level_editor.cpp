@@ -552,6 +552,21 @@ static void CreatePlacer(Tachyon* tachyon, State& state) {
 
 /**
  * ----------------------------
+ * Enters object/entity placement mode.
+ * ----------------------------
+ */
+static void EnterPlacementMode(Tachyon* tachyon, State& state) {
+  if (editor.is_in_placement_mode) {
+    return;
+  }
+
+  editor.is_in_placement_mode = true;
+
+  CreatePlacer(tachyon, state);
+}
+
+/**
+ * ----------------------------
  * Handles updates for the entity/object placer.
  * ----------------------------
  */
@@ -582,6 +597,17 @@ static void UpdatePlacer(Tachyon* tachyon, State& state) {
  */
 static void DestroyPlacer(Tachyon* tachyon, State& state) {
   remove_all(state.meshes.editor_placer);
+}
+
+/**
+ * ----------------------------
+ * Exits object/entity placement mode, removing the placer preview.
+ * ----------------------------
+ */
+static void ExitPlacementMode(Tachyon* tachyon, State& state) {
+  editor.is_in_placement_mode = false;
+
+  DestroyPlacer(tachyon, state);
 }
 
 /**
@@ -706,9 +732,6 @@ static void StopEditingEntityProperties(Tachyon* tachyon) {
   editor.editing_astro_end_time = false;
   editor.editing_item_pickup_name = false;
   editor.edited_entity_property_value = "";
-
-  // Restore engine hotkey behavior
-  tachyon->hotkeys_enabled = true;
 }
 
 /**
@@ -817,6 +840,12 @@ static void DeselectCurrent(Tachyon* tachyon, State& state) {
   SaveLevelData(tachyon, state);
 
   ProceduralGeneration::RebuildProceduralObjects(tachyon, state);
+
+  if (!tachyon->hotkeys_enabled) {
+    // We disable engine hotkeys when starting the entity editor flow.
+    // On deselection, restore hotkey behavior.
+    tachyon->hotkeys_enabled = true;
+  }
 }
 
 /**
@@ -989,6 +1018,7 @@ static void CreateNewDecorativeObject(Tachyon* tachyon, State& state) {
 
   ProceduralGeneration::RebuildProceduralObjects(tachyon, state);
 
+  // @todo remove
   if (!editor.is_in_placement_mode) {
     MakeSelection(tachyon, state, editor.selectables.back());
   }
@@ -1416,40 +1446,26 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
     // Free actions
     if (did_press_key(tKey::ARROW_LEFT)) {
       CycleDecorativeMeshes(tachyon, state, -1);
+      EnterPlacementMode(tachyon, state);
     }
 
     if (did_press_key(tKey::ARROW_RIGHT)) {
       CycleDecorativeMeshes(tachyon, state, 1);
+      EnterPlacementMode(tachyon, state);
     }
 
     if (did_press_key(tKey::ARROW_UP)) {
       CycleEntities(tachyon, state, -1);
+      EnterPlacementMode(tachyon, state);
     }
 
     if (did_press_key(tKey::ARROW_DOWN)) {
       CycleEntities(tachyon, state, 1);
-    }
-
-    if (did_press_key(tKey::ENTER)) {
-      editor.is_in_placement_mode = !editor.is_in_placement_mode;
-
-      if (editor.is_in_placement_mode) {
-        CreatePlacer(tachyon, state);
-      } else {
-        DestroyPlacer(tachyon, state);
-      }
-
-      // if (editor.is_placing_entity) {
-      //   CreateNewEntity(tachyon, state);
-      // } else {
-      //   CreateNewDecorativeObject(tachyon, state);
-      // }
+      EnterPlacementMode(tachyon, state);
     }
 
     if (did_right_click_down() && editor.is_in_placement_mode) {
-      editor.is_in_placement_mode = false;
-
-      DestroyPlacer(tachyon, state);
+      ExitPlacementMode(tachyon, state);
     }
 
     if (did_press_key(tKey::R)) {

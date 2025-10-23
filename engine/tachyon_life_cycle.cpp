@@ -66,11 +66,11 @@ static void HandleEvents(Tachyon* tachyon) {
     Tachyon_HandleInputEvent(tachyon, event);
   }
 
-  if (tachyon->hotkeys_enabled && did_press_key(tKey::T)) {
+  if (tachyon->hotkeys_enabled && did_release_key(tKey::T)) {
     tachyon->show_developer_tools = !tachyon->show_developer_tools;
   }
 
-  if (tachyon->hotkeys_enabled && did_press_key(tKey::ENTER)) {
+  if (tachyon->hotkeys_enabled && did_release_key(tKey::ENTER)) {
     Tachyon_ClearConsole(tachyon);
   }
 }
