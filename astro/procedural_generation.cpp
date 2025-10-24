@@ -1,3 +1,5 @@
+#include <functional>
+
 #include "astro/procedural_generation.h"
 #include "astro/collision_system.h"
 #include "astro/entity_behaviors/behavior.h"
@@ -415,7 +417,7 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
   const tVec3f blossom_color = tVec3f(1.f, 0.6f, 0.1f);
   const float spawn_radius = 1200.f;
   const float half_spawn_radius = spawn_radius * 0.5f;
-  const float lifetime = 15.f;
+  const float lifetime = 12.f;
 
   auto& player_position = state.player_position;
   float base_time_progress = 0.5f * (state.astro_time - -500.f);
@@ -441,8 +443,8 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
       for (int i = 0; i < 3; i++) {
         auto& flower = objects(state.meshes.bush_flower)[index++];
 
-        float offset_x = fmodf(ex + 723.f * (float)i, spawn_radius) - half_spawn_radius;
-        float offset_z = fmodf(ez + 723.f * (float)i, spawn_radius) - half_spawn_radius;
+        float offset_x = fmodf(10.f * ex + 723.f * (float)i, spawn_radius) - half_spawn_radius;
+        float offset_z = fmodf(10.f * ez + 723.f * (float)i, spawn_radius) - half_spawn_radius;
 
         flower.position = entity.visible_position;
         flower.position.x += offset_x;
@@ -468,8 +470,68 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
 /**
  * ----------------------------
  * Dirt paths
+ * @todo relocate foundational pathing code
  * ----------------------------
  */
+tVec3f QuadraticBSpline(const tVec3f& p0, const tVec3f& p1, const tVec3f& p2, float t) {
+  float B0 = 0.5f * (t - 1.0f) * (t - 1.0f);
+  float B1 = 0.5f * (-2.0f * t * t + 2.0f * t + 1.0f);
+  float B2 = 0.5f * t * t;
+
+  return (p0 * B0) + (p1 * B1) + (p2 * B2);
+}
+
+// @todo move elsewhere
+struct PathNode {
+  tVec3f position;
+  tVec3f scale;
+  uint16 connections[4];
+  uint16 total_connections = 0;
+  bool walked = false;
+};
+
+struct PathNetwork {
+  PathNode* nodes = nullptr;
+  uint16 total_nodes = 0;
+};
+
+static void InitPathNetwork(PathNetwork& network, uint16 total_nodes) {
+  network.total_nodes = total_nodes;
+  network.nodes = new PathNode[total_nodes];
+}
+
+static void DestroyPathNetwork(PathNetwork& network) {
+  delete[] network.nodes;
+}
+
+// @todo fix issues with path start/end points
+static void WalkPath(const PathNetwork& network, const PathNode& previous_node, PathNode& node, const std::function<void(const tVec3f&, const tVec3f&)>& handler) {
+  node.walked = true;
+
+  for (uint16 i = 0; i < node.total_connections; i++) {
+    uint16 next_index = node.connections[i];
+    auto& next_node = network.nodes[next_index];
+
+    if (next_node.walked) {
+      continue;
+    }
+
+    float distance = (node.position - next_node.position).magnitude();
+    int total_segments = int(distance / 1100.f);
+
+    for (int i = 0; i < total_segments; i++) {
+      float t = float(i) / float(total_segments - 1);
+
+      tVec3f position = QuadraticBSpline(previous_node.position, node.position, next_node.position, t);
+      tVec3f scale = tVec3f::lerp(node.scale, next_node.scale, t) * 1.3f;
+
+      handler(position, scale);
+    }
+
+    WalkPath(network, node, next_node, handler);
+  }
+}
+
 static void GenerateDirtPaths(Tachyon* tachyon, State& state) {
   log_time("GenerateDirtPaths()");
 
@@ -480,40 +542,68 @@ static void GenerateDirtPaths(Tachyon* tachyon, State& state) {
 
   remove_all(state.meshes.p_dirt_path);
 
-  for_entities(state.dirt_path_nodes) {
-    auto& entity_a = state.dirt_path_nodes[i];
+  // Generate the path network
+  PathNetwork network;
+
+  InitPathNetwork(network, (uint16)state.dirt_path_nodes.size());
+
+  {
+    network.total_nodes = (uint16)state.dirt_path_nodes.size();
+    network.nodes = new PathNode[network.total_nodes];
 
     for_entities(state.dirt_path_nodes) {
-      auto& entity_b = state.dirt_path_nodes[i];
+      auto& entity_a = state.dirt_path_nodes[i];
+      uint32 index_a = i;
 
-      if (IsSameEntity(entity_a, entity_b)) {
-        continue;
+      auto& node = network.nodes[index_a];
+      node.position = entity_a.position;
+      node.scale = entity_a.scale;
+
+      for_entities(state.dirt_path_nodes) {
+        auto& entity_b = state.dirt_path_nodes[i];
+        uint32 index_b = i;
+
+        if (IsSameEntity(entity_a, entity_b)) {
+          continue;
+        }
+
+        tVec3f connection = entity_a.position - entity_b.position;
+        float distance = connection.magnitude();
+
+        if (distance < 10000.f) {
+          if (node.total_connections < 4) {
+            node.connections[node.total_connections++] = index_b;
+          }
+        }
       }
+    }
+  }
 
-      tVec3f connection = entity_a.position - entity_b.position;
-      float distance = connection.magnitude();
+  // Generate dirt path spots based on the path network
+  {
+    for (uint16 i = 0; i < network.total_nodes; i++) {
+      auto& node = network.nodes[i];
 
-      if (distance < 10000.f && entity_a.position.x < entity_b.position.x) {
-        int total_segments = int(distance / 1100.f);
-
-        for (int i = 0; i < total_segments; i++) {
+      if (node.total_connections == 1 && !node.walked) {
+        WalkPath(network, node, node, [tachyon, &state](const tVec3f& position, const tVec3f& scale) {
           auto& path = create(state.meshes.p_dirt_path);
-          float alpha = float(i) / float(total_segments - 1);
 
           // @temporary
-          path.position = tVec3f::lerp(entity_a.position, entity_b.position, alpha);
+          path.position = position;
           path.position.y = -1470.f;
-          path.scale = tVec3f::lerp(entity_a.scale, entity_b.scale, alpha) * 1.3f;
+          path.scale = scale;
           path.scale.y = 1.f;
           path.color = tVec3f(0.7f, 0.3f, 0.1f);
 
           path.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), fmodf(path.position.x, t_TAU));
 
           commit(path);
-        }
+        });
       }
     }
   }
+
+  DestroyPathNetwork(network);
 
   // @todo dev mode only
   {
