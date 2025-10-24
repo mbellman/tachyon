@@ -211,7 +211,7 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
 
   remove_all(state.meshes.small_grass);
 
-  auto dirt_path_planes = GetEntityPlanes(state.dirt_paths);
+  auto dirt_path_planes = GetObjectPlanes(tachyon, state.meshes.p_dirt_path);
 
   // @todo factor
   for (auto& plane : objects(state.meshes.flat_ground)) {
@@ -315,7 +315,7 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
 
   remove_all(meshes.ground_flower);
 
-  auto dirt_path_planes = GetEntityPlanes(state.dirt_paths);
+  auto dirt_path_planes = GetObjectPlanes(tachyon, meshes.p_dirt_path);
   auto flat_ground_planes = GetObjectPlanes(tachyon, meshes.flat_ground);
   // @todo check ground_1 planes
 
@@ -620,6 +620,8 @@ static void UpdateDirtPaths(Tachyon* tachyon, State& state) {
 /* ---------------------------- */
 
 void ProceduralGeneration::RebuildProceduralObjects(Tachyon* tachyon, State& state) {
+  GenerateDirtPaths(tachyon, state);
+
   // @todo refactor these two
   GenerateGrass(tachyon, state);
   GenerateSmallGrass(tachyon, state);
@@ -627,7 +629,6 @@ void ProceduralGeneration::RebuildProceduralObjects(Tachyon* tachyon, State& sta
   GenerateGroundFlowers(tachyon, state);
   GenerateBushFlowers(tachyon, state);
 
-  GenerateDirtPaths(tachyon, state);
 }
 
 void ProceduralGeneration::UpdateProceduralObjects(Tachyon* tachyon, State& state) {

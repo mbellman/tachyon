@@ -22,7 +22,7 @@ namespace astro {
     LOW_GUARD,
     BANDIT,
     STONE_WALL,
-    DIRT_PATH,
+    DIRT_PATH, // @unused
     FLOWER_BUSH,
     ITEM_PICKUP,
     GLOW_FLOWER,
@@ -44,7 +44,7 @@ namespace astro {
     LOW_GUARD,
     BANDIT,
     STONE_WALL,
-    DIRT_PATH,
+    DIRT_PATH, // @unused
     FLOWER_BUSH,
     ITEM_PICKUP,
     GLOW_FLOWER,
@@ -166,11 +166,12 @@ namespace astro {
       bandit_placeholder,
       bandit,
 
-      // STONE_WALL,
+      // STONE_WALL
       stone_wall_placeholder,
       stone_wall,
 
-      // DIRT_PATH,
+      // DIRT_PATH
+      // @unused
       dirt_path_placeholder,
       dirt_path,
 
@@ -198,7 +199,7 @@ namespace astro {
    */
   struct EntityContainers {
     std::vector<GameEntity> item_pickups;
-    std::vector<GameEntity> dirt_paths;
+    std::vector<GameEntity> dirt_paths; // @unused
     std::vector<GameEntity> dirt_path_nodes;
     std::vector<GameEntity> shrubs;
     std::vector<GameEntity> flower_bushes;
@@ -238,6 +239,7 @@ namespace astro {
       .tint = tVec3f(0.3f, 0.6f, 1.f)
     } },
 
+    // @unused
     { DIRT_PATH, {
       .name = "Dirt Path",
       .scale = tVec3f(2000.f, 1.f, 2000.f),
