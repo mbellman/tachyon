@@ -211,6 +211,7 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
 
   remove_all(state.meshes.small_grass);
 
+  // @todo use path connection planes, not planes for each individual path segment
   auto dirt_path_planes = GetObjectPlanes(tachyon, state.meshes.p_dirt_path);
 
   // @todo factor
@@ -315,6 +316,7 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
 
   remove_all(meshes.ground_flower);
 
+  // @todo use path connection planes, not planes for each individual path segment
   auto dirt_path_planes = GetObjectPlanes(tachyon, meshes.p_dirt_path);
   auto flat_ground_planes = GetObjectPlanes(tachyon, meshes.flat_ground);
   // @todo check ground_1 planes
@@ -487,6 +489,7 @@ struct PathNode {
   tVec3f scale;
   uint16 connections[4];
   uint16 total_connections = 0;
+  int32 entity_index = -1;
   bool walked = false;
 };
 
@@ -505,7 +508,9 @@ static void DestroyPathNetwork(PathNetwork& network) {
 }
 
 // @todo fix issues with path start/end points
-static void WalkPath(const PathNetwork& network, const PathNode& previous_node, PathNode& node, const std::function<void(const tVec3f&, const tVec3f&)>& handler) {
+using PathVisitor = std::function<void(const tVec3f&, const tVec3f&, const uint16, const uint16)>;
+
+static void WalkPath(const PathNetwork& network, const PathNode& previous_node, PathNode& node, const PathVisitor& handler) {
   node.walked = true;
 
   for (uint16 i = 0; i < node.total_connections; i++) {
@@ -525,7 +530,7 @@ static void WalkPath(const PathNetwork& network, const PathNode& previous_node, 
       tVec3f position = QuadraticBSpline(previous_node.position, node.position, next_node.position, t);
       tVec3f scale = tVec3f::lerp(node.scale, next_node.scale, t) * 1.3f;
 
-      handler(position, scale);
+      handler(position, scale, node.entity_index, next_node.entity_index);
     }
 
     WalkPath(network, node, next_node, handler);
@@ -553,15 +558,16 @@ static void GenerateDirtPaths(Tachyon* tachyon, State& state) {
 
     for_entities(state.dirt_path_nodes) {
       auto& entity_a = state.dirt_path_nodes[i];
-      uint32 index_a = i;
+      uint16 index_a = i;
 
       auto& node = network.nodes[index_a];
       node.position = entity_a.position;
       node.scale = entity_a.scale;
+      node.entity_index = i;
 
       for_entities(state.dirt_path_nodes) {
         auto& entity_b = state.dirt_path_nodes[i];
-        uint32 index_b = i;
+        uint16 index_b = i;
 
         if (IsSameEntity(entity_a, entity_b)) {
           continue;
@@ -579,13 +585,16 @@ static void GenerateDirtPaths(Tachyon* tachyon, State& state) {
     }
   }
 
-  // Generate dirt path spots based on the path network
+  // Generate dirt path segments based on the path network
+  // @todo investigate why paths don't start and end at nodes
   {
+    state.dirt_path_segments.clear();
+
     for (uint16 i = 0; i < network.total_nodes; i++) {
       auto& node = network.nodes[i];
 
       if (node.total_connections == 1 && !node.walked) {
-        WalkPath(network, node, node, [tachyon, &state](const tVec3f& position, const tVec3f& scale) {
+        WalkPath(network, node, node, [tachyon, &state](const tVec3f& position, const tVec3f& scale, const uint16 entity_index_a, const uint16 entity_index_b) {
           auto& path = create(state.meshes.p_dirt_path);
 
           // @temporary
@@ -598,6 +607,17 @@ static void GenerateDirtPaths(Tachyon* tachyon, State& state) {
           path.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), fmodf(path.position.x, t_TAU));
 
           commit(path);
+
+          {
+            PathSegment segment;
+            segment.entity_index_a = entity_index_a;
+            segment.entity_index_b = entity_index_b;
+            segment.base_position = path.position;
+            segment.base_scale = path.scale;
+            segment.object = path;
+
+            state.dirt_path_segments.push_back(segment);
+          }
         });
       }
     }
@@ -614,7 +634,85 @@ static void GenerateDirtPaths(Tachyon* tachyon, State& state) {
 }
 
 static void UpdateDirtPaths(Tachyon* tachyon, State& state) {
+  profile("UpdateDirtPaths()");
 
+  auto& meshes = state.meshes;
+  auto& player_position = state.player_position;
+
+  // @todo @optimize We can store an array of path segment "connections" based on entity index,
+  // and just iterate over nearby nodes and then update their segments, rather than iterating
+  // over all segments and doing player distance checks. In its current form this is still
+  // quite fast, however.
+  //
+  // @todo handle scale etc.
+  // @todo move all this to DirtPathNode -> timeEvolve()
+  for (auto& segment : state.dirt_path_segments) {
+    auto& position = segment.base_position;
+
+    if (abs(position.x - player_position.x) > 15000.f || abs(position.z - player_position.z) > 15000.f) {
+      continue;
+    }
+
+    auto& entity_a = state.dirt_path_nodes[segment.entity_index_a];
+    auto& entity_b = state.dirt_path_nodes[segment.entity_index_b];
+    auto& path = *get_live_object(segment.object);
+    float astro_start_time = std::max(entity_a.astro_start_time, entity_b.astro_start_time);
+    float astro_end_time = std::min(entity_a.astro_end_time, entity_b.astro_end_time);
+    float age = state.astro_time - astro_start_time;
+    float remaining_time = astro_end_time - state.astro_time;
+
+    path.position = segment.base_position;
+    path.position.y = -1470.f;
+    path.scale = segment.base_scale;
+    path.color = entity_a.tint;
+    // path.scale = entity.scale;
+    // path.rotation = entity.orientation;
+    // path.color = entity.tint;
+
+    // Reduce the size/conspicuousness of the path
+    // as we approach its starting time
+    if (age < 40.f && astro_start_time != 0.f) {
+      // @temporary
+      const tVec3f ground_color = tVec3f(0.3f, 0.5f, 0.1f);
+      float alpha = age / 40.f;
+
+      path.color = tVec3f::lerp(ground_color, entity_a.tint, alpha);
+      path.position.y = Tachyon_Lerpf(-1500.f, path.position.y, alpha);
+
+      // if (entity.scale.x > entity.scale.z) {
+      //   path.scale.z = entity.scale.z * alpha;
+      // } else {
+      //   path.scale.x = entity.scale.x * alpha;
+      // }
+    }
+
+    // Erode the path toward its end time
+    if (remaining_time < 40.f && astro_end_time != 0.f) {
+      // @temporary
+      const tVec3f ground_color = tVec3f(0.3f, 0.5f, 0.1f);
+      float alpha = remaining_time / 40.f;
+
+      path.color = tVec3f::lerp(ground_color, entity_a.tint, alpha);
+      path.position.y = Tachyon_Lerpf(-1500.f, path.position.y, alpha);
+
+      // if (entity.scale.x > entity.scale.z) {
+      //   path.scale.z = entity.scale.z * alpha;
+      // } else {
+      //   path.scale.x = entity.scale.x * alpha;
+      // }
+    }
+
+    if (
+      age < 0.f ||
+      (remaining_time < 0.f && astro_end_time != 0.f)
+    ) {
+      path.scale = tVec3f(0.f);
+    }
+
+    // entity.visible_scale = path.scale;
+
+    commit(path);
+  }
 }
 
 /* ---------------------------- */
@@ -633,6 +731,8 @@ void ProceduralGeneration::RebuildProceduralObjects(Tachyon* tachyon, State& sta
 
 void ProceduralGeneration::UpdateProceduralObjects(Tachyon* tachyon, State& state) {
   profile("UpdateProceduralObjects()");
+
+  UpdateDirtPaths(tachyon, state);
 
   // @todo refactor these two
   UpdateGrass(tachyon, state);

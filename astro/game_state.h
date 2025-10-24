@@ -104,6 +104,19 @@ namespace astro {
 
   /**
    * ----------------------------
+   * Path segments
+   * ----------------------------
+   */
+  struct PathSegment {
+    tVec3f base_position;
+    tVec3f base_scale;
+    uint16 entity_index_a = 0;
+    uint16 entity_index_b = 0;
+    tObject object;
+  };
+
+  /**
+   * ----------------------------
    * Game state
    * ----------------------------
    */
@@ -122,6 +135,8 @@ namespace astro {
 
     float last_walk_sound_time = 0.f;
     uint8 walk_cycle = 0;
+
+    std::vector<PathSegment> dirt_path_segments;
 
     EntityRecord target_entity; // @todo rename target_entity_record
     EntityRecord speaking_entity_record;
