@@ -268,6 +268,13 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
       fx.accumulation_blur_factor = max_blur_factor;
     }
 
+    tachyon->scene.foliage_mover = state.player_position;
+    tachyon->scene.foliage_mover_velocity = state.player_velocity;
+
+    if (tachyon->scene.foliage_mover_velocity.magnitude() > 800.f) {
+      tachyon->scene.foliage_mover_velocity = tachyon->scene.foliage_mover_velocity.unit() * 800.f;
+    }
+
     // tachyon->scene.scene_time += dt;
 
     // @todo ui.cpp

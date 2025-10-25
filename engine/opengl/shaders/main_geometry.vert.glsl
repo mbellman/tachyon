@@ -3,6 +3,8 @@
 uniform mat4 view_projection_matrix;
 uniform vec3 transform_origin;
 uniform bool is_grass;
+uniform vec3 foliage_mover;
+uniform vec3 foliage_mover_velocity;
 uniform float scene_time;
 
 layout (location = 0) in vec3 vertexPosition;
@@ -80,6 +82,12 @@ void main() {
 
     world_space_position.x += drift_factor * sin(alpha);
     world_space_position.z += drift_factor * cos(1.5 * alpha);
+
+    float foliage_mover_factor = 500.0 / distance(foliage_mover, world_space_position);
+    if (foliage_mover_factor > 1.0) foliage_mover_factor = 1.0;
+    foliage_mover_factor *= foliage_mover_factor;
+
+    world_space_position += foliage_mover_velocity * foliage_mover_factor;
   }
 
   gl_Position = view_projection_matrix * vec4(world_space_position, 1.0);

@@ -85,7 +85,10 @@ static void StoreShaderUniforms(tOpenGLShaders& shaders) {
   store_shader_uniform(main_geometry, has_texture);
   store_shader_uniform(main_geometry, albedo_texture);
   store_shader_uniform(main_geometry, is_grass);
+  store_shader_uniform(main_geometry, foliage_mover);
+  store_shader_uniform(main_geometry, foliage_mover_velocity);
   store_shader_uniform(main_geometry, scene_time);
+
 
   store_shader_uniform(shadow_map, light_matrix);
   store_shader_uniform(shadow_map, transform_origin);

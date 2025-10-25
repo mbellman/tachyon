@@ -218,7 +218,7 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
   for (auto& plane : objects(state.meshes.flat_ground)) {
     auto bounds = GetObjectBounds2D(plane, 0.95f);
     float area = (bounds.x[1] - bounds.x[0]) * (bounds.z[1] - bounds.z[0]);
-    uint16 total_grass = uint16(area / 1500000.f);
+    uint16 total_grass = uint16(area / 1200000.f);
 
     tVec3f direction = plane.rotation.getDirection();
     float theta = atan2f(direction.z, direction.x) + t_HALF_PI;
@@ -242,7 +242,7 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
       auto& grass = create(state.meshes.small_grass);
 
       grass.position = position;
-      grass.scale = tVec3f(Tachyon_GetRandom(200.f, 500.f));
+      grass.scale = tVec3f(Tachyon_GetRandom(150.f, 350.f));
       grass.color = tVec4f(0.2f, 0.8f, 0.2f, 0.2f);
       grass.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), Tachyon_GetRandom(0.f, t_TAU));
       grass.material = tVec4f(0.8f, 0, 0, 1.f);

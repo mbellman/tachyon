@@ -694,6 +694,8 @@ static void RenderPbrMeshes(Tachyon* tachyon) {
   // Render grass PBR meshes
   if (HasObjectsOfMeshType(tachyon, GRASS_MESH)) {
     SetShaderBool(locations.is_grass, true);
+    SetShaderVec3f(locations.foliage_mover, tachyon->scene.foliage_mover);
+    SetShaderVec3f(locations.foliage_mover_velocity, tachyon->scene.foliage_mover_velocity);
     SetShaderFloat(locations.scene_time, tachyon->scene.scene_time);
 
     RenderMeshesByType(tachyon, GRASS_MESH);
