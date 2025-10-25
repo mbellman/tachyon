@@ -475,10 +475,6 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
  * @todo relocate foundational pathing code
  * ----------------------------
  */
-tVec3f CatmullRomTangent(const tVec3f& prev, const tVec3f& next, float scale) {
-  return (next - prev) * scale;
-}
-
 tVec3f HermiteInterpolate(const tVec3f& p0, const tVec3f& p1, const tVec3f& m0, const tVec3f& m1, float t) {
   float t2 = t * t;
   float t3 = t2 * t;
@@ -549,8 +545,14 @@ static void WalkPath(const PathNetwork& network, PathNode& previous_node, PathNo
     for (int i = 0; i < total_segments; i++) {
       float alpha = float(i) / float(total_segments);
 
-      // @todo improve
-      tVec3f position = tVec3f::lerp(from_node.position, to_node.position, alpha);
+      // @todo still not quite right
+      tVec3f delta = to_node.position - from_node.position;
+      float length = delta.magnitude();
+      tVec3f direction = delta / length;
+      tVec3f m0 = tVec3f::cross(direction, tVec3f(0, 1.f, 0)) * length;
+      tVec3f m1 = m0 * 0.5f;
+      tVec3f position = HermiteInterpolate(from_node.position, to_node.position, m0, m1, alpha);
+
       tVec3f scale = tVec3f::lerp(from_node.scale, to_node.scale, alpha);
 
       visitor(position, scale, from_node.entity_index, to_node.entity_index);
@@ -562,16 +564,15 @@ static void WalkPath(const PathNetwork& network, PathNode& previous_node, PathNo
   }
 
   for (uint16 i = 0; i < to_node.total_connections; i++) {
-    auto& control_node = network.nodes[to_node.connections[i]];
+    auto& next_node = network.nodes[to_node.connections[i]];
 
-    if (control_node.entity_index == from_node.entity_index) continue;
+    if (next_node.entity_index == from_node.entity_index) continue;
 
     for (int i = 0; i < total_segments; i++) {
       float alpha = float(i) / float(total_segments);
 
-      // @todo improve
-      tVec3f m0 = CatmullRomTangent(previous_node.position, to_node.position, 0.5f);
-      tVec3f m1 = CatmullRomTangent(to_node.position, control_node.position, 0.5f);
+      tVec3f m0 = (to_node.position - previous_node.position) *0.5f;
+      tVec3f m1 = (next_node.position - to_node.position) * 0.5f;
       tVec3f position = HermiteInterpolate(from_node.position, to_node.position, m0, m1, alpha);
 
       tVec3f scale = tVec3f::lerp(from_node.scale, to_node.scale, alpha);
@@ -660,16 +661,19 @@ static void GenerateDirtPaths(Tachyon* tachyon, State& state) {
           path.scale.y = 1.f;
           path.color = tVec3f(0.7f, 0.3f, 0.1f);
 
-          path.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), fmodf(path.position.x, t_TAU));
+          auto& entity_a = state.dirt_path_nodes[entity_index_a];
+          auto& entity_b = state.dirt_path_nodes[entity_index_b];
+
+          path.rotation = Quaternion::FromDirection((entity_b.position - entity_a.position).xz().unit(), tVec3f(0, 1.f, 0));
 
           commit(path);
 
           {
             PathSegment segment;
-            segment.entity_index_a = entity_index_a;
-            segment.entity_index_b = entity_index_b;
             segment.base_position = path.position;
             segment.base_scale = path.scale;
+            segment.entity_index_a = entity_index_a;
+            segment.entity_index_b = entity_index_b;
             segment.object = path;
 
             state.dirt_path_segments.push_back(segment);
@@ -702,7 +706,6 @@ static void UpdateDirtPaths(Tachyon* tachyon, State& state) {
   // over all segments and doing player distance checks. In its current form this is still
   // quite fast, however.
   //
-  // @todo handle scale etc.
   // @todo move all this to DirtPathNode -> timeEvolve()
   for (auto& segment : state.dirt_path_segments) {
     auto& position = segment.base_position;
@@ -723,9 +726,6 @@ static void UpdateDirtPaths(Tachyon* tachyon, State& state) {
     path.position.y = -1470.f;
     path.scale = segment.base_scale;
     path.color = entity_a.tint;
-    // path.scale = entity.scale;
-    // path.rotation = entity.orientation;
-    // path.color = entity.tint;
 
     // Reduce the size/conspicuousness of the path
     // as we approach its starting time
@@ -736,12 +736,7 @@ static void UpdateDirtPaths(Tachyon* tachyon, State& state) {
 
       path.color = tVec3f::lerp(ground_color, entity_a.tint, alpha);
       path.position.y = Tachyon_Lerpf(-1500.f, path.position.y, alpha);
-
-      // if (entity.scale.x > entity.scale.z) {
-      //   path.scale.z = entity.scale.z * alpha;
-      // } else {
-      //   path.scale.x = entity.scale.x * alpha;
-      // }
+      path.scale.x *= alpha;
     }
 
     // Erode the path toward its end time
@@ -752,12 +747,7 @@ static void UpdateDirtPaths(Tachyon* tachyon, State& state) {
 
       path.color = tVec3f::lerp(ground_color, entity_a.tint, alpha);
       path.position.y = Tachyon_Lerpf(-1500.f, path.position.y, alpha);
-
-      // if (entity.scale.x > entity.scale.z) {
-      //   path.scale.z = entity.scale.z * alpha;
-      // } else {
-      //   path.scale.x = entity.scale.x * alpha;
-      // }
+      path.scale.x *= alpha;
     }
 
     if (
@@ -766,8 +756,6 @@ static void UpdateDirtPaths(Tachyon* tachyon, State& state) {
     ) {
       path.scale = tVec3f(0.f);
     }
-
-    // entity.visible_scale = path.scale;
 
     commit(path);
   }

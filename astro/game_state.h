@@ -107,6 +107,7 @@ namespace astro {
    * Path segments
    * ----------------------------
    */
+  // @todo put color and astro time stuff on here
   struct PathSegment {
     tVec3f base_position;
     tVec3f base_scale;
