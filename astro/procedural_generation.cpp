@@ -475,7 +475,7 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
  * @todo relocate foundational pathing code
  * ----------------------------
  */
-tVec3f GetCatmullRomTangent(const tVec3f& prev, const tVec3f& next, float scale) {
+tVec3f CatmullRomTangent(const tVec3f& prev, const tVec3f& next, float scale) {
   return (next - prev) * scale;
 }
 
@@ -483,10 +483,10 @@ tVec3f HermiteInterpolate(const tVec3f& p0, const tVec3f& p1, const tVec3f& m0, 
   float t2 = t * t;
   float t3 = t2 * t;
 
-  float h00 =  2.0f * t3 - 3.0f * t2 + 1.0f;
-  float h10 =        t3 - 2.0f * t2 + t;
+  float h00 = 2.0f * t3 - 3.0f * t2 + 1.0f;
+  float h10 = t3 - 2.0f * t2 + t;
   float h01 = -2.0f * t3 + 3.0f * t2;
-  float h11 =        t3 -       t2;
+  float h11 = t3 - t2;
 
   return (p0 * h00) + (m0 * h10) + (p1 * h01) + (m1 * h11);
 }
@@ -541,7 +541,7 @@ static void SetAsWalkedBetween(PathNode& from_node, PathNode& to_node) {
 // @todo fix issues with path start/end points
 using PathVisitor = std::function<void(const tVec3f&, const tVec3f&, const uint16, const uint16)>;
 
-static void WalkPath(const PathNetwork& network, PathNode& from_node, PathNode& to_node, const PathVisitor& visitor) {
+static void WalkPath(const PathNetwork& network, PathNode& previous_node, PathNode& from_node, PathNode& to_node, const PathVisitor& visitor) {
   float distance = (from_node.position - to_node.position).magnitude();
   int total_segments = int(distance / 1100.f);
 
@@ -570,8 +570,8 @@ static void WalkPath(const PathNetwork& network, PathNode& from_node, PathNode& 
       float alpha = float(i) / float(total_segments);
 
       // @todo improve
-      tVec3f m0 = GetCatmullRomTangent(from_node.position, to_node.position, 1.f);
-      tVec3f m1 = GetCatmullRomTangent(to_node.position, control_node.position, 1.f);
+      tVec3f m0 = CatmullRomTangent(previous_node.position, to_node.position, 0.5f);
+      tVec3f m1 = CatmullRomTangent(to_node.position, control_node.position, 0.5f);
       tVec3f position = HermiteInterpolate(from_node.position, to_node.position, m0, m1, alpha);
 
       tVec3f scale = tVec3f::lerp(from_node.scale, to_node.scale, alpha);
@@ -587,7 +587,7 @@ static void WalkPath(const PathNetwork& network, PathNode& from_node, PathNode& 
 
     auto& next_node = network.nodes[to_node.connections[i]];
 
-    WalkPath(network, to_node, next_node, visitor);
+    WalkPath(network, from_node, to_node, next_node, visitor);
   }
 }
 
@@ -650,7 +650,7 @@ static void GenerateDirtPaths(Tachyon* tachyon, State& state) {
       if (node.total_connections == 1) {
         auto& next_node = network.nodes[node.connections[0]];
 
-        WalkPath(network, node, next_node, [tachyon, &state](const tVec3f& position, const tVec3f& scale, const uint16 entity_index_a, const uint16 entity_index_b) {
+        WalkPath(network, node, node, next_node, [tachyon, &state](const tVec3f& position, const tVec3f& scale, const uint16 entity_index_a, const uint16 entity_index_b) {
           auto& path = create(state.meshes.p_dirt_path);
 
           // @temporary
