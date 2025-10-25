@@ -475,22 +475,33 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
  * @todo relocate foundational pathing code
  * ----------------------------
  */
-tVec3f QuadraticBSpline(const tVec3f& p0, const tVec3f& p1, const tVec3f& p2, float t) {
-  float B0 = 0.5f * (t - 1.0f) * (t - 1.0f);
-  float B1 = 0.5f * (-2.0f * t * t + 2.0f * t + 1.0f);
-  float B2 = 0.5f * t * t;
+tVec3f GetCatmullRomTangent(const tVec3f& prev, const tVec3f& next, float scale) {
+  return (next - prev) * scale;
+}
 
-  return (p0 * B0) + (p1 * B1) + (p2 * B2);
+tVec3f HermiteInterpolate(const tVec3f& p0, const tVec3f& p1, const tVec3f& m0, const tVec3f& m1, float t) {
+  float t2 = t * t;
+  float t3 = t2 * t;
+
+  float h00 =  2.0f * t3 - 3.0f * t2 + 1.0f;
+  float h10 =        t3 - 2.0f * t2 + t;
+  float h01 = -2.0f * t3 + 3.0f * t2;
+  float h11 =        t3 -       t2;
+
+  return (p0 * h00) + (m0 * h10) + (p1 * h01) + (m1 * h11);
 }
 
 // @todo move elsewhere
 struct PathNode {
+  int32 entity_index = -1;
   tVec3f position;
   tVec3f scale;
-  uint16 connections[4];
+
+  uint16 connections[4] = { 0, 0, 0, 0 };
   uint16 total_connections = 0;
-  int32 entity_index = -1;
-  bool walked = false;
+
+  int32 connections_walked[4] = { -1, -1, -1, -1 };
+  uint16 total_connections_walked = 0;
 };
 
 struct PathNetwork {
@@ -507,33 +518,76 @@ static void DestroyPathNetwork(PathNetwork& network) {
   delete[] network.nodes;
 }
 
+static bool DidWalkBetweenNodes(const PathNetwork& network, PathNode& a, PathNode& b) {
+  for (uint16 i = 0; i < a.total_connections_walked; i++) {
+    if (a.connections_walked[i] == b.entity_index) {
+      return true;
+    }
+  }
+
+  for (uint16 i = 0; i < b.total_connections_walked; i++) {
+    if (b.connections_walked[i] == a.entity_index) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+static void SetAsWalkedBetween(PathNode& from_node, PathNode& to_node) {
+  from_node.connections_walked[from_node.total_connections_walked++] = to_node.entity_index;
+}
+
 // @todo fix issues with path start/end points
 using PathVisitor = std::function<void(const tVec3f&, const tVec3f&, const uint16, const uint16)>;
 
-static void WalkPath(const PathNetwork& network, const PathNode& previous_node, PathNode& node, const PathVisitor& handler) {
-  node.walked = true;
+static void WalkPath(const PathNetwork& network, PathNode& from_node, PathNode& to_node, const PathVisitor& visitor) {
+  float distance = (from_node.position - to_node.position).magnitude();
+  int total_segments = int(distance / 1100.f);
 
-  for (uint16 i = 0; i < node.total_connections; i++) {
-    uint16 next_index = node.connections[i];
-    auto& next_node = network.nodes[next_index];
+  if (from_node.total_connections == 1) {
+    for (int i = 0; i < total_segments; i++) {
+      float alpha = float(i) / float(total_segments);
 
-    if (next_node.walked) {
-      continue;
+      // @todo improve
+      tVec3f position = tVec3f::lerp(from_node.position, to_node.position, alpha);
+      tVec3f scale = tVec3f::lerp(from_node.scale, to_node.scale, alpha);
+
+      visitor(position, scale, from_node.entity_index, to_node.entity_index);
     }
+  }
 
-    float distance = (node.position - next_node.position).magnitude();
-    int total_segments = int(distance / 1100.f);
+  if (DidWalkBetweenNodes(network, from_node, to_node)) {
+    return;
+  }
+
+  for (uint16 i = 0; i < to_node.total_connections; i++) {
+    auto& control_node = network.nodes[to_node.connections[i]];
+
+    if (control_node.entity_index == from_node.entity_index) continue;
 
     for (int i = 0; i < total_segments; i++) {
-      float t = float(i) / float(total_segments - 1);
+      float alpha = float(i) / float(total_segments);
 
-      tVec3f position = QuadraticBSpline(previous_node.position, node.position, next_node.position, t);
-      tVec3f scale = tVec3f::lerp(node.scale, next_node.scale, t) * 1.3f;
+      // @todo improve
+      tVec3f m0 = GetCatmullRomTangent(from_node.position, to_node.position, 1.f);
+      tVec3f m1 = GetCatmullRomTangent(to_node.position, control_node.position, 1.f);
+      tVec3f position = HermiteInterpolate(from_node.position, to_node.position, m0, m1, alpha);
 
-      handler(position, scale, node.entity_index, next_node.entity_index);
+      tVec3f scale = tVec3f::lerp(from_node.scale, to_node.scale, alpha);
+
+      visitor(position, scale, from_node.entity_index, to_node.entity_index);
     }
+  }
 
-    WalkPath(network, node, next_node, handler);
+  SetAsWalkedBetween(from_node, to_node);
+
+  for (uint16 i = 0; i < to_node.total_connections; i++) {
+    to_node.connections_walked[i] = true;
+
+    auto& next_node = network.nodes[to_node.connections[i]];
+
+    WalkPath(network, to_node, next_node, visitor);
   }
 }
 
@@ -593,8 +647,10 @@ static void GenerateDirtPaths(Tachyon* tachyon, State& state) {
     for (uint16 i = 0; i < network.total_nodes; i++) {
       auto& node = network.nodes[i];
 
-      if (node.total_connections == 1 && !node.walked) {
-        WalkPath(network, node, node, [tachyon, &state](const tVec3f& position, const tVec3f& scale, const uint16 entity_index_a, const uint16 entity_index_b) {
+      if (node.total_connections == 1) {
+        auto& next_node = network.nodes[node.connections[0]];
+
+        WalkPath(network, node, next_node, [tachyon, &state](const tVec3f& position, const tVec3f& scale, const uint16 entity_index_a, const uint16 entity_index_b) {
           auto& path = create(state.meshes.p_dirt_path);
 
           // @temporary
@@ -639,6 +695,8 @@ static void UpdateDirtPaths(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
   auto& player_position = state.player_position;
 
+  const float distance_limit = 17000.f;
+
   // @todo @optimize We can store an array of path segment "connections" based on entity index,
   // and just iterate over nearby nodes and then update their segments, rather than iterating
   // over all segments and doing player distance checks. In its current form this is still
@@ -649,7 +707,7 @@ static void UpdateDirtPaths(Tachyon* tachyon, State& state) {
   for (auto& segment : state.dirt_path_segments) {
     auto& position = segment.base_position;
 
-    if (abs(position.x - player_position.x) > 15000.f || abs(position.z - player_position.z) > 15000.f) {
+    if (abs(position.x - player_position.x) > distance_limit || abs(position.z - player_position.z) > distance_limit) {
       continue;
     }
 
