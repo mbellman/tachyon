@@ -7,7 +7,7 @@
 #define mesh(__mesh_index) tachyon->mesh_pack.mesh_records[__mesh_index]
 #define objects(__mesh_index) tachyon->mesh_pack.mesh_records[__mesh_index].group
 #define create(__mesh_index) Tachyon_CreateObject(tachyon, __mesh_index)
-#define remove(...) Tachyon_RemoveObject(tachyon, __VA_ARGS__)
+#define remove_object(...) Tachyon_RemoveObject(tachyon, __VA_ARGS__)
 #define remove_all(__mesh_index) Tachyon_RemoveAllObjects(tachyon, __mesh_index);
 #define commit(__object) Tachyon_CommitObject(tachyon, __object)
 #define get_live_object(__object) Tachyon_GetLiveObject(tachyon, __object)

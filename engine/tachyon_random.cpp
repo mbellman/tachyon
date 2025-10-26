@@ -1,14 +1,31 @@
-#include <math.h>
-#include <random>
-
 #include "engine/tachyon_random.h"
 
-static std::random_device randomDevice;
-static std::default_random_engine randomEngine(randomDevice());
-static std::uniform_real_distribution<float> randomRange(0.f, 1.f);
+static std::random_device random_device;
+static std::default_random_engine non_deterministic_random_engine(random_device());
+static std::uniform_real_distribution<float> unit_distribution(0.f, 1.f);
+
+tRNG::tRNG() {
+  engine = std::default_random_engine(random_device());
+}
+
+tRNG::tRNG(float seed) {
+  engine = std::default_random_engine(seed);
+}
+
+float tRNG::Random() {
+  return unit_distribution(engine);
+}
+
+float tRNG::Random(float low, float high) {
+  return low + Random() * (high - low);
+}
+
+int tRNG::RandomInt(int low, int high) {
+  return low + int(Random() * (high - low + 1));
+}
 
 float Tachyon_GetRandom() {
-  return randomRange(randomEngine);
+  return unit_distribution(non_deterministic_random_engine);
 }
 
 float Tachyon_GetRandom(float low, float high) {

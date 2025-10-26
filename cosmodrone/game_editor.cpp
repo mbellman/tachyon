@@ -117,7 +117,7 @@ static tVec3f GetMostSimilarObjectAxis(const tVec3f& vector, const tObject& obje
   if (up_factor > right_factor && up_factor > forward_factor) {
     return dot_up < 0.f ? object_up.invert() : object_up;
   } else if (right_factor > up_factor && right_factor > forward_factor) {
-    return dot_right < 0.f ? object_right.invert() : object_right;    
+    return dot_right < 0.f ? object_right.invert() : object_right;
   } else {
     return dot_forward < 0.f ? object_forward.invert() : object_forward;
   }
@@ -318,7 +318,7 @@ static void HandleObjectPickerCycleChange(Tachyon* tachyon) {
   if (editor.is_object_picker_active && editor.selected_objects.size() == 1) {
     spawn_position = get_live_object(editor.selected_objects[0])->position;
 
-    remove(editor.selected_objects[0]);
+    remove_object(editor.selected_objects[0]);
   }
 
   if (!editor.is_object_picker_active) {
@@ -406,7 +406,7 @@ static void HandleSelectedObjectMouseMovements(Tachyon* tachyon) {
       tVec3f offset;
 
       if (is_horizontal_action) {
-        auto axis = use_object_axis 
+        auto axis = use_object_axis
           ? GetMostSimilarObjectAxis(camera_right, first_selected)
           : GetMostSimilarGlobalAxis(camera_right);
 
@@ -684,7 +684,7 @@ static void HandleInputs(Tachyon* tachyon, State& state, const float dt) {
     // @todo DeleteSelectedObjects()
     if (did_press_key(tKey::BACKSPACE)) {
       for (auto& object: editor.selected_objects) {
-        remove(object);
+        remove_object(object);
       }
 
       editor.is_object_picker_active = false;
@@ -1101,7 +1101,7 @@ void Editor::EnableEditor(Tachyon* tachyon, State& state) {
 void Editor::DisableEditor(Tachyon* tachyon, State& state) {
   if (AreObjectsSelected()) {
     if (editor.is_object_picker_active) {
-      remove(editor.selected_objects[0]);
+      remove_object(editor.selected_objects[0]);
     } else {
       RestoreSelectedObjectColors(tachyon);
     }

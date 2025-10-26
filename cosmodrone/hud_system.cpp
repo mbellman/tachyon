@@ -236,7 +236,7 @@ static void HandleTargetLine(Tachyon* tachyon, State& state, const float dt) {
 static void RemoveAllTargetInspectorWireframes(Tachyon* tachyon, State& state) {
   #define remove_objects(mesh_index)\
     if (objects(mesh_index).total_active > 0) {\
-      remove(objects(mesh_index)[0]);\
+      remove_object(objects(mesh_index)[0]);\
     }\
 
   auto& meshes = state.meshes;
@@ -263,7 +263,7 @@ static void RemoveUnusedTargetInspectorWireframes(Tachyon* tachyon, const State&
 
   for (auto mesh_index : mesh_indexes) {
     if (tracker.object.mesh_index != mesh_index && objects(mesh_index).total_active > 0) {
-      remove(objects(mesh_index)[0]);
+      remove_object(objects(mesh_index)[0]);
     }
   }
 }
@@ -587,7 +587,7 @@ static void HandlePlaneMeter(Tachyon* tachyon, State& state) {
 
 void HUDSystem::HandleHUD(Tachyon* tachyon, State& state, const float dt) {
   Beacons::UpdateBeacons(tachyon, state);
- 
+
   HandleDroneInspector(tachyon, state, dt);
   HandleTargetInspector(tachyon, state, dt);
 

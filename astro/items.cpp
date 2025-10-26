@@ -75,7 +75,7 @@ void Items::HandleItemPickup(Tachyon* tachyon, State& state) {
       // @temporary
       Sfx::PlaySound(SFX_SPELL_STUN);
 
-      remove(part);
+      remove_object(part);
 
       // @temporary
       Item item;

@@ -126,8 +126,10 @@
     <ClInclude Include="astro\entities_and_objects.h" />
     <ClInclude Include="astro\entity_behaviors\Bandit.h" />
     <ClInclude Include="astro\entity_behaviors\behavior.h" />
+    <ClInclude Include="astro\entity_behaviors\DirthPathNode.h" />
     <ClInclude Include="astro\entity_behaviors\DirtPath.h" />
     <ClInclude Include="astro\entity_behaviors\FlowerBush.h" />
+    <ClInclude Include="astro\entity_behaviors\GlowFlower.h" />
     <ClInclude Include="astro\entity_behaviors\ItemPickup.h" />
     <ClInclude Include="astro\entity_behaviors\LowGuard.h" />
     <ClInclude Include="astro\entity_behaviors\OakTree.h" />

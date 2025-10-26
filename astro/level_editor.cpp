@@ -1316,7 +1316,7 @@ static void RemoveLastObject(Tachyon* tachyon, uint16 mesh_index) {
   if (total_active > 0) {
     auto& last_object = objects[total_active - 1];
 
-    remove(last_object);
+    remove_object(last_object);
   }
 }
 
@@ -1328,7 +1328,7 @@ static void RemoveLastObject(Tachyon* tachyon, uint16 mesh_index) {
 static void DeleteSelected(Tachyon* tachyon, State& state) {
   auto& selected = editor.current_selectable;
 
-  remove(selected.placeholder);
+  remove_object(selected.placeholder);
 
   if (selected.is_entity) {
     ForgetSelectableEntity(selected.entity_record.id);

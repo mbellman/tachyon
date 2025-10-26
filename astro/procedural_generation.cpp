@@ -66,12 +66,10 @@ struct FlowerBloomParameters {
   // @todo
 };
 
-static void UpdateBloomingFlower(tObject& flower, const tVec3f& blossom_color, const float max_size, const float base_time_progress, const float lifetime) {
+static void UpdateBloomingFlower(tObject& flower, const tVec3f& blossom_color, const float max_size, const float alpha, const float lifetime) {
   const tVec3f sprouting_color = tVec3f(0.1f, 0.6f, 0.1f);
   const tVec3f wilted_color = tVec3f(0.2f, 0.1f, 0.1f);
 
-  float alpha_variation = fmodf(abs(flower.position.x + flower.position.z), 10.f);
-  float alpha = base_time_progress + alpha_variation;
   float life_cycles = alpha / lifetime;
   float life_progress = (life_cycles - (int)life_cycles);
   float growth_factor;
@@ -97,11 +95,9 @@ static void UpdateBloomingFlower(tObject& flower, const tVec3f& blossom_color, c
     color = tVec3f::lerp(blossom_color, wilted_color, wilting_factor);
   }
 
-  float xz_scale = growth_factor * (1.f - 0.5f * wilting_factor);
-
-  flower.scale.x = xz_scale * max_size;
-  flower.scale.y = max_size * (1.f - 0.8f * wilting_factor);
-  flower.scale.z = xz_scale * max_size;
+  flower.scale.x = growth_factor * max_size;
+  flower.scale.y = max_size * (1.f - 0.9f * wilting_factor);
+  flower.scale.z = growth_factor * max_size;
   flower.color = color;
 }
 
@@ -213,6 +209,7 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
 
   // @todo use path connection planes, not planes for each individual path segment
   auto dirt_path_planes = GetObjectPlanes(tachyon, state.meshes.p_dirt_path);
+  // @todo check ground_1 planes
 
   // @todo factor
   for (auto& plane : objects(state.meshes.flat_ground)) {
@@ -321,17 +318,19 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
   auto flat_ground_planes = GetObjectPlanes(tachyon, meshes.flat_ground);
   // @todo check ground_1 planes
 
+  tRNG rng(12345.f);
+
   for (int i = 0; i < 2000; i++) {
     tVec3f center;
-    center.x = Tachyon_GetRandom(-150000.f, 150000.f);
+    center.x = rng.Random(-150000.f, 150000.f);
     center.y = -1460.f;
-    center.z = Tachyon_GetRandom(-150000.f, 150000.f);
+    center.z = rng.Random(-150000.f, 150000.f);
 
     for (int i = 0; i < 4; i++) {
       tVec3f position;
-      position.x = center.x + Tachyon_GetRandom(-1500.f, 1500.f);
+      position.x = center.x + rng.Random(-1500.f, 1500.f);
       position.y = center.y;
-      position.z = center.z + Tachyon_GetRandom(-1500.f, 1500.f);
+      position.z = center.z + rng.Random(-1500.f, 1500.f);
 
       if (
         IsPointOnAnyPlane(position, dirt_path_planes) ||
@@ -382,7 +381,7 @@ static void UpdateGroundFlowers(Tachyon* tachyon, State& state) {
       continue;
     }
 
-    float alpha_variation = fmodf(abs(flower.position.x + flower.position.z), 10.f);
+    float alpha_variation = fmodf(abs(flower.position.x + flower.position.z) * 0.1f, 10.f);
     float alpha = base_time_progress + alpha_variation;
     float life_cycles = alpha / lifetime;
     int life_cycle = (int)life_cycles + (int)abs(flower.position.x);
@@ -391,7 +390,7 @@ static void UpdateGroundFlowers(Tachyon* tachyon, State& state) {
 
     flower.position = base_position + offsets[life_cycle % 5];
 
-    UpdateBloomingFlower(flower, blossom_color, 250.f, base_time_progress, lifetime);
+    UpdateBloomingFlower(flower, blossom_color, 250.f, alpha, lifetime);
 
     commit(flower);
 
@@ -453,7 +452,10 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
         flower.position.y += entity.visible_scale.y * 0.4f;
         flower.position.z += offset_z;
 
-        UpdateBloomingFlower(flower, blossom_color, flower_size, base_time_progress, lifetime);
+        float alpha_variation = fmodf(abs(flower.position.x + flower.position.z), 10.f);
+        float alpha = base_time_progress + alpha_variation;
+
+        UpdateBloomingFlower(flower, blossom_color, flower_size, alpha, lifetime);
 
         flower.material = tVec4f(0.5f, 0, 0, 0.2f);
 
@@ -665,6 +667,14 @@ static void GenerateDirtPaths(Tachyon* tachyon, State& state) {
           path.color = entity_a.tint;
 
           path.rotation = Quaternion::FromDirection((entity_b.position - entity_a.position).xz().unit(), tVec3f(0, 1.f, 0));
+
+          // Flip some of the path segments 180 degrees to provide a bit of
+          // visual variation.
+          //
+          // @todo see if we need to do this as we improve path visual fidelity
+          if ((int)(path.position.x * 0.01f) % 2 == 0) {
+            path.rotation *= Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI);
+          }
 
           commit(path);
 
