@@ -249,7 +249,7 @@ namespace astro {
     { DIRT_PATH_NODE, {
       .name = "Dirt Path Node",
       .scale = tVec3f(1000.f),
-      .tint = tVec3f(0.7f, 0.3f, 0.1f)
+      .tint = tVec3f(1.f, 0.4f, 0.1f)
     } },
 
     { SHRUB, {

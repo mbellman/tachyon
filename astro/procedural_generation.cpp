@@ -654,15 +654,15 @@ static void GenerateDirtPaths(Tachyon* tachyon, State& state) {
         WalkPath(network, node, node, next_node, [tachyon, &state](const tVec3f& position, const tVec3f& scale, const uint16 entity_index_a, const uint16 entity_index_b) {
           auto& path = create(state.meshes.p_dirt_path);
 
+          auto& entity_a = state.dirt_path_nodes[entity_index_a];
+          auto& entity_b = state.dirt_path_nodes[entity_index_b];
+
           // @temporary
           path.position = position;
           path.position.y = -1470.f;
           path.scale = scale;
           path.scale.y = 1.f;
-          path.color = tVec3f(0.7f, 0.3f, 0.1f);
-
-          auto& entity_a = state.dirt_path_nodes[entity_index_a];
-          auto& entity_b = state.dirt_path_nodes[entity_index_b];
+          path.color = entity_a.tint;
 
           path.rotation = Quaternion::FromDirection((entity_b.position - entity_a.position).xz().unit(), tVec3f(0, 1.f, 0));
 
@@ -699,6 +699,9 @@ static void UpdateDirtPaths(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
   auto& player_position = state.player_position;
 
+  const tVec3f solid_ground_color = tVec3f(0.3f, 0.5f, 0.1f);
+  // @todo change by area/world position
+  tVec3f path_color = tVec3f(1.f, 0.4f, 0.1f);
   const float distance_limit = 17000.f;
 
   // @todo @optimize We can store an array of path segment "connections" based on entity index,
@@ -725,16 +728,16 @@ static void UpdateDirtPaths(Tachyon* tachyon, State& state) {
     path.position = segment.base_position;
     path.position.y = -1470.f;
     path.scale = segment.base_scale;
-    path.color = entity_a.tint;
+    path.color = path_color;
 
     // Reduce the size/conspicuousness of the path
     // as we approach its starting time
     if (age < 40.f && astro_start_time != 0.f) {
       // @temporary
-      const tVec3f ground_color = tVec3f(0.3f, 0.5f, 0.1f);
+      const tVec3f ground_color = solid_ground_color;
       float alpha = age / 40.f;
 
-      path.color = tVec3f::lerp(ground_color, entity_a.tint, alpha);
+      path.color = tVec3f::lerp(ground_color, path_color, alpha);
       path.position.y = Tachyon_Lerpf(-1500.f, path.position.y, alpha);
       path.scale.x *= alpha;
     }
@@ -742,10 +745,10 @@ static void UpdateDirtPaths(Tachyon* tachyon, State& state) {
     // Erode the path toward its end time
     if (remaining_time < 40.f && astro_end_time != 0.f) {
       // @temporary
-      const tVec3f ground_color = tVec3f(0.3f, 0.5f, 0.1f);
+      const tVec3f ground_color = solid_ground_color;
       float alpha = remaining_time / 40.f;
 
-      path.color = tVec3f::lerp(ground_color, entity_a.tint, alpha);
+      path.color = tVec3f::lerp(ground_color, path_color, alpha);
       path.position.y = Tachyon_Lerpf(-1500.f, path.position.y, alpha);
       path.scale.x *= alpha;
     }

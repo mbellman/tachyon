@@ -3,7 +3,7 @@
 uniform mat4 view_projection_matrix;
 uniform vec3 transform_origin;
 uniform bool is_grass;
-uniform vec3 foliage_mover;
+uniform vec3 foliage_mover_position;
 uniform vec3 foliage_mover_velocity;
 uniform float scene_time;
 
@@ -83,7 +83,7 @@ void main() {
     world_space_position.x += drift_factor * sin(alpha);
     world_space_position.z += drift_factor * cos(1.5 * alpha);
 
-    float foliage_mover_factor = 500.0 / distance(foliage_mover, world_space_position);
+    float foliage_mover_factor = 500.0 / distance(foliage_mover_position.xz, world_space_position.xz);
     if (foliage_mover_factor > 1.0) foliage_mover_factor = 1.0;
     foliage_mover_factor *= foliage_mover_factor;
 
