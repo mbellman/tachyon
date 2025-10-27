@@ -154,7 +154,7 @@ namespace astro {
     float astro_time = 0.f;
     float astro_turn_speed = 0.f;
     float astro_time_at_start_of_turn = 0.f;
-    bool played_stopping_turn_sound = false;
+    bool is_astrolabe_stopped = true;
 
     Spells spells;
 

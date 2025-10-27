@@ -573,7 +573,7 @@ static void WalkPath(const PathNetwork& network, PathNode& previous_node, PathNo
     for (int i = 0; i < total_segments; i++) {
       float alpha = float(i) / float(total_segments);
 
-      tVec3f m0 = (to_node.position - previous_node.position) *0.5f;
+      tVec3f m0 = (to_node.position - previous_node.position) * 0.5f;
       tVec3f m1 = (next_node.position - to_node.position) * 0.5f;
       tVec3f position = HermiteInterpolate(from_node.position, to_node.position, m0, m1, alpha);
 

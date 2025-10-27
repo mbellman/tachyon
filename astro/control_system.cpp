@@ -92,7 +92,7 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
   // before hitting min/max time
   if (started_turning) {
     state.astro_time_at_start_of_turn = state.astro_time;
-    state.played_stopping_turn_sound = false;
+    state.is_astrolabe_stopped = false;
   }
 
   // Handle reverse/forward turn actions
@@ -202,29 +202,35 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
   if (
     // Turning against min/max astro time
     (started_turning && state.astro_turn_speed == 0.f) ||
-    // Turn slowing down below a given threshold
+    // Turning slowed down below a given threshold. The threshold
+    // is a bit high (0.1) so that the "stopped" sound begins playing
+    // sooner, rather than waiting for full deceleration to 0.
     (
       abs(previous_astro_turn_speed) >= 0.1f &&
       abs(state.astro_turn_speed) < 0.1f &&
       (tachyon->left_trigger == 0.f || state.astro_time <= min_astro_time) &&
       (tachyon->right_trigger == 0.f || state.astro_time >= max_astro_time)
-    )
+    ) ||
+    // Turn speed is 0, but not set in state as stopped. If we merely
+    // tap the trigger buttons, we may not speed up enough to hit the
+    // above 0.1 threshold.
+    (state.astro_turn_speed == 0.f && !state.is_astrolabe_stopped)
   ) {
     stopped_turning = true;
   }
 
   // Sound effects for stopping/starting astro turn
-  if (stopped_turning && !state.played_stopping_turn_sound) {
+  if (stopped_turning && !state.is_astrolabe_stopped) {
     Sfx::FadeOutSound(SFX_ASTRO_START);
     Sfx::PlaySound(SFX_ASTRO_END, 1.f);
 
-    state.played_stopping_turn_sound = true;
+    state.is_astrolabe_stopped = true;
   }
   else if (started_turning) {
     Sfx::FadeOutSound(SFX_ASTRO_END);
     Sfx::PlaySound(SFX_ASTRO_START, 0.8f);
 
-    state.played_stopping_turn_sound = false;
+    state.is_astrolabe_stopped = false;
   }
 
   state.last_frame_left_trigger = tachyon->left_trigger;
