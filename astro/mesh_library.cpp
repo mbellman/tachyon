@@ -74,7 +74,7 @@ static void AddProceduralMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   meshes.grass         = MODEL_MESH("./astro/3d_models/grass.obj", 20000);
-  meshes.small_grass   = MODEL_MESH("./astro/3d_models/grass.obj", 50000);
+  meshes.small_grass   = MODEL_MESH("./astro/3d_models/small_grass.obj", 50000);
   meshes.ground_flower = MODEL_MESH("./astro/3d_models/flower.obj", 10000);
   meshes.bush_flower   = MODEL_MESH("./astro/3d_models/flower.obj", 1000);
   // meshes.p_dirt_path   = CUBE_MESH(10000);

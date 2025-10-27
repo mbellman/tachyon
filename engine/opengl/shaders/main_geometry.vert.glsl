@@ -71,20 +71,21 @@ void main() {
     float vertex_y = vertexPosition.y;
 
     // Calculate wind
-    float wind_strength = 250.0;
+    float wind_strength = 300.0;
     float wind_speed = 2.0;
     float local_wind = GetFoliageLocalWind(modelMatrix, wind_speed, wind_strength);
 
     // Calculate the local drift intensity
     float drift_factor = GetFoliageDriftIntensity(local_wind, vertex_y);
 
-    float alpha = 2.0 * scene_time + modelMatrix[3][0];
+    float alpha = 2.0 * scene_time + modelMatrix[3][0] * 0.01;
 
     world_space_position.x += drift_factor * sin(alpha);
     world_space_position.z += drift_factor * cos(1.5 * alpha);
 
-    float foliage_mover_factor = 500.0 / distance(foliage_mover_position.xz, world_space_position.xz);
+    float foliage_mover_factor = 1000.0 / distance(foliage_mover_position, world_space_position);
     if (foliage_mover_factor > 1.0) foliage_mover_factor = 1.0;
+    foliage_mover_factor *= foliage_mover_factor;
     foliage_mover_factor *= foliage_mover_factor;
 
     world_space_position += foliage_mover_velocity * foliage_mover_factor;

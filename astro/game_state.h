@@ -118,6 +118,21 @@ namespace astro {
 
   /**
    * ----------------------------
+   * Grass
+   * ----------------------------
+   */
+  struct GrassBlade {
+    tVec3f position;
+    tObject path_underneath;
+  };
+
+  struct GrassChunk {
+    tVec3f center_position;
+    std::vector<GrassBlade> grass_blades;
+  };
+
+  /**
+   * ----------------------------
    * Game state
    * ----------------------------
    */
@@ -138,6 +153,8 @@ namespace astro {
     uint8 walk_cycle = 0;
 
     std::vector<PathSegment> dirt_path_segments;
+
+    std::vector<GrassChunk> grass_chunks;
 
     EntityRecord target_entity; // @todo rename target_entity_record
     EntityRecord speaking_entity_record;

@@ -117,7 +117,7 @@ static void UpdateLevelsOfDetail(Tachyon* tachyon, State& state) {
 
   // Procedural objects
   Tachyon_UseLodByDistance(tachyon, meshes.grass, 35000.f);
-  Tachyon_UseLodByDistance(tachyon, meshes.small_grass, 35000.f);
+  // Tachyon_UseLodByDistance(tachyon, meshes.small_grass, 35000.f);
   Tachyon_UseLodByDistance(tachyon, meshes.ground_flower, 35000.f);
 
   // Entity parts
@@ -275,8 +275,8 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
     tachyon->scene.foliage_mover_position = state.player_position + foliage_movement_offset;
     tachyon->scene.foliage_mover_velocity = velocity;
 
-    if (speed > 200.f) {
-      tachyon->scene.foliage_mover_velocity = velocity.unit() * 200.f;
+    if (speed > 300.f) {
+      tachyon->scene.foliage_mover_velocity = velocity.unit() * 300.f;
     }
 
     // tachyon->scene.scene_time += dt;

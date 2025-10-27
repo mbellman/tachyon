@@ -205,52 +205,150 @@ static void UpdateGrass(Tachyon* tachyon, State& state) {
 static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
   log_time("GenerateSmallGrass()");
 
-  remove_all(state.meshes.small_grass);
+  // remove_all(state.meshes.small_grass);
 
   // @todo use path connection planes, not planes for each individual path segment
-  auto dirt_path_planes = GetObjectPlanes(tachyon, state.meshes.p_dirt_path);
+  // auto dirt_path_planes = GetObjectPlanes(tachyon, state.meshes.p_dirt_path);
   // @todo check ground_1 planes
 
   // @todo factor
-  for (auto& plane : objects(state.meshes.flat_ground)) {
-    auto bounds = GetObjectBounds2D(plane, 0.95f);
-    float area = (bounds.x[1] - bounds.x[0]) * (bounds.z[1] - bounds.z[0]);
-    uint16 total_grass = uint16(area / 1200000.f);
+  // for (auto& plane : objects(state.meshes.flat_ground)) {
+  //   auto bounds = GetObjectBounds2D(plane, 0.95f);
+  //   float area = (bounds.x[1] - bounds.x[0]) * (bounds.z[1] - bounds.z[0]);
+  //   uint16 total_grass = uint16(area / 600000.f);
 
-    tVec3f direction = plane.rotation.getDirection();
-    float theta = atan2f(direction.z, direction.x) + t_HALF_PI;
+  //   tVec3f direction = plane.rotation.getDirection();
+  //   float theta = atan2f(direction.z, direction.x) + t_HALF_PI;
 
-    for (uint16 i = 0; i < total_grass; i++) {
-      float x = Tachyon_GetRandom(bounds.x[0], bounds.x[1]);
-      float z = Tachyon_GetRandom(bounds.z[0], bounds.z[1]);
+  //   for (uint16 i = 0; i < total_grass; i++) {
+  //     float x = Tachyon_GetRandom(bounds.x[0], bounds.x[1]);
+  //     float z = Tachyon_GetRandom(bounds.z[0], bounds.z[1]);
 
-      float lx = x - plane.position.x;
-      float lz = z - plane.position.z;
+  //     float lx = x - plane.position.x;
+  //     float lz = z - plane.position.z;
 
-      float wx = plane.position.x + (lx * cosf(theta) - lz * sinf(theta));
-      float wz = plane.position.z + (lx * sinf(theta) + lz * cosf(theta));
+  //     float wx = plane.position.x + (lx * cosf(theta) - lz * sinf(theta));
+  //     float wz = plane.position.z + (lx * sinf(theta) + lz * cosf(theta));
 
-      tVec3f position = tVec3f(wx, -1500.f, wz);
+  //     tVec3f position = tVec3f(wx, -1500.f, wz);
 
-      if (IsPointOnAnyPlane(position, dirt_path_planes)) {
+  //     if (IsPointOnAnyPlane(position, dirt_path_planes)) {
+  //       continue;
+  //     }
+
+  //     auto& grass = create(state.meshes.small_grass);
+
+  //     grass.position = position;
+  //     grass.scale = tVec3f(Tachyon_GetRandom(300.f, 600.f)) * 2.f;
+  //     grass.scale.y *= 0.6f;
+  //     grass.color = tVec4f(0.2f, 0.4f, 0.1f, 0.1f);
+  //     grass.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), Tachyon_GetRandom(0.f, t_TAU));
+  //     grass.material = tVec4f(0.8f, 0, 0, 0.7f);
+
+  //     commit(grass);
+  //   }
+  // }
+
+  // remove_all(state.meshes.small_grass);
+
+  // for (int i = 0; i < 20000; i++) {
+  //   auto& grass = create(state.meshes.small_grass);
+
+  //   // grass.position = position;
+  //   grass.position.y = -1500.f;
+  //   grass.position.x = Tachyon_GetRandom(-20000.f, 20000.f);
+  //   grass.position.z = Tachyon_GetRandom(-20000.f, 20000.f);
+  //   grass.scale = tVec3f(Tachyon_GetRandom(300.f, 600.f)) * 2.f;
+  //   grass.scale.y *= 0.6f;
+  //   grass.color = tVec4f(0.2f, 0.5f, 0.1f, 0.1f);
+  //   grass.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), Tachyon_GetRandom(0.f, t_TAU));
+  //   grass.material = tVec4f(0.8f, 0, 0, 0.7f);
+
+  //   commit(grass);
+  // }
+
+  auto& meshes = state.meshes;
+
+  const float chunk_width = 20000.f;
+  const float chunk_height = 20000.f;
+
+  auto flat_ground_planes = GetObjectPlanes(tachyon, meshes.flat_ground);
+  auto dirt_path_planes = GetObjectPlanes(tachyon, meshes.p_dirt_path);
+
+  // Reset objects/chunks/etc.
+  {
+    remove_all(meshes.small_grass);
+
+    for (auto& chunk : state.grass_chunks) {
+      chunk.grass_blades.clear();
+    }
+
+    state.grass_chunks.clear();
+  }
+
+  int32 total_chunks = 0;
+  int32 total_blades = 0;
+
+  for (int32 x = -10; x <= 10; x++) {
+    for (int32 z = -10; z <= 10; z++) {
+      tVec3f center_position = tVec3f(x * chunk_width, 0.f, z * chunk_height);
+
+      tVec3f upper_left_corner = center_position + tVec3f(-chunk_width * 0.5f, 0, -chunk_height * 0.5f);
+      tVec3f upper_right_corner = center_position + tVec3f(chunk_width * 0.5f, 0, -chunk_height * 0.5f);
+      tVec3f lower_left_corner = center_position + tVec3f(-chunk_width * 0.5f, 0, chunk_height * 0.5f);
+      tVec3f lower_right_corner = center_position + tVec3f(chunk_width * 0.5f, 0, chunk_height * 0.5f);
+
+      if (
+        !IsPointOnAnyPlane(center_position, flat_ground_planes) &&
+        !IsPointOnAnyPlane(upper_left_corner, flat_ground_planes) &&
+        !IsPointOnAnyPlane(upper_right_corner, flat_ground_planes) &&
+        !IsPointOnAnyPlane(lower_left_corner, flat_ground_planes) &&
+        !IsPointOnAnyPlane(lower_right_corner, flat_ground_planes)
+      ) {
         continue;
       }
 
-      auto& grass = create(state.meshes.small_grass);
+      GrassChunk chunk;
+      chunk.center_position = center_position;
+      chunk.grass_blades.reserve(5000);
 
-      grass.position = position;
-      grass.scale = tVec3f(Tachyon_GetRandom(150.f, 350.f));
-      grass.color = tVec4f(0.2f, 0.8f, 0.2f, 0.2f);
-      grass.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), Tachyon_GetRandom(0.f, t_TAU));
-      grass.material = tVec4f(0.8f, 0, 0, 1.f);
+      // @todo don't generate blades within ground_1 or rocks in this chunk
+      for (int32 i = 0; i < 5000; i++) {
+        GrassBlade blade;
+        blade.position.x = Tachyon_GetRandom(upper_left_corner.x, upper_right_corner.x);
+        blade.position.z = Tachyon_GetRandom(upper_left_corner.z, lower_left_corner.z);
 
-      commit(grass);
+        // @todo blade.path_underneath
+
+        chunk.grass_blades.push_back(blade);
+
+        total_blades++;
+      }
+
+      state.grass_chunks.push_back(chunk);
+
+      total_chunks++;
     }
+  }
+
+  for (int i = 0; i < 50000; i++) {
+    auto& grass = create(meshes.small_grass);
+
+    grass.material = tVec4f(0.6f, 0, 0, 0.2f);
+    // auto& grass = create(state.meshes.small_grass);
+
+    // grass.scale = tVec3f(7500.f);
+    // grass.color = tVec4f(0.2f, 0.5f, 0.1f, 0.5f);
+    // grass.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), Tachyon_GetRandom(0.f, t_TAU));
+    // grass.material = tVec4f(0.8f, 0, 0, 0.7f);
+
+    // commit(grass);
   }
 
   // @todo dev mode only
   {
-    std::string message = "Generated " + std::to_string(objects(state.meshes.small_grass).total_active) + " small grass objects";
+    // std::string message = "Generated " + std::to_string(objects(state.meshes.small_grass).total_active) + " small grass objects";
+    std::string message = "Generated " + std::to_string(total_chunks) + " grass chunks (" + std::to_string(total_blades) + " blades)";
 
     console_log(message);
   }
@@ -276,29 +374,77 @@ static void UpdateSmallGrass(Tachyon* tachyon, State& state) {
 
   const float growth_rate = 0.7f;
 
+  auto& meshes = state.meshes;
   auto& player_position = state.player_position;
+  uint16 object_index = 0;
 
-  for (auto& grass : objects(state.meshes.small_grass)) {
-    if (abs(grass.position.x - player_position.x) > 15000.f || abs(grass.position.z - player_position.z) > 15000.f) {
-      continue;
+  for (auto& chunk : state.grass_chunks) {
+    bool is_chunk_in_view = (
+      abs(player_position.x - chunk.center_position.x) < 20000.f &&
+      abs(player_position.z - chunk.center_position.z) < 20000.f
+    );
+
+    if (!is_chunk_in_view) continue;
+
+    int counter = 0;
+
+    for (auto& blade : chunk.grass_blades) {
+      float alpha = state.astro_time + blade.position.x + blade.position.z;
+      int iteration = (int)abs(growth_rate * alpha / t_TAU - 0.8f);
+      float rotation_angle = float(iteration) * 1.3f;
+
+      auto& grass = objects(meshes.small_grass)[object_index++];
+
+      grass.position = blade.position + offsets[iteration % 4];
+      grass.position.y = -1500.f;
+
+      grass.scale = tVec3f(scales[iteration % 5]) * 2.f;
+      grass.scale.y *= 0.75f;
+
+      grass.color = tVec4f(0.2f, 0.5f, 0.1f, 0.1f);
+
+      // grass.position = chunk.center_position;
+      // grass.position.y = -1500.f;
+      grass.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), rotation_angle);
+
+      commit(grass);
     }
-
-    float alpha = state.astro_time + grass.position.x + grass.position.z;
-    int iteration = (int)abs(growth_rate * alpha / t_TAU - 0.8f);
-    float rotation_angle = grass.position.x + float(iteration) * 1.3f;
-
-    tVec3f base_position = grass.position;
-
-    grass.position += offsets[iteration % 4];
-    grass.scale = tVec3f(scales[iteration % 5]) * sqrtf(0.5f + 0.5f * sinf(growth_rate * alpha));
-    grass.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), rotation_angle);
-
-    commit(grass);
-
-    // Restore position after commit to avoid drift
-    grass.position.x = base_position.x;
-    grass.position.z = base_position.z;
   }
+
+  auto& mesh_record = mesh(meshes.small_grass);
+
+  mesh_record.lod_1.instance_count = object_index;
+
+  add_dev_label("Total small grass: ", std::to_string(object_index));
+
+  // console_log(object_index);
+
+  // for (auto& grass : objects(state.meshes.small_grass)) {
+  //   if (abs(grass.position.x - player_position.x) > 15000.f || abs(grass.position.z - player_position.z) > 15000.f) {
+  //     continue;
+  //   }
+
+  //   float alpha = state.astro_time + grass.position.x + grass.position.z;
+  //   int iteration = (int)abs(growth_rate * alpha / t_TAU - 0.8f);
+  //   float rotation_angle = float(iteration) * 1.3f;
+
+  //   tVec3f base_position = grass.position;
+
+  //   grass.position += offsets[iteration % 4];
+  //   grass.position.y = -1500.f;
+  //   grass.scale = tVec3f(scales[iteration % 5]) * 2.f;
+  //   grass.scale.y *= 0.75f;
+  //   grass.scale *= 10.f;
+  //   // grass.color = tVec4f(0.2f, 0.5f, 0.1f, 0.1f);
+  //   //grass.scale.y *= sqrtf(0.5f + 0.5f * sinf(growth_rate * alpha));
+  //   grass.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), rotation_angle);
+
+  //   commit(grass);
+
+  //   // Restore position after commit to avoid drift
+  //   grass.position.x = base_position.x;
+  //   grass.position.z = base_position.z;
+  // }
 }
 
 /**
@@ -323,7 +469,7 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
   for (int i = 0; i < 2000; i++) {
     tVec3f center;
     center.x = rng.Random(-150000.f, 150000.f);
-    center.y = -1460.f;
+    center.y = -1000.f;
     center.z = rng.Random(-150000.f, 150000.f);
 
     for (int i = 0; i < 4; i++) {
@@ -467,7 +613,7 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
   // @todo description
   auto& mesh = mesh(state.meshes.bush_flower);
 
-  mesh.lod_2.base_instance = 0;
+  mesh.lod_2.base_instance = 0; // @todo is this line necessary?
   mesh.lod_1.instance_count = index;
 }
 
