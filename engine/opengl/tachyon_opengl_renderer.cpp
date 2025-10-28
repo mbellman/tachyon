@@ -602,6 +602,54 @@ static void AddDrawElementsIndirectCommands(std::vector<DrawElementsIndirectComm
   }
 }
 
+static void AddLowestLodDrawElementsIndirectCommands(std::vector<DrawElementsIndirectCommand>& commands, const tMeshRecord& record, uint32& triangle_count, uint32& vertex_count) {
+  auto& lod_1 = record.lod_1;
+  auto& lod_2 = record.lod_2;
+  auto& lod_3 = record.lod_3;
+
+  if (lod_3.vertex_end > lod_3.vertex_start) {
+    // Use LoD 3
+    DrawElementsIndirectCommand command;
+
+    SetupDrawElementsIndirectCommand(command, lod_3);
+
+    command.baseInstance = lod_1.base_instance;
+    command.instanceCount = lod_1.instance_count;
+
+    commands.push_back(command);
+
+    // @todo dev mode only
+    {
+      triangle_count += (command.count / 3) * command.instanceCount;
+      vertex_count += (lod_3.vertex_end - lod_3.vertex_start) * command.instanceCount;
+    }
+
+    return;
+  }
+
+  if (lod_2.vertex_end > lod_2.vertex_start) {
+    // Use LoD 2
+    DrawElementsIndirectCommand command;
+
+    SetupDrawElementsIndirectCommand(command, lod_2);
+
+    command.baseInstance = lod_1.base_instance;
+    command.instanceCount = lod_1.instance_count;
+
+    commands.push_back(command);
+
+    // @todo dev mode only
+    {
+      triangle_count += (command.count / 3) * command.instanceCount;
+      vertex_count += (lod_2.vertex_end - lod_2.vertex_start) * command.instanceCount;
+    }
+
+    return;
+  }
+
+  AddDrawElementsIndirectCommands(commands, record, triangle_count, vertex_count);
+}
+
 static void RenderMeshesByType(Tachyon* tachyon, tMeshType type) {
   auto& renderer = get_renderer();
   auto& gl_mesh_pack = renderer.mesh_pack;
@@ -787,7 +835,11 @@ static void RenderShadowMaps(Tachyon* tachyon) {
         continue;
       }
 
-      AddDrawElementsIndirectCommands(commands, record, renderer.total_triangles_by_cascade[cascade_index], renderer.total_vertices_by_cascade[cascade_index]);
+      if (record.use_lowest_lod_for_shadows) {
+        AddLowestLodDrawElementsIndirectCommands(commands, record, renderer.total_triangles_by_cascade[cascade_index], renderer.total_vertices_by_cascade[cascade_index]);
+      } else {
+        AddDrawElementsIndirectCommands(commands, record, renderer.total_triangles_by_cascade[cascade_index], renderer.total_vertices_by_cascade[cascade_index]);
+      }
     }
 
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, renderer.indirect_buffer);

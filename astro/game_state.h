@@ -109,11 +109,13 @@ namespace astro {
    */
   // @todo put color and astro time stuff on here
   struct PathSegment {
+    int32 index;
     tVec3f base_position;
     tVec3f base_scale;
     uint16 entity_index_a = 0;
     uint16 entity_index_b = 0;
     tObject object;
+    Plane plane;
   };
 
   /**
@@ -123,7 +125,8 @@ namespace astro {
    */
   struct GrassBlade {
     tVec3f position;
-    tObject path_underneath;
+    tVec3f scale;
+    int32 path_segment_index = -1;
   };
 
   struct GrassChunk {

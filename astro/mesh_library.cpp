@@ -3,7 +3,9 @@
 
 #define CUBE_MESH(total) Tachyon_AddMesh(tachyon, Tachyon_CreateCubeMesh(), total)
 #define PLANE_MESH(total) Tachyon_AddMesh(tachyon, Tachyon_CreatePlaneMesh(), total)
+
 #define MODEL_MESH(path, total) Tachyon_AddMesh(tachyon, Tachyon_LoadMesh(path), total)
+#define MODEL_MESH_LOD_2(lod_1_path, lod_2_path, total) Tachyon_AddMesh(tachyon, Tachyon_LoadMesh(lod_1_path), Tachyon_LoadMesh(lod_2_path), total)
 
 using namespace astro;
 
@@ -74,7 +76,7 @@ static void AddProceduralMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   meshes.grass         = MODEL_MESH("./astro/3d_models/grass.obj", 20000);
-  meshes.small_grass   = MODEL_MESH("./astro/3d_models/small_grass.obj", 50000);
+  meshes.small_grass   = MODEL_MESH_LOD_2("./astro/3d_models/small_grass.obj", "./astro/3d_models/small_grass_lod.obj", 50000);
   meshes.ground_flower = MODEL_MESH("./astro/3d_models/flower.obj", 10000);
   meshes.bush_flower   = MODEL_MESH("./astro/3d_models/flower.obj", 1000);
   // meshes.p_dirt_path   = CUBE_MESH(10000);
@@ -84,7 +86,8 @@ static void AddProceduralMeshes(Tachyon* tachyon, State& state) {
   mesh(meshes.grass).shadow_cascade_ceiling = 2;
 
   mesh(meshes.small_grass).type = GRASS_MESH;
-  mesh(meshes.small_grass).shadow_cascade_ceiling = 0;
+  mesh(meshes.small_grass).shadow_cascade_ceiling = 2;
+  mesh(meshes.small_grass).use_lowest_lod_for_shadows = true;
 
   mesh(meshes.ground_flower).type = GRASS_MESH;
   mesh(meshes.ground_flower).shadow_cascade_ceiling = 2;

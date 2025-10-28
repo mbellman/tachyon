@@ -10,6 +10,6 @@ void Tachyon_InitSoundEngine();
 tSoundResource Tachyon_CreateSound(const char* file_path);
 void Tachyon_PlaySound(const char* file_path);
 void Tachyon_PlaySound(tSoundResource& sound, const float volume = 1.f);
-void Tachyon_FadeOutSound(tSoundResource& sound);
+void Tachyon_FadeOutSound(tSoundResource& sound, uint64 duration);
 void Tachyon_StopSound(tSoundResource& sound);
 void Tachyon_ExitSoundEngine();

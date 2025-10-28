@@ -38,12 +38,12 @@ static std::vector<Plane> GetEntityPlanes(const std::vector<GameEntity>& entitie
   return planes;
 }
 
-static std::vector<Plane> GetObjectPlanes(Tachyon* tachyon, uint16 mesh_index) {
+static std::vector<Plane> GetObjectPlanes(Tachyon* tachyon, uint16 mesh_index, const float scale_factor = 1.f) {
   // @allocation
   std::vector<Plane> planes;
 
   for (auto& object : objects(mesh_index)) {
-    auto plane = CollisionSystem::CreatePlane(object.position, object.scale, object.rotation);
+    auto plane = CollisionSystem::CreatePlane(object.position, object.scale * scale_factor, object.rotation);
 
     planes.push_back(plane);
   }
@@ -210,7 +210,16 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
   const float chunk_width = 20000.f;
   const float chunk_height = 20000.f;
 
+  static const float scales[] = {
+    300.f,
+    600.f,
+    500.f,
+    450.f
+  };
+
+  // @allocation
   auto flat_ground_planes = GetObjectPlanes(tachyon, meshes.flat_ground);
+  auto ground_1_planes = GetObjectPlanes(tachyon, meshes.ground_1, 0.9f);
   auto dirt_path_planes = GetObjectPlanes(tachyon, meshes.p_dirt_path);
 
   // Reset objects/chunks/etc.
@@ -248,15 +257,49 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
 
       GrassChunk chunk;
       chunk.center_position = center_position;
+
+      // @allocation
+      std::vector<Plane> local_ground_1_planes;
+      std::vector<PathSegment> local_dirt_path_segments;
+
+      for (auto& plane : ground_1_planes) {
+        float distance = tVec3f::distance(plane.p1, chunk.center_position);
+
+        if (distance < chunk_width * 1.2f) {
+          local_ground_1_planes.push_back(plane);
+        }
+      }
+
+      for (auto& segment : state.dirt_path_segments) {
+        float distance = tVec3f::distance(segment.base_position, chunk.center_position);
+
+        if (abs(segment.base_position.x - chunk.center_position.x) > chunk_width) continue;
+        if (abs(segment.base_position.z - chunk.center_position.z) > chunk_height) continue;
+
+        local_dirt_path_segments.push_back(segment);
+      }
+
       chunk.grass_blades.reserve(5000);
 
-      // @todo don't generate blades within ground_1 or rocks in this chunk
-      for (int32 i = 0; i < 5000; i++) {
+      for (int32 i = 0; i < 4000; i++) {
         GrassBlade blade;
         blade.position.x = Tachyon_GetRandom(upper_left_corner.x, upper_right_corner.x);
+        blade.position.y = -1500.f;
         blade.position.z = Tachyon_GetRandom(upper_left_corner.z, lower_left_corner.z);
 
-        // @todo blade.path_underneath
+        blade.scale = tVec3f(Tachyon_GetRandom(500.f, 1500.f));
+        blade.scale.y *= 0.75f;
+
+        if (!IsPointOnAnyPlane(blade.position, flat_ground_planes)) continue;
+        if (IsPointOnAnyPlane(blade.position, local_ground_1_planes)) continue;
+
+        for (auto& segment : local_dirt_path_segments) {
+          if (CollisionSystem::IsPointOnPlane(blade.position, segment.plane)) {
+            blade.path_segment_index = segment.index;
+
+            break;
+          }
+        }
 
         chunk.grass_blades.push_back(blade);
 
@@ -272,7 +315,7 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
   for (int i = 0; i < 50000; i++) {
     auto& grass = create(meshes.small_grass);
 
-    grass.material = tVec4f(0.6f, 0, 0, 0.2f);
+    grass.material = tVec4f(0.6f, 0, 0, 0.1f);
   }
 
   // @todo dev mode only
@@ -286,6 +329,8 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
 static void UpdateSmallGrass(Tachyon* tachyon, State& state) {
   profile("UpdateSmallGrass()");
 
+  auto& meshes = state.meshes;
+
   static const tVec3f offsets[] = {
     tVec3f(0, 0, 0),
     tVec3f(-200.f, 0, 150.f),
@@ -297,40 +342,61 @@ static void UpdateSmallGrass(Tachyon* tachyon, State& state) {
     300.f,
     600.f,
     500.f,
-    450.f,
-    400.f
+    450.f
+  };
+
+  tColor colors[] = {
+    tVec4f(0.2f, 0.5f, 0.1f, 0.1f),
+    tVec4f(0.3f, 0.6f, 0.1f, 0.1f),
+    tVec4f(0.1f, 0.5f, 0.1f, 0.1f),
+    tVec4f(0.2f, 0.6f, 0.1f, 0.1f)
   };
 
   const float growth_rate = 0.7f;
 
-  auto& meshes = state.meshes;
   auto& player_position = state.player_position;
   uint16 object_index = 0;
 
   for (auto& chunk : state.grass_chunks) {
     bool is_chunk_in_view = (
-      abs(player_position.x - chunk.center_position.x) < 20000.f &&
-      abs(player_position.z - chunk.center_position.z) < 20000.f
+      abs(player_position.x - chunk.center_position.x) < 28000.f &&
+      abs(player_position.z - chunk.center_position.z) < 25000.f
     );
 
     if (!is_chunk_in_view) continue;
 
-    int counter = 0;
-
     for (auto& blade : chunk.grass_blades) {
+      float z_distance = blade.position.z - player_position.z;
+      float x_limit = 15000.f + -z_distance * 0.5f;
+      if (x_limit > 20000.f) x_limit = 20000.f;
+
+      if (abs(blade.position.x - player_position.x) > x_limit) continue;
+      if (z_distance > 8000.f) continue;
+      if (z_distance < -18000.f) continue;
+
+      if (blade.path_segment_index > -1) {
+        auto& segment = state.dirt_path_segments[blade.path_segment_index];
+
+        if (CollisionSystem::IsPointOnPlane(blade.position, segment.plane)) {
+          continue;
+        }
+      }
+
       float alpha = state.astro_time + blade.position.x + blade.position.z;
       int iteration = (int)abs(growth_rate * alpha / t_TAU - 0.8f);
       float rotation_angle = float(iteration) * 1.3f;
 
+      auto variation_index = iteration % 4;
+
       auto& grass = objects(meshes.small_grass)[object_index++];
 
-      grass.position = blade.position + offsets[iteration % 4];
+      grass.position = blade.position + offsets[variation_index];
       grass.position.y = -1500.f;
 
-      grass.scale = tVec3f(scales[iteration % 5]) * 2.f;
-      grass.scale.y *= 0.75f;
+      grass.scale = blade.scale;
+      // grass.scale.y *= 1.5f;
 
-      grass.color = tVec4f(0.2f, 0.5f, 0.1f, 0.1f);
+      grass.color = colors[variation_index];
 
       grass.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), rotation_angle);
 
@@ -343,7 +409,7 @@ static void UpdateSmallGrass(Tachyon* tachyon, State& state) {
   mesh_record.lod_1.instance_count = object_index;
 
   // @temporary
-  add_dev_label("Total small grass: ", std::to_string(object_index));
+  add_dev_label("  Total small grass: ", std::to_string(object_index));
 }
 
 /**
@@ -512,7 +578,6 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
   // @todo description
   auto& mesh = mesh(state.meshes.bush_flower);
 
-  mesh.lod_2.base_instance = 0; // @todo is this line necessary?
   mesh.lod_1.instance_count = index;
 }
 
@@ -725,11 +790,13 @@ static void GenerateDirtPaths(Tachyon* tachyon, State& state) {
 
           {
             PathSegment segment;
+            segment.index = state.dirt_path_segments.size();
             segment.base_position = path.position;
             segment.base_scale = path.scale;
             segment.entity_index_a = entity_index_a;
             segment.entity_index_b = entity_index_b;
             segment.object = path;
+            segment.plane = CollisionSystem::CreatePlane(path.position, path.scale, path.rotation);
 
             state.dirt_path_segments.push_back(segment);
           }
@@ -768,9 +835,8 @@ static void UpdateDirtPaths(Tachyon* tachyon, State& state) {
   for (auto& segment : state.dirt_path_segments) {
     auto& position = segment.base_position;
 
-    if (abs(position.x - player_position.x) > distance_limit || abs(position.z - player_position.z) > distance_limit) {
-      continue;
-    }
+    if (abs(position.x - player_position.x) > distance_limit) continue;
+    if (abs(position.z - player_position.z) > distance_limit) continue;
 
     auto& entity_a = state.dirt_path_nodes[segment.entity_index_a];
     auto& entity_b = state.dirt_path_nodes[segment.entity_index_b];
@@ -814,6 +880,8 @@ static void UpdateDirtPaths(Tachyon* tachyon, State& state) {
     ) {
       path.scale = tVec3f(0.f);
     }
+
+    segment.plane = CollisionSystem::CreatePlane(path.position, path.scale, path.rotation);
 
     commit(path);
   }

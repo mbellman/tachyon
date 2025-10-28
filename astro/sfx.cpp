@@ -8,6 +8,7 @@ using namespace astro;
 static std::map<Sound, const char*> sound_file_map = {
   { SFX_ASTRO_START, "./astro/audio/astro_start.wav" },
   { SFX_ASTRO_END, "./astro/audio/astro_end.wav" },
+  { SFX_ASTRO_BELLS, "./astro/audio/astro_bells.wav" },
 
   { SFX_GROUND_WALK_1, "./astro/audio/ground_walk_1.wav" },
   { SFX_GROUND_WALK_2, "./astro/audio/ground_walk_2.wav" },
@@ -35,8 +36,8 @@ void Sfx::PlaySound(Sound sound, const float volume) {
   Tachyon_PlaySound(resource, volume);
 }
 
-void Sfx::FadeOutSound(Sound sound) {
+void Sfx::FadeOutSound(Sound sound, uint64 duration) {
   auto resource = FindSoundResource(sound);
 
-  Tachyon_FadeOutSound(resource);
+  Tachyon_FadeOutSound(resource, duration);
 }

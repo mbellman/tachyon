@@ -138,6 +138,7 @@ struct tMeshRecord {
   tMeshGeometry lod_3;
   uint16 mesh_index;
   uint8 shadow_cascade_ceiling = 4;
+  bool use_lowest_lod_for_shadows = false;
   tMeshType type = PBR_MESH;
   std::string texture = "";
 

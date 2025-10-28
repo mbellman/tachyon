@@ -71,7 +71,7 @@ void main() {
     float vertex_y = vertexPosition.y;
 
     // Calculate wind
-    float wind_strength = 300.0;
+    float wind_strength = 250.0;
     float wind_speed = 2.0;
     float local_wind = GetFoliageLocalWind(modelMatrix, wind_speed, wind_strength);
 
