@@ -222,7 +222,7 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
   // Sound effects for stopping/starting astro turn
   if (stopped_turning && !state.is_astrolabe_stopped) {
     Sfx::FadeOutSound(SFX_ASTRO_START, 500);
-    Sfx::FadeOutSound(SFX_ASTRO_BELLS, 8000);
+    // Sfx::FadeOutSound(SFX_ASTRO_BELLS, 8000);
     Sfx::PlaySound(SFX_ASTRO_END, 1.f);
 
     state.is_astrolabe_stopped = true;
@@ -230,7 +230,7 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
   else if (started_turning) {
     Sfx::FadeOutSound(SFX_ASTRO_END, 500);
     Sfx::PlaySound(SFX_ASTRO_START, 0.8f);
-    Sfx::PlaySound(SFX_ASTRO_BELLS, 0.8f);
+    // Sfx::PlaySound(SFX_ASTRO_BELLS, 0.8f);
 
     state.is_astrolabe_stopped = false;
   }

@@ -26,7 +26,8 @@ namespace astro {
     FLOWER_BUSH,
     ITEM_PICKUP,
     GLOW_FLOWER,
-    DIRT_PATH_NODE
+    DIRT_PATH_NODE,
+    HOUSE
   };
 
   /**
@@ -48,7 +49,8 @@ namespace astro {
     FLOWER_BUSH,
     ITEM_PICKUP,
     GLOW_FLOWER,
-    DIRT_PATH_NODE
+    DIRT_PATH_NODE,
+    HOUSE
   };
 
   /**
@@ -187,7 +189,14 @@ namespace astro {
       glow_flower_petals,
 
       // DIRT_PATH_NODE,
-      dirt_path_node_placeholder
+      dirt_path_node_placeholder,
+
+      // HOUSE
+      house_placeholder,
+      house_body,
+      house_frame,
+      house_roof,
+      house_chimney
 
       ;
   };
@@ -212,6 +221,7 @@ namespace astro {
     std::vector<GameEntity> river_logs;
     std::vector<GameEntity> low_guards;
     std::vector<GameEntity> bandits;
+    std::vector<GameEntity> houses;
   };
 
   /**
@@ -299,6 +309,12 @@ namespace astro {
       .name = "Wooden Gate Door",
       .scale = tVec3f(3500.f),
       .tint = tVec3f(1.f, 0.6f, 0.2f)
+    } },
+
+    { HOUSE, {
+      .name = "House",
+      .scale = tVec3f(4000.f),
+      .tint = tVec3f(1.f)
     } },
 
     { RIVER_LOG, {

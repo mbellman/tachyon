@@ -133,7 +133,6 @@ static void ShowHighestLevelsOfDetail(Tachyon* tachyon, State& state) {
   Tachyon_ShowHighestLevelsOfDetail(tachyon, meshes.rock_1);
   Tachyon_ShowHighestLevelsOfDetail(tachyon, meshes.ground_1);
   Tachyon_ShowHighestLevelsOfDetail(tachyon, meshes.grass);
-  Tachyon_ShowHighestLevelsOfDetail(tachyon, meshes.small_grass);
   Tachyon_ShowHighestLevelsOfDetail(tachyon, meshes.ground_flower);
 }
 

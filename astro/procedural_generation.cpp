@@ -316,7 +316,11 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
     auto& grass = create(meshes.small_grass);
 
     grass.material = tVec4f(0.6f, 0, 0, 0.1f);
+
+    commit(grass);
   }
+
+  mesh(meshes.small_grass).lod_1.instance_count = 0;
 
   // @todo dev mode only
   {
@@ -390,7 +394,7 @@ static void UpdateSmallGrass(Tachyon* tachyon, State& state) {
 
       auto& grass = objects(meshes.small_grass)[object_index++];
 
-      grass.position = blade.position + offsets[variation_index];
+      grass.position = blade.position;
       grass.position.y = -1500.f;
 
       grass.scale = blade.scale;
@@ -431,12 +435,15 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
 
   tRNG rng(12345.f);
 
+  // Clusters
   for (int i = 0; i < 2000; i++) {
     tVec3f center;
+    // @todo increase range
     center.x = rng.Random(-150000.f, 150000.f);
     center.y = -1000.f;
     center.z = rng.Random(-150000.f, 150000.f);
 
+    // 4 flowers per cluster
     for (int i = 0; i < 4; i++) {
       tVec3f position;
       position.x = center.x + rng.Random(-1500.f, 1500.f);
