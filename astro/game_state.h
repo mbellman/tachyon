@@ -151,6 +151,7 @@ namespace astro {
     tVec3f player_facing_direction = tVec3f(1.f, 0, 0);
     Plane last_plane_walked_on;
     bool is_on_solid_ground = false;
+    bool did_resolve_radius_collision = false;
 
     float last_walk_sound_time = 0.f;
     uint8 walk_cycle = 0;

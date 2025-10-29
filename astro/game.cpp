@@ -205,6 +205,11 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
   tachyon->scene.camera.position = tVec3f(0.f, 10000.f, 10000.f);
 
   tachyon->scene.scene_time = 0.f;
+
+  // @todo BGM::
+  {
+    Tachyon_PlaySound("./astro/audio/woods.wav");
+  }
 }
 
 void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
@@ -241,7 +246,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
 
   Targeting::HandleTargets(tachyon, state);
   ControlSystem::HandleControls(tachyon, state, dt);
-  CollisionSystem::HandleCollisions(tachyon, state);
+  CollisionSystem::HandleCollisions(tachyon, state, dt);
   SpellSystem::HandleSpells(tachyon, state, dt);
   Items::HandleItemPickup(tachyon, state);
   HandleDialogue(tachyon, state);

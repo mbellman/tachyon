@@ -76,6 +76,8 @@ static inline void ResolveSingleRadiusCollision(State& state, const tVec3f& posi
 
     state.player_position.x = position.x + dx * ratio;
     state.player_position.z = position.z + dz * ratio;
+
+    state.did_resolve_radius_collision = true;
   }
 }
 
@@ -193,7 +195,7 @@ static void HandleRiverLogCollisions(Tachyon* tachyon, State& state) {
   }
 }
 
-static void HandleGateCollisions(Tachyon* tachyon, State& state) {
+static void HandleGateCollisions(Tachyon* tachyon, State& state, const float dt) {
   const tVec3f scale_factor = tVec3f(0.4f, 0, 1.4f);
 
   tVec3f player_xz = state.player_position.xz();
@@ -204,17 +206,31 @@ static void HandleGateCollisions(Tachyon* tachyon, State& state) {
 
     // @todo handle open state
 
-    // @todo refactor into HandleSingleRectangleCollision
+    // @todo refactor into HandleSinglePlaneCollision
     auto plane = CollisionSystem::CreatePlane(entity.position, entity.scale * scale_factor, entity.orientation);
 
     if (CollisionSystem::IsPointOnPlane(player_xz, plane)) {
-      tVec3f crossed_edge = GetOversteppedEdge(state.last_solid_ground_position, plane).unit();
-      float edge_dot = tVec3f::dot(state.player_velocity.unit(), crossed_edge.unit());
-      tVec3f corrected_direction = edge_dot > 0.f ? crossed_edge.unit() : crossed_edge.invert().unit();
-      // @todo use dt
-      float corrected_speed = player_speed * abs(edge_dot) * (1.f / 60.f);
+      if (state.did_resolve_radius_collision) {
+        // When we've resolved an earlier radius collision, prevent
+        // clipping by simply resetting the player position to the
+        // last solid ground position as a failsafe for both collisions.
+        // Otherwise, plane collision resolution can cause us to
+        // pass through radius collision bounds.
+        state.player_position = state.last_solid_ground_position;
+      } else {
+        tVec3f crossed_edge = GetOversteppedEdge(state.last_solid_ground_position, plane).unit();
+        float edge_dot = tVec3f::dot(state.player_velocity.unit(), crossed_edge);
+        tVec3f corrected_direction = edge_dot > 0.f ? crossed_edge : crossed_edge.invert();
+        float corrected_speed = 3.f * player_speed * abs(edge_dot) * dt;
+        tVec3f rebound_direction = tVec3f::cross(crossed_edge, tVec3f(0, 1.f, 0));
 
-      state.player_position = state.last_solid_ground_position + corrected_direction * corrected_speed;
+        // Reset position
+        state.player_position = state.last_solid_ground_position;
+        // Add rebound to mitigate any accidental clipping in
+        state.player_position += rebound_direction * 0.1f;
+        // Slide along the egde to conserve movement
+        state.player_position += corrected_direction * corrected_speed;
+      }
 
       break;
     }
@@ -227,7 +243,7 @@ static void HandleMovementOffSolidGround(Tachyon* tachyon, State& state) {
   tVec3f corrected_direction = edge_dot > 0.f ? edge.unit() : edge.invert().unit();
   tVec3f rebound_direction = tVec3f::cross(tVec3f(0, 1.f, 0), edge.unit());
 
-  state.player_position = state.last_solid_ground_position + rebound_direction * 5.f;
+  state.player_position = state.last_solid_ground_position + rebound_direction * 1.f;
   state.player_velocity = corrected_direction * state.player_velocity.magnitude();
 }
 
@@ -257,8 +273,16 @@ Plane CollisionSystem::CreatePlane(const tVec3f& position, const tVec3f& scale, 
   return plane;
 }
 
-void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
+void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state, const float dt) {
   profile("HandleCollisions()");
+
+  // Assume we're not on solid ground until a
+  // ground-related collision determines otherwise
+  state.is_on_solid_ground = false;
+
+  // If we later resolve a radius collision, this is useful
+  // to know in the context of resolving plane collisions
+  state.did_resolve_radius_collision = false;
 
   for_entities(state.shrubs) {
     auto& entity = state.shrubs[i];
@@ -304,11 +328,7 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
     ResolveSingleRadiusCollision(state, ground.position, ground.scale, 0.8f);
   }
 
-  // Assume we're not on solid ground until a
-  // ground-related collision determines otherwise
-  state.is_on_solid_ground = false;
-
-  HandleGateCollisions(tachyon, state);
+  HandleGateCollisions(tachyon, state, dt);
   HandleFlatGroundCollisions(tachyon, state);
   HandleBridgeCollisions(tachyon, state);
   HandleRiverLogCollisions(tachyon, state);
