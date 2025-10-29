@@ -398,7 +398,6 @@ static void UpdateSmallGrass(Tachyon* tachyon, State& state) {
       grass.position.y = -1500.f;
 
       grass.scale = blade.scale;
-      // grass.scale.y *= 1.5f;
 
       grass.color = colors[variation_index];
 

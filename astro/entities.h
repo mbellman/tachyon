@@ -96,7 +96,7 @@ namespace astro {
     float astro_start_time = 0.f;
     float astro_end_time = 0.f;
 
-    // Apparent size of the entity, e.g. for collisions
+    // Visible properties of the entity, e.g. for collisions
     //
     // @todo entities may have more complex structures with
     // multiple mesh elements comprising them, all of which
@@ -109,7 +109,6 @@ namespace astro {
     // number of actual collision bounds generated + checked
     // per frame can be very low.
     tVec3f visible_scale;
-
     tVec3f visible_position;
     Quaternion visible_rotation;
 
@@ -126,6 +125,10 @@ namespace astro {
 
     // For entities which spawn light sources
     int32 light_id = -1;
+
+    // For gates, doors etc.
+    bool is_open = false;
+    float open_time = -1.f;
   };
 
   /**
@@ -202,7 +205,10 @@ namespace astro {
 
       // GATE
       gate_placeholder,
-      gate_body
+      gate_body,
+      gate_left_door,
+      gate_right_door,
+      gate_switch
 
       ;
   };

@@ -195,6 +195,26 @@ static void HandleRiverLogCollisions(Tachyon* tachyon, State& state) {
   }
 }
 
+static void HandleGateCollisions(Tachyon* tachyon, State& state) {
+  const tVec3f scale_factor = tVec3f(0.4f, 0, 1.4f);
+
+  for_entities(state.gates) {
+    auto& entity = state.gates[i];
+
+    // @todo handle open state
+
+    // @todo refactor into HandleSingleRectangleCollision
+    auto plane = CollisionSystem::CreatePlane(entity.position, entity.scale * scale_factor, entity.orientation);
+
+    if (CollisionSystem::IsPointOnPlane(state.player_position.xz(), plane)) {
+      // @todo slide along edge
+      state.player_position = state.last_solid_ground_position;
+
+      break;
+    }
+  }
+}
+
 static void HandleMovementOffSolidGround(Tachyon* tachyon, State& state) {
   tVec3f edge = GetOversteppedEdge(state.player_position, state.last_plane_walked_on);
   float edge_movement_dot = tVec3f::dot(state.player_velocity, edge);
@@ -253,6 +273,8 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   for (auto& ground : objects(state.meshes.ground_1)) {
     bool has_collision = true;
 
+    // Make an exception for ground_1 objects near small stone bridges.
+    //
     // @optimize Don't do this in an inner loop here!
     // Look up ground_1 objects close to bridge entities
     // ahead of time, store them in a collision list, and
@@ -280,6 +302,7 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   // ground-related collision determines otherwise
   state.is_on_solid_ground = false;
 
+  HandleGateCollisions(tachyon, state);
   HandleFlatGroundCollisions(tachyon, state);
   HandleBridgeCollisions(tachyon, state);
   HandleRiverLogCollisions(tachyon, state);

@@ -34,6 +34,13 @@ namespace astro {
     return entity_age / lifetime;
   }
 
+  static void Sync(tObject& object, GameEntity& entity) {
+    object.position = entity.position;
+    object.rotation = entity.orientation;
+    object.scale = entity.scale;
+    object.color = entity.tint;
+  }
+
   static void Jitter(GameEntity& entity, const float amount) {
     entity.visible_position.x += Tachyon_GetRandom(-amount, amount);
     entity.visible_position.z += Tachyon_GetRandom(-amount, amount);
