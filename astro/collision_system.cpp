@@ -18,8 +18,6 @@ static std::vector<tVec3f> river_log_points = {
   tVec3f(-0.2f, 0, -1.f)
 };
 
-// @temporary
-// @todo replace with proper line/plane collision checks
 static inline bool IsPointInsideEdge(const tVec3f& point, const tVec3f& e1, const tVec3f& e2) {
   return (
     (e2.x - e1.x) * (point.z - e1.z) -
@@ -198,6 +196,9 @@ static void HandleRiverLogCollisions(Tachyon* tachyon, State& state) {
 static void HandleGateCollisions(Tachyon* tachyon, State& state) {
   const tVec3f scale_factor = tVec3f(0.4f, 0, 1.4f);
 
+  tVec3f player_xz = state.player_position.xz();
+  float player_speed = state.player_velocity.magnitude();
+
   for_entities(state.gates) {
     auto& entity = state.gates[i];
 
@@ -206,9 +207,14 @@ static void HandleGateCollisions(Tachyon* tachyon, State& state) {
     // @todo refactor into HandleSingleRectangleCollision
     auto plane = CollisionSystem::CreatePlane(entity.position, entity.scale * scale_factor, entity.orientation);
 
-    if (CollisionSystem::IsPointOnPlane(state.player_position.xz(), plane)) {
-      // @todo slide along edge
-      state.player_position = state.last_solid_ground_position;
+    if (CollisionSystem::IsPointOnPlane(player_xz, plane)) {
+      tVec3f crossed_edge = GetOversteppedEdge(state.last_solid_ground_position, plane).unit();
+      float edge_dot = tVec3f::dot(state.player_velocity.unit(), crossed_edge.unit());
+      tVec3f corrected_direction = edge_dot > 0.f ? crossed_edge.unit() : crossed_edge.invert().unit();
+      // @todo use dt
+      float corrected_speed = player_speed * abs(edge_dot) * (1.f / 60.f);
+
+      state.player_position = state.last_solid_ground_position + corrected_direction * corrected_speed;
 
       break;
     }
@@ -217,8 +223,8 @@ static void HandleGateCollisions(Tachyon* tachyon, State& state) {
 
 static void HandleMovementOffSolidGround(Tachyon* tachyon, State& state) {
   tVec3f edge = GetOversteppedEdge(state.player_position, state.last_plane_walked_on);
-  float edge_movement_dot = tVec3f::dot(state.player_velocity, edge);
-  tVec3f corrected_direction = edge_movement_dot > 0.f ? edge.unit() : edge.invert().unit();
+  float edge_dot = tVec3f::dot(state.player_velocity, edge);
+  tVec3f corrected_direction = edge_dot > 0.f ? edge.unit() : edge.invert().unit();
   tVec3f rebound_direction = tVec3f::cross(tVec3f(0, 1.f, 0), edge.unit());
 
   state.player_position = state.last_solid_ground_position + rebound_direction * 5.f;

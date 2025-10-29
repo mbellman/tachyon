@@ -33,7 +33,7 @@ static void UpdatePlayer(Tachyon* tachyon, State& state, const float dt) {
       // When we're focused on a target, face it and turn much more quickly
       auto& target = *EntityManager::FindEntity(state, state.target_entity);
 
-      desired_facing_direction = (target.visible_position - state.player_position).unit();
+      desired_facing_direction = (target.visible_position - state.player_position).xz().unit();
     }
     else if (state.player_velocity.magnitude() > 0.01f) {
       // Without a target, use our velocity vector to influence facing direction
@@ -55,6 +55,7 @@ static void UpdatePlayer(Tachyon* tachyon, State& state, const float dt) {
     auto& player = objects(state.meshes.player)[0];
 
     player.position = state.player_position;
+
     // @temporary
     player.scale = tVec3f(600.f, 1500.f, 600.f);
     player.color = tVec3f(0, 0.2f, 1.f);

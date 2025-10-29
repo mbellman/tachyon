@@ -3,6 +3,13 @@
 #include "astro/entity_behaviors/behavior.h"
 
 namespace astro {
+  static float GetSwitchDistance(const tVec3f& player_position, const GameEntity& entity) {
+    tVec3f object_space_switch_position = tVec3f(0, 0, 0.6f) * entity.scale;
+    tVec3f world_space_switch_position = entity.position + entity.orientation.toMatrix4f() * object_space_switch_position;
+
+    return tVec3f::distance(player_position, world_space_switch_position);
+  }
+
   behavior Gate {
     addMeshes() {
       meshes.gate_placeholder = MODEL_MESH("./astro/3d_models/gate/placeholder.obj", 500);
@@ -61,9 +68,9 @@ namespace astro {
         commit(gate_switch);
 
         if (did_press_key(tKey::CONTROLLER_A)) {
-          auto switch_distance = tVec3f::distance(state.player_position, entity.position);
+          float switch_distance = GetSwitchDistance(state.player_position, entity);
 
-          if (switch_distance < entity.scale.magnitude()) {
+          if (switch_distance < 3000.f) {
             entity.is_open = true;
           }
         }
