@@ -27,7 +27,8 @@ namespace astro {
     ITEM_PICKUP,
     GLOW_FLOWER,
     DIRT_PATH_NODE,
-    HOUSE
+    HOUSE,
+    GATE
   };
 
   /**
@@ -50,7 +51,8 @@ namespace astro {
     ITEM_PICKUP,
     GLOW_FLOWER,
     DIRT_PATH_NODE,
-    HOUSE
+    HOUSE,
+    GATE
   };
 
   /**
@@ -196,7 +198,11 @@ namespace astro {
       house_body,
       house_frame,
       house_roof,
-      house_chimney
+      house_chimney,
+
+      // GATE
+      gate_placeholder,
+      gate_body
 
       ;
   };
@@ -222,6 +228,7 @@ namespace astro {
     std::vector<GameEntity> low_guards;
     std::vector<GameEntity> bandits;
     std::vector<GameEntity> houses;
+    std::vector<GameEntity> gates;
   };
 
   /**
@@ -303,6 +310,12 @@ namespace astro {
       .name = "Stone Wall",
       .scale = tVec3f(3500.f),
       .tint = tVec3f(0.5f)
+    } },
+
+    { GATE, {
+      .name = "Gate",
+      .scale = tVec3f(4000.f),
+      .tint = tVec3f(0.4f)
     } },
 
     { WOODEN_GATE_DOOR, {

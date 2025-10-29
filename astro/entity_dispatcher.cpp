@@ -6,6 +6,7 @@
 #include "astro/entity_behaviors/DirtPath.h"
 #include "astro/entity_behaviors/DirthPathNode.h"
 #include "astro/entity_behaviors/FlowerBush.h"
+#include "astro/entity_behaviors/Gate.h"
 #include "astro/entity_behaviors/GlowFlower.h"
 #include "astro/entity_behaviors/House.h"
 #include "astro/entity_behaviors/ItemPickup.h"
@@ -56,6 +57,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
     dispatch_GetEntityContainer(GLOW_FLOWER, state.glow_flowers);
     dispatch_GetEntityContainer(SMALL_STONE_BRIDGE, state.small_stone_bridges);
     dispatch_GetEntityContainer(STONE_WALL, state.stone_walls);
+    dispatch_GetEntityContainer(GATE, state.gates);
     dispatch_GetEntityContainer(HOUSE, state.houses);
     dispatch_GetEntityContainer(WILLOW_TREE, state.willow_trees);
     dispatch_GetEntityContainer(WOODEN_GATE_DOOR, state.wooden_gate_doors);
@@ -82,6 +84,7 @@ void EntityDispatcher::AddMeshes(Tachyon* tachyon, State& state, EntityType type
     dispatch_AddMeshes(GLOW_FLOWER, GlowFlower);
     dispatch_AddMeshes(SMALL_STONE_BRIDGE, SmallStoneBridge);
     dispatch_AddMeshes(STONE_WALL, StoneWall);
+    dispatch_AddMeshes(GATE, Gate);
     dispatch_AddMeshes(HOUSE, House);
     dispatch_AddMeshes(WILLOW_TREE, WillowTree);
     dispatch_AddMeshes(WOODEN_GATE_DOOR, WoodenGateDoor);
@@ -107,6 +110,7 @@ const std::vector<uint16>& EntityDispatcher::GetMeshes(State& state, EntityType 
     dispatch_GetMeshes(GLOW_FLOWER, GlowFlower);
     dispatch_GetMeshes(SMALL_STONE_BRIDGE, SmallStoneBridge);
     dispatch_GetMeshes(STONE_WALL, StoneWall);
+    dispatch_GetMeshes(GATE, Gate);
     dispatch_GetMeshes(HOUSE, House);
     dispatch_GetMeshes(WILLOW_TREE, WillowTree);
     dispatch_GetMeshes(WOODEN_GATE_DOOR, WoodenGateDoor);
@@ -132,6 +136,7 @@ uint16 EntityDispatcher::GetPlaceholderMesh(State& state, EntityType type) {
     dispatch_GetPlaceholderMesh(GLOW_FLOWER, GlowFlower);
     dispatch_GetPlaceholderMesh(SMALL_STONE_BRIDGE, SmallStoneBridge);
     dispatch_GetPlaceholderMesh(STONE_WALL, StoneWall);
+    dispatch_GetPlaceholderMesh(GATE, Gate);
     dispatch_GetPlaceholderMesh(HOUSE, House);
     dispatch_GetPlaceholderMesh(WILLOW_TREE, WillowTree);
     dispatch_GetPlaceholderMesh(WOODEN_GATE_DOOR, WoodenGateDoor);
@@ -157,6 +162,7 @@ void EntityDispatcher::TimeEvolve(Tachyon* tachyon, State& state, EntityType typ
     dispatch_TimeEvolve(GLOW_FLOWER, GlowFlower);
     dispatch_TimeEvolve(SMALL_STONE_BRIDGE, SmallStoneBridge);
     dispatch_TimeEvolve(STONE_WALL, StoneWall);
+    dispatch_TimeEvolve(GATE, Gate);
     dispatch_TimeEvolve(HOUSE, House);
     dispatch_TimeEvolve(WILLOW_TREE, WillowTree);
     dispatch_TimeEvolve(WOODEN_GATE_DOOR, WoodenGateDoor);
