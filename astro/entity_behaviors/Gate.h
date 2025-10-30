@@ -4,8 +4,10 @@
 
 namespace astro {
   static float GetSwitchDistance(const tVec3f& player_position, const GameEntity& entity) {
-    tVec3f object_space_switch_position = tVec3f(0, 0, 0.6f) * entity.scale;
+    tVec3f object_space_switch_position = tVec3f(0.4f, 0, 0.65f) * entity.scale;
+
     tVec3f world_space_switch_position = entity.position + entity.orientation.toMatrix4f() * object_space_switch_position;
+    world_space_switch_position.y = player_position.y;
 
     return tVec3f::distance(player_position, world_space_switch_position);
   }
@@ -57,23 +59,35 @@ namespace astro {
         gate_switch.material = tVec4f(1.f, 0, 0, 0.1f);
 
         if (entity.is_open) {
-          // @temporary
-          door_left.scale = tVec3f(0.f);
-          door_right.scale = tVec3f(0.f);
+          // Handle opening behavior
+          float alpha = 0.333f * (tachyon->scene.scene_time - entity.open_time);
+          if (alpha < 0.f) alpha = 0.f; // @todo can this happen?
+          if (alpha > 1.f) alpha = 1.f;
+
+          tVec3f direction = entity.orientation.toMatrix4f() * tVec3f(0, 0, 1.f);
+          float distance = alpha * entity.scale.z * 0.6f;
+
+          door_left.position = entity.position + direction * distance;
+          door_right.position = entity.position - direction * distance;
+        }
+
+        if (did_press_key(tKey::CONTROLLER_A)) {
+          float switch_distance = GetSwitchDistance(state.player_position, entity);
+
+          console_log(switch_distance);
+
+          // Handle switch activation
+          if (switch_distance < 1000.f && !entity.is_open) {
+            // @todo store astro time
+            entity.is_open = true;
+            entity.open_time = tachyon->scene.scene_time;
+          }
         }
 
         commit(body);
         commit(door_left);
         commit(door_right);
         commit(gate_switch);
-
-        if (did_press_key(tKey::CONTROLLER_A)) {
-          float switch_distance = GetSwitchDistance(state.player_position, entity);
-
-          if (switch_distance < 3000.f) {
-            entity.is_open = true;
-          }
-        }
       }
     }
   };
