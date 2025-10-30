@@ -3,22 +3,20 @@
 #include "astro/entity_behaviors/behavior.h"
 
 namespace astro {
+  // @todo factor
   static tVec3f GetWorldSpaceSwitchPosition(const GameEntity& entity) {
-    tVec3f object_space_switch_position = tVec3f(0.12f, -0.25f, 0.672f) * entity.scale;
+    const tVec3f model_space_position = tVec3f(0.12f, -0.25f, 0.672f);
+    tVec3f object_space_position = model_space_position * entity.scale;
 
-    tVec3f world_space_switch_position = entity.position + entity.orientation.toMatrix4f() * object_space_switch_position;
-
-    return world_space_switch_position;
+    return entity.position + entity.orientation.toMatrix4f() * object_space_position;
   }
 
-  // @todo just use the switch handle position and get rid of this
-  static float GetSwitchDistance(const tVec3f& player_position, const GameEntity& entity) {
-    tVec3f object_space_switch_position = tVec3f(0.4f, 0, 0.65f) * entity.scale;
+  // @todo factor
+  static tVec3f GetWorldSpaceActivationPosition(const GameEntity& entity) {
+    const tVec3f model_space_position = tVec3f(0.4f, 0, 0.65f);
+    tVec3f object_space_position = model_space_position * entity.scale;
 
-    tVec3f world_space_switch_position = entity.position + entity.orientation.toMatrix4f() * object_space_switch_position;
-    world_space_switch_position.y = player_position.y;
-
-    return tVec3f::distance(player_position, world_space_switch_position);
+    return entity.position + entity.orientation.toMatrix4f() * object_space_position;
   }
 
   behavior Gate {
@@ -76,7 +74,6 @@ namespace astro {
         switch_handle.material = tVec4f(0.6f, 1.f, 0, 0);
 
         if (entity.is_open) {
-          // Handle opening behavior
           float time_since_opened = tachyon->scene.scene_time - entity.open_time;
 
           // Rotate the handle
@@ -105,11 +102,11 @@ namespace astro {
           }
         }
 
-        if (did_press_key(tKey::CONTROLLER_A)) {
-          float switch_distance = GetSwitchDistance(state.player_position, entity);
+        if (did_press_key(tKey::CONTROLLER_A) && !entity.is_open) {
+          tVec3f activation_position = GetWorldSpaceActivationPosition(entity);
+          float activation_distance = tVec3f::distance(state.player_position.xz(), activation_position.xz());
 
-          // Handle switch activation
-          if (switch_distance < 1000.f && !entity.is_open) {
+          if (activation_distance < 1000.f) {
             // @todo store astro time
             entity.is_open = true;
             entity.open_time = tachyon->scene.scene_time;
