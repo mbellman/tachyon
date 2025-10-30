@@ -138,16 +138,12 @@ static void ShowHighestLevelsOfDetail(Tachyon* tachyon, State& state) {
   Tachyon_ShowHighestLevelsOfDetail(tachyon, meshes.ground_flower);
 }
 
+// @todo 3d positioned sfx
 static void HandleWalkSounds(Tachyon* tachyon, State& state) {
-  float player_speed = state.player_velocity.magnitude();
+  float distance_threshold = is_key_held(tKey::CONTROLLER_A) ? 2200.f : 1400.f;
+  float last_sound_distance = state.movement_distance - state.last_walk_sound_movement_distance;
 
-  if (player_speed < 200.f) {
-    return;
-  }
-
-  // @todo base cycle time on player speed
-  // @todo 3d positioned sfx
-  if (tachyon->running_time - state.last_walk_sound_time > 0.3f) {
+  if (last_sound_distance > distance_threshold) {
     auto cycle = state.walk_cycle++;
 
     if (cycle == 0) {
@@ -162,7 +158,7 @@ static void HandleWalkSounds(Tachyon* tachyon, State& state) {
       state.walk_cycle = 0;
     }
 
-    state.last_walk_sound_time = tachyon->running_time;
+    state.last_walk_sound_movement_distance = state.movement_distance;
   }
 }
 
@@ -209,7 +205,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
 
   // @todo configure music per area
   {
-    BGM::LoopMusic(DIVINATION_WOODREALM);
+    // BGM::LoopMusic(DIVINATION_WOODREALM);
   }
 }
 
@@ -218,6 +214,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
 
   auto& scene = tachyon->scene;
 
+  // @temporary
   tachyon->scene.scene_time += dt;
 
   // Toggle level editor with E
@@ -266,6 +263,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
     auto& fx = tachyon->fx;
     float max_blur_factor = 0.98f - 5.f * dt;
 
+    state.movement_distance += tVec3f::distance(state.player_position, state.last_player_position);
     state.last_player_position = state.player_position;
 
     fx.accumulation_blur_factor = sqrtf(abs(state.astro_turn_speed)) * 4.f;
@@ -284,8 +282,6 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
     if (speed > 300.f) {
       tachyon->scene.foliage_mover_velocity = velocity.unit() * 300.f;
     }
-
-    // tachyon->scene.scene_time += dt;
 
     // @todo ui.cpp
     // @todo debug mode only
