@@ -3,6 +3,15 @@
 #include "astro/entity_behaviors/behavior.h"
 
 namespace astro {
+  static tVec3f GetWorldSpaceSwitchPosition(const GameEntity& entity) {
+    tVec3f object_space_switch_position = tVec3f(0.12f, -0.25f, 0.672f) * entity.scale;
+
+    tVec3f world_space_switch_position = entity.position + entity.orientation.toMatrix4f() * object_space_switch_position;
+
+    return world_space_switch_position;
+  }
+
+  // @todo just use the switch handle position and get rid of this
   static float GetSwitchDistance(const tVec3f& player_position, const GameEntity& entity) {
     tVec3f object_space_switch_position = tVec3f(0.4f, 0, 0.65f) * entity.scale;
 
@@ -19,6 +28,7 @@ namespace astro {
       meshes.gate_left_door = MODEL_MESH("./astro/3d_models/gate/left_door.obj", 500);
       meshes.gate_right_door = MODEL_MESH("./astro/3d_models/gate/right_door.obj", 500);
       meshes.gate_switch = MODEL_MESH("./astro/3d_models/gate/switch.obj", 500);
+      meshes.gate_switch_handle = MODEL_MESH("./astro/3d_models/gate/switch_handle.obj", 500);
     }
 
     getMeshes() {
@@ -26,7 +36,8 @@ namespace astro {
         meshes.gate_body,
         meshes.gate_left_door,
         meshes.gate_right_door,
-        meshes.gate_switch
+        meshes.gate_switch,
+        meshes.gate_switch_handle
       });
     }
 
@@ -46,35 +57,56 @@ namespace astro {
         auto& door_left = objects(meshes.gate_left_door)[i];
         auto& door_right = objects(meshes.gate_right_door)[i];
         auto& gate_switch = objects(meshes.gate_switch)[i];
+        auto& switch_handle = objects(meshes.gate_switch_handle)[i];
 
         Sync(body, entity);
         Sync(door_left, entity);
         Sync(door_right, entity);
         Sync(gate_switch, entity);
+        Sync(switch_handle, entity);
 
         door_left.material = tVec4f(0.2f, 1.f, 0, 0);
         door_right.material = tVec4f(0.2f, 1.f, 0, 0);
 
-        gate_switch.color = tVec4f(1.f, 0.6f, 0.2f, 0.1f);
+        gate_switch.color = tVec4f(0.8f, 0.4f, 0.3f, 0.1f);
         gate_switch.material = tVec4f(1.f, 0, 0, 0.1f);
+
+        switch_handle.position = GetWorldSpaceSwitchPosition(entity);
+        switch_handle.color = tVec4f(0.8f, 0.2f, 0.1f, 0.2f);
+        switch_handle.material = tVec4f(0.6f, 1.f, 0, 0);
 
         if (entity.is_open) {
           // Handle opening behavior
-          float alpha = 0.333f * (tachyon->scene.scene_time - entity.open_time);
-          if (alpha < 0.f) alpha = 0.f; // @todo can this happen?
-          if (alpha > 1.f) alpha = 1.f;
+          float time_since_opened = tachyon->scene.scene_time - entity.open_time;
 
-          tVec3f direction = entity.orientation.toMatrix4f() * tVec3f(0, 0, 1.f);
-          float distance = alpha * entity.scale.z * 0.6f;
+          // Rotate the handle
+          {
+            float rotation_alpha = time_since_opened;
+            if (rotation_alpha > 1.f) rotation_alpha = 1.f;
+            rotation_alpha = Tachyon_EaseInOutf(rotation_alpha);
 
-          door_left.position = entity.position + direction * distance;
-          door_right.position = entity.position - direction * distance;
+            float handle_angle = rotation_alpha * -t_HALF_PI;
+            auto handle_rotation = Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), handle_angle);
+
+            switch_handle.rotation = entity.orientation * handle_rotation;
+          }
+
+          // Open the doors
+          {
+            float open_alpha = time_since_opened * 0.333f - 0.333f;
+            if (open_alpha < 0.f) open_alpha = 0.f;
+            if (open_alpha > 1.f) open_alpha = 1.f;
+
+            tVec3f direction = entity.orientation.toMatrix4f() * tVec3f(0, 0, 1.f);
+            float distance = open_alpha * entity.scale.z * 0.6f;
+
+            door_left.position = entity.position + direction * distance;
+            door_right.position = entity.position - direction * distance;
+          }
         }
 
         if (did_press_key(tKey::CONTROLLER_A)) {
           float switch_distance = GetSwitchDistance(state.player_position, entity);
-
-          console_log(switch_distance);
 
           // Handle switch activation
           if (switch_distance < 1000.f && !entity.is_open) {
@@ -88,6 +120,7 @@ namespace astro {
         commit(door_left);
         commit(door_right);
         commit(gate_switch);
+        commit(switch_handle);
       }
     }
   };

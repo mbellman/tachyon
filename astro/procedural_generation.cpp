@@ -279,9 +279,9 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
         local_dirt_path_segments.push_back(segment);
       }
 
-      chunk.grass_blades.reserve(5000);
+      chunk.grass_blades.reserve(4500);
 
-      for (int32 i = 0; i < 4000; i++) {
+      for (int32 i = 0; i < 4500; i++) {
         GrassBlade blade;
         blade.position.x = Tachyon_GetRandom(upper_left_corner.x, upper_right_corner.x);
         blade.position.y = -1500.f;
@@ -352,8 +352,8 @@ static void UpdateSmallGrass(Tachyon* tachyon, State& state) {
   tColor colors[] = {
     tVec4f(0.2f, 0.5f, 0.1f, 0.1f),
     tVec4f(0.3f, 0.6f, 0.1f, 0.1f),
-    tVec4f(0.1f, 0.5f, 0.1f, 0.1f),
-    tVec4f(0.2f, 0.6f, 0.1f, 0.1f)
+    tVec4f(0.1f, 0.4f, 0.1f, 0.1f),
+    tVec4f(0.1f, 0.5f, 0.1f, 0.1f)
   };
 
   const float growth_rate = 0.7f;
