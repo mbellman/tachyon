@@ -4,6 +4,8 @@
 
 #include "engine/tachyon_sound.h"
 
+#define get_sound(resource) (ma_sound*)resource.data
+
 ma_engine engine;
 
 void Tachyon_InitSoundEngine() {
@@ -24,21 +26,29 @@ void Tachyon_PlaySound(const char* file_path) {
 }
 
 void Tachyon_PlaySound(tSoundResource& resource, const float volume) {
-  auto* sound = (ma_sound*)resource.data;
+  auto* sound = get_sound(resource);
 
   ma_sound_seek_to_pcm_frame(sound, 0);
   ma_sound_set_fade_in_milliseconds(sound, -1, volume, 0);
   ma_sound_start(sound);
 }
 
+void Tachyon_LoopSound(tSoundResource& resource) {
+  Tachyon_PlaySound(resource, 1.f);
+
+  auto* sound = get_sound(resource);
+
+  ma_sound_set_looping(sound, true);
+}
+
 void Tachyon_FadeOutSound(tSoundResource& resource, uint64 duration) {
-  auto* sound = (ma_sound*)resource.data;
+  auto* sound = get_sound(resource);
 
   ma_sound_set_fade_in_milliseconds(sound, -1, 0, duration);
 }
 
 void Tachyon_StopSound(tSoundResource& resource) {
-  auto* sound = (ma_sound*)resource.data;
+  auto* sound = get_sound(resource);
 
   ma_sound_stop(sound);
 }

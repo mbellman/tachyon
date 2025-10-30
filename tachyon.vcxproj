@@ -117,6 +117,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="astro\astrolabe.h" />
+    <ClInclude Include="astro\bgm.h" />
     <ClInclude Include="astro\camera_system.h" />
     <ClInclude Include="astro\character_dialogue.h" />
     <ClInclude Include="astro\collision_system.h" />
@@ -129,7 +130,9 @@
     <ClInclude Include="astro\entity_behaviors\DirthPathNode.h" />
     <ClInclude Include="astro\entity_behaviors\DirtPath.h" />
     <ClInclude Include="astro\entity_behaviors\FlowerBush.h" />
+    <ClInclude Include="astro\entity_behaviors\Gate.h" />
     <ClInclude Include="astro\entity_behaviors\GlowFlower.h" />
+    <ClInclude Include="astro\entity_behaviors\House.h" />
     <ClInclude Include="astro\entity_behaviors\ItemPickup.h" />
     <ClInclude Include="astro\entity_behaviors\LowGuard.h" />
     <ClInclude Include="astro\entity_behaviors\OakTree.h" />
@@ -293,6 +296,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="astro\astrolabe.cpp" />
+    <ClCompile Include="astro\bgm.cpp" />
     <ClCompile Include="astro\camera_system.cpp" />
     <ClCompile Include="astro\collision_system.cpp" />
     <ClCompile Include="astro\control_system.cpp" />

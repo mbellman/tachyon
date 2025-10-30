@@ -1,5 +1,6 @@
 #include "astro/game.h"
 #include "astro/astrolabe.h"
+#include "astro/bgm.h"
 #include "astro/camera_system.h"
 #include "astro/collision_system.h"
 #include "astro/control_system.h"
@@ -206,9 +207,9 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
 
   tachyon->scene.scene_time = 0.f;
 
-  // @todo BGM::
+  // @todo configure music per area
   {
-    Tachyon_PlaySound("./astro/audio/woods.wav");
+    BGM::LoopMusic(DIVINATION_WOODREALM);
   }
 }
 
