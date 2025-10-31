@@ -28,7 +28,8 @@ namespace astro {
     GLOW_FLOWER,
     DIRT_PATH_NODE,
     HOUSE,
-    GATE
+    GATE,
+    LILAC_BUSH
   };
 
   /**
@@ -52,7 +53,8 @@ namespace astro {
     GLOW_FLOWER,
     DIRT_PATH_NODE,
     HOUSE,
-    GATE
+    GATE,
+    LILAC_BUSH
   };
 
   /**
@@ -209,7 +211,12 @@ namespace astro {
       gate_left_door,
       gate_right_door,
       gate_switch,
-      gate_switch_handle
+      gate_switch_handle,
+
+      // LILAC
+      lilac_placeholder,
+      lilac_leaves,
+      lilac_flower
 
       ;
   };
@@ -225,6 +232,7 @@ namespace astro {
     std::vector<GameEntity> dirt_path_nodes;
     std::vector<GameEntity> shrubs;
     std::vector<GameEntity> flower_bushes;
+    std::vector<GameEntity> lilac_bushes;
     std::vector<GameEntity> glow_flowers;
     std::vector<GameEntity> oak_trees;
     std::vector<GameEntity> willow_trees;
@@ -286,6 +294,12 @@ namespace astro {
       .name = "Flower Bush",
       .scale = tVec3f(2000.f),
       .tint = tVec3f(0.2f, 0.6f, 0.3f)
+    } },
+
+    { LILAC_BUSH, {
+      .name = "Lilac Bush",
+      .scale = tVec3f(3000.f),
+      .tint = tVec3f(0.3f, 0.8f, 0.2f)
     } },
 
     { GLOW_FLOWER, {
