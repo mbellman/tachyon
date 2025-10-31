@@ -63,6 +63,8 @@ namespace astro {
         Sync(gate_switch, entity);
         Sync(switch_handle, entity);
 
+        body.material = tVec4f(0.9f, 0, 0, 0);
+
         door_left.material = tVec4f(0.2f, 1.f, 0, 0);
         door_right.material = tVec4f(0.2f, 1.f, 0, 0);
 
@@ -90,9 +92,10 @@ namespace astro {
 
           // Open the doors
           {
-            float open_alpha = time_since_opened * 0.333f - 0.333f;
+            float open_alpha = time_since_opened - 0.5f;
             if (open_alpha < 0.f) open_alpha = 0.f;
             if (open_alpha > 1.f) open_alpha = 1.f;
+            open_alpha = Tachyon_EaseInOutf(open_alpha);
 
             tVec3f direction = entity.orientation.toMatrix4f() * tVec3f(0, 0, 1.f);
             float distance = open_alpha * entity.scale.z * 0.6f;
@@ -112,6 +115,9 @@ namespace astro {
             entity.open_time = tachyon->scene.scene_time;
           }
         }
+
+        // For collision handling
+        entity.visible_scale = entity.scale * tVec3f(0.4f, 1.f, 1.4f);
 
         commit(body);
         commit(door_left);

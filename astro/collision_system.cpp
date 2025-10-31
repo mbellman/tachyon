@@ -201,38 +201,66 @@ static void HandleGateCollisions(Tachyon* tachyon, State& state, const float dt)
   tVec3f player_xz = state.player_position.xz();
   float player_speed = state.player_velocity.magnitude();
 
+  // @allocation
+  // @todo come up with a better mechanism for this
+  std::vector<Plane> collision_planes;
+
   for_entities(state.gates) {
     auto& entity = state.gates[i];
 
-    // @todo handle open state
+    // @todo come up with a better mechanism for this
+    collision_planes.clear();
+
+    if (entity.is_open) {
+      // @todo cleanup
+      tVec3f wall_center = entity.visible_scale * tVec3f(0, 0, 0.7f);
+      tVec3f wall_scale = entity.visible_scale * tVec3f(1.f, 1.f, 0.46f);
+      tVec3f wall_center_offset = entity.orientation.toMatrix4f() * wall_center;
+
+      tVec3f left_plane_position = entity.position + wall_center_offset;
+      tVec3f left_plane_scale = wall_scale;
+
+      tVec3f right_plane_position = entity.position - wall_center_offset;
+      tVec3f right_plane_scale = wall_scale;
+
+      auto plane1 = CollisionSystem::CreatePlane(left_plane_position, left_plane_scale, entity.orientation);
+      auto plane2 = CollisionSystem::CreatePlane(right_plane_position, right_plane_scale, entity.orientation);
+
+      collision_planes.push_back(plane1);
+      collision_planes.push_back(plane2);
+    } else {
+      auto plane = CollisionSystem::CreatePlane(entity.position, entity.visible_scale, entity.orientation);
+
+      collision_planes.push_back(plane);
+    }
 
     // @todo refactor into HandleSinglePlaneCollision
-    auto plane = CollisionSystem::CreatePlane(entity.position, entity.scale * scale_factor, entity.orientation);
+    for (auto& plane : collision_planes) {
+      if (CollisionSystem::IsPointOnPlane(player_xz, plane)) {
+        if (state.did_resolve_radius_collision) {
+          // When we've resolved an earlier radius collision, prevent
+          // clipping by simply resetting the player position to the
+          // last solid ground position as a failsafe for both collisions.
+          // Otherwise, plane collision resolution can cause us to
+          // pass through radius collision bounds.
+          state.player_position = state.last_solid_ground_position;
+        } else {
+          tVec3f crossed_edge = GetOversteppedEdge(state.last_solid_ground_position, plane).unit();
+          float edge_dot = tVec3f::dot(state.player_velocity.unit(), crossed_edge);
+          tVec3f corrected_direction = edge_dot > 0.f ? crossed_edge : crossed_edge.invert();
+          float corrected_speed = 3.f * player_speed * abs(edge_dot) * dt;
+          tVec3f rebound_direction = tVec3f::cross(crossed_edge, tVec3f(0, 1.f, 0));
 
-    if (CollisionSystem::IsPointOnPlane(player_xz, plane)) {
-      if (state.did_resolve_radius_collision) {
-        // When we've resolved an earlier radius collision, prevent
-        // clipping by simply resetting the player position to the
-        // last solid ground position as a failsafe for both collisions.
-        // Otherwise, plane collision resolution can cause us to
-        // pass through radius collision bounds.
-        state.player_position = state.last_solid_ground_position;
-      } else {
-        tVec3f crossed_edge = GetOversteppedEdge(state.last_solid_ground_position, plane).unit();
-        float edge_dot = tVec3f::dot(state.player_velocity.unit(), crossed_edge);
-        tVec3f corrected_direction = edge_dot > 0.f ? crossed_edge : crossed_edge.invert();
-        float corrected_speed = 3.f * player_speed * abs(edge_dot) * dt;
-        tVec3f rebound_direction = tVec3f::cross(crossed_edge, tVec3f(0, 1.f, 0));
+          // Reset position
+          state.player_position = state.last_solid_ground_position;
+          // Add rebound to mitigate any accidental clipping in
+          state.player_position += rebound_direction * 0.1f;
+          // Slide along the egde to conserve movement
+          state.player_position += corrected_direction * corrected_speed;
+        }
 
-        // Reset position
-        state.player_position = state.last_solid_ground_position;
-        // Add rebound to mitigate any accidental clipping in
-        state.player_position += rebound_direction * 0.1f;
-        // Slide along the egde to conserve movement
-        state.player_position += corrected_direction * corrected_speed;
+        return;
       }
-
-      break;
     }
   }
 }
