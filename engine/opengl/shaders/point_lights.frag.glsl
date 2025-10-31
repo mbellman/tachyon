@@ -87,8 +87,6 @@ float GetGlowFactor(vec3 world_position) {
   // Volumetric glow
   glow_factor += 0.1 * pow(1.0 - distance_from_light_disc_center, 5.0);
 
-  // Hide behind closer objects
-  glow_factor *= occlusion_distance_factor;
   glow_factor *= 1.5;
 
   #if USE_GAMMA_CORRECTION == 1
@@ -100,7 +98,6 @@ float GetGlowFactor(vec3 world_position) {
   // Diffraction spikes
   float diffraction_factor =
     mix(1.0, 5.0, light_distance_from_camera / 500000.0) *
-    occlusion_distance_factor *
     pow(1.0 - distance_from_light_disc_center, disc_exponent);
 
   glow_factor += diffraction_factor * pow(1.0 - abs(dy), 2048.0);
@@ -111,6 +108,9 @@ float GetGlowFactor(vec3 world_position) {
   float distance_factor = GetGlowDistanceFactor(light_distance_from_camera);
 
   glow_factor *= distance_factor;
+
+  // Hide behind closer objects
+  glow_factor *= occlusion_distance_factor;
 
   return glow_factor;
 }
