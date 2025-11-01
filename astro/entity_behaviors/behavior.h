@@ -51,7 +51,9 @@ namespace astro {
     tVec3f entity_to_player = state.player_position - entity.visible_position;
     Quaternion facing_direction = Quaternion::FromDirection(entity_to_player.unit(), tVec3f(0, 1.f, 0));
 
-    entity.visible_rotation = facing_direction;
+    // @todo use dt
+    // @todo use nlerp
+    entity.visible_rotation = Quaternion::slerp(entity.visible_rotation, facing_direction, 1.f / 60.f);
   }
 
   static tVec3f GetFacingDirection(GameEntity& entity) {

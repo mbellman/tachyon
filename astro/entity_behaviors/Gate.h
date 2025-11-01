@@ -75,8 +75,13 @@ namespace astro {
         switch_handle.color = tVec4f(0.8f, 0.2f, 0.1f, 0.2f);
         switch_handle.material = tVec4f(0.6f, 1.f, 0, 0);
 
-        if (entity.is_open) {
-          float time_since_opened = tachyon->scene.scene_time - entity.open_time;
+        bool is_open = (
+          entity.game_open_time > -1.f &&
+          state.astro_time >= entity.astro_open_time
+        );
+
+        if (is_open) {
+          float time_since_opened = tachyon->scene.scene_time - entity.game_open_time;
 
           // Rotate the handle
           {
@@ -105,14 +110,13 @@ namespace astro {
           }
         }
 
-        if (did_press_key(tKey::CONTROLLER_A) && !entity.is_open) {
+        if (did_press_key(tKey::CONTROLLER_A) && !is_open) {
           tVec3f activation_position = GetWorldSpaceActivationPosition(entity);
           float activation_distance = tVec3f::distance(state.player_position.xz(), activation_position.xz());
 
           if (activation_distance < 1000.f) {
-            // @todo store astro time
-            entity.is_open = true;
-            entity.open_time = tachyon->scene.scene_time;
+            entity.game_open_time = tachyon->scene.scene_time;
+            entity.astro_open_time = state.astro_time;
           }
         }
 

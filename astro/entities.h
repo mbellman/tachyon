@@ -129,8 +129,8 @@ namespace astro {
     int32 light_id = -1;
 
     // For gates, doors etc.
-    bool is_open = false;
-    float open_time = -1.f;
+    float game_open_time = -1.f;
+    float astro_open_time = 0.f;
   };
 
   /**
@@ -375,6 +375,7 @@ namespace astro {
    * Entity utilities.
    * ----------------------------
    */
+  // @todo do we need this?
   static inline bool IsSameEntity(GameEntity& entity, EntityRecord& record) {
     return entity.type == record.type && entity.id == record.id;
   }

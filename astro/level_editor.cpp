@@ -1165,10 +1165,11 @@ static void HandleSelectedObjectRotateActions(Tachyon* tachyon, State& state) {
   // @optimize We don't need to do this every time the object is moved!
   // It would be perfectly acceptable to do this on deselection.
   if (editor.current_selectable.is_entity) {
-    // Find and sync the scale of the original entity
+    // Find and sync the rotation of the original entity
     auto* entity = EntityManager::FindEntity(state, editor.current_selectable.entity_record);
 
     entity->orientation = placeholder.rotation;
+    entity->visible_rotation = placeholder.rotation;
   }
 
   commit(placeholder);

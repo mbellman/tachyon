@@ -208,10 +208,15 @@ static void HandleGateCollisions(Tachyon* tachyon, State& state, const float dt)
   for_entities(state.gates) {
     auto& entity = state.gates[i];
 
+    bool is_open = (
+      entity.game_open_time > -1.f &&
+      state.astro_time >= entity.astro_open_time
+    );
+
     // @todo come up with a better mechanism for this
     collision_planes.clear();
 
-    if (entity.is_open) {
+    if (is_open) {
       // @todo cleanup
       tVec3f wall_center = entity.visible_scale * tVec3f(0, 0, 0.7f);
       tVec3f wall_scale = entity.visible_scale * tVec3f(1.f, 1.f, 0.46f);

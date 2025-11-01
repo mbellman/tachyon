@@ -79,7 +79,7 @@ static void HandleActiveTargetReticle(Tachyon* tachyon, State& state) {
   float entity_distance = (state.player_position - entity.visible_position).magnitude();
 
   reticle.position = entity.visible_position;
-  reticle.position.y += entity.visible_scale.y + 1600.f;
+  reticle.position.y += entity.visible_scale.y + 1200.f;
   reticle.position.y += 100.f * sinf(t_TAU * tachyon->running_time);
 
   reticle.scale = tVec3f(400.f);
@@ -101,7 +101,7 @@ static void HandleTargetPreviewReticle(Tachyon* tachyon, State& state) {
     auto& entity = *EntityManager::FindEntity(state, closest_target);
 
     reticle.position = entity.visible_position;
-    reticle.position.y += entity.visible_scale.y + 1600.f;
+    reticle.position.y += entity.visible_scale.y + 1200.f;
     reticle.position.y += 100.f * sinf(t_TAU * tachyon->running_time);
 
     reticle.scale = tVec3f(250.f);

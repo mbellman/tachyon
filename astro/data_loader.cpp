@@ -85,8 +85,9 @@ void DataLoader::LoadLevelData(Tachyon* tachyon, State& state) {
         entity.item_pickup_name = parts[16];
       }
 
-      // Set base visible position
+      // Set base visible position + rotation
       entity.visible_position = entity.position;
+      entity.visible_rotation = entity.orientation;
 
       EntityManager::SaveNewEntity(state, entity);
 

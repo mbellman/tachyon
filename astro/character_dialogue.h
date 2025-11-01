@@ -51,7 +51,7 @@ namespace astro {
 
   /**
    * ----------------------------
-   * BANDIT dialogue lines and voiceover files.
+   * BANDIT
    * @todo should these be loaded in from a file instead?
    * ----------------------------
    */
@@ -121,6 +121,45 @@ namespace astro {
     },
     {
       .text = "Now you've asked for it!",
+      .sound = ""
+    }
+  };
+
+  /**
+   * ----------------------------
+   * LOW_GUARD
+   * @todo should these be loaded in from a file instead?
+   * ----------------------------
+   */
+  static DialogueList low_guard_dialogue_stunned = {
+    {
+      .text = "Wha...?! I've been blinded!",
+      .sound = ""
+    },
+    {
+      .text = "I'm blinded! Where did the scoundrel go?",
+      .sound = ""
+    }
+  };
+
+  static DialogueList low_guard_dialogue_engaged = {
+    {
+      .text = "You there! Retreat, at once!",
+      .sound = "./astro/audio/low_guard/retreat_at_once.mp3"
+    },
+    {
+      .text = "Foul knave! Be on your way!",
+      .sound = ""
+    }
+  };
+
+  static DialogueList low_guard_dialogue_agitated = {
+    {
+      .text = "Cease your trespass! Or I shall strike!",
+      .sound = "./astro/audio/low_guard/trespass.mp3"
+    },
+    {
+      .text = "Stay back, or I shall arrest you!",
       .sound = ""
     }
   };

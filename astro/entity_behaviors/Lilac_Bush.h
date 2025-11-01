@@ -4,7 +4,7 @@
 
 namespace astro {
   static inline float RandomWithinRange(float seed, float low, float high) {
-    float r = fmod(seed, 1.f);
+    float r = fmod(abs(seed), 1.f);
 
     return low + r * (high - low);
   }

@@ -32,18 +32,21 @@ namespace astro {
         tVec3f player_direction = entity_to_player / player_distance;
         float time_since_last_stun = tachyon->scene.scene_time - state.spells.stun_start_time;
 
+        if (time_since_last_stun >= 4.f && enemy.mood != ENEMY_IDLE) {
+          FacePlayer(entity, state);
+
+          // @todo collision handling
+
+          if (enemy.mood == ENEMY_AGITATED) {
+            float speed = player_distance * 0.3f;
+
+            entity.visible_position += entity_to_player.unit() * speed * dt;
+          }
+        }
+
         if (time_since_last_stun < 4.f) {
           // Stunned
-          play_random_dialogue(entity, {
-            {
-              .text = "Wha...?! I've been blinded!",
-              .sound = ""
-            },
-            {
-              .text = "I'm blinded! Where did the scoundrel go?",
-              .sound = ""
-            }
-          });
+          play_random_dialogue(entity, low_guard_dialogue_stunned);
 
           enemy.mood = ENEMY_AGITATED;
         }
@@ -53,36 +56,17 @@ namespace astro {
 
           Targeting::SetSpeakingEntity(state, entity);
 
-          play_random_dialogue(entity, {
-            {
-              .text = "You there! Retreat, at once!",
-              .sound = "./astro/audio/low_guard/retreat_at_once.mp3"
-            },
-            {
-              .text = "Foul knave! Be on your way!",
-              .sound = ""
-            }
-          });
+          play_random_dialogue(entity, low_guard_dialogue_engaged);
         }
-        else if (enemy.mood == ENEMY_ENGAGED && player_distance < 5000.f) {
+        else if (player_distance < 5000.f) {
           enemy.mood = ENEMY_AGITATED;
 
           Targeting::SetSpeakingEntity(state, entity);
 
-          play_random_dialogue(entity, {
-            {
-              .text = "Cease your trespass! Or I shall strike!",
-              .sound = "./astro/audio/low_guard/trespass.mp3"
-            },
-            {
-              .text = "Stay back, or I shall arrest you!",
-              .sound = ""
-            }
-          });
+          play_random_dialogue(entity, low_guard_dialogue_agitated);
         }
       } else {
         // Out of range
-        enemy.mood = ENEMY_IDLE;
       }
     }
 
@@ -133,7 +117,7 @@ namespace astro {
 
         model.position = entity.visible_position;
         model.scale = entity.visible_scale;
-        model.rotation = entity.orientation;
+        model.rotation = entity.visible_rotation;
         model.color = entity.tint;
 
         commit(model);
