@@ -204,7 +204,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
 
   // @todo configure music per area
   {
-    // BGM::LoopMusic(DIVINATION_WOODREALM);
+    BGM::LoopMusic(DIVINATION_WOODREALM);
   }
 }
 

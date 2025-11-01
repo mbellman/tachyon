@@ -6,7 +6,7 @@
 using namespace astro;
 
 static std::map<Music, const char*> music_file_map = {
-  { DIVINATION_WOODREALM, "./astro/audio/woods.wav" }
+  { DIVINATION_WOODREALM, "./astro/audio/divination_woodrealm.wav" }
 };
 
 static std::map<Music, tSoundResource> music_cache;

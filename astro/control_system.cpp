@@ -179,6 +179,8 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
   }
 
   state.astro_time += state.astro_turn_speed * 100.f * dt;
+  if (state.astro_time > max_astro_time) state.astro_time = max_astro_time;
+  if (state.astro_time < min_astro_time) state.astro_time = min_astro_time;
 
   if (tachyon->left_trigger == 0.f && tachyon->right_trigger == 0.f) {
     // Reduce turn rate gradually

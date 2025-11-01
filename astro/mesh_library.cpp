@@ -120,7 +120,7 @@ void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   // @temporary
-  meshes.player = CUBE_MESH(1);
+  meshes.player = MODEL_MESH("./astro/3d_models/guy.obj", 1);
   meshes.water_plane = PLANE_MESH(1);
 
   mesh(meshes.water_plane).shadow_cascade_ceiling = 0;
