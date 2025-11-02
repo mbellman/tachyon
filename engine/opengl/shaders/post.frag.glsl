@@ -324,31 +324,31 @@ void main() {
     // of the blur effects don't look correct.
     {
       vec3 player_to_fragment = world_position - player_position;
-      float distance_from_player = length(player_to_fragment);
+      float frag_distance_from_player = length(player_to_fragment);
       float start_bubble_radius = astro_time_warp_start_radius;
       float end_bubble_radius = astro_time_warp_end_radius;
-      float haze_factor = distance_from_player / 30000.0;
+      float haze_factor = frag_distance_from_player / 30000.0;
 
       // @todo rotate forward/backward based on astro turn speed
-      float ring_angle_offset = 2.0 * (start_bubble_radius / 30000.0);
-      float ring_thickness = 5000.0 * (0.5 + 0.5 * sin(12.0 * (atan(player_to_fragment.z, player_to_fragment.x) + ring_angle_offset)));
-      float distance_from_ring = distance(distance_from_player, start_bubble_radius);
-      float ring_alpha = max(0.0, 1.0 - distance_from_ring / ring_thickness);
-      float ring_factor = mix(0.0, 1.0, ring_alpha);
-      if (ring_factor < 0.0) ring_factor = 0.0;
-      if (ring_factor > 1.0) ring_factor = 1.0;
+      float ring_rotation = 2.0 * (start_bubble_radius / 30000.0);
+      float ring_thickness = 5000.0 * (0.5 + 0.5 * sin(12.0 * (atan(player_to_fragment.z, player_to_fragment.x) + ring_rotation)));
+      float frag_distance_from_ring = distance(frag_distance_from_player, start_bubble_radius);
+      float ring_intensity = max(0.0, 1.0 - frag_distance_from_ring / ring_thickness);
+      float ring_factor = mix(0.0, 1.0, ring_intensity);
 
+      // Adjustment: fade the ring closer to the player to avoid striping artifacts
+      ring_factor *= pow(min(1.0, frag_distance_from_player / 10000.0), 2.0);
+      // Adjustment: fade the ring in as the warp bubble grows
       ring_factor *= min(1.0, pow(start_bubble_radius / 10000.0, 2.0));
-      ring_factor *= astro_time_warp;
 
-      if (distance_from_player > start_bubble_radius) {
+      if (frag_distance_from_player > start_bubble_radius) {
         haze_factor = 0.0;
       }
 
       if (end_bubble_radius < start_bubble_radius || astro_time_warp == 0.0) {
         float falloff = 1.0 - min(1.0, end_bubble_radius / 30000.0);
 
-        haze_factor = falloff * distance_from_player / 30000.0;
+        haze_factor = falloff * frag_distance_from_player / 30000.0;
       }
 
       if (world_depth < 2500.0) {

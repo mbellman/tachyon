@@ -20,6 +20,7 @@ static tVec3f GetRoomCameraPosition(Tachyon* tachyon, State& state) {
   );
 }
 
+// @todo cleanup
 void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) {
   auto& camera = tachyon->scene.camera;
   tVec3f new_camera_position;
@@ -49,13 +50,18 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) 
       if (stun_factor < 0.f) stun_factor = 0.f;
       if (stun_factor > 1.f) stun_factor = 1.f;
 
-      new_camera_position = tVec3f::lerp(state.player_position, target.visible_position, 0.5f * distance_ratio);
+      new_camera_position = tVec3f::lerp(state.player_position, target.visible_position, 0.5f * sqrt(distance_ratio));
 
+      // Adjustment: raise the camera as we come closer to the target
       new_camera_position.y = 3000.f * distance_ratio;
+
+      // Adjustment: raise the camera a bit during stun effects
       new_camera_position.y += 1000.f * stun_factor;
 
-      new_camera_position.z += abs(state.player_facing_direction.z) * 3000.f * sqrtf(distance_ratio);
+      // Adjustment: move the camera back a bit with up/down facing directions
       new_camera_position.z += 1000.f * (1.f - abs(state.player_facing_direction.z));
+
+      // Adjustment: move the camera back a bit during stun effects
       new_camera_position.z += 1000.f * stun_factor;
 
       state.camera_shift = tVec3f::lerp(state.camera_shift, tVec3f(0.f), time_ratio);

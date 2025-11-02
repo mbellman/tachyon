@@ -150,6 +150,10 @@ namespace astro {
     {
       .text = "You've no business here! Be on your way!",
       .sound = ""
+    },
+    {
+      .text = "Layabout! Be off with you!",
+      .sound = ""
     }
   };
 

@@ -283,9 +283,6 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
       fx.astro_time_warp_end_radius = state.time_warp_end_radius;
     }
 
-    add_dev_label("Start radius", std::to_string(fx.astro_time_warp_start_radius));
-    add_dev_label("End radius", std::to_string(fx.astro_time_warp_end_radius));
-
     auto& velocity = state.player_velocity;
     float speed = velocity.magnitude();
     tVec3f foliage_movement_offset = (speed > 0.f ? velocity.invert().unit() * 500.f : 0.f);

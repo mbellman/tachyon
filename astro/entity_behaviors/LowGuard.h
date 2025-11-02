@@ -38,7 +38,8 @@ namespace astro {
           // @todo collision handling
 
           if (enemy.mood == ENEMY_AGITATED) {
-            float speed = player_distance * 0.3f;
+            // @todo FollowPlayer()
+            float speed = player_distance * 0.5f;
 
             entity.visible_position += entity_to_player.unit() * speed * dt;
           }
@@ -52,13 +53,17 @@ namespace astro {
         }
         else if (enemy.mood == ENEMY_IDLE) {
           // Noticed
+          // @todo use line of sight to player
           enemy.mood = ENEMY_ENGAGED;
 
           Targeting::SetSpeakingEntity(state, entity);
 
           play_random_dialogue(entity, low_guard_dialogue_engaged);
         }
-        else if (player_distance < 5000.f) {
+        else if (player_distance > 5000.f) {
+          play_random_dialogue(entity, low_guard_dialogue_engaged);
+        }
+        else {
           enemy.mood = ENEMY_AGITATED;
 
           Targeting::SetSpeakingEntity(state, entity);
@@ -87,6 +92,7 @@ namespace astro {
 
           if (astro_speed > 0.f) {
             entity.enemy_state.mood = ENEMY_IDLE;
+            entity.visible_rotation = entity.orientation;
 
             if (astro_speed < 0.05f) {
               // Do nothing
@@ -113,6 +119,7 @@ namespace astro {
           // @todo factor
           entity.visible_scale = tVec3f(0.f);
           entity.visible_position = entity.position;
+          entity.visible_rotation = entity.orientation;
         }
 
         model.position = entity.visible_position;

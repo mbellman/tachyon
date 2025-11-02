@@ -301,7 +301,6 @@ void Tachyon_OpenGL_HotReloadShaders(tOpenGLShaders& shaders) {
 
             glLinkProgram(shader->program);
 
-            printf("Hot reloaded shader: %s\n", attachment.source_path.c_str());
             add_console_message("Hot reloaded shader: " + attachment.source_path, tVec3f(1.f));
           }
         }
