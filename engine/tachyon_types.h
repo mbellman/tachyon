@@ -254,8 +254,12 @@ struct Tachyon {
     // Cosmodrone
     float scan_time = 4.f;
 
-    // Alchemist's Astrolabe (?)
+    // Alchemist's Astrolabe
     float accumulation_blur_factor = 0.f;
+    tVec3f player_position;
+    float astro_time_warp = 0.f;
+    float astro_time_warp_start_radius = 0.f;
+    float astro_time_warp_end_radius = 0.f;
   } fx;
 
   // @todo dev mode only

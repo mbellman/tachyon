@@ -176,6 +176,8 @@ namespace astro {
     float astro_time = 0.f;
     float astro_turn_speed = 0.f;
     float astro_time_at_start_of_turn = 0.f;
+    float time_warp_start_radius = 30000.f;
+    float time_warp_end_radius = 30000.f;
     bool is_astrolabe_stopped = true;
 
     Spells spells;

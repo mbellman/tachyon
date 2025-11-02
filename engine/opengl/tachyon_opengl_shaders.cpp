@@ -156,6 +156,10 @@ static void StoreShaderUniforms(tOpenGLShaders& shaders) {
   store_shader_uniform(post, camera_position);
   store_shader_uniform(post, primary_light_direction);
   store_shader_uniform(post, scan_time);
+  store_shader_uniform(post, player_position);
+  store_shader_uniform(post, astro_time_warp);
+  store_shader_uniform(post, astro_time_warp_start_radius);
+  store_shader_uniform(post, astro_time_warp_end_radius);
 
   store_shader_uniform(surface, offset_and_scale);
   store_shader_uniform(surface, rotation);

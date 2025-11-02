@@ -204,7 +204,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
 
   // @todo configure music per area
   {
-    BGM::LoopMusic(DIVINATION_WOODREALM);
+    // BGM::LoopMusic(DIVINATION_WOODREALM);
   }
 }
 
@@ -270,6 +270,21 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
     if (fx.accumulation_blur_factor > max_blur_factor) {
       fx.accumulation_blur_factor = max_blur_factor;
     }
+
+    // Time warp effects
+    {
+      state.time_warp_start_radius = Tachyon_Lerpf(state.time_warp_start_radius, 30000.f, dt);
+      state.time_warp_end_radius = Tachyon_Lerpf(state.time_warp_end_radius, 30000.f, dt);
+
+      fx.player_position = state.player_position;
+      fx.astro_time_warp = abs(state.astro_turn_speed / 0.25f);
+
+      fx.astro_time_warp_start_radius = state.time_warp_start_radius;
+      fx.astro_time_warp_end_radius = state.time_warp_end_radius;
+    }
+
+    add_dev_label("Start radius", std::to_string(fx.astro_time_warp_start_radius));
+    add_dev_label("End radius", std::to_string(fx.astro_time_warp_end_radius));
 
     auto& velocity = state.player_velocity;
     float speed = velocity.magnitude();

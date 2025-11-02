@@ -117,7 +117,13 @@ struct tUniformLocations {
     primary_light_direction,
 
     // Fx: Cosmodrone
-    scan_time
+    scan_time,
+
+    // Fx: Alchemist's Astrolabe
+    player_position,
+    astro_time_warp,
+    astro_time_warp_start_radius,
+    astro_time_warp_end_radius
   ) post;
 
   uniform_locations(

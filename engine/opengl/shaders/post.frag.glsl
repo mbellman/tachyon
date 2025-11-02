@@ -16,6 +16,12 @@ uniform vec3 primary_light_direction;
 // Fx: Cosmodrone
 uniform float scan_time;
 
+// Fx: Alchemist's Astrolabe
+uniform vec3 player_position;
+uniform float astro_time_warp;
+uniform float astro_time_warp_start_radius;
+uniform float astro_time_warp_end_radius;
+
 in vec2 fragUv;
 
 layout (location = 0) out vec3 out_color;
@@ -160,6 +166,7 @@ void main() {
   vec3 post_color = color_and_depth.rgb;
 
   float world_depth = GetWorldDepth(color_and_depth.w, Z_NEAR, Z_FAR);
+  vec3 world_position = GetWorldPosition(color_and_depth.w, fragUv, inverse_projection_matrix, inverse_view_matrix);
 
   #if ENABLE_DEPTH_OF_FIELD_BLUR
     // Depth-of-field blur
@@ -207,8 +214,7 @@ void main() {
   // Fog
   {
     // Fog volumes
-    vec3 position = GetWorldPosition(color_and_depth.w, fragUv, inverse_projection_matrix, inverse_view_matrix);
-    vec3 D = normalize(position - camera_position);
+    vec3 D = normalize(world_position - camera_position);
     float VdotD = max(0.0, -dot(D, primary_light_direction));
 
     #if ENABLE_COSMODRONE_FX
@@ -227,8 +233,8 @@ void main() {
 
       // float fog_thickness =
       //   5.0 *
-      //   (0.5 + 0.5 * sin(position.x * 0.0001)) *
-      //   (0.5 + 0.5 * cos(position.z * 0.0001));
+      //   (0.5 + 0.5 * sin(world_position.x * 0.0001)) *
+      //   (0.5 + 0.5 * cos(world_position.z * 0.0001));
 
       // depth_factor = 0.6 + 0.4 * fog_thickness * depth_factor;
 
@@ -253,7 +259,9 @@ void main() {
 
   // ---------------------
   // Game-specific effects
-  //
+  // ---------------------
+
+  // ---------------------
   // Cosmodrone
   // ---------------------
   #if ENABLE_COSMODRONE_FX
@@ -303,6 +311,53 @@ void main() {
       float pulse_alpha = 0.25 * (1.0 - min(1.0, scan_time / 0.5));
 
       post_color = mix(post_color, scan_area_color, pulse_alpha);
+    }
+  #endif
+
+  // ---------------------
+  // Achemist's Astrolabe
+  // ---------------------
+  #if ENABLE_ASTRO_FX
+    // Time warping
+    // @todo we may have to relocate this into global_lighting!
+    // These effects are not accumulated for blurring, so some
+    // of the blur effects don't look correct.
+    {
+      vec3 player_to_fragment = world_position - player_position;
+      float distance_from_player = length(player_to_fragment);
+      float start_bubble_radius = astro_time_warp_start_radius;
+      float end_bubble_radius = astro_time_warp_end_radius;
+      float haze_factor = distance_from_player / 30000.0;
+
+      // @todo rotate forward/backward based on astro turn speed
+      float ring_angle_offset = 2.0 * (start_bubble_radius / 30000.0);
+      float ring_thickness = 5000.0 * (0.5 + 0.5 * sin(12.0 * (atan(player_to_fragment.z, player_to_fragment.x) + ring_angle_offset)));
+      float distance_from_ring = distance(distance_from_player, start_bubble_radius);
+      float ring_alpha = max(0.0, 1.0 - distance_from_ring / ring_thickness);
+      float ring_factor = mix(0.0, 1.0, ring_alpha);
+      if (ring_factor < 0.0) ring_factor = 0.0;
+      if (ring_factor > 1.0) ring_factor = 1.0;
+
+      ring_factor *= min(1.0, pow(start_bubble_radius / 10000.0, 2.0));
+      ring_factor *= astro_time_warp;
+
+      if (distance_from_player > start_bubble_radius) {
+        haze_factor = 0.0;
+      }
+
+      if (end_bubble_radius < start_bubble_radius || astro_time_warp == 0.0) {
+        float falloff = 1.0 - min(1.0, end_bubble_radius / 30000.0);
+
+        haze_factor = falloff * distance_from_player / 30000.0;
+      }
+
+      if (world_depth < 2500.0) {
+        haze_factor = 0.0;
+        ring_factor = 0.0;
+      }
+
+      post_color.rgb = mix(post_color.rgb, vec3(1.0, 0.8, 0.4), haze_factor);
+      post_color.rgb = mix(post_color.rgb, vec3(1.0, 1.0, 0.7), ring_factor);
     }
   #endif
 

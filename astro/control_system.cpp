@@ -178,7 +178,10 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
     }
   }
 
+  // Advance (or reverse) astro time
   state.astro_time += state.astro_turn_speed * 100.f * dt;
+
+  // Clamp to min/max astro time
   if (state.astro_time > max_astro_time) state.astro_time = max_astro_time;
   if (state.astro_time < min_astro_time) state.astro_time = min_astro_time;
 
@@ -228,6 +231,7 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
     Sfx::PlaySound(SFX_ASTRO_END, 1.f);
 
     state.is_astrolabe_stopped = true;
+    state.time_warp_end_radius = 0.f;
   }
   else if (started_turning) {
     Sfx::FadeOutSound(SFX_ASTRO_END, 500);
@@ -235,6 +239,7 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
     // Sfx::PlaySound(SFX_ASTRO_BELLS, 0.8f);
 
     state.is_astrolabe_stopped = false;
+    state.time_warp_start_radius = 0.f;
   }
 
   state.last_frame_left_trigger = tachyon->left_trigger;

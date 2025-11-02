@@ -57,11 +57,11 @@ namespace astro {
    */
   static DialogueList bandit_dialogue_stunned_idle = {
     {
-      .text = "Where on earth did that come from?",
+      .text = "Where did that come from?!",
       .sound = ""
     },
     {
-      .text = "Who goes there?",
+      .text = "Who goes there? Show yourself!",
       .sound = ""
     }
   };
@@ -148,7 +148,7 @@ namespace astro {
       .sound = "./astro/audio/low_guard/retreat_at_once.mp3"
     },
     {
-      .text = "Foul knave! Be on your way!",
+      .text = "You've no business here! Be on your way!",
       .sound = ""
     }
   };

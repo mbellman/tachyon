@@ -1115,6 +1115,10 @@ static void RenderPost(Tachyon* tachyon) {
   SetShaderVec3f(locations.camera_position, ctx.camera_position);
   SetShaderVec3f(locations.primary_light_direction, tachyon->scene.primary_light_direction);
   SetShaderFloat(locations.scan_time, tachyon->fx.scan_time);
+  SetShaderVec3f(locations.player_position, tachyon->fx.player_position);
+  SetShaderFloat(locations.astro_time_warp, tachyon->fx.astro_time_warp);
+  SetShaderFloat(locations.astro_time_warp_start_radius, tachyon->fx.astro_time_warp_start_radius);
+  SetShaderFloat(locations.astro_time_warp_end_radius, tachyon->fx.astro_time_warp_end_radius);
 
   RenderScreenQuad(tachyon);
 }

@@ -11,14 +11,14 @@ static tVec3f GetLightColor(const float astro_time) {
   tVec3f past_color = tVec3f(1.f, 0.8f, 0.2f);
   tVec3f distant_past_color = tVec3f(0.6f, 0.5f, 2.f);
 
-  if (astro_time <= periods.present && astro_time > periods.past) {
+  if (astro_time < periods.present && astro_time >= periods.past) {
     float age_duration = periods.present - periods.past;
     float alpha = (astro_time - periods.past) / age_duration;
 
     return tVec3f::lerp(past_color, present_color, alpha);
   }
 
-  if (astro_time <= periods.past && astro_time > periods.distant_past) {
+  if (astro_time < periods.past && astro_time >= periods.distant_past) {
     float age_duration = periods.past - periods.distant_past;
     float alpha = (astro_time - periods.distant_past) / age_duration;
 
