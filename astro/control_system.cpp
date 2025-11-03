@@ -75,8 +75,9 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
   const float astro_turn_rate = 0.8f;
   const float astro_slowdown_rate = 3.f;
 
-  float max_astro_time = Astrolabe::GetMaxAstroTime(state);
-  float min_astro_time = Astrolabe::GetMinAstroTime(state);
+  const float max_astro_time = Astrolabe::GetMaxAstroTime(state);
+  const float min_astro_time = Astrolabe::GetMinAstroTime(state);
+  const float max_turn_speed = Astrolabe::GetMaxTurnSpeed();
 
   float previous_astro_turn_speed = state.astro_turn_speed;
 
@@ -93,6 +94,9 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
   if (started_turning) {
     state.astro_time_at_start_of_turn = state.astro_time;
     state.is_astrolabe_stopped = false;
+
+    // Force deselection of the current target, if any
+    Targeting::DeselectCurrentTarget(tachyon, state);
   }
 
   // Handle reverse/forward turn actions
@@ -194,13 +198,13 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
       state.astro_turn_speed = 0.f;
     }
   }
-  else if (state.astro_turn_speed > 0.25f) {
+  else if (state.astro_turn_speed > max_turn_speed) {
     // Cap forward speed
-    state.astro_turn_speed = 0.25f;
+    state.astro_turn_speed = max_turn_speed;
   }
-  else if (state.astro_turn_speed < -0.25f) {
+  else if (state.astro_turn_speed < -max_turn_speed) {
     // Cap reverse speed
-    state.astro_turn_speed = -0.25f;
+    state.astro_turn_speed = -max_turn_speed;
   }
 
   // Check for stopped astro turns

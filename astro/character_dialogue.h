@@ -165,6 +165,10 @@ namespace astro {
     {
       .text = "Stay back, or I shall arrest you!",
       .sound = ""
+    },
+    {
+      .text = "I shall not warn you again!",
+      .sound = ""
     }
   };
 }

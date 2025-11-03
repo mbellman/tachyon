@@ -43,9 +43,6 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) 
       float distance_ratio = 1.f - player_distance / 10000.f;
       if (distance_ratio < 0.f) distance_ratio = 0.f;
 
-      float time_ratio = (tachyon->running_time - state.target_start_time) / 1.f;
-      if (time_ratio > 1.f) time_ratio = 1.f;
-
       float stun_factor = time_since_casting_stun < t_PI ? sinf(time_since_casting_stun) : 0.f;
       if (stun_factor < 0.f) stun_factor = 0.f;
       if (stun_factor > 1.f) stun_factor = 1.f;
@@ -64,7 +61,12 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) 
       // Adjustment: move the camera back a bit during stun effects
       new_camera_position.z += 1000.f * stun_factor;
 
-      state.camera_shift = tVec3f::lerp(state.camera_shift, tVec3f(0.f), time_ratio);
+      // Blend the camera shift from where it was at targeting time,
+      // to 0 over the course of a second
+      float targeted_duration_ratio = (tachyon->running_time - state.target_start_time) / 1.f;
+      if (targeted_duration_ratio > 1.f) targeted_duration_ratio = 1.f;
+
+      state.camera_shift = tVec3f::lerp(state.camera_shift, tVec3f(0.f), targeted_duration_ratio);
     }
     else if (abs(state.astro_turn_speed) > 0.1f) {
       // Astro-turning camera; use the player position as with walking/standing still,

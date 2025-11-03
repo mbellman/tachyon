@@ -277,7 +277,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
       state.time_warp_end_radius = Tachyon_Lerpf(state.time_warp_end_radius, 30000.f, dt);
 
       fx.player_position = state.player_position;
-      fx.astro_time_warp = abs(state.astro_turn_speed / 0.25f);
+      fx.astro_time_warp = state.astro_turn_speed / Astrolabe::GetMaxTurnSpeed();
 
       fx.astro_time_warp_start_radius = state.time_warp_start_radius;
       fx.astro_time_warp_end_radius = state.time_warp_end_radius;

@@ -46,6 +46,7 @@ namespace astro {
       for_entities(state.lilac_bushes) {
         auto& entity = state.lilac_bushes[i];
         float life_progress = GetLivingEntityProgress(state, entity, lifetime);
+
         float plant_growth = sqrtf(sinf(life_progress * t_PI));
         float flower_growth = powf(sinf(life_progress * t_PI), 3.f);
 
@@ -53,10 +54,34 @@ namespace astro {
         auto& leaves = objects(meshes.lilac_leaves)[i];
 
         leaves.scale = entity.scale * plant_growth;
+        leaves.scale.x = entity.scale.x * (life_progress > 0.5f ? 1.f : plant_growth);
+        leaves.scale.y = entity.scale.y * plant_growth;
+        leaves.scale.z = entity.scale.z * (life_progress > 0.5f ? 1.f : plant_growth);
+
         leaves.position = entity.position;
         leaves.rotation = entity.orientation;
-        leaves.color = tVec3f(0.1f, 0.3f, 0.2f);
         leaves.material = tVec4f(0.8f, 0, 0, 0.4f);
+
+        if (life_progress < 0.5f) {
+          // Sprouting
+          leaves.scale.x = entity.scale.x * plant_growth;
+          leaves.scale.z = entity.scale.z * plant_growth;
+          leaves.color = tVec3f(0.1f, 0.3f, 0.2f);
+        }
+        else if (life_progress < 1.f) {
+          // Wilting
+          float alpha = 2.f * (life_progress - 0.5f);
+          alpha *= alpha;
+          alpha *= alpha;
+
+          leaves.scale.x = entity.scale.x * Tachyon_Lerpf(1.f, 0.7f, alpha);
+          leaves.scale.z = entity.scale.x * Tachyon_Lerpf(1.f, 0.7f, alpha);
+          leaves.color = tVec3f::lerp(tVec3f(0.1f, 0.3f, 0.2f), tVec3f(0.4f, 0.2f, 0.1f), alpha);
+        }
+        else {
+          // Dead
+          leaves.scale = tVec3f(0.f);
+        }
 
         commit(leaves);
 

@@ -166,3 +166,8 @@ float Astrolabe::GetMinAstroTime(const State& state) {
 
   return astro_time_periods.past;
 }
+
+float Astrolabe::GetMaxTurnSpeed() {
+  // @todo increase when we get more fragments (?)
+  return 0.25f;
+}

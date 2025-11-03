@@ -7,7 +7,8 @@
 
 namespace astro {
   // @todo factor
-  static tVec3f GetWorldPosition(const GameEntity& entity, const tVec3f& position) {
+  // @todo rename this
+  static tVec3f UnitEntityToWorld(const GameEntity& entity, const tVec3f& position) {
     tVec3f translation = entity.visible_position;
     Quaternion rotation = entity.visible_rotation;
     tVec3f scale = entity.visible_scale;
@@ -94,7 +95,7 @@ namespace astro {
 
           play_random_dialogue(entity, low_guard_dialogue_engaged);
         }
-        else if (player_distance > 5000.f) {
+        else if (enemy.mood == ENEMY_ENGAGED && player_distance > 5000.f) {
           play_random_dialogue(entity, low_guard_dialogue_engaged);
         }
         else {
@@ -162,7 +163,7 @@ namespace astro {
         body.rotation = entity.visible_rotation;
         body.color = entity.tint;
 
-        shield.position = GetWorldPosition(entity, tVec3f(1.f, 0.2f, 1.2f));
+        shield.position = UnitEntityToWorld(entity, tVec3f(1.f, 0.2f, 1.2f));
         shield.scale = entity.visible_scale * tVec3f(1.f, 0.4f, 1.f); // @temporary
         shield.rotation = entity.visible_rotation;
         shield.color = tVec3f(0.4f);

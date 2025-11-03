@@ -120,6 +120,9 @@ namespace astro {
           }
         }
 
+        entity.visible_position = entity.position;
+        entity.visible_rotation = entity.orientation;
+
         // For collision handling
         entity.visible_scale = entity.scale * tVec3f(0.4f, 1.f, 1.4f);
 

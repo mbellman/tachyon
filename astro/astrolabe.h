@@ -27,5 +27,6 @@ namespace astro {
     void Update(Tachyon* tachyon, State& state);
     float GetMaxAstroTime(const State& state);
     float GetMinAstroTime(const State& state);
+    float GetMaxTurnSpeed();
   }
 }
