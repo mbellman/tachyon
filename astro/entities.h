@@ -211,8 +211,7 @@ namespace astro {
       gate_body,
       gate_left_door,
       gate_right_door,
-      gate_switch,
-      gate_switch_handle,
+      gate_lock,
 
       // LILAC
       lilac_placeholder,

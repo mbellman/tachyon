@@ -1,19 +1,13 @@
 #pragma once
 
 #include "astro/entity_behaviors/behavior.h"
+#include "astro/items.h"
+#include "astro/ui_system.h"
 
 namespace astro {
   // @todo factor
-  static tVec3f GetWorldSpaceSwitchPosition(const GameEntity& entity) {
-    const tVec3f model_space_position = tVec3f(0.12f, -0.25f, 0.672f);
-    tVec3f object_space_position = model_space_position * entity.scale;
-
-    return entity.position + entity.orientation.toMatrix4f() * object_space_position;
-  }
-
-  // @todo factor
   static tVec3f GetWorldSpaceActivationPosition(const GameEntity& entity) {
-    const tVec3f model_space_position = tVec3f(0.4f, 0, 0.65f);
+    const tVec3f model_space_position = tVec3f(0.4f, -0.2f, 0);
     tVec3f object_space_position = model_space_position * entity.scale;
 
     return entity.position + entity.orientation.toMatrix4f() * object_space_position;
@@ -25,8 +19,9 @@ namespace astro {
       meshes.gate_body = MODEL_MESH("./astro/3d_models/gate/body.obj", 500);
       meshes.gate_left_door = MODEL_MESH("./astro/3d_models/gate/left_door.obj", 500);
       meshes.gate_right_door = MODEL_MESH("./astro/3d_models/gate/right_door.obj", 500);
-      meshes.gate_switch = MODEL_MESH("./astro/3d_models/gate/switch.obj", 500);
-      meshes.gate_switch_handle = MODEL_MESH("./astro/3d_models/gate/switch_handle.obj", 500);
+      meshes.gate_lock = MODEL_MESH("./astro/3d_models/gate/lock.obj", 500);
+      // meshes.gate_switch = MODEL_MESH("./astro/3d_models/gate/switch.obj", 500);
+      // meshes.gate_switch_handle = MODEL_MESH("./astro/3d_models/gate/switch_handle.obj", 500);
     }
 
     getMeshes() {
@@ -34,8 +29,9 @@ namespace astro {
         meshes.gate_body,
         meshes.gate_left_door,
         meshes.gate_right_door,
-        meshes.gate_switch,
-        meshes.gate_switch_handle
+        meshes.gate_lock
+        // meshes.gate_switch,
+        // meshes.gate_switch_handle
       });
     }
 
@@ -54,26 +50,22 @@ namespace astro {
         auto& body = objects(meshes.gate_body)[i];
         auto& door_left = objects(meshes.gate_left_door)[i];
         auto& door_right = objects(meshes.gate_right_door)[i];
-        auto& gate_switch = objects(meshes.gate_switch)[i];
-        auto& switch_handle = objects(meshes.gate_switch_handle)[i];
+        auto& lock = objects(meshes.gate_lock)[i];
 
         Sync(body, entity);
         Sync(door_left, entity);
         Sync(door_right, entity);
-        Sync(gate_switch, entity);
-        Sync(switch_handle, entity);
+        Sync(lock, entity);
 
         body.material = tVec4f(0.9f, 0, 0, 0);
 
         door_left.material = tVec4f(0.2f, 1.f, 0, 0);
         door_right.material = tVec4f(0.2f, 1.f, 0, 0);
 
-        gate_switch.color = tVec4f(0.8f, 0.4f, 0.3f, 0.1f);
-        gate_switch.material = tVec4f(1.f, 0, 0, 0.1f);
-
-        switch_handle.position = GetWorldSpaceSwitchPosition(entity);
-        switch_handle.color = tVec4f(0.8f, 0.2f, 0.1f, 0.2f);
-        switch_handle.material = tVec4f(0.6f, 1.f, 0, 0);
+        lock.position = UnitEntityToWorldPosition(entity, tVec3f(0.2f, -0.2f, 0));
+        lock.scale = entity.scale * 0.5f;
+        lock.color = tVec3f(1.f, 0.9f, 0.4f);
+        lock.material = tVec4f(0.2f, 1.f, 0, 0.4f);
 
         bool is_open = (
           entity.game_open_time > -1.f &&
@@ -83,16 +75,13 @@ namespace astro {
         if (is_open) {
           float time_since_opened = tachyon->scene.scene_time - entity.game_open_time;
 
-          // Rotate the handle
+          // Drop the lock
           {
-            float rotation_alpha = time_since_opened;
-            if (rotation_alpha > 1.f) rotation_alpha = 1.f;
-            rotation_alpha = Tachyon_EaseInOutf(rotation_alpha);
+            float lock_alpha = time_since_opened;
+            if (lock_alpha > 1.f) lock_alpha = 1.f;
+            lock_alpha *= lock_alpha;
 
-            float handle_angle = rotation_alpha * -t_HALF_PI;
-            auto handle_rotation = Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), handle_angle);
-
-            switch_handle.rotation = entity.orientation * handle_rotation;
+            lock.position -= tVec3f(0, lock_alpha * entity.scale.y, 0);
           }
 
           // Open the doors
@@ -111,12 +100,19 @@ namespace astro {
         }
 
         if (did_press_key(tKey::CONTROLLER_A) && !is_open) {
-          tVec3f activation_position = GetWorldSpaceActivationPosition(entity);
+          tVec3f activation_position = UnitEntityToWorldPosition(entity, tVec3f(0.4f, -0.2f, 0));
           float activation_distance = tVec3f::distance(state.player_position.xz(), activation_position.xz());
 
-          if (activation_distance < 1000.f) {
-            entity.game_open_time = tachyon->scene.scene_time;
-            entity.astro_open_time = state.astro_time;
+          // @todo check to see if gate is rusted over
+          if (activation_distance < 1500.f) {
+            if (Items::HasItem(state, GATE_KEY)) {
+              entity.game_open_time = tachyon->scene.scene_time;
+              entity.astro_open_time = state.astro_time;
+
+              UISystem::ShowDialogue(tachyon, state, "The gate was unlocked.");
+            } else {
+              UISystem::ShowDialogue(tachyon, state, "The gate requires a key.");
+            }
           }
         }
 
@@ -129,8 +125,7 @@ namespace astro {
         commit(body);
         commit(door_left);
         commit(door_right);
-        commit(gate_switch);
-        commit(switch_handle);
+        commit(lock);
       }
     }
   };

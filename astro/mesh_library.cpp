@@ -70,6 +70,7 @@ static void AddItemMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   meshes.item_astro_part = CUBE_MESH(3);
+  meshes.item_gate_key = MODEL_MESH("./astro/3d_models/gate_key.obj", 1);
 }
 
 static void AddProceduralMeshes(Tachyon* tachyon, State& state) {

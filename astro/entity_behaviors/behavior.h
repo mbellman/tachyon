@@ -41,6 +41,14 @@ namespace astro {
     object.color = entity.tint;
   }
 
+  static tVec3f UnitEntityToWorldPosition(const GameEntity& entity, const tVec3f& position) {
+    tVec3f translation = entity.visible_position;
+    Quaternion rotation = entity.visible_rotation;
+    tVec3f scale = entity.visible_scale;
+
+    return translation + rotation.toMatrix4f() * (position * scale);
+  }
+
   static void Jitter(GameEntity& entity, const float amount) {
     entity.visible_position.x += Tachyon_GetRandom(-amount, amount);
     entity.visible_position.z += Tachyon_GetRandom(-amount, amount);

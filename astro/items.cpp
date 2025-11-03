@@ -36,7 +36,16 @@ static void SpawnItemObject(Tachyon* tachyon, State& state, const tVec3f& positi
   }
 }
 
-ItemType Items::GetItemType(const std::string& item_name) {
+static std::string GetCollectItemDialogue(ItemType item_type) {
+  switch (item_type) {
+    case GATE_KEY:
+      return "Collected the gate key.";
+    default:
+      return "Collected [unknown item].";
+  }
+}
+
+ItemType Items::ItemNameToType(const std::string& item_name) {
   if (item_map.find(item_name) == item_map.end()) {
     return ITEM_UNSPECIFIED;
   }
@@ -51,7 +60,7 @@ void Items::SpawnItemObjects(Tachyon* tachyon, State& state) {
 
   for_entities(state.item_pickups) {
     auto& entity = state.item_pickups[i];
-    auto item_type = GetItemType(entity.item_pickup_name);
+    auto item_type = ItemNameToType(entity.item_pickup_name);
 
     if (item_type == ITEM_UNSPECIFIED) {
       add_console_message("Unknown item name: " + entity.item_pickup_name, tVec3f(1.f, 0.9f, 0.4f));
@@ -87,6 +96,18 @@ void Items::HandleItemPickup(Tachyon* tachyon, State& state) {
     }
   }
 }
+
+void Items::CollectItem(Tachyon* tachyon, State& state, ItemType item_type) {
+  Item item;
+  item.type = item_type;
+
+  state.inventory.push_back(item);
+
+  auto dialogue = GetCollectItemDialogue(item_type);
+
+  UISystem::ShowDialogue(tachyon, state, dialogue.c_str());
+}
+
 
 bool Items::HasItem(const State& state, ItemType item_type) {
   for (auto& item : state.inventory) {

@@ -210,6 +210,7 @@ static void HandleGateCollisions(Tachyon* tachyon, State& state, const float dt)
 
     bool is_open = (
       entity.game_open_time > -1.f &&
+      (tachyon->scene.scene_time - entity.game_open_time) > 1.f &&
       state.astro_time >= entity.astro_open_time
     );
 

@@ -7,16 +7,6 @@
 
 namespace astro {
   // @todo factor
-  // @todo rename this
-  static tVec3f UnitEntityToWorld(const GameEntity& entity, const tVec3f& position) {
-    tVec3f translation = entity.visible_position;
-    Quaternion rotation = entity.visible_rotation;
-    tVec3f scale = entity.visible_scale;
-
-    return translation + rotation.toMatrix4f() * (position * scale);
-  }
-
-  // @todo factor
   static float InverseLerp(const float start, const float end, const float value) {
     float alpha = (value - start) / (end - start);
     if (alpha < 0.f) alpha = 0.f;
@@ -53,6 +43,11 @@ namespace astro {
         tVec3f player_direction = entity_to_player / player_distance;
         float time_since_last_stun = tachyon->scene.scene_time - state.spells.stun_start_time;
 
+        bool can_notice_player = (
+          tVec3f::dot(GetFacingDirection(entity), player_direction) > 0.2f ||
+          (player_distance < 4000.f && state.player_velocity.magnitude() > 600.f)
+        );
+
         if (time_since_last_stun >= 4.f && enemy.mood != ENEMY_IDLE) {
           FacePlayer(entity, state);
 
@@ -86,9 +81,8 @@ namespace astro {
 
           enemy.mood = ENEMY_AGITATED;
         }
-        else if (enemy.mood == ENEMY_IDLE) {
+        else if (enemy.mood == ENEMY_IDLE && can_notice_player) {
           // Noticed
-          // @todo use line of sight to player
           enemy.mood = ENEMY_ENGAGED;
 
           Targeting::SetSpeakingEntity(state, entity);
@@ -96,9 +90,11 @@ namespace astro {
           play_random_dialogue(entity, low_guard_dialogue_engaged);
         }
         else if (enemy.mood == ENEMY_ENGAGED && player_distance > 5000.f) {
+          // Engaged from a distance
           play_random_dialogue(entity, low_guard_dialogue_engaged);
         }
-        else {
+        else if (enemy.mood != ENEMY_IDLE) {
+          // Agitated, up close
           enemy.mood = ENEMY_AGITATED;
 
           Targeting::SetSpeakingEntity(state, entity);
@@ -116,9 +112,10 @@ namespace astro {
       // @todo @optimize only iterate over on-screen/in-range entities
       for_entities(state.low_guards) {
         auto& entity = state.low_guards[i];
+        bool is_active = IsDuringActiveTime(entity, state);
 
         // @todo factor
-        if (IsDuringActiveTime(entity, state)) {
+        if (is_active) {
           entity.visible_scale = entity.scale;
 
           float astro_speed = abs(state.astro_turn_speed);
@@ -163,7 +160,7 @@ namespace astro {
         body.rotation = entity.visible_rotation;
         body.color = entity.tint;
 
-        shield.position = UnitEntityToWorld(entity, tVec3f(1.f, 0.2f, 1.2f));
+        shield.position = UnitEntityToWorldPosition(entity, tVec3f(1.f, 0.2f, 1.2f));
         shield.scale = entity.visible_scale * tVec3f(1.f, 0.4f, 1.f); // @temporary
         shield.rotation = entity.visible_rotation;
         shield.color = tVec3f(0.4f);
@@ -171,6 +168,50 @@ namespace astro {
 
         commit(body);
         commit(shield);
+
+        // Item holding
+        {
+          // @temporary
+          // @todo allow entities to have configurable held items
+          bool is_gate_key_guard = tVec3f::distance(entity.position, tVec3f(84410.f, 46.f, -8000.f)) < 1000.f;
+
+          bool player_has_gate_key = Items::HasItem(state, GATE_KEY);
+
+          if (!player_has_gate_key) {
+            if (is_gate_key_guard) {
+              auto& gate_key = objects(meshes.item_gate_key)[0];
+
+              if (is_active) {
+                // Show the key on the active guard
+                gate_key.position = UnitEntityToWorldPosition(entity, tVec3f(1.2f, 0, 0));
+                gate_key.scale = is_active ? tVec3f(600.f) : tVec3f(0.f);
+                gate_key.rotation = entity.visible_rotation;
+                gate_key.color = tVec3f(1.f, 0.9f, 0.4f);
+                gate_key.material = tVec4f(0.2f, 1.f, 0, 0);
+
+                commit(gate_key);
+
+                // Handle key retrieval
+                float player_to_key_distance = tVec3f::distance(state.player_position, gate_key.position);
+
+                if (entity.enemy_state.mood == ENEMY_IDLE && player_to_key_distance < 2000.f) {
+                  if (did_press_key(tKey::CONTROLLER_A)) {
+                    Items::CollectItem(tachyon, state, GATE_KEY);
+
+                    remove_object(gate_key);
+                  } else {
+                    UISystem::ShowDialogue(tachyon, state, "[X] Collect gate key");
+                  }
+                }
+              } else {
+                // Hide the key when the guard is not active
+                gate_key.scale = tVec3f(0.f);
+
+                commit(gate_key);
+              }
+            }
+          }
+        }
       }
     }
   };

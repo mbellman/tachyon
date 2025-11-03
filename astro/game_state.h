@@ -42,6 +42,7 @@ namespace astro {
 
       // Item meshes
       item_astro_part,
+      item_gate_key,
 
       // Decorative meshes
       flat_ground,
@@ -95,7 +96,8 @@ namespace astro {
     ITEM_UNSPECIFIED = -1,
     ASTROLABE_LOWER_LEFT,
     ASTROLABE_LOWER_RIGHT,
-    ASTROLABE_UPPER_RIGHT
+    ASTROLABE_UPPER_RIGHT,
+    GATE_KEY
   };
 
   struct Item {
