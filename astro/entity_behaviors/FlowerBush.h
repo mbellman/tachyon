@@ -23,6 +23,8 @@ namespace astro {
       auto& meshes = state.meshes;
       const float lifetime = 100.f;
 
+      const tVec3f wilting_color = tVec3f(0.4f, 0.2f, 0.1f);
+
       for_entities(state.flower_bushes) {
         auto& entity = state.flower_bushes[i];
         float life_progress = GetLivingEntityProgress(state, entity, lifetime);
@@ -37,36 +39,30 @@ namespace astro {
         leaves.color = entity.tint;
         leaves.material = tVec4f(0.8f, 0, 0, 0.6f);
 
-        // @todo factor
-        // auto& petals = objects(meshes.flowers_petals)[i];
+        if (life_progress < 0.5f) {
+          // Sprouting
+          leaves.scale = entity.scale * growth;
+        }
+        else if (life_progress < 1.f) {
+          // Wilting
+          float alpha = 2.f * (life_progress - 0.5f);
+          alpha *= alpha;
+          alpha *= alpha;
 
-        // petals.scale = entity.scale * growth;
-        // petals.position = entity.position;
-        // petals.rotation = entity.orientation;
+          leaves.scale.x = entity.scale.x * Tachyon_Lerpf(1.f, 0.7f, alpha);
+          leaves.scale.z = entity.scale.x * Tachyon_Lerpf(1.f, 0.7f, alpha);
+          leaves.color = tVec3f::lerp(entity.tint, wilting_color, alpha);
+        }
+        else {
+          // Dead
+          leaves.scale = tVec3f(0.f);
+        }
 
-        // {
-        //   // @todo make dynamic
-        //   tVec3f blossom_color = tVec3f(1.f, 0.3f, 0.5f);
-        //   tVec3f wilting_color = tVec3f(0.4f, 0.3f, 0.1f);
-        //   tVec3f final_color;
+        // @todo handle flowers here, rather than in procedural_generation.cpp
 
-        //   if (life_progress < 0.5f) {
-        //     final_color = tVec3f::lerp(entity.tint, blossom_color, 2.f * life_progress);
-        //   } else {
-        //     float alpha = 4.f * (life_progress - 0.5f);
-        //     if (alpha > 1.f) alpha = 1.f;
-
-        //     final_color = tVec3f::lerp(blossom_color, wilting_color, alpha);
-        //   }
-
-        //   petals.color = final_color;
-        // }
-
-        // petals.material = tVec4f(0.9f, 0, 0, 1.f);
-
-        // Collision
         entity.visible_scale = leaves.scale;
         entity.visible_position = entity.position;
+        entity.visible_rotation = entity.orientation;
 
         commit(leaves);
         // commit(petals);

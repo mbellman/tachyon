@@ -607,14 +607,14 @@ tVec3f HermiteInterpolate(const tVec3f& p0, const tVec3f& p1, const tVec3f& m0, 
 
 // @todo move elsewhere
 struct PathNode {
-  int32 entity_index = -1;
+  uint16 entity_index = 0;
   tVec3f position;
   tVec3f scale;
 
   uint16 connections[4] = { 0, 0, 0, 0 };
   uint16 total_connections = 0;
 
-  int32 connections_walked[4] = { -1, -1, -1, -1 };
+  uint16 connections_walked[4] = { 0, 0, 0, 0 };
   uint16 total_connections_walked = 0;
 };
 
@@ -632,7 +632,7 @@ static void DestroyPathNetwork(PathNetwork& network) {
   delete[] network.nodes;
 }
 
-static bool DidWalkBetweenNodes(const PathNetwork& network, PathNode& a, PathNode& b) {
+static bool DidWalkBetweenNodes(PathNode& a, PathNode& b) {
   for (uint16 i = 0; i < a.total_connections_walked; i++) {
     if (a.connections_walked[i] == b.entity_index) {
       return true;
@@ -677,10 +677,13 @@ static void WalkPath(const PathNetwork& network, PathNode& previous_node, PathNo
     }
   }
 
-  if (DidWalkBetweenNodes(network, from_node, to_node)) {
+  if (DidWalkBetweenNodes(from_node, to_node)) {
     return;
   }
 
+  // @todo No need for a loop here. We just grab the first next node
+  // from to_node to use as a control point, but we don't need to iterate
+  // over all next nodes.
   for (uint16 i = 0; i < to_node.total_connections; i++) {
     auto& next_node = network.nodes[to_node.connections[i]];
 
@@ -697,13 +700,13 @@ static void WalkPath(const PathNetwork& network, PathNode& previous_node, PathNo
 
       visitor(position, scale, from_node.entity_index, to_node.entity_index);
     }
+
+    break;
   }
 
   SetAsWalkedBetween(from_node, to_node);
 
   for (uint16 i = 0; i < to_node.total_connections; i++) {
-    to_node.connections_walked[i] = true;
-
     auto& next_node = network.nodes[to_node.connections[i]];
 
     WalkPath(network, from_node, to_node, next_node, visitor);
@@ -726,17 +729,14 @@ static void GenerateDirtPaths(Tachyon* tachyon, State& state) {
   InitPathNetwork(network, (uint16)state.dirt_path_nodes.size());
 
   {
-    network.total_nodes = (uint16)state.dirt_path_nodes.size();
-    network.nodes = new PathNode[network.total_nodes];
-
     for_entities(state.dirt_path_nodes) {
       auto& entity_a = state.dirt_path_nodes[i];
       uint16 index_a = i;
 
       auto& node = network.nodes[index_a];
+      node.entity_index = index_a;
       node.position = entity_a.position;
       node.scale = entity_a.scale;
-      node.entity_index = i;
 
       for_entities(state.dirt_path_nodes) {
         auto& entity_b = state.dirt_path_nodes[i];
@@ -759,7 +759,6 @@ static void GenerateDirtPaths(Tachyon* tachyon, State& state) {
   }
 
   // Generate dirt path segments based on the path network
-  // @todo investigate why paths don't start and end at nodes
   {
     state.dirt_path_segments.clear();
 
@@ -815,7 +814,7 @@ static void GenerateDirtPaths(Tachyon* tachyon, State& state) {
 
   // @todo dev mode only
   {
-    std::string message = "Generated " + std::to_string(objects(state.meshes.p_dirt_path).total_active) + " dirt path objects";
+    std::string message = "Generated " + std::to_string(objects(state.meshes.p_dirt_path).total_active) + " dirt path segments";
 
     console_log(message);
   }
