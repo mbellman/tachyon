@@ -6,15 +6,35 @@
 #include "astro/ui_system.h"
 
 namespace astro {
+  // @todo factor
+  static tVec3f GetWorldPosition(const GameEntity& entity, const tVec3f& position) {
+    tVec3f translation = entity.visible_position;
+    Quaternion rotation = entity.visible_rotation;
+    tVec3f scale = entity.visible_scale;
+
+    return translation + rotation.toMatrix4f() * (position * scale);
+  }
+
+  // @todo factor
+  static float InverseLerp(const float start, const float end, const float value) {
+    float alpha = (value - start) / (end - start);
+    if (alpha < 0.f) alpha = 0.f;
+    if (alpha > 1.f) alpha = 1.f;
+
+    return alpha;
+  }
+
   behavior LowGuard {
     addMeshes() {
-      meshes.low_guard_placeholder = CUBE_MESH(500);
-      meshes.low_guard = CUBE_MESH(500);
+      meshes.low_guard_placeholder = MODEL_MESH("./astro/3d_models/guy.obj", 500);
+      meshes.low_guard_body = MODEL_MESH("./astro/3d_models/low_guard/body.obj", 500);
+      meshes.low_guard_shield = MODEL_MESH("./astro/3d_models/low_guard/shield.obj", 500);
     }
 
     getMeshes() {
       return_meshes({
-        meshes.low_guard
+        meshes.low_guard_body,
+        meshes.low_guard_shield
       });
     }
 
@@ -38,9 +58,23 @@ namespace astro {
           // @todo collision handling
 
           if (enemy.mood == ENEMY_AGITATED) {
-            // @todo FollowPlayer()
-            float speed = player_distance * 0.5f;
+            float speed;
 
+            if (player_distance < 8000.f) {
+              const float faster_speed = 3000.f;
+              const float slower_speed = 2000.f;
+              float alpha = InverseLerp(8000.f, 3000.f, player_distance);
+
+              speed = Tachyon_Lerpf(faster_speed, slower_speed, alpha);
+            } else {
+              const float slower_speed = 1000.f;
+              const float faster_speed = 3000.f;
+              float alpha = InverseLerp(10000.f, 8000.f, player_distance);
+
+              speed = Tachyon_Lerpf(slower_speed, faster_speed, alpha);
+            }
+
+            // @todo FollowPlayer()
             entity.visible_position += entity_to_player.unit() * speed * dt;
           }
         }
@@ -79,10 +113,8 @@ namespace astro {
       auto& meshes = state.meshes;
 
       // @todo @optimize only iterate over on-screen/in-range entities
-      // once that list is built
       for_entities(state.low_guards) {
         auto& entity = state.low_guards[i];
-        auto& model = objects(meshes.low_guard)[i];
 
         // @todo factor
         if (IsDuringActiveTime(entity, state)) {
@@ -122,12 +154,22 @@ namespace astro {
           entity.visible_rotation = entity.orientation;
         }
 
-        model.position = entity.visible_position;
-        model.scale = entity.visible_scale;
-        model.rotation = entity.visible_rotation;
-        model.color = entity.tint;
+        auto& body = objects(meshes.low_guard_body)[i];
+        auto& shield = objects(meshes.low_guard_shield)[i];
 
-        commit(model);
+        body.position = entity.visible_position;
+        body.scale = entity.visible_scale;
+        body.rotation = entity.visible_rotation;
+        body.color = entity.tint;
+
+        shield.position = GetWorldPosition(entity, tVec3f(1.f, 0.2f, 1.2f));
+        shield.scale = entity.visible_scale * tVec3f(1.f, 0.4f, 1.f); // @temporary
+        shield.rotation = entity.visible_rotation;
+        shield.color = tVec3f(0.4f);
+        shield.material = tVec4f(0.2f, 1.f, 0, 0);
+
+        commit(body);
+        commit(shield);
       }
     }
   };

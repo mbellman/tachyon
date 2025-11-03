@@ -169,7 +169,8 @@ namespace astro {
 
       // LOW_GUARD
       low_guard_placeholder,
-      low_guard,
+      low_guard_body,
+      low_guard_shield,
 
       // BANDIT
       bandit_placeholder,

@@ -37,10 +37,10 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) 
     if (state.has_target) {
       // Target camera
       auto& target = *EntityManager::FindEntity(state, state.target_entity);
-      float distance = (state.player_position - target.visible_position).magnitude();
+      float player_distance = (state.player_position - target.visible_position).magnitude();
       float time_since_casting_stun = tachyon->scene.scene_time - state.spells.stun_start_time;
 
-      float distance_ratio = 1.f - distance / 10000.f;
+      float distance_ratio = 1.f - player_distance / 10000.f;
       if (distance_ratio < 0.f) distance_ratio = 0.f;
 
       float time_ratio = (tachyon->running_time - state.target_start_time) / 1.f;
@@ -59,7 +59,7 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) 
       new_camera_position.y += 1000.f * stun_factor;
 
       // Adjustment: move the camera back a bit with up/down facing directions
-      new_camera_position.z += 1000.f * (1.f - abs(state.player_facing_direction.z));
+      new_camera_position.z += 1000.f * (1.f - abs(state.player_facing_direction.z)) * distance_ratio;
 
       // Adjustment: move the camera back a bit during stun effects
       new_camera_position.z += 1000.f * stun_factor;
