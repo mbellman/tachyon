@@ -115,6 +115,8 @@ static void GenerateGrass(Tachyon* tachyon, State& state) {
 
   // @todo factor
   for (auto& ground : objects(state.meshes.ground_1)) {
+    if (ground.position.y < -2500.f) continue;
+
     auto bounds = GetObjectBounds2D(ground, 0.8f);
     tVec3f direction = ground.rotation.getDirection();
     float theta = atan2f(direction.z, direction.x) + t_HALF_PI;
@@ -361,20 +363,28 @@ static void UpdateSmallGrass(Tachyon* tachyon, State& state) {
   auto& player_position = state.player_position;
   uint16 object_index = 0;
 
+  // @todo factor
+  auto& camera = tachyon->scene.camera;
+  // @hack Invert y to get the proper direction. Probably a mistake somewhere.
+  tVec3f camera_direction = camera.rotation.getDirection() * tVec3f(1.f, -1.f, 1.f);
+  float camera_height = camera.position.y - -1500.f;
+  float distance = -camera_height / camera_direction.y;
+  tVec3f ground_center = camera.position + camera_direction * distance;
+
   for (auto& chunk : state.grass_chunks) {
     bool is_chunk_in_view = (
-      abs(player_position.x - chunk.center_position.x) < 28000.f &&
-      abs(player_position.z - chunk.center_position.z) < 25000.f
+      abs(ground_center.x - chunk.center_position.x) < 28000.f &&
+      abs(ground_center.z - chunk.center_position.z) < 25000.f
     );
 
     if (!is_chunk_in_view) continue;
 
     for (auto& blade : chunk.grass_blades) {
-      float z_distance = blade.position.z - player_position.z;
+      float z_distance = blade.position.z - ground_center.z;
       float x_limit = 15000.f + -z_distance * 0.5f;
       if (x_limit > 20000.f) x_limit = 20000.f;
 
-      if (abs(blade.position.x - player_position.x) > x_limit) continue;
+      if (abs(blade.position.x - ground_center.x) > x_limit) continue;
       if (z_distance > 8000.f) continue;
       if (z_distance < -18000.f) continue;
 

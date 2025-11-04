@@ -197,8 +197,13 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
   Items::SpawnItemObjects(tachyon, state);
   ProceduralGeneration::RebuildProceduralObjects(tachyon, state);
 
-  // @todo default this somewhere, or load in from save
-  tachyon->scene.camera.position = tVec3f(0.f, 10000.f, 10000.f);
+  // @todo default/load from save
+  state.player_position = tVec3f(-13300.f, 0, -5800.f);
+  state.player_facing_direction = tVec3f(0, 0, 1.f);
+  state.camera_shift = tVec3f(0, 0, 1875.f);
+
+  // @todo default/load from save
+  tachyon->scene.camera.position = tVec3f(-13300.f, 10000.f, 3075.f);
 
   tachyon->scene.scene_time = 0.f;
 

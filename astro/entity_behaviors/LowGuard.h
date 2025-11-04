@@ -194,7 +194,7 @@ namespace astro {
 
         // Item holding
         {
-          // @temporary
+          // @hack @temporary
           // @todo allow entities to have configurable held items
           bool is_gate_key_guard = tVec3f::distance(entity.position, tVec3f(84410.f, 46.f, -8000.f)) < 1000.f;
 
@@ -223,6 +223,10 @@ namespace astro {
 
                     remove_object(gate_key);
                   } else {
+                    // @todo only if not noticed by any guards!
+                    // @bug showing this dialogue resets the current dialogue,
+                    // allowing the adjacent guard to repeatedly restart his
+                    // "cease your trespass!" line and spam the audio line
                     UISystem::ShowDialogue(tachyon, state, "[X] Collect gate key");
                   }
                 }

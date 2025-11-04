@@ -144,13 +144,11 @@ namespace astro {
   struct State : EntityContainers {
     MeshIds meshes;
 
-    // @todo default this
-    tVec3f player_position = tVec3f(0.f, 0.f, 3500.f);
+    tVec3f player_position;
     tVec3f last_player_position;
     tVec3f last_solid_ground_position;
     tVec3f player_velocity;
-    // @todo default this
-    tVec3f player_facing_direction = tVec3f(1.f, 0, 0);
+    tVec3f player_facing_direction;
     Plane last_plane_walked_on;
     bool is_on_solid_ground = false;
     bool did_resolve_radius_collision = false;

@@ -573,7 +573,6 @@ static void EnterPlacementMode(Tachyon* tachyon, State& state) {
 static void UpdatePlacer(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
   tVec3f camera_direction = camera.orientation.getDirection();
-  float dot = tVec3f::dot(camera_direction, tVec3f(0, -1.f, 0));
   float camera_height = camera.position.y - -1500.f;
   float distance = -camera_height / camera_direction.y;
   if (distance > 50000.f) distance = 50000.f;
