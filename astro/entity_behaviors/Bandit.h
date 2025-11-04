@@ -9,7 +9,7 @@ namespace astro {
   behavior Bandit {
     addMeshes() {
       meshes.bandit_placeholder = MODEL_MESH("./astro/3d_models/bandit/placeholder.obj", 500);
-      meshes.bandit = MODEL_MESH("./astro/3d_models/bandit/bandit.obj", 500);
+      meshes.bandit = MODEL_MESH("./astro/3d_models/guy.obj", 500);
     }
 
     getMeshes() {

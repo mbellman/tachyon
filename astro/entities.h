@@ -171,6 +171,7 @@ namespace astro {
       low_guard_placeholder,
       low_guard_body,
       low_guard_shield,
+      low_guard_spear,
 
       // BANDIT
       bandit_placeholder,
@@ -365,7 +366,7 @@ namespace astro {
 
     { BANDIT, {
       .name = "Bandit",
-      .scale = tVec3f(1500.f),
+      .scale = tVec3f(600.f, 1500.f, 600.f),
       .tint = tVec3f(0.2f)
     } }
   };

@@ -64,7 +64,7 @@ namespace astro {
 
         lock.position = UnitEntityToWorldPosition(entity, tVec3f(0.2f, -0.2f, 0));
         lock.scale = entity.scale * 0.5f;
-        lock.color = tVec3f(1.f, 0.9f, 0.4f);
+        lock.color = tVec3f(1.f, 1.f, 0.2f);
         lock.material = tVec4f(0.2f, 1.f, 0, 0.4f);
 
         bool is_open = (

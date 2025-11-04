@@ -20,12 +20,14 @@ namespace astro {
       meshes.low_guard_placeholder = MODEL_MESH("./astro/3d_models/guy.obj", 500);
       meshes.low_guard_body = MODEL_MESH("./astro/3d_models/low_guard/body.obj", 500);
       meshes.low_guard_shield = MODEL_MESH("./astro/3d_models/low_guard/shield.obj", 500);
+      meshes.low_guard_spear = MODEL_MESH("./astro/3d_models/low_guard/spear.obj", 500);
     }
 
     getMeshes() {
       return_meshes({
         meshes.low_guard_body,
-        meshes.low_guard_shield
+        meshes.low_guard_shield,
+        meshes.low_guard_spear
       });
     }
 
@@ -152,22 +154,43 @@ namespace astro {
           entity.visible_rotation = entity.orientation;
         }
 
-        auto& body = objects(meshes.low_guard_body)[i];
-        auto& shield = objects(meshes.low_guard_shield)[i];
+        // Body
+        {
+          auto& body = objects(meshes.low_guard_body)[i];
 
-        body.position = entity.visible_position;
-        body.scale = entity.visible_scale;
-        body.rotation = entity.visible_rotation;
-        body.color = entity.tint;
+          body.position = entity.visible_position;
+          body.scale = entity.visible_scale;
+          body.rotation = entity.visible_rotation;
+          body.color = entity.tint;
 
-        shield.position = UnitEntityToWorldPosition(entity, tVec3f(1.f, 0.2f, 1.2f));
-        shield.scale = entity.visible_scale * tVec3f(1.f, 0.4f, 1.f); // @temporary
-        shield.rotation = entity.visible_rotation;
-        shield.color = tVec3f(0.4f);
-        shield.material = tVec4f(0.2f, 1.f, 0, 0);
+          commit(body);
+        }
 
-        commit(body);
-        commit(shield);
+        // Shield
+        {
+          auto& shield = objects(meshes.low_guard_shield)[i];
+
+          shield.position = UnitEntityToWorldPosition(entity, tVec3f(1.f, 0.2f, 1.2f));
+          shield.scale = entity.visible_scale * tVec3f(1.f, 0.4f, 1.f); // @temporary
+          shield.rotation = entity.visible_rotation;
+          shield.color = tVec3f(0.4f);
+          shield.material = tVec4f(0.2f, 1.f, 0, 0);
+
+          commit(shield);
+        }
+
+        // Spear
+        {
+          auto& spear = objects(meshes.low_guard_spear)[i];
+
+          spear.position = UnitEntityToWorldPosition(entity, tVec3f(-1.f, 0.f, 1.2f));
+          spear.scale = entity.visible_scale * tVec3f(1.f, 0.4f, 1.f) * 1.25f; // @temporary
+          spear.rotation = entity.visible_rotation;
+          spear.color = tVec3f(0.6f);
+          spear.material = tVec4f(0.2f, 1.f, 0, 0);
+
+          commit(spear);
+        }
 
         // Item holding
         {
@@ -186,7 +209,7 @@ namespace astro {
                 gate_key.position = UnitEntityToWorldPosition(entity, tVec3f(1.2f, 0, 0));
                 gate_key.scale = is_active ? tVec3f(600.f) : tVec3f(0.f);
                 gate_key.rotation = entity.visible_rotation;
-                gate_key.color = tVec3f(1.f, 0.9f, 0.4f);
+                gate_key.color = tVec3f(1.f, 1.f, 0.2f);
                 gate_key.material = tVec4f(0.2f, 1.f, 0, 0);
 
                 commit(gate_key);
