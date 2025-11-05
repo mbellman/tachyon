@@ -122,6 +122,7 @@ static void UpdateLevelsOfDetail(Tachyon* tachyon, State& state) {
   Tachyon_UseLodByDistance(tachyon, meshes.ground_flower, 35000.f);
 
   // Entity parts
+  Tachyon_UseLodByDistance(tachyon, meshes.shrub_leaves, 35000.f);
   Tachyon_UseLodByDistance(tachyon, meshes.oak_tree_roots, 40000.f);
   Tachyon_UseLodByDistance(tachyon, meshes.oak_tree_trunk, 40000.f);
   Tachyon_UseLodByDistance(tachyon, meshes.oak_tree_branches, 40000.f);
@@ -198,18 +199,18 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
   ProceduralGeneration::RebuildProceduralObjects(tachyon, state);
 
   // @todo default/load from save
-  state.player_position = tVec3f(-13300.f, 0, -5800.f);
+  state.player_position = tVec3f(-13800.f, 0, -5900.f);
   state.player_facing_direction = tVec3f(0, 0, 1.f);
   state.camera_shift = tVec3f(0, 0, 1875.f);
 
   // @todo default/load from save
-  tachyon->scene.camera.position = tVec3f(-13300.f, 10000.f, 3075.f);
+  tachyon->scene.camera.position = tVec3f(-13800.f, 10000.f, 2975.f);
 
   tachyon->scene.scene_time = 0.f;
 
   // @todo configure music per area
   {
-    // BGM::LoopMusic(DIVINATION_WOODREALM);
+    BGM::LoopMusic(DIVINATION_WOODREALM);
   }
 }
 
@@ -219,7 +220,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   auto& scene = tachyon->scene;
 
   // @temporary
-  tachyon->scene.scene_time += dt;
+  scene.scene_time += dt;
 
   // Reset astro turn fx
   // @todo move to editor
@@ -301,11 +302,11 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
     float speed = velocity.magnitude();
     tVec3f foliage_movement_offset = (speed > 0.f ? velocity.invert().unit() * 500.f : 0.f);
 
-    tachyon->scene.foliage_mover_position = state.player_position + foliage_movement_offset;
-    tachyon->scene.foliage_mover_velocity = velocity;
+    scene.foliage_mover_position = state.player_position + foliage_movement_offset;
+    scene.foliage_mover_velocity = velocity;
 
     if (speed > 300.f) {
-      tachyon->scene.foliage_mover_velocity = velocity.unit() * 300.f;
+      scene.foliage_mover_velocity = velocity.unit() * 300.f;
     }
 
     // @todo ui.cpp

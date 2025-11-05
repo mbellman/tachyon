@@ -33,8 +33,8 @@ void Tachyon_PlaySound(tSoundResource& resource, const float volume) {
   ma_sound_start(sound);
 }
 
-void Tachyon_LoopSound(tSoundResource& resource) {
-  Tachyon_PlaySound(resource, 1.f);
+void Tachyon_LoopSound(tSoundResource& resource, const float volume) {
+  Tachyon_PlaySound(resource, volume);
 
   auto* sound = get_sound(resource);
 

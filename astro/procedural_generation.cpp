@@ -546,7 +546,8 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
   const tVec3f blossom_color = tVec3f(1.f, 0.6f, 0.1f);
   const float spawn_radius = 1200.f;
   const float half_spawn_radius = spawn_radius * 0.5f;
-  const float lifetime = 12.f;
+  const float plant_lifetime = 100.f;
+  const float flower_lifetime = 12.f;
 
   auto& player_position = state.player_position;
   float base_time_progress = 0.5f * (state.astro_time - -500.f);
@@ -554,16 +555,15 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
 
   for_entities(state.flower_bushes) {
     auto& entity = state.flower_bushes[i];
-    auto& position = entity.visible_position;
+    float end_time = entity.astro_start_time + plant_lifetime;
 
-    if (entity.visible_scale.x < 500.f) {
-      continue;
-    }
+    if (state.astro_time < entity.astro_start_time + 20.f) continue;
+    if (state.astro_time > end_time - 20.f) continue;
 
     float distance = tVec3f::distance(entity.visible_position, player_position);
 
     if (distance < 18000.f) {
-      float entity_life_progress = GetLivingEntityProgress(state, entity, 100.f);
+      float entity_life_progress = GetLivingEntityProgress(state, entity, plant_lifetime);
       float flower_size = 400.f * sqrtf(sinf(entity_life_progress * t_PI));
 
       float ex = abs(entity.visible_position.x);
@@ -583,7 +583,7 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
         float alpha_variation = fmodf(abs(flower.position.x + flower.position.z), 10.f);
         float alpha = base_time_progress + alpha_variation;
 
-        UpdateBloomingFlower(flower, blossom_color, flower_size, alpha, lifetime);
+        UpdateBloomingFlower(flower, blossom_color, flower_size, alpha, flower_lifetime);
 
         flower.material = tVec4f(0.5f, 0, 0, 0.2f);
 

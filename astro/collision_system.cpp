@@ -318,13 +318,14 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state, const flo
   // to know in the context of resolving plane collisions
   state.did_resolve_radius_collision = false;
 
+  // @todo soft collision
   for_entities(state.shrubs) {
     auto& entity = state.shrubs[i];
 
     ResolveSingleRadiusCollision(state, entity.position, entity.visible_scale, 1.5f);
   }
 
-  // @todo "soft" collision
+  // @todo soft collision
   for_entities(state.lilac_bushes) {
     auto& entity = state.lilac_bushes[i];
 
