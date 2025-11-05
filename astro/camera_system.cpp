@@ -3,111 +3,73 @@
 
 using namespace astro;
 
-static tVec3f GetRoomCameraPosition(Tachyon* tachyon, State& state) {
-  // @temporary
-  float room_size = 16000.f;
-
-  // @temporary
-  int32 room_x = (int32)roundf(state.player_position.x / room_size);
-  int32 room_z = (int32)roundf(state.player_position.z / room_size);
-
-  // @todo find the room we're inside by examining different room bounds,
-  // and determine its center point
-  return tVec3f(
-    float(room_x) * 16000.f,
-    10000.f,
-    float(room_z) * 16000.f
-  );
-}
-
-// @todo cleanup
 void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) {
   auto& camera = tachyon->scene.camera;
   tVec3f new_camera_position;
 
-  // @temporary
-  int32 room_x = (int32)roundf(state.player_position.x / 16000.f);
-  int32 room_z = (int32)roundf(state.player_position.z / 16000.f);
+  if (state.has_target) {
+    // Target camera
+    auto& target = *EntityManager::FindEntity(state, state.target_entity);
+    float player_distance = (state.player_position - target.visible_position).magnitude();
+    float time_since_casting_stun = tachyon->scene.scene_time - state.spells.stun_start_time;
 
-  // @todo refactor
-  if (room_x != 0 || room_z != 0) {
-    // World camera
+    float distance_ratio = 1.f - player_distance / 10000.f;
+    if (distance_ratio < 0.f) distance_ratio = 0.f;
+
+    float stun_factor = time_since_casting_stun < t_PI ? sinf(time_since_casting_stun) : 0.f;
+    if (stun_factor < 0.f) stun_factor = 0.f;
+    if (stun_factor > 1.f) stun_factor = 1.f;
+
+    new_camera_position = tVec3f::lerp(state.player_position, target.visible_position, 0.5f * sqrt(distance_ratio));
+
+    // Adjustment: raise the camera as we come closer to the target
+    new_camera_position.y = 3000.f * distance_ratio;
+
+    // Adjustment: raise the camera a bit during stun effects
+    new_camera_position.y += 1000.f * stun_factor;
+
+    // Adjustment: move the camera back a bit with up/down facing directions
+    new_camera_position.z += 1000.f * (1.f - abs(state.player_facing_direction.z)) * distance_ratio;
+
+    // Adjustment: move the camera back a bit during stun effects
+    new_camera_position.z += 1000.f * stun_factor;
+
+    // Blend the camera shift from where it was at targeting time,
+    // to 0 over the course of a second
+    float targeted_duration_ratio = (tachyon->running_time - state.target_start_time) / 1.f;
+    if (targeted_duration_ratio > 1.f) targeted_duration_ratio = 1.f;
+
+    state.camera_shift = tVec3f::lerp(state.camera_shift, tVec3f(0.f), targeted_duration_ratio);
+  }
+  else if (abs(state.astro_turn_speed) > 0.1f) {
+    // Astro-turning camera; use the player position as with walking/standing still,
+    // but apply the camera shift immediately instead of lerping. This ensures that
+    // the camera more smoothly blends back into its expected position when a targeted
+    // entity ends its lifespan and disappears during an astro turn action. Without
+    // this special case, the slower camera shift lerp causes the camera to "curve"
+    // as it returns to its expected position, which looks odd.
+    new_camera_position = state.player_position;
+
+    tVec3f shift_direction = state.player_facing_direction + tVec3f(0, 0, 0.25f);
+
+    state.camera_shift = shift_direction * tVec3f(0.5f, 0, 1.f) * 1500.f;
+  }
+  else {
+    // Walking/standing still camera
     float player_speed = state.player_velocity.magnitude();
 
-    if (state.has_target) {
-      // Target camera
-      auto& target = *EntityManager::FindEntity(state, state.target_entity);
-      float player_distance = (state.player_position - target.visible_position).magnitude();
-      float time_since_casting_stun = tachyon->scene.scene_time - state.spells.stun_start_time;
+    new_camera_position = state.player_position;
 
-      float distance_ratio = 1.f - player_distance / 10000.f;
-      if (distance_ratio < 0.f) distance_ratio = 0.f;
+    float shift_amount = std::max(player_speed * 1.5f, 1500.f);
+    tVec3f shift_direction = state.player_facing_direction + tVec3f(0, 0, 0.25f);
+    tVec3f desired_camera_shift = shift_direction * tVec3f(0.5f, 0, 1.f) * shift_amount;
 
-      float stun_factor = time_since_casting_stun < t_PI ? sinf(time_since_casting_stun) : 0.f;
-      if (stun_factor < 0.f) stun_factor = 0.f;
-      if (stun_factor > 1.f) stun_factor = 1.f;
-
-      new_camera_position = tVec3f::lerp(state.player_position, target.visible_position, 0.5f * sqrt(distance_ratio));
-
-      // Adjustment: raise the camera as we come closer to the target
-      new_camera_position.y = 3000.f * distance_ratio;
-
-      // Adjustment: raise the camera a bit during stun effects
-      new_camera_position.y += 1000.f * stun_factor;
-
-      // Adjustment: move the camera back a bit with up/down facing directions
-      new_camera_position.z += 1000.f * (1.f - abs(state.player_facing_direction.z)) * distance_ratio;
-
-      // Adjustment: move the camera back a bit during stun effects
-      new_camera_position.z += 1000.f * stun_factor;
-
-      // Blend the camera shift from where it was at targeting time,
-      // to 0 over the course of a second
-      float targeted_duration_ratio = (tachyon->running_time - state.target_start_time) / 1.f;
-      if (targeted_duration_ratio > 1.f) targeted_duration_ratio = 1.f;
-
-      state.camera_shift = tVec3f::lerp(state.camera_shift, tVec3f(0.f), targeted_duration_ratio);
-    }
-    else if (abs(state.astro_turn_speed) > 0.1f) {
-      // Astro-turning camera; use the player position as with walking/standing still,
-      // but apply the camera shift immediately instead of lerping. This ensures that
-      // the camera more smoothly blends back into its expected position when a targeted
-      // entity ends its lifespan and disappears during an astro turn action. Without
-      // this special case, the slower camera shift lerp causes the camera to "curve"
-      // as it returns to its expected position, which looks odd.
-      new_camera_position = state.player_position;
-
-      tVec3f shift_direction = state.player_facing_direction + tVec3f(0, 0, 0.25f);
-
-      state.camera_shift = shift_direction * tVec3f(0.5f, 0, 1.f) * 1500.f;
-    }
-    else {
-      // Walking/standing still camera
-      new_camera_position = state.player_position;
-
-      float shift_amount = std::max(player_speed * 1.5f, 1500.f);
-      tVec3f shift_direction = state.player_facing_direction + tVec3f(0, 0, 0.25f);
-      tVec3f desired_camera_shift = shift_direction * tVec3f(0.5f, 0, 1.f) * shift_amount;
-
-      state.camera_shift = tVec3f::lerp(state.camera_shift, desired_camera_shift, 5.f * dt);
-    }
-
-    new_camera_position += state.camera_shift;
-    new_camera_position.y += 10000.f;
-    new_camera_position.z += 7000.f;
-  } else {
-    // Room camera
-    // @todo come up with a better system for this
-    auto room_camera_position = GetRoomCameraPosition(tachyon, state);
-
-    tVec3f distance_from_room_center;
-    distance_from_room_center.x = state.player_position.x - room_camera_position.x;
-    distance_from_room_center.z = state.player_position.z - room_camera_position.z;
-
-    new_camera_position.x = room_camera_position.x + distance_from_room_center.x * 0.1f;
-    new_camera_position.y = 10000.f;
-    new_camera_position.z = 10000.f + room_camera_position.z + distance_from_room_center.z * 0.1f;
+    state.camera_shift = tVec3f::lerp(state.camera_shift, desired_camera_shift, 5.f * dt);
   }
+
+  new_camera_position += state.camera_shift;
+  new_camera_position.y += 10000.f;
+  new_camera_position.z += 7000.f;
 
   camera.position = tVec3f::lerp(camera.position, new_camera_position, 5.f * dt);
   camera.rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.9f);
