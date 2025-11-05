@@ -9,13 +9,15 @@ namespace astro {
       meshes.oak_tree_roots = MODEL_MESH("./astro/3d_models/oak_tree/roots.obj", 500);
       meshes.oak_tree_trunk = MODEL_MESH("./astro/3d_models/oak_tree/trunk.obj", 500);
       meshes.oak_tree_branches = MODEL_MESH("./astro/3d_models/oak_tree/branches.obj", 500);
+      meshes.oak_tree_leaves = MODEL_MESH("./astro/3d_models/oak_tree/leaves.obj", 500);
     }
 
     getMeshes() {
       return_meshes({
         meshes.oak_tree_roots,
         meshes.oak_tree_trunk,
-        meshes.oak_tree_branches
+        meshes.oak_tree_branches,
+        meshes.oak_tree_leaves
       });
     }
 
@@ -82,13 +84,24 @@ namespace astro {
         branches.rotation = entity.orientation;
         branches.color = entity.tint;
 
+        // Leaves
+        auto& leaves = objects(meshes.oak_tree_leaves)[i];
+
+        leaves.position = entity.position;
+        leaves.scale = branches.scale;
+        leaves.rotation = entity.orientation;
+        leaves.color = tVec3f(0.15f, 0.3f, 0.1f);
+        leaves.material = tVec4f(0.8f, 0, 0, 1.f);
+
         // Collision
         entity.visible_position = entity.position;
         entity.visible_scale = trunk.scale;
+        entity.visible_rotation = entity.orientation;
 
         commit(roots);
         commit(trunk);
         commit(branches);
+        commit(leaves);
       }
     }
   };

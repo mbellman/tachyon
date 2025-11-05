@@ -122,10 +122,13 @@ static void UpdateLevelsOfDetail(Tachyon* tachyon, State& state) {
   Tachyon_UseLodByDistance(tachyon, meshes.ground_flower, 35000.f);
 
   // Entity parts
+  // @todo handle distance LoD stuff in entity behavior files;
+  // it's annoying to manage them here
   Tachyon_UseLodByDistance(tachyon, meshes.shrub_leaves, 35000.f);
   Tachyon_UseLodByDistance(tachyon, meshes.oak_tree_roots, 40000.f);
   Tachyon_UseLodByDistance(tachyon, meshes.oak_tree_trunk, 40000.f);
   Tachyon_UseLodByDistance(tachyon, meshes.oak_tree_branches, 40000.f);
+  Tachyon_UseLodByDistance(tachyon, meshes.oak_tree_leaves, 40000.f);
   Tachyon_UseLodByDistance(tachyon, meshes.flower_bush_leaves, 35000.f);
 }
 
@@ -210,7 +213,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
 
   // @todo configure music per area
   {
-    BGM::LoopMusic(DIVINATION_WOODREALM);
+    // BGM::LoopMusic(DIVINATION_WOODREALM);
   }
 }
 

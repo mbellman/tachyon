@@ -51,7 +51,7 @@ static void AddEntityMeshes(Tachyon* tachyon, State& state) {
   }
 
   // @temporary
-  // @todo define in entity defaults
+  // @todo define in entity behavior files
   mesh(meshes.dirt_path_placeholder).shadow_cascade_ceiling = 0;
   mesh(meshes.dirt_path).shadow_cascade_ceiling = 0;
 
@@ -59,6 +59,8 @@ static void AddEntityMeshes(Tachyon* tachyon, State& state) {
   mesh(meshes.flower_bush_placeholder).shadow_cascade_ceiling = 2;
   mesh(meshes.flower_bush_leaves).type = GRASS_MESH;
   mesh(meshes.flower_bush_leaves).shadow_cascade_ceiling = 2;
+
+  mesh(meshes.oak_tree_leaves).shadow_cascade_ceiling = 3;
 
   mesh(meshes.glow_flower_placeholder).type = GRASS_MESH;
   mesh(meshes.glow_flower_placeholder).shadow_cascade_ceiling = 2;
