@@ -23,6 +23,8 @@ namespace astro {
       auto& meshes = state.meshes;
       const float lifetime = 100.f;
 
+      const tVec3f sprout_color = tVec3f(0.2f, 0.7f, 0.3f);
+      const tVec3f sprouted_color = tVec3f(0.1f, 0.4f, 0.2f);
       const tVec3f wilting_color = tVec3f(0.4f, 0.2f, 0.1f);
 
       for_entities(state.flower_bushes) {
@@ -36,12 +38,13 @@ namespace astro {
         leaves.scale = entity.scale * growth;
         leaves.position = entity.position;
         leaves.rotation = entity.orientation;
-        leaves.color = entity.tint;
-        leaves.material = tVec4f(0.8f, 0, 0, 0.6f);
+        leaves.color = sprouted_color;
+        leaves.material = tVec4f(0.8f, 0, 0, 0.4f);
 
         if (life_progress < 0.5f) {
           // Sprouting
           leaves.scale = entity.scale * growth;
+          leaves.color = tVec3f::lerp(sprout_color, sprouted_color, 2.f * life_progress);
         }
         else if (life_progress < 1.f) {
           // Wilting
@@ -51,7 +54,7 @@ namespace astro {
 
           leaves.scale.x = entity.scale.x * Tachyon_Lerpf(1.f, 0.7f, alpha);
           leaves.scale.z = entity.scale.x * Tachyon_Lerpf(1.f, 0.7f, alpha);
-          leaves.color = tVec3f::lerp(entity.tint, wilting_color, alpha);
+          leaves.color = tVec3f::lerp(sprouted_color, wilting_color, alpha);
         }
         else {
           // Dead

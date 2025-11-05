@@ -350,7 +350,7 @@ void main() {
         haze_factor = falloff * frag_distance_from_player / 30000.0;
       }
 
-      if (world_depth < 2500.0 || color_and_depth.w == 1.0) {
+      if (world_depth < 2500.0 || start_bubble_radius == 0.0) {
         haze_factor = 0.0;
         ring_factor = 0.0;
       }

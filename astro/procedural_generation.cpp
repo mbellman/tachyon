@@ -539,6 +539,7 @@ static void GenerateBushFlowers(Tachyon* tachyon, State& state) {
   }
 }
 
+// @todo just let FlowerBush.h handle this
 static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
   profile("UpdateBushFlowers()");
 

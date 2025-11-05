@@ -209,7 +209,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
 
   // @todo configure music per area
   {
-    BGM::LoopMusic(DIVINATION_WOODREALM);
+    // BGM::LoopMusic(DIVINATION_WOODREALM);
   }
 }
 
@@ -220,6 +220,15 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
 
   // @temporary
   tachyon->scene.scene_time += dt;
+
+  // Reset astro turn fx
+  // @todo move to editor
+  {
+    auto& fx = tachyon->fx;
+
+    fx.astro_time_warp_start_radius = 0.f;
+    fx.astro_time_warp_end_radius = 0.f;
+  }
 
   // Toggle level editor with E
   // @todo dev mode only
