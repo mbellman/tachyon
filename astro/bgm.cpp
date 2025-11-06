@@ -35,7 +35,7 @@ void BGM::LoopMusic(Music music) {
   // @todo set as new current music
 
   // @todo make volume configurable
-  Tachyon_LoopSound(resource, 0.4f);
+  Tachyon_LoopSound(resource, 0.5f);
 }
 
 void BGM::FadeOutMusic(Music music) {

@@ -207,7 +207,7 @@ namespace astro {
               if (is_active) {
                 // Show the key on the active guard
                 gate_key.position = UnitEntityToWorldPosition(entity, tVec3f(1.2f, 0, 0));
-                gate_key.scale = is_active ? tVec3f(600.f) : tVec3f(0.f);
+                gate_key.scale = tVec3f(700.f);
                 gate_key.rotation = entity.visible_rotation;
                 gate_key.color = tVec3f(1.f, 1.f, 0.2f);
                 gate_key.material = tVec4f(0.2f, 1.f, 0, 0);
