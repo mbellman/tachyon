@@ -130,9 +130,9 @@ namespace astro {
     // For entities which spawn light sources
     int32 light_id = -1;
 
-    // For gates, doors etc.
-    float game_open_time = -1.f;
-    float astro_open_time = 0.f;
+    // For interactible entities (gates, doors, light posts etc.)
+    float game_activation_time = -1.f;
+    float astro_activation_time = 0.f;
   };
 
   /**

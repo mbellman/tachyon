@@ -68,12 +68,12 @@ namespace astro {
         lock.material = tVec4f(0.2f, 1.f, 0, 0.4f);
 
         bool is_open = (
-          entity.game_open_time > -1.f &&
-          state.astro_time >= entity.astro_open_time
+          entity.game_activation_time > -1.f &&
+          state.astro_time >= entity.astro_activation_time
         );
 
         if (is_open) {
-          float time_since_opened = tachyon->scene.scene_time - entity.game_open_time;
+          float time_since_opened = tachyon->scene.scene_time - entity.game_activation_time;
 
           // Drop the lock
           {
@@ -106,8 +106,8 @@ namespace astro {
           // @todo check to see if gate is rusted over
           if (activation_distance < 1500.f) {
             if (Items::HasItem(state, GATE_KEY)) {
-              entity.game_open_time = tachyon->scene.scene_time;
-              entity.astro_open_time = state.astro_time;
+              entity.game_activation_time = tachyon->scene.scene_time;
+              entity.astro_activation_time = state.astro_time;
 
               UISystem::ShowDialogue(tachyon, state, "The gate was unlocked.");
             } else {
