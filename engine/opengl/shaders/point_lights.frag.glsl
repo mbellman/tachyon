@@ -86,7 +86,6 @@ float GetGlowFactor(vec3 world_position) {
 
   // Volumetric glow
   glow_factor += 0.1 * pow(1.0 - distance_from_light_disc_center, 5.0);
-
   glow_factor *= 1.5;
 
   #if USE_GAMMA_CORRECTION == 1

@@ -28,6 +28,8 @@ namespace astro {
     timeEvolve() {
       auto& meshes = state.meshes;
 
+      const tVec3f wood_color = tVec3f(1.f, 0.4f, 0.2f);
+      const tVec3f leaves_color = tVec3f(0.15f, 0.3f, 0.1f);
       const float lifetime = 200.f;
 
       // @todo @optimize only iterate over on-screen/in-range entities
@@ -59,7 +61,7 @@ namespace astro {
         roots.position.y = entity.position.y - entity.scale.y * (1.f - tree_thickness);
 
         roots.rotation = entity.orientation;
-        roots.color = entity.tint;
+        roots.color = wood_color;
 
         // Trunk
         auto& trunk = objects(meshes.oak_tree_trunk)[i];
@@ -74,7 +76,7 @@ namespace astro {
         trunk.position.y = entity.position.y - entity.scale.y * (1.f - tree_thickness);
 
         trunk.rotation = entity.orientation;
-        trunk.color = entity.tint;
+        trunk.color = wood_color;
 
         // Branches
         auto& branches = objects(meshes.oak_tree_branches)[i];
@@ -89,7 +91,7 @@ namespace astro {
         );
 
         branches.rotation = entity.orientation;
-        branches.color = entity.tint;
+        branches.color = wood_color;
 
         // Leaves
         auto& leaves = objects(meshes.oak_tree_leaves)[i];
@@ -98,7 +100,7 @@ namespace astro {
         leaves.position.y += entity.scale.y * 0.8f;
         leaves.scale = entity.visible_scale * tVec3f(branches_size);
         leaves.rotation = entity.orientation;
-        leaves.color = tVec3f(0.15f, 0.3f, 0.1f);
+        leaves.color = leaves_color;
         leaves.material = tVec4f(0.8f, 0, 0, 1.f);
 
         // Collision

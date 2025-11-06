@@ -33,7 +33,7 @@ namespace astro {
         // @todo factor
         auto& leaves = objects(meshes.shrub_leaves)[i];
 
-        leaves.scale = entity.scale * sinf(life_progress * t_PI) * 1.4f;
+        leaves.scale = entity.scale * sinf(life_progress * t_PI);
 
         leaves.position = entity.position;
         leaves.position.y -= (entity.scale.y - leaves.scale.y);

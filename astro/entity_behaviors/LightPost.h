@@ -110,6 +110,7 @@ namespace astro {
 
             light.radius = 5000.f * alpha;
             light.power = 3.f * alpha;
+            light.glow_power = (2.f + 0.5f * sinf(tachyon->scene.scene_time)) * alpha;
           } else {
             light.radius = 0.f;
             light.power = 0.f;
