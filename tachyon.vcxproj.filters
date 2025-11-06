@@ -546,6 +546,12 @@
     <ClInclude Include="astro\bgm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="astro\entity_behaviors\Lilac_Bush.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\entity_behaviors\LightPost.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

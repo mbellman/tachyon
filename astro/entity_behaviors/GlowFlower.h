@@ -87,6 +87,7 @@ namespace astro {
         // Light updates
         {
           if (entity.light_id == -1) {
+            // @todo handle disposal
             entity.light_id = create_point_light();
           }
 

@@ -29,7 +29,8 @@ namespace astro {
     DIRT_PATH_NODE,
     HOUSE,
     GATE,
-    LILAC_BUSH
+    LILAC_BUSH,
+    LIGHT_POST
   };
 
   /**
@@ -54,7 +55,8 @@ namespace astro {
     DIRT_PATH_NODE,
     HOUSE,
     GATE,
-    LILAC_BUSH
+    LILAC_BUSH,
+    LIGHT_POST
   };
 
   /**
@@ -93,7 +95,7 @@ namespace astro {
     // Customizable properties
     tVec3f position;
     tVec3f scale;
-    tVec3f tint;
+    tVec3f tint; // @todo
     Quaternion orientation = Quaternion(1.f, 0, 0, 0); // @todo rename rotation
     float astro_start_time = 0.f;
     float astro_end_time = 0.f;
@@ -184,6 +186,7 @@ namespace astro {
 
       // DIRT_PATH
       // @unused
+      // @todo remove
       dirt_path_placeholder,
       dirt_path,
 
@@ -218,7 +221,12 @@ namespace astro {
       // LILAC
       lilac_placeholder,
       lilac_leaves,
-      lilac_flower
+      lilac_flower,
+
+      // LIGHT_POST
+      light_post_placeholder,
+      light_post_pillar,
+      light_post_lamp
 
       ;
   };
@@ -246,6 +254,7 @@ namespace astro {
     std::vector<GameEntity> bandits;
     std::vector<GameEntity> houses;
     std::vector<GameEntity> gates;
+    std::vector<GameEntity> light_posts;
   };
 
   /**
@@ -338,6 +347,12 @@ namespace astro {
     { GATE, {
       .name = "Gate",
       .scale = tVec3f(4000.f),
+      .tint = tVec3f(0.4f)
+    } },
+
+    { LIGHT_POST, {
+      .name = "Light Pillar",
+      .scale = tVec3f(1500.f),
       .tint = tVec3f(0.4f)
     } },
 

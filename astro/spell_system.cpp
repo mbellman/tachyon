@@ -21,7 +21,9 @@ static void HandleActiveStunSpell(Tachyon* tachyon, State& state) {
   if (t > 1.f) t = 1.f;
   t = sqrtf(t);
 
-  light.position = state.player_position + tVec3f(800.f, 1000.f, -800.f);
+  Quaternion rotation = Quaternion::FromDirection(state.player_facing_direction, tVec3f(0, 1.f, 0));
+
+  light.position = state.player_position + rotation.toMatrix4f() * tVec3f(-800.f, 1000.f, 400.f);
   light.position.y += sqrtf(t) * 1200.f;
   light.radius = 25000.f * Tachyon_EaseInOutf(t);
   light.color = tVec3f(1.f, 0.8f, 0.4f),

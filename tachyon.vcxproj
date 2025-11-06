@@ -134,6 +134,8 @@
     <ClInclude Include="astro\entity_behaviors\GlowFlower.h" />
     <ClInclude Include="astro\entity_behaviors\House.h" />
     <ClInclude Include="astro\entity_behaviors\ItemPickup.h" />
+    <ClInclude Include="astro\entity_behaviors\LightPost.h" />
+    <ClInclude Include="astro\entity_behaviors\Lilac_Bush.h" />
     <ClInclude Include="astro\entity_behaviors\LowGuard.h" />
     <ClInclude Include="astro\entity_behaviors\OakTree.h" />
     <ClInclude Include="astro\entity_behaviors\RiverLog.h" />
