@@ -35,9 +35,16 @@ namespace astro {
       for_entities(state.oak_trees) {
         auto& entity = state.oak_trees[i];
         float life_progress = GetLivingEntityProgress(state, entity, lifetime);
+        float growth_factor = 0.f;
 
-        float tree_height = 1.f - powf(1.f - life_progress, 4.f);
-        float tree_thickness = -(cosf(t_PI * life_progress) - 1.f) / 2.f;
+        if (life_progress > 0.f) {
+          float entity_age = state.astro_time - entity.astro_start_time;
+
+          growth_factor = sqrtf(1.f - expf(-0.01f * entity_age));
+        }
+
+        float tree_height = 1.f - powf(1.f - growth_factor, 4.f);
+        float tree_thickness = -(cosf(t_PI * growth_factor) - 1.f) / 2.f;
 
         // Roots
         auto& roots = objects(meshes.oak_tree_roots)[i];
@@ -71,7 +78,7 @@ namespace astro {
 
         // Branches
         auto& branches = objects(meshes.oak_tree_branches)[i];
-        float branches_size = life_progress > 0.5f ? 2.f * (life_progress - 0.5f) : 0.f;
+        float branches_size = growth_factor > 0.5f ? 2.f * (growth_factor - 0.5f) : 0.f;
 
         branches.position = entity.position;
 
@@ -88,7 +95,8 @@ namespace astro {
         auto& leaves = objects(meshes.oak_tree_leaves)[i];
 
         leaves.position = entity.position;
-        leaves.scale = branches.scale;
+        leaves.position.y += entity.scale.y * 0.8f;
+        leaves.scale = entity.visible_scale * tVec3f(branches_size);
         leaves.rotation = entity.orientation;
         leaves.color = tVec3f(0.15f, 0.3f, 0.1f);
         leaves.material = tVec4f(0.8f, 0, 0, 1.f);
