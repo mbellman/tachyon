@@ -12,7 +12,8 @@ namespace astro {
 
     SFX_SPELL_STUN,
 
-    SFX_LIGHT_POST_ACTIVATE
+    SFX_LIGHT_POST_ACTIVATE,
+    SFX_LIGHT_POST_ASTRO_SYNCED
   };
 
   namespace Sfx {

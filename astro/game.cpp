@@ -214,6 +214,8 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
         if (associated_entity != nullptr) {
           entity.associated_entity_record.type = associated_entity->type;
           entity.associated_entity_record.id = associated_entity->id;
+
+          // @todo return in the eventual refactored function
         }
       }
     }

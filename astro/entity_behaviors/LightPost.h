@@ -5,6 +5,10 @@
 #include "astro/entity_manager.h"
 
 namespace astro {
+  static bool IsResponder(const GameEntity& entity) {
+    return entity.associated_entity_record.id != -1;
+  }
+
   static bool IsIlluminatedAtTime(State& state, const GameEntity& entity, const float astro_time) {
     const float age_duration = 75.f;
     const float astro_illumination_duration = 30.f;
@@ -13,11 +17,18 @@ namespace astro {
     bool is_responder = entity.associated_entity_record.id != -1;
 
     if (is_responder) {
-
       auto& associated_entity = *EntityManager::FindEntity(state, entity.associated_entity_record);
-      float future_time = astro_time + astro_future_sight_duration;
+      float checked_time;
 
-      return IsIlluminatedAtTime(state, associated_entity, future_time);
+      if (entity.is_astro_synced) {
+        checked_time = astro_time;
+      } else if (entity.requires_astro_sync && !associated_entity.is_astro_synced) {
+        return false;
+      } else {
+        checked_time = astro_time + astro_future_sight_duration;
+      }
+
+      return IsIlluminatedAtTime(state, associated_entity, checked_time);
     } else {
       return (
         entity.game_activation_time != -1.f &&
@@ -51,7 +62,6 @@ namespace astro {
 
       const tVec4f base_lamp_color = tVec4f(1.f, 0.8f, 0.4f, 0.f);
       const tVec4f illuminated_lamp_color = tVec4f(1.f, 0.8f, 0.5f, 0.4f);
-      const float astro_illumination_duration = 65.f;
       const float activation_delay = 0.5f;
 
       float time_since_casting_stun = tachyon->scene.scene_time - state.spells.stun_start_time;
@@ -65,7 +75,7 @@ namespace astro {
         auto& entity = state.light_posts[i];
         float player_distance = tVec3f::distance(state.player_position, entity.position);
 
-        bool is_responder = entity.associated_entity_record.id != -1;
+        bool is_responder = IsResponder(entity);
         bool is_illuminated = IsIlluminatedAtTime(state, entity, state.astro_time);
 
         if (is_responder) {
@@ -76,9 +86,39 @@ namespace astro {
           if (is_illuminated && !entity.did_activate) {
             entity.did_activate = true;
             entity.game_activation_time = tachyon->scene.scene_time;
+            // @todo unnecessary for responders (?)
             entity.astro_activation_time = state.astro_time;
 
-            Sfx::PlaySound(SFX_LIGHT_POST_ACTIVATE, 1.f);
+            if (player_distance < 12000.f) {
+              Sfx::PlaySound(SFX_LIGHT_POST_ACTIVATE, 1.f);
+            }
+          } else
+          // @todo description
+          if (
+            !entity.is_astro_synced &&
+            is_illuminated &&
+            time_since_casting_stun == 0.f &&
+            !IsResponder(associated_entity) &&
+            !IsIlluminatedAtTime(state, associated_entity, state.astro_time) &&
+            tVec3f::distance(state.player_position, associated_entity.position) < 8000.f
+          ) {
+            entity.is_astro_synced = true;
+            associated_entity.is_astro_synced = true;
+
+            Sfx::PlaySound(SFX_LIGHT_POST_ASTRO_SYNCED, 1.f);
+          } else
+          // @todo description
+          if (
+            !entity.is_astro_synced &&
+            entity.requires_astro_sync &&
+            associated_entity.is_astro_synced &&
+            is_illuminated &&
+            IsResponder(associated_entity) &&
+            time_since_casting_stun == 0.f
+          ) {
+            entity.is_astro_synced = true;
+
+            Sfx::PlaySound(SFX_LIGHT_POST_ASTRO_SYNCED, 1.f);
           }
         } else {
           // Regular light pillars illuminate when the player casts stun near them
@@ -107,7 +147,12 @@ namespace astro {
           pillar.position = entity.position;
           pillar.scale = entity.scale;
           pillar.rotation = entity.orientation;
-          pillar.color = tVec3f(0.7f, 0.6f, 0.6f);
+
+          if (is_responder) {
+            pillar.color = tVec3f(0.1f);
+          } else {
+            pillar.color = tVec3f(0.9f, 0.8f, 0.8f);
+          }
 
           commit(pillar);
         }

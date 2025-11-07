@@ -142,6 +142,13 @@ namespace astro {
     float game_activation_time = -1.f;
     float astro_activation_time = 0.f;
     bool did_activate = false;
+
+    // For responder light pillars which have become "synced" with their associated entity
+    bool is_astro_synced = false;
+
+    // For responder light pillars which require that their associated entity become synced
+    // before responding to them
+    bool requires_astro_sync = false;
   };
 
   /**

@@ -47,7 +47,7 @@ struct LevelEditorState {
 
 /**
  * ----------------------------
- * Exception-safe wrapper around stof().
+ * Exception-safe string to type conversion helpers.
  * ----------------------------
  */
 static inline float ToFloat(const std::string& string, const float fallback) {
@@ -60,6 +60,10 @@ static inline float ToFloat(const std::string& string, const float fallback) {
   }
 }
 
+static inline float ToBool(const std::string& string) {
+  return string == "true" || string == "1";
+}
+
 /**
  * ----------------------------
  * Serialization helpers for different data types.
@@ -67,6 +71,10 @@ static inline float ToFloat(const std::string& string, const float fallback) {
  */
 static inline std::string Serialize(float f) {
   return std::format("{:.3f}", f);
+}
+
+static inline std::string Serialize(bool value) {
+  return value ? "1" : "";
 }
 
 static inline std::string Serialize(const tVec3f& vector) {
@@ -108,7 +116,8 @@ std::string SerializeEntity(const GameEntity& entity) {
     std::to_string(entity.astro_end_time) + "," +
     entity.item_pickup_name + "," +
     entity.unique_name + "," +
-    entity.associated_entity_name
+    entity.associated_entity_name + "," +
+    Serialize(entity.requires_astro_sync)
   );
 }
 
@@ -772,6 +781,10 @@ static void HandleEntityPropertiesEditor(Tachyon* tachyon, State& state) {
       if (property_value != "") {
         entity->associated_entity_name = property_value;
       }
+    }
+    // 6. requires_astro_sync
+    else if (editor.editing_entity_step == 5) {
+      entity->requires_astro_sync = ToBool(property_value);
 
       StopEditingEntityProperties(tachyon);
 
@@ -1271,6 +1284,12 @@ static void DisplaySelectedEntityProperties(Tachyon* tachyon, State& state) {
     labels.push_back(".associated_entity_name: " + editor.edited_entity_property_value + text_cursor);
   } else {
     labels.push_back(".associated_entity_name: " + entity.associated_entity_name);
+  }
+
+  if (is_on_editing_step(5)) {
+    labels.push_back(".requires_astro_sync: " + editor.edited_entity_property_value + text_cursor);
+  } else {
+    labels.push_back(".requires_astro_sync: " + std::string(entity.requires_astro_sync ? "true" : "false"));
   }
 
   RenderInfoLabels(tachyon, state, labels);

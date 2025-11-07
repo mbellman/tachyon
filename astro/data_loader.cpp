@@ -63,6 +63,7 @@ void DataLoader::LoadLevelData(Tachyon* tachyon, State& state) {
   auto lines = SplitString(level_data, "\n");  // @allocation
 
   #define parsef(i) stof(parts[i])
+  #define parse_bool(i) (i == "1")
   #define parse_vec3f(i1, i2, i3) tVec3f(parsef(i1), parsef(i2), parsef(i3))
   #define parse_quaternion(i1, i2, i3, i4) Quaternion(parsef(i1), parsef(i2), parsef(i3), parsef(i4))
 
@@ -84,6 +85,7 @@ void DataLoader::LoadLevelData(Tachyon* tachyon, State& state) {
       entity.item_pickup_name = parts[16];
       entity.unique_name = parts[17];
       entity.associated_entity_name = parts[18];
+      entity.requires_astro_sync = parse_bool(parts[19]);
 
       // Set base visible position + rotation
       entity.visible_position = entity.position;
@@ -120,6 +122,7 @@ void DataLoader::LoadLevelData(Tachyon* tachyon, State& state) {
   }
 
   #undef parsef
+  #undef parse_bool
   #undef parse_vec3f
   #undef parse_quaternion
 }
