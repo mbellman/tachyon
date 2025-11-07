@@ -40,11 +40,8 @@ struct LevelEditorState {
   bool is_in_placement_mode = false;
   bool is_placing_entity = false;
 
-  // @todo improve how we manage editing steps
   bool is_editing_entity_properties = false;
-  bool editing_astro_start_time = false;
-  bool editing_astro_end_time = false;
-  bool editing_item_pickup_name = false;
+  int editing_entity_step = 0;
   std::string edited_entity_property_value = "";
 } editor;
 
@@ -109,7 +106,9 @@ std::string SerializeEntity(const GameEntity& entity) {
     Serialize(entity.tint) + "," +
     std::to_string(entity.astro_start_time) + "," +
     std::to_string(entity.astro_end_time) + "," +
-    entity.item_pickup_name
+    entity.item_pickup_name + "," +
+    entity.unique_name + "," +
+    entity.associated_entity_name
   );
 }
 
@@ -136,6 +135,8 @@ std::string SerializeObject(State& state, tObject& object) {
  * ----------------------------
  */
 void SaveLevelData(Tachyon* tachyon, State& state) {
+  log_time("SaveLevelData()");
+
   std::string level_data = "";
 
   for_all_entity_types() {
@@ -709,10 +710,7 @@ static void CycleEntities(Tachyon* tachyon, State& state, int8 direction) {
  */
 static void StartEditingEntityProperties(Tachyon* tachyon) {
   editor.is_editing_entity_properties = true;
-  // @todo set editor step instead
-  editor.editing_astro_start_time = true;
-  editor.editing_astro_end_time = false;
-  editor.editing_item_pickup_name = false;
+  editor.editing_entity_step = 0;
   editor.edited_entity_property_value = "";
 
   // Ensure engine hotkeys don't accidentally trigger while typing
@@ -726,10 +724,7 @@ static void StartEditingEntityProperties(Tachyon* tachyon) {
  */
 static void StopEditingEntityProperties(Tachyon* tachyon) {
   editor.is_editing_entity_properties = false;
-  // @todo reset editor step instead
-  editor.editing_astro_start_time = false;
-  editor.editing_astro_end_time = false;
-  editor.editing_item_pickup_name = false;
+  editor.editing_entity_step = 0;
   editor.edited_entity_property_value = "";
 }
 
@@ -740,6 +735,7 @@ static void StopEditingEntityProperties(Tachyon* tachyon) {
  */
 static void HandleEntityPropertiesEditor(Tachyon* tachyon, State& state) {
   auto& entity_record = editor.current_selectable.entity_record;
+  auto* entity = EntityManager::FindEntity(state, entity_record);
   auto& property_value = editor.edited_entity_property_value;
 
   if (get_text_input()) {
@@ -750,49 +746,40 @@ static void HandleEntityPropertiesEditor(Tachyon* tachyon, State& state) {
     property_value.pop_back();
   }
 
-  // 1. astro_start_time
-  if (
-    editor.editing_astro_start_time &&
-    did_press_key(tKey::ENTER)
-  ) {
-    auto* entity = EntityManager::FindEntity(state, entity_record);
+  if (did_press_key(tKey::ENTER)) {
+    // 1. astro_start_time
+    if (editor.editing_entity_step == 0) {
+      entity->astro_start_time = ToFloat(property_value, entity->astro_start_time);
+    }
+    // 2. astro_end_time
+    else if (editor.editing_entity_step == 1) {
+      entity->astro_end_time = ToFloat(property_value, entity->astro_end_time);
+    }
+    // 3. item_pickup_name
+    else if (editor.editing_entity_step == 2) {
+      if (property_value != "") {
+        entity->item_pickup_name = property_value;
+      }
+    }
+    // 4. unique_name
+    else if (editor.editing_entity_step == 3) {
+      if (property_value != "") {
+        entity->unique_name = property_value;
+      }
+    }
+    // 5. associated_entity_name
+    else if (editor.editing_entity_step == 4) {
+      if (property_value != "") {
+        entity->associated_entity_name = property_value;
+      }
 
-    entity->astro_start_time = ToFloat(property_value, entity->astro_start_time);
-
-    editor.editing_astro_start_time = false;
-    editor.editing_astro_end_time = true;
-    editor.edited_entity_property_value = "";
-  }
-  // 2. astro_end_time
-  else if (
-    editor.editing_astro_end_time &&
-    did_press_key(tKey::ENTER)
-  ) {
-    auto* entity = EntityManager::FindEntity(state, entity_record);
-
-    entity->astro_end_time = ToFloat(property_value, entity->astro_end_time);
-
-    editor.editing_astro_end_time = false;
-    editor.edited_entity_property_value = "";
-
-    if (entity->type != ITEM_PICKUP) {
       StopEditingEntityProperties(tachyon);
-    } else {
-      editor.editing_item_pickup_name = true;
-    }
-  }
-  // 3. item_pickup_name
-  else if (
-    editor.editing_item_pickup_name &&
-    did_press_key(tKey::ENTER)
-  ) {
-    auto* entity = EntityManager::FindEntity(state, entity_record);
 
-    if (property_value != "") {
-      entity->item_pickup_name = property_value;
+      return;
     }
 
-    StopEditingEntityProperties(tachyon);
+    editor.editing_entity_step++;
+    editor.edited_entity_property_value = "";
   }
 }
 
@@ -1254,25 +1241,36 @@ static void DisplaySelectedEntityProperties(Tachyon* tachyon, State& state) {
   bool blink_text_cursor = int(roundf(tachyon->running_time * 2.f)) % 2 == 0;
   std::string text_cursor = blink_text_cursor ? "|" : "";
 
-  if (editor.editing_astro_start_time) {
+  #define is_on_editing_step(step) editor.is_editing_entity_properties && editor.editing_entity_step == step
+
+  if (is_on_editing_step(0)) {
     labels.push_back(".astro_start_time: " + editor.edited_entity_property_value + text_cursor);
   } else {
     labels.push_back(".astro_start_time: " + Serialize(entity.astro_start_time));
   }
 
-  if (editor.editing_astro_end_time) {
+  if (is_on_editing_step(1)) {
     labels.push_back(".astro_end_time: " + editor.edited_entity_property_value + text_cursor);
   } else {
     labels.push_back(".astro_end_time: " + Serialize(entity.astro_end_time));
   }
 
-  // @todo serialization
-  if (entity.type == ITEM_PICKUP) {
-    if (editor.editing_item_pickup_name) {
-      labels.push_back(".item_pickup_name: " + editor.edited_entity_property_value + text_cursor);
-    } else {
-      labels.push_back(".item_pickup_name: " + entity.item_pickup_name);
-    }
+  if (is_on_editing_step(2)) {
+    labels.push_back(".item_pickup_name: " + editor.edited_entity_property_value + text_cursor);
+  } else {
+    labels.push_back(".item_pickup_name: " + entity.item_pickup_name);
+  }
+
+  if (is_on_editing_step(3)) {
+    labels.push_back(".unique_name: " + editor.edited_entity_property_value + text_cursor);
+  } else {
+    labels.push_back(".unique_name: " + entity.unique_name);
+  }
+
+  if (is_on_editing_step(4)) {
+    labels.push_back(".associated_entity_name: " + editor.edited_entity_property_value + text_cursor);
+  } else {
+    labels.push_back(".associated_entity_name: " + entity.associated_entity_name);
   }
 
   RenderInfoLabels(tachyon, state, labels);

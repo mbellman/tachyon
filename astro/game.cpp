@@ -201,6 +201,24 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
   Items::SpawnItemObjects(tachyon, state);
   ProceduralGeneration::RebuildProceduralObjects(tachyon, state);
 
+  // Perform entity associations
+  // @todo factor
+  // @todo redo this upon leaving the editor
+  for_all_entity_types() {
+    for_entities_of_type(type) {
+      auto& entity = entities[i];
+
+      if (entity.associated_entity_name != "") {
+        GameEntity* associated_entity = EntityManager::FindEntityByUniqueName(state, entity.associated_entity_name);
+
+        if (associated_entity != nullptr) {
+          entity.associated_entity_record.type = associated_entity->type;
+          entity.associated_entity_record.id = associated_entity->id;
+        }
+      }
+    }
+  }
+
   // @todo default/load from save
   state.player_position = tVec3f(-13800.f, 0, -5900.f);
   state.player_facing_direction = tVec3f(0, 0, 1.f);

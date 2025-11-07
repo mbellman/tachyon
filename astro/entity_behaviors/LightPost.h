@@ -1,9 +1,33 @@
 #pragma once
 
-#include "astro/sfx.h"
 #include "astro/entity_behaviors/behavior.h"
+#include "astro/sfx.h"
+#include "astro/entity_manager.h"
 
 namespace astro {
+  static bool IsIlluminatedAtTime(State& state, const GameEntity& entity, const float astro_time) {
+    const float age_duration = 75.f;
+    const float astro_illumination_duration = 30.f;
+    const float astro_future_sight_duration = age_duration + astro_illumination_duration / 2.f;
+
+    bool is_responder = entity.associated_entity_record.id != -1;
+
+    if (is_responder) {
+
+      auto& associated_entity = *EntityManager::FindEntity(state, entity.associated_entity_record);
+      float future_time = astro_time + astro_future_sight_duration;
+
+      return IsIlluminatedAtTime(state, associated_entity, future_time);
+    } else {
+      return (
+        entity.game_activation_time != -1.f &&
+        astro_time >= entity.astro_activation_time &&
+        astro_time < entity.astro_activation_time + astro_illumination_duration
+      );
+    }
+  }
+
+  // @todo rename LightPillar
   behavior LightPost {
     addMeshes() {
       meshes.light_post_placeholder = MODEL_MESH("./astro/3d_models/light_post/placeholder.obj", 500);
@@ -27,31 +51,53 @@ namespace astro {
 
       const tVec4f base_lamp_color = tVec4f(1.f, 0.8f, 0.4f, 0.f);
       const tVec4f illuminated_lamp_color = tVec4f(1.f, 0.8f, 0.5f, 0.4f);
+      const float astro_illumination_duration = 65.f;
       const float activation_delay = 0.5f;
 
       float time_since_casting_stun = tachyon->scene.scene_time - state.spells.stun_start_time;
 
-      bool did_cast_stun = (
+      bool did_cast_stun_delayed = (
         time_since_casting_stun < activation_delay + 0.5f &&
         time_since_casting_stun > activation_delay
       );
 
-      // @todo fade out after a duration if puzzle isn't solved
       for_entities(state.light_posts) {
         auto& entity = state.light_posts[i];
         float player_distance = tVec3f::distance(state.player_position, entity.position);
 
-        bool is_illuminated = (
-          entity.game_activation_time != -1.f &&
-          state.astro_time >= entity.astro_activation_time
-        );
+        bool is_responder = entity.associated_entity_record.id != -1;
+        bool is_illuminated = IsIlluminatedAtTime(state, entity, state.astro_time);
 
-        // Casting stun in proximity to the entity
-        if (!is_illuminated && did_cast_stun && player_distance < 8000.f) {
-          entity.game_activation_time = tachyon->scene.scene_time;
-          entity.astro_activation_time = state.astro_time;
+        if (is_responder) {
+          // Responders "observe" their associated light pillar in the future,
+          // and become illuminated if that light pillar is in turn illuminated
+          auto& associated_entity = *EntityManager::FindEntity(state, entity.associated_entity_record);
 
-          Sfx::PlaySound(SFX_LIGHT_POST_ACTIVATE, 1.f);
+          if (is_illuminated && !entity.did_activate) {
+            entity.did_activate = true;
+            entity.game_activation_time = tachyon->scene.scene_time;
+            entity.astro_activation_time = state.astro_time;
+
+            Sfx::PlaySound(SFX_LIGHT_POST_ACTIVATE, 1.f);
+          }
+        } else {
+          // Regular light pillars illuminate when the player casts stun near them
+          if (!is_illuminated && did_cast_stun_delayed && player_distance < 8000.f) {
+            entity.astro_activation_time = state.astro_time;
+
+            is_illuminated = true;
+          }
+
+          if (is_illuminated && !entity.did_activate) {
+            entity.game_activation_time = tachyon->scene.scene_time;
+            entity.did_activate = true;
+
+            Sfx::PlaySound(SFX_LIGHT_POST_ACTIVATE, 1.f);
+          }
+        }
+
+        if (!is_illuminated) {
+          entity.did_activate = false;
         }
 
         // Pillar

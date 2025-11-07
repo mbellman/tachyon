@@ -116,7 +116,7 @@ namespace astro {
     tVec3f visible_position;
     Quaternion visible_rotation;
 
-    // Only used for enemy entities
+    // For enemy entities
     EnemyState enemy_state;
 
     // Only used for item pickup entities. We could use an internal ID,
@@ -125,7 +125,15 @@ namespace astro {
     // particularly for editing. We have to look up the actual item details
     // in a hash map when we create the object for it and pick it up, but
     // we can eat the cost for that.
+    //
+    // @todo repurpose for Low Guards carrying items
     std::string item_pickup_name = "";
+
+    // For entities with associated or dependent behaviors
+    std::string unique_name = "";
+    std::string associated_entity_name = "";
+    // Cached at start time using the associated entity name
+    EntityRecord associated_entity_record;
 
     // For entities which spawn light sources
     int32 light_id = -1;
@@ -133,6 +141,7 @@ namespace astro {
     // For interactible entities (gates, doors, light posts etc.)
     float game_activation_time = -1.f;
     float astro_activation_time = 0.f;
+    bool did_activate = false;
   };
 
   /**

@@ -49,6 +49,20 @@ GameEntity* EntityManager::FindEntity(State& state, const EntityRecord& record) 
   return FindEntityByRecord(entities, record);
 }
 
+GameEntity* EntityManager::FindEntityByUniqueName(State& state, const std::string& unique_name) {
+  for_all_entity_types() {
+    for_entities_of_type(type) {
+      auto& entity = entities[i];
+
+      if (entity.unique_name == unique_name) {
+        return &entity;
+      }
+    }
+  }
+
+  return nullptr;
+}
+
 void EntityManager::DeleteEntity(State& state, const EntityRecord& record) {
   auto& entities = EntityDispatcher::GetEntityContainer(state, record.type);
 

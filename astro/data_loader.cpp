@@ -81,9 +81,9 @@ void DataLoader::LoadLevelData(Tachyon* tachyon, State& state) {
       entity.astro_start_time = parsef(14);
       entity.astro_end_time = parsef(15);
 
-      if (entity_type == ITEM_PICKUP) {
-        entity.item_pickup_name = parts[16];
-      }
+      entity.item_pickup_name = parts[16];
+      entity.unique_name = parts[17];
+      entity.associated_entity_name = parts[18];
 
       // Set base visible position + rotation
       entity.visible_position = entity.position;
