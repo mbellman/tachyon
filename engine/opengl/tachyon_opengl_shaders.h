@@ -108,6 +108,14 @@ struct tUniformLocations {
   ) ion_thruster_mesh;
 
   uniform_locations(
+    view_projection_matrix,
+    transform_origin,
+    camera_position,
+    primary_light_direction,
+    scene_time
+  ) water_mesh;
+
+  uniform_locations(
     offset_and_scale,
     rotation,
     in_color_and_depth,
@@ -149,10 +157,11 @@ struct tOpenGLShaders {
   tOpenGLShader shadow_map;
   tOpenGLShader global_lighting;
   tOpenGLShader point_lights;
-  tOpenGLShader wireframe_mesh;
   tOpenGLShader volumetric_mesh;
   tOpenGLShader fire_mesh;
   tOpenGLShader ion_thruster_mesh;
+  tOpenGLShader wireframe_mesh;
+  tOpenGLShader water_mesh;
   tOpenGLShader post;
 
   tOpenGLShader surface;

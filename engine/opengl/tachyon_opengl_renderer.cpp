@@ -920,10 +920,6 @@ static void RenderPostMeshes(Tachyon* tachyon) {
   glEnable(GL_CULL_FACE);
   glEnable(GL_DEPTH_TEST);
 
-  auto& target_accumulation_buffer = renderer.current_frame % 2 == 0
-    ? renderer.accumulation_buffer_a
-    : renderer.accumulation_buffer_b;
-
   // Wireframes
   if (HasObjectsOfMeshType(tachyon, WIREFRAME_MESH)) {
     auto& shader = renderer.shaders.wireframe_mesh;
@@ -954,6 +950,30 @@ static void RenderPostMeshes(Tachyon* tachyon) {
     SetShaderFloat(locations.scene_time, scene.scene_time);
 
     RenderMeshesByType(tachyon, VOLUMETRIC_MESH);
+  }
+
+  // Water
+  if (HasObjectsOfMeshType(tachyon, WATER_MESH)) {
+    // @todo use and sample this
+    auto& previous_accumulation_buffer = renderer.current_frame % 2 == 0
+      ? renderer.accumulation_buffer_b
+      : renderer.accumulation_buffer_a;
+
+    auto& shader = renderer.shaders.water_mesh;
+    auto& locations = renderer.shaders.locations.water_mesh;
+
+    glDisable(GL_BLEND);
+
+    glUseProgram(shader.program);
+    SetShaderMat4f(locations.view_projection_matrix, ctx.view_projection_matrix);
+    SetShaderVec3f(locations.transform_origin, scene.transform_origin);
+    SetShaderVec3f(locations.camera_position, ctx.camera_position);
+    SetShaderVec3f(locations.primary_light_direction, scene.primary_light_direction);
+    SetShaderFloat(locations.scene_time, scene.scene_time);
+
+    RenderMeshesByType(tachyon, WATER_MESH);
+
+    glEnable(GL_BLEND);
   }
 
   // Check for transparent mesh types and disable depth writing accordingly
@@ -1310,11 +1330,11 @@ void Tachyon_OpenGL_RenderScene(Tachyon* tachyon) {
     glEnable(GL_BLEND);
     glBlendFuncSeparatei(0, GL_ONE, GL_ONE, GL_ONE, GL_ONE);
 
+    RenderPostMeshes(tachyon);
+
     if (!tachyon->use_high_visibility_mode) {
       RenderPointLights(tachyon);
     }
-
-    RenderPostMeshes(tachyon);
 
     glDisable(GL_BLEND);
 

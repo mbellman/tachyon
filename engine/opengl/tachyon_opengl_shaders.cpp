@@ -148,6 +148,12 @@ static void StoreShaderUniforms(tOpenGLShaders& shaders) {
   store_shader_uniform(ion_thruster_mesh, transform_origin);
   store_shader_uniform(ion_thruster_mesh, scene_time);
 
+  store_shader_uniform(water_mesh, view_projection_matrix);
+  store_shader_uniform(water_mesh, transform_origin);
+  store_shader_uniform(water_mesh, camera_position);
+  store_shader_uniform(water_mesh, primary_light_direction);
+  store_shader_uniform(water_mesh, scene_time);
+
   store_shader_uniform(post, offset_and_scale);
   store_shader_uniform(post, rotation);
   store_shader_uniform(post, in_color_and_depth);
@@ -247,6 +253,12 @@ void Tachyon_OpenGL_InitShaders(tOpenGLShaders& shaders) {
     shaders.ion_thruster_mesh,
     "./engine/opengl/shaders/post_geometry.vert.glsl",
     "./engine/opengl/shaders/ion_thruster_mesh.frag.glsl"
+  );
+
+  InitVertexFragmentShader(
+    shaders.water_mesh,
+    "./engine/opengl/shaders/post_geometry.vert.glsl",
+    "./engine/opengl/shaders/water_mesh.frag.glsl"
   );
 
   InitVertexFragmentShader(
