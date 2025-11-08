@@ -9,6 +9,16 @@ namespace astro {
     return entity.associated_entity_record.id != -1;
   }
 
+  static const GameEntity* GetFinalAssociatedEntity(State& state, const GameEntity& entity) {
+    if (entity.associated_entity_record.id != -1) {
+      auto& associated_entity = *EntityManager::FindEntity(state, entity.associated_entity_record);
+
+      return GetFinalAssociatedEntity(state, associated_entity);
+    } else {
+      return &entity;
+    }
+  }
+
   static bool IsIlluminatedAtTime(State& state, const GameEntity& entity, const float astro_time) {
     const float age_duration = 75.f;
     const float astro_illumination_duration = 30.f;
@@ -62,14 +72,35 @@ namespace astro {
 
       const tVec4f base_lamp_color = tVec4f(1.f, 0.8f, 0.4f, 0.f);
       const tVec4f illuminated_lamp_color = tVec4f(1.f, 0.8f, 0.5f, 0.4f);
-      const float activation_delay = 0.5f;
+      const float activation_delay = 0.25f;
 
       float time_since_casting_stun = tachyon->scene.scene_time - state.spells.stun_start_time;
 
+      bool did_immediately_just_cast_stun = (
+        state.astro_turn_speed == 0.f &&
+        time_since_casting_stun == 0.f
+      );
+
       bool did_cast_stun_delayed = (
-        time_since_casting_stun < activation_delay + 0.5f &&
+        state.astro_turn_speed == 0.f &&
+        time_since_casting_stun < activation_delay + 0.25f &&
         time_since_casting_stun > activation_delay
       );
+
+      // @todo dev mode only
+      // @todo move to hotkeys handler
+      {
+        if (did_press_key(tKey::R)) {
+          for_entities(state.light_posts) {
+            auto& entity = state.light_posts[i];
+
+            entity.did_activate = false;
+            entity.astro_activation_time = 0.f;
+            entity.game_activation_time = -1.f;
+            entity.is_astro_synced = false;
+          }
+        }
+      }
 
       for_entities(state.light_posts) {
         auto& entity = state.light_posts[i];
@@ -95,12 +126,12 @@ namespace astro {
           } else
           // @todo description
           if (
-            !entity.is_astro_synced &&
             is_illuminated &&
-            time_since_casting_stun == 0.f &&
+            !entity.is_astro_synced &&
             !IsResponder(associated_entity) &&
             !IsIlluminatedAtTime(state, associated_entity, state.astro_time) &&
-            tVec3f::distance(state.player_position, associated_entity.position) < 8000.f
+            did_immediately_just_cast_stun &&
+            tVec3f::distance(state.player_position, associated_entity.position) < 6000.f
           ) {
             entity.is_astro_synced = true;
             associated_entity.is_astro_synced = true;
@@ -109,21 +140,24 @@ namespace astro {
           } else
           // @todo description
           if (
+            is_illuminated &&
             !entity.is_astro_synced &&
             entity.requires_astro_sync &&
             associated_entity.is_astro_synced &&
-            is_illuminated &&
             IsResponder(associated_entity) &&
-            time_since_casting_stun == 0.f
+            did_immediately_just_cast_stun &&
+            tVec3f::distance(state.player_position, GetFinalAssociatedEntity(state, entity)->position) < 6000.f
           ) {
             entity.is_astro_synced = true;
 
-            Sfx::PlaySound(SFX_LIGHT_POST_ASTRO_SYNCED, 1.f);
+            Sfx::PlaySound(SFX_LIGHT_POST_ASTRO_SYNCED_2, 1.f);
           }
         } else {
           // Regular light pillars illuminate when the player casts stun near them
-          if (!is_illuminated && did_cast_stun_delayed && player_distance < 8000.f) {
-            entity.astro_activation_time = state.astro_time;
+          if (!is_illuminated && did_cast_stun_delayed && player_distance < 6000.f) {
+            // Offset the time by -1.f to give timing of lightpost puzzles a little wiggle room,
+            // and improve the fade-out when we start astro turning in reverse from now
+            entity.astro_activation_time = state.astro_time - 1.f;
 
             is_illuminated = true;
           }
