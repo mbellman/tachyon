@@ -217,7 +217,11 @@ namespace astro {
                 // Handle key retrieval
                 float player_to_key_distance = tVec3f::distance(state.player_position, gate_key.position);
 
-                if (entity.enemy_state.mood == ENEMY_IDLE && player_to_key_distance < 2000.f) {
+                if (
+                  entity.enemy_state.mood == ENEMY_IDLE &&
+                  player_to_key_distance < 2000.f &&
+                  state.astro_turn_speed == 0.f
+                ) {
                   if (did_press_key(tKey::CONTROLLER_A)) {
                     Items::CollectItem(tachyon, state, GATE_KEY);
 

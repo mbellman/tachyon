@@ -45,6 +45,14 @@ namespace astro {
     UISystem::ShowDialogue(tachyon, state, dialogue.text);
 
     if (strcmp(dialogue.sound, "") != 0) {
+      // @hack prevent spamming dialogue audio
+      // @todo fix properly
+      if (tachyon->scene.scene_time - state.last_dialogue_sound_time < 1.f) {
+        return;
+      }
+
+      state.last_dialogue_sound_time = tachyon->scene.scene_time;
+
       Tachyon_PlaySound(dialogue.sound);
     }
   }

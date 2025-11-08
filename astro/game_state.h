@@ -189,6 +189,7 @@ namespace astro {
 
     std::string dialogue_message = "";
     float dialogue_start_time = 0.f;
+    float last_dialogue_sound_time = 0.f;
 
     // @todo dev mode only
     tUIText* debug_text = nullptr;

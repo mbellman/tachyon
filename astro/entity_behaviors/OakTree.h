@@ -10,6 +10,8 @@ namespace astro {
       meshes.oak_tree_trunk = MODEL_MESH("./astro/3d_models/oak_tree/trunk.obj", 500);
       meshes.oak_tree_branches = MODEL_MESH("./astro/3d_models/oak_tree/branches.obj", 500);
       meshes.oak_tree_leaves = MODEL_MESH("./astro/3d_models/oak_tree/leaves.obj", 500);
+
+      // mesh(meshes.oak_tree_leaves).type = GRASS_MESH;
     }
 
     getMeshes() {
@@ -29,6 +31,7 @@ namespace astro {
       auto& meshes = state.meshes;
 
       const tVec3f wood_color = tVec3f(1.f, 0.4f, 0.2f);
+      const tVec4f wood_material = tVec4f(1.f, 0, 0, 0.1f);
       const tVec3f leaves_color = tVec3f(0.15f, 0.3f, 0.1f);
       const float lifetime = 200.f;
 
@@ -53,15 +56,16 @@ namespace astro {
 
         roots.scale = entity.scale * tVec3f(
           tree_thickness,
-          tree_height,
+          tree_height * 2.5f,
           tree_thickness
         );
 
         roots.position = entity.position;
-        roots.position.y = entity.position.y - entity.scale.y * (1.f - tree_thickness);
+        roots.position.y = entity.position.y + entity.scale.y * 1.2f * tree_thickness;// - entity.scale.y * (1.f - tree_thickness);
 
         roots.rotation = entity.orientation;
         roots.color = wood_color;
+        roots.material = wood_material;
 
         // Trunk
         auto& trunk = objects(meshes.oak_tree_trunk)[i];
@@ -77,6 +81,7 @@ namespace astro {
 
         trunk.rotation = entity.orientation;
         trunk.color = wood_color;
+        trunk.material = wood_material;
 
         // Branches
         auto& branches = objects(meshes.oak_tree_branches)[i];
@@ -92,6 +97,7 @@ namespace astro {
 
         branches.rotation = entity.orientation;
         branches.color = wood_color;
+        branches.material = wood_material;
 
         // Leaves
         auto& leaves = objects(meshes.oak_tree_leaves)[i];

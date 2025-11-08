@@ -4,6 +4,8 @@
 using namespace astro;
 
 void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) {
+  profile("UpdateCamera()");
+
   auto& camera = tachyon->scene.camera;
   tVec3f new_camera_position;
 
@@ -50,6 +52,18 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) 
     // as it returns to its expected position, which looks odd.
     new_camera_position = state.player_position;
 
+    // @todo factor
+    for_entities(state.light_posts) {
+      auto& entity = state.light_posts[i];
+      float player_distance = tVec3f::distance(state.player_position, entity.position);
+
+      float distance_factor = 1.f - player_distance / 10000.f;
+      if (distance_factor < 0.f) distance_factor = 0.f;
+
+      new_camera_position.y += 2000.f * distance_factor;
+      new_camera_position.z += 2000.f * distance_factor;
+    }
+
     tVec3f shift_direction = state.player_facing_direction + tVec3f(0, 0, 0.25f);
 
     state.camera_shift = shift_direction * tVec3f(0.5f, 0, 1.f) * 1500.f;
@@ -63,6 +77,18 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) 
     float shift_amount = std::max(player_speed * 1.5f, 1500.f);
     tVec3f shift_direction = state.player_facing_direction + tVec3f(0, 0, 0.25f);
     tVec3f desired_camera_shift = shift_direction * tVec3f(0.5f, 0, 1.f) * shift_amount;
+
+    // @todo factor
+    for_entities(state.light_posts) {
+      auto& entity = state.light_posts[i];
+      float player_distance = tVec3f::distance(state.player_position, entity.position);
+
+      float distance_factor = 1.f - player_distance / 10000.f;
+      if (distance_factor < 0.f) distance_factor = 0.f;
+
+      new_camera_position.y += 2000.f * distance_factor;
+      new_camera_position.z += 2000.f * distance_factor;
+    }
 
     state.camera_shift = tVec3f::lerp(state.camera_shift, desired_camera_shift, 5.f * dt);
   }
