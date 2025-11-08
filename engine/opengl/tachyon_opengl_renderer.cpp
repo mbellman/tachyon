@@ -954,13 +954,10 @@ static void RenderPostMeshes(Tachyon* tachyon) {
 
   // Water
   if (HasObjectsOfMeshType(tachyon, WATER_MESH)) {
-    // @todo use and sample this
-    auto& previous_accumulation_buffer = renderer.current_frame % 2 == 0
-      ? renderer.accumulation_buffer_b
-      : renderer.accumulation_buffer_a;
-
     auto& shader = renderer.shaders.water_mesh;
     auto& locations = renderer.shaders.locations.water_mesh;
+
+    renderer.g_buffer.read();
 
     glDisable(GL_BLEND);
 
@@ -969,6 +966,8 @@ static void RenderPostMeshes(Tachyon* tachyon) {
     SetShaderVec3f(locations.transform_origin, scene.transform_origin);
     SetShaderVec3f(locations.camera_position, ctx.camera_position);
     SetShaderVec3f(locations.primary_light_direction, scene.primary_light_direction);
+    // @todo not the correct name; this is in_normal_and_depth
+    SetShaderInt(locations.previous_color_and_depth, G_BUFFER_NORMALS_AND_DEPTH);
     SetShaderFloat(locations.scene_time, scene.scene_time);
 
     RenderMeshesByType(tachyon, WATER_MESH);

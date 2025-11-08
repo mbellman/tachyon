@@ -112,6 +112,7 @@ struct tUniformLocations {
     transform_origin,
     camera_position,
     primary_light_direction,
+    previous_color_and_depth,
     scene_time
   ) water_mesh;
 
