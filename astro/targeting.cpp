@@ -1,5 +1,6 @@
 #include "astro/targeting.h"
 #include "astro/entity_manager.h"
+#include "astro/entity_behaviors/behavior.h"
 
 using namespace astro;
 
@@ -55,6 +56,9 @@ static void TrackTargetableEntities(State& state) {
   // @todo factor
   for_entities(state.low_guards) {
     auto& entity = state.low_guards[i];
+
+    if (!IsDuringActiveTime(entity, state)) continue;
+
     float player_distance = tVec3f::distance(entity.visible_position, state.player_position);
 
     if (player_distance < target_distance_limit) {
@@ -65,6 +69,9 @@ static void TrackTargetableEntities(State& state) {
   // @todo factor
   for_entities(state.bandits) {
     auto& entity = state.bandits[i];
+
+    if (!IsDuringActiveTime(entity, state)) continue;
+
     float player_distance = tVec3f::distance(entity.visible_position, state.player_position);
 
     if (player_distance < target_distance_limit) {

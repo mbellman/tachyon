@@ -194,10 +194,7 @@ namespace astro {
 
         // Item holding
         {
-          // @hack @temporary
-          // @todo allow entities to have configurable held items
-          bool is_gate_key_guard = tVec3f::distance(entity.position, tVec3f(84410.f, 46.f, -8000.f)) < 1000.f;
-
+          bool is_gate_key_guard = entity.item_pickup_name == "gate_key";
           bool player_has_gate_key = Items::HasItem(state, GATE_KEY);
 
           if (!player_has_gate_key) {
@@ -210,7 +207,7 @@ namespace astro {
                 gate_key.scale = tVec3f(700.f);
                 gate_key.rotation = entity.visible_rotation;
                 gate_key.color = tVec3f(1.f, 1.f, 0.2f);
-                gate_key.material = tVec4f(0.2f, 1.f, 0, 0);
+                gate_key.material = tVec4f(0.2f, 1.f, 0, 0.4f);
 
                 commit(gate_key);
 

@@ -766,9 +766,7 @@ static void HandleEntityPropertiesEditor(Tachyon* tachyon, State& state) {
     }
     // 3. item_pickup_name
     else if (editor.editing_entity_step == 2) {
-      if (property_value != "") {
-        entity->item_pickup_name = property_value;
-      }
+      entity->item_pickup_name = property_value;
     }
     // 4. unique_name
     else if (editor.editing_entity_step == 3) {
@@ -792,7 +790,20 @@ static void HandleEntityPropertiesEditor(Tachyon* tachyon, State& state) {
     }
 
     editor.editing_entity_step++;
-    editor.edited_entity_property_value = "";
+
+    // @todo make this fix for requires_astro_sync as well
+    if (editor.editing_entity_step == 2) {
+      editor.edited_entity_property_value = entity->item_pickup_name;
+    }
+    else if (editor.editing_entity_step == 3) {
+      editor.edited_entity_property_value = entity->unique_name;
+    }
+    else if (editor.editing_entity_step == 4) {
+      editor.edited_entity_property_value = entity->associated_entity_name;
+    }
+    else {
+      editor.edited_entity_property_value = "";
+    }
   }
 }
 

@@ -355,8 +355,8 @@ void main() {
         ring_factor = 0.0;
       }
 
-      post_color.rgb = mix(post_color.rgb, vec3(1.0, 0.8, 0.4), haze_factor);
-      post_color.rgb = mix(post_color.rgb, vec3(1.0, 1.0, 0.7), ring_factor);
+      post_color = mix(post_color, vec3(1.0, 0.8, 0.4), haze_factor);
+      post_color = mix(post_color, vec3(1.0, 1.0, 0.7), ring_factor);
     }
   #endif
 

@@ -445,12 +445,11 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
   tRNG rng(12345.f);
 
   // Clusters
-  for (int i = 0; i < 2000; i++) {
+  for (int i = 0; i < 7000; i++) {
     tVec3f center;
-    // @todo increase range
-    center.x = rng.Random(-150000.f, 150000.f);
+    center.x = rng.Random(-300000.f, 300000.f);
     center.y = -1000.f;
-    center.z = rng.Random(-150000.f, 150000.f);
+    center.z = rng.Random(-300000.f, 300000.f);
 
     // 4 flowers per cluster
     for (int i = 0; i < 4; i++) {

@@ -122,13 +122,17 @@ void main() {
   float big_wave = sin(fragPosition.z * 0.0002 + fragPosition.x * 0.0002 + ripple_speed);
   float small_wave = sin(fragPosition.z * 0.001 + fragPosition.x * 0.001 + ripple_speed);
 
+  // Directional waves
   N.z += 0.1 * sin(fragPosition.z * 0.001 - fragPosition.x * 0.001 + water_speed + big_wave);
   N.x += 0.1 * cos(fragPosition.z * 0.0025 - fragPosition.x * 0.001 + water_speed + small_wave);
 
   float wx = fragPosition.x;
   float wz = fragPosition.z;
-  N.xz += 0.1 * vec2(simplex_noise(vec2(scene_time * 0.2 + wx * 0.001, scene_time * 0.5 + wz * 0.001)));
-  N.xz += 0.2 * vec2(simplex_noise(vec2(scene_time * 0.2 + wx * 0.0002, scene_time * 0.2 + wz * 0.0002)));
+
+  // Noise/turbulence
+  N.xz += 0.1 * vec2(simplex_noise(vec2(scene_time * 0.5 + wx * 0.0005, scene_time * 0.5 + wz * 0.0005)));
+  N.xz += 0.1 * vec2(simplex_noise(vec2(scene_time * 0.5 + wx * 0.002, scene_time * 0.5 + wz * 0.002)));
+  N.xz *= 0.2;
 
   N = normalize(N);
 
@@ -143,7 +147,7 @@ void main() {
 
   vec3 out_color = vec3(0.0);
 
-  const vec3 base_water_color = vec3(0, 0.1, 0.3);
+  const vec3 base_water_color = vec3(0, 0.05, 0.2);
   const vec3 base_underwater_color = vec3(0.2, 0.3, 0.6);
 
   // Sample objects beneath the surface of the water.
@@ -185,13 +189,21 @@ void main() {
     reflection_color += GetReflectionColor(R);
 
     // Light reflection
-    reflection_color += 10.0 * pow(max(0.0, dot(R, L)), 5.0);
+    reflection_color += 5.0 * pow(max(0.0, dot(R, L)), 5.0);
 
     // @todo refine
-    float fresnel_factor = pow(max(0.0, dot(R, -V)), 3.0);
+    float fresnel_factor = pow(max(0.0, dot(R, -V)), 2.0);
 
     out_color = mix(out_color, reflection_color, fresnel_factor);
-    out_color = mix(out_color, vec3(0.4), 0.3);
+    out_color = mix(out_color, vec3(0.4), 0.2);
+  }
+
+  // @todo fog
+  {
+    // float visibility_range = 40000.0;
+    // float frag_distance_from_camera = length(fragPosition - camera_position);
+    // float fog_thickness = clamp(frag_distance_from_camera / visibility_range, 0.0, 1.0);
+    // out_color = mix(out_color, vec3(0.2, 0.2, 0.4), fog_thickness);
   }
 
   out_color_and_depth = vec4(out_color, gl_FragCoord.z);

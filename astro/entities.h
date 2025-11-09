@@ -119,14 +119,10 @@ namespace astro {
     // For enemy entities
     EnemyState enemy_state;
 
-    // Only used for item pickup entities. We could use an internal ID,
-    // but those IDs might not remain constant as item types are introduced
-    // or eliminated, and using a readable item name is more ergonomic,
-    // particularly for editing. We have to look up the actual item details
-    // in a hash map when we create the object for it and pick it up, but
-    // we can eat the cost for that.
+    // Used for item pickup entities, or entities which can
+    // impart items to the player (e.g. guards carrying things).
     //
-    // @todo repurpose for Low Guards carrying items
+    // @todo rename this
     std::string item_pickup_name = "";
 
     // For entities with associated or dependent behaviors

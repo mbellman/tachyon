@@ -614,7 +614,7 @@ void main() {
   float emissive = color.a;
   Material material = UnpackMaterial(frag_color_and_material);
 
-  vec3 V = normalize(camera_position - position);
+  vec3 V = -D;
   vec3 L = normalize(primary_light_direction);
 
   float NdotV = max(dot(N, V), 0.0);
@@ -740,6 +740,14 @@ void main() {
 
   out_color -= ssao;
   // out_color -= ssao * (0.5 + 0.5 * shadow);
+
+  // @todo fog
+  {
+    // float visibility_range = 20000.0;
+    // float frag_distance_from_camera = length(position - camera_position);
+    // float fog_thickness = clamp(frag_distance_from_camera / visibility_range, 0.0, 1.0);
+    // out_color = mix(out_color, vec3(0.2, 0.2, 0.4), fog_thickness);
+  }
 
   vec3 previous_color = texture(previous_color_and_depth, fragUv).rgb;
 
