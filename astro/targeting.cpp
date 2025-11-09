@@ -77,14 +77,15 @@ static void HandleActiveTargetReticle(Tachyon* tachyon, State& state) {
   auto& reticle = objects(state.meshes.target_reticle)[0];
   auto& entity = *EntityManager::FindEntity(state, state.target_entity);
   float entity_distance = (state.player_position - entity.visible_position).magnitude();
+  float time = tachyon->scene.scene_time;
 
   reticle.position = entity.visible_position;
   reticle.position.y += entity.visible_scale.y + 1200.f;
-  reticle.position.y += 100.f * sinf(t_TAU * tachyon->running_time);
+  reticle.position.y += 100.f * sinf(t_TAU * time);
 
   reticle.scale = tVec3f(400.f);
   reticle.color = tVec4f(1.f, 0.8f, 0.2f, 0.4f);
-  reticle.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -2.f * tachyon->running_time);
+  reticle.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -2.f * time);
 
   if (entity_distance > 10000.f || entity.visible_scale.x == 0.f) {
     Targeting::DeselectCurrentTarget(tachyon, state);
@@ -93,19 +94,22 @@ static void HandleActiveTargetReticle(Tachyon* tachyon, State& state) {
   commit(reticle);
 }
 
-static void HandleTargetPreviewReticle(Tachyon* tachyon, State& state) {
+static void HandlePreviewTargetReticle(Tachyon* tachyon, State& state) {
   auto& reticle = objects(state.meshes.target_reticle)[0];
   auto closest_target = GetClosestNonSelectedTarget(state);
 
   if (closest_target.type != UNSPECIFIED) {
     auto& entity = *EntityManager::FindEntity(state, closest_target);
+    float time = tachyon->scene.scene_time;
 
     reticle.position = entity.visible_position;
     reticle.position.y += entity.visible_scale.y + 1200.f;
-    reticle.position.y += 100.f * sinf(t_TAU * tachyon->running_time);
+    reticle.position.y += 150.f * sinf(t_TAU * tachyon->running_time);
 
     reticle.scale = tVec3f(250.f);
-    reticle.color = tVec4f(1.f, 0.3f, 0.1f, 0.4f);
+    reticle.color = tVec4f(0.7f, 0.2f, 0.1f, 0.8f);
+
+    reticle.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -2.f * time);
   } else {
     reticle.scale = tVec3f(0.f);
   }
@@ -117,7 +121,7 @@ static void UpdateTargetReticle(Tachyon* tachyon, State& state) {
   if (state.has_target) {
     HandleActiveTargetReticle(tachyon, state);
   } else {
-    HandleTargetPreviewReticle(tachyon, state);
+    HandlePreviewTargetReticle(tachyon, state);
   }
 }
 

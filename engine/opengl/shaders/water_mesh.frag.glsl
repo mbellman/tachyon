@@ -144,38 +144,55 @@ void main() {
   vec3 out_color = vec3(0.0);
 
   const vec3 base_water_color = vec3(0, 0.1, 0.3);
+  const vec3 base_underwater_color = vec3(0.2, 0.3, 0.6);
 
-  // @todo pass in as a uniform
-  const vec2 resolution = vec2(2560.0, 1440.0);
-  vec2 fragUv = 2.0 * gl_FragCoord.xy / resolution - 1.0;
+  // Sample objects beneath the surface of the water.
+  // For now we simply sample depth and fade to a light
+  // blue color near the surface.
+  {
+    // @todo pass in as a uniform
+    const vec2 resolution = vec2(2560.0, 1440.0);
 
-  fragUv *= 0.5;
-  fragUv += 0.5;
+    vec2 sample_coordinates = gl_FragCoord.xy;
 
-  float previous_depth = texture(previous_color_and_depth, fragUv).w;
-  previous_depth = GetWorldDepth(previous_depth, Z_NEAR, Z_FAR);
+    // @todo make wave intensity proportional to distance
+    sample_coordinates.x += 5.0 * sin(fragPosition.z * 0.005 + scene_time);
 
-  float water_depth = GetWorldDepth(gl_FragCoord.z, Z_NEAR, Z_FAR);
+    vec2 sample_uv = 2.0 * sample_coordinates / resolution - 1.0;
+    sample_uv *= 0.5;
+    sample_uv += 0.5;
 
-  float depth_factor = clamp((previous_depth - water_depth) / 2000.0, 0.0, 1.0);
-  depth_factor = sqrt(depth_factor);
+    float water_surface_z = GetWorldDepth(gl_FragCoord.z, Z_NEAR, Z_FAR);
+    float underwater_sample_z = texture(previous_color_and_depth, sample_uv).w;
+    underwater_sample_z = GetWorldDepth(underwater_sample_z, Z_NEAR, Z_FAR);
 
-  out_color = mix(base_water_color, vec3(0.1, 0.3, 0.5), 1.0 - depth_factor);
+    float underwater_visibility = clamp((underwater_sample_z - water_surface_z) / 2000.0, 0.0, 1.0);
+    underwater_visibility = 1.0 - underwater_visibility;
+    underwater_visibility *= underwater_visibility;
 
-  // @todo refine
-  vec3 reflection_color = vec3(0);
+    // Prevent objects above the water from being sampled
+    if (underwater_sample_z < water_surface_z) underwater_visibility = 0.0;
 
-  // Sky reflection
-  reflection_color += GetReflectionColor(R);
+    out_color = mix(base_water_color, base_underwater_color, underwater_visibility);
+  }
 
-  // Light reflection
-  reflection_color += 10.0 * pow(max(0.0, dot(R, L)), 5.0);
+  // Reflect sky + primary light
+  {
+    // @todo refine
+    vec3 reflection_color = vec3(0);
 
-  // @todo refine
-  float fresnel_factor = pow(max(0.0, dot(R, -V)), 3.0);
+    // Sky reflection
+    reflection_color += GetReflectionColor(R);
 
-  out_color = mix(out_color, reflection_color, fresnel_factor);
-  out_color = mix(out_color, vec3(0.4), 0.2);
+    // Light reflection
+    reflection_color += 10.0 * pow(max(0.0, dot(R, L)), 5.0);
+
+    // @todo refine
+    float fresnel_factor = pow(max(0.0, dot(R, -V)), 3.0);
+
+    out_color = mix(out_color, reflection_color, fresnel_factor);
+    out_color = mix(out_color, vec3(0.4), 0.3);
+  }
 
   out_color_and_depth = vec4(out_color, gl_FragCoord.z);
 }
