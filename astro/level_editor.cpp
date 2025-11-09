@@ -12,8 +12,6 @@
 #include "astro/object_manager.h"
 #include "astro/procedural_generation.h"
 
-#define get_entity_defaults(__type) entity_defaults_map.at(__type)
-
 using namespace astro;
 
 enum GizmoAction {
@@ -172,6 +170,26 @@ void SaveLevelData(Tachyon* tachyon, State& state) {
   }
 
   Tachyon_WriteFileContents("./astro/level_data/level.txt", level_data);
+}
+
+/**
+ * ----------------------------
+ * Gets default spawn parameters for an entity.
+ * ----------------------------
+ */
+static EntityDefaults& GetEntityDefaults(EntityType entity_type) {
+  return entity_defaults_map.at(entity_type);
+}
+
+/**
+ * ----------------------------
+ * Gets default spawn parameters for a decorative object.
+ * ----------------------------
+ */
+static DecorativeMesh& GetDecorativeMeshDefaults(State& state, uint16 mesh_index) {
+  auto& decorative_meshes = GetDecorativeMeshes(state);
+
+  return decorative_meshes[editor.current_decorative_mesh_index];
 }
 
 /**
@@ -707,7 +725,7 @@ static void CycleEntities(Tachyon* tachyon, State& state, int8 direction) {
   }
 
   auto entity_type = entity_types[editor.current_entity_index];
-  std::string& entity_name = get_entity_defaults(entity_type).name;
+  std::string& entity_name = GetEntityDefaults(entity_type).name;
 
   show_overlay_message("Active entity: " + entity_name);
 }
@@ -849,7 +867,7 @@ static void DeselectCurrent(Tachyon* tachyon, State& state) {
   SyncSelectables(tachyon);
   SaveLevelData(tachyon, state);
 
-  ProceduralGeneration::RebuildProceduralObjects(tachyon, state);
+  // ProceduralGeneration::RebuildProceduralObjects(tachyon, state);
 
   if (!tachyon->hotkeys_enabled) {
     // We disable engine hotkeys when starting the entity editor flow.
@@ -963,19 +981,26 @@ static tVec3f GetSpawnPosition(Tachyon* tachyon, State& state) {
 
     if (editor.is_placing_entity) {
       // @temporary
-      // @todo define entity placement defaults
+      // @todo define entity placemen offset defaults
       EntityType entity_type = entity_types[editor.current_entity_index];
 
       if (entity_type == DIRT_PATH_NODE) {
         return placer.position + tVec3f(0, 1500.f, 0);
       }
+
+      if (entity_type == SHRUB) {
+        auto& defaults = GetEntityDefaults(entity_type);
+
+        return placer.position + tVec3f(0, defaults.scale.y, 0);
+      }
     }
 
     return placer.position;
   }
+  // @deprecated
   else if (editor.is_placing_entity) {
     EntityType entity_type = entity_types[editor.current_entity_index];
-    auto& defaults = get_entity_defaults(entity_type);
+    auto& defaults = GetEntityDefaults(entity_type);
 
     // @temporary
     // @todo define various restrictions/defaults on how certain
@@ -989,6 +1014,7 @@ static tVec3f GetSpawnPosition(Tachyon* tachyon, State& state) {
       return camera.position + camera.orientation.getDirection() * 7500.f;
     }
   }
+  // @deprecated
   else {
     auto& decorative_meshes = GetDecorativeMeshes(state);
     auto& current_decorative_mesh = decorative_meshes[editor.current_decorative_mesh_index];
@@ -1013,25 +1039,19 @@ static tVec3f GetSpawnPosition(Tachyon* tachyon, State& state) {
  * @todo rename to reflect this is for the current-selected type
  * ----------------------------
  */
-static void CreateNewDecorativeObject(Tachyon* tachyon, State& state) {
-  auto& decorative_meshes = GetDecorativeMeshes(state);
-  auto& current_decorative_mesh = decorative_meshes[editor.current_decorative_mesh_index];
-  auto& object = create(current_decorative_mesh.mesh_index);
+static void PlaceNewDecorativeObject(Tachyon* tachyon, State& state) {
+  auto& defaults = GetDecorativeMeshDefaults(state, editor.current_decorative_mesh_index);
+  auto& object = create(defaults.mesh_index);
 
   object.position = GetSpawnPosition(tachyon, state);
-  object.scale = current_decorative_mesh.default_scale;
-  object.color = current_decorative_mesh.default_color;
+  object.scale = defaults.default_scale;
+  object.color = defaults.default_color;
 
   commit(object);
 
   TrackDecorativeObject(object);
 
-  ProceduralGeneration::RebuildProceduralObjects(tachyon, state);
-
-  // @todo remove
-  if (!editor.is_in_placement_mode) {
-    MakeSelection(tachyon, state, editor.selectables.back());
-  }
+  // ProceduralGeneration::RebuildProceduralObjects(tachyon, state);
 }
 
 /**
@@ -1040,9 +1060,9 @@ static void CreateNewDecorativeObject(Tachyon* tachyon, State& state) {
  * @todo rename to reflect this is for the current-selected type
  * ----------------------------
  */
-static void CreateNewEntity(Tachyon* tachyon, State& state) {
+static void PlaceNewEntity(Tachyon* tachyon, State& state) {
   EntityType entity_type = entity_types[editor.current_entity_index];
-  auto& defaults = get_entity_defaults(entity_type);
+  auto& defaults = GetEntityDefaults(entity_type);
   GameEntity entity = EntityManager::CreateNewEntity(state, entity_type);
 
   entity.position = GetSpawnPosition(tachyon, state);
@@ -1056,7 +1076,7 @@ static void CreateNewEntity(Tachyon* tachyon, State& state) {
 
   SpawnEntityObjects(tachyon, state, entity);
 
-  ProceduralGeneration::RebuildProceduralObjects(tachyon, state);
+  // ProceduralGeneration::RebuildProceduralObjects(tachyon, state);
 }
 
 /**
@@ -1245,7 +1265,7 @@ static void RenderInfoLabels(Tachyon* tachyon, State& state, const std::vector<s
  */
 static void DisplaySelectedEntityProperties(Tachyon* tachyon, State& state) {
   auto& selected = editor.current_selectable;
-  auto& entity_name = get_entity_defaults(selected.entity_record.type).name;
+  auto& entity_name = GetEntityDefaults(selected.entity_record.type).name;
   auto& entity = *EntityManager::FindEntity(state, selected.entity_record);
   int32 total_active = EntityDispatcher::GetEntityContainer(state, entity.type).size();
   auto& mesh = mesh(selected.placeholder.mesh_index);
@@ -1381,7 +1401,7 @@ static void DeleteSelected(Tachyon* tachyon, State& state) {
 
   DestroyGizmo(tachyon, state);
 
-  ProceduralGeneration::RebuildProceduralObjects(tachyon, state);
+  // ProceduralGeneration::RebuildProceduralObjects(tachyon, state);
 
   editor.is_anything_selected = false;
 }
@@ -1416,9 +1436,9 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
   if (did_left_click_down() && !editor.is_anything_selected) {
     if (editor.is_in_placement_mode) {
       if (editor.is_placing_entity) {
-        CreateNewEntity(tachyon, state);
+        PlaceNewEntity(tachyon, state);
       } else {
-        CreateNewDecorativeObject(tachyon, state);
+        PlaceNewDecorativeObject(tachyon, state);
       }
     } else {
       MaybeMakeSelection(tachyon, state);
@@ -1492,8 +1512,12 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
       EnterPlacementMode(tachyon, state);
     }
 
-    if (did_right_click_down() && editor.is_in_placement_mode) {
-      ExitPlacementMode(tachyon, state);
+    if (did_right_click_down()) {
+      if (editor.is_in_placement_mode) {
+        ExitPlacementMode(tachyon, state);
+      } else {
+        EnterPlacementMode(tachyon, state);
+      }
     }
 
     if (did_press_key(tKey::R)) {
@@ -1574,7 +1598,7 @@ static void DisplayObjectPlacementLabels(Tachyon* tachyon, State& state) {
  */
 static void DisplayEntityPlacementLabels(Tachyon* tachyon, State& state) {
   EntityType entity_type = entity_types[editor.current_entity_index];
-  auto& defaults = get_entity_defaults(entity_type);
+  auto& defaults = GetEntityDefaults(entity_type);
   auto& entity_name = defaults.name;
   uint16 mesh_index = EntityDispatcher::GetPlaceholderMesh(state, entity_type);
   int32 total_active = EntityDispatcher::GetEntityContainer(state, entity_type).size();
@@ -1724,9 +1748,9 @@ void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
 
   if (editor.is_anything_selected) {
     DeselectCurrent(tachyon, state);
-  } else {
-    ProceduralGeneration::RebuildProceduralObjects(tachyon, state);
   }
+
+  ProceduralGeneration::RebuildProceduralObjects(tachyon, state);
 
   Items::SpawnItemObjects(tachyon, state);
 
