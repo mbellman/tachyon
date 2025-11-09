@@ -199,7 +199,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
   ObjectManager::CreateObjects(tachyon, state);
   DataLoader::LoadLevelData(tachyon, state);
   Items::SpawnItemObjects(tachyon, state);
-  ProceduralGeneration::RebuildProceduralObjects(tachyon, state);
+  ProceduralGeneration::RebuildAllProceduralObjects(tachyon, state);
 
   // Perform entity associations
   // @todo factor

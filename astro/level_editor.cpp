@@ -867,7 +867,7 @@ static void DeselectCurrent(Tachyon* tachyon, State& state) {
   SyncSelectables(tachyon);
   SaveLevelData(tachyon, state);
 
-  // ProceduralGeneration::RebuildProceduralObjects(tachyon, state);
+  ProceduralGeneration::RebuildSimpleProceduralObjects(tachyon, state);
 
   if (!tachyon->hotkeys_enabled) {
     // We disable engine hotkeys when starting the entity editor flow.
@@ -1051,7 +1051,7 @@ static void PlaceNewDecorativeObject(Tachyon* tachyon, State& state) {
 
   TrackDecorativeObject(object);
 
-  // ProceduralGeneration::RebuildProceduralObjects(tachyon, state);
+  ProceduralGeneration::RebuildSimpleProceduralObjects(tachyon, state);
 }
 
 /**
@@ -1076,7 +1076,7 @@ static void PlaceNewEntity(Tachyon* tachyon, State& state) {
 
   SpawnEntityObjects(tachyon, state, entity);
 
-  // ProceduralGeneration::RebuildProceduralObjects(tachyon, state);
+  ProceduralGeneration::RebuildSimpleProceduralObjects(tachyon, state);
 }
 
 /**
@@ -1401,7 +1401,7 @@ static void DeleteSelected(Tachyon* tachyon, State& state) {
 
   DestroyGizmo(tachyon, state);
 
-  // ProceduralGeneration::RebuildProceduralObjects(tachyon, state);
+  ProceduralGeneration::RebuildSimpleProceduralObjects(tachyon, state);
 
   editor.is_anything_selected = false;
 }
@@ -1691,7 +1691,9 @@ void LevelEditor::OpenLevelEditor(Tachyon* tachyon, State& state) {
   TrackDecorativeObjects(tachyon, state);
   InitEditorCamera(tachyon, state);
 
-  ProceduralGeneration::RebuildProceduralObjects(tachyon, state);
+  ProceduralGeneration::RebuildSimpleProceduralObjects(tachyon, state);
+
+  objects(meshes.small_grass).disabled = true;
 
   fx.accumulation_blur_factor = 0.f;
 }
@@ -1750,7 +1752,9 @@ void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
     DeselectCurrent(tachyon, state);
   }
 
-  ProceduralGeneration::RebuildProceduralObjects(tachyon, state);
+  ProceduralGeneration::RebuildAllProceduralObjects(tachyon, state);
+
+  objects(meshes.small_grass).disabled = false;
 
   Items::SpawnItemObjects(tachyon, state);
 

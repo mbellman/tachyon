@@ -904,7 +904,11 @@ static void UpdateDirtPaths(Tachyon* tachyon, State& state) {
 
 /* ---------------------------- */
 
-void ProceduralGeneration::RebuildProceduralObjects(Tachyon* tachyon, State& state) {
+void ProceduralGeneration::RebuildSimpleProceduralObjects(Tachyon* tachyon, State& state) {
+  GenerateDirtPaths(tachyon, state);
+}
+
+void ProceduralGeneration::RebuildAllProceduralObjects(Tachyon* tachyon, State& state) {
   GenerateDirtPaths(tachyon, state);
 
   // @todo refactor these two
@@ -913,7 +917,6 @@ void ProceduralGeneration::RebuildProceduralObjects(Tachyon* tachyon, State& sta
 
   GenerateGroundFlowers(tachyon, state);
   GenerateBushFlowers(tachyon, state);
-
 }
 
 void ProceduralGeneration::UpdateProceduralObjects(Tachyon* tachyon, State& state) {
