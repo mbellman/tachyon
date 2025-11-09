@@ -130,8 +130,8 @@ void main() {
   float wz = fragPosition.z;
 
   // Noise/turbulence
-  N.xz += 0.1 * vec2(simplex_noise(vec2(scene_time * 0.5 + wx * 0.0005, scene_time * 0.5 + wz * 0.0005)));
-  N.xz += 0.1 * vec2(simplex_noise(vec2(scene_time * 0.5 + wx * 0.002, scene_time * 0.5 + wz * 0.002)));
+  N.xz += 0.15 * vec2(simplex_noise(vec2(scene_time * 0.5 + wx * 0.0005, scene_time * 0.5 + wz * 0.0005)));
+  N.xz += 0.05 * vec2(simplex_noise(vec2(scene_time * 0.5 + wx * 0.002, scene_time * 0.5 + wz * 0.002)));
   N.xz *= 0.2;
 
   N = normalize(N);
