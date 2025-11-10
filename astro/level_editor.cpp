@@ -35,8 +35,9 @@ struct LevelEditorState {
   int32 current_entity_index = 0;
 
   bool is_anything_selected = false;
-  bool is_in_placement_mode = false;
+  bool is_in_placement_mode = false; // @todo make this standard
   bool is_placing_entity = false;
+  bool use_uniform_scaling = false;
 
   bool is_editing_entity_properties = false;
   int editing_entity_step = 0;
@@ -483,6 +484,10 @@ static void UpdateGizmoFromMesh(Tachyon* tachyon, State& state, uint16 mesh_inde
   left.rotation = placeholder.rotation * Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), t_HALF_PI);
   forward.rotation = placeholder.rotation * Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), -t_HALF_PI);
 
+  up.color = tVec4f(0, 1.f, 0, 0.4f);
+  left.color = tVec4f(0, 0, 1.f, 0.4f);
+  forward.color = tVec4f(1.f, 0, 0, 0.4f);
+
   commit(up);
   commit(left);
   commit(forward);
@@ -504,6 +509,14 @@ static void UpdatePositionGizmo(Tachyon* tachyon, State& state) {
  */
 static void UpdateScaleGizmo(Tachyon* tachyon, State& state) {
   UpdateGizmoFromMesh(tachyon, state, state.meshes.gizmo_resizer);
+
+  if (editor.use_uniform_scaling) {
+    for(auto& gizmo : objects(state.meshes.gizmo_resizer)) {
+      gizmo.color = tVec4f(1.f, 0.9f, 0.1f, 0.4f);
+
+      commit(gizmo);
+    }
+  }
 }
 
 /**
@@ -1084,7 +1097,7 @@ static void PlaceNewEntity(Tachyon* tachyon, State& state) {
  * Handler for moving selected objects around.
  * ----------------------------
  */
-static void HandleSelectedObjectPositionActions(Tachyon* tachyon, State& state) {
+static void HandleCurrentSelectedPositionActions(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
   auto& placeholder = editor.current_selectable.placeholder;
   float move_speed = (placeholder.position - camera.position).magnitude() / 4000.f;
@@ -1125,12 +1138,21 @@ static void HandleSelectedObjectPositionActions(Tachyon* tachyon, State& state) 
  * Handler for scaling selected objects.
  * ----------------------------
  */
-static void HandleSelectedObjectScaleActions(Tachyon* tachyon, State& state) {
+static void HandleCurrentSelectedScaleActions(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
   auto& placeholder = editor.current_selectable.placeholder;
   float scale_speed = (placeholder.position - camera.position).magnitude() / 4000.f;
 
-  if (abs(tachyon->mouse_delta_x) > abs(tachyon->mouse_delta_y)) {
+  if (editor.use_uniform_scaling) {
+    bool is_moving_mouse_horizontally = abs(tachyon->mouse_delta_x) > abs(tachyon->mouse_delta_y);
+
+    if (is_moving_mouse_horizontally) {
+      placeholder.scale += scale_speed * (float)tachyon->mouse_delta_x;
+    } else {
+      placeholder.scale -= scale_speed * (float)tachyon->mouse_delta_y;
+    }
+  }
+  else if (abs(tachyon->mouse_delta_x) > abs(tachyon->mouse_delta_y)) {
     tVec3f camera_left = camera.orientation.getLeftDirection();
 
     // The scale axis must be ascertained over several steps.
@@ -1150,7 +1172,8 @@ static void HandleSelectedObjectScaleActions(Tachyon* tachyon, State& state) {
     if (scale_axis.z == 1.f) scale_axis.z = -1.f;
 
     placeholder.scale -= scale_axis * scale_speed * (float)tachyon->mouse_delta_x;
-  } else {
+  }
+  else {
     tVec3f scale_axis = tVec3f(0, 1.f, 0);
 
     placeholder.scale -= scale_axis * scale_speed * (float)tachyon->mouse_delta_y;
@@ -1181,7 +1204,7 @@ static void HandleSelectedObjectScaleActions(Tachyon* tachyon, State& state) {
  * Handler for rotating selected objects.
  * ----------------------------
  */
-static void HandleSelectedObjectRotateActions(Tachyon* tachyon, State& state) {
+static void HandleCurrentSelectedRotateActions(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
   auto& placeholder = editor.current_selectable.placeholder;
   float scale_speed = (placeholder.position - camera.position).magnitude() / 4000.f;
@@ -1207,22 +1230,22 @@ static void HandleSelectedObjectRotateActions(Tachyon* tachyon, State& state) {
 
 /**
  * ----------------------------
- * Handler for manipulating selected objects with the mouse.
+ * Handler for manipulating selected objects or entities with the mouse.
  * ----------------------------
  */
-static void HandleSelectedObjectActions(Tachyon* tachyon, State& state) {
+static void HandleCurrentSelectedActions(Tachyon* tachyon, State& state) {
   if (tachyon->mouse_delta_x == 0 && tachyon->mouse_delta_y == 0) {
     return;
   }
 
   if (editor.current_gizmo_action == POSITION) {
-    HandleSelectedObjectPositionActions(tachyon, state);
+    HandleCurrentSelectedPositionActions(tachyon, state);
   }
   else if (editor.current_gizmo_action == SCALE) {
-    HandleSelectedObjectScaleActions(tachyon, state);
+    HandleCurrentSelectedScaleActions(tachyon, state);
   }
   else if (editor.current_gizmo_action == ROTATE) {
-    HandleSelectedObjectRotateActions(tachyon, state);
+    HandleCurrentSelectedRotateActions(tachyon, state);
   }
 }
 
@@ -1459,7 +1482,7 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
   if (editor.is_anything_selected) {
     // Selected object/entity actions
     if (is_left_mouse_held_down()) {
-      HandleSelectedObjectActions(tachyon, state);
+      HandleCurrentSelectedActions(tachyon, state);
     }
 
     if (
@@ -1490,6 +1513,13 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
     }
     else if (editor.is_editing_entity_properties) {
       HandleEntityPropertiesEditor(tachyon, state);
+    }
+
+    if (
+      did_press_key(tKey::Q) &&
+      editor.current_gizmo_action == SCALE
+    ) {
+      editor.use_uniform_scaling = !editor.use_uniform_scaling;
     }
   } else {
     // Free actions

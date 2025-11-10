@@ -238,8 +238,8 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
   int32 total_chunks = 0;
   int32 total_blades = 0;
 
-  for (int32 x = -10; x <= 10; x++) {
-    for (int32 z = -10; z <= 10; z++) {
+  for (int32 x = -20; x <= 20; x++) {
+    for (int32 z = -20; z <= 20; z++) {
       tVec3f center_position = tVec3f(x * chunk_width, 0.f, z * chunk_height);
 
       tVec3f upper_left_corner = center_position + tVec3f(-chunk_width * 0.5f, 0, -chunk_height * 0.5f);
@@ -741,6 +741,7 @@ static void GenerateDirtPaths(Tachyon* tachyon, State& state) {
   {
     for_entities(state.dirt_path_nodes) {
       auto& entity_a = state.dirt_path_nodes[i];
+      float entity_a_scale = entity_a.scale.magnitude();
       uint16 index_a = i;
 
       auto& node = network.nodes[index_a];
@@ -756,10 +757,13 @@ static void GenerateDirtPaths(Tachyon* tachyon, State& state) {
           continue;
         }
 
-        tVec3f connection = entity_a.position - entity_b.position;
-        float distance = connection.magnitude();
+        float smallest_scale = std::min(entity_a_scale, entity_b.scale.magnitude());
+        float distance = tVec3f::distance(entity_a.position, entity_b.position);
 
-        if (distance < 10000.f) {
+        float distance_threshold = smallest_scale * 5.75f;
+        if (distance_threshold > 10000.f) distance_threshold = 10000.f;
+
+        if (distance < distance_threshold) {
           if (node.total_connections < 4) {
             node.connections[node.total_connections++] = index_b;
           }
