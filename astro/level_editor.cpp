@@ -1269,6 +1269,7 @@ static void DisplaySelectedEntityProperties(Tachyon* tachyon, State& state) {
   auto& entity = *EntityManager::FindEntity(state, selected.entity_record);
   int32 total_active = EntityDispatcher::GetEntityContainer(state, entity.type).size();
   auto& mesh = mesh(selected.placeholder.mesh_index);
+  // @todo count total verts based on verts in each mesh via EnterDispatcher::GetMeshes()
   int32 total_verts = mesh.lod_1.vertex_end - mesh.lod_1.vertex_start;
   int32 summed_verts = total_active * total_verts;
 

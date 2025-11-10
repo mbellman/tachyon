@@ -50,6 +50,39 @@ namespace astro {
           (player_distance < 4000.f && state.player_velocity.magnitude() > 600.f)
         );
 
+        // Collision handling
+        // @todo factor
+        {
+          const float radius_factor = 1.3f;
+
+          // @todo perform collision checks on all appropriate entity types
+          // @todo perform collision checks against environment
+          // @todo pathfinding
+          for_entities(state.low_guards) {
+            auto& guard = state.low_guards[i];
+
+            if (IsSameEntity(entity, guard)) {
+              continue;
+            }
+
+            tVec3f entity_to_entity = entity.visible_position.xz() - guard.visible_position.xz();
+            float distance = entity_to_entity.magnitude();
+            float minimum_distance = radius_factor * (entity.visible_scale.x + guard.visible_scale.x);
+
+            if (distance < minimum_distance) {
+              entity.visible_position = guard.visible_position + entity_to_entity.unit() * minimum_distance;
+            }
+          }
+
+          // Player collision
+          // @todo factor
+          float minimum_distance = radius_factor * entity.visible_scale.x + 500.f;
+
+          if (player_distance < minimum_distance) {
+            entity.visible_position = state.player_position + player_direction.invert() * minimum_distance;
+          }
+        }
+
         if (time_since_last_stun >= 4.f && enemy.mood != ENEMY_IDLE) {
           FacePlayer(entity, state);
 
