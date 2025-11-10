@@ -906,6 +906,7 @@ static void UpdateDirtPaths(Tachyon* tachyon, State& state) {
 
 void ProceduralGeneration::RebuildSimpleProceduralObjects(Tachyon* tachyon, State& state) {
   GenerateDirtPaths(tachyon, state);
+  GenerateBushFlowers(tachyon, state);
 }
 
 void ProceduralGeneration::RebuildAllProceduralObjects(Tachyon* tachyon, State& state) {

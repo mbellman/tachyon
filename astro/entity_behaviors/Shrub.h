@@ -26,6 +26,8 @@ namespace astro {
       auto& meshes = state.meshes;
       const float lifetime = 100.f;
 
+      const tVec3f leaves_color = tVec3f(0.1f, 0.3f, 0.1f);
+
       for_entities(state.shrubs) {
         auto& entity = state.shrubs[i];
         float life_progress = GetLivingEntityProgress(state, entity, lifetime);
@@ -39,7 +41,7 @@ namespace astro {
         leaves.position.y -= (entity.scale.y - leaves.scale.y);
 
         leaves.rotation = entity.orientation;
-        leaves.color = tVec3f(0.1f, 0.3f, 0.1f);
+        leaves.color = tVec3f(0.1f, 0.2f, 0.1f);
         leaves.material = tVec4f(0.7f, 0, 0, 0.2f);
 
         // Collision
