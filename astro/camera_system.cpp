@@ -64,7 +64,7 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) 
       new_camera_position.z += 2000.f * distance_factor;
     }
 
-    tVec3f shift_direction = state.player_facing_direction + tVec3f(0, 0, 0.25f);
+    tVec3f shift_direction = state.player_facing_direction + tVec3f(0, 0, 0.35f);
 
     state.camera_shift = shift_direction * tVec3f(0.5f, 0, 1.f) * 1500.f;
   }
@@ -75,7 +75,7 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) 
     new_camera_position = state.player_position;
 
     float shift_amount = std::max(player_speed * 1.5f, 1500.f);
-    tVec3f shift_direction = state.player_facing_direction + tVec3f(0, 0, 0.25f);
+    tVec3f shift_direction = state.player_facing_direction + tVec3f(0, 0, 0.35f);
     tVec3f desired_camera_shift = shift_direction * tVec3f(0.5f, 0, 1.f) * shift_amount;
 
     // @todo factor
@@ -96,6 +96,13 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) 
   new_camera_position += state.camera_shift;
   new_camera_position.y += 10000.f;
   new_camera_position.z += 7000.f;
+
+  // @temporary
+  // @todo dev mode only
+  if (state.use_zoomed_out_camera) {
+    new_camera_position.y += 10000.f;
+    new_camera_position.z += 10000.f;
+  }
 
   camera.position = tVec3f::lerp(camera.position, new_camera_position, 5.f * dt);
   camera.rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.9f);

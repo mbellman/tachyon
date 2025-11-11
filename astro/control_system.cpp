@@ -18,19 +18,19 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state, const f
     // Directional movement
     float movement_speed = is_key_held(tKey::CONTROLLER_A) || is_key_held(tKey::SHIFT) ? 14000.f : 8000.f;
 
-    if (is_key_held(tKey::ARROW_UP) || is_key_held(tKey::W)) {
+    if (is_key_held(tKey::W)) {
       state.player_velocity += tVec3f(0, 0, -1.f) * movement_speed * dt;
     }
 
-    if (is_key_held(tKey::ARROW_LEFT) || is_key_held(tKey::A)) {
+    if (is_key_held(tKey::A)) {
       state.player_velocity += tVec3f(-1.f, 0, 0) * movement_speed * dt;
     }
 
-    if (is_key_held(tKey::ARROW_RIGHT) || is_key_held(tKey::D)) {
+    if (is_key_held(tKey::D)) {
       state.player_velocity += tVec3f(1.f, 0, 0) * movement_speed * dt;
     }
 
-    if (is_key_held(tKey::ARROW_DOWN) || is_key_held(tKey::S)) {
+    if (is_key_held(tKey::S)) {
       state.player_velocity += tVec3f(0, 0, 1.f) * movement_speed * dt;
     }
 

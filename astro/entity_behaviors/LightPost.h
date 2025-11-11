@@ -87,21 +87,6 @@ namespace astro {
         time_since_casting_stun > activation_delay
       );
 
-      // @todo dev mode only
-      // @todo move to hotkeys handler
-      {
-        if (did_press_key(tKey::R)) {
-          for_entities(state.light_posts) {
-            auto& entity = state.light_posts[i];
-
-            entity.did_activate = false;
-            entity.astro_activation_time = 0.f;
-            entity.game_activation_time = -1.f;
-            entity.is_astro_synced = false;
-          }
-        }
-      }
-
       for_entities(state.light_posts) {
         auto& entity = state.light_posts[i];
         float player_distance = tVec3f::distance(state.player_position, entity.position);

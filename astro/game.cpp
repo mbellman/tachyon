@@ -275,8 +275,27 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
     return;
   }
 
-  if (did_press_key(tKey::SPACE)) {
-    state.show_game_stats = !state.show_game_stats;
+  // Special dev hotkeys
+  // @todo dev mode only
+  {
+    if (did_press_key(tKey::SPACE)) {
+      state.show_game_stats = !state.show_game_stats;
+    }
+
+    if (did_press_key(tKey::ARROW_DOWN)) {
+      state.use_zoomed_out_camera = !state.use_zoomed_out_camera;
+    }
+
+    if (did_press_key(tKey::R)) {
+      for_entities(state.light_posts) {
+        auto& entity = state.light_posts[i];
+
+        entity.did_activate = false;
+        entity.astro_activation_time = 0.f;
+        entity.game_activation_time = -1.f;
+        entity.is_astro_synced = false;
+      }
+    }
   }
 
   Targeting::HandleTargets(tachyon, state);
