@@ -159,8 +159,9 @@ void main() {
 
     vec2 sample_coordinates = gl_FragCoord.xy;
 
+    // Rippling/"refraction"
     // @todo make wave intensity proportional to distance
-    sample_coordinates.x += 5.0 * sin(fragPosition.z * 0.005 + scene_time);
+    sample_coordinates.x += 5.0 * sin(fragPosition.z * 0.005 + 1.5 * scene_time);
 
     vec2 sample_uv = 2.0 * sample_coordinates / resolution - 1.0;
     sample_uv *= 0.5;

@@ -335,7 +335,7 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state, const flo
   for_entities(state.oak_trees) {
     auto& entity = state.oak_trees[i];
 
-    ResolveSingleRadiusCollision(state, entity.position, entity.visible_scale, 0.8f);
+    ResolveSingleRadiusCollision(state, entity.position, entity.visible_scale, 0.5f);
   }
 
   for (auto& rock : objects(state.meshes.rock_1)) {
