@@ -314,16 +314,6 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
     }
   }
 
-  for (int i = 0; i < 50000; i++) {
-    auto& grass = create(meshes.small_grass);
-
-    grass.material = tVec4f(0.6f, 0, 0, 0.1f);
-
-    commit(grass);
-  }
-
-  mesh(meshes.small_grass).lod_1.instance_count = 0;
-
   // @todo dev mode only
   {
     std::string message = "Generated " + std::to_string(total_chunks) + " grass chunks (" + std::to_string(total_blades) + " blades)";
@@ -332,36 +322,40 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
   }
 }
 
-static void UpdateSmallGrass(Tachyon* tachyon, State& state) {
-  profile("UpdateSmallGrass()");
+static void UpdateSmallGrassObjectByTime(tObject& grass, float astro_time) {
+  const static float growth_rate = 0.7f;
 
-  auto& meshes = state.meshes;
-
-  static const tVec3f offsets[] = {
-    tVec3f(0, 0, 0),
-    tVec3f(-200.f, 0, 150.f),
-    tVec3f(250.f, 0, 300.f),
-    tVec3f(100.f, 0, -250.f)
-  };
-
-  static const float scales[] = {
-    300.f,
-    600.f,
-    500.f,
-    450.f
-  };
-
-  tColor colors[] = {
+  const static tColor colors[] = {
     tVec4f(0.2f, 0.5f, 0.1f, 0.1f),
     tVec4f(0.3f, 0.6f, 0.1f, 0.1f),
     tVec4f(0.1f, 0.4f, 0.1f, 0.1f),
     tVec4f(0.1f, 0.5f, 0.1f, 0.1f)
   };
 
-  const float growth_rate = 0.7f;
+  float alpha = astro_time + grass.position.x + grass.position.z;
+  int iteration = (int)abs(growth_rate * alpha / t_TAU - 0.8f);
+  float rotation_angle = float(iteration) * 1.3f;
+  auto variation_index = iteration % 4;
+
+  grass.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), rotation_angle);
+  grass.color = colors[variation_index];
+}
+
+static void UpdateSmallGrass(Tachyon* tachyon, State& state) {
+  profile("UpdateSmallGrass()");
+
+  auto& meshes = state.meshes;
 
   auto& player_position = state.player_position;
+  bool is_astro_turning = state.astro_turn_speed != 0.f;
+  auto& small_grass = objects(meshes.small_grass);
   uint16 object_index = 0;
+
+  #define remove_blade_if_active(blade)\
+    if (blade.active_object_id != 0xFFFF) {\
+      Tachyon_RemoveObject(tachyon, meshes.small_grass, blade.active_object_id);\
+      blade.active_object_id = 0xFFFF;\
+    }\
 
   // @todo factor
   auto& camera = tachyon->scene.camera;
@@ -377,52 +371,81 @@ static void UpdateSmallGrass(Tachyon* tachyon, State& state) {
       abs(ground_center.z - chunk.center_position.z) < 25000.f
     );
 
-    if (!is_chunk_in_view) continue;
+    if (!is_chunk_in_view) {
+      if (chunk.is_currently_in_view) {
+        for (auto& blade : chunk.grass_blades) {
+          remove_blade_if_active(blade);
+        }
+      }
+
+      chunk.is_currently_in_view = false;
+
+      continue;
+    }
+
+    chunk.is_currently_in_view = true;
 
     for (auto& blade : chunk.grass_blades) {
       float z_distance = blade.position.z - ground_center.z;
       float x_limit = 15000.f + -z_distance * 0.5f;
       if (x_limit > 20000.f) x_limit = 20000.f;
 
-      if (abs(blade.position.x - ground_center.x) > x_limit) continue;
-      if (z_distance > 8000.f) continue;
-      if (z_distance < -18000.f) continue;
+      // Remove out-of-view blades
+      if (
+        abs(blade.position.x - ground_center.x) > x_limit ||
+        z_distance > 8000.f ||
+        z_distance < -18000.f
+      ) {
+        remove_blade_if_active(blade);
 
+        continue;
+      }
+
+      // Remove blades covered up by path segments in the current time
       if (blade.path_segment_index > -1) {
         auto& segment = state.dirt_path_segments[blade.path_segment_index];
 
         if (CollisionSystem::IsPointOnPlane(blade.position, segment.plane)) {
+          remove_blade_if_active(blade);
+
           continue;
         }
       }
 
-      float alpha = state.astro_time + blade.position.x + blade.position.z;
-      int iteration = (int)abs(growth_rate * alpha / t_TAU - 0.8f);
-      float rotation_angle = float(iteration) * 1.3f;
+      if (blade.active_object_id != 0xFFFF) {
+        if (is_astro_turning) {
+          auto& grass = small_grass.getByIdFast(blade.active_object_id);
 
-      auto variation_index = iteration % 4;
+          // Time evolution
+          UpdateSmallGrassObjectByTime(grass, state.astro_time);
 
-      auto& grass = objects(meshes.small_grass)[object_index++];
+          commit(grass);
+        }
 
+        continue;
+      }
+
+      auto& grass = create(meshes.small_grass);
+
+      // Time-invariant grass properties
       grass.position = blade.position;
       grass.position.y = -1500.f;
-
       grass.scale = blade.scale;
+      grass.material = tVec4f(0.6f, 0, 0, 0.1f);
 
-      grass.color = colors[variation_index];
-
-      grass.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), rotation_angle);
+      // Time evolution
+      UpdateSmallGrassObjectByTime(grass, state.astro_time);
 
       commit(grass);
+
+      blade.active_object_id = grass.object_id;
     }
   }
 
-  auto& mesh_record = mesh(meshes.small_grass);
-
-  mesh_record.lod_1.instance_count = object_index;
-
   // @temporary
-  add_dev_label("  Total small grass: ", std::to_string(object_index));
+  uint16 total_active = objects(meshes.small_grass).total_active;
+
+  add_dev_label("  Total small grass: ", std::to_string(total_active));
 }
 
 /**

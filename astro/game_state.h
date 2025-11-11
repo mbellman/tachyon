@@ -129,11 +129,13 @@ namespace astro {
     tVec3f position;
     tVec3f scale;
     int32 path_segment_index = -1;
+    uint16 active_object_id = 0xFFFF;
   };
 
   struct GrassChunk {
     tVec3f center_position;
     std::vector<GrassBlade> grass_blades;
+    bool is_currently_in_view = false;
   };
 
   /**
@@ -170,6 +172,7 @@ namespace astro {
     std::vector<EntityRecord> targetable_entities;
 
     tVec3f camera_shift;
+    bool use_zoomed_out_camera = false;
 
     float water_level = -1800.f;
 

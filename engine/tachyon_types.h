@@ -106,6 +106,12 @@ struct tObjectGroup {
 
     return &objects[index];
   }
+
+  tObject& getByIdFast(uint16 id) const {
+    auto index = id_to_index[id];
+
+    return objects[index];
+  }
 };
 
 struct tMesh {
