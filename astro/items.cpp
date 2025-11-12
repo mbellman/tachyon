@@ -40,6 +40,8 @@ static std::string GetCollectItemDialogue(ItemType item_type) {
   switch (item_type) {
     case GATE_KEY:
       return "Collected the gate key.";
+    case ASTROLABE_LOWER_LEFT:
+      return "Acquired lower-left astrolabe fragment.";
     default:
       return "Collected [unknown item].";
   }

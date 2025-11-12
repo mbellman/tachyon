@@ -254,7 +254,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
     return;
   }
 
-  // Special dev hotkeys
+  // Dev hotkeys
   // @todo dev mode only
   {
     if (did_press_key(tKey::SPACE)) {
@@ -274,6 +274,10 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
         entity.game_activation_time = -1.f;
         entity.is_astro_synced = false;
       }
+    }
+
+    if (did_press_key(tKey::I)) {
+      Items::CollectItem(tachyon, state, ASTROLABE_LOWER_LEFT);
     }
   }
 
