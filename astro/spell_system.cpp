@@ -171,6 +171,8 @@ void SpellSystem::CastStun(Tachyon* tachyon, State& state) {
 
   spells.stun_start_time = tachyon->scene.scene_time;
   spells.stun_light_id = create_point_light();
+
+  spells.did_cast_stun_this_frame = true;
 }
 
 void SpellSystem::CastHoming(Tachyon* tachyon, State& state) {

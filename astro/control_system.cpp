@@ -251,6 +251,10 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
 }
 
 static void HandleSpellControls(Tachyon* tachyon, State& state) {
+  if (abs(state.astro_turn_speed) > 0.18f) {
+    return;
+  }
+
   // O
   if (did_press_key(tKey::CONTROLLER_B)) {
     SpellSystem::CastStun(tachyon, state);

@@ -16,6 +16,7 @@
 #include "astro/spell_system.h"
 #include "astro/targeting.h"
 #include "astro/time_evolution.h"
+#include "astro/ui_system.h"
 
 using namespace astro;
 
@@ -84,28 +85,6 @@ static void UpdateWaterPlane(Tachyon* tachyon, State& state) {
   commit(water_plane);
 
   state.water_level = water_plane.position.y;
-}
-
-// @todo move to ui_system.cpp
-static void HandleDialogue(Tachyon* tachyon, State& state) {
-  float dialogue_age = tachyon->running_time - state.dialogue_start_time;
-
-  if (dialogue_age < 6.f) {
-    float alpha = 1.f;
-    if (dialogue_age < 0.2f) alpha = dialogue_age * 5.f;
-    if (dialogue_age > 5.f) alpha = 1.f - (dialogue_age - 5.f);
-
-    Tachyon_DrawUIText(tachyon, state.debug_text_large, {
-      .screen_x = tachyon->window_width / 2,
-      .screen_y = tachyon->window_height - 150,
-      .centered = true,
-      .alpha = alpha,
-      .string = state.dialogue_message
-    });
-  } else {
-    state.dialogue_message = "";
-    state.dialogue_start_time = 0.f;
-  }
 }
 
 static void UpdateLevelsOfDetail(Tachyon* tachyon, State& state) {
@@ -298,12 +277,17 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
     }
   }
 
+  // @todo HandleFrameStart()
+  {
+    state.spells.did_cast_stun_this_frame = false;
+  }
+
   Targeting::HandleTargets(tachyon, state);
   ControlSystem::HandleControls(tachyon, state, dt);
   CollisionSystem::HandleCollisions(tachyon, state, dt);
   SpellSystem::HandleSpells(tachyon, state, dt);
   Items::HandleItemPickup(tachyon, state);
-  HandleDialogue(tachyon, state);
+  UISystem::HandleDialogue(tachyon, state);
   HandleWalkSounds(tachyon, state);
 
   TimeEvolution::UpdateAstroTime(tachyon, state, dt);

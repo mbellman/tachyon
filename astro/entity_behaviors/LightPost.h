@@ -76,13 +76,8 @@ namespace astro {
 
       float time_since_casting_stun = tachyon->scene.scene_time - state.spells.stun_start_time;
 
-      bool did_immediately_just_cast_stun = (
-        state.astro_turn_speed == 0.f &&
-        time_since_casting_stun == 0.f
-      );
-
       bool did_cast_stun_delayed = (
-        state.astro_turn_speed == 0.f &&
+        // state.astro_turn_speed == 0.f &&
         time_since_casting_stun < activation_delay + 0.25f &&
         time_since_casting_stun > activation_delay
       );
@@ -94,9 +89,9 @@ namespace astro {
         bool is_responder = IsResponder(entity);
         bool is_illuminated = IsIlluminatedAtTime(state, entity, state.astro_time);
 
+        // Responders "observe" their associated light pillar in the future,
+        // and become illuminated if that light pillar is in turn illuminated
         if (is_responder) {
-          // Responders "observe" their associated light pillar in the future,
-          // and become illuminated if that light pillar is in turn illuminated
           auto& associated_entity = *EntityManager::FindEntity(state, entity.associated_entity_record);
 
           if (is_illuminated && !entity.did_activate) {
@@ -115,7 +110,7 @@ namespace astro {
             !entity.is_astro_synced &&
             !IsResponder(associated_entity) &&
             !IsIlluminatedAtTime(state, associated_entity, state.astro_time) &&
-            did_immediately_just_cast_stun &&
+            state.spells.did_cast_stun_this_frame &&
             tVec3f::distance(state.player_position, associated_entity.position) < 6000.f
           ) {
             entity.is_astro_synced = true;
@@ -130,19 +125,28 @@ namespace astro {
             entity.requires_astro_sync &&
             associated_entity.is_astro_synced &&
             IsResponder(associated_entity) &&
-            did_immediately_just_cast_stun &&
+            state.spells.did_cast_stun_this_frame &&
             tVec3f::distance(state.player_position, GetFinalAssociatedEntity(state, entity)->position) < 6000.f
           ) {
             entity.is_astro_synced = true;
 
             Sfx::PlaySound(SFX_LIGHT_POST_ASTRO_SYNCED_2, 1.f);
           }
+        // Regular light pillars should illuminate when the player casts stun near them
         } else {
-          // Regular light pillars illuminate when the player casts stun near them
           if (!is_illuminated && did_cast_stun_delayed && player_distance < 6000.f) {
-            // Offset the time by -1.f to give timing of lightpost puzzles a little wiggle room,
-            // and improve the fade-out when we start astro turning in reverse from now
-            entity.astro_activation_time = state.astro_time - 1.f;
+            // Offset the time by -1.f to give a little wiggle room for
+            // going back in time and still seeing the illuminated light
+            float astro_activation_time_offset = -1.f;
+
+            if (state.astro_turn_speed < 0.f) {
+              // When astro turning backward, offset the time back further
+              // to minimize "overshooting" if we happen to cast stun while
+              // the turn is still slowing down
+              astro_activation_time_offset += state.astro_turn_speed * 50.f;
+            }
+
+            entity.astro_activation_time = state.astro_time + astro_activation_time_offset;
 
             is_illuminated = true;
           }

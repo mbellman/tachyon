@@ -44,8 +44,13 @@ namespace astro {
 
       const float lifetime = 100.f;
 
+      float player_speed = state.player_velocity.magnitude();
+
       for_entities(state.gates) {
         auto& entity = state.gates[i];
+
+        tVec3f interaction_position = UnitEntityToWorldPosition(entity, tVec3f(0.4f, -0.2f, 0));
+        float distance_from_interaction_position = tVec3f::distance(state.player_position.xz(), interaction_position.xz());
 
         auto& body = objects(meshes.gate_body)[i];
         auto& door_left = objects(meshes.gate_left_door)[i];
@@ -97,22 +102,19 @@ namespace astro {
             door_left.position = entity.position + direction * distance;
             door_right.position = entity.position - direction * distance;
           }
-        }
-
-        if (did_press_key(tKey::CONTROLLER_A) && !is_open) {
-          tVec3f activation_position = UnitEntityToWorldPosition(entity, tVec3f(0.4f, -0.2f, 0));
-          float activation_distance = tVec3f::distance(state.player_position.xz(), activation_position.xz());
-
-          // @todo check to see if gate is rusted over
-          if (activation_distance < 1500.f) {
+        } else if (distance_from_interaction_position < 1500.f && player_speed < 50.f) {
+          if (did_press_key(tKey::CONTROLLER_A)) {
             if (Items::HasItem(state, GATE_KEY)) {
               entity.game_activation_time = tachyon->scene.scene_time;
               entity.astro_activation_time = state.astro_time;
 
               UISystem::ShowDialogue(tachyon, state, "The gate was unlocked.");
-            } else {
-              UISystem::ShowDialogue(tachyon, state, "The gate requires a key.");
+            } else if (!state.has_blocking_dialogue) {
+              // @todo check to see if gate is rusted over
+              UISystem::ShowBlockingDialogue(tachyon, state, "The gate requires a key.");
             }
+          } else {
+            UISystem::ShowDialogue(tachyon, state, "[X] Interact");
           }
         }
 

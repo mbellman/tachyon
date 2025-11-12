@@ -79,6 +79,7 @@ namespace astro {
     // Stun
     float stun_start_time = 0.f;
     int32 stun_light_id = -1;
+    bool did_cast_stun_this_frame = false;
 
     // Homing
     float homing_start_time = 0.f;
@@ -193,6 +194,8 @@ namespace astro {
     std::string dialogue_message = "";
     float dialogue_start_time = 0.f;
     float last_dialogue_sound_time = 0.f;
+    bool has_blocking_dialogue = false;
+    bool dismissed_blocking_dialogue = false;
 
     // @todo dev mode only
     tUIText* debug_text = nullptr;
