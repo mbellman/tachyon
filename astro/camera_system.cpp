@@ -25,6 +25,8 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) 
     new_camera_position = tVec3f::lerp(state.player_position, target.visible_position, 0.5f * sqrt(distance_ratio));
 
     // Adjustment: raise the camera as we come closer to the target
+    // @todo it's confusing that we start at 3000 here and add the final height
+    // below, near the end of the procedure
     new_camera_position.y = 3000.f * distance_ratio;
 
     // Adjustment: raise the camera a bit during stun effects
@@ -64,7 +66,7 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) 
       new_camera_position.z += 2000.f * distance_factor;
     }
 
-    tVec3f shift_direction = state.player_facing_direction + tVec3f(0, 0, 0.35f);
+    tVec3f shift_direction = state.player_facing_direction + tVec3f(0, 0, 0.4f);
 
     state.camera_shift = shift_direction * tVec3f(0.5f, 0, 1.f) * 1500.f;
   }
@@ -75,7 +77,7 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) 
     new_camera_position = state.player_position;
 
     float shift_amount = std::max(player_speed * 1.5f, 1500.f);
-    tVec3f shift_direction = state.player_facing_direction + tVec3f(0, 0, 0.35f);
+    tVec3f shift_direction = state.player_facing_direction + tVec3f(0, 0, 0.4f);
     tVec3f desired_camera_shift = shift_direction * tVec3f(0.5f, 0, 1.f) * shift_amount;
 
     // @todo factor
