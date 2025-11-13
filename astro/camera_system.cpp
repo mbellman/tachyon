@@ -3,6 +3,19 @@
 
 using namespace astro;
 
+static void UpdateCameraInProximityToEntities(State& state, const std::vector<GameEntity>& entities, tVec3f& camera_position, const float y_offset, const float z_offset) {
+  for_entities(entities) {
+    auto& entity = entities[i];
+    float player_distance = tVec3f::distance(state.player_position, entity.position);
+
+    float distance_factor = 1.f - player_distance / 10000.f;
+    if (distance_factor < 0.f) distance_factor = 0.f;
+
+    camera_position.y += y_offset * distance_factor;
+    camera_position.z += z_offset * distance_factor;
+  }
+}
+
 void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) {
   profile("UpdateCamera()");
 
@@ -54,17 +67,8 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) 
     // as it returns to its expected position, which looks odd.
     new_camera_position = state.player_position;
 
-    // @todo factor
-    for_entities(state.light_posts) {
-      auto& entity = state.light_posts[i];
-      float player_distance = tVec3f::distance(state.player_position, entity.position);
-
-      float distance_factor = 1.f - player_distance / 10000.f;
-      if (distance_factor < 0.f) distance_factor = 0.f;
-
-      new_camera_position.y += 2000.f * distance_factor;
-      new_camera_position.z += 2000.f * distance_factor;
-    }
+    UpdateCameraInProximityToEntities(state, state.light_posts, new_camera_position, 2000.f, 2000.f);
+    UpdateCameraInProximityToEntities(state, state.gates, new_camera_position, 2000.f, 3000.f);
 
     tVec3f shift_direction = state.player_facing_direction + tVec3f(0, 0, 0.4f);
 
@@ -80,17 +84,8 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) 
     tVec3f shift_direction = state.player_facing_direction + tVec3f(0, 0, 0.4f);
     tVec3f desired_camera_shift = shift_direction * tVec3f(0.5f, 0, 1.f) * shift_amount;
 
-    // @todo factor
-    for_entities(state.light_posts) {
-      auto& entity = state.light_posts[i];
-      float player_distance = tVec3f::distance(state.player_position, entity.position);
-
-      float distance_factor = 1.f - player_distance / 10000.f;
-      if (distance_factor < 0.f) distance_factor = 0.f;
-
-      new_camera_position.y += 2000.f * distance_factor;
-      new_camera_position.z += 2000.f * distance_factor;
-    }
+    UpdateCameraInProximityToEntities(state, state.light_posts, new_camera_position, 2000.f, 2000.f);
+    UpdateCameraInProximityToEntities(state, state.gates, new_camera_position, 2000.f, 3000.f);
 
     state.camera_shift = tVec3f::lerp(state.camera_shift, desired_camera_shift, 5.f * dt);
   }

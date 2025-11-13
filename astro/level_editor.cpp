@@ -801,15 +801,11 @@ static void HandleEntityPropertiesEditor(Tachyon* tachyon, State& state) {
     }
     // 4. unique_name
     else if (editor.editing_entity_step == 3) {
-      if (property_value != "") {
-        entity->unique_name = property_value;
-      }
+      entity->unique_name = property_value;
     }
     // 5. associated_entity_name
     else if (editor.editing_entity_step == 4) {
-      if (property_value != "") {
-        entity->associated_entity_name = property_value;
-      }
+      entity->associated_entity_name = property_value;
     }
     // 6. requires_astro_sync
     else if (editor.editing_entity_step == 5) {
