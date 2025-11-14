@@ -132,8 +132,12 @@ void main() {
   // Noise/turbulence
   N.xz += 0.15 * vec2(simplex_noise(vec2(scene_time * 0.5 + wx * 0.0005, scene_time * 0.5 + wz * 0.0005)));
   N.xz += 0.1 * vec2(simplex_noise(vec2(scene_time * 0.5 + wx * 0.002, scene_time * 0.5 + wz * 0.002)));
-  N.xz *= 0.2;
 
+  // Normal used for specular highlights; more intense than the normal
+  // used for regular reflections
+  vec3 hN = normalize(N);
+
+  N.xz *= 0.3;
   N = normalize(N);
 
   vec3 V = normalize(camera_position - fragPosition);
@@ -144,6 +148,11 @@ void main() {
   float NdotV = max(0.0, dot(N, V));
   float NdotL = max(0.0, dot(N, L));
   float DdotL = max(0.0, dot(D, L));
+  float RdotL = max(0.0, dot(R, L));
+
+  // Special terms for specular highlight output
+  vec3 hR = reflect(D, hN);
+  float hRdotL = max(0.0, dot(hR, L));
 
   vec3 out_color = vec3(0.0);
 
@@ -190,13 +199,16 @@ void main() {
     reflection_color += GetReflectionColor(R);
 
     // Light reflection
-    reflection_color += 5.0 * pow(max(0.0, dot(R, L)), 5.0);
+    reflection_color += vec3(1.0, 1.0, 0.5) * 5.0 * pow(RdotL, 5.0);
 
     // @todo refine
     float fresnel_factor = pow(max(0.0, dot(R, -V)), 2.0);
 
     out_color = mix(out_color, reflection_color, fresnel_factor);
     out_color = mix(out_color, vec3(0.4), 0.2);
+
+    // Highlights
+    out_color += 1.0 * pow(hRdotL, 50.0);
   }
 
   // @todo fog
