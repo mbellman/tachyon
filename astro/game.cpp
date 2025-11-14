@@ -254,6 +254,12 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
     return;
   }
 
+  if (state.astro_time < 0.f && state.astro_turn_speed == 0.f && !state.bgm_is_playing) {
+    BGM::LoopMusic(DIVINATION_WOODREALM);
+
+    state.bgm_is_playing = true;
+  }
+
   // Dev hotkeys
   // @todo dev mode only
   {
