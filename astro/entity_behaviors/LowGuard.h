@@ -195,7 +195,7 @@ namespace astro {
             {
               float time_since_last_recent_position = scene_time - entity.last_recent_position_record_time;
 
-              if (time_since_last_recent_position > 2.f) {
+              if (time_since_last_recent_position > 2.f && entity.enemy_state.mood != ENEMY_IDLE) {
                 auto& recent_positions = entity.recent_positions;
 
                 if (recent_positions.size() > 30) {

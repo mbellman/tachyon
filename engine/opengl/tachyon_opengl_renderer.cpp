@@ -1138,6 +1138,7 @@ static void RenderPost(Tachyon* tachyon) {
   SetShaderFloat(locations.astro_time_warp, tachyon->fx.astro_time_warp);
   SetShaderFloat(locations.astro_time_warp_start_radius, tachyon->fx.astro_time_warp_start_radius);
   SetShaderFloat(locations.astro_time_warp_end_radius, tachyon->fx.astro_time_warp_end_radius);
+  SetShaderFloat(locations.vignette_intensity, tachyon->fx.vignette_intensity);
 
   RenderScreenQuad(tachyon);
 }

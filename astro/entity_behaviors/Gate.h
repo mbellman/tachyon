@@ -102,19 +102,23 @@ namespace astro {
             door_left.position = entity.position + direction * distance;
             door_right.position = entity.position - direction * distance;
           }
-        } else if (distance_from_interaction_position < 1500.f && player_speed < 50.f) {
+        } else if (distance_from_interaction_position < 1500.f && player_speed < 150.f) {
+          bool has_gate_key = Items::HasItem(state, GATE_KEY);
+
           if (did_press_key(tKey::CONTROLLER_A)) {
-            if (Items::HasItem(state, GATE_KEY)) {
+            if (has_gate_key) {
               entity.game_activation_time = tachyon->scene.scene_time;
               entity.astro_activation_time = state.astro_time;
 
               UISystem::ShowDialogue(tachyon, state, "The gate was unlocked.");
             } else if (!state.has_blocking_dialogue) {
               // @todo check to see if gate is rusted over
-              UISystem::ShowBlockingDialogue(tachyon, state, "The gate requires a key.");
+              UISystem::ShowBlockingDialogue(tachyon, state, "The gate is locked.");
             }
+          } else if (has_gate_key) {
+            UISystem::ShowDialogue(tachyon, state, "[X] Unlock");
           } else {
-            UISystem::ShowDialogue(tachyon, state, "[X] Interact");
+            UISystem::ShowDialogue(tachyon, state, "[X] Check Gate");
           }
         }
 

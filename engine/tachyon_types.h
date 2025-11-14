@@ -267,6 +267,7 @@ struct Tachyon {
     float astro_time_warp = 0.f;
     float astro_time_warp_start_radius = 0.f;
     float astro_time_warp_end_radius = 0.f;
+    float vignette_intensity = 0.f;
   } fx;
 
   // @todo dev mode only

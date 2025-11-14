@@ -132,7 +132,8 @@ struct tUniformLocations {
     player_position,
     astro_time_warp,
     astro_time_warp_start_radius,
-    astro_time_warp_end_radius
+    astro_time_warp_end_radius,
+    vignette_intensity
   ) post;
 
   uniform_locations(

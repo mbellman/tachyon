@@ -334,6 +334,22 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
       fx.astro_time_warp_end_radius = state.time_warp_end_radius;
     }
 
+    // Vignette effects in stealth mode
+    {
+      float desired_vignette_intensity = 0.f;
+
+      for (auto& record : state.targetable_entities) {
+        auto* entity = EntityManager::FindEntity(state, record);
+        float player_distance = tVec3f::distance(state.player_position, entity->visible_position);
+
+        if (player_distance < 7000.f && entity->enemy_state.mood == ENEMY_IDLE) {
+          desired_vignette_intensity = 1.f;
+        }
+      }
+
+      fx.vignette_intensity = Tachyon_Lerpf(fx.vignette_intensity, desired_vignette_intensity, 2.f * dt);
+    }
+
     auto& velocity = state.player_velocity;
     float speed = velocity.magnitude();
     tVec3f foliage_movement_offset = (speed > 0.f ? velocity.invert().unit() * 500.f : 0.f);

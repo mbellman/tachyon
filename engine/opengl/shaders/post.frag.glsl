@@ -21,6 +21,7 @@ uniform vec3 player_position;
 uniform float astro_time_warp;
 uniform float astro_time_warp_start_radius;
 uniform float astro_time_warp_end_radius;
+uniform float vignette_intensity;
 
 in vec2 fragUv;
 
@@ -315,7 +316,7 @@ void main() {
   #endif
 
   // ---------------------
-  // Achemist's Astrolabe
+  // Alchemist's Astrolabe
   // ---------------------
   #if ENABLE_ASTRO_FX
     // Time warping
@@ -357,6 +358,18 @@ void main() {
 
       post_color = mix(post_color, vec3(1.0, 0.8, 0.4), haze_factor);
       post_color = mix(post_color, vec3(1.0, 1.0, 0.7), ring_factor);
+    }
+
+    // Vignette
+    {
+      float corner_distance = length(fragUv - 0.5);
+
+      float alpha = corner_distance / 0.65;
+      alpha *= alpha;
+      alpha *= alpha;
+      alpha *= vignette_intensity;
+
+      post_color = mix(post_color, vec3(0), alpha);
     }
   #endif
 
