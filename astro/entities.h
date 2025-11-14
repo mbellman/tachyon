@@ -119,6 +119,11 @@ namespace astro {
     // For enemy entities
     EnemyState enemy_state;
 
+    // For reversing movement in time
+    std::vector<tVec3f> recent_positions;
+    float last_recent_position_record_time = 0.f;
+    float last_recent_position_reverse_time = 0.f;
+
     // Used for item pickup entities, or entities which can
     // impart items to the player (e.g. guards carrying things).
     //

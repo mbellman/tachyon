@@ -144,6 +144,8 @@ namespace astro {
     timeEvolve() {
       auto& meshes = state.meshes;
 
+      float scene_time = tachyon->scene.scene_time;
+
       // @todo @optimize only iterate over on-screen/in-range entities
       for_entities(state.low_guards) {
         auto& entity = state.low_guards[i];
@@ -162,9 +164,21 @@ namespace astro {
             if (astro_speed < 0.05f) {
               // Do nothing
             }
+            else if (entity.recent_positions.size() > 0) {
+              // @todo factor
+              // @todo only if astro turn speed < 0
+              float time_since_last_reverse = scene_time - entity.last_recent_position_reverse_time;
+
+              if (time_since_last_reverse > 0.05f) {
+                entity.visible_position = entity.recent_positions.back();
+                entity.recent_positions.pop_back();
+
+                entity.last_recent_position_reverse_time = scene_time;
+              }
+            }
             else if (
-              state.astro_time - entity.astro_start_time < 5.f ||
-              entity.astro_end_time - state.astro_time < 5.f
+              state.astro_time - entity.astro_start_time < 10.f ||
+              entity.astro_end_time - state.astro_time < 10.f
             ) {
               Jitter(entity, 200.f);
             }
@@ -177,6 +191,23 @@ namespace astro {
               entity.visible_position = entity.position;
             }
           } else {
+            // @todo factor
+            {
+              float time_since_last_recent_position = scene_time - entity.last_recent_position_record_time;
+
+              if (time_since_last_recent_position > 2.f) {
+                auto& recent_positions = entity.recent_positions;
+
+                if (recent_positions.size() > 30) {
+                  recent_positions.erase(recent_positions.begin());
+                }
+
+                recent_positions.push_back(entity.visible_position);
+
+                entity.last_recent_position_record_time = scene_time;
+              }
+            }
+
             handle_enemy_behavior(LowGuard);
           }
         } else {

@@ -528,10 +528,18 @@ static void UpdateRotationGizmo(Tachyon* tachyon, State& state) {
   UpdateGizmoFromMesh(tachyon, state, state.meshes.gizmo_rotator);
 
   auto& placeholder = editor.current_selectable.placeholder;
+  auto& up = objects(state.meshes.gizmo_rotator)[0];
+  auto& left = objects(state.meshes.gizmo_rotator)[1];
   auto& forward = objects(state.meshes.gizmo_rotator)[2];
 
   forward.rotation = placeholder.rotation * Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -t_HALF_PI);
 
+  up.color = tVec4f(1.f, 0, 0, 0.4f);
+  left.color = tVec4f(0, 1.f, 0, 0.4f);
+  forward.color = tVec4f(0, 0, 1.f, 0.4f);
+
+  commit(up);
+  commit(left);
   commit(forward);
 }
 
@@ -1125,6 +1133,7 @@ static void HandleCurrentSelectedPositionActions(Tachyon* tachyon, State& state)
     auto* entity = EntityManager::FindEntity(state, editor.current_selectable.entity_record);
 
     entity->position = placeholder.position;
+    entity->visible_position = placeholder.position;
   }
 
   commit(placeholder);
@@ -1753,7 +1762,21 @@ void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   tachyon->use_high_visibility_mode = false;
+
   state.is_level_editor_open = false;
+
+  // Reset target/speaking entity state so we can delete targeted entities
+  // without crashing upon returning to the game
+  {
+    state.targetable_entities.clear();
+
+    state.speaking_entity_record.type = UNSPECIFIED;
+    state.speaking_entity_record.id = -1;
+
+    state.target_entity.type = UNSPECIFIED;
+    state.target_entity.id = -1;
+    state.has_target = false;
+  }
 
   show_overlay_message("Leaving editor");
 
