@@ -149,6 +149,7 @@ void main() {
   float NdotL = max(0.0, dot(N, L));
   float DdotL = max(0.0, dot(D, L));
   float RdotL = max(0.0, dot(R, L));
+  float RdotU = max(0.0, dot(R, vec3(0, 1, 0)));
 
   // Special terms for specular highlight output
   vec3 hR = reflect(D, hN);
@@ -208,7 +209,7 @@ void main() {
     out_color = mix(out_color, vec3(0.4), 0.2);
 
     // Highlights
-    out_color += 1.0 * pow(hRdotL, 50.0);
+    out_color += 2.0 * pow(hRdotL, 30.0) * smoothstep(0.32, 0.38, 1.0 - RdotU);
   }
 
   // @todo fog
