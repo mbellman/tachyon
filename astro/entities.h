@@ -89,6 +89,7 @@ namespace astro {
   /**
    * ----------------------------
    * The primary game entity data structure.
+   * @todo use a bitfield for flags
    * ----------------------------
    */
   struct GameEntity : EntityRecord {
@@ -143,6 +144,7 @@ namespace astro {
     float game_activation_time = -1.f;
     float astro_activation_time = 0.f;
     bool did_activate = false;
+    bool can_activate = true;
 
     // For responder light pillars which have become "synced" with their associated entity
     bool is_astro_synced = false;

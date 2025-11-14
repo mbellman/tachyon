@@ -94,7 +94,7 @@ static void UpdateLevelsOfDetail(Tachyon* tachyon, State& state) {
 
   // Decorative objects
   Tachyon_UseLodByDistance(tachyon, meshes.rock_1, 35000.f);
-  Tachyon_UseLodByDistance(tachyon, meshes.ground_1, 35000.f);
+  Tachyon_UseLodByDistance(tachyon, meshes.ground_1, 40000.f);
 
   // Procedural objects
   Tachyon_UseLodByDistance(tachyon, meshes.grass, 35000.f);
@@ -179,26 +179,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
   DataLoader::LoadLevelData(tachyon, state);
   Items::SpawnItemObjects(tachyon, state);
   ProceduralGeneration::RebuildAllProceduralObjects(tachyon, state);
-
-  // Perform entity associations
-  // @todo factor
-  // @todo redo this upon leaving the editor
-  for_all_entity_types() {
-    for_entities_of_type(type) {
-      auto& entity = entities[i];
-
-      if (entity.associated_entity_name != "") {
-        GameEntity* associated_entity = EntityManager::FindEntityByUniqueName(state, entity.associated_entity_name);
-
-        if (associated_entity != nullptr) {
-          entity.associated_entity_record.type = associated_entity->type;
-          entity.associated_entity_record.id = associated_entity->id;
-
-          // @todo return in the eventual refactored function
-        }
-      }
-    }
-  }
+  EntityManager::CreateEntityAssociations(state);
 
   // @todo default/load from save
   state.player_position = tVec3f(-13800.f, 0, -5900.f);
@@ -254,11 +235,11 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
     return;
   }
 
-  if (state.astro_time < 0.f && state.astro_turn_speed == 0.f && !state.bgm_is_playing) {
-    BGM::LoopMusic(DIVINATION_WOODREALM);
+  // if (state.astro_time < 0.f && state.astro_turn_speed == 0.f && !state.bgm_is_playing) {
+  //   BGM::LoopMusic(DIVINATION_WOODREALM);
 
-    state.bgm_is_playing = true;
-  }
+  //   state.bgm_is_playing = true;
+  // }
 
   // Dev hotkeys
   // @todo dev mode only

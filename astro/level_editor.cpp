@@ -1712,6 +1712,7 @@ void LevelEditor::OpenLevelEditor(Tachyon* tachyon, State& state) {
   objects(meshes.astrolabe_ring).disabled = true;
   objects(meshes.astrolabe_hand).disabled = true;
   objects(meshes.target_reticle).disabled = true;
+  objects(meshes.small_grass).disabled = true;
 
   // Disable all in-game entity objects, since we use placeholders in the editor
   for_all_entity_types() {
@@ -1729,8 +1730,6 @@ void LevelEditor::OpenLevelEditor(Tachyon* tachyon, State& state) {
   InitEditorCamera(tachyon, state);
 
   ProceduralGeneration::RebuildSimpleProceduralObjects(tachyon, state);
-
-  objects(meshes.small_grass).disabled = true;
 
   fx.accumulation_blur_factor = 0.f;
 }
@@ -1789,6 +1788,7 @@ void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
   objects(meshes.astrolabe_ring).disabled = false;
   objects(meshes.astrolabe_hand).disabled = false;
   objects(meshes.target_reticle).disabled = false;
+  objects(meshes.small_grass).disabled = false;
 
   // Re-enable all in-game entity objects
   for_all_entity_types() {
@@ -1804,10 +1804,8 @@ void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
   }
 
   ProceduralGeneration::RebuildAllProceduralObjects(tachyon, state);
-
-  objects(meshes.small_grass).disabled = false;
-
   Items::SpawnItemObjects(tachyon, state);
+  EntityManager::CreateEntityAssociations(state);
 
   SaveLevelData(tachyon, state);
   RemoveEntityPlaceholders(tachyon, state);

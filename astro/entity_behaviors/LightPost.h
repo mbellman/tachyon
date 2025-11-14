@@ -89,10 +89,16 @@ namespace astro {
         bool is_responder = IsResponder(entity);
         bool is_illuminated = IsIlluminatedAtTime(state, entity, state.astro_time);
 
+        entity.can_activate = (
+          state.astro_time >= entity.astro_start_time &&
+          (state.astro_time <= entity.astro_end_time || entity.astro_end_time == 0.f)
+        );
+
         // Responders "observe" their associated light pillar in the future,
         // and become illuminated if that light pillar is in turn illuminated
         if (is_responder) {
           auto& associated_entity = *EntityManager::FindEntity(state, entity.associated_entity_record);
+          auto& final_associated_entity = *GetFinalAssociatedEntity(state, entity);
 
           if (is_illuminated && !entity.did_activate) {
             entity.did_activate = true;
@@ -110,6 +116,7 @@ namespace astro {
             !entity.is_astro_synced &&
             !IsResponder(associated_entity) &&
             !IsIlluminatedAtTime(state, associated_entity, state.astro_time) &&
+            associated_entity.can_activate &&
             state.spells.did_cast_stun_this_frame &&
             tVec3f::distance(state.player_position, associated_entity.position) < 6000.f
           ) {
@@ -125,15 +132,16 @@ namespace astro {
             entity.requires_astro_sync &&
             associated_entity.is_astro_synced &&
             IsResponder(associated_entity) &&
+            final_associated_entity.can_activate &&
             state.spells.did_cast_stun_this_frame &&
-            tVec3f::distance(state.player_position, GetFinalAssociatedEntity(state, entity)->position) < 6000.f
+            tVec3f::distance(state.player_position, final_associated_entity.position) < 6000.f
           ) {
             entity.is_astro_synced = true;
 
             Sfx::PlaySound(SFX_LIGHT_POST_ASTRO_SYNCED_2, 1.f);
           }
         // Regular light pillars should illuminate when the player casts stun near them
-        } else {
+        } else if (entity.can_activate) {
           if (!is_illuminated && did_cast_stun_delayed && player_distance < 6000.f) {
             // Offset the time by -1.f to give a little wiggle room for
             // going back in time and still seeing the illuminated light
@@ -173,8 +181,10 @@ namespace astro {
 
           if (is_responder) {
             pillar.color = tVec3f(0.1f);
-          } else {
+          } else if (entity.can_activate) {
             pillar.color = tVec3f(0.9f, 0.8f, 0.8f);
+          } else {
+            pillar.color = tVec3f(1.f, 0.f, 0.f);
           }
 
           commit(pillar);

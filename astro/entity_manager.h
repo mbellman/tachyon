@@ -12,5 +12,6 @@ namespace astro {
     GameEntity* FindEntity(State& state, const EntityRecord& record);
     GameEntity* FindEntityByUniqueName(State& state, const std::string& unique_name);
     void DeleteEntity(State& state, const EntityRecord& record);
+    void CreateEntityAssociations(State& state);
   }
 }

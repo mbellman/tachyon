@@ -68,3 +68,24 @@ void EntityManager::DeleteEntity(State& state, const EntityRecord& record) {
 
   DeleteEntityByRecord(entities, record);
 }
+
+void EntityManager::CreateEntityAssociations(State& state) {
+  for_all_entity_types() {
+    for_entities_of_type(type) {
+      auto& entity = entities[i];
+
+      if (entity.associated_entity_name != "") {
+        // @todo warn/cancel if the associated entity is the same as the entity?
+        GameEntity* associated_entity = EntityManager::FindEntityByUniqueName(state, entity.associated_entity_name);
+
+        if (associated_entity != nullptr) {
+          entity.associated_entity_record.type = associated_entity->type;
+          entity.associated_entity_record.id = associated_entity->id;
+        }
+      } else {
+        entity.associated_entity_record.type = UNSPECIFIED;
+        entity.associated_entity_record.id = -1;
+      }
+    }
+  }
+}
