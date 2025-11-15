@@ -36,6 +36,8 @@ namespace astro {
     }
 
     handleEnemyBehavior() {
+      float scene_time = tachyon->scene.scene_time;
+
       tVec3f entity_to_player = state.player_position - entity.visible_position;
       float player_distance = entity_to_player.magnitude();
       auto& enemy = entity.enemy_state;
@@ -43,7 +45,7 @@ namespace astro {
       // Combat
       if (player_distance < 10000.f) {
         tVec3f player_direction = entity_to_player / player_distance;
-        float time_since_last_stun = tachyon->scene.scene_time - state.spells.stun_start_time;
+        float time_since_last_stun = scene_time - state.spells.stun_start_time;
 
         bool can_notice_player = (
           tVec3f::dot(GetFacingDirection(entity), player_direction) > 0.2f ||
@@ -86,20 +88,18 @@ namespace astro {
         if (time_since_last_stun >= 4.f && enemy.mood != ENEMY_IDLE) {
           FacePlayer(entity, state);
 
-          // @todo collision handling
-
           if (enemy.mood == ENEMY_AGITATED) {
             float speed;
 
             if (player_distance < 8000.f) {
-              const float faster_speed = 3000.f;
+              const float faster_speed = 4000.f;
               const float slower_speed = 2000.f;
               float alpha = InverseLerp(8000.f, 3000.f, player_distance);
 
               speed = Tachyon_Lerpf(faster_speed, slower_speed, alpha);
             } else {
               const float slower_speed = 1000.f;
-              const float faster_speed = 3000.f;
+              const float faster_speed = 4000.f;
               float alpha = InverseLerp(10000.f, 8000.f, player_distance);
 
               speed = Tachyon_Lerpf(slower_speed, faster_speed, alpha);
@@ -112,26 +112,28 @@ namespace astro {
 
         if (time_since_last_stun < 4.f) {
           // Stunned
-          play_random_dialogue(entity, low_guard_dialogue_stunned);
+          SetMood(entity, ENEMY_AGITATED, scene_time);
 
-          enemy.mood = ENEMY_AGITATED;
+          play_random_dialogue(entity, low_guard_dialogue_stunned);
         }
         else if (enemy.mood == ENEMY_IDLE && can_notice_player) {
           // Noticed
-          enemy.mood = ENEMY_ENGAGED;
-
+          SetMood(entity, ENEMY_ENGAGED, scene_time);
           Targeting::SetSpeakingEntity(state, entity);
 
           play_random_dialogue(entity, low_guard_dialogue_engaged);
         }
-        else if (enemy.mood == ENEMY_ENGAGED && player_distance > 5000.f) {
+        else if (
+          enemy.mood == ENEMY_ENGAGED &&
+          player_distance > 5000.f &&
+          scene_time - enemy.last_mood_change_time < 5.f
+        ) {
           // Engaged from a distance
           play_random_dialogue(entity, low_guard_dialogue_engaged);
         }
         else if (enemy.mood != ENEMY_IDLE) {
-          // Agitated, up close
-          enemy.mood = ENEMY_AGITATED;
-
+          // Agitated
+          SetMood(entity, ENEMY_AGITATED, scene_time);
           Targeting::SetSpeakingEntity(state, entity);
 
           play_random_dialogue(entity, low_guard_dialogue_agitated);
@@ -158,13 +160,11 @@ namespace astro {
           float astro_speed = abs(state.astro_turn_speed);
 
           if (astro_speed > 0.f) {
-            entity.enemy_state.mood = ENEMY_IDLE;
+            SetMood(entity, ENEMY_IDLE, scene_time);
+
             entity.visible_rotation = entity.orientation;
 
-            if (astro_speed < 0.05f) {
-              // Do nothing
-            }
-            else if (entity.recent_positions.size() > 0) {
+            if (entity.recent_positions.size() > 0) {
               // @todo factor
               // @todo only if astro turn speed < 0
               float time_since_last_reverse = scene_time - entity.last_recent_position_reverse_time;
@@ -176,26 +176,20 @@ namespace astro {
                 entity.last_recent_position_reverse_time = scene_time;
               }
             }
-            else if (
-              state.astro_time - entity.astro_start_time < 10.f ||
-              entity.astro_end_time - state.astro_time < 10.f
-            ) {
-              Jitter(entity, 200.f);
-            }
-            else if (astro_speed < 0.2f && entity.visible_position != entity.position) {
-              Jitter(entity, 50.f);
+            else if (astro_speed > 0.05f) {
+              Jitter(entity, 75.f);
             }
             else {
-              // Reset
-              // @todo factor
+              // Reset position/rotation when time slows down
               entity.visible_position = entity.position;
+              entity.visible_rotation = entity.orientation;
             }
           } else {
             // @todo factor
             {
               float time_since_last_recent_position = scene_time - entity.last_recent_position_record_time;
 
-              if (time_since_last_recent_position > 2.f && entity.enemy_state.mood != ENEMY_IDLE) {
+              if (time_since_last_recent_position > 1.f && entity.enemy_state.mood != ENEMY_IDLE) {
                 auto& recent_positions = entity.recent_positions;
 
                 if (recent_positions.size() > 30) {
@@ -216,6 +210,7 @@ namespace astro {
           entity.visible_scale = tVec3f(0.f);
           entity.visible_position = entity.position;
           entity.visible_rotation = entity.orientation;
+          entity.recent_positions.clear();
         }
 
         // Body
@@ -226,6 +221,7 @@ namespace astro {
           body.scale = entity.visible_scale;
           body.rotation = entity.visible_rotation;
           body.color = entity.tint;
+          body.material = tVec4f(0.5f, 1.f, 0, 0);
 
           commit(body);
         }

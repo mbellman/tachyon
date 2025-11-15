@@ -52,6 +52,10 @@ namespace astro {
   static void Jitter(GameEntity& entity, const float amount) {
     entity.visible_position.x += Tachyon_GetRandom(-amount, amount);
     entity.visible_position.z += Tachyon_GetRandom(-amount, amount);
+
+    float angle = Tachyon_GetRandom(-0.3f, 0.3f);
+
+    entity.visible_rotation = entity.orientation * Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), angle);
   }
 
   // @todo allow a tweening factor
@@ -62,6 +66,11 @@ namespace astro {
     // @todo use dt
     // @todo use nlerp
     entity.visible_rotation = Quaternion::slerp(entity.visible_rotation, facing_direction, 1.f / 60.f);
+  }
+
+  static void SetMood(GameEntity& entity, EnemyMood mood, const float scene_time) {
+    entity.enemy_state.mood = mood;
+    entity.enemy_state.last_mood_change_time = scene_time;
   }
 
   static tVec3f GetFacingDirection(GameEntity& entity) {

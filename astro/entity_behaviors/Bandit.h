@@ -8,7 +8,7 @@
 namespace astro {
   behavior Bandit {
     addMeshes() {
-      meshes.bandit_placeholder = MODEL_MESH("./astro/3d_models/bandit/placeholder.obj", 500);
+      meshes.bandit_placeholder = MODEL_MESH("./astro/3d_models/guy.obj", 500);
       meshes.bandit = MODEL_MESH("./astro/3d_models/guy.obj", 500);
     }
 
@@ -23,6 +23,8 @@ namespace astro {
     }
 
     handleEnemyBehavior() {
+      float scene_time = tachyon->scene.scene_time;
+
       tVec3f entity_to_player = state.player_position.xz() - entity.visible_position.xz();
       float player_distance = entity_to_player.magnitude();
       auto& enemy = entity.enemy_state;
@@ -43,7 +45,7 @@ namespace astro {
 
               // Idle -> Engaged
               // @todo ENEMY_STARTLED
-              enemy.mood = ENEMY_ENGAGED;
+              SetMood(entity, ENEMY_ENGAGED, scene_time);
             }
             else if (enemy.mood == ENEMY_AGITATED) {
               // Stunned while agitated
@@ -54,7 +56,7 @@ namespace astro {
               play_random_dialogue(entity, bandit_dialogue_stunned_engaged);
 
               // Engaged -> Agitated
-              enemy.mood = ENEMY_AGITATED;
+              SetMood(entity, ENEMY_AGITATED, scene_time);
             }
           }
         }
@@ -116,8 +118,7 @@ namespace astro {
 
           if (enemy.mood == ENEMY_IDLE && can_notice_player) {
             // Bandit engaging the player
-            enemy.mood = ENEMY_ENGAGED;
-
+            SetMood(entity, ENEMY_ENGAGED, scene_time);
             Targeting::SetSpeakingEntity(state, entity);
 
             play_random_dialogue(entity, bandit_dialogue_noticed);
@@ -144,6 +145,8 @@ namespace astro {
     }
 
     timeEvolve() {
+      float scene_time = tachyon->scene.scene_time;
+
       auto& meshes = state.meshes;
 
       // @todo @optimize only iterate over on-screen/in-range entities
@@ -159,15 +162,16 @@ namespace astro {
           float astro_speed = abs(state.astro_turn_speed);
 
           if (astro_speed > 0.f) {
-            entity.enemy_state.mood = ENEMY_IDLE;
+            SetMood(entity, ENEMY_IDLE, scene_time);
+
             entity.visible_rotation = entity.orientation;
 
             if (astro_speed < 0.05f) {
               // Do nothing
             }
             else if (
-              state.astro_time - entity.astro_start_time < 5.f ||
-              entity.astro_end_time - state.astro_time < 5.f
+              state.astro_time - entity.astro_start_time < 10.f ||
+              entity.astro_end_time - state.astro_time < 10.f
             ) {
               Jitter(entity, 200.f);
             }
@@ -188,6 +192,7 @@ namespace astro {
           entity.visible_position = entity.position;
           entity.visible_scale = tVec3f(0.f);
           entity.visible_rotation = entity.orientation;
+          entity.recent_positions.clear();
         }
 
         model.position = entity.visible_position;

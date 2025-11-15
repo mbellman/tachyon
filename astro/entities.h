@@ -84,6 +84,7 @@ namespace astro {
   struct EnemyState {
     EnemyMood mood = ENEMY_IDLE;
     float health = 100.f;
+    float last_mood_change_time = 0.f;
   };
 
   /**
