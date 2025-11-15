@@ -259,7 +259,7 @@ static void HandleSpellControls(Tachyon* tachyon, State& state) {
   if (did_press_key(tKey::CONTROLLER_B)) {
     SpellSystem::CastStun(tachyon, state);
 
-    Sfx::PlaySound(SFX_SPELL_STUN, 1.f);
+    Sfx::PlaySound(SFX_SPELL_STUN, 0.5f);
   }
 
   // Square

@@ -190,11 +190,6 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
   tachyon->scene.camera.position = tVec3f(-13800.f, 10000.f, 2975.f);
 
   tachyon->scene.scene_time = 0.f;
-
-  // @todo configure music per area
-  {
-    // BGM::LoopMusic(DIVINATION_WOODREALM);
-  }
 }
 
 void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {

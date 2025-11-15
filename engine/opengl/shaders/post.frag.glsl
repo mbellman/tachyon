@@ -369,7 +369,9 @@ void main() {
       alpha *= alpha;
       alpha *= vignette_intensity;
 
-      post_color = mix(post_color, vec3(0), alpha);
+      if (world_depth > 2200.0) {
+        post_color = mix(post_color, vec3(0), alpha);
+      }
     }
   #endif
 

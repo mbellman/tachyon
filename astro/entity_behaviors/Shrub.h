@@ -41,7 +41,7 @@ namespace astro {
         leaves.position.y -= (entity.scale.y - leaves.scale.y);
 
         leaves.rotation = entity.orientation;
-        leaves.color = tVec3f(0.1f, 0.2f, 0.1f);
+        leaves.color = 0x1210;
         leaves.material = tVec4f(0.7f, 0, 0, 0.2f);
 
         // Collision

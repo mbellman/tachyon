@@ -1274,12 +1274,12 @@ static std::string FormatForDisplay(const Quaternion& q) {
  * ----------------------------
  */
 static void RenderInfoLabels(Tachyon* tachyon, State& state, const std::vector<std::string>& labels) {
-  for (int32 i = 0; (int32)i < labels.size(); i++) {
+  for (size_t i = 0; i < labels.size(); i++) {
     auto& label = labels[i];
 
     Tachyon_DrawUIText(tachyon, state.debug_text, {
       .screen_x = tachyon->window_width - 480,
-      .screen_y = 20 + (i * 25),
+      .screen_y = 20 + int32(i) * 25,
       .centered = false,
       .color = tVec3f(1.f),
       .string = label

@@ -197,6 +197,7 @@ namespace astro {
     bool has_blocking_dialogue = false;
     bool dismissed_blocking_dialogue = false;
 
+    // @todo have BGM:: manage this
     bool bgm_is_playing = false;
 
     // @todo dev mode only
