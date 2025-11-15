@@ -156,6 +156,8 @@ namespace astro {
     bool is_on_solid_ground = false;
     bool did_resolve_radius_collision = false;
 
+    int32 player_light_id = -1;
+
     float movement_distance = 0.f;
     float last_walk_sound_movement_distance = 0.f;
     uint8 walk_cycle = 0;

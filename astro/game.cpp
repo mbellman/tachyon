@@ -66,6 +66,20 @@ static void UpdatePlayer(Tachyon* tachyon, State& state, const float dt) {
 
     commit(player);
   }
+
+  // Update player light
+  {
+    auto& light = *get_point_light(state.player_light_id);
+
+    Quaternion offset_rotation = Quaternion::FromDirection(state.player_facing_direction, tVec3f(0, 1.f, 0));
+    tVec3f offset = offset_rotation.toMatrix4f() * tVec3f(-1.f, 0, 0);
+
+    light.position = state.player_position + offset * 900.f;
+    light.position.y -= 300.f;
+    light.radius = 2000.f;
+    light.color = tVec3f(0.5f, 0.3f, 0.6f);
+    light.glow_power = 0.f;
+  }
 }
 
 static void UpdateWaterPlane(Tachyon* tachyon, State& state) {
@@ -185,6 +199,8 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
   state.player_position = tVec3f(-13800.f, 0, -5900.f);
   state.player_facing_direction = tVec3f(0, 0, 1.f);
   state.camera_shift = tVec3f(0, 0, 1875.f);
+
+  state.player_light_id = create_point_light();
 
   // @todo default/load from save
   tachyon->scene.camera.position = tVec3f(-13800.f, 10000.f, 2975.f);

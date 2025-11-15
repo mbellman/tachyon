@@ -209,7 +209,7 @@ void main() {
     out_color = mix(out_color, vec3(0.4), 0.2);
 
     // Highlights
-    out_color += 2.0 * pow(hRdotL, 30.0) * smoothstep(0.32, 0.38, 1.0 - RdotU);
+    out_color += 2.0 * pow(hRdotL, 30.0) * smoothstep(0.25, 0.4, 1.0 - RdotU);
   }
 
   // @todo fog

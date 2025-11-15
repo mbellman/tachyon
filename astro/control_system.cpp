@@ -10,6 +10,7 @@
 using namespace astro;
 
 static void HandlePlayerMovementControls(Tachyon* tachyon, State& state, const float dt) {
+  float scene_time = tachyon->scene.scene_time;
   bool is_running = is_key_held(tKey::CONTROLLER_A) || is_key_held(tKey::SHIFT);
 
   if (
@@ -42,7 +43,7 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state, const f
     // Double-tapping A/X to escape enemies
     if (did_press_key(tKey::CONTROLLER_A)) {
       if (
-        tachyon->running_time - state.last_run_input_time < 0.3f &&
+        scene_time - state.last_run_input_time < 0.3f &&
         state.has_target
       ) {
         auto& target = *EntityManager::FindEntity(state, state.target_entity);
@@ -55,30 +56,32 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state, const f
         }
       }
 
-      state.last_run_input_time = tachyon->running_time;
+      state.last_run_input_time = scene_time;
     }
 
     // Tapping A/X quickly to dodge
     if (
       state.targetable_entities.size() > 0 &&
       did_release_key(tKey::CONTROLLER_A) &&
-      tachyon->running_time - state.last_dodge_time > 0.25f &&
-      tachyon->running_time - state.last_run_input_time < 0.3f
+      scene_time - state.last_dodge_time > 0.25f &&
+      scene_time - state.last_run_input_time < 0.3f
     ) {
       state.player_velocity *= 4.f;
-      state.last_dodge_time = tachyon->running_time;
+      state.last_dodge_time = scene_time;
     }
   }
 
   // Speed limiting
   // @todo move elsewhere
   {
-    state.player_velocity *= 1.f - 6.f * dt;
+    bool is_dodging = scene_time - state.last_dodge_time <= 0.25f;
+
+    state.player_velocity *= 1.f - (is_dodging ? 10.f : 6.f) * dt;
 
     float speed = state.player_velocity.magnitude();
     float max_speed = is_running ? 1300.f : 550.f;
 
-    if (speed > max_speed) {
+    if (speed > max_speed && !is_dodging) {
       tVec3f unit_velocity = state.player_velocity / speed;
 
       state.player_velocity = unit_velocity * max_speed;
