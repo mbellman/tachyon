@@ -85,6 +85,7 @@ namespace astro {
     EnemyMood mood = ENEMY_IDLE;
     float health = 100.f;
     float last_mood_change_time = 0.f;
+    float last_attack_time = 0.f;
   };
 
   /**

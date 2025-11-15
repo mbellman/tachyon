@@ -15,6 +15,10 @@ namespace astro {
     return alpha;
   }
 
+  const static float attack_duration = 1.f;
+  const static float wind_up_duration = 0.4f;
+  const static float stab_duration = 0.6f;
+
   behavior LowGuard {
     addMeshes() {
       meshes.low_guard_placeholder = MODEL_MESH("./astro/3d_models/guy.obj", 500);
@@ -52,6 +56,8 @@ namespace astro {
           (player_distance < 4000.f && state.player_velocity.magnitude() > 500.f)
         );
 
+        bool is_attacking = scene_time - enemy.last_attack_time < attack_duration;
+
         // Collision handling
         // @todo factor
         {
@@ -69,7 +75,7 @@ namespace astro {
 
             tVec3f entity_to_entity = entity.visible_position.xz() - guard.visible_position.xz();
             float distance = entity_to_entity.magnitude();
-            float minimum_distance = radius_factor * (entity.visible_scale.x + guard.visible_scale.x);
+            float minimum_distance = radius_factor * 1.5f * (entity.visible_scale.x + guard.visible_scale.x);
 
             if (distance < minimum_distance) {
               entity.visible_position = guard.visible_position + entity_to_entity.unit() * minimum_distance;
@@ -89,24 +95,28 @@ namespace astro {
           FacePlayer(entity, state);
 
           if (enemy.mood == ENEMY_AGITATED) {
-            float speed;
+            float chasing_speed;
 
             if (player_distance < 8000.f) {
               const float faster_speed = 4000.f;
               const float slower_speed = 2000.f;
               float alpha = InverseLerp(8000.f, 3000.f, player_distance);
 
-              speed = Tachyon_Lerpf(faster_speed, slower_speed, alpha);
+              chasing_speed = Tachyon_Lerpf(faster_speed, slower_speed, alpha);
             } else {
               const float slower_speed = 1000.f;
               const float faster_speed = 4000.f;
               float alpha = InverseLerp(10000.f, 8000.f, player_distance);
 
-              speed = Tachyon_Lerpf(slower_speed, faster_speed, alpha);
+              chasing_speed = Tachyon_Lerpf(slower_speed, faster_speed, alpha);
+            }
+
+            if (is_attacking) {
+              chasing_speed *= 0.2f;
             }
 
             // @todo FollowPlayer()
-            entity.visible_position += entity_to_player.unit() * speed * dt;
+            entity.visible_position += entity_to_player.unit() * chasing_speed * dt;
           }
         }
 
@@ -137,6 +147,14 @@ namespace astro {
           Targeting::SetSpeakingEntity(state, entity);
 
           play_random_dialogue(entity, low_guard_dialogue_agitated);
+
+          if (
+            player_distance < 4000.f &&
+            scene_time - enemy.last_attack_time > 2.f * attack_duration &&
+            scene_time - enemy.last_mood_change_time > 0.5f
+          ) {
+            enemy.last_attack_time = scene_time;
+          }
         }
       } else {
         // Out of range
@@ -248,6 +266,33 @@ namespace astro {
           spear.rotation = entity.visible_rotation;
           spear.color = tVec3f(0.6f);
           spear.material = tVec4f(0.2f, 1.f, 0, 0);
+
+          // Attacking
+          {
+            float time_since_starting_attack = scene_time - entity.enemy_state.last_attack_time;
+
+            if (time_since_starting_attack < attack_duration) {
+              float alpha = time_since_starting_attack / attack_duration;
+
+              if (alpha < wind_up_duration) {
+                float wind_up_alpha = alpha * (1.f / wind_up_duration);
+                float angle = -0.5f * sinf(wind_up_alpha * t_PI);
+
+                spear.rotation = spear.rotation * Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), angle);
+              } else {
+                float stab_alpha = (alpha - wind_up_duration) * (1.f / stab_duration);
+                stab_alpha = powf(stab_alpha, 0.75f);
+
+                float angle = t_HALF_PI * sinf(stab_alpha * t_PI);
+                float thrust = 1000.f * sinf(stab_alpha * t_PI);
+
+                tVec3f thrust_offset = entity.visible_rotation.toMatrix4f() * tVec3f(0, 0, 1.f) * thrust;
+
+                spear.rotation = spear.rotation * Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), angle);
+                spear.position += thrust_offset;
+              }
+            }
+          }
 
           commit(spear);
         }

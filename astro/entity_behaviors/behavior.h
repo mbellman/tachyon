@@ -69,8 +69,10 @@ namespace astro {
   }
 
   static void SetMood(GameEntity& entity, EnemyMood mood, const float scene_time) {
-    entity.enemy_state.mood = mood;
-    entity.enemy_state.last_mood_change_time = scene_time;
+    if (entity.enemy_state.mood != mood) {
+      entity.enemy_state.mood = mood;
+      entity.enemy_state.last_mood_change_time = scene_time;
+    }
   }
 
   static tVec3f GetFacingDirection(GameEntity& entity) {
