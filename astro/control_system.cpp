@@ -15,7 +15,7 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state, const f
 
   if (abs(state.astro_turn_speed) < 0.05f) {
     // Directional movement
-    float movement_speed = is_running ? 14000.f : 8000.f;
+    float movement_speed = is_running ? 14000.f : 4000.f;
 
     if (is_key_held(tKey::W)) {
       state.player_velocity += tVec3f(0, 0, -1.f) * movement_speed * dt;
@@ -86,10 +86,6 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state, const f
 }
 
 static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) {
-  if (Targeting::IsInCombatWithAnyTarget(state)) {
-    return;
-  }
-
   const float astro_turn_rate = 0.8f;
   const float astro_slowdown_rate = 3.f;
 
@@ -103,6 +99,17 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
     (tachyon->left_trigger > 0.f && state.last_frame_left_trigger == 0.f) ||
     (tachyon->right_trigger > 0.f && state.last_frame_right_trigger == 0.f)
   );
+
+  state.last_frame_left_trigger = tachyon->left_trigger;
+  state.last_frame_right_trigger = tachyon->right_trigger;
+
+  if (Targeting::IsInCombatWithAnyTarget(state)) {
+    if (started_turning) {
+      Sfx::PlaySound(SFX_ASTRO_DISABLED, 0.8f);
+    }
+
+    return;
+  }
 
   bool stopped_turning = false;
 
@@ -263,9 +270,6 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
     state.is_astrolabe_stopped = false;
     state.time_warp_start_radius = 0.f;
   }
-
-  state.last_frame_left_trigger = tachyon->left_trigger;
-  state.last_frame_right_trigger = tachyon->right_trigger;
 }
 
 static void HandleSpellControls(Tachyon* tachyon, State& state) {

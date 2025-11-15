@@ -12,8 +12,8 @@
 #define commit(__object) Tachyon_CommitObject(tachyon, __object)
 #define get_live_object(__object) Tachyon_GetLiveObject(tachyon, __object)
 #define create_point_light() Tachyon_CreatePointLight(tachyon)
-#define get_point_light(__light_id) Tachyon_GetPointLight(tachyon, __light_id);
-#define remove_point_light(__light) Tachyon_RemovePointLight(tachyon, __light);
+#define get_point_light(__light_id) Tachyon_GetPointLight(tachyon, __light_id)
+#define remove_point_light(__light) Tachyon_RemovePointLight(tachyon, __light)
 
 tMesh Tachyon_LoadMesh(const char* path, const tVec3f& axis_factors = tVec3f(1.f));
 tMesh Tachyon_CreatePlaneMesh();

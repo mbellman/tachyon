@@ -61,6 +61,7 @@ static void UpdatePlayer(Tachyon* tachyon, State& state, const float dt) {
     // @temporary
     player.scale = tVec3f(600.f, 1500.f, 600.f);
     player.color = tVec3f(0, 0.2f, 1.f);
+    player.material = tVec4f(0.9f, 0, 0, 0);
 
     player.rotation = Quaternion::FromDirection(state.player_facing_direction, tVec3f(0, 1.f, 0));
 
@@ -74,10 +75,11 @@ static void UpdatePlayer(Tachyon* tachyon, State& state, const float dt) {
     Quaternion offset_rotation = Quaternion::FromDirection(state.player_facing_direction, tVec3f(0, 1.f, 0));
     tVec3f offset = offset_rotation.toMatrix4f() * tVec3f(-1.f, 0, 0);
 
-    light.position = state.player_position + offset * 900.f;
+    light.position = state.player_position + offset * 1000.f;
     light.position.y -= 300.f;
     light.radius = 2000.f;
     light.color = tVec3f(0.5f, 0.3f, 0.6f);
+    light.color = get_point_light(state.astrolabe_light_id)->color;
     light.glow_power = 0.f;
   }
 }
@@ -201,6 +203,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
   state.camera_shift = tVec3f(0, 0, 1875.f);
 
   state.player_light_id = create_point_light();
+  state.astrolabe_light_id = create_point_light();
 
   // @todo default/load from save
   tachyon->scene.camera.position = tVec3f(-13800.f, 10000.f, 2975.f);
@@ -246,11 +249,11 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
     return;
   }
 
-  // if (state.astro_time < 0.f && state.astro_turn_speed == 0.f && !state.bgm_is_playing) {
-  //   BGM::LoopMusic(DIVINATION_WOODREALM);
+  if (state.astro_time < 0.f && state.astro_turn_speed == 0.f && !state.bgm_is_playing) {
+    // BGM::LoopMusic(DIVINATION_WOODREALM);
 
-  //   state.bgm_is_playing = true;
-  // }
+    state.bgm_is_playing = true;
+  }
 
   // Dev hotkeys
   // @todo dev mode only

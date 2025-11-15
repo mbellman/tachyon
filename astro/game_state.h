@@ -152,11 +152,13 @@ namespace astro {
     tVec3f last_solid_ground_position;
     tVec3f player_velocity;
     tVec3f player_facing_direction;
+    int32 player_light_id = -1;
     Plane last_plane_walked_on;
     bool is_on_solid_ground = false;
     bool did_resolve_radius_collision = false;
 
-    int32 player_light_id = -1;
+    float astrolabe_visibility = 1.f;
+    int32 astrolabe_light_id = -1;
 
     float movement_distance = 0.f;
     float last_walk_sound_movement_distance = 0.f;

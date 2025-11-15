@@ -54,7 +54,7 @@ namespace astro {
 
         bool can_notice_player = (
           tVec3f::dot(GetFacingDirection(entity), player_direction) > 0.2f ||
-          (player_distance < 4000.f && state.player_velocity.magnitude() > 500.f)
+          (player_distance < 4000.f && state.player_velocity.magnitude() > 549.f)
         );
 
         bool is_attacking = scene_time - enemy.last_attack_time < attack_duration;

@@ -1,5 +1,6 @@
 #include "astro/astrolabe.h"
 #include "astro/items.h"
+#include "astro/targeting.h"
 
 using namespace astro;
 
@@ -11,6 +12,13 @@ using namespace astro;
 void Astrolabe::Update(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
   auto& meshes = state.meshes;
+  bool is_in_combat = Targeting::IsInCombatWithAnyTarget(state);
+
+  if (is_in_combat) {
+    state.astrolabe_visibility = Tachyon_Lerpf(state.astrolabe_visibility, 0.f, 0.05f);
+  } else {
+    state.astrolabe_visibility = Tachyon_Lerpf(state.astrolabe_visibility, 1.f, 0.05f);
+  }
 
   auto& rear = objects(meshes.astrolabe_rear)[0];
   auto& base = objects(meshes.astrolabe_base)[0];
@@ -25,18 +33,23 @@ void Astrolabe::Update(Tachyon* tachyon, State& state) {
   hand.scale =
   tVec3f(200.f);
 
+  rear.color = is_in_combat ? tVec3f(0.f) : tVec3f(0.1f);
   rear.color = tVec3f(0.1f);
   rear.material = tVec4f(0, 1.f, 0, 0);
 
+  base.color = tVec3f::lerp(tVec3f(0.2f, 0.1f, 0), tVec3f(0.7f, 0.4f, 0.1f), state.astrolabe_visibility);
   base.color = tVec3f(0.7f, 0.4f, 0.1f);
   base.material = tVec4f(0, 1.f, 1.f, 0.4f);
 
-  plate.color = 0x4110;
+  plate.color = tVec3f::lerp(tVec3f(0), tVec3f(0.25f, 0.1f, 0.1f), state.astrolabe_visibility);
+  plate.color = tVec3f(0.25f, 0.1f, 0.1f);
   plate.material = tVec4f(0, 0, 0, 0);
 
+  ring.color = tVec3f::lerp(tVec3f(0.3f, 0.2f, 0), tVec3f(0.9f, 0.8f, 0.1f), state.astrolabe_visibility);
   ring.color = tVec3f(0.9f, 0.8f, 0.1f);
   ring.material = tVec4f(0, 1.f, 0, 0.1f);
 
+  hand.color = tVec3f::lerp(tVec3f(0.2f, 0, 0), tVec3f(0.5f, 0.1f, 0.1f), state.astrolabe_visibility);
   hand.color = tVec3f(0.5f, 0.1f, 0.1f);
   hand.material = tVec4f(0.1f, 1.f, 0, 0);
 
@@ -99,20 +112,23 @@ void Astrolabe::Update(Tachyon* tachyon, State& state) {
 
   // Fragments
   {
+    tVec3f fragment_color = tVec3f::lerp(tVec3f(0.2f, 0.1f, 0), tVec3f(0.7f, 0.5f, 0.2f), state.astrolabe_visibility);
+    fragment_color = tVec3f(0.7f, 0.5f, 0.2f);
+
     auto& fragment_ul = objects(meshes.astrolabe_fragment_ul)[0];
     auto& fragment_ll = objects(meshes.astrolabe_fragment_ll)[0];
 
     fragment_ul.position = base.position;
     fragment_ul.scale = base.scale;
     fragment_ul.rotation = base.rotation;
-    fragment_ul.color = tVec3f(0.7f, 0.5f, 0.2f);
+    fragment_ul.color = fragment_color;
     fragment_ul.material = base.material;
 
     if (Items::HasItem(state, ASTROLABE_LOWER_LEFT)) {
       fragment_ll.position = base.position;
       fragment_ll.scale = base.scale;
       fragment_ll.rotation = base.rotation;
-      fragment_ll.color = tVec3f(0.7f, 0.5f, 0.2f);
+      fragment_ll.color = fragment_color;
       fragment_ll.material = base.material;
     }
 
@@ -120,23 +136,14 @@ void Astrolabe::Update(Tachyon* tachyon, State& state) {
     commit(fragment_ll);
   }
 
-  // Add light for visibility
+  // Light
   {
-    // @temporary
-    // @todo put a light id in state
-    // @todo destroy light when opening the editor
-    static int32 light_id = -1;
-
-    if (light_id == -1) {
-      light_id = create_point_light();
-    }
-
-    auto* light = get_point_light(light_id);
+    auto* light = get_point_light(state.astrolabe_light_id);
 
     light->position = base.position + tVec3f(-10.f, -4.f, 8.f);
     light->radius = 300.f;
-    light->color = tVec3f(1.f, 0.8f, 0.4f);
-    light->power = 0.5f + 20.f * abs(state.astro_turn_speed);
+    light->color = tVec3f::lerp(tVec3f(1.f, 0.2f, 0), tVec3f(1.f, 0.8f, 0.4f), state.astrolabe_visibility);
+    light->power = Tachyon_Lerpf(10.f, 0.5f + 20.f * abs(state.astro_turn_speed), state.astrolabe_visibility);
     light->glow_power = 0.f;
   }
 
