@@ -37,7 +37,7 @@ void Astrolabe::Update(Tachyon* tachyon, State& state) {
   ring.color = tVec3f(0.9f, 0.8f, 0.1f);
   ring.material = tVec4f(0, 1.f, 0, 0.1f);
 
-  hand.color = tVec3f(0.4f, 0.1f, 0.1f);
+  hand.color = tVec3f(0.5f, 0.1f, 0.1f);
   hand.material = tVec4f(0.1f, 1.f, 0, 0);
 
   rear.rotation =

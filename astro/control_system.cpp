@@ -10,13 +10,15 @@
 using namespace astro;
 
 static void HandlePlayerMovementControls(Tachyon* tachyon, State& state, const float dt) {
+  bool is_running = is_key_held(tKey::CONTROLLER_A) || is_key_held(tKey::SHIFT);
+
   if (
     tachyon->left_trigger == 0.f &&
     tachyon->right_trigger == 0.f &&
     abs(state.astro_turn_speed) < 0.1f
   ) {
     // Directional movement
-    float movement_speed = is_key_held(tKey::CONTROLLER_A) || is_key_held(tKey::SHIFT) ? 14000.f : 8000.f;
+    float movement_speed = is_running ? 14000.f : 8000.f;
 
     if (is_key_held(tKey::W)) {
       state.player_velocity += tVec3f(0, 0, -1.f) * movement_speed * dt;
@@ -68,7 +70,20 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state, const f
     }
   }
 
-  state.player_velocity *= 1.f - 10.f * dt;
+  // Speed limiting
+  // @todo move elsewhere
+  {
+    state.player_velocity *= 1.f - 6.f * dt;
+
+    float speed = state.player_velocity.magnitude();
+    float max_speed = is_running ? 1300.f : 550.f;
+
+    if (speed > max_speed) {
+      tVec3f unit_velocity = state.player_velocity / speed;
+
+      state.player_velocity = unit_velocity * max_speed;
+    }
+  }
 }
 
 static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) {

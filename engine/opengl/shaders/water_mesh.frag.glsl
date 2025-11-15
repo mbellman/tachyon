@@ -149,11 +149,11 @@ void main() {
   float NdotL = max(0.0, dot(N, L));
   float DdotL = max(0.0, dot(D, L));
   float RdotL = max(0.0, dot(R, L));
-  float RdotU = max(0.0, dot(R, vec3(0, 1, 0)));
 
   // Special terms for specular highlight output
   vec3 hR = reflect(D, hN);
   float hRdotL = max(0.0, dot(hR, L));
+  float RdotU = max(0.0, dot(R, vec3(0, 1, 0)));
 
   vec3 out_color = vec3(0.0);
 
