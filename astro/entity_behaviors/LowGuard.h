@@ -6,7 +6,7 @@
 #include "astro/ui_system.h"
 
 namespace astro {
-  // @todo factor
+  // @todo move elsewhere
   static float InverseLerp(const float start, const float end, const float value) {
     float alpha = (value - start) / (end - start);
     if (alpha < 0.f) alpha = 0.f;
@@ -15,9 +15,10 @@ namespace astro {
     return alpha;
   }
 
-  const static float attack_duration = 1.f;
-  const static float wind_up_duration = 0.4f;
-  const static float stab_duration = 0.6f;
+  const static float wind_up_duration = 0.6f;
+  const static float stab_duration = 0.2f;
+  const static float wind_down_duration = 0.8f;
+  const static float attack_duration = wind_up_duration + stab_duration + wind_down_duration;
 
   behavior LowGuard {
     addMeshes() {
@@ -274,17 +275,33 @@ namespace astro {
             if (time_since_starting_attack < attack_duration) {
               float alpha = time_since_starting_attack / attack_duration;
 
-              if (alpha < wind_up_duration) {
-                float wind_up_alpha = alpha * (1.f / wind_up_duration);
+              if (time_since_starting_attack < wind_up_duration) {
+                // Wind-up
+                float wind_up_alpha = alpha * (attack_duration / wind_up_duration);
                 float angle = -0.5f * sinf(wind_up_alpha * t_PI);
 
                 spear.rotation = spear.rotation * Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), angle);
-              } else {
-                float stab_alpha = (alpha - wind_up_duration) * (1.f / stab_duration);
+              }
+              else if (time_since_starting_attack < (wind_up_duration + stab_duration)) {
+                // Stab
+                float stab_alpha = InverseLerp(wind_up_duration, wind_up_duration + stab_duration, time_since_starting_attack);
                 stab_alpha = powf(stab_alpha, 0.75f);
 
-                float angle = t_HALF_PI * sinf(stab_alpha * t_PI);
-                float thrust = 1000.f * sinf(stab_alpha * t_PI);
+                float angle = t_HALF_PI * sinf(stab_alpha * t_HALF_PI);
+                float thrust = 1000.f * sinf(stab_alpha * t_HALF_PI);
+
+                tVec3f thrust_offset = entity.visible_rotation.toMatrix4f() * tVec3f(0, 0, 1.f) * thrust;
+
+                spear.rotation = spear.rotation * Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), angle);
+                spear.position += thrust_offset;
+              }
+              else {
+                // Wind-down
+                float wind_down_alpha = InverseLerp(wind_up_duration + stab_duration, attack_duration, time_since_starting_attack);
+                wind_down_alpha = sqrtf(wind_down_alpha);
+
+                float angle = t_HALF_PI * (1.f - wind_down_alpha);
+                float thrust = 1000.f * (1.f - wind_down_alpha);
 
                 tVec3f thrust_offset = entity.visible_rotation.toMatrix4f() * tVec3f(0, 0, 1.f) * thrust;
 

@@ -13,11 +13,7 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state, const f
   float scene_time = tachyon->scene.scene_time;
   bool is_running = is_key_held(tKey::CONTROLLER_A) || is_key_held(tKey::SHIFT);
 
-  if (
-    tachyon->left_trigger == 0.f &&
-    tachyon->right_trigger == 0.f &&
-    abs(state.astro_turn_speed) < 0.1f
-  ) {
+  if (abs(state.astro_turn_speed) < 0.05f) {
     // Directional movement
     float movement_speed = is_running ? 14000.f : 8000.f;
 
@@ -63,7 +59,7 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state, const f
     if (
       state.targetable_entities.size() > 0 &&
       did_release_key(tKey::CONTROLLER_A) &&
-      scene_time - state.last_dodge_time > 0.25f &&
+      scene_time - state.last_dodge_time > 0.2f &&
       scene_time - state.last_run_input_time < 0.3f
     ) {
       state.player_velocity *= 4.f;
@@ -90,6 +86,10 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state, const f
 }
 
 static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) {
+  if (Targeting::IsInCombatWithAnyTarget(state)) {
+    return;
+  }
+
   const float astro_turn_rate = 0.8f;
   const float astro_slowdown_rate = 3.f;
 

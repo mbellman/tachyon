@@ -237,3 +237,15 @@ void Targeting::DeselectCurrentTarget(Tachyon* tachyon, State& state) {
 
   ResetEntityRecord(state.target_entity);
 }
+
+bool Targeting::IsInCombatWithAnyTarget(State& state) {
+  for (auto& record : state.targetable_entities) {
+    auto& entity = *EntityManager::FindEntity(state, record);
+
+    if (entity.enemy_state.mood == ENEMY_AGITATED) {
+      return true;
+    }
+  }
+
+  return false;
+}
