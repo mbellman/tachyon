@@ -114,7 +114,13 @@ void DataLoader::LoadLevelData(Tachyon* tachyon, State& state) {
       // @temporary
       // @todo set mesh material properties
       if (mesh_index == state.meshes.ground_1) {
-        object.material = tVec4f(0.9f, 0, 0, 0.1f);
+        object.material = tVec4f(1.f, 0, 0, 0.1f);
+      }
+
+      // @temporary
+      // @todo set mesh material properties
+      if (mesh_index == state.meshes.rock_1) {
+        object.material = tVec4f(1., 0, 0, 0);
       }
 
       commit(object);

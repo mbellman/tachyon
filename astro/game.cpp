@@ -170,17 +170,27 @@ static void HandleWalkSounds(Tachyon* tachyon, State& state) {
 
 // @todo move to Targeting::
 static bool IsInStealthMode(State& state) {
+  const float stealth_distance_limit = 8000.f;
+
+  float closest_target_distance = 10000.f;
+
   for (auto& record : state.targetable_entities) {
     auto* entity = EntityManager::FindEntity(state, record);
     float player_distance = tVec3f::distance(state.player_position, entity->visible_position);
 
-    // @todo return false if any enemies are not idle
-    if (player_distance < 7000.f && entity->enemy_state.mood == ENEMY_IDLE) {
-      return true;
+    if (player_distance < closest_target_distance) {
+      closest_target_distance = player_distance;
+    }
+
+    if (
+      player_distance < stealth_distance_limit &&
+      entity->enemy_state.mood != ENEMY_IDLE
+    ) {
+      return false;
     }
   }
 
-  return false;
+  return closest_target_distance < stealth_distance_limit;
 }
 
 static void HandleMusicLevels(Tachyon* tachyon, State& state) {
@@ -293,12 +303,6 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
     return;
   }
 
-  if (state.astro_time < 0.f && state.astro_turn_speed == 0.f && state.bgm_start_time == -1.f) {
-    BGM::LoopMusic(DIVINATION_WOODREALM);
-
-    state.bgm_start_time = get_scene_time();
-  }
-
   // Dev hotkeys
   // @todo dev mode only
   {
@@ -329,6 +333,12 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   // @todo HandleFrameStart()
   {
     state.spells.did_cast_stun_this_frame = false;
+  }
+
+  if (state.astro_time < 0.f && state.astro_turn_speed == 0.f && state.bgm_start_time == -1.f) {
+    // BGM::LoopMusic(DIVINATION_WOODREALM);
+
+    // state.bgm_start_time = get_scene_time();
   }
 
   Targeting::HandleTargets(tachyon, state);

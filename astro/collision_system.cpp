@@ -331,6 +331,8 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state, const flo
   for_entities(state.lilac_bushes) {
     auto& entity = state.lilac_bushes[i];
 
+    if (entity.visible_scale.x < 500.f) continue;
+
     ResolveSingleRadiusCollision(state, entity.position, entity.visible_scale, 0.35f);
   }
 
