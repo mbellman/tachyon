@@ -52,7 +52,7 @@ static void UpdatePlayer(Tachyon* tachyon, State& state, const float dt) {
     state.player_facing_direction = tVec3f::lerp(state.player_facing_direction, desired_facing_direction, turning_speed * dt).unit();
   }
 
-  // Update model
+  // Model
   {
     auto& player = objects(state.meshes.player)[0];
 
@@ -68,7 +68,7 @@ static void UpdatePlayer(Tachyon* tachyon, State& state, const float dt) {
     commit(player);
   }
 
-  // Update player light
+  // Player light
   {
     auto& light = *get_point_light(state.player_light_id);
 
@@ -77,10 +77,18 @@ static void UpdatePlayer(Tachyon* tachyon, State& state, const float dt) {
 
     light.position = state.player_position + offset * 1000.f;
     light.position.y -= 300.f;
-    light.radius = 2000.f;
+    light.radius = 2500.f;
     light.color = tVec3f(0.5f, 0.3f, 0.6f);
     light.color = get_point_light(state.astrolabe_light_id)->color;
+    light.power = 0.5f;
     light.glow_power = 0.f;
+
+    // @todo factor (Astrolabe::)
+    if (time_since(state.game_time_at_start_of_turn) < 2.f) {
+      float alpha = time_since(state.game_time_at_start_of_turn) / 2.f;
+
+      light.power += sinf(alpha * t_PI);
+    }
   }
 }
 
@@ -157,6 +165,35 @@ static void HandleWalkSounds(Tachyon* tachyon, State& state) {
     }
 
     state.last_walk_sound_movement_distance = state.movement_distance;
+  }
+}
+
+// @todo move to Targeting::
+static bool IsInStealthMode(State& state) {
+  for (auto& record : state.targetable_entities) {
+    auto* entity = EntityManager::FindEntity(state, record);
+    float player_distance = tVec3f::distance(state.player_position, entity->visible_position);
+
+    // @todo return false if any enemies are not idle
+    if (player_distance < 7000.f && entity->enemy_state.mood == ENEMY_IDLE) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+static void HandleMusicLevels(Tachyon* tachyon, State& state) {
+  if (!state.bgm_is_playing) return;
+
+  if (IsInStealthMode(state) || Targeting::IsInCombatMode(state)) {
+    BGM::SetCurrentMusicVolume(0.1f);
+  }
+  else if (state.astro_turn_speed != 0.f) {
+    BGM::SetCurrentMusicVolume(0.f);
+  }
+  else {
+    BGM::SetCurrentMusicVolume(0.4f);
   }
 }
 
@@ -294,6 +331,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   Items::HandleItemPickup(tachyon, state);
   UISystem::HandleDialogue(tachyon, state);
   HandleWalkSounds(tachyon, state);
+  HandleMusicLevels(tachyon, state);
 
   TimeEvolution::UpdateAstroTime(tachyon, state, dt);
   ProceduralGeneration::UpdateProceduralObjects(tachyon, state);
@@ -331,16 +369,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
 
     // Vignette effects in stealth mode
     {
-      float desired_vignette_intensity = 0.f;
-
-      for (auto& record : state.targetable_entities) {
-        auto* entity = EntityManager::FindEntity(state, record);
-        float player_distance = tVec3f::distance(state.player_position, entity->visible_position);
-
-        if (player_distance < 7000.f && entity->enemy_state.mood == ENEMY_IDLE) {
-          desired_vignette_intensity = 1.f;
-        }
-      }
+      float desired_vignette_intensity = IsInStealthMode(state) ? 1.f : 0.f;
 
       fx.vignette_intensity = Tachyon_Lerpf(fx.vignette_intensity, desired_vignette_intensity, 2.f * dt);
     }

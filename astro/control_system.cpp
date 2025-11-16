@@ -104,7 +104,7 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
   state.last_frame_left_trigger = tachyon->left_trigger;
   state.last_frame_right_trigger = tachyon->right_trigger;
 
-  if (Targeting::IsInCombatWithAnyTarget(state)) {
+  if (Targeting::IsInCombatMode(state)) {
     if (started_turning) {
       Sfx::PlaySound(SFX_ASTRO_DISABLED, 0.8f);
     }

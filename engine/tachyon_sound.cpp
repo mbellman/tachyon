@@ -53,6 +53,12 @@ void Tachyon_FadeInSound(tSoundResource& resource, uint64 duration, const float 
   ma_sound_set_fade_in_milliseconds(sound, 0.f, volume, duration);
 }
 
+void Tachyon_FadeSoundTo(tSoundResource& resource, uint64 duration, const float volume) {
+  auto* sound = get_sound(resource);
+
+  ma_sound_set_fade_in_milliseconds(sound, -1, volume, duration);
+}
+
 void Tachyon_StopSound(tSoundResource& resource) {
   auto* sound = get_sound(resource);
 

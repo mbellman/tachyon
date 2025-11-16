@@ -24,9 +24,9 @@ static std::map<Sound, const char*> sound_file_map = {
 
 static std::map<Sound, tSoundResource> resource_cache;
 
-static tSoundResource FindSoundResource(Sound sound) {
+static tSoundResource& FindSoundResource(Sound sound) {
   if (resource_cache.find(sound) == resource_cache.end()) {
-    auto file_path = sound_file_map.at(sound);
+    auto& file_path = sound_file_map.at(sound);
 
     // @todo uninitialize resources at quit, or on demand
     resource_cache[sound] = Tachyon_CreateSound(file_path);
@@ -36,13 +36,13 @@ static tSoundResource FindSoundResource(Sound sound) {
 }
 
 void Sfx::PlaySound(Sound sound, const float volume) {
-  auto resource = FindSoundResource(sound);
+  auto& resource = FindSoundResource(sound);
 
   Tachyon_PlaySound(resource, volume);
 }
 
 void Sfx::FadeOutSound(Sound sound, uint64 duration) {
-  auto resource = FindSoundResource(sound);
+  auto& resource = FindSoundResource(sound);
 
   Tachyon_FadeOutSound(resource, duration);
 }

@@ -10,6 +10,6 @@ namespace astro {
     void SelectNextAccessibleTarget(Tachyon* tachyon, State& state);
     void SelectPreviousAccessibleTarget(Tachyon* tachyon, State& state);
     void DeselectCurrentTarget(Tachyon* tachyon, State& state);
-    bool IsInCombatWithAnyTarget(State& state);
+    bool IsInCombatMode(State& state);
   }
 }
