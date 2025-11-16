@@ -5,14 +5,6 @@
 #include "astro/ui_system.h"
 
 namespace astro {
-  // @todo factor
-  static tVec3f GetWorldSpaceActivationPosition(const GameEntity& entity) {
-    const tVec3f model_space_position = tVec3f(0.4f, -0.2f, 0);
-    tVec3f object_space_position = model_space_position * entity.scale;
-
-    return entity.position + entity.orientation.toMatrix4f() * object_space_position;
-  }
-
   behavior Gate {
     addMeshes() {
       meshes.gate_placeholder = MODEL_MESH("./astro/3d_models/gate/placeholder.obj", 500);

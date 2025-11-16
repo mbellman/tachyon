@@ -11,7 +11,7 @@
 #define PLANE_MESH(total) Tachyon_AddMesh(tachyon, Tachyon_CreatePlaneMesh(), total)
 #define MODEL_MESH(path, total) Tachyon_AddMesh(tachyon, Tachyon_LoadMesh(path), total)
 
-#define behavior struct
+#define behavior namespace
 
 #define return_meshes(...)\
   static std::vector<uint16> __mesh_list = __VA_ARGS__;\

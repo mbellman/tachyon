@@ -15,12 +15,12 @@ namespace astro {
     return alpha;
   }
 
-  const static float wind_up_duration = 0.6f;
-  const static float stab_duration = 0.2f;
-  const static float wind_down_duration = 0.8f;
-  const static float attack_duration = wind_up_duration + stab_duration + wind_down_duration;
-
   behavior LowGuard {
+    const static float wind_up_duration = 0.6f;
+    const static float stab_duration = 0.2f;
+    const static float wind_down_duration = 0.8f;
+    const static float attack_duration = wind_up_duration + stab_duration + wind_down_duration;
+
     addMeshes() {
       meshes.low_guard_placeholder = MODEL_MESH("./astro/3d_models/guy.obj", 500);
       meshes.low_guard_body = MODEL_MESH("./astro/3d_models/low_guard/body.obj", 500);

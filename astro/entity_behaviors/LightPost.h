@@ -5,51 +5,52 @@
 #include "astro/entity_manager.h"
 
 namespace astro {
-  static bool IsResponder(const GameEntity& entity) {
-    return entity.associated_entity_record.id != -1;
-  }
-
-  static const GameEntity* GetFinalAssociatedEntity(State& state, const GameEntity& entity) {
-    if (entity.associated_entity_record.id != -1) {
-      auto& associated_entity = *EntityManager::FindEntity(state, entity.associated_entity_record);
-
-      return GetFinalAssociatedEntity(state, associated_entity);
-    } else {
-      return &entity;
-    }
-  }
-
-  static bool IsIlluminatedAtTime(State& state, const GameEntity& entity, const float astro_time) {
-    const float age_duration = 75.f;
-    const float astro_illumination_duration = 30.f;
-    const float astro_future_sight_duration = age_duration + astro_illumination_duration / 2.f;
-
-    bool is_responder = entity.associated_entity_record.id != -1;
-
-    if (is_responder) {
-      auto& associated_entity = *EntityManager::FindEntity(state, entity.associated_entity_record);
-      float checked_time;
-
-      if (entity.is_astro_synced) {
-        checked_time = astro_time;
-      } else if (entity.requires_astro_sync && !associated_entity.is_astro_synced) {
-        return false;
-      } else {
-        checked_time = astro_time + astro_future_sight_duration;
-      }
-
-      return IsIlluminatedAtTime(state, associated_entity, checked_time);
-    } else {
-      return (
-        entity.game_activation_time != -1.f &&
-        astro_time >= entity.astro_activation_time &&
-        astro_time < entity.astro_activation_time + astro_illumination_duration
-      );
-    }
-  }
-
   // @todo rename LightPillar
   behavior LightPost {
+    static bool IsResponder(const GameEntity& entity) {
+      return entity.associated_entity_record.id != -1;
+    }
+
+    // @todo move elsewhere?
+    static const GameEntity* GetFinalAssociatedEntity(State& state, const GameEntity& entity) {
+      if (entity.associated_entity_record.id != -1) {
+        auto& associated_entity = *EntityManager::FindEntity(state, entity.associated_entity_record);
+
+        return GetFinalAssociatedEntity(state, associated_entity);
+      } else {
+        return &entity;
+      }
+    }
+
+    static bool IsIlluminatedAtTime(State& state, const GameEntity& entity, const float astro_time) {
+      const float age_duration = 75.f;
+      const float astro_illumination_duration = 30.f;
+      const float astro_future_sight_duration = age_duration + astro_illumination_duration / 2.f;
+
+      bool is_responder = entity.associated_entity_record.id != -1;
+
+      if (is_responder) {
+        auto& associated_entity = *EntityManager::FindEntity(state, entity.associated_entity_record);
+        float checked_time;
+
+        if (entity.is_astro_synced) {
+          checked_time = astro_time;
+        } else if (entity.requires_astro_sync && !associated_entity.is_astro_synced) {
+          return false;
+        } else {
+          checked_time = astro_time + astro_future_sight_duration;
+        }
+
+        return IsIlluminatedAtTime(state, associated_entity, checked_time);
+      } else {
+        return (
+          entity.game_activation_time != -1.f &&
+          astro_time >= entity.astro_activation_time &&
+          astro_time < entity.astro_activation_time + astro_illumination_duration
+        );
+      }
+    }
+
     addMeshes() {
       meshes.light_post_placeholder = MODEL_MESH("./astro/3d_models/light_post/placeholder.obj", 500);
       meshes.light_post_pillar = MODEL_MESH("./astro/3d_models/light_post/pillar.obj", 500);

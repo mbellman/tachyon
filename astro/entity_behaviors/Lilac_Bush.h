@@ -3,13 +3,13 @@
 #include "astro/entity_behaviors/behavior.h"
 
 namespace astro {
-  static inline float RandomWithinRange(float seed, float low, float high) {
-    float r = fmod(abs(seed), 1.f);
-
-    return low + r * (high - low);
-  }
-
   behavior LilacBush {
+    static inline float RandomWithinRange(float seed, float low, float high) {
+      float r = fmod(abs(seed), 1.f);
+
+      return low + r * (high - low);
+    }
+
     addMeshes() {
       meshes.lilac_placeholder = MODEL_MESH("./astro/3d_models/lilac_bush/placeholder.obj", 500);
       meshes.lilac_leaves = MODEL_MESH("./astro/3d_models/lilac_bush/leaves.obj", 500);
