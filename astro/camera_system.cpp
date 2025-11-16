@@ -26,7 +26,7 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) 
     // Target camera
     auto& target = *EntityManager::FindEntity(state, state.target_entity);
     float player_distance = (state.player_position - target.visible_position).magnitude();
-    float time_since_casting_stun = tachyon->scene.scene_time - state.spells.stun_start_time;
+    float time_since_casting_stun = time_since(state.spells.stun_start_time);
 
     float approach_factor = 1.f - player_distance / 10000.f;
     if (approach_factor < 0.f) approach_factor = 0.f;

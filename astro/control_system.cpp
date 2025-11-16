@@ -12,7 +12,6 @@ using namespace astro;
 static void HandlePlayerMovementControls(Tachyon* tachyon, State& state, const float dt) {
   const float dodge_cooldown_time = 0.3f;
 
-  float scene_time = tachyon->scene.scene_time;
   bool is_running = is_key_held(tKey::CONTROLLER_A) || is_key_held(tKey::SHIFT);
 
   if (state.is_astrolabe_stopped && time_since(state.last_dodge_time) > dodge_cooldown_time) {
@@ -54,7 +53,7 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state, const f
         }
       }
 
-      state.last_run_input_time = scene_time;
+      state.last_run_input_time = get_scene_time();
     }
 
     // Tapping A/X quickly to dodge
@@ -64,7 +63,7 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state, const f
       time_since(state.last_run_input_time) < 0.3f
     ) {
       state.player_velocity *= 3.5f;
-      state.last_dodge_time = scene_time;
+      state.last_dodge_time = get_scene_time();
     }
   }
 

@@ -27,7 +27,9 @@ namespace astro {
       const tVec4f activated_material = tVec4f(0.4f, 1.f, 0, 0.3f);
       const float activation_duration = 10.f;
 
-      float time_since_casting_stun = tachyon->scene.scene_time - state.spells.stun_start_time;
+      float time_since_casting_stun = time_since(state.spells.stun_start_time);
+
+      // If we haven't cast stun yet, just pretend the full activation cycle has completed
       if (state.spells.stun_start_time == 0.f) time_since_casting_stun = activation_duration;
 
       auto& player_position = state.player_position;

@@ -23,8 +23,6 @@ namespace astro {
     }
 
     handleEnemyBehavior() {
-      float scene_time = tachyon->scene.scene_time;
-
       tVec3f entity_to_player = state.player_position.xz() - entity.visible_position.xz();
       float player_distance = entity_to_player.magnitude();
       auto& enemy = entity.enemy_state;
@@ -32,7 +30,7 @@ namespace astro {
       // Player-in-range behavior
       if (player_distance < 10000.f) {
         tVec3f player_direction = entity_to_player / player_distance;
-        float time_since_casting_stun = tachyon->scene.scene_time - state.spells.stun_start_time;
+        float time_since_casting_stun = time_since(state.spells.stun_start_time);
 
         // Stunned dialogue + mood changes
         {
@@ -45,7 +43,7 @@ namespace astro {
 
               // Idle -> Engaged
               // @todo ENEMY_STARTLED
-              SetMood(entity, ENEMY_ENGAGED, scene_time);
+              SetMood(entity, ENEMY_ENGAGED, get_scene_time());
             }
             else if (enemy.mood == ENEMY_AGITATED) {
               // Stunned while agitated
@@ -56,7 +54,7 @@ namespace astro {
               play_random_dialogue(entity, bandit_dialogue_stunned_engaged);
 
               // Engaged -> Agitated
-              SetMood(entity, ENEMY_AGITATED, scene_time);
+              SetMood(entity, ENEMY_AGITATED, get_scene_time());
             }
           }
         }
@@ -118,7 +116,7 @@ namespace astro {
 
           if (enemy.mood == ENEMY_IDLE && can_notice_player) {
             // Bandit engaging the player
-            SetMood(entity, ENEMY_ENGAGED, scene_time);
+            SetMood(entity, ENEMY_ENGAGED, get_scene_time());
             Targeting::SetSpeakingEntity(state, entity);
 
             play_random_dialogue(entity, bandit_dialogue_noticed);
@@ -145,8 +143,6 @@ namespace astro {
     }
 
     timeEvolve() {
-      float scene_time = tachyon->scene.scene_time;
-
       auto& meshes = state.meshes;
 
       // @todo @optimize only iterate over on-screen/in-range entities
@@ -162,7 +158,7 @@ namespace astro {
           float astro_speed = abs(state.astro_turn_speed);
 
           if (astro_speed > 0.f) {
-            SetMood(entity, ENEMY_IDLE, scene_time);
+            SetMood(entity, ENEMY_IDLE, get_scene_time());
 
             entity.visible_rotation = entity.orientation;
 

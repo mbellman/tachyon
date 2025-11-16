@@ -72,7 +72,7 @@ namespace astro {
         );
 
         if (is_open) {
-          float time_since_opened = tachyon->scene.scene_time - entity.game_activation_time;
+          float time_since_opened = time_since(entity.game_activation_time);
 
           // Drop the lock
           {
@@ -105,7 +105,7 @@ namespace astro {
 
           if (did_press_key(tKey::CONTROLLER_A)) {
             if (has_gate_key) {
-              entity.game_activation_time = tachyon->scene.scene_time;
+              entity.game_activation_time = get_scene_time();
               entity.astro_activation_time = state.astro_time;
 
               UISystem::ShowDialogue(tachyon, state, "The gate was unlocked.");

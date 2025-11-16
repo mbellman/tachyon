@@ -75,7 +75,7 @@ namespace astro {
       const tVec4f illuminated_lamp_color = tVec4f(1.f, 0.8f, 0.5f, 0.4f);
       const float activation_delay = 0.25f;
 
-      float time_since_casting_stun = tachyon->scene.scene_time - state.spells.stun_start_time;
+      float time_since_casting_stun = time_since(state.spells.stun_start_time);
 
       bool did_cast_stun_delayed = (
         // state.astro_turn_speed == 0.f &&
@@ -103,7 +103,7 @@ namespace astro {
 
           if (is_illuminated && !entity.did_activate) {
             entity.did_activate = true;
-            entity.game_activation_time = tachyon->scene.scene_time;
+            entity.game_activation_time = get_scene_time();
             // @todo unnecessary for responders (?)
             entity.astro_activation_time = state.astro_time;
 
@@ -161,7 +161,7 @@ namespace astro {
           }
 
           if (is_illuminated && !entity.did_activate) {
-            entity.game_activation_time = tachyon->scene.scene_time;
+            entity.game_activation_time = get_scene_time();
             entity.did_activate = true;
 
             Sfx::PlaySound(SFX_LIGHT_POST_ACTIVATE, 1.f);
@@ -201,7 +201,7 @@ namespace astro {
           lamp.material = tVec4f(1.f, 0, 0, 1.f);
 
           if (is_illuminated) {
-            float alpha = 3.f * (tachyon->scene.scene_time - entity.game_activation_time);
+            float alpha = 3.f * time_since(entity.game_activation_time);
             if (alpha < 0.f) alpha = 0.f;
             if (alpha > 1.f) alpha = 1.f;
 
@@ -229,13 +229,15 @@ namespace astro {
           light.color = tVec3f(1.f, 0.9f, 0.7f);
 
           if (is_illuminated) {
-            float alpha = tachyon->scene.scene_time - entity.game_activation_time;
-            if (alpha < 0.f) alpha = 0.f;
-            if (alpha > 1.f) alpha = 1.f;
+            float fade_in_alpha = time_since(entity.game_activation_time);
+            if (fade_in_alpha < 0.f) fade_in_alpha = 0.f;
+            if (fade_in_alpha > 1.f) fade_in_alpha = 1.f;
 
-            light.radius = 5000.f * alpha;
-            light.power = 3.f * alpha;
-            light.glow_power = (2.f + 0.5f * sinf(tachyon->scene.scene_time)) * alpha;
+            float oscillation = 0.5f * sinf(get_scene_time());
+
+            light.radius = 5000.f * fade_in_alpha;
+            light.power = 3.f * fade_in_alpha;
+            light.glow_power = (2.f + oscillation) * fade_in_alpha;
           } else {
             light.radius = 0.f;
             light.power = 0.f;
