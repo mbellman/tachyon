@@ -126,12 +126,12 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
     Targeting::DeselectCurrentTarget(tachyon, state);
   }
 
-  float astro_acceleration;
+  float astro_acceleration = 0.f;
 
   if (time_since(state.game_time_at_start_of_turn) < 0.4f) {
     astro_acceleration = astro_start_rate;
   }
-  else if (!state.is_astrolabe_stopped) {
+  else if (abs(state.astro_turn_speed) != 0.f) {
     astro_acceleration = astro_travel_rate;
   }
 
@@ -285,7 +285,11 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
       state.is_astrolabe_stopped = false;
       state.is_astro_traveling = false;
     }
-    else if (astro_acceleration == astro_travel_rate && !state.is_astro_traveling) {
+    else if (
+      astro_acceleration == astro_travel_rate &&
+      !state.is_astro_traveling &&
+      !state.is_astrolabe_stopped
+    ) {
       Sfx::PlaySound(SFX_ASTRO_TRAVEL, 0.8f);
 
       state.is_astro_traveling = true;
