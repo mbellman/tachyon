@@ -364,8 +364,7 @@ void main() {
     {
       float corner_distance = length(fragUv - 0.5);
 
-      float alpha = corner_distance / 0.65;
-      alpha *= alpha;
+      float alpha = corner_distance / 0.7;
       alpha *= alpha;
       alpha *= vignette_intensity;
 

@@ -47,7 +47,6 @@ void BGM::LoopMusic(Music music) {
 
   // @todo make volume configurable
   Tachyon_LoopSound(resource, 0.4f);
-  Tachyon_FadeInSound(resource, 5000, 0.4f);
 }
 
 void BGM::FadeCurrentMusicVolumeTo(const float volume, uint64 duration) {
@@ -57,7 +56,7 @@ void BGM::FadeCurrentMusicVolumeTo(const float volume, uint64 duration) {
 
   auto& resource = FindSoundResource(current_music);
 
-  Tachyon_FadeSoundTo(resource, duration, volume);
+  Tachyon_FadeSoundTo(resource, volume, duration);
 }
 
 void BGM::FadeOutMusic(Music music) {

@@ -689,7 +689,10 @@ using PathVisitor = std::function<void(const tVec3f&, const tVec3f&, const uint1
 
 static void WalkPath(const PathNetwork& network, PathNode& previous_node, PathNode& from_node, PathNode& to_node, const PathVisitor& visitor) {
   float distance = (from_node.position - to_node.position).magnitude();
-  int total_segments = int(distance / 1100.f);
+  float average_scale = (from_node.scale.magnitude() + to_node.scale.magnitude()) / 2.f;
+
+  // Increase segments with distance and in inverse proportion to size
+  int total_segments = int(distance / 1100.f) + int((1800.f - average_scale) / 150.f);
 
   if (from_node.total_connections == 1) {
     for (int i = 0; i < total_segments; i++) {
@@ -891,6 +894,7 @@ static void UpdateDirtPaths(Tachyon* tachyon, State& state) {
     path.position.y = -1470.f;
     path.scale = segment.base_scale;
     path.color = path_color;
+    path.material = tVec4f(1.f, 0, 0, 0);
 
     // Reduce the size/conspicuousness of the path
     // as we approach its starting time

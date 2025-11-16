@@ -123,6 +123,12 @@ void DataLoader::LoadLevelData(Tachyon* tachyon, State& state) {
         object.material = tVec4f(1., 0, 0, 0);
       }
 
+      // @temporary
+      // @todo set mesh material properties
+      if (mesh_index == state.meshes.flat_ground) {
+        object.material = tVec4f(1., 0, 0, 0);
+      }
+
       commit(object);
     }
   }

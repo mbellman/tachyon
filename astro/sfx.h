@@ -23,6 +23,8 @@ namespace astro {
 
   namespace Sfx {
     void PlaySound(Sound sound, const float volume = 1.f);
+    void LoopSound(Sound sound, const float volume = 1.f);
+    void FadeSoundVolumeTo(Sound sound, const float volume, uint64 duration);
     void FadeOutSound(Sound sound, uint64 duration);
   }
 }

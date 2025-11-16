@@ -194,23 +194,38 @@ static bool IsInStealthMode(State& state) {
 }
 
 static void HandleMusicLevels(Tachyon* tachyon, State& state) {
+  // Ambient sounds
+  {
+    if (state.astro_turn_speed != 0.f) {
+      // @todo use current environment sfx
+      Sfx::FadeSoundVolumeTo(SFX_FOREST, 0.f, 500);
+    }
+    else {
+      // @todo use current environment sfx
+      Sfx::FadeSoundVolumeTo(SFX_FOREST, 0.5f, 500);
+    }
+  }
+
   if (state.bgm_start_time == -1.f) return;
 
-  if (IsInStealthMode(state) || Targeting::IsInCombatMode(state)) {
-    BGM::FadeCurrentMusicVolumeTo(0.1f, 500);
-  }
-  else if (state.astro_turn_speed != 0.f) {
-    BGM::FadeCurrentMusicVolumeTo(0.f, 500);
-  }
-  else {
-    // Fade the background music in the first time we start playing
-    float start_time_alpha = time_since(state.bgm_start_time) / 5.f;
-    if (start_time_alpha > 1.f) start_time_alpha = 1.f;
+  // Background music
+  {
+    if (IsInStealthMode(state) || Targeting::IsInCombatMode(state)) {
+      BGM::FadeCurrentMusicVolumeTo(0.1f, 500);
+    }
+    else if (state.astro_turn_speed != 0.f) {
+      BGM::FadeCurrentMusicVolumeTo(0.f, 200);
+    }
+    else {
+      // Fade the background music in the first time we start playing
+      float start_time_alpha = time_since(state.bgm_start_time) / 5.f;
+      if (start_time_alpha > 1.f) start_time_alpha = 1.f;
 
-    float volume = Tachyon_Lerpf(0.f, 0.4f, start_time_alpha);
-    uint64 duration = start_time_alpha == 1.f ? 500 : 0;
+      float volume = Tachyon_Lerpf(0.f, 0.4f, start_time_alpha);
+      uint64 duration = start_time_alpha == 1.f ? 500 : 0;
 
-    BGM::FadeCurrentMusicVolumeTo(volume, duration);
+      BGM::FadeCurrentMusicVolumeTo(volume, duration);
+    }
   }
 }
 
@@ -253,8 +268,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
 
   // Start ambient sound effects
   // @todo use different sfx per area
-  // @todo loop; pause during astro travel
-  Sfx::PlaySound(SFX_FOREST, 0.5f);
+  Sfx::LoopSound(SFX_FOREST, 0.5f);
 
   // @todo default/load from save
   state.player_position = tVec3f(-13800.f, 0, -5900.f);

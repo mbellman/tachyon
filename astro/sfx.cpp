@@ -43,8 +43,20 @@ void Sfx::PlaySound(Sound sound, const float volume) {
   Tachyon_PlaySound(resource, volume);
 }
 
+void Sfx::LoopSound(Sound sound, const float volume) {
+  auto& resource = FindSoundResource(sound);
+
+  Tachyon_LoopSound(resource, volume);
+}
+
+void Sfx::FadeSoundVolumeTo(Sound sound, const float volume, uint64 duration) {
+  auto& resource = FindSoundResource(sound);
+
+  Tachyon_FadeSoundTo(resource, volume, duration);
+}
+
 void Sfx::FadeOutSound(Sound sound, uint64 duration) {
   auto& resource = FindSoundResource(sound);
 
-  Tachyon_FadeOutSound(resource, duration);
+  Tachyon_FadeSoundTo(resource, 0.f, duration);
 }
