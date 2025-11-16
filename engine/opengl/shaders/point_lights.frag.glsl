@@ -42,6 +42,15 @@ vec3 GetWorldPosition(float depth, vec2 frag_uv, mat4 inverse_projection, mat4 i
   return world_position.xyz;
 }
 
+vec4 UnpackColor(uvec4 surface) {
+  float r = float((surface.x & 0xF0) >> 4) / 15.0;
+  float g = float(surface.x & 0x0F) / 15.0;
+  float b = float((surface.y & 0xF0) >> 4) / 15.0;
+  float a = float(surface.y & 0x0F) / 15.0;
+
+  return vec4(r, g, b, a);
+}
+
 struct Material {
   float roughness;
   float metalness;
@@ -114,7 +123,7 @@ float GetGlowFactor(vec3 world_position) {
   return glow_factor;
 }
 
-vec3 GetPointLightRadiance(vec3 world_position, float light_distance, vec3 N, vec3 L, vec3 V, Material material) {
+vec3 GetPointLightRadiance(vec3 world_position, float light_distance, vec3 N, vec3 L, vec3 V, vec3 albedo, Material material) {
   vec3 H = normalize(V + L);
   float NdotL = max(0.0, dot(N, L));
   float NdotH = max(dot(N, H), 0.0);
@@ -126,9 +135,6 @@ vec3 GetPointLightRadiance(vec3 world_position, float light_distance, vec3 N, ve
     distance_factor *= distance_factor;
     distance_factor *= distance_factor;
   #endif
-
-  // @todo use surface color
-  vec3 albedo = vec3(1.0);
 
   // @todo PBR
   vec3 D = albedo * radiant_flux * distance_factor * NdotL;
@@ -143,6 +149,7 @@ void main() {
   vec4 frag_normal_and_depth = texture(in_normal_and_depth, fragUv);
   uvec4 frag_color_and_material = texture(in_color_and_material, fragUv);
 
+  vec3 albedo = UnpackColor(frag_color_and_material).rgb;
   Material material = UnpackMaterial(frag_color_and_material);
 
   vec3 position = GetWorldPosition(frag_normal_and_depth.w, fragUv, inverse_projection_matrix, inverse_view_matrix);
@@ -155,7 +162,7 @@ void main() {
   vec3 V = normalize(camera_position - position);
   vec3 L = surface_to_light / light_distance;
 
-  out_color += GetPointLightRadiance(position, light_distance, N, L, V, material);
+  out_color += GetPointLightRadiance(position, light_distance, N, L, V, albedo, material);
   out_color += light.color * GetGlowFactor(position) * min(1.0, light.power) * light.glow_power;
   // out_color += light.color * 0.1;
 

@@ -736,19 +736,22 @@ void main() {
     {
       out_color += 0.5 * albedo * pow(NdotL, 2.0) * pow(1.0 - NdotV, 2.0);
     }
-  }
 
-  out_color -= ssao;
-  // out_color -= ssao * (0.5 + 0.5 * shadow);
+    out_color -= ssao;
 
-  // @todo fog
-  {
-    // vec3 fog_color = vec3(0.2, 0.2, 0.6);
-    // vec3 fog_color = vec3(0.4, 0.4, 0.5);
-    // float visibility_range = 30000.0;
-    // float frag_distance_from_camera = length(position - camera_position);
-    // float fog_thickness = clamp(frag_distance_from_camera / visibility_range, 0.0, 1.0);
-    // out_color = mix(out_color, fog_color, fog_thickness);
+    // @todo fog
+    {
+      // vec3 fog_color = vec3(0.2, 0.2, 0.6);
+      // vec3 fog_color = vec3(0.4, 0.4, 0.5);
+      // vec3 fog_color = primary_light_color;
+      // float visibility_range = 500000.0;
+      // float frag_distance_from_camera = length(position - camera_position);
+      // float fog_thickness = clamp(frag_distance_from_camera / visibility_range, 0.0, 1.0);
+
+      // out_color = mix(out_color, fog_color, fog_thickness);
+    }
+  } else {
+    out_color -= ssao;
   }
 
   vec3 previous_color = texture(previous_color_and_depth, fragUv).rgb;
