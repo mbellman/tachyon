@@ -50,14 +50,14 @@ void BGM::LoopMusic(Music music) {
   Tachyon_FadeInSound(resource, 5000, 0.4f);
 }
 
-void BGM::SetCurrentMusicVolume(const float volume) {
+void BGM::FadeCurrentMusicVolumeTo(const float volume, uint64 duration) {
   if (current_music == MUSIC_NONE) {
     return;
   }
 
   auto& resource = FindSoundResource(current_music);
 
-  Tachyon_FadeSoundTo(resource, 500, volume);
+  Tachyon_FadeSoundTo(resource, duration, volume);
 }
 
 void BGM::FadeOutMusic(Music music) {

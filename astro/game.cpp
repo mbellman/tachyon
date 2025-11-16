@@ -184,16 +184,23 @@ static bool IsInStealthMode(State& state) {
 }
 
 static void HandleMusicLevels(Tachyon* tachyon, State& state) {
-  if (!state.bgm_is_playing) return;
+  if (state.bgm_start_time == -1.f) return;
 
   if (IsInStealthMode(state) || Targeting::IsInCombatMode(state)) {
-    BGM::SetCurrentMusicVolume(0.1f);
+    BGM::FadeCurrentMusicVolumeTo(0.1f, 500);
   }
   else if (state.astro_turn_speed != 0.f) {
-    BGM::SetCurrentMusicVolume(0.f);
+    BGM::FadeCurrentMusicVolumeTo(0.f, 500);
   }
   else {
-    BGM::SetCurrentMusicVolume(0.4f);
+    // Fade the background music in the first time we start playing
+    float start_time_alpha = time_since(state.bgm_start_time) / 5.f;
+    if (start_time_alpha > 1.f) start_time_alpha = 1.f;
+
+    float volume = Tachyon_Lerpf(0.f, 0.4f, start_time_alpha);
+    uint64 duration = start_time_alpha == 1.f ? 500 : 0;
+
+    BGM::FadeCurrentMusicVolumeTo(volume, duration);
   }
 }
 
@@ -286,10 +293,10 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
     return;
   }
 
-  if (state.astro_time < 0.f && state.astro_turn_speed == 0.f && !state.bgm_is_playing) {
+  if (state.astro_time < 0.f && state.astro_turn_speed == 0.f && state.bgm_start_time == -1.f) {
     BGM::LoopMusic(DIVINATION_WOODREALM);
 
-    state.bgm_is_playing = true;
+    state.bgm_start_time = get_scene_time();
   }
 
   // Dev hotkeys

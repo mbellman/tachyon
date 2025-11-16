@@ -121,7 +121,7 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
   // before hitting min/max time
   if (started_turning) {
     state.astro_time_at_start_of_turn = state.astro_time;
-    state.game_time_at_start_of_turn = scene_time();
+    state.game_time_at_start_of_turn = get_scene_time();
     state.is_astrolabe_stopped = false;
 
     // Force deselection of the current target, if any

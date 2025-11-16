@@ -28,26 +28,25 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) 
     float player_distance = (state.player_position - target.visible_position).magnitude();
     float time_since_casting_stun = tachyon->scene.scene_time - state.spells.stun_start_time;
 
-    float distance_ratio = 1.f - player_distance / 10000.f;
-    if (distance_ratio < 0.f) distance_ratio = 0.f;
+    float approach_factor = 1.f - player_distance / 10000.f;
+    if (approach_factor < 0.f) approach_factor = 0.f;
 
     float stun_factor = time_since_casting_stun < t_PI ? sinf(time_since_casting_stun) : 0.f;
     if (stun_factor < 0.f) stun_factor = 0.f;
     if (stun_factor > 1.f) stun_factor = 1.f;
 
-    new_camera_position = tVec3f::lerp(state.player_position, target.visible_position, 0.5f * sqrt(distance_ratio));
+    new_camera_position = tVec3f::lerp(state.player_position, target.visible_position, 0.5f * sqrt(approach_factor));
 
-    // Adjustment: raise the camera as we come closer to the target
+    // Adjustment: raise the camera as we approach the target
     // @todo it's confusing that we start at 3000 here and add the final height
     // below, near the end of the procedure
-    new_camera_position.y = 3000.f * distance_ratio;
+    new_camera_position.y = 3000.f * approach_factor;
 
     // Adjustment: raise the camera a bit during stun effects
     new_camera_position.y += 1000.f * stun_factor;
 
-    // Adjustment: move the camera back a bit with up/down facing directions, and with distance
-    new_camera_position.z += 1000.f * (1.f - abs(state.player_facing_direction.z)) * distance_ratio;
-    new_camera_position.z += 2000.f * distance_ratio;
+    // Adjustment: move the camera back a bit as we approach the target
+    new_camera_position.z += 3000.f * approach_factor;
 
     // Adjustment: move the camera back a bit during stun effects
     new_camera_position.z += 1000.f * stun_factor;

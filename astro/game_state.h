@@ -10,7 +10,7 @@
 #define for_entities(array) for (uint16 i = 0; i < (uint16)array.size(); i++)
 
 #define time_since(t) (tachyon->scene.scene_time - t)
-#define scene_time() tachyon->scene.scene_time
+#define get_scene_time() tachyon->scene.scene_time
 
 namespace astro {
   /**
@@ -207,8 +207,7 @@ namespace astro {
     bool has_blocking_dialogue = false;
     bool dismissed_blocking_dialogue = false;
 
-    // @todo have BGM:: manage this
-    bool bgm_is_playing = false;
+    float bgm_start_time = -1.f;
 
     // @todo dev mode only
     tUIText* debug_text = nullptr;

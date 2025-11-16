@@ -526,9 +526,8 @@ static void UpdateGroundFlowers(Tachyon* tachyon, State& state) {
   float base_time_progress = 0.5f * (state.astro_time - -500.f);
 
   for (auto& flower : objects(state.meshes.ground_flower)) {
-    if (abs(flower.position.x - player_position.x) > 15000.f || abs(flower.position.z - player_position.z) > 15000.f) {
-      continue;
-    }
+    if (abs(flower.position.x - player_position.x) > 15000.f) continue;
+    if (abs(flower.position.z - player_position.z) > 15000.f) continue;
 
     float alpha_variation = fmodf(abs(flower.position.x + flower.position.z) * 0.1f, 10.f);
     float alpha = base_time_progress + alpha_variation;
