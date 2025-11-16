@@ -42,7 +42,9 @@ namespace astro {
         auto& entity = state.gates[i];
 
         tVec3f interaction_position = UnitEntityToWorldPosition(entity, tVec3f(0.4f, -0.2f, 0));
-        float distance_from_interaction_position = tVec3f::distance(state.player_position.xz(), interaction_position.xz());
+        tVec3f player_to_interaction_position = interaction_position.xz() - state.player_position.xz();
+        float distance_from_interaction_position = player_to_interaction_position.magnitude();
+        tVec3f interaction_direction = player_to_interaction_position / distance_from_interaction_position;
 
         auto& body = objects(meshes.gate_body)[i];
         auto& door_left = objects(meshes.gate_left_door)[i];
@@ -94,7 +96,11 @@ namespace astro {
             door_left.position = entity.position + direction * distance;
             door_right.position = entity.position - direction * distance;
           }
-        } else if (distance_from_interaction_position < 1500.f && player_speed < 150.f) {
+        } else if (
+          distance_from_interaction_position < 1500.f &&
+          player_speed < 250.f &&
+          tVec3f::dot(state.player_facing_direction, interaction_direction) > 0.5f
+        ) {
           bool has_gate_key = Items::HasItem(state, GATE_KEY);
 
           if (did_press_key(tKey::CONTROLLER_A)) {

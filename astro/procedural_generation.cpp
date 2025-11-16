@@ -569,7 +569,7 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
   const float spawn_radius = 1200.f;
   const float half_spawn_radius = spawn_radius * 0.5f;
   const float plant_lifetime = 100.f;
-  const float flower_lifetime = 12.f;
+  const float flower_lifetime = 10.f;
 
   auto& player_position = state.player_position;
   float base_time_progress = 0.5f * (state.astro_time - -500.f);
@@ -588,14 +588,14 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
       float entity_life_progress = GetLivingEntityProgress(state, entity, plant_lifetime);
       float flower_size = 400.f * sqrtf(sinf(entity_life_progress * t_PI));
 
-      float ex = abs(entity.visible_position.x);
-      float ez = abs(entity.visible_position.z);
+      float vx = abs(entity.visible_position.x);
+      float vz = abs(entity.visible_position.z);
 
       for (int i = 0; i < 3; i++) {
         auto& flower = objects(state.meshes.bush_flower)[index++];
 
-        float offset_x = fmodf(10.f * ex + 723.f * (float)i, spawn_radius) - half_spawn_radius;
-        float offset_z = fmodf(10.f * ez + 723.f * (float)i, spawn_radius) - half_spawn_radius;
+        float offset_x = fmodf(vx + vx * 0.1f + 847.f * (float)i, spawn_radius) - half_spawn_radius;
+        float offset_z = fmodf(vz + vz * 0.1f + 847.f * (float)i, spawn_radius) - half_spawn_radius;
 
         flower.position = entity.visible_position;
         flower.position.x += offset_x;
