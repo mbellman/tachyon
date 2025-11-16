@@ -16,7 +16,7 @@ namespace astro {
   }
 
   behavior LowGuard {
-    const static float wind_up_duration = 0.8;
+    const static float wind_up_duration = 0.8f;
     const static float stab_duration = 0.1f;
     const static float wind_down_duration = 0.8f;
     const static float attack_duration = wind_up_duration + stab_duration + wind_down_duration;
@@ -96,29 +96,17 @@ namespace astro {
           FacePlayer(entity, state);
 
           if (enemy.mood == ENEMY_AGITATED) {
-            float chasing_speed;
-
-            if (player_distance < 8000.f) {
-              const float faster_speed = 4000.f;
-              const float slower_speed = 2000.f;
-              float alpha = InverseLerp(8000.f, 3000.f, player_distance);
-
-              chasing_speed = Tachyon_Lerpf(faster_speed, slower_speed, alpha);
-            } else {
-              const float slower_speed = 1000.f;
-              const float faster_speed = 4000.f;
-              float alpha = InverseLerp(10000.f, 8000.f, player_distance);
-
-              chasing_speed = Tachyon_Lerpf(slower_speed, faster_speed, alpha);
-            }
+            // Chase the player
+            enemy.speed += 2000.f * dt;
+            if (enemy.speed > 3000.f) enemy.speed = 3000.f;
 
             if (is_attacking) {
-              chasing_speed *= 0.2f;
+              enemy.speed *= 1.f - 10.f * dt;
             }
 
             // @todo FollowPlayer()
             if (player_distance > 2500.f) {
-              entity.visible_position += entity_to_player.unit() * chasing_speed * dt;
+              entity.visible_position += entity_to_player.unit() * enemy.speed * dt;
             }
           }
         }
@@ -183,6 +171,7 @@ namespace astro {
           if (astro_speed > 0.f) {
             SetMood(entity, ENEMY_IDLE, scene_time);
 
+            entity.enemy_state.speed = 0.f;
             entity.visible_rotation = entity.orientation;
 
             if (entity.recent_positions.size() > 0) {
@@ -231,6 +220,7 @@ namespace astro {
           entity.visible_scale = tVec3f(0.f);
           entity.visible_position = entity.position;
           entity.visible_rotation = entity.orientation;
+          entity.enemy_state.speed = 0.f;
           entity.recent_positions.clear();
         }
 

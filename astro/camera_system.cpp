@@ -45,8 +45,9 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) 
     // Adjustment: raise the camera a bit during stun effects
     new_camera_position.y += 1000.f * stun_factor;
 
-    // Adjustment: move the camera back a bit with up/down facing directions
+    // Adjustment: move the camera back a bit with up/down facing directions, and with distance
     new_camera_position.z += 1000.f * (1.f - abs(state.player_facing_direction.z)) * distance_ratio;
+    new_camera_position.z += 2000.f * distance_ratio;
 
     // Adjustment: move the camera back a bit during stun effects
     new_camera_position.z += 1000.f * stun_factor;
