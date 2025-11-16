@@ -19,7 +19,9 @@ static std::map<Sound, const char*> sound_file_map = {
 
   { SFX_LIGHT_POST_ACTIVATE, "./astro/audio/light_post.wav" },
   { SFX_LIGHT_POST_ASTRO_SYNCED, "./astro/audio/light_post_synced.wav" },
-  { SFX_LIGHT_POST_ASTRO_SYNCED_2, "./astro/audio/light_post_synced_2.wav" }
+  { SFX_LIGHT_POST_ASTRO_SYNCED_2, "./astro/audio/light_post_synced_2.wav" },
+
+  { SFX_FOREST, "./astro/audio/sfx_forest.wav" }
 };
 
 static std::map<Sound, tSoundResource> resource_cache;

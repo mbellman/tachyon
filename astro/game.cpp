@@ -251,6 +251,11 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
   ProceduralGeneration::RebuildAllProceduralObjects(tachyon, state);
   EntityManager::CreateEntityAssociations(state);
 
+  // Start ambient sound effects
+  // @todo use different sfx per area
+  // @todo loop; pause during astro travel
+  Sfx::PlaySound(SFX_FOREST, 0.5f);
+
   // @todo default/load from save
   state.player_position = tVec3f(-13800.f, 0, -5900.f);
   state.player_facing_direction = tVec3f(0, 0, 1.f);
@@ -336,9 +341,9 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   }
 
   if (state.astro_time < 0.f && state.astro_turn_speed == 0.f && state.bgm_start_time == -1.f) {
-    // BGM::LoopMusic(DIVINATION_WOODREALM);
+    BGM::LoopMusic(DIVINATION_WOODREALM);
 
-    // state.bgm_start_time = get_scene_time();
+    state.bgm_start_time = get_scene_time();
   }
 
   Targeting::HandleTargets(tachyon, state);

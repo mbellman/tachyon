@@ -16,7 +16,9 @@ namespace astro {
 
     SFX_LIGHT_POST_ACTIVATE,
     SFX_LIGHT_POST_ASTRO_SYNCED,
-    SFX_LIGHT_POST_ASTRO_SYNCED_2
+    SFX_LIGHT_POST_ASTRO_SYNCED_2,
+
+    SFX_FOREST
   };
 
   namespace Sfx {
