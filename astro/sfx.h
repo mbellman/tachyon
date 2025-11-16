@@ -2,9 +2,10 @@
 
 namespace astro {
   enum Sound {
+    SFX_ASTRO_BEGIN,
+    SFX_ASTRO_TRAVEL,
     SFX_ASTRO_START,
     SFX_ASTRO_END,
-    SFX_ASTRO_BELLS,
     SFX_ASTRO_DISABLED,
 
     SFX_GROUND_WALK_1,

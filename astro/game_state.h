@@ -9,6 +9,9 @@
 // @todo pass entity variable name
 #define for_entities(array) for (uint16 i = 0; i < (uint16)array.size(); i++)
 
+#define time_since(t) (tachyon->scene.scene_time - t)
+#define scene_time() tachyon->scene.scene_time
+
 namespace astro {
   /**
    * ----------------------------
@@ -184,9 +187,12 @@ namespace astro {
     float astro_time = 0.f;
     float astro_turn_speed = 0.f;
     float astro_time_at_start_of_turn = 0.f;
+    float game_time_at_start_of_turn = 0.f;
     float time_warp_start_radius = 30000.f;
     float time_warp_end_radius = 30000.f;
+
     bool is_astrolabe_stopped = true;
+    bool is_astro_traveling = false;
 
     Spells spells;
 

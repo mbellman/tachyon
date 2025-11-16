@@ -13,7 +13,7 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state, const f
   float scene_time = tachyon->scene.scene_time;
   bool is_running = is_key_held(tKey::CONTROLLER_A) || is_key_held(tKey::SHIFT);
 
-  if (abs(state.astro_turn_speed) < 0.05f) {
+  if (state.is_astrolabe_stopped) {
     // Directional movement
     float movement_speed = is_running ? 14000.f : 4000.f;
 
@@ -86,7 +86,8 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state, const f
 }
 
 static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) {
-  const float astro_turn_rate = 0.8f;
+  const float astro_start_rate = 0.1f;
+  const float astro_travel_rate = 0.8f;
   const float astro_slowdown_rate = 3.f;
 
   const float max_astro_time = Astrolabe::GetMaxAstroTime(state);
@@ -118,15 +119,25 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
   // before hitting min/max time
   if (started_turning) {
     state.astro_time_at_start_of_turn = state.astro_time;
+    state.game_time_at_start_of_turn = scene_time();
     state.is_astrolabe_stopped = false;
 
     // Force deselection of the current target, if any
     Targeting::DeselectCurrentTarget(tachyon, state);
   }
 
+  float astro_acceleration;
+
+  if (time_since(state.game_time_at_start_of_turn) < 0.4f) {
+    astro_acceleration = astro_start_rate;
+  }
+  else if (!state.is_astrolabe_stopped) {
+    astro_acceleration = astro_travel_rate;
+  }
+
   // Handle reverse/forward turn actions
-  state.astro_turn_speed -= tachyon->left_trigger * astro_turn_rate * dt;
-  state.astro_turn_speed += tachyon->right_trigger * astro_turn_rate * dt;
+  state.astro_turn_speed -= tachyon->left_trigger * astro_acceleration * dt;
+  state.astro_turn_speed += tachyon->right_trigger * astro_acceleration * dt;
 
   // Prevent time changes past max time
   if (state.astro_time >= max_astro_time && state.astro_turn_speed > 0.f) {
@@ -236,15 +247,16 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
   if (
     // Turning against min/max astro time
     (started_turning && state.astro_turn_speed == 0.f) ||
+
     // Turning slowed down below a given threshold. The threshold
     // is a bit high (0.1) so that the "stopped" sound begins playing
     // sooner, rather than waiting for full deceleration to 0.
     (
-      abs(previous_astro_turn_speed) >= 0.1f &&
-      abs(state.astro_turn_speed) < 0.1f &&
+      (abs(previous_astro_turn_speed) >= 0.1f && abs(state.astro_turn_speed) < 0.1f) &&
       (tachyon->left_trigger == 0.f || state.astro_time <= min_astro_time) &&
       (tachyon->right_trigger == 0.f || state.astro_time >= max_astro_time)
     ) ||
+
     // Turn speed is 0, but not set in state as stopped. If we merely
     // tap the trigger buttons, we may not speed up enough to hit the
     // above 0.1 threshold.
@@ -253,22 +265,32 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
     stopped_turning = true;
   }
 
-  // Sound effects for stopping/starting astro turn
-  if (stopped_turning && !state.is_astrolabe_stopped) {
-    Sfx::FadeOutSound(SFX_ASTRO_START, 500);
-    // Sfx::FadeOutSound(SFX_ASTRO_BELLS, 8000);
-    Sfx::PlaySound(SFX_ASTRO_END, 1.f);
+  // Sound effects
+  {
+    if (stopped_turning && !state.is_astrolabe_stopped) {
+      Sfx::FadeOutSound(SFX_ASTRO_TRAVEL, 500);
 
-    state.is_astrolabe_stopped = true;
-    state.time_warp_end_radius = 0.f;
-  }
-  else if (started_turning) {
-    Sfx::FadeOutSound(SFX_ASTRO_END, 500);
-    Sfx::PlaySound(SFX_ASTRO_START, 0.8f);
-    // Sfx::PlaySound(SFX_ASTRO_BELLS, 0.8f);
+      if (state.is_astro_traveling) {
+        Sfx::PlaySound(SFX_ASTRO_END, 1.f);
+      }
 
-    state.is_astrolabe_stopped = false;
-    state.time_warp_start_radius = 0.f;
+      state.is_astrolabe_stopped = true;
+      state.is_astro_traveling = false;
+      state.time_warp_end_radius = 0.f;
+    }
+    else if (started_turning) {
+      Sfx::FadeOutSound(SFX_ASTRO_END, 500);
+      Sfx::PlaySound(SFX_ASTRO_BEGIN, 0.8f);
+
+      state.is_astrolabe_stopped = false;
+      state.is_astro_traveling = false;
+    }
+    else if (astro_acceleration == astro_travel_rate && !state.is_astro_traveling) {
+      Sfx::PlaySound(SFX_ASTRO_TRAVEL, 0.8f);
+
+      state.is_astro_traveling = true;
+      state.time_warp_start_radius = 0.f;
+    }
   }
 }
 

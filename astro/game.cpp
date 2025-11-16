@@ -250,7 +250,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   }
 
   if (state.astro_time < 0.f && state.astro_turn_speed == 0.f && !state.bgm_is_playing) {
-    // BGM::LoopMusic(DIVINATION_WOODREALM);
+    BGM::LoopMusic(DIVINATION_WOODREALM);
 
     state.bgm_is_playing = true;
   }
