@@ -30,8 +30,9 @@ namespace astro {
       grass,
       small_grass,
       ground_flower,
+      tiny_ground_flower,
       bush_flower,
-      p_dirt_path,
+      p_dirt_path, // @todo rename
 
       // HUD meshes
       astrolabe_rear,

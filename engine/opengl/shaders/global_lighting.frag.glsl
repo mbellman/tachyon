@@ -743,8 +743,8 @@ void main() {
     {
       // vec3 fog_color = vec3(0.2, 0.2, 0.6);
       // vec3 fog_color = vec3(0.4, 0.4, 0.5);
-      // vec3 fog_color = primary_light_color;
-      // float visibility_range = 500000.0;
+      // vec3 fog_color = primary_light_color * 0.8;
+      // float visibility_range = 30000.0;
       // float frag_distance_from_camera = length(position - camera_position);
       // float fog_thickness = clamp(frag_distance_from_camera / visibility_range, 0.0, 1.0);
 

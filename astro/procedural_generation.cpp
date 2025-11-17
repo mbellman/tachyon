@@ -1,6 +1,7 @@
 #include <functional>
 
 #include "astro/procedural_generation.h"
+#include "astro/astrolabe.h"
 #include "astro/collision_system.h"
 #include "astro/entity_behaviors/behavior.h"
 
@@ -458,12 +459,15 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
 
   auto& meshes = state.meshes;
 
-  remove_all(meshes.ground_flower);
-
   // @todo use path connection planes, not planes for each individual path segment
   auto dirt_path_planes = GetObjectPlanes(tachyon, meshes.p_dirt_path);
   auto flat_ground_planes = GetObjectPlanes(tachyon, meshes.flat_ground);
   // @todo check ground_1 planes
+
+  // ------------
+  // @todo factor
+  // ------------
+  remove_all(meshes.ground_flower);
 
   tRNG rng(12345.f);
 
@@ -475,6 +479,9 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
     center.z = rng.Random(-300000.f, 300000.f);
 
     // 4 flowers per cluster
+    // @todo avoid crashing at the limit! right now we only avoid
+    // hitting the max because there isn't enough flat ground to
+    // spawn flowers on
     for (int i = 0; i < 4; i++) {
       tVec3f position;
       position.x = center.x + rng.Random(-1500.f, 1500.f);
@@ -504,6 +511,54 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
 
     console_log(message);
   }
+
+  // ------------
+  // @todo factor
+  // ------------
+  remove_all(meshes.tiny_ground_flower);
+
+  tRNG rng2(34567.f);
+
+  // Clusters
+  for (int i = 0; i < 7000; i++) {
+    tVec3f center;
+    center.x = rng2.Random(-300000.f, 300000.f);
+    center.y = -875.f;
+    center.z = rng2.Random(-300000.f, 300000.f);
+
+    // 6 flowers per cluster
+    // @todo avoid crashing at the limit! right now we only avoid
+    // hitting the max because there isn't enough flat ground to
+    // spawn flowers on
+    for (int i = 0; i < 6; i++) {
+      tVec3f position;
+      position.x = center.x + rng2.Random(-1000.f, 1000.f);
+      position.y = center.y + rng2.Random(-60.f, 60.f);
+      position.z = center.z + rng2.Random(-1000.f, 1000.f);
+
+      if (
+        IsPointOnAnyPlane(position, dirt_path_planes) ||
+        !IsPointOnAnyPlane(position, flat_ground_planes)
+      ) {
+        continue;
+      }
+
+      auto& flower = create(meshes.tiny_ground_flower);
+
+      flower.position = position;
+      flower.scale = tVec3f(100.f);
+      flower.color = tVec3f(1.f);
+
+      commit(flower);
+    }
+  }
+
+  // @todo dev mode only
+  {
+    std::string message = "Generated " + std::to_string(objects(meshes.tiny_ground_flower).total_active) + " tiny ground flower objects";
+
+    console_log(message);
+  }
 }
 
 static void UpdateGroundFlowers(Tachyon* tachyon, State& state) {
@@ -525,6 +580,7 @@ static void UpdateGroundFlowers(Tachyon* tachyon, State& state) {
   auto& player_position = state.player_position;
   float base_time_progress = 0.5f * (state.astro_time - -500.f);
 
+  // @todo factor
   for (auto& flower : objects(state.meshes.ground_flower)) {
     if (abs(flower.position.x - player_position.x) > 15000.f) continue;
     if (abs(flower.position.z - player_position.z) > 15000.f) continue;
@@ -539,6 +595,28 @@ static void UpdateGroundFlowers(Tachyon* tachyon, State& state) {
     flower.position = base_position + offsets[life_cycle % 5];
 
     UpdateBloomingFlower(flower, blossom_color, 250.f, alpha, lifetime);
+
+    commit(flower);
+
+    // Restore position after commit to avoid drift
+    flower.position = base_position;
+  }
+
+  // @todo factor
+  for (auto& flower : objects(state.meshes.tiny_ground_flower)) {
+    if (abs(flower.position.x - player_position.x) > 15000.f) continue;
+    if (abs(flower.position.z - player_position.z) > 15000.f) continue;
+
+    float alpha_variation = fmodf(abs(flower.position.x + flower.position.z) * 0.1f, 10.f);
+    float alpha = base_time_progress + alpha_variation;
+    float life_cycles = alpha / lifetime;
+    int life_cycle = (int)life_cycles + (int)abs(flower.position.x);
+
+    tVec3f base_position = flower.position;
+
+    flower.position = base_position + offsets[life_cycle % 5];
+
+    UpdateBloomingFlower(flower, tVec3f(1.f), 100.f, alpha, lifetime);
 
     commit(flower);
 
@@ -560,11 +638,41 @@ static void GenerateBushFlowers(Tachyon* tachyon, State& state) {
   }
 }
 
+// @todo refactor with time_evolution.cpp -> GetLightColor()
+static tVec3f GetBushFlowerBlossomColor(const float astro_time) {
+  auto& periods = astro_time_periods;
+
+  tVec3f present_color = tVec3f(1.f, 0.3f, 0.1f);
+  tVec3f past_color = tVec3f(1.f, 0.8f, 0.2f);
+  tVec3f distant_past_color = tVec3f(1.f, 0.8f, 1.f);
+
+  if (astro_time < periods.present && astro_time >= periods.past) {
+    float age_duration = periods.present - periods.past;
+    float alpha = (astro_time - periods.past) / age_duration;
+
+    return tVec3f::lerp(past_color, present_color, alpha);
+  }
+
+  if (astro_time < periods.past && astro_time >= periods.distant_past) {
+    float age_duration = periods.past - periods.distant_past;
+    float alpha = (astro_time - periods.distant_past) / age_duration;
+
+    return tVec3f::lerp(distant_past_color, past_color, alpha);
+  }
+
+  if (astro_time < periods.distant_past) {
+    // @todo lerp between very distant past -> distant past
+    return distant_past_color;
+  }
+
+  return present_color;
+}
+
 // @todo just let FlowerBush.h handle this
 static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
   profile("UpdateBushFlowers()");
 
-  const tVec3f blossom_color = tVec3f(1.f, 0.6f, 0.1f);
+  const tVec3f blossom_color = GetBushFlowerBlossomColor(state.astro_time);
   const float spawn_radius = 1200.f;
   const float half_spawn_radius = spawn_radius * 0.5f;
   const float plant_lifetime = 100.f;
@@ -606,7 +714,7 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
 
         UpdateBloomingFlower(flower, blossom_color, flower_size, alpha, flower_lifetime);
 
-        flower.material = tVec4f(0.5f, 0, 0, 0.2f);
+        flower.material = tVec4f(0.5f, 0, 0, 0.4f);
 
         commit(flower);
       }
