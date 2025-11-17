@@ -568,7 +568,7 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
   const float spawn_radius = 1200.f;
   const float half_spawn_radius = spawn_radius * 0.5f;
   const float plant_lifetime = 100.f;
-  const float flower_lifetime = 10.f;
+  const float flower_lifetime = 12.f;
 
   auto& player_position = state.player_position;
   float base_time_progress = 0.5f * (state.astro_time - -500.f);
