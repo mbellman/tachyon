@@ -395,7 +395,7 @@ namespace astro {
     { WOODEN_FENCE, {
       .name = "Wooden Fence",
       .scale = tVec3f(2000.f),
-      .tint = tVec3f(1.f, 0.6f, 0.2f)
+      .tint = tVec3f(1.f, 0.8f, 0.4f)
     } },
 
     { HOUSE, {

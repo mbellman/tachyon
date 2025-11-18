@@ -39,6 +39,8 @@ namespace astro {
     }
 
     timeEvolve() {
+      profile("  LilacBush::timeEvolve()");
+
       auto& meshes = state.meshes;
       const float lifetime = 100.f;
 
@@ -49,6 +51,9 @@ namespace astro {
         if (abs(state.player_position.z - entity.position.z) > 25000.f) continue;
 
         float life_progress = GetLivingEntityProgress(state, entity, lifetime);
+
+        if (life_progress == 0.f || life_progress == 1.f) continue;
+
         float plant_growth = sqrtf(sinf(life_progress * t_PI));
 
         // @todo factor
