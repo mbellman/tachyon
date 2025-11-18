@@ -6,12 +6,14 @@
 using namespace astro;
 
 static std::map<Music, const char*> music_file_map = {
-  { DIVINATION_WOODREALM, "./astro/audio/divination_woodrealm.wav" }
+  { DIVINATION_WOODREALM, "./astro/audio/divination_woodrealm.wav" },
+  { VILLAGE_1, "./astro/audio/village1.wav" }
 };
 
 static std::map<Music, tSoundResource> music_cache;
 
 static Music current_music = MUSIC_NONE;
+static float current_music_volume = 0.f;
 
 static tSoundResource& FindSoundResource(Music music) {
   if (music_cache.find(music) == music_cache.end()) {
@@ -24,39 +26,39 @@ static tSoundResource& FindSoundResource(Music music) {
   return music_cache[music];
 }
 
-void BGM::PlayMusic(Music music) {
-  auto& resource = FindSoundResource(music);
-
-  Tachyon_PlaySound(resource, 1.f);
-}
-
-void BGM::LoopMusic(Music music) {
+void BGM::LoopMusic(Music music, const float volume) {
   if (music == current_music) {
     return;
   }
 
   if (current_music != MUSIC_NONE) {
-    auto& current = FindSoundResource(current_music);
+    // Fade out and stop the previous music
+    auto& current_sound = FindSoundResource(current_music);
 
-    Tachyon_StopSound(current);
+    // Tachyon_StopSound(current);
+    Tachyon_FadeOutSound(current_sound, 2000);
+    Tachyon_StopSoundAfterDuration(current_sound, 2000);
   }
 
+  // Start looping the new music
   auto& resource = FindSoundResource(music);
 
-  current_music = music;
+  Tachyon_LoopSound(resource, volume);
+  Tachyon_FadeInSound(resource, volume, 5000);
 
-  // @todo make volume configurable
-  Tachyon_LoopSound(resource, 0.4f);
+  current_music = music;
+  current_music_volume = volume;
 }
 
 void BGM::FadeCurrentMusicVolumeTo(const float volume, uint64 duration) {
-  if (current_music == MUSIC_NONE) {
-    return;
-  }
+  if (current_music == MUSIC_NONE) return;
+  if (current_music_volume == volume) return;
 
   auto& resource = FindSoundResource(current_music);
 
   Tachyon_FadeSoundTo(resource, volume, duration);
+
+  current_music_volume = volume;
 }
 
 void BGM::FadeOutMusic(Music music) {

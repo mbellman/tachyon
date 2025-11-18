@@ -143,6 +143,7 @@ static void ShowHighestLevelsOfDetail(Tachyon* tachyon, State& state) {
   Tachyon_ShowHighestLevelsOfDetail(tachyon, meshes.ground_1);
   Tachyon_ShowHighestLevelsOfDetail(tachyon, meshes.grass);
   Tachyon_ShowHighestLevelsOfDetail(tachyon, meshes.ground_flower);
+  Tachyon_ShowHighestLevelsOfDetail(tachyon, meshes.tiny_ground_flower);
 }
 
 // @todo 3d positioned sfx
@@ -215,18 +216,24 @@ static void HandleMusicLevels(Tachyon* tachyon, State& state) {
       BGM::FadeCurrentMusicVolumeTo(0.05f, 500);
     }
     else if (state.astro_turn_speed != 0.f) {
-      BGM::FadeCurrentMusicVolumeTo(0.f, 200);
+      BGM::FadeCurrentMusicVolumeTo(0.f, 500);
     }
     else {
-      // Fade the background music in the first time we start playing
-      float start_time_alpha = time_since(state.bgm_start_time) / 5.f;
-      if (start_time_alpha > 1.f) start_time_alpha = 1.f;
-
-      float volume = Tachyon_Lerpf(0.f, 0.4f, start_time_alpha);
-      uint64 duration = start_time_alpha == 1.f ? 2000 : 0;
-
-      BGM::FadeCurrentMusicVolumeTo(volume, duration);
+      BGM::FadeCurrentMusicVolumeTo(0.4f, 2000);
     }
+  }
+}
+
+static void HandleCurrentAreaMusic(Tachyon* tachyon, State& state) {
+  if (state.bgm_start_time == -1.f) return;
+
+  // @temporary
+  tVec3f village_position = tVec3f(157000.f, 0, -44000.f);
+
+  if (tVec3f::distance(state.player_position, village_position) < 40000.f) {
+    BGM::LoopMusic(VILLAGE_1, 0.4f);
+  } else {
+    BGM::LoopMusic(DIVINATION_WOODREALM, 0.4f);
   }
 }
 
@@ -356,7 +363,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   }
 
   if (state.astro_time < 0.f && state.astro_turn_speed == 0.f && state.bgm_start_time == -1.f) {
-    BGM::LoopMusic(DIVINATION_WOODREALM);
+    BGM::LoopMusic(DIVINATION_WOODREALM, 0.4f);
 
     state.bgm_start_time = get_scene_time();
   }
@@ -368,6 +375,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   Items::HandleItemPickup(tachyon, state);
   UISystem::HandleDialogue(tachyon, state);
   HandleWalkSounds(tachyon, state);
+  HandleCurrentAreaMusic(tachyon, state);
   HandleMusicLevels(tachyon, state);
 
   TimeEvolution::UpdateAstroTime(tachyon, state, dt);

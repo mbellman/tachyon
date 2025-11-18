@@ -28,8 +28,17 @@ void Tachyon_PlaySound(const char* file_path) {
 void Tachyon_PlaySound(tSoundResource& resource, const float volume) {
   auto* sound = get_sound(resource);
 
+  // Rewind
   ma_sound_seek_to_pcm_frame(sound, 0);
+
+  // Reset scheduled stop/start times
+  ma_sound_set_stop_time_in_milliseconds(sound, ~(ma_uint64)0);
+  ma_sound_set_start_time_in_milliseconds(sound, ma_engine_get_time_in_milliseconds(&engine));
+
+  // Reset volume
   ma_sound_set_fade_in_milliseconds(sound, -1, volume, 0);
+
+  // Enable actual playback
   ma_sound_start(sound);
 }
 
@@ -47,7 +56,7 @@ void Tachyon_FadeOutSound(tSoundResource& resource, uint64 duration) {
   ma_sound_set_fade_in_milliseconds(sound, -1, 0, duration);
 }
 
-void Tachyon_FadeInSound(tSoundResource& resource, uint64 duration, const float volume) {
+void Tachyon_FadeInSound(tSoundResource& resource, const float volume, uint64 duration) {
   auto* sound = get_sound(resource);
 
   ma_sound_set_fade_in_milliseconds(sound, 0.f, volume, duration);
@@ -63,6 +72,12 @@ void Tachyon_StopSound(tSoundResource& resource) {
   auto* sound = get_sound(resource);
 
   ma_sound_stop(sound);
+}
+
+void Tachyon_StopSoundAfterDuration(tSoundResource& resource, uint64 duration) {
+  auto* sound = get_sound(resource);
+
+  ma_sound_set_stop_time_in_milliseconds(sound, ma_engine_get_time_in_milliseconds(&engine) + duration);
 }
 
 void Tachyon_ExitSoundEngine() {
