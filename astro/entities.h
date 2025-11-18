@@ -30,7 +30,8 @@ namespace astro {
     HOUSE,
     GATE,
     LILAC_BUSH,
-    LIGHT_POST
+    LIGHT_POST,
+    WOODEN_FENCE
   };
 
   /**
@@ -56,7 +57,8 @@ namespace astro {
     HOUSE,
     GATE,
     LILAC_BUSH,
-    LIGHT_POST
+    LIGHT_POST,
+    WOODEN_FENCE
   };
 
   /**
@@ -248,7 +250,12 @@ namespace astro {
       // LIGHT_POST
       light_post_placeholder,
       light_post_pillar,
-      light_post_lamp
+      light_post_lamp,
+
+      // WOODEN_FENCE
+      wooden_fence_placeholder,
+      wooden_fence_post,
+      wooden_fence_beam
 
       ;
   };
@@ -277,6 +284,7 @@ namespace astro {
     std::vector<GameEntity> houses;
     std::vector<GameEntity> gates;
     std::vector<GameEntity> light_posts;
+    std::vector<GameEntity> wooden_fences;
   };
 
   /**
@@ -381,6 +389,12 @@ namespace astro {
     { WOODEN_GATE_DOOR, {
       .name = "Wooden Gate Door",
       .scale = tVec3f(3500.f),
+      .tint = tVec3f(1.f, 0.6f, 0.2f)
+    } },
+
+    { WOODEN_FENCE, {
+      .name = "Wooden Fence",
+      .scale = tVec3f(2000.f),
       .tint = tVec3f(1.f, 0.6f, 0.2f)
     } },
 

@@ -17,6 +17,7 @@
 #include "astro/entity_behaviors/SmallStoneBridge.h"
 #include "astro/entity_behaviors/StoneWall.h"
 #include "astro/entity_behaviors/WillowTree.h"
+#include "astro/entity_behaviors/WoodenFence.h"
 #include "astro/entity_behaviors/WoodenGateDoor.h"
 
 using namespace astro;
@@ -62,6 +63,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
     dispatch_GetEntityContainer(LIGHT_POST, state.light_posts);
     dispatch_GetEntityContainer(HOUSE, state.houses);
     dispatch_GetEntityContainer(WILLOW_TREE, state.willow_trees);
+    dispatch_GetEntityContainer(WOODEN_FENCE, state.wooden_fences);
     dispatch_GetEntityContainer(WOODEN_GATE_DOOR, state.wooden_gate_doors);
 
     default:
@@ -91,6 +93,7 @@ void EntityDispatcher::AddMeshes(Tachyon* tachyon, State& state, EntityType type
     dispatch_AddMeshes(LIGHT_POST, LightPost);
     dispatch_AddMeshes(HOUSE, House);
     dispatch_AddMeshes(WILLOW_TREE, WillowTree);
+    dispatch_AddMeshes(WOODEN_FENCE, WoodenFence);
     dispatch_AddMeshes(WOODEN_GATE_DOOR, WoodenGateDoor);
 
     default:
@@ -119,6 +122,7 @@ const std::vector<uint16>& EntityDispatcher::GetMeshes(State& state, EntityType 
     dispatch_GetMeshes(LIGHT_POST, LightPost);
     dispatch_GetMeshes(HOUSE, House);
     dispatch_GetMeshes(WILLOW_TREE, WillowTree);
+    dispatch_GetMeshes(WOODEN_FENCE, WoodenFence);
     dispatch_GetMeshes(WOODEN_GATE_DOOR, WoodenGateDoor);
 
     default:
@@ -147,6 +151,7 @@ uint16 EntityDispatcher::GetPlaceholderMesh(State& state, EntityType type) {
     dispatch_GetPlaceholderMesh(LIGHT_POST, LightPost);
     dispatch_GetPlaceholderMesh(HOUSE, House);
     dispatch_GetPlaceholderMesh(WILLOW_TREE, WillowTree);
+    dispatch_GetPlaceholderMesh(WOODEN_FENCE, WoodenFence);
     dispatch_GetPlaceholderMesh(WOODEN_GATE_DOOR, WoodenGateDoor);
 
     default:
@@ -175,6 +180,7 @@ void EntityDispatcher::TimeEvolve(Tachyon* tachyon, State& state, EntityType typ
     dispatch_TimeEvolve(LIGHT_POST, LightPost);
     dispatch_TimeEvolve(HOUSE, House);
     dispatch_TimeEvolve(WILLOW_TREE, WillowTree);
+    dispatch_TimeEvolve(WOODEN_FENCE, WoodenFence);
     dispatch_TimeEvolve(WOODEN_GATE_DOOR, WoodenGateDoor);
 
     default:
