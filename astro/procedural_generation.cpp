@@ -571,8 +571,6 @@ static void UpdateGroundFlowers(Tachyon* tachyon, State& state) {
     tVec3f(600.f, 0, -350.f)
   };
 
-  const float lifetime = t_PI + t_HALF_PI;
-
   const tVec3f sprouting_color = tVec3f(0.1f, 0.6f, 0.1f);
   const tVec3f blossom_color = tVec3f(1.f, 0.1f, 0.1f);
   const tVec3f wilted_color = tVec3f(0.1f);
@@ -581,6 +579,8 @@ static void UpdateGroundFlowers(Tachyon* tachyon, State& state) {
   float base_time_progress = 0.5f * (state.astro_time - -500.f);
 
   // @todo factor
+  const float lifetime = t_PI + t_HALF_PI;
+
   for (auto& flower : objects(state.meshes.ground_flower)) {
     if (abs(flower.position.x - player_position.x) > 15000.f) continue;
     if (abs(flower.position.z - player_position.z) > 15000.f) continue;
@@ -603,20 +603,22 @@ static void UpdateGroundFlowers(Tachyon* tachyon, State& state) {
   }
 
   // @todo factor
+  const float tiny_lifetime = t_TAU;
+
   for (auto& flower : objects(state.meshes.tiny_ground_flower)) {
     if (abs(flower.position.x - player_position.x) > 15000.f) continue;
     if (abs(flower.position.z - player_position.z) > 15000.f) continue;
 
     float alpha_variation = fmodf(abs(flower.position.x + flower.position.z) * 0.1f, 10.f);
     float alpha = base_time_progress + alpha_variation;
-    float life_cycles = alpha / lifetime;
+    float life_cycles = alpha / tiny_lifetime;
     int life_cycle = (int)life_cycles + (int)abs(flower.position.x);
 
     tVec3f base_position = flower.position;
 
     flower.position = base_position + offsets[life_cycle % 5];
 
-    UpdateBloomingFlower(flower, tVec3f(1.f), 100.f, alpha, lifetime);
+    UpdateBloomingFlower(flower, tVec3f(1.f), 100.f, alpha, tiny_lifetime);
 
     commit(flower);
 
@@ -709,10 +711,16 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
         flower.position.y += entity.visible_scale.y * 0.4f;
         flower.position.z += offset_z;
 
+        // Give blossoms a bit of color variation based on position
+        float flower_brightness = 1.f - 0.2f * fmodf(abs(flower.position.x), 1.f);
+        tVec3f adjusted_blossom_color = blossom_color * flower_brightness;
+
+        // Determine the progress of the flower
+        // @todo rename
         float alpha_variation = fmodf(abs(flower.position.x + flower.position.z), 10.f);
         float alpha = base_time_progress + alpha_variation;
 
-        UpdateBloomingFlower(flower, blossom_color, flower_size, alpha, flower_lifetime);
+        UpdateBloomingFlower(flower, adjusted_blossom_color, flower_size, alpha, flower_lifetime);
 
         flower.material = tVec4f(0.5f, 0, 0, 0.4f);
 

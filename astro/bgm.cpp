@@ -40,7 +40,6 @@ void BGM::LoopMusic(Music music, const float volume) {
     Tachyon_StopSoundAfterDuration(current_sound, 2000);
   }
 
-  // Start looping the new music
   auto& resource = FindSoundResource(music);
 
   Tachyon_LoopSound(resource, volume);
