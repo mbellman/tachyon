@@ -88,6 +88,10 @@ namespace astro {
           if (player_distance < minimum_distance) {
             entity.visible_position = state.player_position + player_direction.invert() * minimum_distance;
           }
+
+          // Remain aligned with the ground
+          // @todo use proper ground height
+          entity.visible_position.y = 0.f;
         }
 
         if (time_since_last_stun >= 4.f && enemy.mood != ENEMY_IDLE) {
@@ -103,8 +107,11 @@ namespace astro {
             }
 
             // @todo FollowPlayer()
-            if (player_distance > 2500.f) {
+            if (player_distance > 3500.f) {
               entity.visible_position += entity_to_player.unit() * enemy.speed * dt;
+            }
+            else if (player_distance < 3250.f) {
+              entity.visible_position -= entity_to_player.unit() * enemy.speed * dt;
             }
           }
         }
@@ -142,6 +149,7 @@ namespace astro {
             time_since(enemy.last_attack_time) > 2.f * attack_duration &&
             time_since(enemy.last_mood_change_time) > 0.5f
           ) {
+            // Attacking
             enemy.last_attack_time = get_scene_time();
           }
         }
@@ -151,6 +159,8 @@ namespace astro {
     }
 
     timeEvolve() {
+      profile("  LowGuard::timeEvolve()");
+
       auto& meshes = state.meshes;
 
       // @todo @optimize only iterate over on-screen/in-range entities
@@ -282,14 +292,22 @@ namespace astro {
                 Quaternion end_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), t_HALF_PI);
                 Quaternion current_rotation = Quaternion::slerp(start_rotation, end_rotation, stab_alpha);
 
-                float angle = t_HALF_PI * sinf(stab_alpha * t_HALF_PI);
+                // float angle = t_HALF_PI * sinf(stab_alpha * t_HALF_PI);
                 float thrust = 1000.f * sinf(stab_alpha * t_HALF_PI);
 
                 tVec3f thrust_offset = entity.visible_rotation.toMatrix4f() * tVec3f(0, 0, 1.f) * thrust;
 
-                // spear.rotation = spear.rotation * Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), angle);
                 spear.rotation = spear.rotation * current_rotation;
                 spear.position += thrust_offset;
+
+                tVec3f spear_tip_position = UnitObjectToWorldPosition(spear, tVec3f(0, 3.f, 0));
+                float spear_tip_distance = tVec3f::distance(state.player_position, spear_tip_position);
+
+                if (spear_tip_distance < 2000.f) {
+                  tVec3f knockback_direction = (state.player_position - spear.position).xz().unit();
+
+                  state.player_velocity += knockback_direction * 100000.f * dt;
+                }
               }
               else {
                 // Wind-down

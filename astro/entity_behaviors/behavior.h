@@ -49,6 +49,14 @@ namespace astro {
     return translation + rotation.toMatrix4f() * (position * scale);
   }
 
+  static tVec3f UnitObjectToWorldPosition(const tObject& object, const tVec3f& position) {
+    tVec3f translation = object.position;
+    Quaternion rotation = object.rotation;
+    tVec3f scale = object.scale;
+
+    return translation + rotation.toMatrix4f() * (position * scale);
+  }
+
   static void Jitter(GameEntity& entity, const float amount) {
     entity.visible_position.x += Tachyon_GetRandom(-amount, amount);
     entity.visible_position.z += Tachyon_GetRandom(-amount, amount);

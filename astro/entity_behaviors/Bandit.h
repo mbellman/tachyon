@@ -143,6 +143,8 @@ namespace astro {
     }
 
     timeEvolve() {
+      profile("  Bandit::timeEvolve()");
+
       auto& meshes = state.meshes;
 
       // @todo @optimize only iterate over on-screen/in-range entities
