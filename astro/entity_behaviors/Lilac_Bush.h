@@ -50,14 +50,21 @@ namespace astro {
         if (abs(state.player_position.x - entity.position.x) > 25000.f) continue;
         if (abs(state.player_position.z - entity.position.z) > 25000.f) continue;
 
+        auto& leaves = objects(meshes.lilac_leaves)[i];
         float life_progress = GetLivingEntityProgress(state, entity, lifetime);
 
-        if (life_progress == 0.f || life_progress == 1.f) continue;
+        if (life_progress == 0.f || life_progress == 1.f) {
+          // Dead
+          leaves.scale = tVec3f(0.f);
+
+          entity.visible_scale = leaves.scale;
+
+          commit(leaves);
+
+          continue;
+        }
 
         float plant_growth = sqrtf(sinf(life_progress * t_PI));
-
-        // @todo factor
-        auto& leaves = objects(meshes.lilac_leaves)[i];
 
         leaves.scale = entity.scale * plant_growth;
         leaves.scale.x = entity.scale.x * (life_progress > 0.5f ? 1.f : plant_growth);
@@ -83,10 +90,6 @@ namespace astro {
           leaves.scale.x = entity.scale.x * Tachyon_Lerpf(1.f, 0.7f, alpha);
           leaves.scale.z = entity.scale.x * Tachyon_Lerpf(1.f, 0.7f, alpha);
           leaves.color = tVec3f::lerp(tVec3f(0.1f, 0.3f, 0.2f), tVec3f(0.4f, 0.2f, 0.1f), alpha);
-        }
-        else {
-          // Dead
-          leaves.scale = tVec3f(0.f);
         }
 
         commit(leaves);

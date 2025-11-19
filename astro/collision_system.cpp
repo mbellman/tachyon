@@ -52,6 +52,7 @@ static inline bool IsPointWithRadiusOnPlane(const tVec3f& point, const float rad
   return CollisionSystem::IsPointOnPlane(adjusted_point, plane);
 }
 
+// @todo remove radius_scale argument and just premultiply scale
 static inline void ResolveSingleRadiusCollision(State& state, const tVec3f& position, const tVec3f& scale, float radius_scale) {
   float radius = scale.x > scale.z
     ? radius_scale * scale.x
@@ -79,6 +80,42 @@ static inline void ResolveSingleRadiusCollision(State& state, const tVec3f& posi
 
     state.did_resolve_radius_collision = true;
   }
+}
+
+static bool ResolveSinglePlaneCollision(State& state, const Plane& plane, const float dt) {
+  tVec3f player_xz = state.player_position.xz();
+
+  if (CollisionSystem::IsPointOnPlane(player_xz, plane)) {
+    if (state.did_resolve_radius_collision) {
+      // When we've resolved an earlier radius collision, prevent
+      // clipping by simply resetting the player position to the
+      // last solid ground position as a failsafe for both collisions.
+      // Otherwise, plane collision resolution can cause us to
+      // pass through radius collision bounds.
+      state.player_position = state.last_solid_ground_position;
+    } else {
+      float player_speed = state.player_velocity.magnitude();
+      tVec3f unit_velocity = state.player_velocity / player_speed;
+      tVec3f crossed_edge = GetOversteppedEdge(state.last_solid_ground_position, plane).unit();
+      float edge_dot = tVec3f::dot(unit_velocity, crossed_edge);
+      tVec3f corrected_direction = edge_dot > 0.f ? crossed_edge : crossed_edge.invert();
+      float corrected_speed = 3.f * player_speed * abs(edge_dot) * dt;
+      tVec3f rebound_direction = tVec3f::cross(crossed_edge, tVec3f(0, 1.f, 0));
+
+      // Reset position
+      state.player_position = state.last_solid_ground_position;
+      // Add rebound to mitigate any accidental clipping in
+      state.player_position += rebound_direction * 0.1f;
+      // Slide along the egde to conserve movement
+      state.player_position += corrected_direction * corrected_speed;
+    }
+
+    // Resolved collision
+    return true;
+  }
+
+  // No collision to resolve
+  return false;
 }
 
 static void HandleFlatGroundCollisions(Tachyon* tachyon, State& state) {
@@ -240,34 +277,23 @@ static void HandleGateCollisions(Tachyon* tachyon, State& state, const float dt)
       collision_planes.push_back(plane);
     }
 
-    // @todo refactor into HandleSinglePlaneCollision
     for (auto& plane : collision_planes) {
-      if (CollisionSystem::IsPointOnPlane(player_xz, plane)) {
-        if (state.did_resolve_radius_collision) {
-          // When we've resolved an earlier radius collision, prevent
-          // clipping by simply resetting the player position to the
-          // last solid ground position as a failsafe for both collisions.
-          // Otherwise, plane collision resolution can cause us to
-          // pass through radius collision bounds.
-          state.player_position = state.last_solid_ground_position;
-        } else {
-          tVec3f crossed_edge = GetOversteppedEdge(state.last_solid_ground_position, plane).unit();
-          float edge_dot = tVec3f::dot(state.player_velocity.unit(), crossed_edge);
-          tVec3f corrected_direction = edge_dot > 0.f ? crossed_edge : crossed_edge.invert();
-          float corrected_speed = 3.f * player_speed * abs(edge_dot) * dt;
-          tVec3f rebound_direction = tVec3f::cross(crossed_edge, tVec3f(0, 1.f, 0));
-
-          // Reset position
-          state.player_position = state.last_solid_ground_position;
-          // Add rebound to mitigate any accidental clipping in
-          state.player_position += rebound_direction * 0.1f;
-          // Slide along the egde to conserve movement
-          state.player_position += corrected_direction * corrected_speed;
-        }
-
+      if (ResolveSinglePlaneCollision(state, plane, dt)) {
         return;
       }
     }
+  }
+}
+
+static void HandleWoodenFenceCollisions(Tachyon* tachyon, State& state, const float dt) {
+  for_entities(state.wooden_fences) {
+    auto& entity = state.wooden_fences[i];
+
+    if (state.astro_time < entity.astro_start_time) continue;
+
+    auto plane = CollisionSystem::CreatePlane(entity.position, entity.visible_scale, entity.orientation);
+
+    ResolveSinglePlaneCollision(state, plane, dt);
   }
 }
 
@@ -375,6 +401,7 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state, const flo
   }
 
   HandleGateCollisions(tachyon, state, dt);
+  HandleWoodenFenceCollisions(tachyon, state, dt);
   HandleFlatGroundCollisions(tachyon, state);
   HandleBridgeCollisions(tachyon, state);
   HandleRiverLogCollisions(tachyon, state);

@@ -83,6 +83,12 @@ namespace astro {
               post.scale.z *= 0.6f;
             }
 
+            // Reveal posts only after a bit of time
+            if (index == 0 && age < 2.f) post.scale = tVec3f(0.f);
+            if (index == 1 && age < 10.f) post.scale = tVec3f(0.f);
+            if (index == 2 && age < 15.f) post.scale = tVec3f(0.f);
+            if (index == 3 && age < 12.f) post.scale = tVec3f(0.f);
+
             post.color = tVec3f(1.f, 0.8f, 0.4f);
 
             // @todo gradually reveal fence structure
@@ -96,34 +102,35 @@ namespace astro {
         {
           uint16 beam_index = i * 2;
 
-          auto& beam = objects(meshes.wooden_fence_beam)[beam_index];
-          auto& beam_2 = objects(meshes.wooden_fence_beam)[beam_index + 1];
+          auto& top_beam = objects(meshes.wooden_fence_beam)[beam_index];
+          auto& bottom_beam = objects(meshes.wooden_fence_beam)[beam_index + 1];
 
-          beam.position = beam_2.position = entity.position;
-          beam.scale = beam_2.scale = entity.scale;
-          beam.rotation = beam_2.rotation = entity.orientation;
-          beam.color = beam_2.color = tVec3f(1.f, 0.8f, 0.4f);
+          top_beam.position = bottom_beam.position = entity.position;
+          top_beam.scale = bottom_beam.scale = entity.scale;
+          top_beam.rotation = bottom_beam.rotation = entity.orientation;
+          top_beam.color = bottom_beam.color = tVec3f(1.f, 0.8f, 0.4f);
 
-          // Top beam
-          beam.position.y += 1.f * entity.scale.y;
+          top_beam.position.y += 1.f * entity.scale.y;
+          bottom_beam.position.y += 0.4f * entity.scale.y;
 
-          // Bottom beam
-          beam_2.position.y += 0.4f * entity.scale.y;
-
-          // @todo gradually reveal fence structure
           if (age == 0.f) {
-            beam.scale = tVec3f(0.f);
-            beam_2.scale = tVec3f(0.f);
+            top_beam.scale = tVec3f(0.f);
+            bottom_beam.scale = tVec3f(0.f);
           }
 
-          commit(beam);
-          commit(beam_2);
+          // Reveal the beams in stages
+          if (age < 6.f) top_beam.scale = tVec3f(0.f);
+          if (age < 3.f) bottom_beam.scale = tVec3f(0.f);
+
+          commit(top_beam);
+          commit(bottom_beam);
         }
 
-        // Collision
         entity.visible_position = entity.position;
-        entity.visible_scale = entity.scale;
         entity.visible_rotation = entity.orientation;
+
+        // Collision
+        entity.visible_scale = entity.scale * tVec3f(1.3f, 1.f, 0.4f);
       }
     }
   };
