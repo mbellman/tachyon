@@ -44,27 +44,27 @@ namespace astro {
       auto& meshes = state.meshes;
       const float lifetime = 100.f;
 
+      uint16 leaves_index = 0;
+      uint16 flower_index = 0;
+
       for_entities(state.lilac_bushes) {
         auto& entity = state.lilac_bushes[i];
 
         if (abs(state.player_position.x - entity.position.x) > 25000.f) continue;
         if (abs(state.player_position.z - entity.position.z) > 25000.f) continue;
 
-        auto& leaves = objects(meshes.lilac_leaves)[i];
         float life_progress = GetLivingEntityProgress(state, entity, lifetime);
 
         if (life_progress == 0.f || life_progress == 1.f) {
-          // Dead
-          leaves.scale = tVec3f(0.f);
-
-          entity.visible_scale = leaves.scale;
-
-          commit(leaves);
+          entity.visible_scale = tVec3f(0.f);
 
           continue;
         }
 
         float plant_growth = sqrtf(sinf(life_progress * t_PI));
+
+        // Leaves
+        auto& leaves = objects(meshes.lilac_leaves)[leaves_index++];
 
         leaves.scale = entity.scale * plant_growth;
         leaves.scale.x = entity.scale.x * (life_progress > 0.5f ? 1.f : plant_growth);
@@ -97,33 +97,37 @@ namespace astro {
         // Flowers
         {
           for (int j = 0; j < 6; j++) {
-            auto& flower = objects(meshes.lilac_flower)[i * 6 + j];
+            auto& flower = objects(meshes.lilac_flower)[flower_index++];
             float alpha = float(j) / 5.f;
 
             float flower_growth = powf(sinf(life_progress * t_PI + alpha * 0.5f), 3.f);
             tVec3f flower_scale = entity.scale * 0.5f * flower_growth;
             float flower_scale_y = entity.scale.y * 0.5f * sqrtf(flower_growth);
 
+            float x_seed = entity.position.x + 3.89f * alpha;
+            float z_seed = entity.position.z + 2.67f * alpha;
+
             float range_x = entity.scale.x * 0.3f;
             float range_z = entity.scale.z * 0.3f;
 
-            tVec3f offset = tVec3f(
-              RandomWithinRange(entity.position.x + 3.89f * alpha, -range_x, range_x),
+            tVec3f random_offset = tVec3f(
+              RandomWithinRange(x_seed, -range_x, range_x),
               entity.visible_scale.y * (0.45f + alpha * 0.1f),
-              RandomWithinRange(entity.position.z + 2.67f * alpha, -range_z, range_z)
+              RandomWithinRange(z_seed, -range_z, range_z)
             );
 
+            flower.position = entity.position + random_offset;
+            flower.scale = flower_scale;
+            flower.scale.y = flower_scale_y;
+            flower.color = tVec3f(1.f, 0.4f, 1.f);
+            flower.material = tVec4f(0.8f, 0, 0, 0.6f);
+
             // @todo optimize
-            Quaternion rotation =
+            Quaternion random_rotation =
               Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), flower.position.x + alpha) *
               Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.4f);
 
-            flower.scale = flower_scale;
-            flower.scale.y = flower_scale_y;
-            flower.position = entity.position + offset;
-            flower.rotation = entity.orientation * rotation;
-            flower.color = tVec3f(1.f, 0.4f, 1.f);
-            flower.material = tVec4f(0.8f, 0, 0, 0.6f);
+            flower.rotation = entity.orientation * random_rotation;
 
             commit(flower);
           }
@@ -134,6 +138,9 @@ namespace astro {
         entity.visible_scale = leaves.scale;
         entity.visible_rotation = entity.orientation;
       }
+
+      mesh(meshes.lilac_leaves).lod_1.instance_count = leaves_index;
+      mesh(meshes.lilac_flower).lod_1.instance_count = flower_index;
     }
   };
 }

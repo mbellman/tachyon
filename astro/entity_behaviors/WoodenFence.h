@@ -40,7 +40,8 @@ namespace astro {
         Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), -0.07f),
       };
 
-      Quaternion yaw_90 = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_HALF_PI);
+      uint16 post_index = 0;
+      uint16 beam_index = 0;
 
       for_entities(state.wooden_fences) {
         auto& entity = state.wooden_fences[i];
@@ -53,12 +54,11 @@ namespace astro {
 
         // Posts
         {
-          uint16 post_index = i * 5;
           tVec3f x_offset = entity.orientation.toMatrix4f() * tVec3f(1.f, 0, 0);
           tVec3f z_offset = entity.orientation.toMatrix4f() * tVec3f(0, 0, 1.f);
 
           for (int index = 0; index < 5; index++) {
-            auto& post = objects(meshes.wooden_fence_post)[post_index + (uint16)index];
+            auto& post = objects(meshes.wooden_fence_post)[post_index++];
 
             post.position = entity.position;
             post.position += x_offset * (float(index) - 2.f) * 900.f;
@@ -74,7 +74,7 @@ namespace astro {
               post.position -= z_offset * 200.f;
 
               // Tilt
-              Quaternion tilt_rotation = tilt_rotations[int(post.position.x) % 3];
+              Quaternion tilt_rotation = tilt_rotations[int(abs(post.position.x)) % 3];
 
               post.rotation = entity.orientation * tilt_rotation;
 
@@ -89,10 +89,9 @@ namespace astro {
             if (index == 2 && age < 15.f) post.scale = tVec3f(0.f);
             if (index == 3 && age < 12.f) post.scale = tVec3f(0.f);
 
-            post.color = tVec3f(1.f, 0.8f, 0.4f);
-
-            // @todo gradually reveal fence structure
             if (age == 0.f) post.scale = tVec3f(0.f);
+
+            post.color = tVec3f(1.f, 0.8f, 0.4f);
 
             commit(post);
           }
@@ -100,10 +99,8 @@ namespace astro {
 
         // Beams
         {
-          uint16 beam_index = i * 2;
-
-          auto& top_beam = objects(meshes.wooden_fence_beam)[beam_index];
-          auto& bottom_beam = objects(meshes.wooden_fence_beam)[beam_index + 1];
+          auto& top_beam = objects(meshes.wooden_fence_beam)[beam_index++];
+          auto& bottom_beam = objects(meshes.wooden_fence_beam)[beam_index++];
 
           top_beam.position = bottom_beam.position = entity.position;
           top_beam.scale = bottom_beam.scale = entity.scale;
@@ -132,6 +129,9 @@ namespace astro {
         // Collision
         entity.visible_scale = entity.scale * tVec3f(1.3f, 1.f, 0.4f);
       }
+
+      mesh(meshes.wooden_fence_post).lod_1.instance_count = post_index;
+      mesh(meshes.wooden_fence_beam).lod_1.instance_count = beam_index;
     }
   };
 }
