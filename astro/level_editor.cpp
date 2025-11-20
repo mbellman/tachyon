@@ -1065,6 +1065,12 @@ static void PlaceNewDecorativeObject(Tachyon* tachyon, State& state) {
   object.scale = defaults.default_scale;
   object.color = defaults.default_color;
 
+  // @temporary
+  // @todo define default materials
+  if (defaults.mesh_index == state.meshes.flat_ground) {
+    object.material = tVec4f(1., 0, 0, 0);
+  }
+
   commit(object);
 
   TrackDecorativeObject(object);

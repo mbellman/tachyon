@@ -338,6 +338,7 @@ static void UpdateSmallGrassObjectByTime(tObject& grass, float astro_time) {
   float rotation_angle = float(iteration) * 1.3f;
   auto variation_index = iteration % 4;
 
+  // @todo cache this
   grass.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), rotation_angle);
   grass.color = colors[variation_index];
 }
