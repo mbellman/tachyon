@@ -194,6 +194,42 @@ static void HandleBridgeCollisions(Tachyon* tachyon, State& state) {
   }
 }
 
+static void HandleAltarCollisions(Tachyon* tachyon, State& state, const float dt) {
+  tVec3f player_xz = state.player_position.xz();
+
+  for_entities(state.altars) {
+    auto& entity = state.altars[i];
+
+    tVec3f collision_scale = entity.scale * tVec3f(1.9f, 1.f, 0.6f);
+    auto altar_plane = CollisionSystem::CreatePlane(entity.position, collision_scale, entity.orientation);
+
+    if (CollisionSystem::IsPointOnPlane(player_xz, altar_plane)) {
+      tVec3f entity_to_player = state.player_position - entity.position;
+      tVec3f player_position_in_entity_space = entity.orientation.toMatrix4f().inverse() * entity_to_player;
+      float progress_along_x = player_position_in_entity_space.x / (entity.scale.x * 1.9f);
+      float altar_floor_y = (entity.position.y + 1500.f) + entity.scale.y * 0.35f;
+
+      if (progress_along_x > 0.f) {
+        // Walking up the ramp onto the altar
+        float ramp_alpha = 1.f - progress_along_x;
+        ramp_alpha *= 2.f; // Advance faster to match the altar ramp geometry
+        if (ramp_alpha > 1.f) ramp_alpha = 1.f;
+
+        state.player_position.y = Tachyon_Lerpf(0.f, altar_floor_y, ramp_alpha);
+      } else {
+        // On the altar platform
+        state.player_position.y = altar_floor_y;
+      }
+
+      state.last_solid_ground_position = state.player_position;
+      state.is_on_solid_ground = true;
+      state.last_plane_walked_on = altar_plane;
+    } else {
+      ResolveSingleRadiusCollision(state, entity.position, entity.scale, 1.f);
+    }
+  }
+}
+
 static void HandleRiverLogCollisions(Tachyon* tachyon, State& state) {
   for_entities(state.river_logs) {
     auto& entity = state.river_logs[i];
@@ -404,6 +440,7 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state, const flo
   HandleWoodenFenceCollisions(tachyon, state, dt);
   HandleFlatGroundCollisions(tachyon, state);
   HandleBridgeCollisions(tachyon, state);
+  HandleAltarCollisions(tachyon, state, dt);
   HandleRiverLogCollisions(tachyon, state);
 
   if (!state.is_on_solid_ground) {

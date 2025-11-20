@@ -23,9 +23,6 @@ namespace astro {
 
     timeEvolve() {
       auto& meshes = state.meshes;
-      const float lifetime = 100.f;
-
-      const tVec3f leaves_color = tVec3f(0.1f, 0.3f, 0.1f);
 
       for_entities(state.altars) {
         auto& entity = state.altars[i];

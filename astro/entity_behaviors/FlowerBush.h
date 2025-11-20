@@ -5,8 +5,8 @@
 namespace astro {
   behavior FlowerBush {
     addMeshes() {
-      meshes.flower_bush_placeholder = MODEL_MESH("./astro/3d_models/flower_bush/placeholder.obj", 500);
-      meshes.flower_bush_leaves = MODEL_MESH("./astro/3d_models/flower_bush/leaves.obj", 500);
+      meshes.flower_bush_placeholder = MODEL_MESH("./astro/3d_models/flower_bush/placeholder.obj", 1000);
+      meshes.flower_bush_leaves = MODEL_MESH("./astro/3d_models/flower_bush/leaves.obj", 1000);
     }
 
     getMeshes() {

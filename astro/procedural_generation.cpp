@@ -39,7 +39,7 @@ static std::vector<Plane> GetEntityPlanes(const std::vector<GameEntity>& entitie
   return planes;
 }
 
-static std::vector<Plane> GetObjectPlanes(Tachyon* tachyon, uint16 mesh_index, const float scale_factor = 1.f) {
+static std::vector<Plane> GetObjectPlanes(Tachyon* tachyon, uint16 mesh_index, const tVec3f& scale_factor = tVec3f(1.f)) {
   // @allocation
   std::vector<Plane> planes;
 
@@ -222,8 +222,9 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
 
   // @allocation
   auto flat_ground_planes = GetObjectPlanes(tachyon, meshes.flat_ground);
-  auto ground_1_planes = GetObjectPlanes(tachyon, meshes.ground_1, 0.9f);
+  auto ground_1_planes = GetObjectPlanes(tachyon, meshes.ground_1, tVec3f(0.9f));
   auto dirt_path_planes = GetObjectPlanes(tachyon, meshes.p_dirt_path);
+  auto altar_planes = GetObjectPlanes(tachyon, meshes.altar_placeholder, tVec3f(1.9f, 1.f, 0.6f));
 
   // Reset objects/chunks/etc.
   {
@@ -295,6 +296,7 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
 
         if (!IsPointOnAnyPlane(blade.position, flat_ground_planes)) continue;
         if (IsPointOnAnyPlane(blade.position, local_ground_1_planes)) continue;
+        if (IsPointOnAnyPlane(blade.position, altar_planes)) continue;
 
         for (auto& segment : local_dirt_path_segments) {
           if (CollisionSystem::IsPointOnPlane(blade.position, segment.plane)) {
