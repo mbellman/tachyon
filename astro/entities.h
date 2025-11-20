@@ -31,7 +31,8 @@ namespace astro {
     GATE,
     LILAC_BUSH,
     LIGHT_POST,
-    WOODEN_FENCE
+    WOODEN_FENCE,
+    ALTAR
   };
 
   /**
@@ -58,7 +59,8 @@ namespace astro {
     GATE,
     LILAC_BUSH,
     LIGHT_POST,
-    WOODEN_FENCE
+    WOODEN_FENCE,
+    ALTAR
   };
 
   /**
@@ -255,7 +257,12 @@ namespace astro {
       // WOODEN_FENCE
       wooden_fence_placeholder,
       wooden_fence_post,
-      wooden_fence_beam
+      wooden_fence_beam,
+
+      // ALTAR
+      altar_placeholder,
+      altar_base,
+      altar_statue
 
       ;
   };
@@ -266,6 +273,7 @@ namespace astro {
    * ----------------------------
    */
   struct EntityContainers {
+    std::vector<GameEntity> altars;
     std::vector<GameEntity> item_pickups;
     std::vector<GameEntity> dirt_paths; // @unused
     std::vector<GameEntity> dirt_path_nodes;
@@ -384,6 +392,12 @@ namespace astro {
       .name = "Light Pillar",
       .scale = tVec3f(1500.f),
       .tint = tVec3f(0.4f)
+    } },
+
+    { ALTAR, {
+      .name = "Altar",
+      .scale = tVec3f(2500.f),
+      .tint = tVec3f(0.6f)
     } },
 
     { WOODEN_GATE_DOOR, {

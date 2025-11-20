@@ -1,5 +1,6 @@
 #include "astro/entity_dispatcher.h"
 
+#include "astro/entity_behaviors/Altar.h"
 #include "astro/entity_behaviors/Bandit.h"
 #include "astro/entity_behaviors/DirtPath.h"
 #include "astro/entity_behaviors/DirthPathNode.h"
@@ -61,6 +62,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
     dispatch_GetEntityContainer(STONE_WALL, state.stone_walls);
     dispatch_GetEntityContainer(GATE, state.gates);
     dispatch_GetEntityContainer(LIGHT_POST, state.light_posts);
+    dispatch_GetEntityContainer(ALTAR, state.altars);
     dispatch_GetEntityContainer(HOUSE, state.houses);
     dispatch_GetEntityContainer(WILLOW_TREE, state.willow_trees);
     dispatch_GetEntityContainer(WOODEN_FENCE, state.wooden_fences);
@@ -91,6 +93,7 @@ void EntityDispatcher::AddMeshes(Tachyon* tachyon, State& state, EntityType type
     dispatch_AddMeshes(STONE_WALL, StoneWall);
     dispatch_AddMeshes(GATE, Gate);
     dispatch_AddMeshes(LIGHT_POST, LightPost);
+    dispatch_AddMeshes(ALTAR, Altar);
     dispatch_AddMeshes(HOUSE, House);
     dispatch_AddMeshes(WILLOW_TREE, WillowTree);
     dispatch_AddMeshes(WOODEN_FENCE, WoodenFence);
@@ -120,6 +123,7 @@ const std::vector<uint16>& EntityDispatcher::GetMeshes(State& state, EntityType 
     dispatch_GetMeshes(STONE_WALL, StoneWall);
     dispatch_GetMeshes(GATE, Gate);
     dispatch_GetMeshes(LIGHT_POST, LightPost);
+    dispatch_GetMeshes(ALTAR, Altar);
     dispatch_GetMeshes(HOUSE, House);
     dispatch_GetMeshes(WILLOW_TREE, WillowTree);
     dispatch_GetMeshes(WOODEN_FENCE, WoodenFence);
@@ -149,6 +153,7 @@ uint16 EntityDispatcher::GetPlaceholderMesh(State& state, EntityType type) {
     dispatch_GetPlaceholderMesh(STONE_WALL, StoneWall);
     dispatch_GetPlaceholderMesh(GATE, Gate);
     dispatch_GetPlaceholderMesh(LIGHT_POST, LightPost);
+    dispatch_GetPlaceholderMesh(ALTAR, Altar);
     dispatch_GetPlaceholderMesh(HOUSE, House);
     dispatch_GetPlaceholderMesh(WILLOW_TREE, WillowTree);
     dispatch_GetPlaceholderMesh(WOODEN_FENCE, WoodenFence);
@@ -178,6 +183,7 @@ void EntityDispatcher::TimeEvolve(Tachyon* tachyon, State& state, EntityType typ
     dispatch_TimeEvolve(STONE_WALL, StoneWall);
     dispatch_TimeEvolve(GATE, Gate);
     dispatch_TimeEvolve(LIGHT_POST, LightPost);
+    dispatch_TimeEvolve(ALTAR, Altar);
     dispatch_TimeEvolve(HOUSE, House);
     dispatch_TimeEvolve(WILLOW_TREE, WillowTree);
     dispatch_TimeEvolve(WOODEN_FENCE, WoodenFence);

@@ -333,6 +333,13 @@ static void UpdateSmallGrassObjectByTime(tObject& grass, float astro_time) {
     tVec4f(0.1f, 0.5f, 0.1f, 0.1f)
   };
 
+  // const static tColor colors[] = {
+  //   tVec4f(0.5f, 0.3f, 0.1f, 0.1f),
+  //   tVec4f(0.6f, 0.4f, 0.1f, 0.1f),
+  //   tVec4f(0.4f, 0.3f, 0.1f, 0.1f),
+  //   tVec4f(0.5f, 0.4f, 0.1f, 0.1f)
+  // };
+
   float alpha = astro_time + grass.position.x + grass.position.z;
   int iteration = (int)abs(growth_rate * alpha / t_TAU - 0.8f);
   float rotation_angle = float(iteration) * 1.3f;
@@ -416,6 +423,8 @@ static void UpdateSmallGrass(Tachyon* tachyon, State& state) {
 
       if (blade.active_object_id != 0xFFFF) {
         if (is_astro_turning) {
+          // Update any active blades while astro turning,
+          // since the blades need to move about in place
           auto& grass = small_grass.getByIdFast(blade.active_object_id);
 
           // Time evolution
@@ -427,6 +436,7 @@ static void UpdateSmallGrass(Tachyon* tachyon, State& state) {
         continue;
       }
 
+      // Create new small grass objects as the blades stream into view
       auto& grass = create(meshes.small_grass);
 
       // Time-invariant grass properties
