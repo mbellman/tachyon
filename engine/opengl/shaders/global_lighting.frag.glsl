@@ -25,6 +25,8 @@ uniform float running_time;
 // @todo allow multiple directional lights
 uniform vec3 primary_light_direction;
 uniform vec3 primary_light_color;
+uniform vec3 fog_color;
+uniform float fog_visibility;
 uniform float accumulation_blur_factor;
 
 // @todo dev mode only
@@ -737,19 +739,16 @@ void main() {
       out_color += 0.5 * albedo * pow(NdotL, 2.0) * pow(1.0 - NdotV, 2.0);
     }
 
+    // Apply SSAO
     out_color -= ssao;
 
-    // @todo fog
+    // Apply fog
     {
-      // vec3 fog_color = vec3(0.2, 0.2, 0.6);
-      // vec3 fog_color = vec3(0.4, 0.4, 0.5);
-      // vec3 fog_color = primary_light_color;
-      // float visibility_range = 25000.0;
-      // float frag_distance_from_camera = length(position - camera_position);
-      // float fog_thickness = clamp(frag_distance_from_camera / visibility_range, 0.0, 1.0);
-      // fog_thickness *= fog_thickness;
+      float frag_distance_from_camera = length(position - camera_position);
+      float fog_thickness = clamp(frag_distance_from_camera / fog_visibility, 0.0, 1.0);
+      fog_thickness *= fog_thickness;
 
-      // out_color = mix(out_color, fog_color, fog_thickness);
+      out_color = mix(out_color, fog_color, fog_thickness);
     }
   } else {
     out_color -= ssao;

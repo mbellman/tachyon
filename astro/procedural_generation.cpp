@@ -224,7 +224,7 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
   auto flat_ground_planes = GetObjectPlanes(tachyon, meshes.flat_ground);
   auto ground_1_planes = GetObjectPlanes(tachyon, meshes.ground_1, tVec3f(0.9f));
   auto dirt_path_planes = GetObjectPlanes(tachyon, meshes.p_dirt_path);
-  auto altar_planes = GetObjectPlanes(tachyon, meshes.altar_placeholder, tVec3f(1.9f, 1.f, 0.6f));
+  auto altar_planes = GetObjectPlanes(tachyon, meshes.altar_base, tVec3f(1.9f, 1.f, 0.6f));
 
   // Reset objects/chunks/etc.
   {

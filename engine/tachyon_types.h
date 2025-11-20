@@ -268,6 +268,9 @@ struct Tachyon {
     float astro_time_warp_start_radius = 0.f;
     float astro_time_warp_end_radius = 0.f;
     float vignette_intensity = 0.f;
+
+    tVec3f fog_color = tVec3f(1.f);
+    float fog_visibility = 1000000.f;
   } fx;
 
   // @todo dev mode only

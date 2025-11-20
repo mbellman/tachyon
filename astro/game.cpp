@@ -148,6 +148,25 @@ static void ShowHighestLevelsOfDetail(Tachyon* tachyon, State& state) {
   Tachyon_ShowHighestLevelsOfDetail(tachyon, meshes.tiny_ground_flower);
 }
 
+// @todo create a Fog entity
+static void HandleFog(Tachyon* tachyon, State& state) {
+  auto& fx = tachyon->fx;
+
+  // @temporary
+  tVec3f fog_position = tVec3f(104285.f, 0, -103000.f);
+
+  float distance_from_fog = tVec3f::distance(state.player_position, fog_position);
+
+  // @VERY temporary
+  if (distance_from_fog < 50000.f) {
+    fx.fog_color = tVec3f(0.2, 0.2, 0.6);
+    fx.fog_visibility = 30000.f;
+  } else {
+    fx.fog_color = tVec3f(1.f);
+    fx.fog_visibility = 1000000.f;
+  }
+}
+
 // @todo 3d positioned sfx
 static void HandleWalkSounds(Tachyon* tachyon, State& state) {
   float distance_threshold = is_key_held(tKey::CONTROLLER_A) ? 2200.f : 1400.f;
@@ -392,6 +411,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   SpellSystem::HandleSpells(tachyon, state, dt);
   Items::HandleItemPickup(tachyon, state);
   UISystem::HandleDialogue(tachyon, state);
+  HandleFog(tachyon, state);
   HandleWalkSounds(tachyon, state);
   HandleCurrentAreaMusic(tachyon, state);
   HandleMusicLevels(tachyon, state);

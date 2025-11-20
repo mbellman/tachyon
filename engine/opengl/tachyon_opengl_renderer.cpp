@@ -858,6 +858,7 @@ static void RenderGlobalLighting(Tachyon* tachyon) {
   auto& renderer = get_renderer();
   auto& scene = tachyon->scene;
   auto& camera = scene.camera;
+  auto& fx = tachyon->fx;
   auto& shader = renderer.shaders.global_lighting;
   auto& locations = renderer.shaders.locations.global_lighting;
   auto& ctx = renderer.ctx;
@@ -906,6 +907,8 @@ static void RenderGlobalLighting(Tachyon* tachyon) {
   // @todo allow multiple directional lights
   SetShaderVec3f(locations.primary_light_direction, scene.primary_light_direction);
   SetShaderVec3f(locations.primary_light_color, scene.primary_light_color);
+  SetShaderVec3f(locations.fog_color, fx.fog_color);
+  SetShaderFloat(locations.fog_visibility, fx.fog_visibility);
   SetShaderFloat(locations.accumulation_blur_factor, tachyon->fx.accumulation_blur_factor);
   SetShaderBool(locations.use_high_visibility_mode, tachyon->use_high_visibility_mode);
 
