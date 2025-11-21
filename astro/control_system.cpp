@@ -84,6 +84,11 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state, const f
       state.player_velocity = unit_velocity * max_speed;
     }
   }
+
+  // Update position
+  {
+    state.player_position += state.player_velocity * 5.f * dt;
+  }
 }
 
 static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) {

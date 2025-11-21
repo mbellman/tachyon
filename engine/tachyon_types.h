@@ -270,7 +270,7 @@ struct Tachyon {
     float vignette_intensity = 0.f;
 
     tVec3f fog_color = tVec3f(1.f);
-    float fog_visibility = 1000000.f;
+    float fog_visibility = 10000000.f;
   } fx;
 
   // @todo dev mode only

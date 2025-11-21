@@ -143,6 +143,7 @@
     <ClInclude Include="astro\entity_behaviors\SmallStoneBridge.h" />
     <ClInclude Include="astro\entity_behaviors\StoneWall.h" />
     <ClInclude Include="astro\entity_behaviors\WillowTree.h" />
+    <ClInclude Include="astro\entity_behaviors\WoodenFence.h" />
     <ClInclude Include="astro\entity_behaviors\WoodenGateDoor.h" />
     <ClInclude Include="astro\entity_descriptions\description.h" />
     <ClInclude Include="astro\entity_descriptions\OakTree.h" />

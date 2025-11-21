@@ -1,4 +1,5 @@
 #include "astro/collision_system.h"
+#include "astro/entity_behaviors/behavior.h"
 
 using namespace astro;
 
@@ -200,13 +201,20 @@ static void HandleAltarCollisions(Tachyon* tachyon, State& state, const float dt
   for_entities(state.altars) {
     auto& entity = state.altars[i];
 
-    tVec3f collision_scale = entity.scale * tVec3f(1.9f, 1.f, 0.6f);
+    tVec3f collision_scale = entity.scale * tVec3f(1.9f, 1.f, 0.45f);
+
+    // Statue
+    tVec3f statue_center_position = UnitEntityToWorldPosition(entity, tVec3f(-0.5f, 0, 0));
+
+    ResolveSingleRadiusCollision(state, statue_center_position, entity.scale * 0.7f, 1.f);
+
+    // Altar ramp + platform
     auto altar_plane = CollisionSystem::CreatePlane(entity.position, collision_scale, entity.orientation);
 
     if (CollisionSystem::IsPointOnPlane(player_xz, altar_plane)) {
       tVec3f entity_to_player = state.player_position - entity.position;
       tVec3f player_position_in_entity_space = entity.orientation.toMatrix4f().inverse() * entity_to_player;
-      float progress_along_x = player_position_in_entity_space.x / (entity.scale.x * 1.9f);
+      float progress_along_x = player_position_in_entity_space.x / collision_scale.x;
       float altar_floor_y = (entity.position.y + 1500.f) + entity.scale.y * 0.35f;
 
       if (progress_along_x > 0.f) {
@@ -333,7 +341,7 @@ static void HandleWoodenFenceCollisions(Tachyon* tachyon, State& state, const fl
   }
 }
 
-static void HandleMovementOffSolidGround(Tachyon* tachyon, State& state) {
+static void HandleMovementOffSolidGround(State& state) {
   tVec3f edge = GetOversteppedEdge(state.player_position, state.last_plane_walked_on);
   float edge_dot = tVec3f::dot(state.player_velocity, edge);
   tVec3f corrected_direction = edge_dot > 0.f ? edge.unit() : edge.invert().unit();
@@ -341,6 +349,15 @@ static void HandleMovementOffSolidGround(Tachyon* tachyon, State& state) {
 
   state.player_position = state.last_solid_ground_position + rebound_direction * 1.f;
   state.player_velocity = corrected_direction * state.player_velocity.magnitude();
+}
+
+// @todo handle falling
+static void HandleSuddenVerticalMovement(State& state) {
+  tVec3f xz_delta = (state.player_position - state.last_player_position).xz();
+
+  state.player_position = state.last_player_position - xz_delta * 0.05f;
+  state.last_solid_ground_position = state.player_position;
+  state.player_velocity = tVec3f(0.f);
 }
 
 bool CollisionSystem::IsPointOnPlane(const tVec3f& point, const Plane& plane) {
@@ -444,6 +461,10 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state, const flo
   HandleRiverLogCollisions(tachyon, state);
 
   if (!state.is_on_solid_ground) {
-    HandleMovementOffSolidGround(tachyon, state);
+    HandleMovementOffSolidGround(state);
+  }
+
+  if (abs(state.last_player_position.y - state.player_position.y) > 300.f) {
+    HandleSuddenVerticalMovement(state);
   }
 }

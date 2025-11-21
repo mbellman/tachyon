@@ -23,11 +23,6 @@
 using namespace astro;
 
 static void UpdatePlayer(Tachyon* tachyon, State& state, const float dt) {
-  // Update position
-  {
-    state.player_position += state.player_velocity * 5.f * dt;
-  }
-
   // Update facing direction
   {
     tVec3f desired_facing_direction = state.player_facing_direction;
@@ -54,7 +49,7 @@ static void UpdatePlayer(Tachyon* tachyon, State& state, const float dt) {
     state.player_facing_direction = tVec3f::lerp(state.player_facing_direction, desired_facing_direction, turning_speed * dt).unit();
   }
 
-  // Model
+  // Update model
   {
     auto& player = objects(state.meshes.player)[0];
 
@@ -70,7 +65,7 @@ static void UpdatePlayer(Tachyon* tachyon, State& state, const float dt) {
     commit(player);
   }
 
-  // Player light
+  // Update player light
   {
     auto& light = *get_point_light(state.player_light_id);
 
@@ -333,13 +328,16 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   // @temporary
   scene.scene_time += dt;
 
-  // Reset astro turn fx
+  // Reset fx
   // @todo move to editor
   {
     auto& fx = tachyon->fx;
 
     fx.astro_time_warp_start_radius = 0.f;
     fx.astro_time_warp_end_radius = 0.f;
+
+    fx.fog_color = tVec3f(1.f);
+    fx.fog_visibility = 10000000.f;
   }
 
   // Toggle level editor with E
