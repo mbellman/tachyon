@@ -32,10 +32,6 @@ namespace astro {
 
       const float lifetime = 50.f;
 
-      // @temporary
-      float emissivity = 0.2f;
-      float light_power = 0.25f;
-
       for_entities(state.mushrooms) {
         auto& entity = state.mushrooms[i];
         float life_progress = GetLivingEntityProgress(state, entity, lifetime);
@@ -46,8 +42,14 @@ namespace astro {
 
           Sync(body, entity);
 
-          body.color = tVec4f(entity.tint, emissivity);
-          body.material = tVec4f(0.6f, 0, 0, 0.8f);
+          // @temporary
+          if (state.is_nighttime) {
+            body.color = tVec4f(entity.tint, 0.4f);
+            body.material = tVec4f(0.6f, 0, 0, 1.f);
+          } else {
+            body.color = tVec4f(entity.tint, 0.2f);
+            body.material = tVec4f(0.6f, 0, 0, 0.8f);
+          }
 
           commit(body);
         }
@@ -69,11 +71,15 @@ namespace astro {
 
           light.position = UnitEntityToWorldPosition(entity, tVec3f(-0.025f, 0.15f, 0));
           light.radius = 1500.f;
-          light.color = tVec3f(0.2f, 0.8f, 0.2f);
-          light.power = 4.f + 1.f * sinf(get_scene_time() + entity.position.x);
+          light.color = tVec3f(0.2f, 0.8f, 0.4f);
           light.glow_power = 0.f;
 
-          light.power = light_power;
+          // @temporary
+          if (state.is_nighttime) {
+            light.power = 4.f + sinf(2.f * get_scene_time() + entity.position.x);
+          } else {
+            light.power = 0.1f;
+          }
         }
       }
     }

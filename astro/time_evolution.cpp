@@ -4,7 +4,12 @@
 
 using namespace astro;
 
-static tVec3f GetLightColor(const float astro_time) {
+static tVec3f GetLightColor(const float astro_time, bool is_nighttime) {
+  if (is_nighttime) {
+    // @temporary
+    return tVec3f(0.05f, 0.05f, 0.2f);
+  }
+
   auto& periods = astro_time_periods;
 
   tVec3f present_color = tVec3f(0.5f, 0.1f, 0.4f);
@@ -41,16 +46,13 @@ void TimeEvolution::UpdateAstroTime(Tachyon* tachyon, State& state, const float 
   }
 
   // @todo factor
-  auto& light_direction = tachyon->scene.primary_light_direction;
-  auto& light_color = tachyon->scene.primary_light_color;
-
   tVec3f start_direction = tVec3f(-1.f, -1.f, 0.2f);
   tVec3f end_direction = tVec3f(0.2f, -1.f, 1.f);
 
   float alpha = -1.f * (state.astro_time / 250.f);
 
-  light_color = GetLightColor(state.astro_time);
+  tachyon->scene.primary_light_color = GetLightColor(state.astro_time, state.is_nighttime);
 
   // @todo unit() this in the renderer
-  light_direction = tVec3f::lerp(start_direction, end_direction, alpha).unit();
+  tachyon->scene.primary_light_direction = tVec3f::lerp(start_direction, end_direction, alpha).unit();
 }

@@ -306,6 +306,13 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
   }
 }
 
+// @temporary
+static void HandleDayNightControls(Tachyon* tachyon, State& state) {
+  if (did_press_key(tKey::CONTROLLER_R1)) {
+    state.is_nighttime = !state.is_nighttime;
+  }
+}
+
 static void HandleSpellControls(Tachyon* tachyon, State& state) {
   if (abs(state.astro_turn_speed) > 0.18f) {
     return;
@@ -344,6 +351,7 @@ static void HandleTargetingControls(Tachyon* tachyon, State& state) {
 void ControlSystem::HandleControls(Tachyon* tachyon, State& state, const float dt) {
   HandlePlayerMovementControls(tachyon, state, dt);
   HandleAstroControls(tachyon, state, dt);
+  HandleDayNightControls(tachyon, state);
   HandleSpellControls(tachyon, state);
   HandleTargetingControls(tachyon, state);
 }

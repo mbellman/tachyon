@@ -191,6 +191,8 @@ namespace astro {
     float game_time_at_start_of_turn = 0.f;
     float time_warp_start_radius = 30000.f;
     float time_warp_end_radius = 30000.f;
+    // @todo use a float from 0.0 -> 1.0 representing night -> day
+    bool is_nighttime = false;
 
     bool is_astrolabe_stopped = true;
     bool is_astro_traveling = false;
