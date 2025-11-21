@@ -66,6 +66,7 @@ struct tUniformLocations {
     // @todo allow multiple directional lights
     primary_light_direction,
     primary_light_color,
+    player_position,
     fog_color,
     fog_visibility,
     use_high_visibility_mode,

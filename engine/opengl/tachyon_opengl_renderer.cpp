@@ -907,6 +907,7 @@ static void RenderGlobalLighting(Tachyon* tachyon) {
   // @todo allow multiple directional lights
   SetShaderVec3f(locations.primary_light_direction, scene.primary_light_direction);
   SetShaderVec3f(locations.primary_light_color, scene.primary_light_color);
+  SetShaderVec3f(locations.player_position, fx.player_position);
   SetShaderVec3f(locations.fog_color, fx.fog_color);
   SetShaderFloat(locations.fog_visibility, fx.fog_visibility);
   SetShaderFloat(locations.accumulation_blur_factor, tachyon->fx.accumulation_blur_factor);

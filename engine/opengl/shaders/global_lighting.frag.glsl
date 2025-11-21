@@ -22,11 +22,18 @@ uniform mat4 inverse_view_matrix;
 uniform vec3 camera_position;
 uniform float scene_time;
 uniform float running_time;
+
+// Primary lighting
 // @todo allow multiple directional lights
 uniform vec3 primary_light_direction;
 uniform vec3 primary_light_color;
+
+// Fog
+uniform vec3 player_position;
 uniform vec3 fog_color;
 uniform float fog_visibility;
+
+// Frame blur
 uniform float accumulation_blur_factor;
 
 // @todo dev mode only
@@ -744,11 +751,14 @@ void main() {
 
     // Apply fog
     {
+      float frag_distance_from_player = length(position - player_position);
       float frag_distance_from_camera = length(position - camera_position);
-      float fog_thickness = clamp(frag_distance_from_camera / fog_visibility, 0.0, 1.0);
-      fog_thickness *= fog_thickness;
+      float fog_thickness = clamp(frag_distance_from_player / fog_visibility, 0.0, 1.0);
+      fog_thickness = sqrt(fog_thickness);
 
-      out_color = mix(out_color, fog_color, fog_thickness);
+      if (frag_distance_from_camera > 3000.0) {
+        out_color = mix(out_color, fog_color, fog_thickness);
+      }
     }
   } else {
     out_color -= ssao;

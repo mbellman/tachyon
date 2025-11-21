@@ -152,7 +152,7 @@ static void HandleFog(Tachyon* tachyon, State& state) {
 
   // @temporary
   tVec3f fog_color = state.is_nighttime ? tVec3f(0.2f, 0.3f, 0.7f) : tVec3f(0.5f, 0.5f, 0.7f);
-  float fog_visibility = state.is_nighttime ? 20000.f : 15000.f;
+  float fog_visibility = state.is_nighttime ? 18000.f : 8000.f;
 
   float distance_from_fog = tVec3f::distance(state.player_position, fog_position);
 
@@ -176,13 +176,13 @@ static void HandleWalkSounds(Tachyon* tachyon, State& state) {
     auto cycle = state.walk_cycle++;
 
     if (cycle == 0) {
-      Sfx::PlaySound(SFX_GROUND_WALK_1, 0.3f);
+      Sfx::PlaySound(SFX_GROUND_WALK_1, 0.1f);
     }
     else if (cycle == 1) {
-      Sfx::PlaySound(SFX_GROUND_WALK_2, 0.3f);
+      Sfx::PlaySound(SFX_GROUND_WALK_2, 0.1f);
     }
     else if (cycle == 2) {
-      Sfx::PlaySound(SFX_GROUND_WALK_3, 0.3f);
+      Sfx::PlaySound(SFX_GROUND_WALK_3, 0.1f);
 
       state.walk_cycle = 0;
     }
