@@ -32,7 +32,8 @@ namespace astro {
     LILAC_BUSH,
     LIGHT_POST,
     WOODEN_FENCE,
-    ALTAR
+    ALTAR,
+    MUSHROOM
   };
 
   /**
@@ -60,7 +61,8 @@ namespace astro {
     LILAC_BUSH,
     LIGHT_POST,
     WOODEN_FENCE,
-    ALTAR
+    ALTAR,
+    MUSHROOM
   };
 
   /**
@@ -262,7 +264,11 @@ namespace astro {
       // ALTAR
       altar_placeholder,
       altar_base,
-      altar_statue
+      altar_statue,
+
+      // MUSHROOM
+      mushroom_placeholder,
+      mushroom_body
 
       ;
   };
@@ -280,6 +286,7 @@ namespace astro {
     std::vector<GameEntity> shrubs;
     std::vector<GameEntity> flower_bushes;
     std::vector<GameEntity> lilac_bushes;
+    std::vector<GameEntity> mushrooms;
     std::vector<GameEntity> glow_flowers;
     std::vector<GameEntity> oak_trees;
     std::vector<GameEntity> willow_trees;
@@ -335,7 +342,7 @@ namespace astro {
 
     { SHRUB, {
       .name = "Shrub",
-      .scale = tVec3f(500.f),
+      .scale = tVec3f(800.f),
       .tint = tVec3f(0.1f, 0.3f, 0.1f)
     } },
 
@@ -349,6 +356,12 @@ namespace astro {
       .name = "Lilac Bush",
       .scale = tVec3f(3000.f),
       .tint = tVec3f(0.3f, 0.8f, 0.2f)
+    } },
+
+    { MUSHROOM, {
+      .name = "Mushroom",
+      .scale = tVec3f(3000.f),
+      .tint = tVec3f(0.2f, 1.f, 0.4f)
     } },
 
     { GLOW_FLOWER, {

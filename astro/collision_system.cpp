@@ -357,6 +357,8 @@ static void HandleSuddenVerticalMovement(State& state) {
 
   state.player_position = state.last_player_position - xz_delta * 0.05f;
   state.last_solid_ground_position = state.player_position;
+
+  // @todo slide along edge
   state.player_velocity = tVec3f(0.f);
 }
 

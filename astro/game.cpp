@@ -149,17 +149,20 @@ static void HandleFog(Tachyon* tachyon, State& state) {
 
   // @temporary
   tVec3f fog_position = tVec3f(104285.f, 0, -103000.f);
+  tVec3f fog_color = tVec3f(0.2f, 0.2f, 0.4f);
+  float fog_visibility = 20000.f;
 
   float distance_from_fog = tVec3f::distance(state.player_position, fog_position);
 
-  // @VERY temporary
-  if (distance_from_fog < 50000.f) {
-    fx.fog_color = tVec3f(0.2, 0.2, 0.6);
-    fx.fog_visibility = 30000.f;
-  } else {
-    fx.fog_color = tVec3f(1.f);
-    fx.fog_visibility = 1000000.f;
-  }
+  // @todo allow distance to be configured
+  float fog_alpha = distance_from_fog / 50000.f;
+  if (fog_alpha > 1.f) fog_alpha = 1.f;
+  fog_alpha = powf(fog_alpha, 20.f);
+  fog_alpha = 1.f - fog_alpha;
+
+  // @temporary
+  fx.fog_color = tVec3f::lerp(tVec3f(1.f), fog_color, fog_alpha);
+  fx.fog_visibility = Tachyon_Lerpf(10000000.f, fog_visibility, fog_alpha);
 }
 
 // @todo 3d positioned sfx

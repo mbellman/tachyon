@@ -12,6 +12,7 @@
 #include "astro/entity_behaviors/LightPost.h"
 #include "astro/entity_behaviors/Lilac_Bush.h"
 #include "astro/entity_behaviors/LowGuard.h"
+#include "astro/entity_behaviors/Mushroom.h"
 #include "astro/entity_behaviors/OakTree.h"
 #include "astro/entity_behaviors/RiverLog.h"
 #include "astro/entity_behaviors/Shrub.h"
@@ -38,12 +39,35 @@ using namespace astro;
 
 #define dispatch_GetPlaceholderMesh(__entity_type, __Behavior)\
   case __entity_type:\
-    return __Behavior::_GetPlaceholderMesh(state.meshes);
+    return __Behavior::_GetPlaceholderMesh(state.meshes)
 
 #define dispatch_TimeEvolve(__entity_type, __Behavior)\
   case __entity_type:\
     __Behavior::_TimeEvolve(tachyon, state, dt);\
     break\
+
+#define create_dispatch_cases(behavior_macro)\
+  behavior_macro(BANDIT, Bandit);\
+  behavior_macro(DIRT_PATH, DirtPath);\
+  behavior_macro(DIRT_PATH_NODE, DirtPathNode);\
+  behavior_macro(ITEM_PICKUP, ItemPickup);\
+  behavior_macro(LOW_GUARD, LowGuard);\
+  behavior_macro(OAK_TREE, OakTree);\
+  behavior_macro(RIVER_LOG, RiverLog);\
+  behavior_macro(SHRUB, Shrub);\
+  behavior_macro(FLOWER_BUSH, FlowerBush);\
+  behavior_macro(LILAC_BUSH, LilacBush);\
+  behavior_macro(MUSHROOM, Mushroom);\
+  behavior_macro(GLOW_FLOWER, GlowFlower);\
+  behavior_macro(SMALL_STONE_BRIDGE, SmallStoneBridge);\
+  behavior_macro(STONE_WALL, StoneWall);\
+  behavior_macro(GATE, Gate);\
+  behavior_macro(LIGHT_POST, LightPost);\
+  behavior_macro(ALTAR, Altar);\
+  behavior_macro(HOUSE, House);\
+  behavior_macro(WILLOW_TREE, WillowTree);\
+  behavior_macro(WOODEN_FENCE, WoodenFence);\
+  behavior_macro(WOODEN_GATE_DOOR, WoodenGateDoor);
 
 std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, EntityType type) {
   switch (type) {
@@ -57,6 +81,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
     dispatch_GetEntityContainer(SHRUB, state.shrubs);
     dispatch_GetEntityContainer(FLOWER_BUSH, state.flower_bushes);
     dispatch_GetEntityContainer(LILAC_BUSH, state.lilac_bushes);
+    dispatch_GetEntityContainer(MUSHROOM, state.mushrooms);
     dispatch_GetEntityContainer(GLOW_FLOWER, state.glow_flowers);
     dispatch_GetEntityContainer(SMALL_STONE_BRIDGE, state.small_stone_bridges);
     dispatch_GetEntityContainer(STONE_WALL, state.stone_walls);
@@ -78,26 +103,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
 
 void EntityDispatcher::AddMeshes(Tachyon* tachyon, State& state, EntityType type) {
   switch (type) {
-    dispatch_AddMeshes(BANDIT, Bandit);
-    dispatch_AddMeshes(DIRT_PATH, DirtPath);
-    dispatch_AddMeshes(DIRT_PATH_NODE, DirtPathNode);
-    dispatch_AddMeshes(ITEM_PICKUP, ItemPickup);
-    dispatch_AddMeshes(LOW_GUARD, LowGuard);
-    dispatch_AddMeshes(OAK_TREE, OakTree);
-    dispatch_AddMeshes(RIVER_LOG, RiverLog);
-    dispatch_AddMeshes(SHRUB, Shrub);
-    dispatch_AddMeshes(FLOWER_BUSH, FlowerBush);
-    dispatch_AddMeshes(LILAC_BUSH, LilacBush);
-    dispatch_AddMeshes(GLOW_FLOWER, GlowFlower);
-    dispatch_AddMeshes(SMALL_STONE_BRIDGE, SmallStoneBridge);
-    dispatch_AddMeshes(STONE_WALL, StoneWall);
-    dispatch_AddMeshes(GATE, Gate);
-    dispatch_AddMeshes(LIGHT_POST, LightPost);
-    dispatch_AddMeshes(ALTAR, Altar);
-    dispatch_AddMeshes(HOUSE, House);
-    dispatch_AddMeshes(WILLOW_TREE, WillowTree);
-    dispatch_AddMeshes(WOODEN_FENCE, WoodenFence);
-    dispatch_AddMeshes(WOODEN_GATE_DOOR, WoodenGateDoor);
+    create_dispatch_cases(dispatch_AddMeshes)
 
     default:
       printf("EntityDispatcher: Failed to add meshes for entity type: %d\n", type);
@@ -108,26 +114,7 @@ void EntityDispatcher::AddMeshes(Tachyon* tachyon, State& state, EntityType type
 
 const std::vector<uint16>& EntityDispatcher::GetMeshes(State& state, EntityType type) {
   switch (type) {
-    dispatch_GetMeshes(BANDIT, Bandit);
-    dispatch_GetMeshes(DIRT_PATH, DirtPath);
-    dispatch_GetMeshes(DIRT_PATH_NODE, DirtPathNode);
-    dispatch_GetMeshes(ITEM_PICKUP, ItemPickup);
-    dispatch_GetMeshes(LOW_GUARD, LowGuard);
-    dispatch_GetMeshes(OAK_TREE, OakTree);
-    dispatch_GetMeshes(RIVER_LOG, RiverLog);
-    dispatch_GetMeshes(SHRUB, Shrub);
-    dispatch_GetMeshes(FLOWER_BUSH, FlowerBush);
-    dispatch_GetMeshes(LILAC_BUSH, LilacBush);
-    dispatch_GetMeshes(GLOW_FLOWER, GlowFlower);
-    dispatch_GetMeshes(SMALL_STONE_BRIDGE, SmallStoneBridge);
-    dispatch_GetMeshes(STONE_WALL, StoneWall);
-    dispatch_GetMeshes(GATE, Gate);
-    dispatch_GetMeshes(LIGHT_POST, LightPost);
-    dispatch_GetMeshes(ALTAR, Altar);
-    dispatch_GetMeshes(HOUSE, House);
-    dispatch_GetMeshes(WILLOW_TREE, WillowTree);
-    dispatch_GetMeshes(WOODEN_FENCE, WoodenFence);
-    dispatch_GetMeshes(WOODEN_GATE_DOOR, WoodenGateDoor);
+    create_dispatch_cases(dispatch_GetMeshes)
 
     default:
       printf("EntityDispatcher: Failed to get meshes for entity type: %d\n", type);
@@ -138,26 +125,7 @@ const std::vector<uint16>& EntityDispatcher::GetMeshes(State& state, EntityType 
 
 uint16 EntityDispatcher::GetPlaceholderMesh(State& state, EntityType type) {
   switch (type) {
-    dispatch_GetPlaceholderMesh(BANDIT, Bandit);
-    dispatch_GetPlaceholderMesh(DIRT_PATH, DirtPath);
-    dispatch_GetPlaceholderMesh(DIRT_PATH_NODE, DirtPathNode);
-    dispatch_GetPlaceholderMesh(ITEM_PICKUP, ItemPickup);
-    dispatch_GetPlaceholderMesh(LOW_GUARD, LowGuard);
-    dispatch_GetPlaceholderMesh(OAK_TREE, OakTree);
-    dispatch_GetPlaceholderMesh(RIVER_LOG, RiverLog);
-    dispatch_GetPlaceholderMesh(SHRUB, Shrub);
-    dispatch_GetPlaceholderMesh(FLOWER_BUSH, FlowerBush);
-    dispatch_GetPlaceholderMesh(LILAC_BUSH, LilacBush);
-    dispatch_GetPlaceholderMesh(GLOW_FLOWER, GlowFlower);
-    dispatch_GetPlaceholderMesh(SMALL_STONE_BRIDGE, SmallStoneBridge);
-    dispatch_GetPlaceholderMesh(STONE_WALL, StoneWall);
-    dispatch_GetPlaceholderMesh(GATE, Gate);
-    dispatch_GetPlaceholderMesh(LIGHT_POST, LightPost);
-    dispatch_GetPlaceholderMesh(ALTAR, Altar);
-    dispatch_GetPlaceholderMesh(HOUSE, House);
-    dispatch_GetPlaceholderMesh(WILLOW_TREE, WillowTree);
-    dispatch_GetPlaceholderMesh(WOODEN_FENCE, WoodenFence);
-    dispatch_GetPlaceholderMesh(WOODEN_GATE_DOOR, WoodenGateDoor);
+    create_dispatch_cases(dispatch_GetPlaceholderMesh)
 
     default:
       printf("EntityDispatcher: Failed to get placeholder mesh for entity type: %d\n", type);
@@ -168,26 +136,7 @@ uint16 EntityDispatcher::GetPlaceholderMesh(State& state, EntityType type) {
 
 void EntityDispatcher::TimeEvolve(Tachyon* tachyon, State& state, EntityType type, const float dt) {
   switch (type) {
-    dispatch_TimeEvolve(BANDIT, Bandit);
-    dispatch_TimeEvolve(DIRT_PATH, DirtPath);
-    dispatch_TimeEvolve(DIRT_PATH_NODE, DirtPathNode);
-    dispatch_TimeEvolve(ITEM_PICKUP, ItemPickup);
-    dispatch_TimeEvolve(LOW_GUARD, LowGuard);
-    dispatch_TimeEvolve(OAK_TREE, OakTree);
-    dispatch_TimeEvolve(RIVER_LOG, RiverLog);
-    dispatch_TimeEvolve(SHRUB, Shrub);
-    dispatch_TimeEvolve(FLOWER_BUSH, FlowerBush);
-    dispatch_TimeEvolve(LILAC_BUSH, LilacBush);
-    dispatch_TimeEvolve(GLOW_FLOWER, GlowFlower);
-    dispatch_TimeEvolve(SMALL_STONE_BRIDGE, SmallStoneBridge);
-    dispatch_TimeEvolve(STONE_WALL, StoneWall);
-    dispatch_TimeEvolve(GATE, Gate);
-    dispatch_TimeEvolve(LIGHT_POST, LightPost);
-    dispatch_TimeEvolve(ALTAR, Altar);
-    dispatch_TimeEvolve(HOUSE, House);
-    dispatch_TimeEvolve(WILLOW_TREE, WillowTree);
-    dispatch_TimeEvolve(WOODEN_FENCE, WoodenFence);
-    dispatch_TimeEvolve(WOODEN_GATE_DOOR, WoodenGateDoor);
+    create_dispatch_cases(dispatch_TimeEvolve)
 
     default:
       printf("EntityDispatcher: Failed to time-evolve entity type: %d\n", type);
