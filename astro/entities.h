@@ -33,7 +33,8 @@ namespace astro {
     LIGHT_POST,
     WOODEN_FENCE,
     ALTAR,
-    MUSHROOM
+    MUSHROOM,
+    LAMPPOST
   };
 
   /**
@@ -62,7 +63,8 @@ namespace astro {
     LIGHT_POST,
     WOODEN_FENCE,
     ALTAR,
-    MUSHROOM
+    MUSHROOM,
+    LAMPPOST
   };
 
   /**
@@ -268,7 +270,13 @@ namespace astro {
 
       // MUSHROOM
       mushroom_placeholder,
-      mushroom_body
+      mushroom_body,
+
+      // LAMPPOST,
+      lamppost_placeholder,
+      lamppost_stand,
+      lamppost_frame,
+      lamppost_lamp
 
       ;
   };
@@ -283,6 +291,7 @@ namespace astro {
     std::vector<GameEntity> item_pickups;
     std::vector<GameEntity> dirt_paths; // @unused
     std::vector<GameEntity> dirt_path_nodes;
+
     std::vector<GameEntity> shrubs;
     std::vector<GameEntity> flower_bushes;
     std::vector<GameEntity> lilac_bushes;
@@ -290,16 +299,19 @@ namespace astro {
     std::vector<GameEntity> glow_flowers;
     std::vector<GameEntity> oak_trees;
     std::vector<GameEntity> willow_trees;
+    std::vector<GameEntity> river_logs;
+
     std::vector<GameEntity> small_stone_bridges;
     std::vector<GameEntity> stone_walls;
     std::vector<GameEntity> wooden_gate_doors;
-    std::vector<GameEntity> river_logs;
-    std::vector<GameEntity> low_guards;
-    std::vector<GameEntity> bandits;
-    std::vector<GameEntity> houses;
     std::vector<GameEntity> gates;
+    std::vector<GameEntity> lampposts;
+    std::vector<GameEntity> houses;
     std::vector<GameEntity> light_posts;
     std::vector<GameEntity> wooden_fences;
+
+    std::vector<GameEntity> low_guards;
+    std::vector<GameEntity> bandits;
   };
 
   /**
@@ -423,6 +435,12 @@ namespace astro {
       .name = "Wooden Fence",
       .scale = tVec3f(2000.f),
       .tint = tVec3f(1.f, 0.8f, 0.4f)
+    } },
+
+    { LAMPPOST, {
+      .name = "Lamppost",
+      .scale = tVec3f(2500.f),
+      .tint = tVec3f(1.f, 0.6f, 0.4f)
     } },
 
     { HOUSE, {

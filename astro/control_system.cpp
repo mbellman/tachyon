@@ -308,7 +308,7 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
 
 // @temporary
 static void HandleDayNightControls(Tachyon* tachyon, State& state) {
-  if (did_press_key(tKey::CONTROLLER_R1)) {
+  if (did_press_key(tKey::CONTROLLER_Y)) {
     state.is_nighttime = !state.is_nighttime;
   }
 }

@@ -76,9 +76,16 @@ namespace astro {
 
           // @temporary
           if (state.is_nighttime) {
-            light.power = 4.f + sinf(4.f * get_scene_time() + entity.position.x);
+            light.power = 4.f + sinf(4.f * get_scene_time() + entity.position.x * 0.01f);
           } else {
-            light.power = 0.1f;
+            light.power = 0.01f;
+          }
+
+          if (
+            abs(state.player_position.x - entity.position.x) > 25000.f ||
+            abs(state.player_position.z - entity.position.z) > 25000.f
+          ) {
+            light.power = 0.f;
           }
         }
       }

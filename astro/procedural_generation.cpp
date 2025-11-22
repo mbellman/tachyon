@@ -735,6 +735,7 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
 
         UpdateBloomingFlower(flower, adjusted_blossom_color, flower_size, alpha, flower_lifetime);
 
+        // flower.color.rgba |= 0x0002;
         flower.material = tVec4f(0.5f, 0, 0, 0.4f);
 
         commit(flower);

@@ -152,7 +152,7 @@ static void HandleFog(Tachyon* tachyon, State& state) {
 
   // @temporary
   tVec3f fog_color = state.is_nighttime ? tVec3f(0.2f, 0.3f, 0.7f) : tVec3f(0.5f, 0.5f, 0.7f);
-  float fog_visibility = state.is_nighttime ? 18000.f : 8000.f;
+  float fog_visibility = state.is_nighttime ? 18000.f : 6000.f;
 
   float distance_from_fog = tVec3f::distance(state.player_position, fog_position);
 
