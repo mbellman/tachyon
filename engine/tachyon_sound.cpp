@@ -40,6 +40,8 @@ void Tachyon_PlaySound(tSoundResource& resource, const float volume) {
 
   // Enable actual playback
   ma_sound_start(sound);
+
+  resource.volume = volume;
 }
 
 void Tachyon_LoopSound(tSoundResource& resource, const float volume) {
@@ -51,21 +53,33 @@ void Tachyon_LoopSound(tSoundResource& resource, const float volume) {
 }
 
 void Tachyon_FadeOutSound(tSoundResource& resource, uint64 duration) {
+  if (resource.volume == 0.f) return;
+
   auto* sound = get_sound(resource);
 
   ma_sound_set_fade_in_milliseconds(sound, -1, 0, duration);
+
+  resource.volume = 0.f;
 }
 
 void Tachyon_FadeInSound(tSoundResource& resource, const float volume, uint64 duration) {
+  if (resource.volume == volume) return;
+
   auto* sound = get_sound(resource);
 
   ma_sound_set_fade_in_milliseconds(sound, 0.f, volume, duration);
+
+  resource.volume = volume;
 }
 
 void Tachyon_FadeSoundTo(tSoundResource& resource, const float volume, uint64 duration) {
+  if (resource.volume == volume) return;
+
   auto* sound = get_sound(resource);
 
   ma_sound_set_fade_in_milliseconds(sound, -1, volume, duration);
+
+  resource.volume = volume;
 }
 
 void Tachyon_StopSound(tSoundResource& resource) {

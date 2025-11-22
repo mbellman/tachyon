@@ -18,7 +18,7 @@
 #include "astro/time_evolution.h"
 #include "astro/ui_system.h"
 
-#define MUSIC_ENABLED 0
+#define MUSIC_ENABLED 1
 
 using namespace astro;
 
@@ -216,18 +216,28 @@ static bool IsInStealthMode(State& state) {
   return closest_target_distance < stealth_distance_limit;
 }
 
+// @incomplete
+static Sound GetCurrentAmbientSound(State& state) {
+  if (state.is_nighttime) {
+    return SFX_FOREST_NIGHT;
+  } else {
+    return SFX_FOREST;
+  }
+}
+
 static void HandleMusicLevels(Tachyon* tachyon, State& state) {
   #if MUSIC_ENABLED == 1
 
     // Ambient sounds
     {
+      Sound current_ambient_sound = GetCurrentAmbientSound(state);
+
+      Sfx::LoopSound(current_ambient_sound, 0.5f);
+
       if (state.astro_turn_speed != 0.f) {
-        // @todo use current environment sfx
-        Sfx::FadeSoundVolumeTo(SFX_FOREST, 0.f, 500);
-      }
-      else {
-        // @todo use current environment sfx
-        Sfx::FadeSoundVolumeTo(SFX_FOREST, 0.5f, 500);
+        Sfx::FadeSoundVolumeTo(current_ambient_sound, 0.f, 500);
+      } else {
+        Sfx::FadeSoundVolumeTo(current_ambient_sound, 0.5f, 500);
       }
     }
 
@@ -302,14 +312,6 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
   Items::SpawnItemObjects(tachyon, state);
   ProceduralGeneration::RebuildAllProceduralObjects(tachyon, state);
   EntityManager::CreateEntityAssociations(state);
-
-  #if MUSIC_ENABLED == 1
-
-    // Start ambient sound effects
-    // @todo use different sfx per area
-    Sfx::LoopSound(SFX_FOREST, 0.5f);
-
-  #endif
 
   // @todo default/load from save
   state.player_position = tVec3f(-13800.f, 0, -5900.f);

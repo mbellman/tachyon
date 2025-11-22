@@ -4,6 +4,7 @@
 
 struct tSoundResource {
   void* data = nullptr;
+  float volume = 0.f;
 };
 
 void Tachyon_InitSoundEngine();

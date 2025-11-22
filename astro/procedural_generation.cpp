@@ -695,7 +695,7 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
 
   auto& player_position = state.player_position;
   float base_time_progress = 0.5f * (state.astro_time - -500.f);
-  uint16 index = 0;
+  uint16 flower_index = 0;
 
   for_entities(state.flower_bushes) {
     auto& entity = state.flower_bushes[i];
@@ -714,7 +714,7 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
       float vz = abs(entity.visible_position.z);
 
       for (int i = 0; i < 3; i++) {
-        auto& flower = objects(state.meshes.bush_flower)[index++];
+        auto& flower = objects(state.meshes.bush_flower)[flower_index++];
 
         float offset_x = fmodf(vx + vx * 0.1f + 847.f * (float)i, spawn_radius) - half_spawn_radius;
         float offset_z = fmodf(vz + vz * 0.1f + 847.f * (float)i, spawn_radius) - half_spawn_radius;
@@ -735,7 +735,10 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
 
         UpdateBloomingFlower(flower, adjusted_blossom_color, flower_size, alpha, flower_lifetime);
 
-        // flower.color.rgba |= 0x0002;
+        if (state.is_nighttime) {
+          flower.color.rgba |= 0x0002;
+        }
+
         flower.material = tVec4f(0.5f, 0, 0, 0.4f);
 
         commit(flower);
@@ -746,7 +749,7 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
   // @todo description
   auto& mesh = mesh(state.meshes.bush_flower);
 
-  mesh.lod_1.instance_count = index;
+  mesh.lod_1.instance_count = flower_index;
 }
 
 /**

@@ -2,6 +2,8 @@
 
 namespace astro {
   enum Sound {
+    SFX_NONE,
+
     SFX_ASTRO_BEGIN,
     SFX_ASTRO_TRAVEL,
     SFX_ASTRO_START,
@@ -18,7 +20,8 @@ namespace astro {
     SFX_LIGHT_POST_ASTRO_SYNCED,
     SFX_LIGHT_POST_ASTRO_SYNCED_2,
 
-    SFX_FOREST
+    SFX_FOREST,
+    SFX_FOREST_NIGHT
   };
 
   namespace Sfx {
