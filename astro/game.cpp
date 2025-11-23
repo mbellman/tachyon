@@ -60,6 +60,11 @@ static void UpdatePlayer(Tachyon* tachyon, State& state, const float dt) {
     player.color = tVec3f(0, 0.2f, 1.f);
     player.material = tVec4f(0.9f, 0, 0, 0);
 
+    // @temporary
+    if (time_since(state.last_damage_time) < 1.5f) {
+      player.color = tVec3f(1.f, 0.2f, 0);
+    }
+
     player.rotation = Quaternion::FromDirection(state.player_facing_direction, tVec3f(0, 1.f, 0));
 
     commit(player);
@@ -281,6 +286,7 @@ static void ShowGameStats(Tachyon* tachyon, State& state) {
 
   std::string stat_messages[] = {
     "Player " + state.player_position.toString(),
+    "HP " + std::to_string(state.player_hp),
     "Speed " + std::to_string(player_speed),
     "Camera " + tachyon->scene.camera.position.toString(),
     "Astro time: " + std::to_string(state.astro_time),

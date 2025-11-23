@@ -161,6 +161,9 @@ namespace astro {
     bool is_on_solid_ground = false;
     bool did_resolve_radius_collision = false;
 
+    float player_hp = 100.f;
+    float last_damage_time = 0.f;
+
     float astrolabe_visibility = 1.f;
     int32 astrolabe_light_id = -1;
 

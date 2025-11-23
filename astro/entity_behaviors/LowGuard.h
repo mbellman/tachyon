@@ -103,7 +103,7 @@ namespace astro {
             if (enemy.speed > 3000.f) enemy.speed = 3000.f;
 
             if (is_attacking) {
-              enemy.speed *= 1.f - 10.f * dt;
+              enemy.speed *= 1.f - dt;
             }
 
             // @todo FollowPlayer()
@@ -307,6 +307,11 @@ namespace astro {
                   tVec3f knockback_direction = (state.player_position - spear.position).xz().unit();
 
                   state.player_velocity += knockback_direction * 100000.f * dt;
+
+                  if (time_since(state.last_damage_time) > 1.5f) {
+                    state.player_hp -= 40.f;
+                    state.last_damage_time = get_scene_time();
+                  }
                 }
               }
               else {
