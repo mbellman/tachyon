@@ -18,7 +18,7 @@
 #include "astro/time_evolution.h"
 #include "astro/ui_system.h"
 
-#define MUSIC_ENABLED 1
+#define MUSIC_ENABLED 0
 
 using namespace astro;
 
@@ -61,8 +61,11 @@ static void UpdatePlayer(Tachyon* tachyon, State& state, const float dt) {
     player.material = tVec4f(0.9f, 0, 0, 0);
 
     // @temporary
-    if (time_since(state.last_damage_time) < 1.5f) {
-      player.color = tVec3f(1.f, 0.2f, 0);
+    if (
+      state.last_damage_time != 0.f &&
+      time_since(state.last_damage_time) < 1.5f
+    ) {
+      player.color = tVec3f(1.f, 0, 0);
     }
 
     player.rotation = Quaternion::FromDirection(state.player_facing_direction, tVec3f(0, 1.f, 0));
