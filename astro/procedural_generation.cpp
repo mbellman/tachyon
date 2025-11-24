@@ -122,7 +122,7 @@ static void GenerateGrass(Tachyon* tachyon, State& state) {
     tVec3f direction = ground.rotation.getDirection();
     float theta = atan2f(direction.z, direction.x) + t_HALF_PI;
 
-    for (uint16 i = 0; i < 20; i++) {
+    for (uint16 i = 0; i < 10; i++) {
       auto& grass = create(state.meshes.grass);
 
       float x = Tachyon_GetRandom(bounds.x[0], bounds.x[1]);
