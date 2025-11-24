@@ -45,7 +45,13 @@ namespace astro {
         .mesh_name = "flat_ground",
         .default_scale = tVec3f(5000.f, 1.f, 5000.f),
         .default_color = tVec3f(0.3f, 0.5f, 0.1f)
-      }
+      },
+      {
+        .mesh_index = meshes.lookout_tower,
+        .mesh_name = "lookout_tower",
+        .default_scale = tVec3f(4000.f),
+        .default_color = tVec3f(0.8f)
+      },
     };
 
     return decorative_meshes;

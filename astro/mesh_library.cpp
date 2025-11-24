@@ -34,9 +34,10 @@ static void AddHUDMeshes(Tachyon* tachyon, State& state) {
 static void AddDecorativeMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
-  meshes.flat_ground = PLANE_MESH(1000);
-  meshes.rock_1      = MODEL_MESH("./astro/3d_models/rock_1.obj", 5000);
-  meshes.ground_1    = MODEL_MESH("./astro/3d_models/ground_1.obj", 5000);
+  meshes.flat_ground   = PLANE_MESH(1000);
+  meshes.rock_1        = MODEL_MESH("./astro/3d_models/rock_1.obj", 5000);
+  meshes.ground_1      = MODEL_MESH("./astro/3d_models/ground_1.obj", 5000);
+  meshes.lookout_tower = MODEL_MESH("./astro/3d_models/decoratives/lookout_tower.obj", 100);
 
   mesh(meshes.flat_ground).shadow_cascade_ceiling = 0;
   mesh(meshes.rock_1).shadow_cascade_ceiling = 2;

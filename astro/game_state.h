@@ -52,6 +52,7 @@ namespace astro {
       flat_ground,
       rock_1,
       ground_1,
+      lookout_tower,
 
       // Editor meshes
       // @todo dev mode only

@@ -555,7 +555,7 @@ vec2 GetDenoisedTemporalData(float ssao, float shadow, float depth, vec2 tempora
 
   // @hack don't use the temporal UV coordinates for objects
   // close to the camera. This reduces smearing/ghosting.
-  if (world_depth < 2500.0) {
+  if (world_depth < 2600.0) {
     temporal_uv = fragUv;
   }
 
@@ -605,6 +605,7 @@ vec2 GetDenoisedTemporalData(float ssao, float shadow, float depth, vec2 tempora
 void main() {
   vec4 frag_normal_and_depth = texture(in_normal_and_depth, fragUv);
   vec3 position = GetWorldPosition(frag_normal_and_depth.w, fragUv, inverse_projection_matrix, inverse_view_matrix);
+  float frag_distance_from_camera = length(position - camera_position);
   vec3 D = normalize(position - camera_position);
   float sun_glare_factor = GetSunGlareFactor(D);
 
@@ -667,6 +668,10 @@ void main() {
 
   ssao = clamp(ssao, 0.0, 1.0);
   shadow = clamp(shadow, 0.0, 1.0);
+
+  if (frag_distance_from_camera < 2600.0) {
+    shadow = 1.0;
+  }
 
   vec3 out_color = vec3(0.0);
 
@@ -752,11 +757,10 @@ void main() {
     // Apply fog
     {
       float frag_distance_from_player = length(position - player_position);
-      float frag_distance_from_camera = length(position - camera_position);
       float fog_thickness = clamp(frag_distance_from_player / fog_visibility, 0.0, 1.0);
       fog_thickness = sqrt(fog_thickness);
 
-      if (frag_distance_from_camera > 3000.0) {
+      if (frag_distance_from_camera > 2600.0) {
         out_color = mix(out_color, fog_color, fog_thickness);
       }
     }

@@ -397,10 +397,13 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
         entity.game_activation_time = -1.f;
         entity.is_astro_synced = false;
       }
+
+      // @todo reset gates
     }
 
     if (did_press_key(tKey::I)) {
       Items::CollectItem(tachyon, state, ASTROLABE_LOWER_LEFT);
+      Items::CollectItem(tachyon, state, GATE_KEY);
     }
   }
 

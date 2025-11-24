@@ -34,7 +34,8 @@ uint16 DataLoader::MeshIndexToId(State& state, uint16 mesh_index) {
   const static std::map<uint16, uint16> mesh_map = {
     { meshes.rock_1, 1 },
     { meshes.ground_1, 2 },
-    { meshes.flat_ground, 3 }
+    { meshes.flat_ground, 3 },
+    { meshes.lookout_tower, 4 }
   };
 
   return mesh_map.at(mesh_index);
@@ -46,7 +47,8 @@ uint16 DataLoader::MeshIdToIndex(State& state, uint16 mesh_id) {
   const static std::map<uint16, uint16> mesh_map = {
     { 1, meshes.rock_1 },
     { 2, meshes.ground_1 },
-    { 3, meshes.flat_ground }
+    { 3, meshes.flat_ground },
+    { 4, meshes.lookout_tower }
   };
 
   return mesh_map.at(mesh_id);
