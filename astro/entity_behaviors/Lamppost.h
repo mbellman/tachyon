@@ -73,7 +73,7 @@ namespace astro {
           light.radius = 5000.f;
           light.color = tVec3f(1.f, 0.5f, 0.2f);
           light.power = 2.f;
-          light.glow_power = 2.5f + sinf(4.f * get_scene_time());
+          light.glow_power = 2.5f + sinf(3.f * get_scene_time());
         }
 
         // Collision

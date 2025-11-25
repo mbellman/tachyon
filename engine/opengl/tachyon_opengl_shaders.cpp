@@ -119,7 +119,8 @@ static void StoreShaderUniforms(tOpenGLShaders& shaders) {
   store_shader_uniform(global_lighting, primary_light_direction);
   store_shader_uniform(global_lighting, primary_light_color);
   store_shader_uniform(global_lighting, player_position);
-  store_shader_uniform(global_lighting, fog_color);
+  // store_shader_uniform(global_lighting, fog_volumes);
+  store_shader_uniform(global_lighting, total_fog_volumes);
   store_shader_uniform(global_lighting, fog_visibility);
   store_shader_uniform(global_lighting, accumulation_blur_factor);
   store_shader_uniform(global_lighting, use_high_visibility_mode);

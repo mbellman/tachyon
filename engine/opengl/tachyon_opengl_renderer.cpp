@@ -908,10 +908,33 @@ static void RenderGlobalLighting(Tachyon* tachyon) {
   SetShaderVec3f(locations.primary_light_direction, scene.primary_light_direction);
   SetShaderVec3f(locations.primary_light_color, scene.primary_light_color);
   SetShaderVec3f(locations.player_position, fx.player_position);
-  SetShaderVec3f(locations.fog_color, fx.fog_color);
-  SetShaderFloat(locations.fog_visibility, fx.fog_visibility);
   SetShaderFloat(locations.accumulation_blur_factor, tachyon->fx.accumulation_blur_factor);
   SetShaderBool(locations.use_high_visibility_mode, tachyon->use_high_visibility_mode);
+
+  // Fog volumes
+  {
+    auto& fog_volumes = tachyon->fog_volumes;
+
+    SetShaderInt(locations.total_fog_volumes, (int)fog_volumes.size());
+    SetShaderFloat(locations.fog_visibility, fx.fog_visibility);
+
+    for (size_t i = 0; i < fog_volumes.size(); i++) {
+      auto& volume = fog_volumes[i];
+
+      // @temporary
+      std::string position_uniform = "fog_volumes[" + std::to_string(i) + "].position";
+      std::string radius_uniform = "fog_volumes[" + std::to_string(i) + "].radius";
+      std::string color_uniform = "fog_volumes[" + std::to_string(i) + "].color";
+      std::string thickness_uniform = "fog_volumes[" + std::to_string(i) + "].thickness";
+
+      // @todo @optimize cache uniform locations
+      // @todo use a UBO (?)
+      SetShaderVec3f(glGetUniformLocation(shader.program, position_uniform.c_str()), volume.position);
+      SetShaderFloat(glGetUniformLocation(shader.program, radius_uniform.c_str()), volume.radius);
+      SetShaderVec3f(glGetUniformLocation(shader.program, color_uniform.c_str()), volume.color);
+      SetShaderFloat(glGetUniformLocation(shader.program, thickness_uniform.c_str()), volume.thickness);
+    }
+  }
 
   RenderScreenQuad(tachyon);
 }

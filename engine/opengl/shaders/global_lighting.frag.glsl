@@ -29,8 +29,16 @@ uniform vec3 primary_light_direction;
 uniform vec3 primary_light_color;
 
 // Fog
+struct FogVolume {
+  vec3 position;
+  float radius;
+  vec3 color;
+  float thickness;
+};
+
 uniform vec3 player_position;
-uniform vec3 fog_color;
+uniform FogVolume fog_volumes[20];
+uniform int total_fog_volumes;
 uniform float fog_visibility;
 
 // Frame blur
@@ -756,9 +764,27 @@ void main() {
 
     // Apply fog
     {
+      vec3 fog_color = vec3(0.0);
+      float fog_thickness = 0.0;
+
+      for (int i = 0; i < total_fog_volumes; i++) {
+        FogVolume volume = fog_volumes[i];
+        float frag_distance_from_fog_spawn = length(position.xz - volume.position.xz);
+        float thickness = clamp(1.0 - frag_distance_from_fog_spawn / volume.radius, 0.0, 1.0);
+
+        fog_thickness += thickness;
+        fog_color += volume.color * thickness;
+      }
+
+      if (fog_thickness > 1.0) fog_thickness = 1.0;
+      // fog_thickness = sqrt(fog_thickness);
+
       float frag_distance_from_player = length(position - player_position);
-      float fog_thickness = clamp(frag_distance_from_player / fog_visibility, 0.0, 1.0);
-      fog_thickness = sqrt(fog_thickness);
+
+      float local_thickness = clamp(frag_distance_from_player / fog_visibility, 0.0, 1.0);
+      local_thickness = pow(local_thickness, 0.33);
+
+      fog_thickness *= local_thickness;
 
       if (frag_distance_from_camera > 2600.0) {
         out_color = mix(out_color, fog_color, fog_thickness);

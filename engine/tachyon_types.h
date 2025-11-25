@@ -167,6 +167,13 @@ struct tPointLight {
   float glow_power = 1.f;
 };
 
+struct tFogVolume {
+  tVec3f position;
+  float radius = 10000.f;
+  tVec3f color = tVec3f(1.f);
+  float thickness = 1.f;
+};
+
 // @todo dev mode only
 struct tDevLabel {
   std::string label;
@@ -215,6 +222,7 @@ struct Tachyon {
   std::vector<tMat4f> matrices;
 
   std::vector<tPointLight> point_lights;
+  std::vector<tFogVolume> fog_volumes;
 
   std::vector<tUIDrawCommand> ui_draw_commands;
 
@@ -258,6 +266,8 @@ struct Tachyon {
   } scene;
 
   struct Fx {
+    float fog_visibility = 10000.f;
+
     // Cosmodrone
     float scan_time = 4.f;
 
@@ -268,9 +278,6 @@ struct Tachyon {
     float astro_time_warp_start_radius = 0.f;
     float astro_time_warp_end_radius = 0.f;
     float vignette_intensity = 0.f;
-
-    tVec3f fog_color = tVec3f(1.f);
-    float fog_visibility = 10000000.f;
   } fx;
 
   // @todo dev mode only

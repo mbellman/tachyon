@@ -555,6 +555,18 @@
     <ClInclude Include="astro\entity_behaviors\WoodenFence.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="astro\entity_behaviors\Altar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\entity_behaviors\FogSpawn.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\entity_behaviors\Lamppost.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\entity_behaviors\Mushroom.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

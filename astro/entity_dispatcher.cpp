@@ -5,6 +5,7 @@
 #include "astro/entity_behaviors/DirtPath.h"
 #include "astro/entity_behaviors/DirthPathNode.h"
 #include "astro/entity_behaviors/FlowerBush.h"
+#include "astro/entity_behaviors/FogSpawn.h"
 #include "astro/entity_behaviors/Gate.h"
 #include "astro/entity_behaviors/GlowFlower.h"
 #include "astro/entity_behaviors/House.h"
@@ -51,6 +52,7 @@ using namespace astro;
   behavior_macro(BANDIT, Bandit);\
   behavior_macro(DIRT_PATH, DirtPath);\
   behavior_macro(DIRT_PATH_NODE, DirtPathNode);\
+  behavior_macro(FOG_SPAWN, FogSpawn);\
   behavior_macro(ITEM_PICKUP, ItemPickup);\
   behavior_macro(LOW_GUARD, LowGuard);\
   behavior_macro(OAK_TREE, OakTree);\
@@ -77,6 +79,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
     dispatch_GetEntityContainer(DIRT_PATH, state.dirt_paths);
     dispatch_GetEntityContainer(DIRT_PATH_NODE, state.dirt_path_nodes);
     dispatch_GetEntityContainer(ITEM_PICKUP, state.item_pickups);
+    dispatch_GetEntityContainer(FOG_SPAWN, state.fog_spawns);
     dispatch_GetEntityContainer(LOW_GUARD, state.low_guards);
     dispatch_GetEntityContainer(OAK_TREE, state.oak_trees);
     dispatch_GetEntityContainer(RIVER_LOG, state.river_logs);
@@ -97,7 +100,6 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
     dispatch_GetEntityContainer(WOODEN_GATE_DOOR, state.wooden_gate_doors);
 
     default:
-      // @todo log error
       printf("EntityDispatcher: Failed to get container for entity type: %d\n", type);
       exit(0);
       break;

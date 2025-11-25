@@ -67,7 +67,8 @@ struct tUniformLocations {
     primary_light_direction,
     primary_light_color,
     player_position,
-    fog_color,
+    fog_volumes,
+    total_fog_volumes,
     fog_visibility,
     use_high_visibility_mode,
     accumulation_blur_factor

@@ -34,7 +34,8 @@ namespace astro {
     WOODEN_FENCE,
     ALTAR,
     MUSHROOM,
-    LAMPPOST
+    LAMPPOST,
+    FOG_SPAWN
   };
 
   /**
@@ -64,7 +65,8 @@ namespace astro {
     WOODEN_FENCE,
     ALTAR,
     MUSHROOM,
-    LAMPPOST
+    LAMPPOST,
+    FOG_SPAWN
   };
 
   /**
@@ -276,7 +278,10 @@ namespace astro {
       lamppost_placeholder,
       lamppost_stand,
       lamppost_frame,
-      lamppost_lamp
+      lamppost_lamp,
+
+      // FOG_SPAWN
+      fog_spawn_placeholder
 
       ;
   };
@@ -289,6 +294,7 @@ namespace astro {
   struct EntityContainers {
     std::vector<GameEntity> altars;
     std::vector<GameEntity> item_pickups;
+    std::vector<GameEntity> fog_spawns;
     std::vector<GameEntity> dirt_paths; // @unused
     std::vector<GameEntity> dirt_path_nodes;
 
@@ -337,6 +343,12 @@ namespace astro {
       .name = "Item Pickup",
       .scale = tVec3f(1000.f),
       .tint = tVec3f(0.3f, 0.6f, 1.f)
+    } },
+
+    { FOG_SPAWN, {
+      .name = "Fog Spawn",
+      .scale = tVec3f(1500.f),
+      .tint = tVec3f(0.8f)
     } },
 
     // @unused

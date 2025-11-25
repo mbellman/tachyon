@@ -151,28 +151,12 @@ static void ShowHighestLevelsOfDetail(Tachyon* tachyon, State& state) {
   Tachyon_ShowHighestLevelsOfDetail(tachyon, meshes.tiny_ground_flower);
 }
 
-// @todo create a Fog entity
 static void HandleFog(Tachyon* tachyon, State& state) {
   auto& fx = tachyon->fx;
 
   // @temporary
-  tVec3f fog_position = tVec3f(104285.f, 0, -103000.f);
-
-  // @temporary
-  tVec3f fog_color = state.is_nighttime ? tVec3f(0.2f, 0.3f, 0.7f) : tVec3f(0.5f, 0.5f, 0.7f);
-  float fog_visibility = state.is_nighttime ? 18000.f : 6000.f;
-
-  float distance_from_fog = tVec3f::distance(state.player_position, fog_position);
-
-  // @todo allow distance to be configured
-  float fog_alpha = distance_from_fog / 50000.f;
-  if (fog_alpha > 1.f) fog_alpha = 1.f;
-  fog_alpha = powf(fog_alpha, 20.f);
-  fog_alpha = 1.f - fog_alpha;
-
-  // @temporary
-  fx.fog_color = tVec3f::lerp(tVec3f(1.f), fog_color, fog_alpha);
-  fx.fog_visibility = Tachyon_Lerpf(10000000.f, fog_visibility, fog_alpha);
+  // @todo lerp based on day/night alpha
+  fx.fog_visibility = state.is_nighttime ? 15000.f : 6000.f;
 }
 
 // @todo 3d positioned sfx
@@ -351,9 +335,6 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
 
     fx.astro_time_warp_start_radius = 0.f;
     fx.astro_time_warp_end_radius = 0.f;
-
-    fx.fog_color = tVec3f(1.f);
-    fx.fog_visibility = 10000000.f;
   }
 
   // Toggle level editor with E

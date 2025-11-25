@@ -6,6 +6,8 @@ namespace astro {
   behavior ItemPickup {
     addMeshes() {
       meshes.item_pickup_placeholder = SPHERE_MESH(500);
+
+      mesh(meshes.item_pickup_placeholder).shadow_cascade_ceiling = 0;
     }
 
     getMeshes() {

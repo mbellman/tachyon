@@ -38,6 +38,7 @@ struct LevelEditorState {
   bool is_in_placement_mode = false; // @todo make this standard
   bool is_placing_entity = false;
   bool use_uniform_scaling = false;
+  bool show_fog_volumes = true;
 
   bool is_editing_entity_properties = false;
   int editing_entity_step = 0;
@@ -935,25 +936,11 @@ static void MaybeMakeSelection(Tachyon* tachyon, State& state) {
  * Copies entity properties to its placeholder object.
  * ----------------------------
  */
-static void SyncEntityPlaceholder(Tachyon* tachyon, tObject& placeholder, const GameEntity& entity) {
+static void SyncEntityPlaceholder(tObject& placeholder, const GameEntity& entity) {
   placeholder.position = entity.position;
   placeholder.scale = entity.scale;
   placeholder.rotation = entity.orientation;
   placeholder.color = entity.tint;
-
-  // @temporary
-  // @todo allow entity placeholder default material
-  {
-    if (entity.type == ITEM_PICKUP) {
-      placeholder.material = tVec4f(0.2f, 0, 0.5f, 0.5f);
-    }
-
-    if (entity.type == DIRT_PATH_NODE) {
-      placeholder.material = tVec4f(1.f, 0, 0, 0.2f);
-    }
-  }
-
-  commit(placeholder);
 }
 
 /**
@@ -965,8 +952,26 @@ static void SpawnEntityPlaceholder(Tachyon* tachyon, State& state, GameEntity& e
   auto placeholder_mesh_id = EntityDispatcher::GetPlaceholderMesh(state, entity.type);
   auto& placeholder = create(placeholder_mesh_id);
 
-  SyncEntityPlaceholder(tachyon, placeholder, entity);
+  // @temporary
+  // @todo allow entity placeholder default material
+  {
+    if (entity.type == ITEM_PICKUP) {
+      placeholder.material = tVec4f(0.2f, 0, 0.5f, 0.5f);
+    }
+
+    if (entity.type == FOG_SPAWN) {
+      placeholder.material = tVec4f(1.f, 0, 0, 1.f);
+    }
+
+    if (entity.type == DIRT_PATH_NODE) {
+      placeholder.material = tVec4f(1.f, 0, 0, 0.2f);
+    }
+  }
+
+  SyncEntityPlaceholder(placeholder, entity);
   TrackSelectableEntity(entity, placeholder);
+
+  commit(placeholder);
 }
 
 /**
@@ -1003,6 +1008,10 @@ static tVec3f GetSpawnPosition(Tachyon* tachyon, State& state) {
 
       if (entity_type == DIRT_PATH_NODE) {
         return placer.position + tVec3f(0, 1500.f, 0);
+      }
+
+      if (entity_type == FOG_SPAWN) {
+        return placer.position + tVec3f(0, 3000.f, 0);
       }
 
       // @hack Spawn above ground
@@ -1491,6 +1500,16 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
     }
   }
 
+  if (did_press_key(tKey::F)) {
+    editor.show_fog_volumes = !editor.show_fog_volumes;
+
+    if (editor.show_fog_volumes) {
+      show_overlay_message("Fog volumes enabled");
+    } else {
+      show_overlay_message("Fog volumes disabled");
+    }
+  }
+
   if (editor.is_anything_selected) {
     // Selected object/entity actions
     if (is_left_mouse_held_down()) {
@@ -1709,6 +1728,8 @@ void LevelEditor::OpenLevelEditor(Tachyon* tachyon, State& state) {
 
   state.is_level_editor_open = true;
 
+  editor.show_fog_volumes = true;
+
   // @todo factor
   objects(meshes.astrolabe_rear).disabled = true;
   objects(meshes.astrolabe_base).disabled = true;
@@ -1752,6 +1773,13 @@ void LevelEditor::HandleLevelEditor(Tachyon* tachyon, State& state, const float 
 
   if (editor.is_in_placement_mode) {
     UpdatePlacer(tachyon, state);
+  }
+
+  if (editor.show_fog_volumes) {
+    // Ensure fog spawns are synced in the editor
+    EntityDispatcher::TimeEvolve(tachyon, state, FOG_SPAWN, dt);
+  } else {
+    tachyon->fog_volumes.clear();
   }
 
   HandleUI(tachyon, state);
