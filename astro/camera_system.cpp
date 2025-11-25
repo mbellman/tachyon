@@ -51,12 +51,12 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) 
     // Adjustment: move the camera back a bit during stun effects
     new_camera_position.z += 1000.f * stun_factor;
 
-    // Blend the camera shift from where it was at targeting time,
-    // to 0 over the course of a second
-    float targeted_duration_ratio = (tachyon->running_time - state.target_start_time) / 1.f;
-    if (targeted_duration_ratio > 1.f) targeted_duration_ratio = 1.f;
+    // Blend between the normal player camera shift and no shift at all
+    // depending on how close we are to the target
+    tVec3f shift_direction = state.player_facing_direction + tVec3f(0, 0, 0.4f);
+    tVec3f desired_camera_shift = shift_direction * tVec3f(0.75f, 0, 1.f) * 1500.f;
 
-    state.camera_shift = tVec3f::lerp(state.camera_shift, tVec3f(0.f), targeted_duration_ratio);
+    state.camera_shift = tVec3f::lerp(desired_camera_shift, tVec3f(0.f), approach_factor);
   }
   else if (abs(state.astro_turn_speed) > 0.1f) {
     // Astro-turning camera; use the player position as with walking/standing still,

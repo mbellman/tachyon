@@ -18,7 +18,7 @@
 #include "astro/time_evolution.h"
 #include "astro/ui_system.h"
 
-#define MUSIC_ENABLED 1
+#define MUSIC_ENABLED 0
 
 using namespace astro;
 
