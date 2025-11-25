@@ -6,6 +6,8 @@ namespace astro {
   behavior DirtPathNode {
     addMeshes() {
       meshes.dirt_path_node_placeholder = SPHERE_MESH(500);
+
+      mesh(meshes.dirt_path_node_placeholder).shadow_cascade_ceiling = 0;
     }
 
     getMeshes() {

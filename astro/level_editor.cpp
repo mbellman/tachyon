@@ -1741,6 +1741,12 @@ void LevelEditor::OpenLevelEditor(Tachyon* tachyon, State& state) {
   objects(meshes.target_reticle).disabled = true;
   objects(meshes.small_grass).disabled = true;
 
+  // Disable unnecessary shadows
+  mesh(meshes.grass).shadow_cascade_ceiling = 0;
+  mesh(meshes.ground_flower).shadow_cascade_ceiling = 0;
+  mesh(meshes.tiny_ground_flower).shadow_cascade_ceiling = 0;
+  mesh(meshes.ground_1).shadow_cascade_ceiling = 1;
+
   // Disable all in-game entity objects, since we use placeholders in the editor
   for_all_entity_types() {
     auto& mesh_ids = EntityDispatcher::GetMeshes(state, type);
@@ -1823,6 +1829,12 @@ void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
   objects(meshes.astrolabe_hand).disabled = false;
   objects(meshes.target_reticle).disabled = false;
   objects(meshes.small_grass).disabled = false;
+
+  // Re-enable shadows for certain objects
+  mesh(meshes.grass).shadow_cascade_ceiling = 2;
+  mesh(meshes.ground_flower).shadow_cascade_ceiling = 2;
+  mesh(meshes.tiny_ground_flower).shadow_cascade_ceiling = 2;
+  mesh(meshes.ground_1).shadow_cascade_ceiling = 2;
 
   // Re-enable all in-game entity objects
   for_all_entity_types() {
