@@ -35,7 +35,7 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) 
     if (stun_factor < 0.f) stun_factor = 0.f;
     if (stun_factor > 1.f) stun_factor = 1.f;
 
-    new_camera_position = tVec3f::lerp(state.player_position, target.visible_position, 0.5f * sqrt(approach_factor));
+    new_camera_position = tVec3f::lerp(state.player_position, target.visible_position, 0.5f * approach_factor);
 
     // Adjustment: raise the camera as we approach the target
     // @todo it's confusing that we start at 3000 here and add the final height
@@ -54,7 +54,7 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) 
     // Blend between the normal player camera shift and no shift at all
     // depending on how close we are to the target
     tVec3f shift_direction = state.player_facing_direction + tVec3f(0, 0, 0.4f);
-    tVec3f desired_camera_shift = shift_direction * tVec3f(0.75f, 0, 1.f) * 1500.f;
+    tVec3f desired_camera_shift = shift_direction * tVec3f(0.75f, 0, 1.f) * 1950.f;
 
     state.camera_shift = tVec3f::lerp(desired_camera_shift, tVec3f(0.f), approach_factor);
   }

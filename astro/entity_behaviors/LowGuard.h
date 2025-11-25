@@ -350,6 +350,7 @@ namespace astro {
                 gate_key.color = tVec3f(1.f, 1.f, 0.2f);
                 gate_key.material = tVec4f(0.2f, 1.f, 0, 0.4f);
 
+                // @todo remove
                 commit(gate_key);
 
                 // Handle key retrieval
@@ -357,7 +358,7 @@ namespace astro {
 
                 if (
                   entity.enemy_state.mood == ENEMY_IDLE &&
-                  player_to_key_distance < 2000.f &&
+                  player_to_key_distance < 2500.f &&
                   state.astro_turn_speed == 0.f
                 ) {
                   if (did_press_key(tKey::CONTROLLER_A)) {
@@ -370,6 +371,10 @@ namespace astro {
                     // allowing the adjacent guard to repeatedly restart his
                     // "cease your trespass!" line and spam the audio line
                     UISystem::ShowDialogue(tachyon, state, "[X] Collect gate key");
+
+                    gate_key.color.rgba |= 0x0004;
+
+                    commit(gate_key);
                   }
                 }
               } else {
