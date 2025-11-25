@@ -28,6 +28,8 @@ namespace astro {
     }
 
     timeEvolve() {
+      profile("  OakTree::timeEvolve()");
+
       auto& meshes = state.meshes;
 
       const tVec3f wood_color = tVec3f(1.f, 0.4f, 0.2f);

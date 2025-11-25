@@ -20,6 +20,8 @@ namespace astro {
     }
 
     timeEvolve() {
+      profile("  FlowerBush::timeEvolve()");
+
       auto& meshes = state.meshes;
       const float lifetime = 100.f;
 

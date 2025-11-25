@@ -98,10 +98,11 @@ namespace astro {
           }
         } else if (
           distance_from_interaction_position < 1500.f &&
-          player_speed < 250.f &&
           tVec3f::dot(state.player_facing_direction, interaction_direction) > 0.5f
         ) {
           bool has_gate_key = Items::HasItem(state, GATE_KEY);
+
+          lock.color.rgba |= 0x0002;
 
           if (did_press_key(tKey::CONTROLLER_A)) {
             if (has_gate_key) {

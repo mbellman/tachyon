@@ -349,6 +349,11 @@ static void HandleTargetingControls(Tachyon* tachyon, State& state) {
 }
 
 void ControlSystem::HandleControls(Tachyon* tachyon, State& state, const float dt) {
+  if (state.has_blocking_dialogue && !state.dismissed_blocking_dialogue) {
+    // Disallow character controls until blocking dialogue is dimissed
+    return;
+  }
+
   HandlePlayerMovementControls(tachyon, state, dt);
   HandleAstroControls(tachyon, state, dt);
   HandleDayNightControls(tachyon, state);

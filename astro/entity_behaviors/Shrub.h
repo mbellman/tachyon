@@ -23,6 +23,8 @@ namespace astro {
     }
 
     timeEvolve() {
+      profile("  Shrub::timeEvolve()");
+
       auto& meshes = state.meshes;
       const float lifetime = 100.f;
 
