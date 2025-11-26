@@ -320,14 +320,21 @@ static void HandleSpellControls(Tachyon* tachyon, State& state) {
 
   // O
   if (did_press_key(tKey::CONTROLLER_B)) {
-    SpellSystem::CastStun(tachyon, state);
+    if (Items::HasItem(state, ITEM_STUN_SPELL)) {
+      SpellSystem::CastStun(tachyon, state);
 
-    Sfx::PlaySound(SFX_SPELL_STUN);
+      Sfx::PlaySound(SFX_SPELL_STUN);
+    }
   }
 
   // Square
   if (did_press_key(tKey::CONTROLLER_X)) {
-    SpellSystem::CastHoming(tachyon, state);
+    if (Items::HasItem(state, ITEM_HOMING_SPELL)) {
+      SpellSystem::CastHoming(tachyon, state);
+    } else {
+      // Before we have the homing spell, swing the wand as a melee weapon
+      state.last_wand_swing_time = get_scene_time();
+    }
   }
 
   // Triangle

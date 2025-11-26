@@ -292,9 +292,7 @@ namespace astro {
                 Quaternion end_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), t_HALF_PI);
                 Quaternion current_rotation = Quaternion::slerp(start_rotation, end_rotation, stab_alpha);
 
-                // float angle = t_HALF_PI * sinf(stab_alpha * t_HALF_PI);
                 float thrust = 1000.f * sinf(stab_alpha * t_HALF_PI);
-
                 tVec3f thrust_offset = entity.visible_rotation.toMatrix4f() * tVec3f(0, 0, 1.f) * thrust;
 
                 spear.rotation = spear.rotation * current_rotation;

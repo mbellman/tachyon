@@ -105,7 +105,10 @@ namespace astro {
     ASTROLABE_LOWER_LEFT,
     ASTROLABE_LOWER_RIGHT,
     ASTROLABE_UPPER_RIGHT,
-    GATE_KEY
+    GATE_KEY,
+
+    ITEM_STUN_SPELL,
+    ITEM_HOMING_SPELL
   };
 
   struct Item {
@@ -154,6 +157,7 @@ namespace astro {
   struct State : EntityContainers {
     MeshIds meshes;
 
+    // Player attributes
     tVec3f player_position;
     tVec3f last_player_position;
     tVec3f last_solid_ground_position;
@@ -161,11 +165,11 @@ namespace astro {
     tVec3f player_facing_direction;
     int32 player_light_id = -1;
     Plane last_plane_walked_on;
-    bool is_on_solid_ground = false;
-    bool did_resolve_radius_collision = false;
-
     float player_hp = 100.f;
     float last_damage_time = 0.f;
+    float last_wand_swing_time = 0.f;
+    bool is_on_solid_ground = false;
+    bool did_resolve_radius_collision = false;
 
     float astrolabe_visibility = 1.f;
     int32 astrolabe_light_id = -1;
