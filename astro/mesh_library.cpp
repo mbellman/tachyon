@@ -120,6 +120,14 @@ static void AddProceduralMeshes(Tachyon* tachyon, State& state) {
     mesh(meshes.bush_flower).shadow_cascade_ceiling = 2;
   }
 
+  // ground_1_leaves
+  {
+    meshes.ground_1_leaves = MODEL_MESH("./astro/3d_models/ground_1_leaves.obj", 200);
+
+    mesh(meshes.ground_1_leaves).type = GRASS_MESH;
+    mesh(meshes.ground_1_leaves).shadow_cascade_ceiling = 2;
+  }
+
   // p_dirt_path
   // @todo rename
   {

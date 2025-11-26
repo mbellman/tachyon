@@ -139,7 +139,8 @@ static void GenerateGrass(Tachyon* tachyon, State& state) {
       grass.position.z = wz;
 
       grass.scale = tVec3f(1000.f);
-      grass.color = tVec4f(0.1f, 0.3f, 0.1f, 0.2f);
+      // grass.color = tVec4f(0.1f, 0.3f, 0.1f, 0.2f);
+      grass.color = tVec4f(0.2f, 0.3f, 0.1f, 0.1f);
       grass.material = tVec4f(0.8f, 0, 0, 1.f);
 
       commit(grass);
@@ -657,7 +658,7 @@ static void GenerateBushFlowers(Tachyon* tachyon, State& state) {
 static tVec3f GetBushFlowerBlossomColor(const float astro_time) {
   auto& periods = astro_time_periods;
 
-  tVec3f present_color = tVec3f(1.f, 0.3f, 0.1f);
+  tVec3f present_color = tVec3f(1.f, 0.2f, 0.1f);
   tVec3f past_color = tVec3f(1.f, 0.8f, 0.2f);
   tVec3f distant_past_color = tVec3f(1.f, 0.8f, 1.f);
 
@@ -739,7 +740,7 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
           flower.color.rgba |= 0x0002;
         }
 
-        flower.material = tVec4f(0.5f, 0, 0, 0.4f);
+        flower.material = tVec4f(0.9f, 0, 0, 0.4f);
 
         commit(flower);
       }
@@ -750,6 +751,55 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
   auto& mesh = mesh(state.meshes.bush_flower);
 
   mesh.lod_1.instance_count = flower_index;
+}
+
+/**
+ * ----------------------------
+ * Ground leaves
+ * ----------------------------
+ */
+static void GenerateGroundLeaves(Tachyon* tachyon, State& state) {
+  remove_all(state.meshes.ground_1_leaves);
+
+  for (int i = 0; i < 200; i++) {
+    commit(create(state.meshes.ground_1_leaves));
+  }
+}
+
+static void UpdateGroundLeaves(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+  uint16 index = 0;
+
+  // @todo factor
+  auto& camera = tachyon->scene.camera;
+  // @hack Invert y to get the proper direction. Probably a mistake somewhere.
+  tVec3f camera_direction = camera.rotation.getDirection() * tVec3f(1.f, -1.f, 1.f);
+  float camera_height = camera.position.y - -1500.f;
+  float distance = -camera_height / camera_direction.y;
+  tVec3f camera_center = camera.position + camera_direction * distance;
+
+  // for (auto& ground : objects(state.meshes.ground_1)) {
+  for_entities(state.oak_trees) {
+    auto& entity = state.oak_trees[i];
+
+    float distance = tVec3f::distance(entity.position, camera_center);
+
+    if (distance < 20000 && entity.position.y > -2500.f) {
+      auto& leaves = objects(meshes.ground_1_leaves)[index++];
+      float rotation_angle = fmodf(entity.position.x, t_TAU);
+
+      leaves.position = entity.position;
+      leaves.position.y = entity.position.y - 1.2f * entity.scale.y;
+      leaves.scale = entity.scale * 1.2f;
+      leaves.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), rotation_angle);
+      leaves.color = tVec3f(0.2f, 0.3f, 0.1f);
+      leaves.material = tVec4f(1.f, 0, 0, 0.5f);
+
+      commit(leaves);
+    }
+  }
+
+  mesh(state.meshes.ground_1_leaves).lod_1.instance_count = index;
 }
 
 /**
@@ -1081,6 +1131,7 @@ void ProceduralGeneration::RebuildAllProceduralObjects(Tachyon* tachyon, State& 
 
   GenerateGroundFlowers(tachyon, state);
   GenerateBushFlowers(tachyon, state);
+  GenerateGroundLeaves(tachyon, state);
 }
 
 void ProceduralGeneration::UpdateProceduralObjects(Tachyon* tachyon, State& state) {
@@ -1094,4 +1145,5 @@ void ProceduralGeneration::UpdateProceduralObjects(Tachyon* tachyon, State& stat
 
   UpdateGroundFlowers(tachyon, state);
   UpdateBushFlowers(tachyon, state);
+  UpdateGroundLeaves(tachyon, state);
 }
