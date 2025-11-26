@@ -22,6 +22,7 @@ namespace astro {
     uint16
       // Character meshes
       player,
+      wand,
 
       // Static environment meshes
       water_plane,

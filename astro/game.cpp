@@ -49,7 +49,10 @@ static void UpdatePlayer(Tachyon* tachyon, State& state, const float dt) {
     state.player_facing_direction = tVec3f::lerp(state.player_facing_direction, desired_facing_direction, turning_speed * dt).unit();
   }
 
-  // Update model
+  Quaternion player_rotation = Quaternion::FromDirection(state.player_facing_direction, tVec3f(0, 1.f, 0));
+  tMat4f player_rotation_matrix = player_rotation.toMatrix4f();
+
+  // Character model
   {
     auto& player = objects(state.meshes.player)[0];
 
@@ -68,17 +71,40 @@ static void UpdatePlayer(Tachyon* tachyon, State& state, const float dt) {
       player.color = tVec3f(1.f, 0, 0);
     }
 
-    player.rotation = Quaternion::FromDirection(state.player_facing_direction, tVec3f(0, 1.f, 0));
+    player.rotation = player_rotation;
 
     commit(player);
   }
 
-  // Update player light
+  // Wand
+  {
+    auto& wand = objects(state.meshes.wand)[0];
+
+    tVec3f offset = player_rotation_matrix * tVec3f(-1.f, 0, 0);
+
+    wand.position = state.player_position + offset * 900.f;
+    wand.scale = tVec3f(800.f);
+    wand.rotation = player_rotation;
+    wand.color = tVec3f(1.f, 0.6f, 0.2f);
+    wand.material = tVec4f(1.f, 0, 0, 0.4f);
+
+    if (
+      state.spells.stun_start_time != 0.f &&
+      time_since(state.spells.stun_start_time) < 3.f
+    ) {
+      float alpha = time_since(state.spells.stun_start_time) / 3.f;
+
+      wand.position.y += sinf(alpha * t_PI) * 1200.f;
+    }
+
+    commit(wand);
+  }
+
+  // Astro light
   {
     auto& light = *get_point_light(state.player_light_id);
 
-    Quaternion offset_rotation = Quaternion::FromDirection(state.player_facing_direction, tVec3f(0, 1.f, 0));
-    tVec3f offset = offset_rotation.toMatrix4f() * tVec3f(-1.f, 0, 0);
+    tVec3f offset = player_rotation.toMatrix4f() * tVec3f(-1.f, 0, 0);
 
     light.position = state.player_position + offset * 1000.f;
     light.position.y -= 300.f;

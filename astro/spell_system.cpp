@@ -15,6 +15,8 @@ static void HandleActiveStunSpell(Tachyon* tachyon, State& state) {
     return;
   }
 
+  auto& wand = objects(state.meshes.wand)[0];
+
   auto& light = *get_point_light(spells.stun_light_id);
 
   float t = time_since(spells.stun_start_time) / 3.f;
@@ -23,11 +25,14 @@ static void HandleActiveStunSpell(Tachyon* tachyon, State& state) {
 
   Quaternion rotation = Quaternion::FromDirection(state.player_facing_direction, tVec3f(0, 1.f, 0));
 
-  light.position = state.player_position + rotation.toMatrix4f() * tVec3f(-800.f, 1000.f, 400.f);
-  light.position.y += sqrtf(t) * 1200.f;
+  // light.position = state.player_position + rotation.toMatrix4f() * tVec3f(-800.f, 1000.f, 400.f);
+  // light.position.y += sqrtf(t) * 1200.f;
+  light.position = wand.position + state.player_facing_direction * wand.scale.z * 0.2f;
+  light.position.y = wand.position.y + wand.scale.y * 1.5f;
   light.radius = 25000.f * Tachyon_EaseInOutf(t);
   light.color = tVec3f(1.f, 0.8f, 0.4f),
   light.power = 5.f * powf(1.f - t, 2.f);
+  light.glow_power = 5.f * sinf(t * t_PI);
 
   // Move the stun start time backward whenever we start astro turning.
   // Casting stun and then advancing or reversing time should effectively
