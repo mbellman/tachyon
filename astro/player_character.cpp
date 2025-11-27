@@ -1,5 +1,6 @@
 #include "astro/player_character.h"
 #include "astro/entity_manager.h"
+#include "astro/ui_system.h"
 
 using namespace astro;
 
@@ -61,9 +62,6 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
       const float wind_up_duration = 0.2f;
       const float swing_duration = 0.15f;
       const float wind_down_duration = 0.5f;
-      // const float wind_up_duration = 1.f;
-      // const float swing_duration = 1.f;
-      // const float wind_down_duration = 1.f;
 
       const float total_swing_duration = wind_up_duration + swing_duration + wind_down_duration;
       float time_since_last_swing = time_since(state.last_wand_swing_time);
@@ -181,5 +179,15 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state, const float d
 
       light.power += sinf(alpha * t_PI);
     }
+  }
+}
+
+void PlayerCharacter::TakeDamage(Tachyon* tachyon, State& state, const float damage) {
+  state.player_hp -= damage;
+  state.last_damage_time = get_scene_time();
+
+  if (state.player_hp <= 0.f) {
+    // @temporary
+    UISystem::ShowBlockingDialogue(tachyon, state, "YOU DIED");
   }
 }

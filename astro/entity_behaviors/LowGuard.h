@@ -46,6 +46,10 @@ namespace astro {
       float player_distance = entity_to_player.magnitude();
       auto& enemy = entity.enemy_state;
 
+      if (state.player_hp <= 0.f) {
+        return;
+      }
+
       // Combat
       if (player_distance < 10000.f) {
         tVec3f player_direction = entity_to_player / player_distance;
@@ -308,10 +312,8 @@ namespace astro {
                   state.player_velocity += knockback_direction * 100000.f * dt;
 
                   if (time_since(state.last_damage_time) > 1.5f) {
-                    state.player_hp -= 40.f;
-                    state.last_damage_time = get_scene_time();
-
                     Sfx::PlaySound(SFX_SWORD_DAMAGE, 0.5f);
+                    PlayerCharacter::TakeDamage(tachyon, state, 40.f);
                   }
                 }
               }

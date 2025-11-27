@@ -3,6 +3,7 @@
 #include "engine/tachyon.h"
 #include "astro/entities.h"
 #include "astro/game_state.h"
+#include "astro/player_character.h"
 #include "astro/ui_system.h"
 
 // @todo move to engine
