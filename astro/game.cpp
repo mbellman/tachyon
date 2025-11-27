@@ -309,6 +309,8 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
     }
 
     if (did_press_key(tKey::I)) {
+      Items::CollectItem(tachyon, state, ITEM_STUN_SPELL);
+      Items::CollectItem(tachyon, state, ITEM_HOMING_SPELL);
       Items::CollectItem(tachyon, state, ASTROLABE_LOWER_LEFT);
       Items::CollectItem(tachyon, state, GATE_KEY);
     }

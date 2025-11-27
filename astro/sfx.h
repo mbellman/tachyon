@@ -14,6 +14,9 @@ namespace astro {
     SFX_GROUND_WALK_2,
     SFX_GROUND_WALK_3,
 
+    SFX_SWORD_DAMAGE,
+    SFX_WAND_SWING,
+
     SFX_SPELL_STUN,
 
     SFX_LIGHT_POST_ACTIVATE,

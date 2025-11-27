@@ -2,6 +2,7 @@
 
 #include "astro/entity_behaviors/behavior.h"
 #include "astro/character_dialogue.h"
+#include "astro/sfx.h"
 #include "astro/targeting.h"
 #include "astro/ui_system.h"
 
@@ -309,6 +310,8 @@ namespace astro {
                   if (time_since(state.last_damage_time) > 1.5f) {
                     state.player_hp -= 40.f;
                     state.last_damage_time = get_scene_time();
+
+                    Sfx::PlaySound(SFX_SWORD_DAMAGE, 0.5f);
                   }
                 }
               }

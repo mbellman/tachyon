@@ -59,54 +59,66 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
   {
     if (state.last_wand_swing_time != 0.f) {
       const float wind_up_duration = 0.2f;
-      const float swing_duration = 0.2f;
+      const float swing_duration = 0.15f;
       const float wind_down_duration = 0.5f;
+      // const float wind_up_duration = 1.f;
+      // const float swing_duration = 1.f;
+      // const float wind_down_duration = 1.f;
+
       const float total_swing_duration = wind_up_duration + swing_duration + wind_down_duration;
       float time_since_last_swing = time_since(state.last_wand_swing_time);
+
+      // Initial transform
+      tVec3f initial_position = tVec3f(0.f);
+      Quaternion initial_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.f);
+
+      // Wind-up transform
+      tVec3f player_right = tVec3f::cross(state.player_facing_direction, tVec3f(0, 1.f, 0));
+      tVec3f wind_up_position = tVec3f(0, 1500.f, 0) + player_right * 500.f;
+
+      Quaternion wind_up_rotation = (
+        Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), 1.f) *
+        Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -1.f)
+      );
+
+      // Swing transform
+      tVec3f swing_position = state.player_facing_direction * 1000.f - player_right * 1000.f;
+
+      Quaternion swing_rotation = (
+        Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), 2.f) *
+        Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 2.1f)
+      );
 
       if (time_since_last_swing < wind_up_duration) {
         // Wind-up
         float wind_up_alpha = time_since_last_swing / wind_up_duration;
 
-        Quaternion start_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.f);
-        Quaternion end_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -0.5f);
-        Quaternion current_rotation = Quaternion::slerp(start_rotation, end_rotation, wind_up_alpha);
+        tVec3f offset = tVec3f::lerp(initial_position, wind_up_position, wind_up_alpha);
+        Quaternion rotation = Quaternion::slerp(initial_rotation, wind_up_rotation, wind_up_alpha);
 
-        wand.position.y += wind_up_alpha * 1200.f;
-        wand.rotation = player_rotation * current_rotation;
+        wand.position += offset;
+        wand.rotation = player_rotation * rotation;
       }
       else if (time_since_last_swing < (wind_up_duration + swing_duration)) {
         // Swing
         float swing_alpha = InverseLerp(wind_up_duration, wind_up_duration + swing_duration, time_since_last_swing);
 
-        Quaternion start_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -0.5f);
+        tVec3f offset = tVec3f::lerp(wind_up_position, swing_position, swing_alpha);
+        Quaternion rotation = Quaternion::slerp(wind_up_rotation, swing_rotation, swing_alpha);
 
-        Quaternion end_rotation = (
-          Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), t_HALF_PI) *
-          Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 2.f)
-        );
-
-        Quaternion current_rotation = Quaternion::slerp(start_rotation, end_rotation, swing_alpha);
-
-        wand.position.y += (1.f - swing_alpha) * 1200.f;
-        wand.position += state.player_facing_direction * swing_alpha * 1000.f;
-        wand.rotation = player_rotation * current_rotation;
+        wand.position += offset;
+        wand.rotation = player_rotation * rotation;
       }
       else if (time_since_last_swing < total_swing_duration) {
         // Wind-down
         float wind_down_alpha = InverseLerp(wind_up_duration + swing_duration, total_swing_duration, time_since_last_swing);
-        wind_down_alpha = sqrtf(wind_down_alpha);
+        wind_down_alpha = Tachyon_EaseInOutf(wind_down_alpha);
 
-        Quaternion start_rotation = (
-          Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), t_HALF_PI) *
-          Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 2.f)
-        );
+        tVec3f offset = tVec3f::lerp(swing_position, initial_position, wind_down_alpha);
+        Quaternion rotation = Quaternion::slerp(swing_rotation, initial_rotation, wind_down_alpha);
 
-        Quaternion end_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.f);
-        Quaternion current_rotation = Quaternion::slerp(start_rotation, end_rotation, wind_down_alpha);
-
-        wand.rotation = player_rotation * current_rotation;
-        wand.position += state.player_facing_direction * (1.f - wind_down_alpha) * 1000.f;
+        wand.position += offset;
+        wand.rotation = player_rotation * rotation;
       }
     }
   }

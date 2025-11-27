@@ -334,6 +334,8 @@ static void HandleSpellControls(Tachyon* tachyon, State& state) {
     } else {
       // Before we have the homing spell, swing the wand as a melee weapon
       state.last_wand_swing_time = get_scene_time();
+
+      Sfx::PlaySound(SFX_WAND_SWING, 0.3f);
     }
   }
 
