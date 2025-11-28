@@ -37,22 +37,8 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state, const f
     state.player_velocity.x += tachyon->left_stick.x * movement_speed * dt;
     state.player_velocity.z += tachyon->left_stick.y * movement_speed * dt;
 
-    // Double-tapping A/X to escape enemies
+    // Track run input timings to use for dodges
     if (did_press_key(tKey::CONTROLLER_A)) {
-      if (
-        time_since(state.last_run_input_time) < 0.3f &&
-        state.has_target
-      ) {
-        auto& target = *EntityManager::FindEntity(state, state.target_entity);
-        tVec3f unit_velocity = state.player_velocity.unit();
-        tVec3f unit_target_to_player = (state.player_position - target.visible_position).unit();
-
-        // Require that we're actually dodging/dashing away from the enemy to deselect it
-        if (tVec3f::dot(unit_velocity, unit_target_to_player) > 0.7f) {
-          Targeting::DeselectCurrentTarget(tachyon, state);
-        }
-      }
-
       state.last_run_input_time = get_scene_time();
     }
 
@@ -354,6 +340,16 @@ static void HandleTargetingControls(Tachyon* tachyon, State& state) {
   // @todo remove click handling
   if (did_press_key(tKey::CONTROLLER_R1) || did_left_click_down()) {
     Targeting::SelectNextAccessibleTarget(tachyon, state);
+  }
+
+  // @todo see if there's a better key binding for this
+  if (is_key_held(tKey::CONTROLLER_L1) && did_press_key(tKey::CONTROLLER_R1)) {
+    Targeting::DeselectCurrentTarget(tachyon, state);
+  }
+
+  // @todo see if there's a better key binding for this
+  if (is_key_held(tKey::CONTROLLER_R1) && did_press_key(tKey::CONTROLLER_L1)) {
+    Targeting::DeselectCurrentTarget(tachyon, state);
   }
 }
 
