@@ -108,25 +108,27 @@ void Astrolabe::Update(Tachyon* tachyon, State& state) {
     // tVec3f fragment_color = tVec3f::lerp(tVec3f(0.2f, 0.1f, 0), tVec3f(0.7f, 0.5f, 0.2f), state.astrolabe_visibility);
     tVec3f fragment_color = tVec3f(0.7f, 0.5f, 0.2f);
 
-    auto& fragment_ul = objects(meshes.astrolabe_fragment_ul)[0];
-    auto& fragment_ll = objects(meshes.astrolabe_fragment_ll)[0];
+    auto& fragment_upper_left = objects(meshes.astrolabe_fragment_ul)[0];
+    auto& fragment_lower_left = objects(meshes.astrolabe_fragment_ll)[0];
 
-    fragment_ul.position = base.position;
-    fragment_ul.scale = base.scale;
-    fragment_ul.rotation = base.rotation;
-    fragment_ul.color = fragment_color;
-    fragment_ul.material = base.material;
+    fragment_upper_left.position = base.position;
+    fragment_upper_left.scale = base.scale;
+    fragment_upper_left.rotation = base.rotation;
+    fragment_upper_left.color = fragment_color;
+    fragment_upper_left.material = base.material;
 
     if (Items::HasItem(state, ASTROLABE_LOWER_LEFT)) {
-      fragment_ll.position = base.position;
-      fragment_ll.scale = base.scale;
-      fragment_ll.rotation = base.rotation;
-      fragment_ll.color = fragment_color;
-      fragment_ll.material = base.material;
+      fragment_lower_left.position = base.position;
+      fragment_lower_left.scale = base.scale;
+      fragment_lower_left.rotation = base.rotation;
+      fragment_lower_left.color = fragment_color;
+      fragment_lower_left.material = base.material;
+    } else {
+      fragment_lower_left.scale = tVec3f(0.f);
     }
 
-    commit(fragment_ul);
-    commit(fragment_ll);
+    commit(fragment_upper_left);
+    commit(fragment_lower_left);
   }
 
   // Light

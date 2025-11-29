@@ -311,14 +311,27 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
         entity.is_astro_synced = false;
       }
 
-      // @todo reset gates
+      for_entities(state.gates) {
+        auto& entity = state.gates[i];
+
+        entity.astro_activation_time = 0.f;
+        entity.game_activation_time = -1.f;
+      }
+
+      show_overlay_message("Reset activated entities");
     }
 
     if (did_press_key(tKey::I)) {
-      Items::CollectItem(tachyon, state, ITEM_STUN_SPELL);
-      Items::CollectItem(tachyon, state, ITEM_HOMING_SPELL);
-      Items::CollectItem(tachyon, state, ASTROLABE_LOWER_LEFT);
-      Items::CollectItem(tachyon, state, GATE_KEY);
+      if (Items::HasItem(state, ASTROLABE_LOWER_LEFT)) {
+        show_overlay_message("Reset items");
+
+        state.inventory.clear();
+      } else {
+        Items::CollectItem(tachyon, state, ITEM_STUN_SPELL);
+        Items::CollectItem(tachyon, state, ITEM_HOMING_SPELL);
+        Items::CollectItem(tachyon, state, ASTROLABE_LOWER_LEFT);
+        Items::CollectItem(tachyon, state, GATE_KEY);
+      }
     }
   }
 
