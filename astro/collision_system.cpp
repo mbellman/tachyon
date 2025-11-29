@@ -83,7 +83,7 @@ static inline void ResolveSingleRadiusCollision(State& state, const tVec3f& posi
   }
 }
 
-static bool ResolveSinglePlaneCollision(State& state, const Plane& plane, const float dt) {
+static bool ResolveSinglePlaneCollision(State& state, const Plane& plane) {
   tVec3f player_xz = state.player_position.xz();
 
   if (CollisionSystem::IsPointOnPlane(player_xz, plane)) {
@@ -100,7 +100,7 @@ static bool ResolveSinglePlaneCollision(State& state, const Plane& plane, const 
       tVec3f crossed_edge = GetOversteppedEdge(state.last_solid_ground_position, plane).unit();
       float edge_dot = tVec3f::dot(unit_velocity, crossed_edge);
       tVec3f corrected_direction = edge_dot > 0.f ? crossed_edge : crossed_edge.invert();
-      float corrected_speed = 3.f * player_speed * abs(edge_dot) * dt;
+      float corrected_speed = 3.f * player_speed * abs(edge_dot) * state.dt;
       tVec3f rebound_direction = tVec3f::cross(crossed_edge, tVec3f(0, 1.f, 0));
 
       // Reset position
@@ -195,7 +195,7 @@ static void HandleBridgeCollisions(Tachyon* tachyon, State& state) {
   }
 }
 
-static void HandleAltarCollisions(Tachyon* tachyon, State& state, const float dt) {
+static void HandleAltarCollisions(Tachyon* tachyon, State& state) {
   tVec3f player_xz = state.player_position.xz();
 
   for_entities(state.altars) {
@@ -276,7 +276,7 @@ static void HandleRiverLogCollisions(Tachyon* tachyon, State& state) {
   }
 }
 
-static void HandleGateCollisions(Tachyon* tachyon, State& state, const float dt) {
+static void HandleGateCollisions(Tachyon* tachyon, State& state) {
   const tVec3f scale_factor = tVec3f(0.4f, 0, 1.4f);
 
   tVec3f player_xz = state.player_position.xz();
@@ -322,14 +322,14 @@ static void HandleGateCollisions(Tachyon* tachyon, State& state, const float dt)
     }
 
     for (auto& plane : collision_planes) {
-      if (ResolveSinglePlaneCollision(state, plane, dt)) {
+      if (ResolveSinglePlaneCollision(state, plane)) {
         return;
       }
     }
   }
 }
 
-static void HandleWoodenFenceCollisions(Tachyon* tachyon, State& state, const float dt) {
+static void HandleWoodenFenceCollisions(Tachyon* tachyon, State& state) {
   for_entities(state.wooden_fences) {
     auto& entity = state.wooden_fences[i];
 
@@ -337,7 +337,7 @@ static void HandleWoodenFenceCollisions(Tachyon* tachyon, State& state, const fl
 
     auto plane = CollisionSystem::CreatePlane(entity.position, entity.visible_scale, entity.orientation);
 
-    ResolveSinglePlaneCollision(state, plane, dt);
+    ResolveSinglePlaneCollision(state, plane);
   }
 }
 
@@ -388,7 +388,7 @@ Plane CollisionSystem::CreatePlane(const tVec3f& position, const tVec3f& scale, 
   return plane;
 }
 
-void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state, const float dt) {
+void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   profile("HandleCollisions()");
 
   // Assume we're not on solid ground until a
@@ -455,11 +455,11 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state, const flo
     ResolveSingleRadiusCollision(state, ground.position, ground.scale, 0.8f);
   }
 
-  HandleGateCollisions(tachyon, state, dt);
-  HandleWoodenFenceCollisions(tachyon, state, dt);
+  HandleGateCollisions(tachyon, state);
+  HandleWoodenFenceCollisions(tachyon, state);
   HandleFlatGroundCollisions(tachyon, state);
   HandleBridgeCollisions(tachyon, state);
-  HandleAltarCollisions(tachyon, state, dt);
+  HandleAltarCollisions(tachyon, state);
   HandleRiverLogCollisions(tachyon, state);
 
   if (!state.is_on_solid_ground) {

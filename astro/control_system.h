@@ -5,6 +5,6 @@
 
 namespace astro {
   namespace ControlSystem {
-    void HandleControls(Tachyon* tachyon, State& state, const float dt);
+    void HandleControls(Tachyon* tachyon, State& state);
   }
 }

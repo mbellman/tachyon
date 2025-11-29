@@ -9,7 +9,7 @@
 
 using namespace astro;
 
-static void HandlePlayerMovementControls(Tachyon* tachyon, State& state, const float dt) {
+static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
   const float dodge_cooldown_time = 0.3f;
 
   bool is_running = is_key_held(tKey::CONTROLLER_A) || is_key_held(tKey::SHIFT);
@@ -19,23 +19,23 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state, const f
     float movement_speed = is_running ? 14000.f : 4000.f;
 
     if (is_key_held(tKey::W)) {
-      state.player_velocity += tVec3f(0, 0, -1.f) * movement_speed * dt;
+      state.player_velocity += tVec3f(0, 0, -1.f) * movement_speed * state.dt;
     }
 
     if (is_key_held(tKey::A)) {
-      state.player_velocity += tVec3f(-1.f, 0, 0) * movement_speed * dt;
+      state.player_velocity += tVec3f(-1.f, 0, 0) * movement_speed * state.dt;
     }
 
     if (is_key_held(tKey::D)) {
-      state.player_velocity += tVec3f(1.f, 0, 0) * movement_speed * dt;
+      state.player_velocity += tVec3f(1.f, 0, 0) * movement_speed * state.dt;
     }
 
     if (is_key_held(tKey::S)) {
-      state.player_velocity += tVec3f(0, 0, 1.f) * movement_speed * dt;
+      state.player_velocity += tVec3f(0, 0, 1.f) * movement_speed * state.dt;
     }
 
-    state.player_velocity.x += tachyon->left_stick.x * movement_speed * dt;
-    state.player_velocity.z += tachyon->left_stick.y * movement_speed * dt;
+    state.player_velocity.x += tachyon->left_stick.x * movement_speed * state.dt;
+    state.player_velocity.z += tachyon->left_stick.y * movement_speed * state.dt;
 
     // Track run input timings to use for dodges
     if (did_press_key(tKey::CONTROLLER_A)) {
@@ -56,7 +56,7 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state, const f
   // Speed limiting
   // @todo move elsewhere
   {
-    state.player_velocity *= 1.f - 6.f * dt;
+    state.player_velocity *= 1.f - 6.f * state.dt;
 
     float speed = state.player_velocity.magnitude();
     float max_speed = is_running ? 1300.f : 550.f;
@@ -73,11 +73,11 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state, const f
 
   // Update position
   {
-    state.player_position += state.player_velocity * 5.f * dt;
+    state.player_position += state.player_velocity * 5.f * state.dt;
   }
 }
 
-static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) {
+static void HandleAstroControls(Tachyon* tachyon, State& state) {
   const float astro_start_rate = 0.1f;
   const float astro_travel_rate = 0.8f;
   const float astro_slowdown_rate = 3.f;
@@ -128,8 +128,8 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
   }
 
   // Handle reverse/forward turn actions
-  state.astro_turn_speed -= tachyon->left_trigger * astro_acceleration * dt;
-  state.astro_turn_speed += tachyon->right_trigger * astro_acceleration * dt;
+  state.astro_turn_speed -= tachyon->left_trigger * astro_acceleration * state.dt;
+  state.astro_turn_speed += tachyon->right_trigger * astro_acceleration * state.dt;
 
   // Prevent time changes past max time
   if (state.astro_time >= max_astro_time && state.astro_turn_speed > 0.f) {
@@ -170,7 +170,7 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
       float threshold_to_limit = max_astro_time - slowdown_threshold;
       float slowdown_factor = 20.f * powf(threshold_distance / threshold_to_limit, 2.f);
 
-      state.astro_turn_speed *= 1.f - slowdown_factor * dt;
+      state.astro_turn_speed *= 1.f - slowdown_factor * state.dt;
 
       if (abs(max_astro_time - state.astro_time) < 2.f) {
         UISystem::ShowDialogue(tachyon, state, "The astrolabe stopped turning.");
@@ -199,7 +199,7 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
       float threshold_to_limit = abs(min_astro_time - slowdown_threshold);
       float slowdown_factor = 20.f * powf(threshold_distance / threshold_to_limit, 2.f);
 
-      state.astro_turn_speed *= 1.f - slowdown_factor * dt;
+      state.astro_turn_speed *= 1.f - slowdown_factor * state.dt;
 
       if (
         state.astro_time_at_start_of_turn > min_astro_time + 1.f &&
@@ -213,7 +213,7 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
   }
 
   // Advance (or reverse) astro time
-  state.astro_time += state.astro_turn_speed * 100.f * dt;
+  state.astro_time += state.astro_turn_speed * 100.f * state.dt;
 
   // Clamp to min/max astro time
   if (state.astro_time > max_astro_time) state.astro_time = max_astro_time;
@@ -221,7 +221,7 @@ static void HandleAstroControls(Tachyon* tachyon, State& state, const float dt) 
 
   if (tachyon->left_trigger == 0.f && tachyon->right_trigger == 0.f) {
     // Reduce turn rate gradually
-    state.astro_turn_speed *= 1.f - astro_slowdown_rate * dt;
+    state.astro_turn_speed *= 1.f - astro_slowdown_rate * state.dt;
 
     // Stop turning at a low enough speed
     if (abs(state.astro_turn_speed) < 0.01f) {
@@ -353,14 +353,14 @@ static void HandleTargetingControls(Tachyon* tachyon, State& state) {
   }
 }
 
-void ControlSystem::HandleControls(Tachyon* tachyon, State& state, const float dt) {
+void ControlSystem::HandleControls(Tachyon* tachyon, State& state) {
   if (state.has_blocking_dialogue && !state.dismissed_blocking_dialogue) {
     // Disallow character controls until blocking dialogue is dimissed
     return;
   }
 
-  HandlePlayerMovementControls(tachyon, state, dt);
-  HandleAstroControls(tachyon, state, dt);
+  HandlePlayerMovementControls(tachyon, state);
+  HandleAstroControls(tachyon, state);
   HandleDayNightControls(tachyon, state);
   HandleSpellControls(tachyon, state);
   HandleTargetingControls(tachyon, state);

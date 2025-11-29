@@ -319,6 +319,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   // @todo HandleFrameStart()
   {
     state.spells.did_cast_stun_this_frame = false;
+    state.dt = dt;
   }
 
   #if MUSIC_ENABLED == 1
@@ -332,8 +333,8 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   #endif
 
   Targeting::HandleTargets(tachyon, state);
-  ControlSystem::HandleControls(tachyon, state, dt);
-  CollisionSystem::HandleCollisions(tachyon, state, dt);
+  ControlSystem::HandleControls(tachyon, state);
+  CollisionSystem::HandleCollisions(tachyon, state);
   SpellSystem::HandleSpells(tachyon, state, dt);
   Items::HandleItemPickup(tachyon, state);
   UISystem::HandleDialogue(tachyon, state);

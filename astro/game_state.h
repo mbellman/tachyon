@@ -157,6 +157,8 @@ namespace astro {
   struct State : EntityContainers {
     MeshIds meshes;
 
+    float dt = 0.f;
+
     // Player attributes
     tVec3f player_position;
     tVec3f last_player_position;
@@ -170,9 +172,6 @@ namespace astro {
     float last_wand_swing_time = 0.f;
     bool is_on_solid_ground = false;
     bool did_resolve_radius_collision = false;
-
-    float astrolabe_visibility = 1.f;
-    int32 astrolabe_light_id = -1;
 
     float movement_distance = 0.f;
     float last_walk_sound_movement_distance = 0.f;
@@ -195,6 +194,7 @@ namespace astro {
 
     float water_level = -1800.f;
 
+    // Astro properties
     float astro_time = 0.f;
     float astro_turn_speed = 0.f;
     float astro_time_at_start_of_turn = 0.f;
@@ -203,9 +203,10 @@ namespace astro {
     float time_warp_end_radius = 30000.f;
     // @todo use a float from 0.0 -> 1.0 representing night -> day
     bool is_nighttime = false;
-
     bool is_astrolabe_stopped = true;
     bool is_astro_traveling = false;
+    float astrolabe_visibility = 1.f; // @todo update effect or remove
+    int32 astrolabe_light_id = -1;
 
     Spells spells;
 
