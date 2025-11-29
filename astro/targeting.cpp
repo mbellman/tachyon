@@ -23,10 +23,6 @@ static inline void ResetEntityRecord(EntityRecord& record) {
   record.id = -1;
 }
 
-// @todo @optimize this function is kind of dumb now.
-// the lookup to resolve entities is unnecessary if we
-// precompute this stuff in TrackTargetableEntities()
-// and use that information where needed.
 static EntityRecord GetClosestNonSelectedTarget(State& state) {
   float closest_distance = target_distance_limit;
   EntityRecord candidate;
@@ -43,6 +39,29 @@ static EntityRecord GetClosestNonSelectedTarget(State& state) {
 
     if (distance < closest_distance && entity.visible_scale.x != 0.f) {
       closest_distance = distance;
+      candidate = record;
+    }
+  }
+
+  return candidate;
+}
+
+static EntityRecord GetLeftmostNonSelectedTarget(State& state) {
+  float leftmost_x = FLT_MAX;
+  EntityRecord candidate;
+
+  ResetEntityRecord(candidate);
+
+  for (auto& record : state.targetable_entities) {
+    if (IsSameEntity(record, state.target_entity)) {
+      continue;
+    }
+
+    auto& entity = *EntityManager::FindEntity(state, record);
+    float x = entity.visible_position.x;
+
+    if (x < leftmost_x) {
+      leftmost_x = x;
       candidate = record;
     }
   }
@@ -214,7 +233,7 @@ void Targeting::SelectPreviousAccessibleTarget(Tachyon* tachyon, State& state) {
       }
     }
   } else {
-    new_target = GetClosestNonSelectedTarget(state);
+    new_target = GetLeftmostNonSelectedTarget(state);
   }
 
   if (new_target.type == UNSPECIFIED || new_target.id == -1) {
