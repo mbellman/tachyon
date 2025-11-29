@@ -95,7 +95,7 @@ namespace astro {
           if (knockback_factor > 1.f) knockback_factor = 1.f;
           if (knockback_factor < 0.f) knockback_factor = 0.f;
 
-          entity.visible_position -= player_direction * knockback_factor * 3000.f * dt;
+          entity.visible_position -= player_direction * knockback_factor * 3000.f * state.dt;
         }
         else if (player_distance > 3000.f) {
           // Non-close-quarters behavior
@@ -109,7 +109,7 @@ namespace astro {
 
           // Chase the player when not idle
           if (enemy.mood != ENEMY_IDLE) {
-            entity.visible_position += player_direction * 3000.f * dt;
+            entity.visible_position += player_direction * 3000.f * state.dt;
 
             FacePlayer(entity, state);
           }

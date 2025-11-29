@@ -104,19 +104,19 @@ namespace astro {
 
           if (enemy.mood == ENEMY_AGITATED) {
             // Chase the player
-            enemy.speed += 2000.f * dt;
+            enemy.speed += 2000.f * state.dt;
             if (enemy.speed > 3000.f) enemy.speed = 3000.f;
 
             if (is_attacking) {
-              enemy.speed *= 1.f - dt;
+              enemy.speed *= 1.f - state.dt;
             }
 
             // @todo FollowPlayer()
             if (player_distance > 3500.f) {
-              entity.visible_position += entity_to_player.unit() * enemy.speed * dt;
+              entity.visible_position += entity_to_player.unit() * enemy.speed * state.dt;
             }
             else if (player_distance < 3250.f) {
-              entity.visible_position -= entity_to_player.unit() * enemy.speed * dt;
+              entity.visible_position -= entity_to_player.unit() * enemy.speed * state.dt;
             }
           }
         }
@@ -309,7 +309,7 @@ namespace astro {
                 if (spear_tip_distance < 2000.f) {
                   tVec3f knockback_direction = (state.player_position - spear.position).xz().unit();
 
-                  state.player_velocity += knockback_direction * 100000.f * dt;
+                  state.player_velocity += knockback_direction * 100000.f * state.dt;
 
                   if (time_since(state.last_damage_time) > 1.5f) {
                     Sfx::PlaySound(SFX_SWORD_DAMAGE, 0.5f);

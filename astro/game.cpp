@@ -335,7 +335,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   Targeting::HandleTargets(tachyon, state);
   ControlSystem::HandleControls(tachyon, state);
   CollisionSystem::HandleCollisions(tachyon, state);
-  SpellSystem::HandleSpells(tachyon, state, dt);
+  SpellSystem::HandleSpells(tachyon, state);
   Items::HandleItemPickup(tachyon, state);
   UISystem::HandleDialogue(tachyon, state);
   HandleFog(tachyon, state);
@@ -343,7 +343,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   HandleCurrentAreaMusic(tachyon, state);
   HandleMusicLevels(tachyon, state);
 
-  TimeEvolution::UpdateAstroTime(tachyon, state, dt);
+  TimeEvolution::UpdateAstroTime(tachyon, state);
   ProceduralGeneration::UpdateProceduralObjects(tachyon, state);
   CameraSystem::UpdateCamera(tachyon, state, dt);
   Astrolabe::Update(tachyon, state);

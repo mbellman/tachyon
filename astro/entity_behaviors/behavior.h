@@ -21,10 +21,10 @@
 #define addMeshes() static void _AddMeshes(Tachyon* tachyon, MeshIds& meshes)
 #define getMeshes() static const std::vector<uint16>& _GetMeshes(const MeshIds& meshes)
 #define getPlaceholderMesh() static uint16 _GetPlaceholderMesh(const MeshIds& meshes)
-#define timeEvolve() static void _TimeEvolve(Tachyon* tachyon, State& state, const float dt)
-#define handleEnemyBehavior() static void _HandleEnemyBehavior(Tachyon* tachyon, State& state, GameEntity& entity, const float dt)
+#define timeEvolve() static void _TimeEvolve(Tachyon* tachyon, State& state)
+#define handleEnemyBehavior() static void _HandleEnemyBehavior(Tachyon* tachyon, State& state, GameEntity& entity)
 
-#define handle_enemy_behavior(__behavior) __behavior::_HandleEnemyBehavior(tachyon, state, entity, dt)
+#define handle_enemy_behavior(__behavior) __behavior::_HandleEnemyBehavior(tachyon, state, entity)
 
 namespace astro {
   static float GetLivingEntityProgress(State& state, const GameEntity& entity, const float lifetime) {
@@ -72,9 +72,8 @@ namespace astro {
     tVec3f entity_to_player = state.player_position - entity.visible_position;
     Quaternion facing_direction = Quaternion::FromDirection(entity_to_player.unit(), tVec3f(0, 1.f, 0));
 
-    // @todo use dt
     // @todo use nlerp
-    entity.visible_rotation = Quaternion::slerp(entity.visible_rotation, facing_direction, 1.f / 60.f);
+    entity.visible_rotation = Quaternion::slerp(entity.visible_rotation, facing_direction, 2.f * state.dt);
   }
 
   static void SetMood(GameEntity& entity, EnemyMood mood, const float scene_time) {

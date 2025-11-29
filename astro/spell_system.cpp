@@ -47,7 +47,7 @@ static void HandleActiveStunSpell(Tachyon* tachyon, State& state) {
  * Homing spell helper functions.
  * ----------------------------
  */
-static void HandleHomingSpellCircling(Tachyon* tachyon, State& state, HomingOrb& orb, tPointLight& light, const int index, const float dt) {
+static void HandleHomingSpellCircling(Tachyon* tachyon, State& state, HomingOrb& orb, tPointLight& light, const int index) {
   auto& spells = state.spells;
   float time_since_casting = tachyon->running_time - spells.homing_start_time;
 
@@ -94,7 +94,7 @@ static void HandleHomingSpellCircling(Tachyon* tachyon, State& state, HomingOrb&
       // Fire toward the target entity
       orb.is_targeting = true;
       orb.targeting_start_time = tachyon->running_time;
-      orb.targeting_start_speed = (light.position - previous_light_position).magnitude() * 18000.f * dt;
+      orb.targeting_start_speed = (light.position - previous_light_position).magnitude() * 18000.f * state.dt;
       orb.targeting_start_direction = (light.position - previous_light_position).unit();
     }
   }
@@ -105,7 +105,7 @@ static void HandleHomingSpellCircling(Tachyon* tachyon, State& state, HomingOrb&
   }
 }
 
-static void HandleHomingSpellTargeting(Tachyon* tachyon, State& state, HomingOrb& orb, tPointLight& light, const float dt) {
+static void HandleHomingSpellTargeting(Tachyon* tachyon, State& state, HomingOrb& orb, tPointLight& light) {
   float t = tachyon->running_time - orb.targeting_start_time;
   if (t > 1.f) t = 1.f;
 
@@ -117,7 +117,7 @@ static void HandleHomingSpellTargeting(Tachyon* tachyon, State& state, HomingOrb
   tVec3f direction = tVec3f::lerp(orb.targeting_start_direction, unit_light_to_target, sqrtf(t)).unit();
   float speed = Tachyon_Lerpf(orb.targeting_start_speed, 16000.f, t);
 
-  light.position += direction * speed * dt;
+  light.position += direction * speed * state.dt;
   light.radius = 3000.f;
 
   if (target_distance < 200.f) {
@@ -126,7 +126,7 @@ static void HandleHomingSpellTargeting(Tachyon* tachyon, State& state, HomingOrb
   }
 }
 
-static void HandleActiveHomingSpell(Tachyon* tachyon, State& state, const float dt) {
+static void HandleActiveHomingSpell(Tachyon* tachyon, State& state) {
   auto& spells = state.spells;
 
   if (
@@ -158,10 +158,10 @@ static void HandleActiveHomingSpell(Tachyon* tachyon, State& state, const float 
     light.power = 3.f;
 
     if (!orb.is_targeting) {
-      HandleHomingSpellCircling(tachyon, state, orb, light, i, dt);
+      HandleHomingSpellCircling(tachyon, state, orb, light, i);
     }
     else if (state.target_entity.type != UNSPECIFIED) {
-      HandleHomingSpellTargeting(tachyon, state, orb, light, dt);
+      HandleHomingSpellTargeting(tachyon, state, orb, light);
     }
   }
 }
@@ -212,9 +212,9 @@ void SpellSystem::CastHoming(Tachyon* tachyon, State& state) {
   }
 }
 
-void SpellSystem::HandleSpells(Tachyon* tachyon, State& state, const float dt) {
+void SpellSystem::HandleSpells(Tachyon* tachyon, State& state) {
   auto& spells = state.spells;
 
   HandleActiveStunSpell(tachyon, state);
-  HandleActiveHomingSpell(tachyon, state, dt);
+  HandleActiveHomingSpell(tachyon, state);
 }

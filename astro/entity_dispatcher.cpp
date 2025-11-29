@@ -45,7 +45,7 @@ using namespace astro;
 
 #define dispatch_TimeEvolve(__entity_type, __Behavior)\
   case __entity_type:\
-    __Behavior::_TimeEvolve(tachyon, state, dt);\
+    __Behavior::_TimeEvolve(tachyon, state);\
     break\
 
 #define create_dispatch_cases(behavior_macro)\
@@ -139,7 +139,7 @@ uint16 EntityDispatcher::GetPlaceholderMesh(State& state, EntityType type) {
   }
 }
 
-void EntityDispatcher::TimeEvolve(Tachyon* tachyon, State& state, EntityType type, const float dt) {
+void EntityDispatcher::TimeEvolve(Tachyon* tachyon, State& state, EntityType type) {
   switch (type) {
     create_dispatch_cases(dispatch_TimeEvolve)
 

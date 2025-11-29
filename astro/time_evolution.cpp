@@ -38,11 +38,11 @@ static tVec3f GetLightColor(const float astro_time, bool is_nighttime) {
   return present_color;
 }
 
-void TimeEvolution::UpdateAstroTime(Tachyon* tachyon, State& state, const float dt) {
+void TimeEvolution::UpdateAstroTime(Tachyon* tachyon, State& state) {
   profile("UpdateAstroTime()");
 
   for_all_entity_types() {
-    EntityDispatcher::TimeEvolve(tachyon, state, type, dt);
+    EntityDispatcher::TimeEvolve(tachyon, state, type);
   }
 
   // @todo factor

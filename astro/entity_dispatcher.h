@@ -15,6 +15,6 @@ namespace astro {
     void AddMeshes(Tachyon* tachyon, State& state, EntityType type);
     const std::vector<uint16>& GetMeshes(State& state, EntityType type);
     uint16 GetPlaceholderMesh(State& state, EntityType type);
-    void TimeEvolve(Tachyon* tachyon, State& state, EntityType type, const float dt);
+    void TimeEvolve(Tachyon* tachyon, State& state, EntityType type);
   }
 }

@@ -37,20 +37,10 @@ namespace astro {
         auto& roof = objects(meshes.house_roof)[i];
         auto& chimney = objects(meshes.house_chimney)[i];
 
-        body.position =
-        frame.position =
-        roof.position =
-        chimney.position = entity.position;
-
-        body.scale =
-        frame.scale =
-        roof.scale =
-        chimney.scale = entity.scale;
-
-        body.rotation =
-        frame.rotation =
-        roof.rotation =
-        chimney.rotation = entity.orientation;
+        Sync(body, entity);
+        Sync(frame, entity);
+        Sync(roof, entity);
+        Sync(chimney, entity);
 
         body.color = entity.tint;
         frame.color = tVec3f(0.6f, 0.4f, 0.3f);

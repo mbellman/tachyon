@@ -6,6 +6,6 @@ namespace astro {
   namespace SpellSystem {
     void CastStun(Tachyon* tachyon, State& state);
     void CastHoming(Tachyon* tachyon, State& state);
-    void HandleSpells(Tachyon* tachyon, State& state, const float dt);
+    void HandleSpells(Tachyon* tachyon, State& state);
   }
 }

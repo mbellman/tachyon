@@ -1783,7 +1783,7 @@ void LevelEditor::HandleLevelEditor(Tachyon* tachyon, State& state, const float 
 
   if (editor.show_fog_volumes) {
     // Ensure fog spawns are synced in the editor
-    EntityDispatcher::TimeEvolve(tachyon, state, FOG_SPAWN, dt);
+    EntityDispatcher::TimeEvolve(tachyon, state, FOG_SPAWN);
   } else {
     tachyon->fog_volumes.clear();
   }
