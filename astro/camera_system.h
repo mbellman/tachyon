@@ -5,6 +5,6 @@
 
 namespace astro {
   namespace CameraSystem {
-    void UpdateCamera(Tachyon* tachyon, State& state, const float dt);
+    void UpdateCamera(Tachyon* tachyon, State& state);
   }
 }

@@ -179,7 +179,7 @@ void Targeting::SelectNextAccessibleTarget(Tachyon* tachyon, State& state) {
     auto index = FindRecordIndex(state.targetable_entities, state.target_entity);
 
     if (index > -1) {
-      if (index < state.targetable_entities.size() - 1) {
+      if (index < (int32)state.targetable_entities.size() - 1) {
         new_target = state.targetable_entities[index + 1];
       } else {
         new_target = state.targetable_entities[0];

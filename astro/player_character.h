@@ -4,7 +4,7 @@
 
 namespace astro {
   namespace PlayerCharacter {
-    void UpdatePlayer(Tachyon* tachyon, State& state, const float dt);
+    void UpdatePlayer(Tachyon* tachyon, State& state);
     void TakeDamage(Tachyon* tachyon, State& state, const float damage);
   }
 }

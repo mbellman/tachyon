@@ -284,7 +284,7 @@ static void HandleSelectedObjectCameraSwiveling(Tachyon* tachyon, State& state) 
  * Handles camera behavior in the editor.
  * ----------------------------
  */
-static void HandleCameraActions(Tachyon* tachyon, State& state, const float dt) {
+static void HandleCameraActions(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
 
   const float camera_panning_speed = 0.2f;
@@ -296,8 +296,8 @@ static void HandleCameraActions(Tachyon* tachyon, State& state, const float dt) 
       if (is_key_held(tKey::SHIFT) && editor.is_anything_selected) {
         HandleSelectedObjectCameraSwiveling(tachyon, state);
       } else {
-        camera.orientation.yaw += tachyon->mouse_delta_x * camera_panning_speed * dt;
-        camera.orientation.pitch += tachyon->mouse_delta_y * camera_panning_speed * dt;
+        camera.orientation.yaw += tachyon->mouse_delta_x * camera_panning_speed * state.dt;
+        camera.orientation.pitch += tachyon->mouse_delta_y * camera_panning_speed * state.dt;
       }
     }
   }
@@ -306,26 +306,26 @@ static void HandleCameraActions(Tachyon* tachyon, State& state, const float dt) 
   {
     if (!editor.is_editing_entity_properties) {
       if (is_key_held(tKey::W)) {
-        camera.position += camera.orientation.getDirection() * camera_movement_speed * dt;
+        camera.position += camera.orientation.getDirection() * camera_movement_speed * state.dt;
       }
 
       if (is_key_held(tKey::A)) {
-        camera.position += camera.orientation.getLeftDirection() * camera_movement_speed * dt;
+        camera.position += camera.orientation.getLeftDirection() * camera_movement_speed * state.dt;
       }
 
       if (is_key_held(tKey::D)) {
-        camera.position += camera.orientation.getLeftDirection().invert() * camera_movement_speed * dt;
+        camera.position += camera.orientation.getLeftDirection().invert() * camera_movement_speed * state.dt;
       }
 
       if (is_key_held(tKey::S)) {
-        camera.position += camera.orientation.getDirection().invert() * camera_movement_speed * dt;
+        camera.position += camera.orientation.getDirection().invert() * camera_movement_speed * state.dt;
       }
     }
   }
 
   // Update camera rotation
   {
-    float blend_alpha = 50.f * dt;
+    float blend_alpha = 50.f * state.dt;
 
     if (tachyon->mouse_delta_x != 0 || tachyon->mouse_delta_y != 0 || blend_alpha > 1.f) {
       blend_alpha = 1.f;
@@ -1767,9 +1767,9 @@ void LevelEditor::OpenLevelEditor(Tachyon* tachyon, State& state) {
   fx.accumulation_blur_factor = 0.f;
 }
 
-void LevelEditor::HandleLevelEditor(Tachyon* tachyon, State& state, const float dt) {
+void LevelEditor::HandleLevelEditor(Tachyon* tachyon, State& state) {
   if (is_window_focused()) {
-    HandleCameraActions(tachyon, state, dt);
+    HandleCameraActions(tachyon, state);
     HandleEditorActions(tachyon, state);
   }
 

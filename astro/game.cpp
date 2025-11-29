@@ -254,6 +254,12 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   // @temporary
   scene.scene_time += dt;
 
+  // @todo HandleFrameStart()
+  {
+    state.spells.did_cast_stun_this_frame = false;
+    state.dt = dt;
+  }
+
   // Reset fx
   // @todo move to editor
   {
@@ -279,7 +285,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   if (state.is_level_editor_open) {
     ShowHighestLevelsOfDetail(tachyon, state);
 
-    LevelEditor::HandleLevelEditor(tachyon, state, dt);
+    LevelEditor::HandleLevelEditor(tachyon, state);
 
     return;
   }
@@ -316,12 +322,6 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
     }
   }
 
-  // @todo HandleFrameStart()
-  {
-    state.spells.did_cast_stun_this_frame = false;
-    state.dt = dt;
-  }
-
   #if MUSIC_ENABLED == 1
 
     if (state.astro_time < 0.f && state.astro_turn_speed == 0.f && state.bgm_start_time == -1.f) {
@@ -345,16 +345,16 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
 
   TimeEvolution::UpdateAstroTime(tachyon, state);
   ProceduralGeneration::UpdateProceduralObjects(tachyon, state);
-  CameraSystem::UpdateCamera(tachyon, state, dt);
+  CameraSystem::UpdateCamera(tachyon, state);
   Astrolabe::Update(tachyon, state);
-  PlayerCharacter::UpdatePlayer(tachyon, state, dt);
+  PlayerCharacter::UpdatePlayer(tachyon, state);
   UpdateWaterPlane(tachyon, state);
   UpdateLevelsOfDetail(tachyon, state);
 
   // @todo HandleFrameEnd()
   {
     auto& fx = tachyon->fx;
-    float max_blur_factor = 0.98f - 5.f * dt;
+    float max_blur_factor = 0.98f - 5.f * state.dt;
 
     state.movement_distance += tVec3f::distance(state.player_position, state.last_player_position);
     state.last_player_position = state.player_position;
@@ -367,8 +367,8 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
 
     // Time warp effects
     {
-      state.time_warp_start_radius = Tachyon_Lerpf(state.time_warp_start_radius, 30000.f, dt);
-      state.time_warp_end_radius = Tachyon_Lerpf(state.time_warp_end_radius, 30000.f, dt);
+      state.time_warp_start_radius = Tachyon_Lerpf(state.time_warp_start_radius, 30000.f, state.dt);
+      state.time_warp_end_radius = Tachyon_Lerpf(state.time_warp_end_radius, 30000.f, state.dt);
 
       fx.player_position = state.player_position;
       fx.astro_time_warp = state.astro_turn_speed / Astrolabe::GetMaxTurnSpeed();
@@ -381,7 +381,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
     {
       float desired_vignette_intensity = IsInStealthMode(state) ? 1.f : 0.f;
 
-      fx.vignette_intensity = Tachyon_Lerpf(fx.vignette_intensity, desired_vignette_intensity, 2.f * dt);
+      fx.vignette_intensity = Tachyon_Lerpf(fx.vignette_intensity, desired_vignette_intensity, 2.f * state.dt);
     }
 
     auto& velocity = state.player_velocity;

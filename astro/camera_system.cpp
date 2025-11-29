@@ -16,7 +16,7 @@ static void UpdateCameraInProximityToEntities(State& state, const std::vector<Ga
   }
 }
 
-void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) {
+void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state) {
   profile("UpdateCamera()");
 
   auto& camera = tachyon->scene.camera;
@@ -87,7 +87,7 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) 
     UpdateCameraInProximityToEntities(state, state.light_posts, new_camera_position, 2000.f, 2000.f);
     UpdateCameraInProximityToEntities(state, state.gates, new_camera_position, 2000.f, 3000.f);
 
-    state.camera_shift = tVec3f::lerp(state.camera_shift, desired_camera_shift, 5.f * dt);
+    state.camera_shift = tVec3f::lerp(state.camera_shift, desired_camera_shift, 5.f * state.dt);
   }
 
   new_camera_position += state.camera_shift;
@@ -101,6 +101,6 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state, const float dt) 
     new_camera_position.z += 10000.f;
   }
 
-  camera.position = tVec3f::lerp(camera.position, new_camera_position, 5.f * dt);
+  camera.position = tVec3f::lerp(camera.position, new_camera_position, 5.f * state.dt);
   camera.rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.9f);
 }

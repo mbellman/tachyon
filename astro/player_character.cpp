@@ -124,7 +124,7 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
   commit(wand);
 }
 
-void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state, const float dt) {
+void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
   profile("UpdatePlayer()");
 
   // Update facing direction
@@ -150,7 +150,7 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state, const float d
       turning_speed = 0.f;
     }
 
-    state.player_facing_direction = tVec3f::lerp(state.player_facing_direction, desired_facing_direction, turning_speed * dt).unit();
+    state.player_facing_direction = tVec3f::lerp(state.player_facing_direction, desired_facing_direction, turning_speed * state.dt).unit();
   }
 
   Quaternion player_rotation = Quaternion::FromDirection(state.player_facing_direction, tVec3f(0, 1.f, 0));
