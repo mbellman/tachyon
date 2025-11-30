@@ -4,7 +4,7 @@
 
 using namespace astro;
 
-// @todo move elsewhere
+// @todo move to engine
 static float InverseLerp(const float start, const float end, const float value) {
   float alpha = (value - start) / (end - start);
   if (alpha < 0.f) alpha = 0.f;

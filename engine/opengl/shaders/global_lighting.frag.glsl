@@ -770,19 +770,18 @@ void main() {
       for (int i = 0; i < total_fog_volumes; i++) {
         FogVolume volume = fog_volumes[i];
         float frag_distance_from_fog_spawn = length(position.xz - volume.position.xz);
-        float thickness = clamp(1.0 - frag_distance_from_fog_spawn / volume.radius, 0.0, 1.0);
+        float thickness = volume.thickness * clamp(1.0 - frag_distance_from_fog_spawn / volume.radius, 0.0, 1.0);
 
         fog_thickness += thickness;
         fog_color += volume.color * thickness;
       }
 
       if (fog_thickness > 1.0) fog_thickness = 1.0;
-      // fog_thickness = sqrt(fog_thickness);
 
       float frag_distance_from_player = length(position - player_position);
 
       float local_thickness = clamp(frag_distance_from_player / fog_visibility, 0.0, 1.0);
-      local_thickness = pow(local_thickness, 0.33);
+      local_thickness = pow(local_thickness, 0.5);
 
       fog_thickness *= local_thickness;
 

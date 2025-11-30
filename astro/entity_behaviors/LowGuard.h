@@ -7,15 +7,6 @@
 #include "astro/ui_system.h"
 
 namespace astro {
-  // @todo move elsewhere
-  static float InverseLerp(const float start, const float end, const float value) {
-    float alpha = (value - start) / (end - start);
-    if (alpha < 0.f) alpha = 0.f;
-    if (alpha > 1.f) alpha = 1.f;
-
-    return alpha;
-  }
-
   behavior LowGuard {
     const static float wind_up_duration = 0.8f;
     const static float stab_duration = 0.1f;

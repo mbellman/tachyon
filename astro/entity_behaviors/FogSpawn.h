@@ -1,6 +1,7 @@
 #pragma once
 
 #include "astro/entity_behaviors/behavior.h"
+#include "astro/astrolabe.h"
 
 namespace astro {
   behavior FogSpawn {
@@ -42,15 +43,17 @@ namespace astro {
 
       // @hack Add permanent player-aligned fog during certain portions of the game
       {
-        // tFogVolume volume;
-        // volume.position = state.player_position;
-        // volume.radius = 500000.f;
-        // volume.color = tVec3f(0.5f, 0.7f, 1.f);
-        // volume.thickness = 5.f;
+        float thickness = 1.f - InverseLerp(astro_time_periods.distant_past, astro_time_periods.past, state.astro_time);
 
-        // tachyon->fx.fog_visibility = 20000.f;
+        tFogVolume volume;
+        volume.position = state.player_position;
+        volume.radius = 500000.f;
+        volume.color = tVec3f(0.5f, 0.7f, 1.f);
+        volume.thickness = thickness;
 
-        // fog_volumes.push_back(volume);
+        tachyon->fx.fog_visibility = Tachyon_Lerpf(tachyon->fx.fog_visibility, 25000.f, thickness);
+
+        fog_volumes.push_back(volume);
       }
     }
   };

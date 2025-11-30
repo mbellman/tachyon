@@ -82,7 +82,7 @@ static void HandleFog(Tachyon* tachyon, State& state) {
 
   // @temporary
   // @todo lerp based on day/night alpha
-  fx.fog_visibility = state.is_nighttime ? 15000.f : 6000.f;
+  fx.fog_visibility = state.is_nighttime ? 15000.f : 4000.f;
 }
 
 static uint16 Hash(uint16 x) {
@@ -96,7 +96,7 @@ static uint16 Hash(uint16 x) {
 }
 
 static float HashToFloat(uint16 h) {
-  return (h & 0xFFFF) / float(0xFFFF);
+  return h / float(0xFFFF);
 }
 
 static float Wrap(float value, float min, float max, float range) {
@@ -135,9 +135,10 @@ static void HandleSnow(Tachyon* tachyon, State& state) {
     offset.z = Wrap(-local_z, min_z, max_z, range_z);
 
     particle.position = offset;
-    particle.scale = tVec3f(15.f);
+    particle.scale = tVec3f(25.f);
     particle.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), y * 0.001f);
-    particle.color = tVec4f(1.f, 1.f, 1.f, 1.f);
+    particle.color = tVec4f(0.4f, 0.6f, 1.f, 0.4f);
+    particle.material = tVec4f(0.f, 1.f, 0, 1.f);
 
     commit(particle);
   }

@@ -116,9 +116,9 @@ float simplex_noise(vec2 v) {
 void main() {
   vec3 N = normalize(fragNormal);
 
-  // @temporary
   float water_speed = scene_time;
-  float ripple_speed = 2.0 * scene_time;
+  float ripple_speed = 2.0 * water_speed;
+  // @temporary
   float big_wave = sin(fragPosition.z * 0.0002 + fragPosition.x * 0.0002 + ripple_speed);
   float small_wave = sin(fragPosition.z * 0.001 + fragPosition.x * 0.001 + ripple_speed);
 
@@ -130,8 +130,8 @@ void main() {
   float wz = fragPosition.z;
 
   // Noise/turbulence
-  N.xz += 0.15 * vec2(simplex_noise(vec2(scene_time * 0.5 + wx * 0.0005, scene_time * 0.5 + wz * 0.0005)));
-  N.xz += 0.1 * vec2(simplex_noise(vec2(scene_time * 0.5 + wx * 0.002, scene_time * 0.5 + wz * 0.002)));
+  N.xz += 0.15 * vec2(simplex_noise(vec2(water_speed * 0.5 + wx * 0.0005, water_speed * 0.5 + wz * 0.0005)));
+  N.xz += 0.1 * vec2(simplex_noise(vec2(water_speed * 0.5 + wx * 0.002, water_speed * 0.5 + wz * 0.002)));
   // N.xz += 0.04 * vec2(simplex_noise(vec2(scene_time * 0.5 + wx * 0.004, scene_time * 0.5 + wz * 0.004)));
 
   // Normal used for specular highlights; more intense than the normal
