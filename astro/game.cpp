@@ -85,6 +85,41 @@ static void HandleFog(Tachyon* tachyon, State& state) {
   fx.fog_visibility = state.is_nighttime ? 15000.f : 6000.f;
 }
 
+static uint16 Hash(uint16 x) {
+    x ^= x >> 8;
+    x *= 0x352d;
+    x ^= x >> 7;
+    x *= 0xa68b;
+    x ^= x >> 8;
+
+    return x;
+}
+
+static float HashToFloat(uint16 h) {
+    return (h & 0xFFFF) / float(0xFFFF);
+}
+
+static void HandleSnow(Tachyon* tachyon, State& state) {
+  profile("HandleSnow()");
+
+  for (auto& particle : objects(state.meshes.snow_particle)) {
+    float y = HashToFloat(Hash(particle.object_id)) * 10000.f - 10000.f;
+    y -= get_scene_time() * 1000.f;
+    y = fmodf(y, 10000.f) + 10000.f;
+
+    tVec3f offset;
+    offset.x = HashToFloat(Hash(particle.object_id * 4)) * 24000.f - 12000.f;
+    offset.y = y;
+    offset.z = HashToFloat(Hash(particle.object_id * 12)) * 24000.f - 12000.f;
+
+    particle.position = state.player_position + offset;
+    particle.scale = tVec3f(15.f);
+    particle.color = tVec4f(1.f, 1.f, 1.f, 1.f);
+
+    commit(particle);
+  }
+}
+
 // @todo 3d positioned sfx
 static void HandleWalkSounds(Tachyon* tachyon, State& state) {
   float distance_threshold = is_key_held(tKey::CONTROLLER_A) ? 2200.f : 1400.f;
@@ -352,6 +387,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   Items::HandleItemPickup(tachyon, state);
   UISystem::HandleDialogue(tachyon, state);
   HandleFog(tachyon, state);
+  // HandleSnow(tachyon, state);
   HandleWalkSounds(tachyon, state);
   HandleCurrentAreaMusic(tachyon, state);
   HandleMusicLevels(tachyon, state);

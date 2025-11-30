@@ -162,9 +162,11 @@ void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
   meshes.player = MODEL_MESH("./astro/3d_models/guy.obj", 1);
   meshes.wand = MODEL_MESH("./astro/3d_models/wand.obj", 1);
   meshes.water_plane = PLANE_MESH(1);
+  meshes.snow_particle = CUBE_MESH(100);
 
   mesh(meshes.water_plane).type = WATER_MESH;
   mesh(meshes.water_plane).shadow_cascade_ceiling = 0;
+  mesh(meshes.snow_particle).shadow_cascade_ceiling = 0;
 
   AddHUDMeshes(tachyon, state);
   AddDecorativeMeshes(tachyon, state);

@@ -39,6 +39,19 @@ namespace astro {
 
         fog_volumes.push_back(volume);
       }
+
+      // @hack Add permanent player-aligned fog during certain portions of the game
+      {
+        // tFogVolume volume;
+        // volume.position = state.player_position;
+        // volume.radius = 500000.f;
+        // volume.color = tVec3f(0.5f, 0.7f, 1.f);
+        // volume.thickness = 5.f;
+
+        // tachyon->fx.fog_visibility = 20000.f;
+
+        // fog_volumes.push_back(volume);
+      }
     }
   };
 }

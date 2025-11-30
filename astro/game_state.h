@@ -26,6 +26,7 @@ namespace astro {
 
       // Static environment meshes
       water_plane,
+      snow_particle,
 
       // Procedural meshes
       grass,

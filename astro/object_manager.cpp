@@ -11,6 +11,10 @@ void ObjectManager::CreateObjects(Tachyon* tachyon, State& state) {
 
   create(meshes.water_plane);
 
+  for (uint16 i = 0; i < 100; i++) {
+    create(meshes.snow_particle);
+  }
+
   create(meshes.astrolabe_rear);
   create(meshes.astrolabe_base);
   create(meshes.astrolabe_plate);
