@@ -86,34 +86,57 @@ static void HandleFog(Tachyon* tachyon, State& state) {
 }
 
 static uint16 Hash(uint16 x) {
-    x ^= x >> 8;
-    x *= 0x352d;
-    x ^= x >> 7;
-    x *= 0xa68b;
-    x ^= x >> 8;
+  x ^= x >> 8;
+  x *= 0x352d;
+  x ^= x >> 7;
+  x *= 0xa68b;
+  x ^= x >> 8;
 
-    return x;
+  return x;
 }
 
 static float HashToFloat(uint16 h) {
-    return (h & 0xFFFF) / float(0xFFFF);
+  return (h & 0xFFFF) / float(0xFFFF);
+}
+
+static float Wrap(float value, float min, float max, float range) {
+  if (value < 0.f) {
+    return max + fmodf(value, range);
+  } else {
+    return min + fmodf(value, range);
+  }
 }
 
 static void HandleSnow(Tachyon* tachyon, State& state) {
   profile("HandleSnow()");
+
+  float min_x = state.player_position.x - 12000.f;
+  float max_x = state.player_position.x + 12000.f;
+  float range_x = max_x - min_x;
+
+  float min_z = state.player_position.z - 12000.f;
+  float max_z = state.player_position.z + 12000.f;
+  float range_z = max_z - min_z;
 
   for (auto& particle : objects(state.meshes.snow_particle)) {
     float y = HashToFloat(Hash(particle.object_id)) * 10000.f - 10000.f;
     y -= get_scene_time() * 1000.f;
     y = fmodf(y, 10000.f) + 10000.f;
 
-    tVec3f offset;
-    offset.x = HashToFloat(Hash(particle.object_id * 4)) * 24000.f - 12000.f;
-    offset.y = y;
-    offset.z = HashToFloat(Hash(particle.object_id * 12)) * 24000.f - 12000.f;
+    float x = HashToFloat(Hash((particle.object_id + 1) * 4)) * 24000.f;
+    float z = HashToFloat(Hash((particle.object_id + 1) * 12)) * 24000.f;
 
-    particle.position = state.player_position + offset;
+    float local_x = state.player_position.x - x;
+    float local_z = state.player_position.z - z;
+
+    tVec3f offset;
+    offset.x = Wrap(-local_x, min_x, max_x, range_x);
+    offset.y = y;
+    offset.z = Wrap(-local_z, min_z, max_z, range_z);
+
+    particle.position = offset;
     particle.scale = tVec3f(15.f);
+    particle.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), y * 0.001f);
     particle.color = tVec4f(1.f, 1.f, 1.f, 1.f);
 
     commit(particle);
@@ -387,7 +410,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   Items::HandleItemPickup(tachyon, state);
   UISystem::HandleDialogue(tachyon, state);
   HandleFog(tachyon, state);
-  // HandleSnow(tachyon, state);
+  HandleSnow(tachyon, state);
   HandleWalkSounds(tachyon, state);
   HandleCurrentAreaMusic(tachyon, state);
   HandleMusicLevels(tachyon, state);
