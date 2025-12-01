@@ -73,7 +73,9 @@ enum class tKey : uint64 {
   CONTROLLER_X = 1ULL << 50,
   CONTROLLER_Y = 1ULL << 51,
   CONTROLLER_L1 = 1ULL << 52,
-  CONTROLLER_R1 = 1ULL << 53
+  CONTROLLER_R1 = 1ULL << 53,
+  CONTROLLER_L3 = 1ULL << 54,
+  CONTROLLER_R3 = 1ULL << 55
 };
 
 void Tachyon_HandleInputEvent(Tachyon* tachyon, const SDL_Event& event);

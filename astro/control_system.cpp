@@ -332,24 +332,20 @@ static void HandleSpellControls(Tachyon* tachyon, State& state) {
 }
 
 static void HandleTargetingControls(Tachyon* tachyon, State& state) {
-  // @todo remove click handling
-  if (did_press_key(tKey::CONTROLLER_L1) || did_right_click_down()) {
+  if (did_press_key(tKey::CONTROLLER_L1)) {
     Targeting::SelectPreviousAccessibleTarget(tachyon, state);
   }
 
-  // @todo remove click handling
-  if (did_press_key(tKey::CONTROLLER_R1) || did_left_click_down()) {
+  if (did_press_key(tKey::CONTROLLER_R1)) {
     Targeting::SelectNextAccessibleTarget(tachyon, state);
   }
 
-  // @todo see if there's a better key binding for this
-  if (is_key_held(tKey::CONTROLLER_L1) && did_press_key(tKey::CONTROLLER_R1)) {
-    Targeting::DeselectCurrentTarget(tachyon, state);
-  }
-
-  // @todo see if there's a better key binding for this
-  if (is_key_held(tKey::CONTROLLER_R1) && did_press_key(tKey::CONTROLLER_L1)) {
-    Targeting::DeselectCurrentTarget(tachyon, state);
+  if (did_press_key(tKey::CONTROLLER_R3)) {
+    if (state.has_target) {
+      Targeting::DeselectCurrentTarget(tachyon, state);
+    } else {
+      Targeting::SelectNextAccessibleTarget(tachyon, state);
+    }
   }
 }
 
