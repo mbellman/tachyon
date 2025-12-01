@@ -733,16 +733,20 @@ void main() {
   }
 
   out_color += GetAmbientFresnel(NdotV);
-  out_color = mix(out_color, albedo, pow(emissive, 1.5));
 
   if (frag_normal_and_depth.w >= 1.0) out_color = vec3(0);
 
-  // @todo move to post shader
-  float exposure = 1.5 + 4.0 * emissive;
-
   // Exposure/gamma correction
-  out_color = vec3(1.0) - exp(-out_color * exposure);
-  out_color = pow(out_color, vec3(1.0 / 2.2));
+  {
+    const float exposure = 1.5;
+    const float gamma = 2.2;
+
+    out_color = vec3(1.0) - exp(-out_color * exposure);
+    out_color = pow(out_color, vec3(1.0 / gamma));
+  }
+
+  // Emissives
+  out_color = mix(out_color, albedo, pow(emissive, 1.5));
 
   if (!use_high_visibility_mode) {
     // Fade to a dim blue in shadowed/darkened areas.
