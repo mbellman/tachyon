@@ -109,7 +109,7 @@ static void HandleActiveTargetReticle(Tachyon* tachyon, State& state) {
   reticle.position.y += 100.f * sinf(t_TAU * get_scene_time());
 
   reticle.scale = tVec3f(400.f);
-  reticle.color = tVec4f(1.f, 0.8f, 0.2f, 0.4f);
+  reticle.color = tVec4f(1.f, 0.9f, 0.5f, 0.8f);
   reticle.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -2.f * get_scene_time());
 
   if (entity_distance > 10000.f || entity.visible_scale.x == 0.f) {
@@ -130,8 +130,8 @@ static void HandlePreviewTargetReticle(Tachyon* tachyon, State& state) {
     reticle.position.y += entity.visible_scale.y + 1200.f;
     reticle.position.y += 150.f * sinf(t_TAU * get_scene_time());
 
-    reticle.scale = tVec3f(250.f);
-    reticle.color = tVec4f(0.7f, 0.2f, 0.1f, 0.8f);
+    reticle.scale = tVec3f(250.f, 200.f, 250.f);
+    reticle.color = tVec4f(1.f, 0.6f, 0.3f, 0.8f);
 
     reticle.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -2.f * get_scene_time());
   } else {

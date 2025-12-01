@@ -171,6 +171,7 @@ namespace astro {
           float astro_speed = abs(state.astro_turn_speed);
 
           if (astro_speed > 0.f) {
+            // Astro time turning behavior
             SetMood(entity, ENEMY_IDLE, get_scene_time());
 
             entity.enemy_state.speed = 0.f;
@@ -197,6 +198,15 @@ namespace astro {
               entity.visible_rotation = entity.orientation;
             }
           } else {
+            // Normal behavior
+
+            if (entity.enemy_state.mood == ENEMY_IDLE) {
+              float idle_angle = 0.2f * sinf(0.5f * get_scene_time());
+              Quaternion idle_rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), idle_angle);
+
+              entity.visible_rotation = entity.orientation * idle_rotation;
+            }
+
             // @todo factor
             {
               float time_since_last_recent_position = time_since(entity.last_recent_position_record_time);
@@ -249,6 +259,13 @@ namespace astro {
           shield.color = tVec3f(0.4f);
           shield.material = tVec4f(0.2f, 1.f, 0, 0);
 
+          // Idle motion
+          {
+            if (entity.enemy_state.mood == ENEMY_IDLE) {
+              shield.position.y += 50.f * cosf(get_scene_time());
+            }
+          }
+
           commit(shield);
         }
 
@@ -261,6 +278,13 @@ namespace astro {
           spear.rotation = entity.visible_rotation;
           spear.color = tVec3f(0.6f);
           spear.material = tVec4f(0.2f, 1.f, 0, 0);
+
+          // Idle motion
+          {
+            if (entity.enemy_state.mood == ENEMY_IDLE) {
+              spear.position.y += 100.f * sinf(2.f * get_scene_time());
+            }
+          }
 
           // Attacking
           {
@@ -366,7 +390,7 @@ namespace astro {
                     // "cease your trespass!" line and spam the audio line
                     UISystem::ShowDialogue(tachyon, state, "[X] Collect gate key");
 
-                    gate_key.color.rgba |= 0x0004;
+                    gate_key.color.rgba |= 0x000A;
 
                     commit(gate_key);
                   }

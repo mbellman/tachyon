@@ -56,7 +56,7 @@ namespace astro {
 
           Sync(lamp, entity);
 
-          lamp.color = tVec4f(1.f, 0.3f, 0.1f, 1.f);
+          lamp.color = tVec4f(1.f, 0.8f, 0.6f, 1.f);
 
           commit(lamp);
         }
