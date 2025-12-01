@@ -118,6 +118,9 @@ static void HandleSnow(Tachyon* tachyon, State& state) {
   float max_z = state.player_position.z + 12000.f;
   float range_z = max_z - min_z;
 
+  float scale_alpha = Tachyon_InverseLerp(astro_time_periods.past, astro_time_periods.distant_past, state.astro_time);
+  tVec3f scale = tVec3f(25.f * scale_alpha);
+
   for (auto& particle : objects(state.meshes.snow_particle)) {
     float y = HashToFloat(Hash(particle.object_id)) * 10000.f - 10000.f;
     y -= get_scene_time() * 1000.f;
@@ -135,7 +138,7 @@ static void HandleSnow(Tachyon* tachyon, State& state) {
     offset.z = Wrap(-local_z, min_z, max_z, range_z);
 
     particle.position = offset;
-    particle.scale = tVec3f(25.f);
+    particle.scale = scale;
     particle.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), y * 0.001f);
     particle.color = tVec4f(0.4f, 0.6f, 1.f, 0.4f);
     particle.material = tVec4f(0.f, 1.f, 0, 1.f);

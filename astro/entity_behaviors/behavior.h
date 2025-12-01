@@ -94,13 +94,4 @@ namespace astro {
       state.astro_time <= entity.astro_end_time
     );
   }
-
-  // @todo move to engine
-  static float InverseLerp(const float start, const float end, const float value) {
-    float alpha = (value - start) / (end - start);
-    if (alpha < 0.f) alpha = 0.f;
-    if (alpha > 1.f) alpha = 1.f;
-
-    return alpha;
-  }
 }

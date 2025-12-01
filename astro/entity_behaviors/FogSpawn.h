@@ -43,7 +43,7 @@ namespace astro {
 
       // @hack Add permanent player-aligned fog during certain portions of the game
       {
-        float thickness = 1.f - InverseLerp(astro_time_periods.distant_past, astro_time_periods.past, state.astro_time);
+        float thickness = 1.f - Tachyon_InverseLerp(astro_time_periods.distant_past, astro_time_periods.past, state.astro_time);
 
         tFogVolume volume;
         volume.position = state.player_position;

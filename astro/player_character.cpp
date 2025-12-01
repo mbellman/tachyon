@@ -4,15 +4,6 @@
 
 using namespace astro;
 
-// @todo move to engine
-static float InverseLerp(const float start, const float end, const float value) {
-  float alpha = (value - start) / (end - start);
-  if (alpha < 0.f) alpha = 0.f;
-  if (alpha > 1.f) alpha = 1.f;
-
-  return alpha;
-}
-
 static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& rotation, tMat4f& rotation_matrix) {
   auto& player = objects(state.meshes.player)[0];
 
@@ -99,7 +90,7 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
       }
       else if (time_since_last_swing < (wind_up_duration + swing_duration)) {
         // Swing
-        float swing_alpha = InverseLerp(wind_up_duration, wind_up_duration + swing_duration, time_since_last_swing);
+        float swing_alpha = Tachyon_InverseLerp(wind_up_duration, wind_up_duration + swing_duration, time_since_last_swing);
 
         tVec3f offset = tVec3f::lerp(wind_up_position, swing_position, swing_alpha);
         Quaternion rotation = Quaternion::slerp(wind_up_rotation, swing_rotation, swing_alpha);
@@ -109,7 +100,7 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
       }
       else if (time_since_last_swing < total_swing_duration) {
         // Wind-down
-        float wind_down_alpha = InverseLerp(wind_up_duration + swing_duration, total_swing_duration, time_since_last_swing);
+        float wind_down_alpha = Tachyon_InverseLerp(wind_up_duration + swing_duration, total_swing_duration, time_since_last_swing);
         wind_down_alpha = Tachyon_EaseInOutf(wind_down_alpha);
 
         tVec3f offset = tVec3f::lerp(swing_position, initial_position, wind_down_alpha);

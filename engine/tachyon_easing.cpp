@@ -6,6 +6,14 @@ float Tachyon_Lerpf(const float a, const float b, const float alpha) {
   return a + (b - a) * alpha;
 }
 
+float Tachyon_InverseLerp(const float start, const float end, const float value) {
+  float alpha = (value - start) / (end - start);
+  if (alpha < 0.f) alpha = 0.f;
+  if (alpha > 1.f) alpha = 1.f;
+
+  return alpha;
+}
+
 float Tachyon_EaseOutQuad(float t) {
   return 1.f - (1.f - t) * (1.f - t);
 }

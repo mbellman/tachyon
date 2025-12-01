@@ -281,7 +281,7 @@ namespace astro {
               }
               else if (time_since_starting_attack < (wind_up_duration + stab_duration)) {
                 // Stab
-                float stab_alpha = InverseLerp(wind_up_duration, wind_up_duration + stab_duration, time_since_starting_attack);
+                float stab_alpha = Tachyon_InverseLerp(wind_up_duration, wind_up_duration + stab_duration, time_since_starting_attack);
                 stab_alpha = powf(stab_alpha, 0.75f);
 
                 Quaternion start_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -0.5f);
@@ -310,7 +310,7 @@ namespace astro {
               }
               else {
                 // Wind-down
-                float wind_down_alpha = InverseLerp(wind_up_duration + stab_duration, attack_duration, time_since_starting_attack);
+                float wind_down_alpha = Tachyon_InverseLerp(wind_up_duration + stab_duration, attack_duration, time_since_starting_attack);
                 wind_down_alpha = Tachyon_EaseInOutf(wind_down_alpha);
 
                 float angle = t_HALF_PI * (1.f - wind_down_alpha);
