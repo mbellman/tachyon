@@ -355,6 +355,9 @@ void ControlSystem::HandleControls(Tachyon* tachyon, State& state) {
     return;
   }
 
+  // Disallow controls after death
+  if (state.player_hp <= 0.f) return;
+
   HandlePlayerMovementControls(tachyon, state);
   HandleAstroControls(tachyon, state);
   HandleDayNightControls(tachyon, state);

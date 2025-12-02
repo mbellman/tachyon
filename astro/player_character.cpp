@@ -7,8 +7,6 @@ using namespace astro;
 static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& rotation, tMat4f& rotation_matrix) {
   auto& player = objects(state.meshes.player)[0];
 
-  player.position = state.player_position;
-
   // @temporary
   player.scale = tVec3f(600.f, 1500.f, 600.f);
   player.color = tVec3f(0, 0.2f, 1.f);
@@ -22,7 +20,22 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& rotati
     player.color = tVec3f(1.f, 0, 0);
   }
 
-  player.rotation = rotation;
+  if (state.player_hp <= 0.f) {
+    // Player death
+    float death_alpha = 2.f * time_since(state.death_time);
+    if (death_alpha > 1.f) death_alpha = 1.f;
+
+    // @temporary
+    tVec3f death_rotation_axis = tVec3f(1.f, 0, 0);
+    Quaternion death_rotation = rotation * Quaternion::fromAxisAngle(death_rotation_axis, -t_HALF_PI);
+
+    player.rotation = Quaternion::slerp(player.rotation, death_rotation, 4.f * state.dt);
+    player.position.y = Tachyon_Lerpf(player.position.y, -1100.f, 4.f * state.dt);
+    player.position += state.player_velocity * (1.f - death_alpha) * state.dt;
+  } else {
+    player.rotation = rotation;
+    player.position = state.player_position;
+  }
 
   commit(player);
 }
@@ -32,24 +45,33 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
 
   tVec3f offset = player_rotation_matrix * tVec3f(-1.f, 0, 0);
 
-  wand.position = state.player_position + offset * 900.f;
   wand.scale = tVec3f(800.f);
-  wand.rotation = player_rotation;
   wand.color = tVec3f(1.f, 0.6f, 0.2f);
   wand.material = tVec4f(1.f, 0, 0, 0.4f);
 
-  if (
-    state.spells.stun_start_time != 0.f &&
-    time_since(state.spells.stun_start_time) < 3.f
-  ) {
-    float alpha = time_since(state.spells.stun_start_time) / 3.f;
-
-    wand.position.y += sinf(alpha * t_PI) * 1200.f;
+  if (state.player_hp > 0.f) {
+    wand.position = state.player_position + offset * 900.f;
+    wand.rotation = player_rotation;
   }
 
-  // Handle swing actions
+  // Stun spell actions
   {
-    if (state.last_wand_swing_time != 0.f) {
+    if (
+      state.spells.stun_start_time != 0.f &&
+      time_since(state.spells.stun_start_time) < 3.f
+    ) {
+      float alpha = time_since(state.spells.stun_start_time) / 3.f;
+
+      wand.position.y += sinf(alpha * t_PI) * 1200.f;
+    }
+  }
+
+  // Swing actions
+  {
+    if (
+      state.last_wand_swing_time != 0.f &&
+      state.player_hp > 0.f
+    ) {
       const float wind_up_duration = 0.2f;
       const float swing_duration = 0.15f;
       const float wind_down_duration = 0.5f;
@@ -109,6 +131,25 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
         wand.position += offset;
         wand.rotation = player_rotation * rotation;
       }
+    }
+  }
+
+  // Player death
+  {
+    if (state.player_hp <= 0.f) {
+      Quaternion death_rotation = player_rotation * (
+        Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 0.8f) *
+        Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), -t_HALF_PI) *
+        Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -t_HALF_PI)
+      );
+
+      wand.rotation = Quaternion::slerp(wand.rotation, death_rotation, 5.f * state.dt);
+      wand.position.y = Tachyon_Lerpf(wand.position.y, -1400.f, 5.f * state.dt);
+
+      float death_alpha = 2.f * time_since(state.death_time);
+      if (death_alpha > 1.f) death_alpha = 1.f;
+
+      wand.position += state.player_velocity * (1.f - death_alpha) * state.dt;
     }
   }
 
@@ -180,5 +221,7 @@ void PlayerCharacter::TakeDamage(Tachyon* tachyon, State& state, const float dam
   if (state.player_hp <= 0.f) {
     // @temporary
     UISystem::ShowBlockingDialogue(tachyon, state, "YOU DIED");
+
+    state.death_time = get_scene_time();
   }
 }
