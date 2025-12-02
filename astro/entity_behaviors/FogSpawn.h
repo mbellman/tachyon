@@ -48,7 +48,7 @@ namespace astro {
         tFogVolume volume;
         volume.position = state.player_position;
         volume.radius = 500000.f;
-        volume.color = tVec3f(0.5f, 0.7f, 1.f);
+        volume.color = tVec3f(0.7f, 0.85f, 1.f);
         volume.thickness = thickness;
 
         tachyon->fx.fog_visibility = Tachyon_Lerpf(tachyon->fx.fog_visibility, 25000.f, thickness);
