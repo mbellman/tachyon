@@ -35,7 +35,8 @@ namespace astro {
     ALTAR,
     MUSHROOM,
     LAMPPOST,
-    FOG_SPAWN
+    FOG_SPAWN,
+    WIND_CHIMES
   };
 
   /**
@@ -66,7 +67,8 @@ namespace astro {
     ALTAR,
     MUSHROOM,
     LAMPPOST,
-    FOG_SPAWN
+    FOG_SPAWN,
+    WIND_CHIMES
   };
 
   /**
@@ -281,7 +283,11 @@ namespace astro {
       lamppost_lamp,
 
       // FOG_SPAWN
-      fog_spawn_placeholder
+      fog_spawn_placeholder,
+
+      // WIND_CHIMES
+      wind_chimes_placeholder,
+      wind_chimes_stand
 
       ;
   };
@@ -292,6 +298,7 @@ namespace astro {
    * ----------------------------
    */
   struct EntityContainers {
+    std::vector<GameEntity> wind_chimes;
     std::vector<GameEntity> altars;
     std::vector<GameEntity> item_pickups;
     std::vector<GameEntity> fog_spawns;
@@ -339,6 +346,12 @@ namespace astro {
    * ----------------------------
    */
   static std::map<EntityType, EntityDefaults> entity_defaults_map = {
+    { WIND_CHIMES, {
+      .name = "Wind Chimes",
+      .scale = tVec3f(1000.f),
+      .tint = tVec3f(1.f)
+    } },
+
     { ITEM_PICKUP, {
       .name = "Item Pickup",
       .scale = tVec3f(1000.f),

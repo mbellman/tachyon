@@ -21,6 +21,7 @@
 #include "astro/entity_behaviors/SmallStoneBridge.h"
 #include "astro/entity_behaviors/StoneWall.h"
 #include "astro/entity_behaviors/WillowTree.h"
+#include "astro/entity_behaviors/WindChimes.h"
 #include "astro/entity_behaviors/WoodenFence.h"
 #include "astro/entity_behaviors/WoodenGateDoor.h"
 
@@ -67,6 +68,7 @@ using namespace astro;
   behavior_macro(GATE, Gate);\
   behavior_macro(LIGHT_POST, LightPost);\
   behavior_macro(LAMPPOST, Lamppost);\
+  behavior_macro(WIND_CHIMES, WindChimes);\
   behavior_macro(ALTAR, Altar);\
   behavior_macro(HOUSE, House);\
   behavior_macro(WILLOW_TREE, WillowTree);\
@@ -93,6 +95,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
     dispatch_GetEntityContainer(GATE, state.gates);
     dispatch_GetEntityContainer(LIGHT_POST, state.light_posts);
     dispatch_GetEntityContainer(LAMPPOST, state.lampposts);
+    dispatch_GetEntityContainer(WIND_CHIMES, state.wind_chimes);
     dispatch_GetEntityContainer(ALTAR, state.altars);
     dispatch_GetEntityContainer(HOUSE, state.houses);
     dispatch_GetEntityContainer(WILLOW_TREE, state.willow_trees);

@@ -425,9 +425,9 @@ static void CreateGizmoFromMesh(Tachyon* tachyon, State& state, uint16 mesh_inde
   left.rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), t_HALF_PI);
   forward.rotation = Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), -t_HALF_PI);
 
-  up.color = tVec4f(0, 1.f, 0, 0.4f);
-  left.color = tVec4f(0, 0, 1.f, 0.4f);
-  forward.color = tVec4f(1.f, 0, 0, 0.4f);
+  up.color = tVec4f(0, 1.f, 0, 0.8f);
+  left.color = tVec4f(0, 0, 1.f, 0.8f);
+  forward.color = tVec4f(1.f, 0, 0, 0.8f);
 
   commit(up);
   commit(left);
@@ -485,9 +485,9 @@ static void UpdateGizmoFromMesh(Tachyon* tachyon, State& state, uint16 mesh_inde
   left.rotation = placeholder.rotation * Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), t_HALF_PI);
   forward.rotation = placeholder.rotation * Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), -t_HALF_PI);
 
-  up.color = tVec4f(0, 1.f, 0, 0.4f);
-  left.color = tVec4f(0, 0, 1.f, 0.4f);
-  forward.color = tVec4f(1.f, 0, 0, 0.4f);
+  up.color = tVec4f(0, 1.f, 0, 0.8f);
+  left.color = tVec4f(0, 0, 1.f, 0.8f);
+  forward.color = tVec4f(1.f, 0, 0, 0.8f);
 
   commit(up);
   commit(left);
@@ -513,7 +513,7 @@ static void UpdateScaleGizmo(Tachyon* tachyon, State& state) {
 
   if (editor.use_uniform_scaling) {
     for(auto& gizmo : objects(state.meshes.gizmo_resizer)) {
-      gizmo.color = tVec4f(1.f, 0.9f, 0.1f, 0.4f);
+      gizmo.color = tVec4f(1.f, 0.9f, 0.1f, 0.8f);
 
       commit(gizmo);
     }
@@ -535,9 +535,9 @@ static void UpdateRotationGizmo(Tachyon* tachyon, State& state) {
 
   forward.rotation = placeholder.rotation * Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -t_HALF_PI);
 
-  up.color = tVec4f(1.f, 0, 0, 0.4f);
-  left.color = tVec4f(0, 1.f, 0, 0.4f);
-  forward.color = tVec4f(0, 0, 1.f, 0.4f);
+  up.color = tVec4f(1.f, 0, 0, 0.8f);
+  left.color = tVec4f(0, 1.f, 0, 0.8f);
+  forward.color = tVec4f(0, 0, 1.f, 0.8f);
 
   commit(up);
   commit(left);
