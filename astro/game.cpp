@@ -27,15 +27,15 @@ static void UpdateWaterPlane(Tachyon* tachyon, State& state) {
   auto& water_plane = objects(state.meshes.water_plane)[0];
 
   // @temporary
-  water_plane.position = tVec3f(0, -3000.f, 0);
+  water_plane.position = tVec3f(0, -3200.f, 0);
   water_plane.scale = tVec3f(400000.f, 1.f, 400000.f);
   water_plane.color = tVec3f(0, 0.1f, 0.3f);
   water_plane.material = tVec4f(0.1f, 1.f, 0, 0.5f);
 
-  water_plane.position.y = -1800.f + 22.f * state.astro_time;
+  // water_plane.position.y = -1800.f + 22.f * state.astro_time;
 
-  if (water_plane.position.y > -1800.f) water_plane.position.y = -1800.f;
-  if (water_plane.position.y < -3500.f) water_plane.position.y = -3500.f;
+  // if (water_plane.position.y > -1800.f) water_plane.position.y = -1800.f;
+  // if (water_plane.position.y < -3500.f) water_plane.position.y = -3500.f;
 
   commit(water_plane);
 
@@ -49,6 +49,7 @@ static void UpdateLevelsOfDetail(Tachyon* tachyon, State& state) {
 
   // Decorative objects
   Tachyon_UseLodByDistance(tachyon, meshes.rock_1, 35000.f);
+  Tachyon_UseLodByDistance(tachyon, meshes.river_edge, 35000.f);
   Tachyon_UseLodByDistance(tachyon, meshes.ground_1, 40000.f);
 
   // Procedural objects
@@ -60,10 +61,6 @@ static void UpdateLevelsOfDetail(Tachyon* tachyon, State& state) {
   // @todo handle distance LoD stuff in entity behavior files;
   // it's annoying to manage them here
   Tachyon_UseLodByDistance(tachyon, meshes.shrub_leaves, 35000.f);
-  Tachyon_UseLodByDistance(tachyon, meshes.oak_tree_roots, 40000.f);
-  Tachyon_UseLodByDistance(tachyon, meshes.oak_tree_trunk, 40000.f);
-  Tachyon_UseLodByDistance(tachyon, meshes.oak_tree_branches, 40000.f);
-  Tachyon_UseLodByDistance(tachyon, meshes.oak_tree_leaves, 40000.f);
   Tachyon_UseLodByDistance(tachyon, meshes.flower_bush_leaves, 35000.f);
 }
 
@@ -71,6 +68,7 @@ static void ShowHighestLevelsOfDetail(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   Tachyon_ShowHighestLevelsOfDetail(tachyon, meshes.rock_1);
+  Tachyon_ShowHighestLevelsOfDetail(tachyon, meshes.river_edge);
   Tachyon_ShowHighestLevelsOfDetail(tachyon, meshes.ground_1);
   Tachyon_ShowHighestLevelsOfDetail(tachyon, meshes.grass);
   Tachyon_ShowHighestLevelsOfDetail(tachyon, meshes.ground_flower);
@@ -140,7 +138,7 @@ static void HandleSnow(Tachyon* tachyon, State& state) {
     particle.position = offset;
     particle.scale = scale;
     particle.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), y * 0.001f);
-    particle.color = tVec4f(0.4f, 0.6f, 1.f, 0.4f);
+    particle.color = tVec4f(0.4f, 0.6f, 1.f, 0.7f);
     particle.material = tVec4f(0.f, 1.f, 0, 1.f);
 
     commit(particle);

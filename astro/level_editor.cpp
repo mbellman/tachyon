@@ -1080,6 +1080,12 @@ static void PlaceNewDecorativeObject(Tachyon* tachyon, State& state) {
     object.material = tVec4f(1., 0, 0, 0);
   }
 
+  // @temporary
+  // @todo define default materials
+  if (defaults.mesh_index == state.meshes.river_edge) {
+    object.material = tVec4f(1., 0, 0, 1.f);
+  }
+
   commit(object);
 
   TrackDecorativeObject(object);

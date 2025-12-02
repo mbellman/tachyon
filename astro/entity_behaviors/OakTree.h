@@ -37,6 +37,8 @@ namespace astro {
       const tVec3f leaves_color = tVec3f(0.15f, 0.3f, 0.1f);
       const float lifetime = 200.f;
 
+      uint16 index = 0;
+
       // @todo @optimize only iterate over on-screen/in-range entities
       // once that list is built
       for_entities(state.oak_trees) {
@@ -58,7 +60,7 @@ namespace astro {
         float tree_thickness = -(cosf(t_PI * growth_factor) - 1.f) / 2.f;
 
         // Roots
-        auto& roots = objects(meshes.oak_tree_roots)[i];
+        auto& roots = objects(meshes.oak_tree_roots)[index];
 
         roots.scale = entity.scale * tVec3f(
           tree_thickness,
@@ -74,7 +76,7 @@ namespace astro {
         roots.material = wood_material;
 
         // Trunk
-        auto& trunk = objects(meshes.oak_tree_trunk)[i];
+        auto& trunk = objects(meshes.oak_tree_trunk)[index];
 
         trunk.scale = entity.scale * tVec3f(
           tree_thickness,
@@ -90,7 +92,7 @@ namespace astro {
         trunk.material = wood_material;
 
         // Branches
-        auto& branches = objects(meshes.oak_tree_branches)[i];
+        auto& branches = objects(meshes.oak_tree_branches)[index];
         float branches_size = growth_factor > 0.5f ? 2.f * (growth_factor - 0.5f) : 0.f;
 
         branches.position = entity.position;
@@ -106,7 +108,7 @@ namespace astro {
         branches.material = wood_material;
 
         // Leaves
-        auto& leaves = objects(meshes.oak_tree_leaves)[i];
+        auto& leaves = objects(meshes.oak_tree_leaves)[index];
 
         leaves.position = entity.position;
         leaves.position.y += entity.scale.y * 0.8f;
@@ -124,7 +126,14 @@ namespace astro {
         commit(trunk);
         commit(branches);
         commit(leaves);
+
+        index++;
       }
+
+      mesh(meshes.oak_tree_roots).lod_1.instance_count = index;
+      mesh(meshes.oak_tree_trunk).lod_1.instance_count = index;
+      mesh(meshes.oak_tree_branches).lod_1.instance_count = index;
+      mesh(meshes.oak_tree_leaves).lod_1.instance_count = index;
     }
   };
 }

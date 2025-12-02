@@ -32,8 +32,8 @@ namespace astro {
 
           Sync(stand, entity);
 
-          stand.color = tVec3f(1.f, 0.8f, 0.5f);
-          stand.material = tVec4f(0.1f, 1.f, 0, 0);
+          stand.color = tVec3f(1.f, 0.9f, 0.4f);
+          stand.material = tVec4f(0.4f, 1.f, 0, 0);
 
           commit(stand);
         }
