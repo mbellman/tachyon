@@ -34,6 +34,10 @@ struct LevelEditorState {
   int32 current_decorative_mesh_index = 0;
   int32 current_entity_index = 0;
 
+  // @todo
+  float copied_astro_start_time = 0.f;
+  float copied_astro_end_time = 0.f;
+
   bool is_anything_selected = false;
   bool is_in_placement_mode = false; // @todo make this standard
   bool is_placing_entity = false;
