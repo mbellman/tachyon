@@ -178,16 +178,17 @@ void main() {
     sample_uv *= 0.5;
     sample_uv += 0.5;
 
+    const float depth_limit = 500.0;
     float water_surface_z = GetWorldDepth(gl_FragCoord.z, Z_NEAR, Z_FAR);
-    float underwater_sample_z = texture(previous_color_and_depth, sample_uv).w;
-    underwater_sample_z = GetWorldDepth(underwater_sample_z, Z_NEAR, Z_FAR);
+    float sample_z = texture(previous_color_and_depth, sample_uv).w;
+    sample_z = GetWorldDepth(sample_z, Z_NEAR, Z_FAR);
 
-    float underwater_visibility = clamp((underwater_sample_z - water_surface_z) / 2000.0, 0.0, 1.0);
+    float underwater_visibility = clamp((sample_z - water_surface_z) / depth_limit, 0.0, 1.0);
     underwater_visibility = 1.0 - underwater_visibility;
     underwater_visibility *= underwater_visibility;
 
     // Prevent objects above the water from being sampled
-    if (underwater_sample_z < water_surface_z) underwater_visibility = 0.0;
+    if (sample_z < water_surface_z) underwater_visibility = 0.0;
 
     out_color = mix(base_water_color, base_underwater_color, underwater_visibility);
   }

@@ -277,6 +277,27 @@ static void ShowGameStats(Tachyon* tachyon, State& state) {
   }
 }
 
+// @todo PlayerCharacter::RespawnPlayer()
+static void RespawnPlayer(Tachyon* tachyon, State& state) {
+  // Reset player
+  // @todo default/load from save
+  // @todo spawn at wind chimes
+  state.player_position = tVec3f(-13800.f, 0, -5900.f);
+  state.player_facing_direction = tVec3f(0, 0, 1.f);
+  state.player_velocity = tVec3f(0.f);
+  state.player_hp = 100.f;
+
+  // Reset camera
+  state.camera_shift = tVec3f(0, 0, 1875.f);
+
+  tachyon->scene.camera.position = tVec3f(-13800.f, 10000.f, 2975.f);
+
+  // @temporary
+  state.dismissed_blocking_dialogue = true;
+  state.has_blocking_dialogue = false;
+  state.dialogue_start_time = 0.f;
+}
+
 void astro::InitGame(Tachyon* tachyon, State& state) {
   MeshLibrary::AddMeshes(tachyon, state);
 
@@ -292,16 +313,10 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
   ProceduralGeneration::RebuildAllProceduralObjects(tachyon, state);
   EntityManager::CreateEntityAssociations(state);
 
-  // @todo default/load from save
-  state.player_position = tVec3f(-13800.f, 0, -5900.f);
-  state.player_facing_direction = tVec3f(0, 0, 1.f);
-  state.camera_shift = tVec3f(0, 0, 1875.f);
+  RespawnPlayer(tachyon, state);
 
   state.player_light_id = create_point_light();
   state.astrolabe_light_id = create_point_light();
-
-  // @todo default/load from save
-  tachyon->scene.camera.position = tVec3f(-13800.f, 10000.f, 2975.f);
 
   tachyon->scene.scene_time = 0.f;
 }
@@ -424,6 +439,14 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   PlayerCharacter::UpdatePlayer(tachyon, state);
   UpdateWaterPlane(tachyon, state);
   UpdateLevelsOfDetail(tachyon, state);
+
+  // @todo move to PlayerCharacter::UpdatePlayer()
+  if (
+    state.player_hp <= 0.f &&
+    time_since(state.death_time) > 5.f
+  ) {
+    RespawnPlayer(tachyon, state);
+  }
 
   // @todo HandleFrameEnd()
   {
