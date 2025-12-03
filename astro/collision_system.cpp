@@ -6,10 +6,10 @@ using namespace astro;
 constexpr static float player_radius = 600.f;
 
 static std::vector<tVec3f> small_bridge_points = {
-  tVec3f(-1.f, 0, 0.65f),
-  tVec3f(1.f, 0, 0.65f),
-  tVec3f(1.f, 0, -0.65f),
-  tVec3f(-1.f, 0, -0.65f)
+  tVec3f(-1.f, 0, 0.5f),
+  tVec3f(1.f, 0, 0.5f),
+  tVec3f(1.f, 0, -0.5f),
+  tVec3f(-1.f, 0, -0.5f)
 };
 
 static std::vector<tVec3f> river_log_points = {

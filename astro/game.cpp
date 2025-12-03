@@ -19,7 +19,7 @@
 #include "astro/time_evolution.h"
 #include "astro/ui_system.h"
 
-#define MUSIC_ENABLED 0
+#define MUSIC_ENABLED 1
 
 using namespace astro;
 
@@ -27,7 +27,7 @@ static void UpdateWaterPlane(Tachyon* tachyon, State& state) {
   auto& water_plane = objects(state.meshes.water_plane)[0];
 
   // @temporary
-  water_plane.position = tVec3f(0, -3200.f, 0);
+  water_plane.position = tVec3f(0, -3000.f, 0);
   water_plane.scale = tVec3f(400000.f, 1.f, 400000.f);
   water_plane.color = tVec3f(0, 0.1f, 0.3f);
   water_plane.material = tVec4f(0.1f, 1.f, 0, 0.5f);
@@ -48,8 +48,8 @@ static void UpdateLevelsOfDetail(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   // Decorative objects
-  Tachyon_UseLodByDistance(tachyon, meshes.rock_1, 35000.f);
-  Tachyon_UseLodByDistance(tachyon, meshes.river_edge, 35000.f);
+  Tachyon_UseLodByDistance(tachyon, meshes.rock_1, 40000.f);
+  Tachyon_UseLodByDistance(tachyon, meshes.river_edge, 40000.f);
   Tachyon_UseLodByDistance(tachyon, meshes.ground_1, 40000.f);
 
   // Procedural objects

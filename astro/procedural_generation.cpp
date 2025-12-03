@@ -709,7 +709,7 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
 
     float distance = tVec3f::distance(entity.visible_position, player_position);
 
-    if (distance < 18000.f) {
+    if (distance < 25000.f) {
       float entity_life_progress = GetLivingEntityProgress(state, entity, plant_lifetime);
       float flower_size = 400.f * sqrtf(sinf(entity_life_progress * t_PI));
 
