@@ -4,8 +4,11 @@ uniform vec3 camera_position;
 uniform vec3 primary_light_direction;
 uniform float scene_time;
 
-// @todo not the correct name; this is in_normal_and_depth
 uniform sampler2D previous_color_and_depth;
+uniform sampler2D in_normal_and_depth;
+
+// Frame blur
+uniform float accumulation_blur_factor;
 
 flat in uvec4 fragSurface;
 in vec3 fragPosition;
@@ -113,6 +116,17 @@ float simplex_noise(vec2 v) {
     return 130.0 * dot(m, g);
 }
 
+vec2 GetScreenUvs(vec2 screen_coordinates) {
+  // @todo pass in as a uniform
+  const vec2 screen_resolution = vec2(2560.0, 1440.0);
+
+  vec2 sample_uv = 2.0 * screen_coordinates / screen_resolution - 1.0;
+  sample_uv *= 0.5;
+  sample_uv += 0.5;
+
+  return sample_uv;
+}
+
 void main() {
   vec3 N = normalize(fragNormal);
 
@@ -165,22 +179,17 @@ void main() {
   // For now we just sample depth and fade to a light
   // blue color near the surface.
   {
-    // @todo pass in as a uniform
-    const vec2 resolution = vec2(2560.0, 1440.0);
-
     vec2 sample_coordinates = gl_FragCoord.xy;
 
     // Rippling/"refraction"
     // @todo make wave intensity proportional to distance
     sample_coordinates.x += 5.0 * sin(fragPosition.z * 0.005 + 1.5 * scene_time);
 
-    vec2 sample_uv = 2.0 * sample_coordinates / resolution - 1.0;
-    sample_uv *= 0.5;
-    sample_uv += 0.5;
+    vec2 sample_uv = GetScreenUvs(sample_coordinates);
 
     const float depth_limit = 500.0;
     float water_surface_z = GetWorldDepth(gl_FragCoord.z, Z_NEAR, Z_FAR);
-    float sample_z = texture(previous_color_and_depth, sample_uv).w;
+    float sample_z = texture(in_normal_and_depth, sample_uv).w;
     sample_z = GetWorldDepth(sample_z, Z_NEAR, Z_FAR);
 
     float underwater_visibility = clamp((sample_z - water_surface_z) / depth_limit, 0.0, 1.0);
@@ -212,6 +221,7 @@ void main() {
 
     // Highlights
     out_color += 10.0 * pow(hRdotL, 100.0) * smoothstep(0.25, 0.4, 1.0 - RdotU);
+    // out_color += 10.0 * pow(1.0 - hRdotL, 100.0) * smoothstep(0.55, 0.65, 1.0 - RdotU);
   }
 
   // @todo fog
@@ -221,6 +231,16 @@ void main() {
     // float frag_distance_from_camera = length(fragPosition - camera_position);
     // float fog_thickness = clamp(frag_distance_from_camera / fog_visibility, 0.0, 1.0);
     // out_color = mix(out_color, vec3(0.2, 0.2, 0.4), fog_thickness);
+  }
+
+  // Accumulation blur
+  {
+    vec2 frag_uv = GetScreenUvs(gl_FragCoord.xy);
+    vec3 previous_color = texture(previous_color_and_depth, frag_uv).rgb;
+
+    if (accumulation_blur_factor > 0.0) {
+      out_color = mix(out_color, previous_color, accumulation_blur_factor);
+    }
   }
 
   out_color_and_depth = vec4(out_color, gl_FragCoord.z);

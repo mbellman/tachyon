@@ -993,8 +993,9 @@ static void RenderPostMeshes(Tachyon* tachyon) {
     SetShaderVec3f(locations.transform_origin, scene.transform_origin);
     SetShaderVec3f(locations.camera_position, ctx.camera_position);
     SetShaderVec3f(locations.primary_light_direction, scene.primary_light_direction);
-    // @todo not the correct name; this is in_normal_and_depth
-    SetShaderInt(locations.previous_color_and_depth, G_BUFFER_NORMALS_AND_DEPTH);
+    SetShaderInt(locations.previous_color_and_depth, ACCUMULATION_COLOR_AND_DEPTH);
+    SetShaderInt(locations.in_normal_and_depth, G_BUFFER_NORMALS_AND_DEPTH);
+    SetShaderFloat(locations.accumulation_blur_factor, tachyon->fx.accumulation_blur_factor);
     SetShaderFloat(locations.scene_time, scene.scene_time);
 
     RenderMeshesByType(tachyon, WATER_MESH);
