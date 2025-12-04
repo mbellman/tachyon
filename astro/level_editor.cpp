@@ -883,6 +883,9 @@ static void DeselectCurrent(Tachyon* tachyon, State& state) {
   commit(live_placeholder);
 
   editor.is_anything_selected = false;
+  editor.current_selectable.entity_record.type = UNSPECIFIED;
+  editor.current_selectable.entity_record.id = -1;
+  editor.current_selectable.is_entity = false;
 
   StopEditingEntityProperties(tachyon);
   DestroyGizmo(tachyon, state);
@@ -1463,10 +1466,36 @@ static void DeleteSelected(Tachyon* tachyon, State& state) {
 
 /**
  * ----------------------------
+ * Copies the start/end time for the selected entity.
+ * ----------------------------
+ */
+static void CopySelectedEntityProperties(State& state) {
+  auto& selected = editor.current_selectable;
+  auto& entity = *EntityManager::FindEntity(state, selected.entity_record);
+
+  editor.copied_astro_start_time = entity.astro_start_time;
+  editor.copied_astro_end_time = entity.astro_end_time;
+}
+
+/**
+ * ----------------------------
+ * "Pastes" the copied start/end time "onto" the selected entity.
+ * ----------------------------
+ */
+static void PasteCopiedEntityProperties(State& state) {
+  auto& selected = editor.current_selectable;
+  auto& entity = *EntityManager::FindEntity(state, selected.entity_record);
+
+  entity.astro_start_time = editor.copied_astro_start_time;
+  entity.astro_end_time = editor.copied_astro_end_time;
+}
+
+/**
+ * ----------------------------
  * Respawns the player near the camera.
  * ----------------------------
  */
-static void RespawnPlayer(Tachyon* tachyon, State& state) {
+static void RepositionPlayer(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
   tVec3f camera_direction = camera.orientation.getDirection();
   float camera_height = camera.position.y - -1500.f;
@@ -1562,6 +1591,20 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
     ) {
       editor.use_uniform_scaling = !editor.use_uniform_scaling;
     }
+
+    if (
+      did_press_key(tKey::C) &&
+      editor.current_selectable.is_entity
+    ) {
+      CopySelectedEntityProperties(state);
+    }
+
+    if (
+      did_press_key(tKey::P) &&
+      editor.current_selectable.is_entity
+    ) {
+      PasteCopiedEntityProperties(state);
+    }
   } else {
     // Free actions
     if (did_press_key(tKey::ARROW_LEFT)) {
@@ -1593,7 +1636,7 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
     }
 
     if (did_press_key(tKey::R)) {
-      RespawnPlayer(tachyon, state);
+      RepositionPlayer(tachyon, state);
     }
   }
 }
