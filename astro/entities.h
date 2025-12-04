@@ -36,7 +36,8 @@ namespace astro {
     MUSHROOM,
     LAMPPOST,
     FOG_SPAWN,
-    WIND_CHIMES
+    WIND_CHIMES,
+    WATER_WHEEL
   };
 
   /**
@@ -68,7 +69,8 @@ namespace astro {
     MUSHROOM,
     LAMPPOST,
     FOG_SPAWN,
-    WIND_CHIMES
+    WIND_CHIMES,
+    WATER_WHEEL
   };
 
   /**
@@ -287,7 +289,11 @@ namespace astro {
 
       // WIND_CHIMES
       wind_chimes_placeholder,
-      wind_chimes_stand
+      wind_chimes_stand,
+
+      // WATER_WHEEL
+      water_wheel_placeholder,
+      water_wheel
 
       ;
   };
@@ -322,6 +328,7 @@ namespace astro {
     std::vector<GameEntity> houses;
     std::vector<GameEntity> light_posts;
     std::vector<GameEntity> wooden_fences;
+    std::vector<GameEntity> water_wheels;
 
     std::vector<GameEntity> low_guards;
     std::vector<GameEntity> bandits;
@@ -470,6 +477,12 @@ namespace astro {
 
     { HOUSE, {
       .name = "House",
+      .scale = tVec3f(4000.f),
+      .tint = tVec3f(1.f)
+    } },
+
+    { WATER_WHEEL, {
+      .name = "Water Wheel",
       .scale = tVec3f(4000.f),
       .tint = tVec3f(1.f)
     } },
