@@ -39,6 +39,14 @@ namespace astro {
 
         leaves.scale = entity.scale * sinf(life_progress * t_PI);
 
+        if (life_progress > 0.5f) {
+          leaves.scale.x = entity.scale.x;
+          leaves.scale.z = entity.scale.z;
+        }
+        else if (life_progress == 1.f) {
+          leaves.scale = tVec3f(0.f);
+        }
+
         leaves.position = entity.position;
         leaves.position.y -= (entity.scale.y - leaves.scale.y);
 

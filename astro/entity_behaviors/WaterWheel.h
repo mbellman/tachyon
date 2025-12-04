@@ -36,7 +36,7 @@ namespace astro {
               : 0.5f;
 
           tVec3f rotation_axis = tVec3f(0, 0, 1.f);
-          float rotation_angle = rotation_speed * (100.f * state.astro_time + get_scene_time());
+          float rotation_angle = rotation_speed * (2.f * state.astro_time + get_scene_time());
 
           auto& wheel = objects(meshes.water_wheel)[i];
 
