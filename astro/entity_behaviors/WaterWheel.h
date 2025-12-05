@@ -31,6 +31,10 @@ namespace astro {
       for_entities(state.water_wheels) {
         auto& entity = state.water_wheels[i];
 
+        entity.visible_position = entity.position;
+        entity.visible_scale = entity.scale;
+        entity.visible_rotation = entity.orientation;
+
         // Wheel
         {
           float rotation_speed =

@@ -308,11 +308,22 @@ static void HandleWaterWheelCollisions(Tachyon* tachyon, State& state) {
         state.last_solid_ground_position = state.player_position;
         state.is_on_solid_ground = true;
         state.last_plane_walked_on = plane;
+
+        continue;
       }
     }
 
     // Platform collision
-    tVec3f platform_center_position = UnitEntityToWorldPosition(entity, tVec3f(-0.5f, 0, 0));
+    tVec3f platform_center_position = UnitEntityToWorldPosition(entity, tVec3f(0, 0, 0.75f));
+    auto platform_plane = CollisionSystem::CreatePlane(platform_center_position, entity.scale * tVec3f(1.5f, 1.f, 0.25f), entity.orientation);
+
+    if (CollisionSystem::IsPointOnPlane(player_xz, platform_plane)) {
+      // @todo factor
+      state.player_position.y = entity.position.y - entity.scale.y * 0.05f + 1500.f;
+      state.last_solid_ground_position = state.player_position;
+      state.is_on_solid_ground = true;
+      state.last_plane_walked_on = platform_plane;
+    }
   }
 }
 
