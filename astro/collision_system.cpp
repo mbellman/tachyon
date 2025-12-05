@@ -119,6 +119,71 @@ static bool ResolveSinglePlaneCollision(State& state, const Plane& plane) {
   return false;
 }
 
+static void HandleGateCollisions(Tachyon* tachyon, State& state) {
+  const tVec3f scale_factor = tVec3f(0.4f, 0, 1.4f);
+
+  tVec3f player_xz = state.player_position.xz();
+  float player_speed = state.player_velocity.magnitude();
+
+  // @allocation
+  // @todo come up with a better mechanism for this
+  std::vector<Plane> collision_planes;
+
+  for_entities(state.gates) {
+    auto& entity = state.gates[i];
+
+    bool is_open = (
+      entity.game_activation_time > -1.f &&
+      time_since(entity.game_activation_time) > 1.f &&
+      state.astro_time >= entity.astro_activation_time
+    );
+
+    // @todo come up with a better mechanism for this
+    collision_planes.clear();
+
+    if (is_open) {
+      // @todo cleanup
+      tVec3f wall_center = entity.visible_scale * tVec3f(0, 0, 0.7f);
+      tVec3f wall_scale = entity.visible_scale * tVec3f(1.f, 1.f, 0.46f);
+      tVec3f wall_center_offset = entity.orientation.toMatrix4f() * wall_center;
+
+      tVec3f left_plane_position = entity.position + wall_center_offset;
+      tVec3f left_plane_scale = wall_scale;
+
+      tVec3f right_plane_position = entity.position - wall_center_offset;
+      tVec3f right_plane_scale = wall_scale;
+
+      auto plane1 = CollisionSystem::CreatePlane(left_plane_position, left_plane_scale, entity.orientation);
+      auto plane2 = CollisionSystem::CreatePlane(right_plane_position, right_plane_scale, entity.orientation);
+
+      collision_planes.push_back(plane1);
+      collision_planes.push_back(plane2);
+    } else {
+      auto plane = CollisionSystem::CreatePlane(entity.position, entity.visible_scale, entity.orientation);
+
+      collision_planes.push_back(plane);
+    }
+
+    for (auto& plane : collision_planes) {
+      if (ResolveSinglePlaneCollision(state, plane)) {
+        return;
+      }
+    }
+  }
+}
+
+static void HandleWoodenFenceCollisions(Tachyon* tachyon, State& state) {
+  for_entities(state.wooden_fences) {
+    auto& entity = state.wooden_fences[i];
+
+    if (state.astro_time < entity.astro_start_time) continue;
+
+    auto plane = CollisionSystem::CreatePlane(entity.position, entity.visible_scale, entity.orientation);
+
+    ResolveSinglePlaneCollision(state, plane);
+  }
+}
+
 static void HandleFlatGroundCollisions(Tachyon* tachyon, State& state) {
   state.player_position.y = state.water_level + 1500.f;
 
@@ -294,7 +359,7 @@ static void HandleWaterWheelCollisions(Tachyon* tachyon, State& state) {
         float progress_along_z = abs(player_position_in_entity_space.z) / (entity.scale.z * 0.6f);
         if (progress_along_z > 1.f) progress_along_z = 1.f;
 
-        float height_alpha = powf(1.f - progress_along_z, 0.4f);
+        float height_alpha = powf(1.f - progress_along_z, 0.6f);
         if (height_alpha < 0.f) height_alpha = 0.f;
         if (height_alpha > 1.f) height_alpha = 1.f;
 
@@ -319,76 +384,11 @@ static void HandleWaterWheelCollisions(Tachyon* tachyon, State& state) {
 
     if (CollisionSystem::IsPointOnPlane(player_xz, platform_plane)) {
       // @todo factor
-      state.player_position.y = entity.position.y - entity.scale.y * 0.05f + 1500.f;
+      state.player_position.y = entity.position.y - entity.scale.y * 0.1f + 1500.f;
       state.last_solid_ground_position = state.player_position;
       state.is_on_solid_ground = true;
       state.last_plane_walked_on = platform_plane;
     }
-  }
-}
-
-static void HandleGateCollisions(Tachyon* tachyon, State& state) {
-  const tVec3f scale_factor = tVec3f(0.4f, 0, 1.4f);
-
-  tVec3f player_xz = state.player_position.xz();
-  float player_speed = state.player_velocity.magnitude();
-
-  // @allocation
-  // @todo come up with a better mechanism for this
-  std::vector<Plane> collision_planes;
-
-  for_entities(state.gates) {
-    auto& entity = state.gates[i];
-
-    bool is_open = (
-      entity.game_activation_time > -1.f &&
-      time_since(entity.game_activation_time) > 1.f &&
-      state.astro_time >= entity.astro_activation_time
-    );
-
-    // @todo come up with a better mechanism for this
-    collision_planes.clear();
-
-    if (is_open) {
-      // @todo cleanup
-      tVec3f wall_center = entity.visible_scale * tVec3f(0, 0, 0.7f);
-      tVec3f wall_scale = entity.visible_scale * tVec3f(1.f, 1.f, 0.46f);
-      tVec3f wall_center_offset = entity.orientation.toMatrix4f() * wall_center;
-
-      tVec3f left_plane_position = entity.position + wall_center_offset;
-      tVec3f left_plane_scale = wall_scale;
-
-      tVec3f right_plane_position = entity.position - wall_center_offset;
-      tVec3f right_plane_scale = wall_scale;
-
-      auto plane1 = CollisionSystem::CreatePlane(left_plane_position, left_plane_scale, entity.orientation);
-      auto plane2 = CollisionSystem::CreatePlane(right_plane_position, right_plane_scale, entity.orientation);
-
-      collision_planes.push_back(plane1);
-      collision_planes.push_back(plane2);
-    } else {
-      auto plane = CollisionSystem::CreatePlane(entity.position, entity.visible_scale, entity.orientation);
-
-      collision_planes.push_back(plane);
-    }
-
-    for (auto& plane : collision_planes) {
-      if (ResolveSinglePlaneCollision(state, plane)) {
-        return;
-      }
-    }
-  }
-}
-
-static void HandleWoodenFenceCollisions(Tachyon* tachyon, State& state) {
-  for_entities(state.wooden_fences) {
-    auto& entity = state.wooden_fences[i];
-
-    if (state.astro_time < entity.astro_start_time) continue;
-
-    auto plane = CollisionSystem::CreatePlane(entity.position, entity.visible_scale, entity.orientation);
-
-    ResolveSinglePlaneCollision(state, plane);
   }
 }
 

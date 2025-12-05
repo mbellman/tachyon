@@ -3,16 +3,15 @@
 
 using namespace astro;
 
-static void UpdateCameraInProximityToEntities(State& state, const std::vector<GameEntity>& entities, tVec3f& camera_position, const float y_offset, const float z_offset) {
-  for_entities(entities) {
-    auto& entity = entities[i];
+static void UpdateCameraNearEntities(State& state, const std::vector<GameEntity>& entities, tVec3f& camera_position, const float max_distance, const tVec3f& offset) {
+  for (auto& entity : entities) {
     float player_distance = tVec3f::distance(state.player_position, entity.position);
 
-    float distance_factor = 1.f - player_distance / 10000.f;
+    float distance_factor = 1.f - player_distance / max_distance;
     if (distance_factor < 0.f) distance_factor = 0.f;
 
-    camera_position.y += y_offset * distance_factor;
-    camera_position.z += z_offset * distance_factor;
+    camera_position.y += offset.y * distance_factor;
+    camera_position.z += offset.z * distance_factor;
   }
 }
 
@@ -67,8 +66,9 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state) {
     // as it returns to its expected position, which looks odd.
     new_camera_position = state.player_position;
 
-    UpdateCameraInProximityToEntities(state, state.light_posts, new_camera_position, 2000.f, 2000.f);
-    UpdateCameraInProximityToEntities(state, state.gates, new_camera_position, 2000.f, 3000.f);
+    UpdateCameraNearEntities(state, state.light_posts, new_camera_position, 10000.f, tVec3f(0, 2000.f, 2000.f));
+    UpdateCameraNearEntities(state, state.gates, new_camera_position, 10000.f, tVec3f(0, 2000.f, 3000.f));
+    UpdateCameraNearEntities(state, state.water_wheels, new_camera_position, 20000.f, tVec3f(0, 3000.f, 5000.f));
 
     tVec3f shift_direction = state.player_facing_direction + tVec3f(0, 0, 0.4f);
 
@@ -84,8 +84,9 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state) {
     tVec3f shift_direction = state.player_facing_direction + tVec3f(0, 0, 0.4f);
     tVec3f desired_camera_shift = shift_direction * tVec3f(0.75f, 0, 1.f) * shift_amount;
 
-    UpdateCameraInProximityToEntities(state, state.light_posts, new_camera_position, 2000.f, 2000.f);
-    UpdateCameraInProximityToEntities(state, state.gates, new_camera_position, 2000.f, 3000.f);
+    UpdateCameraNearEntities(state, state.light_posts, new_camera_position, 10000.f, tVec3f(0, 2000.f, 2000.f));
+    UpdateCameraNearEntities(state, state.gates, new_camera_position, 10000.f, tVec3f(0, 2000.f, 3000.f));
+    UpdateCameraNearEntities(state, state.water_wheels, new_camera_position, 20000.f, tVec3f(0, 3000.f, 5000.f));
 
     state.camera_shift = tVec3f::lerp(state.camera_shift, desired_camera_shift, 5.f * state.dt);
   }
