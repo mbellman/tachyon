@@ -293,7 +293,8 @@ namespace astro {
 
       // WATER_WHEEL
       water_wheel_placeholder,
-      water_wheel
+      water_wheel,
+      water_wheel_platform
 
       ;
   };

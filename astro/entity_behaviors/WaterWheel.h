@@ -7,14 +7,17 @@ namespace astro {
     addMeshes() {
       meshes.water_wheel_placeholder = MODEL_MESH("./astro/3d_models/water_wheel/placeholder.obj", 500);
       meshes.water_wheel = MODEL_MESH("./astro/3d_models/water_wheel/wheel.obj", 500);
+      meshes.water_wheel_platform = MODEL_MESH("./astro/3d_models/water_wheel/platform.obj", 500);
 
       mesh(meshes.water_wheel_placeholder).shadow_cascade_ceiling = 2;
       mesh(meshes.water_wheel).shadow_cascade_ceiling = 2;
+      mesh(meshes.water_wheel_platform).shadow_cascade_ceiling = 2;
     }
 
     getMeshes() {
       return_meshes({
-        meshes.water_wheel
+        meshes.water_wheel,
+        meshes.water_wheel_platform
       });
     }
 
@@ -46,6 +49,18 @@ namespace astro {
           wheel.rotation = entity.orientation * Quaternion::fromAxisAngle(rotation_axis, rotation_angle);
 
           commit(wheel);
+        }
+
+        // Platform
+        {
+          auto& platform = objects(meshes.water_wheel_platform)[i];
+
+          Sync(platform, entity);
+
+          platform.color = tVec3f(0.6f);
+          platform.material = tVec4f(1.f, 0, 0, 0.2f);
+
+          commit(platform);
         }
       }
     }

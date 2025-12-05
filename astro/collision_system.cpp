@@ -276,6 +276,46 @@ static void HandleRiverLogCollisions(Tachyon* tachyon, State& state) {
   }
 }
 
+static void HandleWaterWheelCollisions(Tachyon* tachyon, State& state) {
+  tVec3f player_xz = state.player_position.xz();
+
+  for_entities(state.water_wheels) {
+    auto& entity = state.water_wheels[i];
+    bool is_turning = state.astro_time <= entity.astro_end_time;
+
+    // Wheel collision
+    if (!is_turning) {
+      auto plane = CollisionSystem::CreatePlane(entity.position, entity.scale * tVec3f(1.5f, 1.f, 0.6f), entity.orientation);
+
+      if (CollisionSystem::IsPointOnPlane(player_xz, plane)) {
+        tVec3f entity_to_player = state.player_position - entity.position;
+        tVec3f player_position_in_entity_space = entity.orientation.toMatrix4f().inverse() * entity_to_player;
+
+        float progress_along_z = abs(player_position_in_entity_space.z) / (entity.scale.z * 0.6f);
+        if (progress_along_z > 1.f) progress_along_z = 1.f;
+
+        float height_alpha = powf(1.f - progress_along_z, 0.4f);
+        if (height_alpha < 0.f) height_alpha = 0.f;
+        if (height_alpha > 1.f) height_alpha = 1.f;
+
+        // @todo base height should be based on the last flat ground/surface
+        float base_y = 0.f;
+        // @todo define a constant for player height
+        float target_y = entity.position.y + entity.scale.y * 0.1f + 1500.f;
+
+        // @todo factor
+        state.player_position.y = Tachyon_Lerpf(base_y, target_y, height_alpha);
+        state.last_solid_ground_position = state.player_position;
+        state.is_on_solid_ground = true;
+        state.last_plane_walked_on = plane;
+      }
+    }
+
+    // Platform collision
+    tVec3f platform_center_position = UnitEntityToWorldPosition(entity, tVec3f(-0.5f, 0, 0));
+  }
+}
+
 static void HandleGateCollisions(Tachyon* tachyon, State& state) {
   const tVec3f scale_factor = tVec3f(0.4f, 0, 1.4f);
 
@@ -473,6 +513,7 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   HandleBridgeCollisions(tachyon, state);
   HandleAltarCollisions(tachyon, state);
   HandleRiverLogCollisions(tachyon, state);
+  HandleWaterWheelCollisions(tachyon, state);
 
   if (!state.is_on_solid_ground) {
     HandleMovementOffSolidGround(state);
