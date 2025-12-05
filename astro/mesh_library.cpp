@@ -63,8 +63,6 @@ static void AddEntityMeshes(Tachyon* tachyon, State& state) {
   mesh(meshes.flower_bush_leaves).type = GRASS_MESH;
   mesh(meshes.flower_bush_leaves).shadow_cascade_ceiling = 2;
 
-  mesh(meshes.oak_tree_leaves).shadow_cascade_ceiling = 3;
-
   mesh(meshes.glow_flower_placeholder).type = GRASS_MESH;
   mesh(meshes.glow_flower_placeholder).shadow_cascade_ceiling = 2;
   mesh(meshes.glow_flower_petals).type = GRASS_MESH;

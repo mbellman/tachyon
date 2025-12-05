@@ -11,6 +11,11 @@ namespace astro {
       meshes.oak_tree_branches = MODEL_MESH("./astro/3d_models/oak_tree/branches.obj", 500);
       meshes.oak_tree_leaves = MODEL_MESH("./astro/3d_models/oak_tree/leaves.obj", 500);
 
+      mesh(meshes.oak_tree_roots).shadow_cascade_ceiling = 3;
+      mesh(meshes.oak_tree_trunk).shadow_cascade_ceiling = 3;
+      mesh(meshes.oak_tree_branches).shadow_cascade_ceiling = 3;
+      mesh(meshes.oak_tree_leaves).shadow_cascade_ceiling = 3;
+
       // mesh(meshes.oak_tree_leaves).type = GRASS_MESH;
     }
 
@@ -39,8 +44,6 @@ namespace astro {
 
       uint16 index = 0;
 
-      // @todo @optimize only iterate over on-screen/in-range entities
-      // once that list is built
       for_entities(state.oak_trees) {
         auto& entity = state.oak_trees[i];
 

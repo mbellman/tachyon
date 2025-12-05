@@ -37,7 +37,8 @@ namespace astro {
     LAMPPOST,
     FOG_SPAWN,
     WIND_CHIMES,
-    WATER_WHEEL
+    WATER_WHEEL,
+    CHESTNUT_TREE
   };
 
   /**
@@ -70,7 +71,8 @@ namespace astro {
     LAMPPOST,
     FOG_SPAWN,
     WIND_CHIMES,
-    WATER_WHEEL
+    WATER_WHEEL,
+    CHESTNUT_TREE
   };
 
   /**
@@ -294,7 +296,12 @@ namespace astro {
       // WATER_WHEEL
       water_wheel_placeholder,
       water_wheel,
-      water_wheel_platform
+      water_wheel_platform,
+
+      // CHESTNUT_TREE
+      chestnut_tree_placeholder,
+      chestnut_tree_trunk,
+      chestnut_tree_leaves
 
       ;
   };
@@ -318,6 +325,7 @@ namespace astro {
     std::vector<GameEntity> mushrooms;
     std::vector<GameEntity> glow_flowers;
     std::vector<GameEntity> oak_trees;
+    std::vector<GameEntity> chestnut_trees;
     std::vector<GameEntity> willow_trees;
     std::vector<GameEntity> river_logs;
 
@@ -419,6 +427,12 @@ namespace astro {
       .name = "Oak Tree",
       .scale = tVec3f(2000.f),
       .tint = tVec3f(0.15f, 0.3f, 0.1f)
+    } },
+
+    { CHESTNUT_TREE, {
+      .name = "Chestnut Tree",
+      .scale = tVec3f(2000.f),
+      .tint = tVec3f(0.3f, 0.15f, 0.1f)
     } },
 
     // @todo
