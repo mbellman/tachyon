@@ -368,7 +368,6 @@ namespace astro {
                 gate_key.color = tVec3f(1.f, 1.f, 0.2f);
                 gate_key.material = tVec4f(0.2f, 1.f, 0, 0.4f);
 
-                // @todo remove
                 commit(gate_key);
 
                 // Handle key retrieval
@@ -388,7 +387,7 @@ namespace astro {
                     // @bug showing this dialogue resets the current dialogue,
                     // allowing the adjacent guard to repeatedly restart his
                     // "cease your trespass!" line and spam the audio line
-                    UISystem::ShowDialogue(tachyon, state, "[X] Collect gate key");
+                    UISystem::ShowTransientDialogue(tachyon, state, "[X] Collect gate key");
 
                     gate_key.color.rgba |= 0x000A;
 

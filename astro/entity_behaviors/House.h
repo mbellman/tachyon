@@ -52,6 +52,17 @@ namespace astro {
         commit(roof);
         commit(chimney);
 
+        // Handle door interactions
+        // @todo handle controller input
+        {
+          tVec3f door_position = UnitEntityToWorldPosition(entity, tVec3f(1.f, 0, 0.3f));
+          float door_distance = tVec3f::distance(state.player_position, door_position);
+
+          if (door_distance < 3000.f) {
+            UISystem::ShowTransientDialogue(tachyon, state, "[X] Knock");
+          }
+        }
+
         // Collision
         entity.visible_position = entity.position;
         entity.visible_scale = body.scale;

@@ -116,16 +116,15 @@ namespace astro {
               UISystem::ShowBlockingDialogue(tachyon, state, "The gate is locked.");
             }
           } else if (has_gate_key) {
-            UISystem::ShowDialogue(tachyon, state, "[X] Unlock");
+            UISystem::ShowTransientDialogue(tachyon, state, "[X] Unlock");
           } else {
-            UISystem::ShowDialogue(tachyon, state, "[X] Check Gate");
+            UISystem::ShowTransientDialogue(tachyon, state, "[X] Check Gate");
           }
         }
 
+        // Collision
         entity.visible_position = entity.position;
         entity.visible_rotation = entity.orientation;
-
-        // For collision handling
         entity.visible_scale = entity.scale * tVec3f(0.4f, 1.f, 1.4f);
 
         commit(body);

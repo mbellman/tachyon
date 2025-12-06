@@ -7,14 +7,30 @@ void UISystem::ShowDialogue(Tachyon* tachyon, State& state, const char* message)
     // Don't show new dialogue if we currently have blocking dialogue
     state.has_blocking_dialogue ||
     // Don't re-show currently-displayed dialogue
-    state.dialogue_message == message &&
-    time_since(state.dialogue_start_time) < 6.f
+    (
+      state.dialogue_message == message &&
+      time_since(state.dialogue_start_time) < 6.f
+    )
   ) {
     return;
   }
 
   state.dialogue_message = message;
   state.dialogue_start_time = get_scene_time();
+}
+
+void UISystem::ShowTransientDialogue(Tachyon* tachyon, State& state, const char* message) {
+  if (state.has_blocking_dialogue) {
+    // Require blocking dialogue to be dismissed beforehand
+    return;
+  }
+
+  state.dialogue_message = message;
+
+  // Trigger the dialogue fade-out immediately.
+  // The dialogue will only remain while the method
+  // is continuously invoked.
+  state.dialogue_start_time = get_scene_time() - 5.f;
 }
 
 void UISystem::ShowBlockingDialogue(Tachyon* tachyon, State& state, const char* message) {
