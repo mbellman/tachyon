@@ -51,6 +51,11 @@ namespace astro {
         commit(frame);
         commit(roof);
         commit(chimney);
+
+        // Collision
+        entity.visible_position = entity.position;
+        entity.visible_scale = body.scale;
+        entity.visible_rotation = entity.orientation;
       }
     }
   };

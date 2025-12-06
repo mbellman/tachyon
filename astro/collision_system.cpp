@@ -178,6 +178,19 @@ static void HandleWoodenFenceCollisions(Tachyon* tachyon, State& state) {
   }
 }
 
+static void HandleHouseCollisions(Tachyon* tachyon, State& state) {
+  for_entities(state.houses) {
+    auto& entity = state.houses[i];
+
+    // @todo
+    // if (state.astro_time < entity.astro_start_time) continue;
+
+    auto house_plane = CollisionSystem::CreatePlane(entity.position, entity.visible_scale * 1.2f, entity.orientation);
+
+    ResolveClippingIntoPlane(state, house_plane);
+  }
+}
+
 static void HandleFlatGroundCollisions(Tachyon* tachyon, State& state) {
   state.player_position.y = state.water_level + player_height;
 
@@ -388,26 +401,20 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   state.did_resolve_radius_collision = false;
 
   // @todo soft collision
-  for_entities(state.shrubs) {
-    auto& entity = state.shrubs[i];
-
+  for (auto& entity : state.shrubs) {
     if (entity.visible_scale.y < 500.f) continue;
 
     ResolveSingleRadiusCollision(state, entity.position, entity.visible_scale, 1.5f);
   }
 
   // @todo soft collision
-  for_entities(state.lilac_bushes) {
-    auto& entity = state.lilac_bushes[i];
-
+  for (auto& entity : state.lilac_bushes) {
     if (entity.visible_scale.x < 500.f) continue;
 
     ResolveSingleRadiusCollision(state, entity.position, entity.visible_scale, 0.35f);
   }
 
-  for_entities(state.oak_trees) {
-    auto& entity = state.oak_trees[i];
-
+  for (auto& entity : state.oak_trees) {
     ResolveSingleRadiusCollision(state, entity.position, entity.visible_scale, 0.5f);
   }
 
@@ -415,15 +422,11 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
     ResolveSingleRadiusCollision(state, rock.position, rock.scale, 1.f);
   }
 
-  for_entities(state.light_posts) {
-    auto& entity = state.light_posts[i];
-
+  for (auto& entity : state.light_posts) {
     ResolveSingleRadiusCollision(state, entity.position, entity.scale, 0.6f);
   }
 
-  for_entities(state.lampposts) {
-    auto& entity = state.lampposts[i];
-
+  for (auto& entity : state.lampposts) {
     ResolveSingleRadiusCollision(state, entity.position, entity.visible_scale, 0.5f);
   }
 
@@ -439,8 +442,7 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
     // of the objects in the outer loop. We probably need
     // to loop over collision bounds in the first place,
     // rather than just collidable objects.
-    for_entities(state.small_stone_bridges) {
-      auto& entity = state.small_stone_bridges[i];
+    for (auto& entity : state.small_stone_bridges) {
       float distance_threshold = entity.visible_scale.x * 1.5f;
 
       if (tVec3f::distance(ground.position, entity.visible_position) < distance_threshold) {
@@ -455,9 +457,15 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
     ResolveSingleRadiusCollision(state, ground.position, ground.scale, 0.8f);
   }
 
+  // Resolve collisions with bounded-off rectangular entities
   HandleGateCollisions(tachyon, state);
   HandleWoodenFenceCollisions(tachyon, state);
+  HandleHouseCollisions(tachyon, state);
+
+  // Handle walking on flat surfaces
   HandleFlatGroundCollisions(tachyon, state);
+
+  // Resolve collisions with irregularly-shaped entities
   HandleBridgeCollisions(tachyon, state);
   HandleAltarCollisions(tachyon, state);
   HandleRiverLogCollisions(tachyon, state);
