@@ -50,7 +50,7 @@ namespace astro {
         if (life_progress > 0.f) {
           float entity_age = state.astro_time - entity.astro_start_time;
 
-          growth_factor = sqrtf(1.f - expf(-0.01f * entity_age));
+          growth_factor = sqrtf(1.f - expf(-0.005f * entity_age));
         }
 
         float tree_height = 1.f - powf(1.f - growth_factor, 4.f);
