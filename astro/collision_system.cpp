@@ -4,20 +4,7 @@
 using namespace astro;
 
 constexpr static float player_radius = 600.f;
-
-static std::vector<tVec3f> small_bridge_points = {
-  tVec3f(-1.f, 0, 0.5f),
-  tVec3f(1.f, 0, 0.5f),
-  tVec3f(1.f, 0, -0.5f),
-  tVec3f(-1.f, 0, -0.5f)
-};
-
-static std::vector<tVec3f> river_log_points = {
-  tVec3f(-0.2f, 0, 1.f),
-  tVec3f(0.2f, 0, 1.f),
-  tVec3f(0.2f, 0, -1.f),
-  tVec3f(-0.2f, 0, -1.f)
-};
+constexpr static float player_height = 1500.f;
 
 static inline bool IsPointInsideEdge(const tVec3f& point, const tVec3f& e1, const tVec3f& e2) {
   return (
@@ -192,7 +179,7 @@ static void HandleWoodenFenceCollisions(Tachyon* tachyon, State& state) {
 }
 
 static void HandleFlatGroundCollisions(Tachyon* tachyon, State& state) {
-  state.player_position.y = state.water_level + 1500.f;
+  state.player_position.y = state.water_level + player_height;
 
   for (auto& ground : objects(state.meshes.flat_ground)) {
     auto ground_plane = CollisionSystem::CreatePlane(ground.position, ground.scale, ground.rotation);
@@ -253,7 +240,7 @@ static void HandleAltarCollisions(Tachyon* tachyon, State& state) {
       tVec3f entity_to_player = state.player_position - entity.position;
       tVec3f player_position_in_entity_space = entity.orientation.toMatrix4f().inverse() * entity_to_player;
       float progress_along_x = player_position_in_entity_space.x / collision_scale.x;
-      float altar_floor_y = (entity.position.y + 1500.f) + entity.scale.y * 0.35f;
+      float altar_floor_y = (entity.position.y + player_height) + entity.scale.y * 0.35f;
 
       if (progress_along_x > 0.f) {
         // Walking up the ramp onto the altar
@@ -288,8 +275,7 @@ static void HandleRiverLogCollisions(Tachyon* tachyon, State& state) {
     auto log_plane = CollisionSystem::CreatePlane(log.position, log.scale * tVec3f(0.2f, 1.f, 1.f), log.rotation);
 
     if (CollisionSystem::IsPointOnPlane(state.player_position.xz(), log_plane)) {
-      // @todo define a constant for player height
-      float player_y = log.position.y + log.scale.y * 0.2f + 1500.f;
+      float player_y = log.position.y + log.scale.y * 0.2f + player_height;
 
       AllowPlayerMovement(state, player_y, log_plane);
 
@@ -322,10 +308,7 @@ static void HandleWaterWheelCollisions(Tachyon* tachyon, State& state) {
 
         // @todo base height should be based on the last flat ground/surface
         float base_y = 0.f;
-        // @todo define a constant for player height
-        float target_y = entity.position.y + entity.scale.y * 0.1f + 1500.f;
-
-        // @todo factor
+        float target_y = entity.position.y + entity.scale.y * 0.1f + player_height;
         float player_y = Tachyon_Lerpf(base_y, target_y, height_alpha);
 
         AllowPlayerMovement(state, player_y, wheel_plane);
@@ -339,7 +322,7 @@ static void HandleWaterWheelCollisions(Tachyon* tachyon, State& state) {
     auto platform_plane = CollisionSystem::CreatePlane(platform_center_position, entity.scale * tVec3f(1.5f, 1.f, 0.25f), entity.orientation);
 
     if (CollisionSystem::IsPointOnPlane(player_xz, platform_plane)) {
-      float player_y = entity.position.y - entity.scale.y * 0.1f + 1500.f;
+      float player_y = entity.position.y - entity.scale.y * 0.1f + player_height;
 
       AllowPlayerMovement(state, player_y, platform_plane);
     }
