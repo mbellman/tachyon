@@ -83,7 +83,7 @@ static inline void ResolveSingleRadiusCollision(State& state, const tVec3f& posi
   }
 }
 
-static bool ResolveSinglePlaneCollision(State& state, const Plane& plane) {
+static bool ResolveClippingIntoPlane(State& state, const Plane& plane) {
   tVec3f player_xz = state.player_position.xz();
 
   if (CollisionSystem::IsPointOnPlane(player_xz, plane)) {
@@ -117,6 +117,13 @@ static bool ResolveSinglePlaneCollision(State& state, const Plane& plane) {
 
   // No collision to resolve
   return false;
+}
+
+static void AllowPlayerMovement(State& state, const float y, const Plane& plane) {
+  state.player_position.y = y;
+  state.last_solid_ground_position = state.player_position;
+  state.is_on_solid_ground = true;
+  state.last_plane_walked_on = plane;
 }
 
 static void HandleGateCollisions(Tachyon* tachyon, State& state) {
@@ -165,7 +172,7 @@ static void HandleGateCollisions(Tachyon* tachyon, State& state) {
     }
 
     for (auto& plane : collision_planes) {
-      if (ResolveSinglePlaneCollision(state, plane)) {
+      if (ResolveClippingIntoPlane(state, plane)) {
         return;
       }
     }
@@ -178,9 +185,9 @@ static void HandleWoodenFenceCollisions(Tachyon* tachyon, State& state) {
 
     if (state.astro_time < entity.astro_start_time) continue;
 
-    auto plane = CollisionSystem::CreatePlane(entity.position, entity.visible_scale, entity.orientation);
+    auto fence_plane = CollisionSystem::CreatePlane(entity.position, entity.visible_scale, entity.orientation);
 
-    ResolveSinglePlaneCollision(state, plane);
+    ResolveClippingIntoPlane(state, fence_plane);
   }
 }
 
@@ -188,27 +195,11 @@ static void HandleFlatGroundCollisions(Tachyon* tachyon, State& state) {
   state.player_position.y = state.water_level + 1500.f;
 
   for (auto& ground : objects(state.meshes.flat_ground)) {
-    // @todo factor
-    Plane ground_plane = {
-      tVec3f(-1.f, 0, 1.f) * ground.scale,
-      tVec3f(1.f, 0, 1.f) * ground.scale,
-      tVec3f(1.f, 0, -1.f) * ground.scale,
-      tVec3f(-1.f, 0, -1.f) * ground.scale
-    };
-
-    tMat4f r = ground.rotation.toMatrix4f();
-
-    ground_plane.p1 = ground.position + r * ground_plane.p1;
-    ground_plane.p2 = ground.position + r * ground_plane.p2;
-    ground_plane.p3 = ground.position + r * ground_plane.p3;
-    ground_plane.p4 = ground.position + r * ground_plane.p4;
+    auto ground_plane = CollisionSystem::CreatePlane(ground.position, ground.scale, ground.rotation);
 
     if (IsPointWithRadiusOnPlane(state.player_position, 400.f, ground_plane)) {
-      // @todo set to height of ground
-      state.player_position.y = 0.f;
-      state.last_solid_ground_position = state.player_position;
-      state.is_on_solid_ground = true;
-      state.last_plane_walked_on = ground_plane;
+      // @todo use actual ground object height
+      AllowPlayerMovement(state, 0.f, ground_plane);
 
       break;
     }
@@ -219,41 +210,23 @@ static void HandleBridgeCollisions(Tachyon* tachyon, State& state) {
   for_entities(state.small_stone_bridges) {
     auto& bridge = state.small_stone_bridges[i];
 
-    // @todo prevent the player from walking over the bridge area when its visible scale = 0
     if (bridge.visible_scale == tVec3f(0.f)) {
       continue;
     }
 
-    // @temporary
-    // @todo factor
     // @todo properly handle collisions for different parts of the bridge
-    Plane bridge_plane = {
-      small_bridge_points[0] * bridge.scale,
-      small_bridge_points[1] * bridge.scale,
-      small_bridge_points[2] * bridge.scale,
-      small_bridge_points[3] * bridge.scale
-    };
-
-    // @todo @optimize this need not be computed every frame
-    tMat4f r = bridge.orientation.toMatrix4f();
-
-    bridge_plane.p1 = bridge.position + r * bridge_plane.p1;
-    bridge_plane.p2 = bridge.position + r * bridge_plane.p2;
-    bridge_plane.p3 = bridge.position + r * bridge_plane.p3;
-    bridge_plane.p4 = bridge.position + r * bridge_plane.p4;
+    auto bridge_plane = CollisionSystem::CreatePlane(bridge.position, bridge.scale * tVec3f(1.f, 0, 0.5f), bridge.orientation);
 
     if (CollisionSystem::IsPointOnPlane(state.player_position.xz(), bridge_plane)) {
       // Figure out how far along the bridge the player is,
       // and set their height accordingly
       tVec3f bridge_to_player = state.player_position - bridge.position;
-      tVec3f player_position_in_bridge_space = r.inverse() * bridge_to_player;
+      tVec3f player_position_in_bridge_space = bridge.orientation.toMatrix4f().inverse() * bridge_to_player;
       float midpoint_ratio = 1.f - abs(player_position_in_bridge_space.x) / bridge.scale.x;
       float floor_height = Tachyon_EaseOutQuad(midpoint_ratio);
+      float player_y = floor_height * bridge.scale.y / 2.2f;
 
-      state.player_position.y = floor_height * bridge.scale.y / 2.2f;
-      state.last_solid_ground_position = state.player_position;
-      state.is_on_solid_ground = true;
-      state.last_plane_walked_on = bridge_plane;
+      AllowPlayerMovement(state, player_y, bridge_plane);
 
       break;
     }
@@ -312,29 +285,13 @@ static void HandleRiverLogCollisions(Tachyon* tachyon, State& state) {
       continue;
     }
 
-    // @todo factor
-    // @temporary
-    Plane log_plane = {
-      river_log_points[0] * entity.scale,
-      river_log_points[1] * entity.scale,
-      river_log_points[2] * entity.scale,
-      river_log_points[3] * entity.scale
-    };
-
-    // @todo @optimize this need not be computed every frame
-    tMat4f r = log.rotation.toMatrix4f();
-
-    log_plane.p1 = log.position + r * log_plane.p1;
-    log_plane.p2 = log.position + r * log_plane.p2;
-    log_plane.p3 = log.position + r * log_plane.p3;
-    log_plane.p4 = log.position + r * log_plane.p4;
+    auto log_plane = CollisionSystem::CreatePlane(log.position, log.scale * tVec3f(0.2f, 1.f, 1.f), log.rotation);
 
     if (CollisionSystem::IsPointOnPlane(state.player_position.xz(), log_plane)) {
       // @todo define a constant for player height
-      state.player_position.y = log.position.y + log.scale.y * 0.2f + 1500.f;
-      state.last_solid_ground_position = state.player_position;
-      state.is_on_solid_ground = true;
-      state.last_plane_walked_on = log_plane;
+      float player_y = log.position.y + log.scale.y * 0.2f + 1500.f;
+
+      AllowPlayerMovement(state, player_y, log_plane);
 
       break;
     }
@@ -350,9 +307,9 @@ static void HandleWaterWheelCollisions(Tachyon* tachyon, State& state) {
 
     // Wheel collision
     if (!is_turning) {
-      auto plane = CollisionSystem::CreatePlane(entity.position, entity.scale * tVec3f(1.5f, 1.f, 0.6f), entity.orientation);
+      auto wheel_plane = CollisionSystem::CreatePlane(entity.position, entity.scale * tVec3f(1.5f, 1.f, 0.6f), entity.orientation);
 
-      if (CollisionSystem::IsPointOnPlane(player_xz, plane)) {
+      if (CollisionSystem::IsPointOnPlane(player_xz, wheel_plane)) {
         tVec3f entity_to_player = state.player_position - entity.position;
         tVec3f player_position_in_entity_space = entity.orientation.toMatrix4f().inverse() * entity_to_player;
 
@@ -369,10 +326,9 @@ static void HandleWaterWheelCollisions(Tachyon* tachyon, State& state) {
         float target_y = entity.position.y + entity.scale.y * 0.1f + 1500.f;
 
         // @todo factor
-        state.player_position.y = Tachyon_Lerpf(base_y, target_y, height_alpha);
-        state.last_solid_ground_position = state.player_position;
-        state.is_on_solid_ground = true;
-        state.last_plane_walked_on = plane;
+        float player_y = Tachyon_Lerpf(base_y, target_y, height_alpha);
+
+        AllowPlayerMovement(state, player_y, wheel_plane);
 
         continue;
       }
@@ -383,11 +339,9 @@ static void HandleWaterWheelCollisions(Tachyon* tachyon, State& state) {
     auto platform_plane = CollisionSystem::CreatePlane(platform_center_position, entity.scale * tVec3f(1.5f, 1.f, 0.25f), entity.orientation);
 
     if (CollisionSystem::IsPointOnPlane(player_xz, platform_plane)) {
-      // @todo factor
-      state.player_position.y = entity.position.y - entity.scale.y * 0.1f + 1500.f;
-      state.last_solid_ground_position = state.player_position;
-      state.is_on_solid_ground = true;
-      state.last_plane_walked_on = platform_plane;
+      float player_y = entity.position.y - entity.scale.y * 0.1f + 1500.f;
+
+      AllowPlayerMovement(state, player_y, platform_plane);
     }
   }
 }
