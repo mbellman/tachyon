@@ -123,9 +123,7 @@ static void HandleGateCollisions(Tachyon* tachyon, State& state) {
   // @todo come up with a better mechanism for this
   std::vector<Plane> collision_planes;
 
-  for_entities(state.gates) {
-    auto& entity = state.gates[i];
-
+  for (auto& entity : state.gates) {
     bool is_open = (
       entity.game_activation_time > -1.f &&
       time_since(entity.game_activation_time) > 1.f &&
@@ -167,9 +165,7 @@ static void HandleGateCollisions(Tachyon* tachyon, State& state) {
 }
 
 static void HandleWoodenFenceCollisions(Tachyon* tachyon, State& state) {
-  for_entities(state.wooden_fences) {
-    auto& entity = state.wooden_fences[i];
-
+  for (auto& entity : state.wooden_fences) {
     if (state.astro_time < entity.astro_start_time) continue;
 
     auto fence_plane = CollisionSystem::CreatePlane(entity.position, entity.visible_scale, entity.orientation);
@@ -179,9 +175,7 @@ static void HandleWoodenFenceCollisions(Tachyon* tachyon, State& state) {
 }
 
 static void HandleHouseCollisions(Tachyon* tachyon, State& state) {
-  for_entities(state.houses) {
-    auto& entity = state.houses[i];
-
+  for (auto& entity : state.houses) {
     // @todo
     // if (state.astro_time < entity.astro_start_time) continue;
 
@@ -207,24 +201,22 @@ static void HandleFlatGroundCollisions(Tachyon* tachyon, State& state) {
 }
 
 static void HandleBridgeCollisions(Tachyon* tachyon, State& state) {
-  for_entities(state.small_stone_bridges) {
-    auto& bridge = state.small_stone_bridges[i];
-
-    if (bridge.visible_scale == tVec3f(0.f)) {
+  for (auto& entity : state.small_stone_bridges) {
+    if (entity.visible_scale == tVec3f(0.f)) {
       continue;
     }
 
     // @todo properly handle collisions for different parts of the bridge
-    auto bridge_plane = CollisionSystem::CreatePlane(bridge.position, bridge.scale * tVec3f(1.f, 0, 0.5f), bridge.orientation);
+    auto bridge_plane = CollisionSystem::CreatePlane(entity.position, entity.scale * tVec3f(1.f, 0, 0.5f), entity.orientation);
 
     if (CollisionSystem::IsPointOnPlane(state.player_position.xz(), bridge_plane)) {
       // Figure out how far along the bridge the player is,
       // and set their height accordingly
-      tVec3f bridge_to_player = state.player_position - bridge.position;
-      tVec3f player_position_in_bridge_space = bridge.orientation.toMatrix4f().inverse() * bridge_to_player;
-      float midpoint_ratio = 1.f - abs(player_position_in_bridge_space.x) / bridge.scale.x;
+      tVec3f bridge_to_player = state.player_position - entity.position;
+      tVec3f player_position_in_bridge_space = entity.orientation.toMatrix4f().inverse() * bridge_to_player;
+      float midpoint_ratio = 1.f - abs(player_position_in_bridge_space.x) / entity.scale.x;
       float floor_height = Tachyon_EaseOutQuad(midpoint_ratio);
-      float player_y = floor_height * bridge.scale.y / 2.2f;
+      float player_y = floor_height * entity.scale.y / 2.2f;
 
       AllowPlayerMovement(state, player_y, bridge_plane);
 
@@ -236,9 +228,7 @@ static void HandleBridgeCollisions(Tachyon* tachyon, State& state) {
 static void HandleAltarCollisions(Tachyon* tachyon, State& state) {
   tVec3f player_xz = state.player_position.xz();
 
-  for_entities(state.altars) {
-    auto& entity = state.altars[i];
-
+  for (auto& entity : state.altars) {
     tVec3f collision_scale = entity.scale * tVec3f(1.9f, 1.f, 0.45f);
 
     // Statue
@@ -300,8 +290,7 @@ static void HandleRiverLogCollisions(Tachyon* tachyon, State& state) {
 static void HandleWaterWheelCollisions(Tachyon* tachyon, State& state) {
   tVec3f player_xz = state.player_position.xz();
 
-  for_entities(state.water_wheels) {
-    auto& entity = state.water_wheels[i];
+  for (auto& entity : state.water_wheels) {
     bool is_turning = state.astro_time <= entity.astro_end_time;
 
     // Wheel collision
