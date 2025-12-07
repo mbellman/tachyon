@@ -145,7 +145,7 @@ void main() {
 
   // Noise/turbulence
   N.xz += 0.15 * vec2(simplex_noise(vec2(water_speed * 0.5 + wx * 0.0005, water_speed * 0.5 + wz * 0.0005)));
-  N.xz += 0.1 * vec2(simplex_noise(vec2(water_speed * 0.5 + wx * 0.002, water_speed * 0.5 + wz * 0.002)));
+  N.xz += 0.05 * vec2(simplex_noise(vec2(water_speed * 0.5 + wx * 0.002, water_speed * 0.5 + wz * 0.002)));
   // N.xz += 0.04 * vec2(simplex_noise(vec2(scene_time * 0.5 + wx * 0.004, scene_time * 0.5 + wz * 0.004)));
 
   // Normal used for specular highlights; more intense than the normal
