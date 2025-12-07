@@ -38,7 +38,8 @@ namespace astro {
     FOG_SPAWN,
     WIND_CHIMES,
     WATER_WHEEL,
-    CHESTNUT_TREE
+    CHESTNUT_TREE,
+    NPC
   };
 
   /**
@@ -72,7 +73,8 @@ namespace astro {
     FOG_SPAWN,
     WIND_CHIMES,
     WATER_WHEEL,
-    CHESTNUT_TREE
+    CHESTNUT_TREE,
+    NPC
   };
 
   /**
@@ -301,7 +303,11 @@ namespace astro {
       // CHESTNUT_TREE
       chestnut_tree_placeholder,
       chestnut_tree_trunk,
-      chestnut_tree_leaves
+      chestnut_tree_leaves,
+
+      // NPC
+      npc_placeholder,
+      npc
 
       ;
   };
@@ -339,6 +345,7 @@ namespace astro {
     std::vector<GameEntity> wooden_fences;
     std::vector<GameEntity> water_wheels;
 
+    std::vector<GameEntity> npcs;
     std::vector<GameEntity> low_guards;
     std::vector<GameEntity> bandits;
   };
@@ -508,9 +515,15 @@ namespace astro {
       .tint = tVec3f(1.f, 0.5f, 0.1f)
     } },
 
+    { NPC, {
+      .name = "NPC",
+      .scale = tVec3f(600.f, 1500.f, 600.f),
+      .tint = tVec3f(1.f)
+    } },
+
     { LOW_GUARD, {
       .name = "Low Guard",
-      .scale = tVec3f(600.f, 1500.f, 600.f ),
+      .scale = tVec3f(600.f, 1500.f, 600.f),
       .tint = tVec3f(0.7f)
     } },
 

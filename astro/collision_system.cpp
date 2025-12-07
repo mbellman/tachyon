@@ -419,6 +419,10 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
     ResolveSingleRadiusCollision(state, entity.position, entity.visible_scale, 0.5f);
   }
 
+  for (auto& entity : state.npcs) {
+    ResolveSingleRadiusCollision(state, entity.position, entity.scale, 1.5f);
+  }
+
   for (auto& ground : objects(state.meshes.ground_1)) {
     bool has_collision = true;
 

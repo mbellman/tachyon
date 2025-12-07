@@ -16,6 +16,7 @@
 #include "astro/entity_behaviors/Lilac_Bush.h"
 #include "astro/entity_behaviors/LowGuard.h"
 #include "astro/entity_behaviors/Mushroom.h"
+#include "astro/entity_behaviors/Npc.h"
 #include "astro/entity_behaviors/OakTree.h"
 #include "astro/entity_behaviors/RiverLog.h"
 #include "astro/entity_behaviors/Shrub.h"
@@ -74,6 +75,7 @@ using namespace astro;
   behavior_macro(WIND_CHIMES, WindChimes);\
   behavior_macro(ALTAR, Altar);\
   behavior_macro(HOUSE, House);\
+  behavior_macro(NPC, Npc);\
   behavior_macro(WATER_WHEEL, WaterWheel);\
   behavior_macro(WILLOW_TREE, WillowTree);\
   behavior_macro(WOODEN_FENCE, WoodenFence);\
@@ -103,6 +105,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
     dispatch_GetEntityContainer(WIND_CHIMES, state.wind_chimes);
     dispatch_GetEntityContainer(ALTAR, state.altars);
     dispatch_GetEntityContainer(HOUSE, state.houses);
+    dispatch_GetEntityContainer(NPC, state.npcs);
     dispatch_GetEntityContainer(WATER_WHEEL, state.water_wheels);
     dispatch_GetEntityContainer(WILLOW_TREE, state.willow_trees);
     dispatch_GetEntityContainer(WOODEN_FENCE, state.wooden_fences);

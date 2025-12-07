@@ -25,8 +25,6 @@ namespace astro {
 
       for_entities(state.dirt_path_nodes) {
         auto& entity = state.dirt_path_nodes[i];
-
-        // @todo
       }
     }
   };
