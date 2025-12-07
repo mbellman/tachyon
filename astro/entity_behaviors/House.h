@@ -53,7 +53,7 @@ namespace astro {
         commit(chimney);
 
         // Handle door interactions
-        // @todo handle controller input
+        // @todo input actions
         {
           tVec3f door_position = UnitEntityToWorldPosition(entity, tVec3f(1.f, 0, 0.3f));
           float door_distance = tVec3f::distance(state.player_position, door_position);

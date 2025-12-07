@@ -35,6 +35,16 @@ namespace astro {
 
           commit(body);
         }
+
+        // Interaction
+        // @todo input actions/dialogue
+        {
+          float player_distance = tVec3f::distance(state.player_position, entity.visible_position);
+
+          if (player_distance < 3000.f) {
+            UISystem::ShowTransientDialogue(tachyon, state, "[X] Speak");
+          }
+        }
       }
     }
   };
