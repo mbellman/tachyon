@@ -423,7 +423,7 @@ namespace astro {
 
     { LILAC_BUSH, {
       .name = "Lilac Bush",
-      .scale = tVec3f(3000.f),
+      .scale = tVec3f(800.f),
       .tint = tVec3f(1.f, 0.4f, 1.f)
     } },
 
