@@ -1,5 +1,7 @@
 #pragma once
 
+#include <unordered_map>
+#include <string>
 #include <vector>
 
 #include "engine/tachyon_aliases.h"
@@ -180,10 +182,11 @@ namespace astro {
     float last_walk_sound_movement_distance = 0.f;
     uint8 walk_cycle = 0;
 
+    // Large-scale generated elements
     std::vector<PathSegment> dirt_path_segments;
-
     std::vector<GrassChunk> grass_chunks;
 
+    // Targeted entities
     EntityRecord target_entity; // @todo rename target_entity_record
     EntityRecord speaking_entity_record;
     float target_start_time = 0.f;
@@ -223,6 +226,8 @@ namespace astro {
     float last_dialogue_sound_time = 0.f;
     bool has_blocking_dialogue = false;
     bool dismissed_blocking_dialogue = false;
+
+    std::unordered_map<std::string, std::vector<std::string>> npc_dialogue;
 
     float bgm_start_time = -1.f;
 

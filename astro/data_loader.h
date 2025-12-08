@@ -6,6 +6,7 @@
 namespace astro {
   namespace DataLoader {
     void LoadLevelData(Tachyon* tachyon, State& state);
+    void LoadNpcDialogue(Tachyon* tachyon, State& state);
     uint16 MeshIndexToId(State& state, uint16 mesh_index);
     uint16 MeshIdToIndex(State& state, uint16 mesh_id);
   }

@@ -147,3 +147,25 @@ void DataLoader::LoadLevelData(Tachyon* tachyon, State& state) {
   #undef parse_vec3f
   #undef parse_quaternion
 }
+
+void DataLoader::LoadNpcDialogue(Tachyon* tachyon, State& state) {
+  auto level_data = Tachyon_GetFileContents("./astro/level_data/npc_dialogue.txt");
+  auto lines = SplitString(level_data, "\n");  // @allocation
+
+  std::string current_npc_name = "";
+
+  for (auto& line : lines) {
+    if (line[0] == '@') {
+      // NPC
+      current_npc_name = line.substr(1);
+
+      state.npc_dialogue[current_npc_name] = {};
+    }
+    else if (line.size() > 0) {
+      // Dialogue lines
+      auto& dialogue_sequence = state.npc_dialogue[current_npc_name];
+
+      dialogue_sequence.push_back(line);
+    }
+  }
+}

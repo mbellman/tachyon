@@ -1,1 +1,3 @@
-lake_girl
+@lake_girl
+Hello, world!
+This is a dialogue test.

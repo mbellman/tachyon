@@ -24,6 +24,7 @@ namespace astro {
 
       fog_volumes.clear();
 
+      // @todo during gameplay, only add fog volumes within player view
       for_entities(state.fog_spawns) {
         auto& entity = state.fog_spawns[i];
 

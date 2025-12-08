@@ -24,6 +24,8 @@ namespace astro {
     timeEvolve() {
       auto& meshes = state.meshes;
 
+      float player_speed = state.player_velocity.magnitude();
+
       for_entities(state.npcs) {
         auto& entity = state.npcs[i];
 
@@ -37,12 +39,25 @@ namespace astro {
         }
 
         // Interaction
-        // @todo input actions/dialogue
         {
           float player_distance = tVec3f::distance(state.player_position, entity.visible_position);
 
-          if (player_distance < 3000.f) {
+          if (player_distance < 3000.f && player_speed < 200.f) {
             UISystem::ShowTransientDialogue(tachyon, state, "[X] Speak");
+
+            if (
+              !state.has_blocking_dialogue &&
+              did_press_key(tKey::CONTROLLER_A)
+            ) {
+              // Reset player speed
+              state.player_velocity = tVec3f(0.f);
+
+              // Show dialogue
+              // @todo run through full dialogue sequence
+              auto& dialogue_sequence = state.npc_dialogue[entity.unique_name];
+
+              UISystem::ShowBlockingDialogue(tachyon, state, dialogue_sequence[0].c_str());
+            }
           }
         }
       }
