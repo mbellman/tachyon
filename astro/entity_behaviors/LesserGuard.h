@@ -8,29 +8,29 @@
 #include "astro/ui_system.h"
 
 namespace astro {
-  behavior LowGuard {
+  behavior LesserGuard {
     const static float wind_up_duration = 0.8f;
     const static float stab_duration = 0.1f;
     const static float wind_down_duration = 0.8f;
     const static float attack_duration = wind_up_duration + stab_duration + wind_down_duration;
 
     addMeshes() {
-      meshes.low_guard_placeholder = MODEL_MESH("./astro/3d_models/guy.obj", 500);
-      meshes.low_guard_body = MODEL_MESH("./astro/3d_models/low_guard/body.obj", 500);
-      meshes.low_guard_shield = MODEL_MESH("./astro/3d_models/low_guard/shield.obj", 500);
-      meshes.low_guard_spear = MODEL_MESH("./astro/3d_models/low_guard/spear.obj", 500);
+      meshes.lesser_guard_placeholder = MODEL_MESH("./astro/3d_models/guy.obj", 500);
+      meshes.lesser_guard_body = MODEL_MESH("./astro/3d_models/low_guard/body.obj", 500);
+      meshes.lesser_guard_shield = MODEL_MESH("./astro/3d_models/low_guard/shield.obj", 500);
+      meshes.lesser_guard_spear = MODEL_MESH("./astro/3d_models/low_guard/spear.obj", 500);
     }
 
     getMeshes() {
       return_meshes({
-        meshes.low_guard_body,
-        meshes.low_guard_shield,
-        meshes.low_guard_spear
+        meshes.lesser_guard_body,
+        meshes.lesser_guard_shield,
+        meshes.lesser_guard_spear
       });
     }
 
     getPlaceholderMesh() {
-      return meshes.low_guard_placeholder;
+      return meshes.lesser_guard_placeholder;
     }
 
     handleEnemyBehavior() {
@@ -62,8 +62,8 @@ namespace astro {
           // @todo perform collision checks on all appropriate entity types
           // @todo perform collision checks against environment
           // @todo pathfinding
-          for_entities(state.low_guards) {
-            auto& guard = state.low_guards[i];
+          for_entities(state.lesser_guards) {
+            auto& guard = state.lesser_guards[i];
 
             if (IsSameEntity(entity, guard)) {
               continue;
@@ -156,13 +156,13 @@ namespace astro {
     }
 
     timeEvolve() {
-      profile("  LowGuard::timeEvolve()");
+      profile("  LesserGuard::timeEvolve()");
 
       auto& meshes = state.meshes;
 
       // @todo @optimize only iterate over on-screen/in-range entities
-      for_entities(state.low_guards) {
-        auto& entity = state.low_guards[i];
+      for_entities(state.lesser_guards) {
+        auto& entity = state.lesser_guards[i];
         bool is_active = IsDuringActiveTime(entity, state);
 
         // @todo factor
@@ -225,7 +225,7 @@ namespace astro {
               }
             }
 
-            handle_enemy_behavior(LowGuard);
+            handle_enemy_behavior(LesserGuard);
           }
         } else {
           // Hide and reset
@@ -239,7 +239,7 @@ namespace astro {
 
         // Body
         {
-          auto& body = objects(meshes.low_guard_body)[i];
+          auto& body = objects(meshes.lesser_guard_body)[i];
 
           body.position = entity.visible_position;
           body.scale = entity.visible_scale;
@@ -252,7 +252,7 @@ namespace astro {
 
         // Shield
         {
-          auto& shield = objects(meshes.low_guard_shield)[i];
+          auto& shield = objects(meshes.lesser_guard_shield)[i];
 
           shield.position = UnitEntityToWorldPosition(entity, tVec3f(1.f, 0.2f, 1.2f));
           shield.scale = entity.visible_scale * tVec3f(1.f, 0.4f, 1.f); // @temporary
@@ -272,7 +272,7 @@ namespace astro {
 
         // Spear
         {
-          auto& spear = objects(meshes.low_guard_spear)[i];
+          auto& spear = objects(meshes.lesser_guard_spear)[i];
 
           spear.position = UnitEntityToWorldPosition(entity, tVec3f(-1.f, 0.f, 1.2f));
           spear.scale = entity.visible_scale * tVec3f(1.f, 0.4f, 1.f) * 1.25f; // @temporary

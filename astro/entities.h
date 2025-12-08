@@ -39,7 +39,8 @@ namespace astro {
     WIND_CHIMES,
     WATER_WHEEL,
     CHESTNUT_TREE,
-    NPC
+    NPC,
+    LESSER_GUARD
   };
 
   /**
@@ -74,7 +75,8 @@ namespace astro {
     WIND_CHIMES,
     WATER_WHEEL,
     CHESTNUT_TREE,
-    NPC
+    NPC,
+    LESSER_GUARD
   };
 
   /**
@@ -209,6 +211,12 @@ namespace astro {
       // WOODEN_GATE_DOOR
       wooden_gate_door_placeholder,
       wooden_gate_door,
+
+      // LESSER_GUARD
+      lesser_guard_placeholder,
+      lesser_guard_body,
+      lesser_guard_shield,
+      lesser_guard_spear,
 
       // LOW_GUARD
       low_guard_placeholder,
@@ -346,6 +354,7 @@ namespace astro {
     std::vector<GameEntity> water_wheels;
 
     std::vector<GameEntity> npcs;
+    std::vector<GameEntity> lesser_guards;
     std::vector<GameEntity> low_guards;
     std::vector<GameEntity> bandits;
   };
@@ -521,6 +530,12 @@ namespace astro {
       .tint = tVec3f(1.f)
     } },
 
+    { LESSER_GUARD, {
+      .name = "Lesser Guard",
+      .scale = tVec3f(600.f, 1500.f, 600.f),
+      .tint = tVec3f(1.f, 0.8f, 0.2f)
+    } },
+
     { LOW_GUARD, {
       .name = "Low Guard",
       .scale = tVec3f(600.f, 1500.f, 600.f),
@@ -540,15 +555,15 @@ namespace astro {
    * ----------------------------
    */
   // @todo do we need this?
-  static inline bool IsSameEntity(GameEntity& entity, EntityRecord& record) {
+  static inline bool IsSameEntity(const GameEntity& entity, const EntityRecord& record) {
     return entity.type == record.type && entity.id == record.id;
   }
 
-  static inline bool IsSameEntity(EntityRecord& record_a, EntityRecord& record_b) {
+  static inline bool IsSameEntity(const EntityRecord& record_a, const EntityRecord& record_b) {
     return record_a.type == record_b.type && record_a.id == record_b.id;
   }
 
-  static inline EntityRecord GetRecord(GameEntity& entity) {
+  static inline EntityRecord GetRecord(const GameEntity& entity) {
     return {
       .type = entity.type,
       .id = entity.id

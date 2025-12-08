@@ -69,34 +69,24 @@ static EntityRecord GetLeftmostNonSelectedTarget(State& state) {
   return candidate;
 }
 
-static void TrackTargetableEntities(State& state) {
+static void TrackTargetableEntities(State& state, const std::vector<GameEntity>& entities) {
+  for (auto& entity : entities) {
+    if (!IsDuringActiveTime(entity, state)) continue;
+
+    float player_distance = tVec3f::distance(entity.visible_position, state.player_position);
+
+    if (player_distance < target_distance_limit) {
+      state.targetable_entities.push_back(GetRecord(entity));
+    }
+  }
+}
+
+static void TrackAllTargetableEntities(State& state) {
   state.targetable_entities.clear();
 
-  // @todo factor
-  for_entities(state.low_guards) {
-    auto& entity = state.low_guards[i];
-
-    if (!IsDuringActiveTime(entity, state)) continue;
-
-    float player_distance = tVec3f::distance(entity.visible_position, state.player_position);
-
-    if (player_distance < target_distance_limit) {
-      state.targetable_entities.push_back(GetRecord(entity));
-    }
-  }
-
-  // @todo factor
-  for_entities(state.bandits) {
-    auto& entity = state.bandits[i];
-
-    if (!IsDuringActiveTime(entity, state)) continue;
-
-    float player_distance = tVec3f::distance(entity.visible_position, state.player_position);
-
-    if (player_distance < target_distance_limit) {
-      state.targetable_entities.push_back(GetRecord(entity));
-    }
-  }
+  TrackTargetableEntities(state, state.lesser_guards);
+  TrackTargetableEntities(state, state.low_guards);
+  TrackTargetableEntities(state, state.bandits);
 }
 
 static void HandleActiveTargetReticle(Tachyon* tachyon, State& state) {
@@ -180,7 +170,7 @@ static void SelectTarget(Tachyon* tachyon, State& state, EntityRecord& target) {
 }
 
 void Targeting::HandleTargets(Tachyon* tachyon, State& state) {
-  TrackTargetableEntities(state);
+  TrackAllTargetableEntities(state);
   UpdateTargetReticle(tachyon, state);
   PickSpeakingEntity(state);
 }
