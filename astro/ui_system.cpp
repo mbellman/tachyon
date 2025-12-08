@@ -2,7 +2,7 @@
 
 using namespace astro;
 
-void UISystem::ShowDialogue(Tachyon* tachyon, State& state, const char* message) {
+void UISystem::ShowDialogue(Tachyon* tachyon, State& state, const std::string& message) {
   if (
     // Don't show new dialogue if we currently have blocking dialogue
     state.has_blocking_dialogue ||
@@ -19,7 +19,7 @@ void UISystem::ShowDialogue(Tachyon* tachyon, State& state, const char* message)
   state.dialogue_start_time = get_scene_time();
 }
 
-void UISystem::ShowTransientDialogue(Tachyon* tachyon, State& state, const char* message) {
+void UISystem::ShowTransientDialogue(Tachyon* tachyon, State& state, const std::string& message) {
   if (state.has_blocking_dialogue) {
     // Require blocking dialogue to be dismissed beforehand
     return;
@@ -33,9 +33,13 @@ void UISystem::ShowTransientDialogue(Tachyon* tachyon, State& state, const char*
   state.dialogue_start_time = get_scene_time() - 5.f;
 }
 
-void UISystem::ShowBlockingDialogue(Tachyon* tachyon, State& state, const char* message) {
-  ShowDialogue(tachyon, state, message);
+void UISystem::ShowBlockingDialogue(Tachyon* tachyon, State& state, const std::string& message) {
+  if (state.dialogue_message == message) {
+    return;
+  }
 
+  state.dialogue_message = message;
+  state.dialogue_start_time = get_scene_time();
   state.has_blocking_dialogue = true;
   state.dismissed_blocking_dialogue = false;
 }

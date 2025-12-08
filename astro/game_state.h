@@ -1,7 +1,7 @@
 #pragma once
 
-#include <unordered_map>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "engine/tachyon_aliases.h"
@@ -221,14 +221,17 @@ namespace astro {
     float last_frame_left_trigger = 0.f;
     float last_frame_right_trigger = 0.f;
 
+    // Dialogue
     std::string dialogue_message = "";
     float dialogue_start_time = 0.f;
     float last_dialogue_sound_time = 0.f;
     bool has_blocking_dialogue = false;
     bool dismissed_blocking_dialogue = false;
-
     std::unordered_map<std::string, std::vector<std::string>> npc_dialogue;
+    std::string current_dialogue_sequence = "";
+    int32 current_dialogue_step = 0;
 
+    // Music
     float bgm_start_time = -1.f;
 
     // @todo dev mode only
