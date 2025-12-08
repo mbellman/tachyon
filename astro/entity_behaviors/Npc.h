@@ -4,6 +4,27 @@
 
 namespace astro {
   behavior Npc {
+    static void HandleCurrentDialogueSequence(Tachyon* tachyon, State& state) {
+      auto& dialogue_lines = state.npc_dialogue[state.current_dialogue_sequence];
+
+      if (did_press_key(tKey::CONTROLLER_A)) {
+        // Show next dialogue line
+        state.current_dialogue_step++;
+      }
+
+      if (state.current_dialogue_step > dialogue_lines.size() - 1) {
+        // Sequence completed
+        state.current_dialogue_sequence = "";
+        state.current_dialogue_step = 0;
+
+        return;
+      }
+
+      auto& current_dialogue_line = dialogue_lines[state.current_dialogue_step];
+
+      UISystem::ShowBlockingDialogue(tachyon, state, current_dialogue_line);
+    }
+
     addMeshes() {
       meshes.npc_placeholder = MODEL_MESH("./astro/3d_models/guy.obj", 500);
       meshes.npc = MODEL_MESH("./astro/3d_models/guy.obj", 500);
@@ -26,6 +47,11 @@ namespace astro {
 
       float player_speed = state.player_velocity.magnitude();
 
+      // Stepping through the current dialogue sequence
+      if (state.current_dialogue_sequence != "") {
+        HandleCurrentDialogueSequence(tachyon, state);
+      }
+
       for_entities(state.npcs) {
         auto& entity = state.npcs[i];
 
@@ -42,7 +68,7 @@ namespace astro {
         {
           float player_distance = tVec3f::distance(state.player_position, entity.visible_position);
 
-          // Starting dialogue
+          // Initiating dialogue
           if (player_distance < 3000.f && player_speed < 200.f) {
             UISystem::ShowTransientDialogue(tachyon, state, "[X] Speak");
 
@@ -56,29 +82,6 @@ namespace astro {
               // Prepare dialogue sequence
               state.current_dialogue_sequence = entity.unique_name;
               state.current_dialogue_step = 0;
-
-              continue;
-            }
-          }
-
-          // Stepping through dialogue sequence
-          if (state.current_dialogue_sequence != "") {
-            auto& dialogue_sequence = state.npc_dialogue[entity.unique_name];
-
-            if (state.current_dialogue_step > dialogue_sequence.size() - 1) {
-              // Sequence completed
-              state.current_dialogue_sequence = "";
-              state.current_dialogue_step = 0;
-
-              continue;
-            }
-
-            auto& current_dialogue_line = dialogue_sequence[state.current_dialogue_step];
-
-            UISystem::ShowBlockingDialogue(tachyon, state, current_dialogue_line);
-
-            if (did_press_key(tKey::CONTROLLER_A)) {
-              state.current_dialogue_step++;
             }
           }
         }
