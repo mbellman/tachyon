@@ -11,8 +11,9 @@ namespace astro {
     }
 
     addMeshes() {
-      meshes.lilac_placeholder = MODEL_MESH("./astro/3d_models/lilac_bush/placeholder.obj", 500);
-      meshes.lilac_leaves = MODEL_MESH("./astro/3d_models/lilac_bush/leaves.obj", 500);
+      // @todo use own model for placeholder + leaves
+      meshes.lilac_placeholder = MODEL_MESH("./astro/3d_models/shrub/placeholder.obj", 500);
+      meshes.lilac_leaves = MODEL_MESH("./astro/3d_models/shrub/leaves.obj", 500);
       meshes.lilac_flower = MODEL_MESH("./astro/3d_models/lilac_bush/flower.obj", 3000);
 
       mesh(meshes.lilac_placeholder).type = GRASS_MESH;
@@ -42,7 +43,10 @@ namespace astro {
       profile("  LilacBush::timeEvolve()");
 
       auto& meshes = state.meshes;
+
       const float lifetime = 100.f;
+      const tVec3f leaves_color = tVec3f(0.07f, 0.14f, 0.07f);
+      const tVec3f leaves_wilting_color = tVec3f(0.4f, 0.2f, 0.1f);
 
       uint16 leaves_index = 0;
       uint16 flower_index = 0;
@@ -79,7 +83,7 @@ namespace astro {
           // Sprouting
           leaves.scale.x = entity.scale.x * plant_growth;
           leaves.scale.z = entity.scale.z * plant_growth;
-          leaves.color = tVec3f(0.1f, 0.3f, 0.2f);
+          leaves.color = leaves_color;
         }
         else if (life_progress < 1.f) {
           // Wilting
@@ -89,7 +93,7 @@ namespace astro {
 
           leaves.scale.x = entity.scale.x * Tachyon_Lerpf(1.f, 0.7f, alpha);
           leaves.scale.z = entity.scale.x * Tachyon_Lerpf(1.f, 0.7f, alpha);
-          leaves.color = tVec3f::lerp(tVec3f(0.1f, 0.3f, 0.2f), tVec3f(0.4f, 0.2f, 0.1f), alpha);
+          leaves.color = tVec3f::lerp(leaves_color, leaves_wilting_color, alpha);
         }
 
         commit(leaves);
@@ -101,14 +105,14 @@ namespace astro {
             float alpha = float(j) / 5.f;
 
             float flower_growth = powf(sinf(life_progress * t_PI + alpha * 0.5f), 3.f);
-            tVec3f flower_scale = entity.scale * 0.5f * flower_growth;
-            float flower_scale_y = entity.scale.y * 0.5f * sqrtf(flower_growth);
+            tVec3f flower_scale = entity.scale * 2.f * flower_growth;
+            float flower_scale_y = entity.scale.y * 2.f * sqrtf(flower_growth);
 
             float x_seed = entity.position.x + 3.89f * alpha;
             float z_seed = entity.position.z + 2.67f * alpha;
 
-            float range_x = entity.scale.x * 0.3f;
-            float range_z = entity.scale.z * 0.3f;
+            float range_x = entity.scale.x * 1.2f;
+            float range_z = entity.scale.z * 1.2f;
 
             tVec3f random_offset = tVec3f(
               RandomWithinRange(x_seed, -range_x, range_x),

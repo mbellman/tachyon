@@ -52,7 +52,7 @@ namespace astro {
           float offering_distance = tVec3f::distance(state.player_position, offering_position);
 
           if (offering_distance < 3000.f) {
-            UISystem::ShowDialogue(tachyon, state, "[X] Place offering");
+            UISystem::ShowTransientDialogue(tachyon, state, "[X] Place offering");
           }
         }
 

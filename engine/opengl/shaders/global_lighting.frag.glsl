@@ -709,7 +709,7 @@ void main() {
     out_color += albedo * vec3(0.1, 0.2, 1.0) * (0.005 + 0.02 * (1.0 - NdotL));
   }
 
-  // Earth bounce light
+  // Earth bounce light (or ambient sky light)
   // @todo make customizable
   {
     const vec3 earth_light_direction = vec3(0, -1.0, 0);
