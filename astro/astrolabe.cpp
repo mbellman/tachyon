@@ -26,6 +26,8 @@ void Astrolabe::Update(Tachyon* tachyon, State& state) {
   hand.scale =
   tVec3f(200.f);
 
+  rear.scale = tVec3f(205.f);
+
   rear.color = tVec3f(0.1f);
   rear.material = tVec4f(0, 1.f, 0, 0);
 
@@ -46,7 +48,7 @@ void Astrolabe::Update(Tachyon* tachyon, State& state) {
   plate.rotation =
   ring.rotation =
   (
-    Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -0.9f) *
+    Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -state.camera_angle) *
     Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -t_HALF_PI * 0.85f)
   );
 
@@ -91,11 +93,11 @@ void Astrolabe::Update(Tachyon* tachyon, State& state) {
     camera.rotation.getUpDirection() * tVec3f(1.f, -1.f, 1.f) * 580.f
   );
 
-  rear.position += (rear.position - camera.position).unit() * 20.f;
-  rear.scale = tVec3f(205.f);
-  rear.position += camera.rotation.getLeftDirection() * 1.f;
-  rear.position += camera.rotation.getUpDirection() * 18.f;
+  // Adjust rear position
+  rear.position += camera.rotation.getLeftDirection() * 12.f;
+  rear.position += rear.rotation.getUpDirection().invert() * 9.f;
 
+  // Adjust hand position
   hand.position -= camera.rotation.getLeftDirection() * 6.f;
 
   // Fragments

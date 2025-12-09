@@ -373,8 +373,9 @@ static void UpdateSmallGrass(Tachyon* tachyon, State& state) {
 
   // @todo factor
   auto& camera = tachyon->scene.camera;
+  Quaternion standard_camera_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.9f);
   // @hack Invert y to get the proper direction. Probably a mistake somewhere.
-  tVec3f camera_direction = camera.rotation.getDirection() * tVec3f(1.f, -1.f, 1.f);
+  tVec3f camera_direction = standard_camera_rotation.getDirection() * tVec3f(1.f, -1.f, 1.f);
   float camera_height = camera.position.y - -1500.f;
   float distance = -camera_height / camera_direction.y;
   tVec3f ground_center = camera.position + camera_direction * distance;

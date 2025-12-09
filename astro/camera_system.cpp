@@ -102,6 +102,25 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state) {
     new_camera_position.z += 10000.f;
   }
 
+  // @temporary
+  {
+    state.camera_angle = 0.9f;
+
+    for (auto& entity : state.npcs) {
+      if (entity.unique_name == "lake_girl") {
+        float distance = tVec3f::distance(state.player_position, entity.position);
+
+        float alpha = distance / 15000.f;
+        if (alpha > 1.f) alpha = 1.f;
+        alpha = Tachyon_EaseInOutf(1.f - alpha);
+
+        state.camera_angle = Tachyon_Lerpf(state.camera_angle, 0.6f, alpha);
+
+        new_camera_position.z += 5000.f * alpha;
+      }
+    }
+  }
+
   camera.position = tVec3f::lerp(camera.position, new_camera_position, 5.f * state.dt);
-  camera.rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.9f);
+  camera.rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), state.camera_angle);
 }
