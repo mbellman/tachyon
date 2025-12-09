@@ -96,14 +96,6 @@ static void HandleAstroControls(Tachyon* tachyon, State& state) {
   state.last_frame_left_trigger = tachyon->left_trigger;
   state.last_frame_right_trigger = tachyon->right_trigger;
 
-  if (Targeting::IsInCombatMode(state)) {
-    if (started_turning) {
-      Sfx::PlaySound(SFX_ASTRO_DISABLED, 0.8f);
-    }
-
-    return;
-  }
-
   bool stopped_turning = false;
 
   // Track the initial time when we start turning

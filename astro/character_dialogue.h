@@ -23,6 +23,11 @@ namespace astro {
       return;
     }
 
+    if (state.has_blocking_dialogue) {
+      // Don't play enemy dialogue during blocking dialogue messages
+      return;
+    }
+
     // Check to see whether we're invoking this on a set of essages
     // which has already been used for the current dialogue. We don't
     // want to rapidly cycle between random dialogue lines, so suppress

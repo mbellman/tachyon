@@ -9,7 +9,7 @@
 
 namespace astro {
   behavior LesserGuard {
-    const static float wind_up_duration = 0.8f;
+    const static float wind_up_duration = 1.f;
     const static float stab_duration = 0.1f;
     const static float wind_down_duration = 0.8f;
     const static float attack_duration = wind_up_duration + stab_duration + wind_down_duration;
@@ -18,14 +18,14 @@ namespace astro {
       meshes.lesser_guard_placeholder = MODEL_MESH("./astro/3d_models/guy.obj", 500);
       meshes.lesser_guard_body = MODEL_MESH("./astro/3d_models/low_guard/body.obj", 500);
       meshes.lesser_guard_shield = MODEL_MESH("./astro/3d_models/low_guard/shield.obj", 500);
-      meshes.lesser_guard_spear = MODEL_MESH("./astro/3d_models/low_guard/spear.obj", 500);
+      meshes.lesser_guard_sword = MODEL_MESH("./astro/3d_models/lesser_guard/sword.obj", 500);
     }
 
     getMeshes() {
       return_meshes({
         meshes.lesser_guard_body,
         meshes.lesser_guard_shield,
-        meshes.lesser_guard_spear
+        meshes.lesser_guard_sword
       });
     }
 
@@ -270,20 +270,20 @@ namespace astro {
           commit(shield);
         }
 
-        // Spear
+        // Sword
         {
-          auto& spear = objects(meshes.lesser_guard_spear)[i];
+          auto& sword = objects(meshes.lesser_guard_sword)[i];
 
-          spear.position = UnitEntityToWorldPosition(entity, tVec3f(-1.f, 0.f, 1.2f));
-          spear.scale = entity.visible_scale * tVec3f(1.f, 0.4f, 1.f) * 1.25f; // @temporary
-          spear.rotation = entity.visible_rotation;
-          spear.color = tVec3f(0.6f);
-          spear.material = tVec4f(0.2f, 1.f, 0, 0);
+          sword.position = UnitEntityToWorldPosition(entity, tVec3f(-1.f, 1.f, 1.2f));
+          sword.scale = entity.visible_scale * tVec3f(1.f, 0.4f, 1.f) * 1.25f; // @temporary
+          sword.rotation = entity.visible_rotation;
+          sword.color = tVec3f(0.6f);
+          sword.material = tVec4f(0.2f, 1.f, 0, 0);
 
           // Idle motion
           {
             if (entity.enemy_state.mood == ENEMY_IDLE) {
-              spear.position.y += 100.f * sinf(2.f * get_scene_time());
+              sword.position.y += 100.f * sinf(2.f * get_scene_time());
             }
           }
 
@@ -297,33 +297,55 @@ namespace astro {
             ) {
               float alpha = time_since_starting_attack / attack_duration;
 
+              tVec3f enemy_direction = entity.visible_rotation.getDirection().invert();
+
+              // Initial transform
+              tVec3f initial_position = tVec3f(0.f);
+              Quaternion initial_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.f);
+
+              // Wind-up transform
+              tVec3f enemy_right = tVec3f::cross(enemy_direction, tVec3f(0, 1.f, 0));
+              tVec3f wind_up_position = enemy_right * 500.f - enemy_direction * 500.f;
+
+              Quaternion wind_up_rotation = (
+                Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -0.7f) *
+                Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 1.5f)
+              );
+
+              // Swing transform
+              tVec3f swing_position = tVec3f(0, -1000.f, 0) + enemy_direction * 1000.f - enemy_right * 1000.f;
+
+              Quaternion swing_rotation = (
+                Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), 2.f) *
+                Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 2.1f)
+              );
+
               if (time_since_starting_attack < wind_up_duration) {
                 // Wind-up
-                float wind_up_alpha = alpha * (attack_duration / wind_up_duration);
-                float angle = -0.5f * sinf(wind_up_alpha * t_HALF_PI);
+                float wind_up_alpha = time_since_starting_attack / wind_up_duration;
 
-                spear.rotation = spear.rotation * Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), angle);
+                tVec3f offset = tVec3f::lerp(initial_position, wind_up_position, wind_up_alpha);
+                Quaternion rotation = Quaternion::slerp(initial_rotation, wind_up_rotation, wind_up_alpha);
+
+                sword.position += offset;
+                sword.rotation = sword.rotation * rotation;
               }
               else if (time_since_starting_attack < (wind_up_duration + stab_duration)) {
                 // Stab
                 float stab_alpha = Tachyon_InverseLerp(wind_up_duration, wind_up_duration + stab_duration, time_since_starting_attack);
                 stab_alpha = powf(stab_alpha, 0.75f);
 
-                Quaternion start_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -0.5f);
-                Quaternion end_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), t_HALF_PI);
-                Quaternion current_rotation = Quaternion::slerp(start_rotation, end_rotation, stab_alpha);
+                tVec3f offset = tVec3f::lerp(wind_up_position, swing_position, stab_alpha);
+                Quaternion rotation = Quaternion::slerp(wind_up_rotation, swing_rotation, stab_alpha);
 
-                float thrust = 1000.f * sinf(stab_alpha * t_HALF_PI);
-                tVec3f thrust_offset = entity.visible_rotation.toMatrix4f() * tVec3f(0, 0, 1.f) * thrust;
+                sword.position += offset;
+                sword.rotation = sword.rotation * rotation;
 
-                spear.rotation = spear.rotation * current_rotation;
-                spear.position += thrust_offset;
+                tVec3f sword_tip_position = UnitObjectToWorldPosition(sword, tVec3f(0, 2.5f, 0));
+                float sword_tip_distance = tVec3f::distance(state.player_position, sword_tip_position);
 
-                tVec3f spear_tip_position = UnitObjectToWorldPosition(spear, tVec3f(0, 3.f, 0));
-                float spear_tip_distance = tVec3f::distance(state.player_position, spear_tip_position);
-
-                if (spear_tip_distance < 2000.f) {
-                  tVec3f knockback_direction = (state.player_position - spear.position).xz().unit();
+                if (sword_tip_distance < 2000.f) {
+                  tVec3f knockback_direction = (state.player_position - sword.position).xz().unit();
 
                   state.player_velocity += knockback_direction * 100000.f * state.dt;
 
@@ -338,18 +360,16 @@ namespace astro {
                 float wind_down_alpha = Tachyon_InverseLerp(wind_up_duration + stab_duration, attack_duration, time_since_starting_attack);
                 wind_down_alpha = Tachyon_EaseInOutf(wind_down_alpha);
 
-                float angle = t_HALF_PI * (1.f - wind_down_alpha);
-                float thrust = 1000.f * (1.f - wind_down_alpha);
+                tVec3f offset = tVec3f::lerp(swing_position, initial_position, wind_down_alpha);
+                Quaternion rotation = Quaternion::slerp(swing_rotation, initial_rotation, wind_down_alpha);
 
-                tVec3f thrust_offset = entity.visible_rotation.toMatrix4f() * tVec3f(0, 0, 1.f) * thrust;
-
-                spear.rotation = spear.rotation * Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), angle);
-                spear.position += thrust_offset;
+                sword.position += offset;
+                sword.rotation = sword.rotation * rotation;
               }
             }
           }
 
-          commit(spear);
+          commit(sword);
         }
 
         // Item holding

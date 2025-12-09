@@ -211,7 +211,6 @@ namespace astro {
     bool is_nighttime = false;
     bool is_astrolabe_stopped = true;
     bool is_astro_traveling = false;
-    float astrolabe_visibility = 1.f; // @todo update effect or remove
     int32 astrolabe_light_id = -1;
 
     Spells spells;
