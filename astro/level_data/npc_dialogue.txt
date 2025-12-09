@@ -1,3 +1,6 @@
 @lake_girl
 Hello, world!
 This is a dialogue test.
+
+@watermill_house
+Oh, go away! Leave us alone, why don't you!

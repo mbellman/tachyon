@@ -29,6 +29,8 @@ namespace astro {
       auto& meshes = state.meshes;
       const float lifetime = 100.f;
 
+      float player_speed = state.player_velocity.magnitude();
+
       for_entities(state.houses) {
         auto& entity = state.houses[i];
 
@@ -53,13 +55,24 @@ namespace astro {
         commit(chimney);
 
         // Handle door interactions
-        // @todo input actions
         {
           tVec3f door_position = UnitEntityToWorldPosition(entity, tVec3f(1.f, 0, 0.3f));
           float door_distance = tVec3f::distance(state.player_position, door_position);
 
-          if (door_distance < 3500.f) {
+          if (door_distance < 3500.f && player_speed < 200.f) {
             UISystem::ShowTransientDialogue(tachyon, state, "[X] Knock");
+
+            if (
+              !state.has_blocking_dialogue &&
+              did_press_key(tKey::CONTROLLER_A)
+            ) {
+              // Reset player speed
+              state.player_velocity = tVec3f(0.f);
+
+              // Start dialogue sequence
+              state.current_dialogue_sequence = entity.unique_name;
+              state.current_dialogue_step = 0;
+            }
           }
         }
 
