@@ -159,7 +159,7 @@ static void StoreShaderUniforms(tOpenGLShaders& shaders) {
   store_shader_uniform(water_mesh, previous_color_and_depth);
   store_shader_uniform(water_mesh, in_normal_and_depth);
   store_shader_uniform(water_mesh, accumulation_blur_factor);
-  store_shader_uniform(water_mesh, scene_time);
+  store_shader_uniform(water_mesh, time);
 
   store_shader_uniform(post, offset_and_scale);
   store_shader_uniform(post, rotation);

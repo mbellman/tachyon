@@ -267,6 +267,7 @@ struct Tachyon {
 
   struct Fx {
     float fog_visibility = 10000.f;
+    float water_time = 0.f;
 
     // Cosmodrone
     float scan_time = 4.f;

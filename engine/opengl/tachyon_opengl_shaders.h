@@ -119,7 +119,7 @@ struct tUniformLocations {
     previous_color_and_depth,
     in_normal_and_depth,
     accumulation_blur_factor,
-    scene_time
+    time
   ) water_mesh;
 
   uniform_locations(

@@ -2,7 +2,7 @@
 
 uniform vec3 camera_position;
 uniform vec3 primary_light_direction;
-uniform float scene_time;
+uniform float time;
 
 uniform sampler2D previous_color_and_depth;
 uniform sampler2D in_normal_and_depth;
@@ -130,7 +130,7 @@ vec2 GetScreenUvs(vec2 screen_coordinates) {
 void main() {
   vec3 N = normalize(fragNormal);
 
-  float water_speed = scene_time;
+  float water_speed = time;
   float ripple_speed = 2.0 * water_speed;
   // @temporary
   float big_wave = sin(fragPosition.z * 0.0002 + fragPosition.x * 0.0002 + ripple_speed);
@@ -146,7 +146,7 @@ void main() {
   // Noise/turbulence
   N.xz += 0.15 * vec2(simplex_noise(vec2(water_speed * 0.5 + wx * 0.0005, water_speed * 0.5 + wz * 0.0005)));
   N.xz += 0.05 * vec2(simplex_noise(vec2(water_speed * 0.5 + wx * 0.002, water_speed * 0.5 + wz * 0.002)));
-  // N.xz += 0.04 * vec2(simplex_noise(vec2(scene_time * 0.5 + wx * 0.004, scene_time * 0.5 + wz * 0.004)));
+  // N.xz += 0.04 * vec2(simplex_noise(vec2(time * 0.5 + wx * 0.004, time * 0.5 + wz * 0.004)));
 
   // Normal used for specular highlights; more intense than the normal
   // used for regular reflections
@@ -183,7 +183,7 @@ void main() {
 
     // Rippling/"refraction"
     // @todo make wave intensity proportional to distance
-    sample_coordinates.x += 5.0 * sin(fragPosition.z * 0.005 + 1.5 * scene_time);
+    sample_coordinates.x += 5.0 * sin(fragPosition.z * 0.005 + 1.5 * time);
 
     vec2 sample_uv = GetScreenUvs(sample_coordinates);
 

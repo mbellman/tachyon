@@ -45,6 +45,10 @@ void TimeEvolution::UpdateAstroTime(Tachyon* tachyon, State& state) {
     EntityDispatcher::TimeEvolve(tachyon, state, type);
   }
 
+  // Water
+  tachyon->fx.water_time += state.dt + 2.f * state.astro_turn_speed;
+
+  // Directional light
   // @todo factor
   tVec3f start_direction = tVec3f(-1.f, -1.f, 0.2f);
   tVec3f end_direction = tVec3f(0.2f, -1.f, 1.f);
