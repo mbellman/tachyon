@@ -4,27 +4,6 @@
 
 namespace astro {
   behavior Npc {
-    static void HandleCurrentDialogueSequence(Tachyon* tachyon, State& state) {
-      auto& dialogue_lines = state.npc_dialogue[state.current_dialogue_sequence];
-
-      if (did_press_key(tKey::CONTROLLER_A)) {
-        // Show next dialogue line
-        state.current_dialogue_step++;
-      }
-
-      if (state.current_dialogue_step > dialogue_lines.size() - 1) {
-        // Sequence completed
-        state.current_dialogue_sequence = "";
-        state.current_dialogue_step = 0;
-
-        return;
-      }
-
-      auto& current_dialogue_line = dialogue_lines[state.current_dialogue_step];
-
-      UISystem::ShowBlockingDialogue(tachyon, state, current_dialogue_line);
-    }
-
     addMeshes() {
       meshes.npc_placeholder = MODEL_MESH("./astro/3d_models/guy.obj", 500);
       meshes.npc = MODEL_MESH("./astro/3d_models/guy.obj", 500);
@@ -46,11 +25,6 @@ namespace astro {
       auto& meshes = state.meshes;
 
       float player_speed = state.player_velocity.magnitude();
-
-      // Stepping through the current dialogue sequence
-      if (state.current_dialogue_sequence != "") {
-        HandleCurrentDialogueSequence(tachyon, state);
-      }
 
       for_entities(state.npcs) {
         auto& entity = state.npcs[i];
@@ -79,7 +53,7 @@ namespace astro {
               // Reset player speed
               state.player_velocity = tVec3f(0.f);
 
-              // Prepare dialogue sequence
+              // Start dialogue sequence
               state.current_dialogue_sequence = entity.unique_name;
               state.current_dialogue_step = 0;
             }

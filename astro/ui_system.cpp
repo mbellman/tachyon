@@ -2,6 +2,27 @@
 
 using namespace astro;
 
+static void HandleCurrentDialogueSequence(Tachyon* tachyon, State& state) {
+  auto& dialogue_lines = state.npc_dialogue[state.current_dialogue_sequence];
+
+  if (did_press_key(tKey::CONTROLLER_A)) {
+    // Show next dialogue line
+    state.current_dialogue_step++;
+  }
+
+  if (state.current_dialogue_step > dialogue_lines.size() - 1) {
+    // Sequence completed
+    state.current_dialogue_sequence = "";
+    state.current_dialogue_step = 0;
+
+    return;
+  }
+
+  auto& current_dialogue_line = dialogue_lines[state.current_dialogue_step];
+
+  UISystem::ShowBlockingDialogue(tachyon, state, current_dialogue_line);
+}
+
 void UISystem::ShowDialogue(Tachyon* tachyon, State& state, const std::string& message) {
   if (
     // Don't show new dialogue if we currently have blocking dialogue
@@ -78,5 +99,9 @@ void UISystem::HandleDialogue(Tachyon* tachyon, State& state) {
     state.dialogue_start_time = 0.f;
     state.has_blocking_dialogue = false;
     state.dismissed_blocking_dialogue = false;
+  }
+
+  if (state.current_dialogue_sequence != "") {
+    HandleCurrentDialogueSequence(tachyon, state);
   }
 }
