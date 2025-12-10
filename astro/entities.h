@@ -106,7 +106,8 @@ namespace astro {
     float health = 100.f;
     float speed = 0.f;
     float last_mood_change_time = 0.f;
-    float last_attack_time = 0.f;
+    float last_attack_start_time = 0.f;
+    float last_attack_action_time = 0.f;
   };
 
   /**

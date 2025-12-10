@@ -52,8 +52,6 @@ namespace astro {
           (player_distance < 4000.f && state.player_velocity.magnitude() > 549.f)
         );
 
-        bool is_attacking = time_since(enemy.last_attack_time < attack_duration);
-
         // Collision handling
         // @todo factor
         {
@@ -94,6 +92,8 @@ namespace astro {
             // Chase the player
             enemy.speed += 2000.f * state.dt;
             if (enemy.speed > 3000.f) enemy.speed = 3000.f;
+
+            bool is_attacking = time_since(enemy.last_attack_start_time) < attack_duration;
 
             if (is_attacking) {
               enemy.speed *= 1.f - state.dt;
@@ -139,11 +139,11 @@ namespace astro {
 
           if (
             player_distance < 4000.f &&
-            time_since(enemy.last_attack_time) > 2.f * attack_duration &&
+            time_since(enemy.last_attack_start_time) > 2.f * attack_duration &&
             time_since(enemy.last_mood_change_time) > 0.5f
           ) {
             // Attacking
-            enemy.last_attack_time = get_scene_time();
+            enemy.last_attack_start_time = get_scene_time();
           }
         }
       } else {
@@ -289,7 +289,7 @@ namespace astro {
 
           // Attacking
           {
-            float time_since_starting_attack = time_since(entity.enemy_state.last_attack_time);
+            float time_since_starting_attack = time_since(entity.enemy_state.last_attack_start_time);
 
             if (
               entity.enemy_state.mood == ENEMY_AGITATED &&
@@ -344,18 +344,19 @@ namespace astro {
                 tVec3f sword_tip_position = UnitObjectToWorldPosition(sword, tVec3f(0, 2.5f, 0));
                 float sword_tip_distance = tVec3f::distance(state.player_position, sword_tip_position);
 
-                if (sword_tip_distance < 2000.f) {
+                entity.enemy_state.last_attack_action_time = get_scene_time();
+
+                if (
+                  sword_tip_distance < 2000.f &&
+                  PlayerCharacter::CanTakeDamage(tachyon, state)
+                ) {
+                  Sfx::PlaySound(SFX_SWORD_DAMAGE, 0.5f);
+                  PlayerCharacter::TakeDamage(tachyon, state, 40.f);
+
+                  // Knockback
                   tVec3f knockback_direction = (state.player_position - sword.position).xz().unit();
 
-                  if (
-                    time_since(state.last_damage_time) > 1.5f &&
-                    time_since(state.last_strong_attack_time) > 1.f
-                  ) {
-                    Sfx::PlaySound(SFX_SWORD_DAMAGE, 0.5f);
-                    PlayerCharacter::TakeDamage(tachyon, state, 40.f);
-
-                    state.player_velocity += knockback_direction * 10000.f;
-                  }
+                  state.player_velocity = knockback_direction * 10000.f;
                 }
               }
               else {

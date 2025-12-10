@@ -323,15 +323,16 @@ static void HandleWandControls(Tachyon* tachyon, State& state) {
 
       bool is_strong_attack = false;
 
+      // @todo factor
       if (state.has_target) {
         auto& target = *EntityManager::FindEntity(state, state.target_entity);
         float time_since_dodging = time_since(state.last_dodge_time);
-        float time_since_enemy_attack = time_since(target.enemy_state.last_attack_time);
+        float time_since_attack_action = time_since(target.enemy_state.last_attack_action_time);
         float time_since_taking_damage = time_since(state.last_damage_time);
 
         if (
-          time_since_dodging < 0.5f &&
-          time_since_enemy_attack < 1.4f &&
+          time_since_dodging < 1.f &&
+          time_since_attack_action < 0.3f &&
           time_since_taking_damage > 1.f
         ) {
           tVec3f direction_to_target = (target.visible_position - state.player_position).unit();

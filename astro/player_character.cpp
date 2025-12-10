@@ -214,6 +214,13 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
   }
 }
 
+bool PlayerCharacter::CanTakeDamage(Tachyon* tachyon, const State& state) {
+  return (
+    time_since(state.last_damage_time) > 1.5f &&
+    time_since(state.last_strong_attack_time) > 1.f
+  );
+}
+
 void PlayerCharacter::TakeDamage(Tachyon* tachyon, State& state, const float damage) {
   state.player_hp -= damage;
   state.last_damage_time = get_scene_time();
