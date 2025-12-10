@@ -89,8 +89,8 @@ static void HandleAstroControls(Tachyon* tachyon, State& state) {
   float previous_astro_turn_speed = state.astro_turn_speed;
 
   bool started_turning = (
-    (tachyon->left_trigger > 0.f && state.last_frame_left_trigger == 0.f) ||
-    (tachyon->right_trigger > 0.f && state.last_frame_right_trigger == 0.f)
+    (tachyon->left_trigger > 0.f && tachyon->right_trigger == 0.f && state.last_frame_left_trigger == 0.f) ||
+    (tachyon->right_trigger > 0.f && tachyon->left_trigger == 0.f && state.last_frame_right_trigger == 0.f)
   );
 
   state.last_frame_left_trigger = tachyon->left_trigger;
@@ -130,6 +130,10 @@ static void HandleAstroControls(Tachyon* tachyon, State& state) {
     if (state.astro_time_at_start_of_turn >= -1.f) {
       // @todo fix sound not playing
       UISystem::ShowDialogue(tachyon, state, "The astrolabe's mechanism resists.");
+
+      if (started_turning) {
+        Sfx::PlaySound(SFX_ASTRO_DISABLED, 0.8f);
+      }
     }
   }
 
@@ -140,6 +144,10 @@ static void HandleAstroControls(Tachyon* tachyon, State& state) {
     if (state.astro_time_at_start_of_turn <= min_astro_time + 1.f) {
       // @todo fix sound not playing
       UISystem::ShowDialogue(tachyon, state, "The astrolabe's mechanism resists.");
+
+      if (started_turning) {
+        Sfx::PlaySound(SFX_ASTRO_DISABLED, 0.8f);
+      }
     }
   }
 
@@ -291,7 +299,7 @@ static void HandleDayNightControls(Tachyon* tachyon, State& state) {
   }
 }
 
-static void HandleSpellControls(Tachyon* tachyon, State& state) {
+static void HandleWandControls(Tachyon* tachyon, State& state) {
   if (abs(state.astro_turn_speed) > 0.18f) {
     return;
   }
@@ -313,7 +321,33 @@ static void HandleSpellControls(Tachyon* tachyon, State& state) {
       // Before we have the homing spell, swing the wand as a melee weapon
       state.last_wand_swing_time = get_scene_time();
 
-      Sfx::PlaySound(SFX_WAND_SWING, 0.3f);
+      bool is_strong_attack = false;
+
+      if (state.has_target) {
+        auto& target = *EntityManager::FindEntity(state, state.target_entity);
+        float time_since_dodging = time_since(state.last_dodge_time);
+        float time_since_enemy_attack = time_since(target.enemy_state.last_attack_time);
+        float time_since_taking_damage = time_since(state.last_damage_time);
+
+        if (
+          time_since_dodging < 0.5f &&
+          time_since_enemy_attack < 1.4f &&
+          time_since_taking_damage > 1.f
+        ) {
+          tVec3f direction_to_target = (target.visible_position - state.player_position).unit();
+
+          state.player_velocity = direction_to_target * 5000.f;
+          state.last_strong_attack_time = get_scene_time();
+
+          is_strong_attack = true;
+        }
+      }
+
+      if (is_strong_attack) {
+        Sfx::PlaySound(SFX_WAND_HIT, 0.3f);
+      } else {
+        Sfx::PlaySound(SFX_WAND_SWING, 0.3f);
+      }
     }
   }
 
@@ -353,6 +387,6 @@ void ControlSystem::HandleControls(Tachyon* tachyon, State& state) {
   HandlePlayerMovementControls(tachyon, state);
   HandleAstroControls(tachyon, state);
   HandleDayNightControls(tachyon, state);
-  HandleSpellControls(tachyon, state);
+  HandleWandControls(tachyon, state);
   HandleTargetingControls(tachyon, state);
 }

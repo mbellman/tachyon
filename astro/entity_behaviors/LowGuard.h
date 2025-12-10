@@ -325,11 +325,14 @@ namespace astro {
                 if (spear_tip_distance < 2000.f) {
                   tVec3f knockback_direction = (state.player_position - spear.position).xz().unit();
 
-                  state.player_velocity += knockback_direction * 100000.f * state.dt;
-
-                  if (time_since(state.last_damage_time) > 1.5f) {
+                  if (
+                    time_since(state.last_damage_time) > 1.5f &&
+                    time_since(state.last_strong_attack_time) > 1.f
+                  ) {
                     Sfx::PlaySound(SFX_SWORD_DAMAGE, 0.5f);
                     PlayerCharacter::TakeDamage(tachyon, state, 40.f);
+
+                    state.player_velocity += knockback_direction * 10000.f;
                   }
                 }
               }

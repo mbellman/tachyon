@@ -58,7 +58,7 @@ namespace astro {
 
       state.last_dialogue_sound_time = get_scene_time();
 
-      Tachyon_PlaySound(dialogue.sound);
+      // Tachyon_PlaySound(dialogue.sound);
     }
   }
 

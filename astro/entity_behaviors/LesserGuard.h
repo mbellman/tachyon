@@ -85,10 +85,6 @@ namespace astro {
           if (player_distance < minimum_distance) {
             entity.visible_position = state.player_position + player_direction.invert() * minimum_distance;
           }
-
-          // Remain aligned with the ground
-          // @todo use proper ground height
-          entity.visible_position.y = 0.f;
         }
 
         if (time_since_last_stun >= 4.f && enemy.mood != ENEMY_IDLE) {
@@ -226,6 +222,10 @@ namespace astro {
             }
 
             handle_enemy_behavior(LesserGuard);
+
+            // Remain aligned with the ground
+            // @todo use proper ground height
+            entity.visible_position.y = 0.f;
           }
         } else {
           // Hide and reset
@@ -347,11 +347,14 @@ namespace astro {
                 if (sword_tip_distance < 2000.f) {
                   tVec3f knockback_direction = (state.player_position - sword.position).xz().unit();
 
-                  state.player_velocity += knockback_direction * 100000.f * state.dt;
-
-                  if (time_since(state.last_damage_time) > 1.5f) {
+                  if (
+                    time_since(state.last_damage_time) > 1.5f &&
+                    time_since(state.last_strong_attack_time) > 1.f
+                  ) {
                     Sfx::PlaySound(SFX_SWORD_DAMAGE, 0.5f);
                     PlayerCharacter::TakeDamage(tachyon, state, 40.f);
+
+                    state.player_velocity += knockback_direction * 10000.f;
                   }
                 }
               }

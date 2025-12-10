@@ -6,7 +6,6 @@ namespace astro {
 
     SFX_ASTRO_BEGIN,
     SFX_ASTRO_TRAVEL,
-    SFX_ASTRO_START,
     SFX_ASTRO_END,
     SFX_ASTRO_DISABLED,
 
@@ -16,6 +15,7 @@ namespace astro {
 
     SFX_SWORD_DAMAGE,
     SFX_WAND_SWING,
+    SFX_WAND_HIT,
 
     SFX_SPELL_STUN,
 
