@@ -302,6 +302,54 @@ static void HandleDayNightControls(Tachyon* tachyon, State& state) {
   }
 }
 
+// @todo Combat::
+static void HandleEnemyDamageFromWandSwing(Tachyon* tachyon, State& state) {
+  for (auto& target : state.targetable_entities) {
+    auto& entity = *EntityManager::FindEntity(state, target);
+    float distance_from_player = tVec3f::distance(entity.visible_position, state.player_position);
+
+    // @todo handle per enemy type (target.type)
+    float attack_duration = 2.f;
+
+    if (distance_from_player < 4000.f) {
+      auto& enemy = entity.enemy_state;
+
+      if (time_since(enemy.last_attack_start_time) > attack_duration) {
+        // Reset attack motion if not already attacking
+        enemy.last_attack_start_time = get_scene_time() - attack_duration;
+        enemy.last_attack_action_time = 0.f;
+      }
+    }
+  }
+}
+
+// @todo Combat::
+static bool TestForStrongAttack(Tachyon* tachyon, State& state) {
+  if (state.has_target) {
+    auto& target = *EntityManager::FindEntity(state, state.target_entity);
+    float time_since_dodging = time_since(state.last_dodge_time);
+    float time_since_enemy_attack_action = time_since(target.enemy_state.last_attack_action_time);
+    float time_since_taking_damage = time_since(state.last_damage_time);
+
+    if (
+      time_since_dodging < 1.f &&
+      time_since_enemy_attack_action < 0.3f &&
+      time_since_taking_damage > 1.f
+    ) {
+      float target_distance = tVec3f::distance(target.visible_position, state.player_position);
+      tVec3f direction_to_target = (target.visible_position - state.player_position) / target_distance;
+
+      state.player_velocity = direction_to_target * target_distance;
+      state.last_strong_attack_time = get_scene_time();
+      state.last_dodge_time = 0.f;
+
+      return true;
+    }
+  }
+
+  return false;
+}
+
 static void HandleWandControls(Tachyon* tachyon, State& state) {
   if (abs(state.astro_turn_speed) > 0.18f) {
     return;
@@ -319,37 +367,15 @@ static void HandleWandControls(Tachyon* tachyon, State& state) {
   // Square
   if (did_press_key(tKey::CONTROLLER_X)) {
     if (Items::HasItem(state, ITEM_HOMING_SPELL)) {
+      // @todo magic weapons
       SpellSystem::CastHoming(tachyon, state);
     } else {
-      // Before we have the homing spell, swing the wand as a melee weapon
+      // Before we have magic weapons, swing the wand as a melee weapon
       state.last_wand_swing_time = get_scene_time();
 
-      bool is_strong_attack = false;
+      HandleEnemyDamageFromWandSwing(tachyon, state);
 
-      // @todo factor
-      if (state.has_target) {
-        auto& target = *EntityManager::FindEntity(state, state.target_entity);
-        float time_since_dodging = time_since(state.last_dodge_time);
-        float time_since_enemy_attack_action = time_since(target.enemy_state.last_attack_action_time);
-        float time_since_taking_damage = time_since(state.last_damage_time);
-
-        if (
-          time_since_dodging < 1.f &&
-          time_since_enemy_attack_action < 0.3f &&
-          time_since_taking_damage > 1.f
-        ) {
-          float target_distance = tVec3f::distance(target.visible_position, state.player_position);
-          tVec3f direction_to_target = (target.visible_position - state.player_position) / target_distance;
-
-          state.player_velocity = direction_to_target * target_distance;
-          state.last_strong_attack_time = get_scene_time();
-          state.last_dodge_time = 0.f;
-
-          is_strong_attack = true;
-        }
-      }
-
-      if (is_strong_attack) {
+      if (TestForStrongAttack(tachyon, state)) {
         Sfx::PlaySound(SFX_WAND_STRONG_ATTACK, 0.3f);
       } else {
         Sfx::PlaySound(SFX_WAND_SWING, 0.3f);

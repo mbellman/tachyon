@@ -96,7 +96,7 @@ namespace astro {
             bool is_attacking = time_since(enemy.last_attack_start_time) < attack_duration;
 
             if (is_attacking) {
-              enemy.speed *= 1.f - state.dt;
+              enemy.speed *= 1.f - 5.f * state.dt;
             }
 
             // @todo FollowPlayer()
@@ -267,6 +267,24 @@ namespace astro {
             }
           }
 
+          // Blocking
+          {
+            float time_since_last_wand_swing = time_since(state.last_wand_swing_time);
+
+            if (time_since_last_wand_swing < 1.f) {
+              float alpha = time_since_last_wand_swing;
+              if (alpha > 1.f) alpha = 1.f;
+
+              tVec3f enemy_direction = GetFacingDirection(entity);
+              float offset_factor = sinf(alpha * t_PI);
+
+              // Forward motion
+              shield.position += enemy_direction * 200.f * offset_factor;
+              // Upward motion
+              shield.position.y += 600.f * offset_factor;
+            }
+          }
+
           commit(shield);
         }
 
@@ -297,7 +315,7 @@ namespace astro {
             ) {
               float alpha = time_since_starting_attack / attack_duration;
 
-              tVec3f enemy_direction = entity.visible_rotation.getDirection().invert();
+              tVec3f enemy_direction = GetFacingDirection(entity);
 
               // Initial transform
               tVec3f initial_position = tVec3f(0.f);

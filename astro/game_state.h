@@ -112,6 +112,7 @@ namespace astro {
     GATE_KEY,
 
     ITEM_STUN_SPELL,
+    ITEM_MAGIC_WEAPON,
     ITEM_HOMING_SPELL
   };
 
