@@ -119,6 +119,19 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
 
         wand.position += offset;
         wand.rotation = player_rotation * rotation;
+
+        // @temporary
+        for (auto& target : state.targetable_entities) {
+          auto& entity = *EntityManager::FindEntity(state, target);
+          float distance = tVec3f::distance(entity.visible_position, state.player_position);
+
+          if (distance < 3000.f) {
+            state.last_wand_swing_time = 0.f;
+            state.last_wand_bounce_time = get_scene_time();
+
+            return;
+          }
+        }
       }
       else if (time_since_last_swing < total_swing_duration) {
         // Wind-down
@@ -127,6 +140,59 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
 
         tVec3f offset = tVec3f::lerp(swing_position, initial_position, wind_down_alpha);
         Quaternion rotation = Quaternion::slerp(swing_rotation, initial_rotation, wind_down_alpha);
+
+        wand.position += offset;
+        wand.rotation = player_rotation * rotation;
+      }
+    }
+
+    if (
+      state.last_wand_bounce_time != 0.f
+    ) {
+      const float recoil_duration = 0.3f;
+      const float reset_duration = 0.5f;
+
+      const float total_bounce_duration = recoil_duration + reset_duration;
+      float time_since_bounce = time_since(state.last_wand_bounce_time);
+
+      // Initial transform
+      tVec3f initial_position = tVec3f(0.f);
+      Quaternion initial_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.f);
+
+      // Wind-up transform
+      tVec3f player_right = tVec3f::cross(state.player_facing_direction, tVec3f(0, 1.f, 0));
+      tVec3f wind_up_position = tVec3f(0, 1500.f, 0) + player_right * 500.f;
+
+      Quaternion wind_up_rotation = (
+        Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), 1.f) *
+        Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -1.f)
+      );
+
+      // Swing transform
+      tVec3f swing_position = state.player_facing_direction * 1000.f - player_right * 1000.f;
+
+      Quaternion swing_rotation = (
+        Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), 2.f) *
+        Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 2.1f)
+      );
+
+      if (time_since_bounce < recoil_duration) {
+        // Recoil
+        float recoil_alpha = time_since_bounce / recoil_duration;
+        recoil_alpha = sqrtf(recoil_alpha);
+
+        tVec3f offset = tVec3f::lerp(swing_position, wind_up_position, recoil_alpha);
+        Quaternion rotation = Quaternion::slerp(swing_rotation, wind_up_rotation, recoil_alpha);
+
+        wand.position += offset;
+        wand.rotation = player_rotation * rotation;
+      }
+      else if (time_since_bounce < total_bounce_duration) {
+        // Reset to initial
+        float reset_alpha = Tachyon_InverseLerp(recoil_duration, total_bounce_duration, time_since_bounce);
+
+        tVec3f offset = tVec3f::lerp(wind_up_position, initial_position, reset_alpha);
+        Quaternion rotation = Quaternion::slerp(wind_up_rotation, initial_rotation, reset_alpha);
 
         wand.position += offset;
         wand.rotation = player_rotation * rotation;

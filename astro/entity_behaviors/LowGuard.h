@@ -100,7 +100,7 @@ namespace astro {
             bool is_attacking = time_since(enemy.last_attack_start_time) < attack_duration;
 
             if (is_attacking) {
-              enemy.speed *= 1.f - state.dt;
+              enemy.speed *= 1.f - 5.f * state.dt;
             }
 
             // @todo FollowPlayer()

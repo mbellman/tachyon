@@ -372,6 +372,7 @@ static void HandleWandControls(Tachyon* tachyon, State& state) {
     } else {
       // Before we have magic weapons, swing the wand as a melee weapon
       state.last_wand_swing_time = get_scene_time();
+      state.last_wand_bounce_time = 0.f;
 
       HandleEnemyDamageFromWandSwing(tachyon, state);
 
