@@ -11,6 +11,7 @@ using namespace astro;
 
 static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
   const float dodge_cooldown_time = 0.3f;
+  const float strong_attack_cooldown_time = 0.5f;
 
   bool is_running = is_key_held(tKey::CONTROLLER_A) || is_key_held(tKey::SHIFT);
 
@@ -46,7 +47,8 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
     if (
       state.targetable_entities.size() > 0 &&
       did_release_key(tKey::CONTROLLER_A) &&
-      time_since(state.last_run_input_time) < 0.3f
+      time_since(state.last_run_input_time) < 0.3f &&
+      time_since(state.last_damage_time) > 0.5f
     ) {
       state.player_velocity *= 3.5f;
       state.last_dodge_time = get_scene_time();
@@ -63,7 +65,8 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
 
     if (
       speed > max_speed &&
-      time_since(state.last_dodge_time) > dodge_cooldown_time
+      time_since(state.last_dodge_time) > dodge_cooldown_time &&
+      time_since(state.last_strong_attack_time) > strong_attack_cooldown_time
     ) {
       tVec3f unit_velocity = state.player_velocity / speed;
 
@@ -327,25 +330,27 @@ static void HandleWandControls(Tachyon* tachyon, State& state) {
       if (state.has_target) {
         auto& target = *EntityManager::FindEntity(state, state.target_entity);
         float time_since_dodging = time_since(state.last_dodge_time);
-        float time_since_attack_action = time_since(target.enemy_state.last_attack_action_time);
+        float time_since_enemy_attack_action = time_since(target.enemy_state.last_attack_action_time);
         float time_since_taking_damage = time_since(state.last_damage_time);
 
         if (
           time_since_dodging < 1.f &&
-          time_since_attack_action < 0.3f &&
+          time_since_enemy_attack_action < 0.3f &&
           time_since_taking_damage > 1.f
         ) {
-          tVec3f direction_to_target = (target.visible_position - state.player_position).unit();
+          float target_distance = tVec3f::distance(target.visible_position, state.player_position);
+          tVec3f direction_to_target = (target.visible_position - state.player_position) / target_distance;
 
-          state.player_velocity = direction_to_target * 5000.f;
+          state.player_velocity = direction_to_target * target_distance;
           state.last_strong_attack_time = get_scene_time();
+          state.last_dodge_time = 0.f;
 
           is_strong_attack = true;
         }
       }
 
       if (is_strong_attack) {
-        Sfx::PlaySound(SFX_WAND_HIT, 0.3f);
+        Sfx::PlaySound(SFX_WAND_STRONG_ATTACK, 0.3f);
       } else {
         Sfx::PlaySound(SFX_WAND_SWING, 0.3f);
       }

@@ -225,6 +225,9 @@ void PlayerCharacter::TakeDamage(Tachyon* tachyon, State& state, const float dam
   state.player_hp -= damage;
   state.last_damage_time = get_scene_time();
 
+  // Cancel any dodge motions
+  state.last_dodge_time = 0.f;
+
   if (state.player_hp <= 0.f) {
     // @temporary
     UISystem::ShowBlockingDialogue(tachyon, state, "YOU DIED");
