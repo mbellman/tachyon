@@ -318,6 +318,9 @@ static void HandleEnemyDamageFromWandSwing(Tachyon* tachyon, State& state) {
         // Reset attack motion if not already attacking
         enemy.last_attack_start_time = get_scene_time() - attack_duration;
         enemy.last_attack_action_time = 0.f;
+
+        // Block
+        enemy.last_block_time = get_scene_time();
       }
     }
   }
@@ -373,6 +376,7 @@ static void HandleWandControls(Tachyon* tachyon, State& state) {
       // Before we have magic weapons, swing the wand as a melee weapon
       state.last_wand_swing_time = get_scene_time();
       state.last_wand_bounce_time = 0.f;
+      state.last_strong_attack_time = 0.f;
 
       HandleEnemyDamageFromWandSwing(tachyon, state);
 

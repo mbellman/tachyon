@@ -18,6 +18,7 @@ static std::map<Sound, const char*> sound_file_map = {
   { SFX_SWORD_DAMAGE, "./astro/audio/sfx_sword_damage.wav" },
   { SFX_WAND_SWING, "./astro/audio/sfx_wand_swing.wav" },
   { SFX_WAND_STRONG_ATTACK, "./astro/audio/sfx_strong_attack.wav" },
+  { SFX_WAND_RECOIL, "./astro/audio/sfx_wand_recoil.wav" },
 
   { SFX_SPELL_STUN, "./astro/audio/sfx_spell_stun.wav" },
 

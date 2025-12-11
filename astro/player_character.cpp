@@ -1,5 +1,6 @@
 #include "astro/player_character.h"
 #include "astro/entity_manager.h"
+#include "astro/sfx.h"
 #include "astro/simple_animation.h"
 #include "astro/ui_system.h"
 
@@ -108,7 +109,10 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
       wand.position += sample.offset;
       wand.rotation = player_rotation * sample.rotation;
 
-      if (time_since_last_swing > s1.duration && time_since_last_swing < s1.duration + s2.duration) {
+      if (
+        state.last_strong_attack_time == 0.f &&
+        time_since_last_swing > s1.duration && time_since_last_swing < s1.duration + s2.duration
+      ) {
         // Check for collisions
         // @temporary
         // @todo factor + check for other collisions
@@ -119,6 +123,8 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
           if (distance < 3000.f) {
             state.last_wand_swing_time = 0.f;
             state.last_wand_bounce_time = get_scene_time();
+
+            Sfx::PlaySound(SFX_WAND_RECOIL, 0.5f);
 
             return;
           }

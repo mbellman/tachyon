@@ -269,14 +269,14 @@ namespace astro {
 
           // Blocking
           {
-            float time_since_last_wand_swing = time_since(state.last_wand_swing_time);
+            float time_since_blocking = time_since(entity.enemy_state.last_block_time);
 
-            if (time_since_last_wand_swing < 1.f) {
-              float alpha = time_since_last_wand_swing;
+            if (time_since_blocking < 1.f) {
+              float alpha = time_since_blocking;
               if (alpha > 1.f) alpha = 1.f;
 
               tVec3f enemy_direction = GetFacingDirection(entity);
-              float offset_factor = sinf(alpha * t_PI);
+              float offset_factor = powf(sinf(alpha * t_PI), 2.f);
 
               // Forward motion
               shield.position += enemy_direction * 200.f * offset_factor;
