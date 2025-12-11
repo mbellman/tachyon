@@ -202,8 +202,9 @@ namespace astro {
           body.position = entity.visible_position;
           body.scale = entity.visible_scale;
           body.rotation = entity.visible_rotation;
-          body.color = entity.tint;
-          body.material = tVec4f(0.5f, 1.f, 0, 0);
+          // body.color = entity.tint;
+          body.color = tVec3f(0.8f, 0.4f, 0.2f);
+          body.material = tVec4f(0.6f, 0, 0, 0.4f);
 
           if (death_alpha > 0.f) {
             Quaternion death_rotation = entity.visible_rotation * (
@@ -283,49 +284,43 @@ namespace astro {
               float alpha = time_since_starting_attack / attack_duration;
 
               tVec3f enemy_direction = GetFacingDirection(entity);
-
-              // Initial transform
-              tVec3f initial_position = tVec3f(0.f);
-              Quaternion initial_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.f);
-
-              // Wind-up transform
               tVec3f enemy_right = tVec3f::cross(enemy_direction, tVec3f(0, 1.f, 0));
-              tVec3f wind_up_position = enemy_right * 500.f - enemy_direction * 500.f;
 
-              Quaternion wind_up_rotation = (
+              // Animation steps
+              AnimationStep s1;
+              s1.duration = wind_up_duration;
+              s1.offset = tVec3f(0.f);
+              s1.rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.f);
+
+              AnimationStep s2;
+              s2.duration = stab_duration;
+              s2.offset = enemy_right * 500.f - enemy_direction * 500.f;
+              s2.rotation = (
                 Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -0.7f) *
                 Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 1.5f)
               );
 
-              // Swing transform
-              tVec3f swing_position = tVec3f(0, -1000.f, 0) + enemy_direction * 1000.f - enemy_right * 1000.f;
-
-              Quaternion swing_rotation = (
+              AnimationStep s3;
+              s3.duration = wind_down_duration;
+              s3.offset = tVec3f(0, -1000.f, 0) + enemy_direction * 1000.f - enemy_right * 1000.f;
+              s3.rotation = (
                 Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), 2.f) *
                 Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 2.1f)
               );
 
-              if (time_since_starting_attack < wind_up_duration) {
-                // Wind-up
-                float wind_up_alpha = time_since_starting_attack / wind_up_duration;
+              AnimationSequence attack_animation;
+              attack_animation.steps = { s1, s2, s3, s1 };
 
-                tVec3f offset = tVec3f::lerp(initial_position, wind_up_position, wind_up_alpha);
-                Quaternion rotation = Quaternion::slerp(initial_rotation, wind_up_rotation, wind_up_alpha);
+              // Sample the animation
+              TransformState sample = SimpleAnimation::Sample(attack_animation, time_since_starting_attack);
+              sword.position += sample.offset;
+              sword.rotation = entity.visible_rotation * sample.rotation;
 
-                sword.position += offset;
-                sword.rotation = sword.rotation * rotation;
-              }
-              else if (time_since_starting_attack < (wind_up_duration + stab_duration)) {
-                // Stab
-                float stab_alpha = Tachyon_InverseLerp(wind_up_duration, wind_up_duration + stab_duration, time_since_starting_attack);
-                stab_alpha = powf(stab_alpha, 0.75f);
-
-                tVec3f offset = tVec3f::lerp(wind_up_position, swing_position, stab_alpha);
-                Quaternion rotation = Quaternion::slerp(wind_up_rotation, swing_rotation, stab_alpha);
-
-                sword.position += offset;
-                sword.rotation = sword.rotation * rotation;
-
+              // Player hit detection
+              if (
+                time_since_starting_attack > wind_up_duration &&
+                time_since_starting_attack < (wind_up_duration + stab_duration)
+              ) {
                 tVec3f sword_tip_position = UnitObjectToWorldPosition(sword, tVec3f(0, 2.5f, 0));
                 float sword_tip_distance = tVec3f::distance(state.player_position, sword_tip_position);
 
@@ -343,17 +338,6 @@ namespace astro {
 
                   state.player_velocity = knockback_direction * 10000.f;
                 }
-              }
-              else {
-                // Wind-down
-                float wind_down_alpha = Tachyon_InverseLerp(wind_up_duration + stab_duration, attack_duration, time_since_starting_attack);
-                wind_down_alpha = Tachyon_EaseInOutf(wind_down_alpha);
-
-                tVec3f offset = tVec3f::lerp(swing_position, initial_position, wind_down_alpha);
-                Quaternion rotation = Quaternion::slerp(swing_rotation, initial_rotation, wind_down_alpha);
-
-                sword.position += offset;
-                sword.rotation = sword.rotation * rotation;
               }
             }
           }

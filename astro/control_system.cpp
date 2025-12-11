@@ -320,7 +320,7 @@ static void HandleEnemyDamageFromWandSwing(Tachyon* tachyon, State& state) {
 
         // Block
         enemy.last_block_time = get_scene_time();
-      } else {
+      } else if (distance_from_player < 3000.f) {
         // @temporary
         enemy.health = 0.f;
         enemy.last_death_time = get_scene_time();
