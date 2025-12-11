@@ -76,11 +76,99 @@ namespace astro {
     entity.visible_rotation = Quaternion::slerp(entity.visible_rotation, facing_direction, 2.f * state.dt);
   }
 
+  static void FollowPlayer(GameEntity& entity, const tVec3f& player_direction, const float dt) {
+    entity.visible_position += player_direction * entity.enemy_state.speed * dt;
+  }
+
+  static void AvoidPlayer(GameEntity& entity, const tVec3f& player_direction, const float dt) {
+    entity.visible_position -= player_direction * entity.enemy_state.speed * dt;
+  }
+
+  static void PreventEntityCollisions(GameEntity& entity, const std::vector<GameEntity>& entities, const float radius_factor) {
+    for (auto& other : entities) {
+      if (IsSameEntity(entity, other)) {
+        continue;
+      }
+
+      tVec3f entity_to_entity = entity.visible_position.xz() - other.visible_position.xz();
+      float distance = entity_to_entity.magnitude();
+      float minimum_distance = radius_factor * (entity.visible_scale.x + other.visible_scale.x);
+
+      if (distance < minimum_distance) {
+        tVec3f unit_direction = entity_to_entity / distance;
+
+        entity.visible_position = other.visible_position + unit_direction * minimum_distance;
+      }
+    }
+  }
+
+  static void PreventEntityPlayerCollision(GameEntity& entity, const tVec3f& player_position, const tVec3f& player_direction, const float player_distance, const float radius_factor) {
+    float minimum_distance = radius_factor * entity.visible_scale.x + 500.f;
+
+    if (player_distance < minimum_distance) {
+      entity.visible_position = player_position + player_direction.invert() * minimum_distance;
+    }
+  }
+
+  static void TrackRecentPositions(GameEntity& entity, const float scene_time) {
+    float time_since_last_recent_position = scene_time - entity.last_recent_position_record_time;
+
+    if (time_since_last_recent_position > 1.f && entity.enemy_state.mood != ENEMY_IDLE) {
+      auto& recent_positions = entity.recent_positions;
+
+      if (recent_positions.size() > 30) {
+        recent_positions.erase(recent_positions.begin());
+      }
+
+      recent_positions.push_back(entity.visible_position);
+
+      entity.last_recent_position_record_time = scene_time;
+    }
+  }
+
+  static void ReloadRecentPosition(GameEntity& entity, const float scene_time) {
+    float time_since_last_reverse = scene_time - entity.last_recent_position_reverse_time;
+
+    if (time_since_last_reverse > 0.035f) {
+      entity.visible_position = entity.recent_positions.back();
+      entity.recent_positions.pop_back();
+      entity.last_recent_position_reverse_time = scene_time;
+    }
+  }
+
   static void SetMood(GameEntity& entity, EnemyMood mood, const float scene_time) {
     if (entity.enemy_state.mood != mood) {
       entity.enemy_state.mood = mood;
       entity.enemy_state.last_mood_change_time = scene_time;
     }
+  }
+
+  static void SoftResetEntity(GameEntity& entity, const float scene_time) {
+    auto& enemy = entity.enemy_state;
+
+    entity.visible_rotation = entity.orientation;
+
+    enemy.speed = 0.f;
+    enemy.last_death_time = 0.f;
+    enemy.last_block_time = 0.f;
+    enemy.last_attack_start_time = 0.f;
+    enemy.health = 100.f;
+
+    SetMood(entity, ENEMY_IDLE, scene_time);
+  }
+
+  static void HardResetEntity(GameEntity& entity) {
+    auto& enemy = entity.enemy_state;
+
+    entity.visible_scale = tVec3f(0.f);
+    entity.visible_position = entity.position;
+    entity.visible_rotation = entity.orientation;
+
+    entity.recent_positions.clear();
+
+    enemy.speed = 0.f;
+    enemy.health = 100.f;
+    enemy.last_death_time = 0.f;
   }
 
   static tVec3f GetFacingDirection(GameEntity& entity) {
