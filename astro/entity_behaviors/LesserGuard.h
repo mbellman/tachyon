@@ -171,8 +171,10 @@ namespace astro {
             // Astro time turning behavior
             SetMood(entity, ENEMY_IDLE, get_scene_time());
 
-            entity.enemy_state.speed = 0.f;
             entity.visible_rotation = entity.orientation;
+            entity.enemy_state.speed = 0.f;
+            entity.enemy_state.last_death_time = 0.f;
+            entity.enemy_state.health = 100.f;
 
             if (entity.recent_positions.size() > 0) {
               // @todo factor
@@ -197,6 +199,7 @@ namespace astro {
           } else {
             // Normal behavior
 
+            // @todo move to enemy behavior
             if (entity.enemy_state.mood == ENEMY_IDLE) {
               float idle_angle = 0.2f * sinf(0.5f * get_scene_time());
               Quaternion idle_rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), idle_angle);
@@ -205,6 +208,7 @@ namespace astro {
             }
 
             // @todo factor
+            // @todo move to enemy behavior
             {
               float time_since_last_recent_position = time_since(entity.last_recent_position_record_time);
 
@@ -221,7 +225,9 @@ namespace astro {
               }
             }
 
-            handle_enemy_behavior(LesserGuard);
+            if (entity.enemy_state.health > 0.f) {
+              handle_enemy_behavior(LesserGuard);
+            }
 
             // Remain aligned with the ground
             // @todo use proper ground height
@@ -234,7 +240,16 @@ namespace astro {
           entity.visible_position = entity.position;
           entity.visible_rotation = entity.orientation;
           entity.enemy_state.speed = 0.f;
+          entity.enemy_state.health = 100.f;
+          entity.enemy_state.last_death_time = 0.f;
           entity.recent_positions.clear();
+        }
+
+        float death_alpha = 0.f;
+
+        if (entity.enemy_state.last_death_time != 0.f) {
+          death_alpha = 2.f * time_since(entity.enemy_state.last_death_time);
+          if (death_alpha > 1.f) death_alpha = 1.f;
         }
 
         // Body
@@ -246,6 +261,15 @@ namespace astro {
           body.rotation = entity.visible_rotation;
           body.color = entity.tint;
           body.material = tVec4f(0.5f, 1.f, 0, 0);
+
+          if (death_alpha > 0.f) {
+            Quaternion death_rotation = entity.visible_rotation * (
+              Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -t_HALF_PI)
+            );
+
+            body.rotation = Quaternion::slerp(body.rotation, death_rotation, death_alpha);
+            body.position.y = Tachyon_Lerpf(body.position.y, -1100.f, death_alpha);
+          }
 
           commit(body);
         }

@@ -306,14 +306,13 @@ static void HandleDayNightControls(Tachyon* tachyon, State& state) {
 static void HandleEnemyDamageFromWandSwing(Tachyon* tachyon, State& state) {
   for (auto& target : state.targetable_entities) {
     auto& entity = *EntityManager::FindEntity(state, target);
+    auto& enemy = entity.enemy_state;
     float distance_from_player = tVec3f::distance(entity.visible_position, state.player_position);
 
     // @todo handle per enemy type (target.type)
     float attack_duration = 2.f;
 
-    if (distance_from_player < 4000.f) {
-      auto& enemy = entity.enemy_state;
-
+    if (distance_from_player < 4000.f && enemy.health > 0.f) {
       if (time_since(enemy.last_attack_start_time) > attack_duration) {
         // Reset attack motion if not already attacking
         enemy.last_attack_start_time = get_scene_time() - attack_duration;
@@ -321,6 +320,12 @@ static void HandleEnemyDamageFromWandSwing(Tachyon* tachyon, State& state) {
 
         // Block
         enemy.last_block_time = get_scene_time();
+      } else {
+        // @temporary
+        enemy.health = 0.f;
+        enemy.last_death_time = get_scene_time();
+        enemy.last_attack_start_time = 0.f;
+        enemy.last_block_time = 0.f;
       }
     }
   }

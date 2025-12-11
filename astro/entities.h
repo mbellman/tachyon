@@ -109,6 +109,7 @@ namespace astro {
     float last_attack_start_time = 0.f;
     float last_attack_action_time = 0.f;
     float last_block_time = 0.f;
+    float last_death_time = 0.f;
   };
 
   /**
