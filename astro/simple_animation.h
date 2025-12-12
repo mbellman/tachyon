@@ -8,7 +8,7 @@ namespace astro {
     Quaternion rotation;
   };
 
-  struct AnimationStep : TransformState{
+  struct AnimationStep : TransformState {
     float duration;
   };
 
