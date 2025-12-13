@@ -71,7 +71,11 @@ static EntityRecord GetLeftmostNonSelectedTarget(State& state) {
 
 static void TrackTargetableEntities(State& state, const std::vector<GameEntity>& entities) {
   for (auto& entity : entities) {
+    // Prevent targeting enemies outside of their astro time range
     if (!IsDuringActiveTime(entity, state)) continue;
+
+    // Prevent targeting dead/defeated enemies
+    if (entity.enemy_state.health <= 0.f) continue;
 
     float player_distance = tVec3f::distance(entity.visible_position, state.player_position);
 
@@ -102,7 +106,11 @@ static void HandleActiveTargetReticle(Tachyon* tachyon, State& state) {
   reticle.color = tVec4f(1.f, 0.9f, 0.5f, 0.8f);
   reticle.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -2.f * get_scene_time());
 
-  if (entity_distance > 10000.f || entity.visible_scale.x == 0.f) {
+  if (
+    entity_distance > 10000.f ||
+    entity.visible_scale.x == 0.f ||
+    entity.enemy_state.health <= 0.f
+  ) {
     Targeting::DeselectCurrentTarget(tachyon, state);
   }
 

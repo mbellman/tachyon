@@ -362,6 +362,22 @@ static bool TestForStrongAttack(Tachyon* tachyon, State& state) {
       state.last_strong_attack_time = get_scene_time();
       state.last_dodge_time = 0.f;
 
+      auto& enemy = target.enemy_state;
+
+      // @temporary
+      if (target.type == LESSER_GUARD) {
+        enemy.health -= 50.f;
+      }
+
+      // @todo factor
+      if (enemy.health <= 0.f) {
+        enemy.health = 0.f;
+
+        enemy.last_death_time = get_scene_time();
+        enemy.last_attack_start_time = 0.f;
+        enemy.last_block_time = 0.f;
+      }
+
       return true;
     }
   }
