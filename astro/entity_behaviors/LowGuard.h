@@ -103,12 +103,11 @@ namespace astro {
               enemy.speed *= 1.f - 5.f * state.dt;
             }
 
-            // @todo FollowPlayer()
             if (player_distance > 3500.f) {
-              entity.visible_position += entity_to_player.unit() * enemy.speed * state.dt;
+              FollowPlayer(entity, player_direction, state.dt);
             }
-            else if (player_distance < 3250.f) {
-              entity.visible_position -= entity_to_player.unit() * enemy.speed * state.dt;
+            else if (player_distance < 2000.f) {
+              AvoidPlayer(entity, player_direction, state.dt);
             }
           }
         }

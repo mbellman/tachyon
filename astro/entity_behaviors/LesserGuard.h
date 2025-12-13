@@ -90,7 +90,7 @@ namespace astro {
             if (player_distance > 3500.f) {
               FollowPlayer(entity, player_direction, state.dt);
             }
-            else if (player_distance < 3250.f) {
+            else if (player_distance < 2000.f) {
               AvoidPlayer(entity, player_direction, state.dt);
             }
           }

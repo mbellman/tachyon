@@ -76,6 +76,7 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
 
   // Update position
   {
+    // @todo remove this * 5.f bit and properly manage velocity
     state.player_position += state.player_velocity * 5.f * state.dt;
   }
 }
@@ -320,12 +321,22 @@ static void HandleEnemyDamageFromWandSwing(Tachyon* tachyon, State& state) {
 
         // Block
         enemy.last_block_time = get_scene_time();
-      } else if (distance_from_player < 3000.f) {
+      } else if (distance_from_player < 3500.f) {
         // @temporary
-        enemy.health = 0.f;
-        enemy.last_death_time = get_scene_time();
-        enemy.last_attack_start_time = 0.f;
-        enemy.last_block_time = 0.f;
+        if (entity.type == LESSER_GUARD) {
+          enemy.health -= 30.f;
+        }
+
+        // @temporary
+        Sfx::PlaySound(SFX_WAND_ATTACK, 0.5f);
+
+        if (enemy.health <= 0.f) {
+          enemy.health = 0.f;
+
+          enemy.last_death_time = get_scene_time();
+          enemy.last_attack_start_time = 0.f;
+          enemy.last_block_time = 0.f;
+        }
       }
     }
   }
