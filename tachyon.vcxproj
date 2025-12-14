@@ -138,6 +138,7 @@
     <ClInclude Include="astro\entity_behaviors\House.h" />
     <ClInclude Include="astro\entity_behaviors\ItemPickup.h" />
     <ClInclude Include="astro\entity_behaviors\Lamppost.h" />
+    <ClInclude Include="astro\entity_behaviors\LesserGuard.h" />
     <ClInclude Include="astro\entity_behaviors\LightPost.h" />
     <ClInclude Include="astro\entity_behaviors\Lilac_Bush.h" />
     <ClInclude Include="astro\entity_behaviors\LowGuard.h" />
@@ -164,6 +165,7 @@
     <ClInclude Include="astro\level_editor.h" />
     <ClInclude Include="astro\mesh_library.h" />
     <ClInclude Include="astro\object_manager.h" />
+    <ClInclude Include="astro\path_generation.h" />
     <ClInclude Include="astro\player_character.h" />
     <ClInclude Include="astro\procedural_generation.h" />
     <ClInclude Include="astro\sfx.h" />
@@ -321,6 +323,7 @@
     <ClCompile Include="astro\level_editor.cpp" />
     <ClCompile Include="astro\mesh_library.cpp" />
     <ClCompile Include="astro\object_manager.cpp" />
+    <ClCompile Include="astro\path_generation.cpp" />
     <ClCompile Include="astro\player_character.cpp" />
     <ClCompile Include="astro\procedural_generation.cpp" />
     <ClCompile Include="astro\sfx.cpp" />

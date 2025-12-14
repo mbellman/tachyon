@@ -585,6 +585,12 @@
     <ClInclude Include="astro\simple_animation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="astro\entity_behaviors\LesserGuard.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\path_generation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -768,6 +774,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="astro\simple_animation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="astro\path_generation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
