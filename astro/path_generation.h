@@ -6,6 +6,6 @@
 
 namespace astro {
   namespace PathGeneration {
-    void GeneratePath(Tachyon* tachyon, State& state, const std::vector<GameEntity>& nodes, std::vector<PathSegment>& segments);
+    void GeneratePaths(Tachyon* tachyon, State& state, const std::vector<GameEntity>& nodes, std::vector<PathSegment>& segments, const uint16 mesh_index);
   }
 }

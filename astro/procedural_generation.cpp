@@ -819,13 +819,15 @@ static void GenerateDirtPaths(Tachyon* tachyon, State& state) {
   objects(state.meshes.dirt_path_placeholder).disabled = true;
   objects(state.meshes.dirt_path).disabled = true;
 
-  remove_all(state.meshes.p_dirt_path);
+  auto& meshes = state.meshes;
 
-  PathGeneration::GeneratePath(tachyon, state, state.dirt_path_nodes, state.dirt_path_segments);
+  remove_all(meshes.p_dirt_path);
+
+  PathGeneration::GeneratePaths(tachyon, state, state.dirt_path_nodes, state.dirt_path_segments, meshes.p_dirt_path);
 
   // @todo dev mode only
   {
-    std::string message = "Generated " + std::to_string(objects(state.meshes.p_dirt_path).total_active) + " dirt path segments";
+    std::string message = "Generated " + std::to_string(objects(meshes.p_dirt_path).total_active) + " dirt path segments";
 
     console_log(message);
   }
@@ -904,22 +906,42 @@ static void UpdateDirtPaths(Tachyon* tachyon, State& state) {
   }
 }
 
+/**
+ * ----------------------------
+ * Cobblestone paths
+ * ----------------------------
+ */
+static void GenerateCobblestonePaths(Tachyon* tachyon, State& state) {
+  log_time("GenerateCobblestonePaths()");
+
+  // remove_all(state.meshes.p_dirt_path);
+
+  // PathGeneration::GeneratePath(tachyon, state, state.dirt_path_nodes, state.dirt_path_segments);
+
+  // @todo dev mode only
+  {
+    // std::string message = "Generated " + std::to_string(objects(state.meshes.p_dirt_path).total_active) + " dirt path segments";
+
+    // console_log(message);
+  }
+}
+
 /* ---------------------------- */
 
 void ProceduralGeneration::RebuildSimpleProceduralObjects(Tachyon* tachyon, State& state) {
   GenerateDirtPaths(tachyon, state);
+  GenerateCobblestonePaths(tachyon, state);
   GenerateBushFlowers(tachyon, state);
 }
 
 void ProceduralGeneration::RebuildAllProceduralObjects(Tachyon* tachyon, State& state) {
-  GenerateDirtPaths(tachyon, state);
+  RebuildSimpleProceduralObjects(tachyon, state);
 
   // @todo refactor these two
   GenerateGrass(tachyon, state);
   GenerateSmallGrass(tachyon, state);
 
   GenerateGroundFlowers(tachyon, state);
-  GenerateBushFlowers(tachyon, state);
   GenerateGroundLeaves(tachyon, state);
 }
 

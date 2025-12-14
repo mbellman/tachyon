@@ -122,10 +122,27 @@ namespace astro {
 
   /**
    * ----------------------------
-   * Path segments
+   * Path generation
    * ----------------------------
    */
-  // @todo put color and astro time stuff on here
+  struct PathNode {
+    uint16 entity_index = 0;
+    tVec3f position;
+    tVec3f scale;
+
+    uint16 connections[4] = { 0, 0, 0, 0 };
+    uint16 total_connections = 0;
+
+    uint16 connections_walked[4] = { 0, 0, 0, 0 };
+    uint16 total_connections_walked = 0;
+  };
+
+  struct PathNetwork {
+    PathNode* nodes = nullptr;
+    uint16 total_nodes = 0;
+  };
+
+   // @todo put color and astro time stuff on here
   struct PathSegment {
     int32 index;
     tVec3f base_position;

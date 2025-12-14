@@ -18,23 +18,6 @@ static tVec3f HermiteInterpolate(const tVec3f& p0, const tVec3f& p1, const tVec3
   return (p0 * h00) + (m0 * h10) + (p1 * h01) + (m1 * h11);
 }
 
-struct PathNode {
-  uint16 entity_index = 0;
-  tVec3f position;
-  tVec3f scale;
-
-  uint16 connections[4] = { 0, 0, 0, 0 };
-  uint16 total_connections = 0;
-
-  uint16 connections_walked[4] = { 0, 0, 0, 0 };
-  uint16 total_connections_walked = 0;
-};
-
-struct PathNetwork {
-  PathNode* nodes = nullptr;
-  uint16 total_nodes = 0;
-};
-
 static void InitPathNetwork(PathNetwork& network, uint16 total_nodes) {
   network.total_nodes = total_nodes;
   network.nodes = new PathNode[total_nodes];
@@ -128,7 +111,7 @@ static void WalkPath(const PathNetwork& network, PathNode& previous_node, PathNo
   }
 }
 
-void PathGeneration::GeneratePath(Tachyon* tachyon, State& state, const std::vector<GameEntity>& nodes, std::vector<PathSegment>& segments) {
+void PathGeneration::GeneratePaths(Tachyon* tachyon, State& state, const std::vector<GameEntity>& nodes, std::vector<PathSegment>& segments, const uint16 mesh_index) {
   // Generate the path network
   PathNetwork network;
 
@@ -178,8 +161,8 @@ void PathGeneration::GeneratePath(Tachyon* tachyon, State& state, const std::vec
       if (node.total_connections == 1) {
         auto& next_node = network.nodes[node.connections[0]];
 
-        WalkPath(network, node, node, next_node, [tachyon, &state, &nodes, &segments](const tVec3f& position, const tVec3f& scale, const uint16 entity_index_a, const uint16 entity_index_b) {
-          auto& path = create(state.meshes.p_dirt_path);
+        WalkPath(network, node, node, next_node, [tachyon, &state, &nodes, &segments, mesh_index](const tVec3f& position, const tVec3f& scale, const uint16 entity_index_a, const uint16 entity_index_b) {
+          auto& path = create(mesh_index);
 
           auto& entity_a = nodes[entity_index_a];
           auto& entity_b = nodes[entity_index_b];
