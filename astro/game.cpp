@@ -75,6 +75,7 @@ static void ShowHighestLevelsOfDetail(Tachyon* tachyon, State& state) {
   Tachyon_ShowHighestLevelsOfDetail(tachyon, meshes.tiny_ground_flower);
 }
 
+// @todo Weather::
 static void HandleFog(Tachyon* tachyon, State& state) {
   auto& fx = tachyon->fx;
 
@@ -83,6 +84,7 @@ static void HandleFog(Tachyon* tachyon, State& state) {
   fx.fog_visibility = state.is_nighttime ? 15000.f : 4000.f;
 }
 
+// @todo Weather::
 static uint16 Hash(uint16 x) {
   x ^= x >> 8;
   x *= 0x352d;
@@ -93,10 +95,12 @@ static uint16 Hash(uint16 x) {
   return x;
 }
 
+// @todo Weather::
 static float HashToFloat(uint16 h) {
   return h / float(0xFFFF);
 }
 
+// @todo Weather::
 static float Wrap(float value, float min, float max, float range) {
   if (value < 0.f) {
     return max + fmodf(value, range);
@@ -105,6 +109,7 @@ static float Wrap(float value, float min, float max, float range) {
   }
 }
 
+// @todo Weather::
 static void HandleSnow(Tachyon* tachyon, State& state) {
   profile("HandleSnow()");
 

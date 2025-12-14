@@ -5,7 +5,7 @@
 namespace astro {
   struct TransformState {
     tVec3f offset;
-    Quaternion rotation;
+    Quaternion rotation = Quaternion(1.f, 0, 0, 0);
   };
 
   struct AnimationStep : TransformState {
