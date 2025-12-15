@@ -39,7 +39,8 @@ namespace astro {
       ground_1_leaves,
 
       // Procedural path meshes
-      p_dirt_path, // @todo rename
+      dirt_path,
+      cobblestone_path,
 
       // HUD meshes
       astrolabe_rear,
@@ -206,6 +207,7 @@ namespace astro {
 
     // Large-scale generated elements
     std::vector<PathSegment> dirt_path_segments;
+    std::vector<PathSegment> cobblestone_path_segments;
     std::vector<GrassChunk> grass_chunks;
 
     // Targeted entities

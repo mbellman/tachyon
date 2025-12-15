@@ -225,7 +225,7 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
   // @allocation
   auto flat_ground_planes = GetObjectPlanes(tachyon, meshes.flat_ground);
   auto ground_1_planes = GetObjectPlanes(tachyon, meshes.ground_1, tVec3f(0.9f));
-  auto dirt_path_planes = GetObjectPlanes(tachyon, meshes.p_dirt_path);
+  auto dirt_path_planes = GetObjectPlanes(tachyon, meshes.dirt_path);
   auto altar_planes = GetEntityPlanes(state.altars, tVec3f(1.9f, 1.f, 0.6f));
   auto wind_chime_planes = GetEntityPlanes(state.wind_chimes, tVec3f(0.8f, 1.f, 1.4f));
 
@@ -478,7 +478,7 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   // @todo use path connection planes, not planes for each individual path segment
-  auto dirt_path_planes = GetObjectPlanes(tachyon, meshes.p_dirt_path);
+  auto dirt_path_planes = GetObjectPlanes(tachyon, meshes.dirt_path);
   auto flat_ground_planes = GetObjectPlanes(tachyon, meshes.flat_ground);
   // @todo check ground_1 planes
 
@@ -816,13 +816,13 @@ static void GenerateDirtPaths(Tachyon* tachyon, State& state) {
 
   auto& meshes = state.meshes;
 
-  remove_all(meshes.p_dirt_path);
+  remove_all(meshes.dirt_path);
 
-  PathGeneration::GeneratePaths(tachyon, state, state.dirt_path_nodes, state.dirt_path_segments, meshes.p_dirt_path);
+  PathGeneration::GeneratePaths(tachyon, state, state.dirt_path_nodes, state.dirt_path_segments, meshes.dirt_path);
 
   // @todo dev mode only
   {
-    std::string message = "Generated " + std::to_string(objects(meshes.p_dirt_path).total_active) + " dirt path segments";
+    std::string message = "Generated " + std::to_string(objects(meshes.dirt_path).total_active) + " dirt path segments";
 
     console_log(message);
   }
@@ -909,15 +909,17 @@ static void UpdateDirtPaths(Tachyon* tachyon, State& state) {
 static void GenerateCobblestonePaths(Tachyon* tachyon, State& state) {
   log_time("GenerateCobblestonePaths()");
 
-  // remove_all(state.meshes.p_dirt_path);
+  auto& meshes = state.meshes;
 
-  // PathGeneration::GeneratePath(tachyon, state, state.dirt_path_nodes, state.dirt_path_segments);
+  remove_all(meshes.cobblestone_path);
+
+  PathGeneration::GeneratePaths(tachyon, state, state.cobblestone_path_nodes, state.cobblestone_path_segments, meshes.cobblestone_path);
 
   // @todo dev mode only
   {
-    // std::string message = "Generated " + std::to_string(objects(state.meshes.p_dirt_path).total_active) + " dirt path segments";
+    std::string message = "Generated " + std::to_string(objects(state.meshes.cobblestone_path).total_active) + " cobblestone path segments";
 
-    // console_log(message);
+    console_log(message);
   }
 }
 

@@ -332,8 +332,8 @@ namespace astro {
     std::vector<GameEntity> altars;
     std::vector<GameEntity> item_pickups;
     std::vector<GameEntity> fog_spawns;
-    std::vector<GameEntity> dirt_paths; // @unused
     std::vector<GameEntity> dirt_path_nodes;
+    std::vector<GameEntity> cobblestone_path_nodes;
 
     std::vector<GameEntity> shrubs;
     std::vector<GameEntity> flower_bushes;

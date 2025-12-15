@@ -151,7 +151,7 @@ void PathGeneration::GeneratePaths(Tachyon* tachyon, State& state, const std::ve
     }
   }
 
-  // Generate dirt path segments based on the path network
+  // Generate path segments based on the path network
   {
     segments.clear();
 
