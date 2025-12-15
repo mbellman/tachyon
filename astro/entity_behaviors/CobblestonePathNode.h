@@ -1,0 +1,31 @@
+#pragma once
+
+#include "astro/entity_behaviors/behavior.h"
+
+namespace astro {
+  behavior CobblestonePathNode {
+    addMeshes() {
+      meshes.cobblestone_path_node_placeholder = SPHERE_MESH(500);
+
+      mesh(meshes.cobblestone_path_node_placeholder).shadow_cascade_ceiling = 0;
+    }
+
+    getMeshes() {
+      // Path nodes don't have a specific in-game object;
+      // path segments are generated between them.
+      return_meshes({});
+    }
+
+    getPlaceholderMesh() {
+      return meshes.cobblestone_path_node_placeholder;
+    }
+
+    timeEvolve() {
+      auto& meshes = state.meshes;
+
+      for_entities(state.dirt_path_nodes) {
+        auto& entity = state.dirt_path_nodes[i];
+      }
+    }
+  };
+}

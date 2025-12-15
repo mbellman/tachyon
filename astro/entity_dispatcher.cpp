@@ -3,7 +3,8 @@
 #include "astro/entity_behaviors/Altar.h"
 #include "astro/entity_behaviors/Bandit.h"
 #include "astro/entity_behaviors/ChestnutTree.h"
-#include "astro/entity_behaviors/DirthPathNode.h"
+#include "astro/entity_behaviors/CobblestonePathNode.h"
+#include "astro/entity_behaviors/DirtPathNode.h"
 #include "astro/entity_behaviors/FlowerBush.h"
 #include "astro/entity_behaviors/FogSpawn.h"
 #include "astro/entity_behaviors/Gate.h"
@@ -55,6 +56,7 @@ using namespace astro;
 #define create_dispatch_cases(behavior_macro)\
   behavior_macro(BANDIT, Bandit);\
   behavior_macro(CHESTNUT_TREE, ChestnutTree);\
+  behavior_macro(COBBLESTONE_PATH_NODE, CobblestonePathNode);\
   behavior_macro(DIRT_PATH_NODE, DirtPathNode);\
   behavior_macro(FOG_SPAWN, FogSpawn);\
   behavior_macro(ITEM_PICKUP, ItemPickup);\
@@ -85,6 +87,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
   switch (type) {
     dispatch_GetEntityContainer(BANDIT, state.bandits);
     dispatch_GetEntityContainer(CHESTNUT_TREE, state.chestnut_trees);
+    dispatch_GetEntityContainer(COBBLESTONE_PATH_NODE, state.cobblestone_path_nodes);
     dispatch_GetEntityContainer(DIRT_PATH_NODE, state.dirt_path_nodes);
     dispatch_GetEntityContainer(ITEM_PICKUP, state.item_pickups);
     dispatch_GetEntityContainer(FOG_SPAWN, state.fog_spawns);

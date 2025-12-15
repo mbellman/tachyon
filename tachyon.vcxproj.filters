@@ -492,9 +492,6 @@
     <ClInclude Include="astro\entity_behaviors\Bandit.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="astro\entity_behaviors\DirtPath.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="astro\entity_behaviors\StoneWall.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -529,9 +526,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="astro\entity_behaviors\FlowerBush.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="astro\entity_behaviors\DirthPathNode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="astro\entity_behaviors\GlowFlower.h">
@@ -589,6 +583,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="astro\path_generation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\entity_behaviors\CobblestonePathNode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\entity_behaviors\DirtPathNode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

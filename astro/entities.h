@@ -40,7 +40,8 @@ namespace astro {
     WATER_WHEEL,
     CHESTNUT_TREE,
     NPC,
-    LESSER_GUARD
+    LESSER_GUARD,
+    COBBLESTONE_PATH_NODE
   };
 
   /**
@@ -62,6 +63,7 @@ namespace astro {
     ITEM_PICKUP,
     GLOW_FLOWER,
     DIRT_PATH_NODE,
+    COBBLESTONE_PATH_NODE,
     HOUSE,
     GATE,
     LILAC_BUSH,
@@ -251,8 +253,11 @@ namespace astro {
       glow_flower_placeholder,
       glow_flower_petals,
 
-      // DIRT_PATH_NODE,
+      // DIRT_PATH_NODE
       dirt_path_node_placeholder,
+
+      // COBBLESTONE_PATH_NODE
+      cobblestone_path_node_placeholder,
 
       // HOUSE
       house_placeholder,
@@ -409,6 +414,12 @@ namespace astro {
       .name = "Dirt Path Node",
       .scale = tVec3f(1000.f),
       .tint = tVec3f(1.f, 0.4f, 0.1f)
+    } },
+
+    { COBBLESTONE_PATH_NODE, {
+      .name = "Cobblestone Path Node",
+      .scale = tVec3f(1000.f),
+      .tint = tVec3f(0.5f)
     } },
 
     { SHRUB, {

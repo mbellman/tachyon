@@ -1013,7 +1013,7 @@ static tVec3f GetSpawnPosition(Tachyon* tachyon, State& state) {
       // @todo define entity placemen offset defaults
       EntityType entity_type = entity_types[editor.current_entity_index];
 
-      if (entity_type == DIRT_PATH_NODE) {
+      if (entity_type == DIRT_PATH_NODE || entity_type == COBBLESTONE_PATH_NODE) {
         return placer.position + tVec3f(0, 1500.f, 0);
       }
 
