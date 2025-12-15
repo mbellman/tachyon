@@ -918,7 +918,6 @@ static void UpdateDirtPaths(Tachyon* tachyon, State& state) {
     // Reduce the size/conspicuousness of the path
     // as we approach its starting time
     if (age < 40.f && astro_start_time != 0.f) {
-      // @temporary
       const tVec3f ground_color = solid_ground_color;
       float alpha = age / 40.f;
 
@@ -929,7 +928,6 @@ static void UpdateDirtPaths(Tachyon* tachyon, State& state) {
 
     // Erode the path toward its end time
     if (remaining_time < 40.f && astro_end_time != 0.f) {
-      // @temporary
       const tVec3f ground_color = solid_ground_color;
       float alpha = remaining_time / 40.f;
 
@@ -973,6 +971,76 @@ static void GenerateStonePaths(Tachyon* tachyon, State& state) {
   }
 }
 
+// @todo have stone pieces generate in place
+static void UpdateStonePaths(Tachyon* tachyon, State& state) {
+  profile("UpdateStonePaths()");
+
+  auto& meshes = state.meshes;
+  auto& player_position = state.player_position;
+
+  const tVec3f solid_ground_color = tVec3f(0.3f, 0.5f, 0.1f);
+  tVec3f path_color = tVec3f(0.5f);
+
+  const float distance_limit = 17000.f;
+
+  for (auto& segment : state.stone_path_segments) {
+    auto& position = segment.base_position;
+
+    if (abs(position.x - player_position.x) > distance_limit) continue;
+    if (abs(position.z - player_position.z) > distance_limit) continue;
+
+    auto& entity_a = state.stone_path_nodes[segment.entity_index_a];
+    auto& entity_b = state.stone_path_nodes[segment.entity_index_b];
+    auto& path = *get_live_object(segment.object);
+    float astro_start_time = std::max(entity_a.astro_start_time, entity_b.astro_start_time);
+    float astro_end_time = std::min(entity_a.astro_end_time, entity_b.astro_end_time);
+    float age = state.astro_time - astro_start_time;
+    float remaining_time = astro_end_time - state.astro_time;
+
+    path.position = segment.base_position;
+    path.position.y = -1470.f;
+    path.scale = segment.base_scale;
+    path.color = path_color;
+    path.material = tVec4f(1.f, 0, 0, 0);
+
+    // Reduce the size/conspicuousness of the path
+    // as we approach its starting time
+    if (age < 20.f && astro_start_time != 0.f) {
+      // @temporary
+      const tVec3f ground_color = solid_ground_color;
+      float alpha = age / 20.f;
+
+      // @temporary
+      path.color = tVec3f::lerp(ground_color, path_color, alpha);
+      path.position.y = Tachyon_Lerpf(-1500.f, path.position.y, alpha);
+      path.scale.x *= alpha;
+    }
+
+    // Erode the path toward its end time
+    if (remaining_time < 40.f && astro_end_time != 0.f) {
+      // @temporary
+      const tVec3f ground_color = solid_ground_color;
+      float alpha = remaining_time / 40.f;
+
+      // @temporary
+      path.color = tVec3f::lerp(ground_color, path_color, alpha);
+      path.position.y = Tachyon_Lerpf(-1500.f, path.position.y, alpha);
+      path.scale.x *= alpha;
+    }
+
+    if (
+      age < 0.f ||
+      (remaining_time < 0.f && astro_end_time != 0.f)
+    ) {
+      path.scale = tVec3f(0.f);
+    }
+
+    segment.plane = CollisionSystem::CreatePlane(path.position, path.scale, path.rotation);
+
+    commit(path);
+  }
+}
+
 /* ---------------------------- */
 
 void ProceduralGeneration::RebuildSimpleProceduralObjects(Tachyon* tachyon, State& state) {
@@ -996,6 +1064,7 @@ void ProceduralGeneration::UpdateProceduralObjects(Tachyon* tachyon, State& stat
   profile("UpdateProceduralObjects()");
 
   UpdateDirtPaths(tachyon, state);
+  UpdateStonePaths(tachyon, state);
 
   // @todo refactor these two
   UpdateGrass(tachyon, state);
