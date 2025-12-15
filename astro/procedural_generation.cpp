@@ -225,7 +225,6 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
   // @allocation
   auto flat_ground_planes = GetObjectPlanes(tachyon, meshes.flat_ground);
   auto ground_1_planes = GetObjectPlanes(tachyon, meshes.ground_1, tVec3f(0.9f));
-  auto dirt_path_planes = GetObjectPlanes(tachyon, meshes.dirt_path);
   auto altar_planes = GetEntityPlanes(state.altars, tVec3f(1.9f, 1.f, 0.6f));
   auto wind_chime_planes = GetEntityPlanes(state.wind_chimes, tVec3f(0.8f, 1.f, 1.4f));
 
@@ -268,6 +267,7 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
       // @allocation
       std::vector<Plane> local_ground_1_planes;
       std::vector<PathSegment> local_dirt_path_segments;
+      std::vector<PathSegment> local_cobblestone_path_segments;
 
       for (auto& plane : ground_1_planes) {
         float distance = tVec3f::distance(plane.p1, chunk.center_position);
@@ -277,6 +277,7 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
         }
       }
 
+      // @todo factor
       for (auto& segment : state.dirt_path_segments) {
         float distance = tVec3f::distance(segment.base_position, chunk.center_position);
 
@@ -284,6 +285,16 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
         if (abs(segment.base_position.z - chunk.center_position.z) > chunk_height) continue;
 
         local_dirt_path_segments.push_back(segment);
+      }
+
+      // @todo factor
+      for (auto& segment : state.cobblestone_path_segments) {
+        float distance = tVec3f::distance(segment.base_position, chunk.center_position);
+
+        if (abs(segment.base_position.x - chunk.center_position.x) > chunk_width) continue;
+        if (abs(segment.base_position.z - chunk.center_position.z) > chunk_height) continue;
+
+        local_cobblestone_path_segments.push_back(segment);
       }
 
       chunk.grass_blades.reserve(4500);
@@ -302,9 +313,19 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
         if (IsPointOnAnyPlane(blade.position, altar_planes)) continue;
         if (IsPointOnAnyPlane(blade.position, wind_chime_planes)) continue;
 
+        // @todo factor
         for (auto& segment : local_dirt_path_segments) {
           if (CollisionSystem::IsPointOnPlane(blade.position, segment.plane)) {
-            blade.path_segment_index = segment.index;
+            blade.dirt_path_segment_index = segment.index;
+
+            break;
+          }
+        }
+
+        // @todo factor
+        for (auto& segment : local_cobblestone_path_segments) {
+          if (CollisionSystem::IsPointOnPlane(blade.position, segment.plane)) {
+            blade.cobblestone_path_segment_index = segment.index;
 
             break;
           }
@@ -418,13 +439,27 @@ static void UpdateSmallGrass(Tachyon* tachyon, State& state) {
       }
 
       // Remove blades covered up by path segments in the current time
-      if (blade.path_segment_index > -1) {
-        auto& segment = state.dirt_path_segments[blade.path_segment_index];
+      {
+        // @todo factor
+        if (blade.dirt_path_segment_index > -1) {
+          auto& segment = state.dirt_path_segments[blade.dirt_path_segment_index];
 
-        if (CollisionSystem::IsPointOnPlane(blade.position, segment.plane)) {
-          remove_blade_if_active(blade);
+          if (CollisionSystem::IsPointOnPlane(blade.position, segment.plane)) {
+            remove_blade_if_active(blade);
 
-          continue;
+            continue;
+          }
+        }
+
+        // @todo factor
+        if (blade.cobblestone_path_segment_index > -1) {
+          auto& segment = state.cobblestone_path_segments[blade.cobblestone_path_segment_index];
+
+          if (CollisionSystem::IsPointOnPlane(blade.position, segment.plane)) {
+            remove_blade_if_active(blade);
+
+            continue;
+          }
         }
       }
 
@@ -479,6 +514,7 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
 
   // @todo use path connection planes, not planes for each individual path segment
   auto dirt_path_planes = GetObjectPlanes(tachyon, meshes.dirt_path);
+  auto cobblestone_path_planes = GetObjectPlanes(tachyon, meshes.cobblestone_path);
   auto flat_ground_planes = GetObjectPlanes(tachyon, meshes.flat_ground);
   // @todo check ground_1 planes
 
@@ -508,6 +544,7 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
 
       if (
         IsPointOnAnyPlane(position, dirt_path_planes) ||
+        IsPointOnAnyPlane(position, cobblestone_path_planes) ||
         !IsPointOnAnyPlane(position, flat_ground_planes)
       ) {
         continue;
@@ -556,6 +593,7 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
 
       if (
         IsPointOnAnyPlane(position, dirt_path_planes) ||
+        IsPointOnAnyPlane(position, cobblestone_path_planes) ||
         !IsPointOnAnyPlane(position, flat_ground_planes)
       ) {
         continue;

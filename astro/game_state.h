@@ -164,7 +164,8 @@ namespace astro {
   struct GrassBlade {
     tVec3f position;
     tVec3f scale;
-    int32 path_segment_index = -1;
+    int32 dirt_path_segment_index = -1;
+    int32 cobblestone_path_segment_index = -1;
     uint16 active_object_id = 0xFFFF;
   };
 
