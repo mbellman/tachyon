@@ -58,7 +58,6 @@ namespace astro {
     LOW_GUARD,
     BANDIT,
     STONE_WALL,
-    DIRT_PATH, // @unused
     FLOWER_BUSH,
     ITEM_PICKUP,
     GLOW_FLOWER,

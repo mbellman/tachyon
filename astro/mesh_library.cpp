@@ -53,11 +53,6 @@ static void AddEntityMeshes(Tachyon* tachyon, State& state) {
     EntityDispatcher::AddMeshes(tachyon, state, type);
   }
 
-  // @temporary
-  // @todo define in entity behavior files
-  mesh(meshes.dirt_path_placeholder).shadow_cascade_ceiling = 0;
-  mesh(meshes.dirt_path).shadow_cascade_ceiling = 0;
-
   mesh(meshes.flower_bush_placeholder).type = GRASS_MESH;
   mesh(meshes.flower_bush_placeholder).shadow_cascade_ceiling = 2;
   mesh(meshes.flower_bush_leaves).type = GRASS_MESH;

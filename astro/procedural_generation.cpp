@@ -814,11 +814,6 @@ static void UpdateGroundLeaves(Tachyon* tachyon, State& state) {
 static void GenerateDirtPaths(Tachyon* tachyon, State& state) {
   log_time("GenerateDirtPaths()");
 
-  // @temporary
-  // @todo remove regular dirt path entities
-  objects(state.meshes.dirt_path_placeholder).disabled = true;
-  objects(state.meshes.dirt_path).disabled = true;
-
   auto& meshes = state.meshes;
 
   remove_all(meshes.p_dirt_path);

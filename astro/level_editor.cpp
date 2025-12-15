@@ -1150,9 +1150,6 @@ static void HandleCurrentSelectedPositionActions(Tachyon* tachyon, State& state)
   if (placeholder.mesh_index == state.meshes.flat_ground) {
     placeholder.position.y = -1500.f;
   }
-  else if (placeholder.mesh_index == state.meshes.dirt_path_placeholder) {
-    placeholder.position.y = -1450.f;
-  }
 
   // @optimize We don't need to do this every time the object is moved!
   // It would be perfectly acceptable to do this on deselection.
@@ -1214,10 +1211,7 @@ static void HandleCurrentSelectedScaleActions(Tachyon* tachyon, State& state) {
   }
 
   // @temporary
-  if (
-    placeholder.mesh_index == state.meshes.flat_ground ||
-    placeholder.mesh_index == state.meshes.dirt_path_placeholder
-  ) {
+  if (placeholder.mesh_index == state.meshes.flat_ground) {
     placeholder.scale.y = 1.f;
   }
 
