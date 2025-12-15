@@ -129,7 +129,6 @@
     <ClInclude Include="astro\entity_behaviors\Bandit.h" />
     <ClInclude Include="astro\entity_behaviors\behavior.h" />
     <ClInclude Include="astro\entity_behaviors\ChestnutTree.h" />
-    <ClInclude Include="astro\entity_behaviors\CobblestonePathNode.h" />
     <ClInclude Include="astro\entity_behaviors\DirtPathNode.h" />
     <ClInclude Include="astro\entity_behaviors\FlowerBush.h" />
     <ClInclude Include="astro\entity_behaviors\FogSpawn.h" />
@@ -148,6 +147,7 @@
     <ClInclude Include="astro\entity_behaviors\RiverLog.h" />
     <ClInclude Include="astro\entity_behaviors\Shrub.h" />
     <ClInclude Include="astro\entity_behaviors\SmallStoneBridge.h" />
+    <ClInclude Include="astro\entity_behaviors\StonePathNode.h" />
     <ClInclude Include="astro\entity_behaviors\StoneWall.h" />
     <ClInclude Include="astro\entity_behaviors\WaterWheel.h" />
     <ClInclude Include="astro\entity_behaviors\WillowTree.h" />

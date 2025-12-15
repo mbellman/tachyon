@@ -267,7 +267,7 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
       // @allocation
       std::vector<Plane> local_ground_1_planes;
       std::vector<PathSegment> local_dirt_path_segments;
-      std::vector<PathSegment> local_cobblestone_path_segments;
+      std::vector<PathSegment> local_stone_path_segments;
 
       for (auto& plane : ground_1_planes) {
         float distance = tVec3f::distance(plane.p1, chunk.center_position);
@@ -288,13 +288,13 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
       }
 
       // @todo factor
-      for (auto& segment : state.cobblestone_path_segments) {
+      for (auto& segment : state.stone_path_segments) {
         float distance = tVec3f::distance(segment.base_position, chunk.center_position);
 
         if (abs(segment.base_position.x - chunk.center_position.x) > chunk_width) continue;
         if (abs(segment.base_position.z - chunk.center_position.z) > chunk_height) continue;
 
-        local_cobblestone_path_segments.push_back(segment);
+        local_stone_path_segments.push_back(segment);
       }
 
       chunk.grass_blades.reserve(4500);
@@ -323,9 +323,9 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
         }
 
         // @todo factor
-        for (auto& segment : local_cobblestone_path_segments) {
+        for (auto& segment : local_stone_path_segments) {
           if (CollisionSystem::IsPointOnPlane(blade.position, segment.plane)) {
-            blade.cobblestone_path_segment_index = segment.index;
+            blade.stone_path_segment_index = segment.index;
 
             break;
           }
@@ -452,8 +452,8 @@ static void UpdateSmallGrass(Tachyon* tachyon, State& state) {
         }
 
         // @todo factor
-        if (blade.cobblestone_path_segment_index > -1) {
-          auto& segment = state.cobblestone_path_segments[blade.cobblestone_path_segment_index];
+        if (blade.stone_path_segment_index > -1) {
+          auto& segment = state.stone_path_segments[blade.stone_path_segment_index];
 
           if (CollisionSystem::IsPointOnPlane(blade.position, segment.plane)) {
             remove_blade_if_active(blade);
@@ -512,11 +512,9 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
 
   auto& meshes = state.meshes;
 
-  // @todo use path connection planes, not planes for each individual path segment
   auto dirt_path_planes = GetObjectPlanes(tachyon, meshes.dirt_path);
-  auto cobblestone_path_planes = GetObjectPlanes(tachyon, meshes.cobblestone_path);
+  auto stone_path_planes = GetObjectPlanes(tachyon, meshes.stone_path);
   auto flat_ground_planes = GetObjectPlanes(tachyon, meshes.flat_ground);
-  // @todo check ground_1 planes
 
   // ------------
   // @todo factor
@@ -544,7 +542,7 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
 
       if (
         IsPointOnAnyPlane(position, dirt_path_planes) ||
-        IsPointOnAnyPlane(position, cobblestone_path_planes) ||
+        IsPointOnAnyPlane(position, stone_path_planes) ||
         !IsPointOnAnyPlane(position, flat_ground_planes)
       ) {
         continue;
@@ -593,7 +591,7 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
 
       if (
         IsPointOnAnyPlane(position, dirt_path_planes) ||
-        IsPointOnAnyPlane(position, cobblestone_path_planes) ||
+        IsPointOnAnyPlane(position, stone_path_planes) ||
         !IsPointOnAnyPlane(position, flat_ground_planes)
       ) {
         continue;
@@ -941,21 +939,21 @@ static void UpdateDirtPaths(Tachyon* tachyon, State& state) {
 
 /**
  * ----------------------------
- * Cobblestone paths
+ * Stone paths
  * ----------------------------
  */
-static void GenerateCobblestonePaths(Tachyon* tachyon, State& state) {
-  log_time("GenerateCobblestonePaths()");
+static void GenerateStonePaths(Tachyon* tachyon, State& state) {
+  log_time("GenerateStonePaths()");
 
   auto& meshes = state.meshes;
 
-  remove_all(meshes.cobblestone_path);
+  remove_all(meshes.stone_path);
 
-  PathGeneration::GeneratePaths(tachyon, state, state.cobblestone_path_nodes, state.cobblestone_path_segments, meshes.cobblestone_path);
+  PathGeneration::GeneratePaths(tachyon, state, state.stone_path_nodes, state.stone_path_segments, meshes.stone_path);
 
   // @todo dev mode only
   {
-    std::string message = "Generated " + std::to_string(objects(state.meshes.cobblestone_path).total_active) + " cobblestone path segments";
+    std::string message = "Generated " + std::to_string(objects(state.meshes.stone_path).total_active) + " stone path segments";
 
     console_log(message);
   }
@@ -965,7 +963,7 @@ static void GenerateCobblestonePaths(Tachyon* tachyon, State& state) {
 
 void ProceduralGeneration::RebuildSimpleProceduralObjects(Tachyon* tachyon, State& state) {
   GenerateDirtPaths(tachyon, state);
-  GenerateCobblestonePaths(tachyon, state);
+  GenerateStonePaths(tachyon, state);
   GenerateBushFlowers(tachyon, state);
 }
 

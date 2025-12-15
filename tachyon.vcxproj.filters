@@ -585,10 +585,10 @@
     <ClInclude Include="astro\path_generation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="astro\entity_behaviors\CobblestonePathNode.h">
+    <ClInclude Include="astro\entity_behaviors\DirtPathNode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="astro\entity_behaviors\DirtPathNode.h">
+    <ClInclude Include="astro\entity_behaviors\StonePathNode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

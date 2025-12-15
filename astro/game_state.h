@@ -40,7 +40,7 @@ namespace astro {
 
       // Procedural path meshes
       dirt_path,
-      cobblestone_path,
+      stone_path,
 
       // HUD meshes
       astrolabe_rear,
@@ -165,7 +165,7 @@ namespace astro {
     tVec3f position;
     tVec3f scale;
     int32 dirt_path_segment_index = -1;
-    int32 cobblestone_path_segment_index = -1;
+    int32 stone_path_segment_index = -1;
     uint16 active_object_id = 0xFFFF;
   };
 
@@ -208,7 +208,7 @@ namespace astro {
 
     // Large-scale generated elements
     std::vector<PathSegment> dirt_path_segments;
-    std::vector<PathSegment> cobblestone_path_segments;
+    std::vector<PathSegment> stone_path_segments;
     std::vector<GrassChunk> grass_chunks;
 
     // Targeted entities
