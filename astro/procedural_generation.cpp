@@ -1,4 +1,7 @@
+#include <algorithm>
+#include <execution>
 #include <functional>
+#include <ranges>
 
 #include "astro/procedural_generation.h"
 #include "astro/astrolabe.h"
@@ -7,6 +10,14 @@
 #include "astro/path_generation.h"
 
 using namespace astro;
+
+#define parallel_for_range(__start, __end, ...)\
+  {\
+    std::ranges::iota_view __range((int)__start, (int)__end);\
+    std::for_each(std::execution::par, __range.begin(), __range.end(), [&, tachyon](size_t __index){\
+      __VA_ARGS__\
+    });\
+  }\
 
 struct Bounds2D {
   float x[2];
@@ -215,13 +226,6 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
   const float chunk_width = 20000.f;
   const float chunk_height = 20000.f;
 
-  static const float scales[] = {
-    300.f,
-    600.f,
-    500.f,
-    450.f
-  };
-
   // @allocation
   auto flat_ground_planes = GetObjectPlanes(tachyon, meshes.flat_ground);
   auto ground_1_planes = GetObjectPlanes(tachyon, meshes.ground_1, tVec3f(0.9f));
@@ -239,13 +243,10 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
     state.grass_chunks.clear();
   }
 
-  int32 total_chunks = 0;
-  int32 total_blades = 0;
-
+  // Generate small grass chunks
   for (int32 x = -20; x <= 20; x++) {
     for (int32 z = -20; z <= 20; z++) {
       tVec3f center_position = tVec3f(x * chunk_width, 0.f, z * chunk_height);
-
       tVec3f upper_left_corner = center_position + tVec3f(-chunk_width * 0.5f, 0, -chunk_height * 0.5f);
       tVec3f upper_right_corner = center_position + tVec3f(chunk_width * 0.5f, 0, -chunk_height * 0.5f);
       tVec3f lower_left_corner = center_position + tVec3f(-chunk_width * 0.5f, 0, chunk_height * 0.5f);
@@ -264,87 +265,100 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
       GrassChunk chunk;
       chunk.center_position = center_position;
 
-      // @allocation
-      std::vector<Plane> local_ground_1_planes;
-      std::vector<PathSegment> local_dirt_path_segments;
-      std::vector<PathSegment> local_stone_path_segments;
-
-      for (auto& plane : ground_1_planes) {
-        float distance = tVec3f::distance(plane.p1, chunk.center_position);
-
-        if (distance < chunk_width * 1.2f) {
-          local_ground_1_planes.push_back(plane);
-        }
-      }
-
-      // @todo factor
-      for (auto& segment : state.dirt_path_segments) {
-        float distance = tVec3f::distance(segment.base_position, chunk.center_position);
-
-        if (abs(segment.base_position.x - chunk.center_position.x) > chunk_width) continue;
-        if (abs(segment.base_position.z - chunk.center_position.z) > chunk_height) continue;
-
-        local_dirt_path_segments.push_back(segment);
-      }
-
-      // @todo factor
-      for (auto& segment : state.stone_path_segments) {
-        float distance = tVec3f::distance(segment.base_position, chunk.center_position);
-
-        if (abs(segment.base_position.x - chunk.center_position.x) > chunk_width) continue;
-        if (abs(segment.base_position.z - chunk.center_position.z) > chunk_height) continue;
-
-        local_stone_path_segments.push_back(segment);
-      }
-
-      chunk.grass_blades.reserve(4500);
-
-      for (int32 i = 0; i < 4500; i++) {
-        GrassBlade blade;
-        blade.position.x = Tachyon_GetRandom(upper_left_corner.x, upper_right_corner.x);
-        blade.position.y = -1500.f;
-        blade.position.z = Tachyon_GetRandom(upper_left_corner.z, lower_left_corner.z);
-
-        blade.scale = tVec3f(Tachyon_GetRandom(500.f, 1500.f));
-        blade.scale.y *= 0.75f;
-
-        if (!IsPointOnAnyPlane(blade.position, flat_ground_planes)) continue;
-        if (IsPointOnAnyPlane(blade.position, local_ground_1_planes)) continue;
-        if (IsPointOnAnyPlane(blade.position, altar_planes)) continue;
-        if (IsPointOnAnyPlane(blade.position, wind_chime_planes)) continue;
-
-        // @todo factor
-        for (auto& segment : local_dirt_path_segments) {
-          if (CollisionSystem::IsPointOnPlane(blade.position, segment.plane)) {
-            blade.dirt_path_segment_index = segment.index;
-
-            break;
-          }
-        }
-
-        // @todo factor
-        for (auto& segment : local_stone_path_segments) {
-          if (CollisionSystem::IsPointOnPlane(blade.position, segment.plane)) {
-            blade.stone_path_segment_index = segment.index;
-
-            break;
-          }
-        }
-
-        chunk.grass_blades.push_back(blade);
-
-        total_blades++;
-      }
-
       state.grass_chunks.push_back(chunk);
-
-      total_chunks++;
     }
+  }
+
+  // Add blades to each chunk in parallel
+  parallel_for_range(0, state.grass_chunks.size(), {
+    auto& chunk = state.grass_chunks[__index];
+
+    tVec3f upper_left_corner = chunk.center_position + tVec3f(-chunk_width * 0.5f, 0, -chunk_height * 0.5f);
+    tVec3f upper_right_corner = chunk.center_position + tVec3f(chunk_width * 0.5f, 0, -chunk_height * 0.5f);
+    tVec3f lower_left_corner = chunk.center_position + tVec3f(-chunk_width * 0.5f, 0, chunk_height * 0.5f);
+    tVec3f lower_right_corner = chunk.center_position + tVec3f(chunk_width * 0.5f, 0, chunk_height * 0.5f);
+
+    // @allocation
+    std::vector<Plane> local_ground_1_planes;
+    std::vector<PathSegment> local_dirt_path_segments;
+    std::vector<PathSegment> local_stone_path_segments;
+
+    for (auto& plane : ground_1_planes) {
+      float distance = tVec3f::distance(plane.p1, chunk.center_position);
+
+      if (distance < chunk_width * 1.2f) {
+        local_ground_1_planes.push_back(plane);
+      }
+    }
+
+    // @todo factor
+    for (auto& segment : state.dirt_path_segments) {
+      float distance = tVec3f::distance(segment.base_position, chunk.center_position);
+
+      if (abs(segment.base_position.x - chunk.center_position.x) > chunk_width) continue;
+      if (abs(segment.base_position.z - chunk.center_position.z) > chunk_height) continue;
+
+      local_dirt_path_segments.push_back(segment);
+    }
+
+    // @todo factor
+    for (auto& segment : state.stone_path_segments) {
+      float distance = tVec3f::distance(segment.base_position, chunk.center_position);
+
+      if (abs(segment.base_position.x - chunk.center_position.x) > chunk_width) continue;
+      if (abs(segment.base_position.z - chunk.center_position.z) > chunk_height) continue;
+
+      local_stone_path_segments.push_back(segment);
+    }
+
+    chunk.grass_blades.reserve(4500);
+
+    for (int32 i = 0; i < 4500; i++) {
+      GrassBlade blade;
+      blade.position.x = Tachyon_GetRandom(upper_left_corner.x, upper_right_corner.x);
+      blade.position.y = -1500.f;
+      blade.position.z = Tachyon_GetRandom(upper_left_corner.z, lower_left_corner.z);
+
+      blade.scale = tVec3f(Tachyon_GetRandom(500.f, 1500.f));
+      blade.scale.y *= 0.75f;
+
+      if (!IsPointOnAnyPlane(blade.position, flat_ground_planes)) continue;
+      if (IsPointOnAnyPlane(blade.position, local_ground_1_planes)) continue;
+      if (IsPointOnAnyPlane(blade.position, altar_planes)) continue;
+      if (IsPointOnAnyPlane(blade.position, wind_chime_planes)) continue;
+
+      // @todo factor
+      for (auto& segment : local_dirt_path_segments) {
+        if (CollisionSystem::IsPointOnPlane(blade.position, segment.plane)) {
+          blade.dirt_path_segment_index = segment.index;
+
+          break;
+        }
+      }
+
+      // @todo factor
+      for (auto& segment : local_stone_path_segments) {
+        if (CollisionSystem::IsPointOnPlane(blade.position, segment.plane)) {
+          blade.stone_path_segment_index = segment.index;
+
+          break;
+        }
+      }
+
+      chunk.grass_blades.push_back(blade);
+    }
+  });
+
+  // Count total blades
+  int32 total_blades = 0;
+
+  for (size_t i = 0; i < state.grass_chunks.size(); i++) {
+    total_blades += state.grass_chunks[i].grass_blades.size();
   }
 
   // @todo dev mode only
   {
-    std::string message = "Generated " + std::to_string(total_chunks) + " grass chunks (" + std::to_string(total_blades) + " blades)";
+    std::string message = "Generated " + std::to_string(state.grass_chunks.size()) + " grass chunks (" + std::to_string(total_blades) + " blades)";
 
     console_log(message);
   }
@@ -521,10 +535,10 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
   // ------------
   remove_all(meshes.ground_flower);
 
-  tRNG rng(12345.f);
-
   // Clusters
-  for (int i = 0; i < 7000; i++) {
+  parallel_for_range(0, 7000, {
+    tRNG rng(1234.f + float(__index));
+
     tVec3f center;
     center.x = rng.Random(-300000.f, 300000.f);
     center.y = -1000.f;
@@ -556,7 +570,7 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
 
       commit(flower);
     }
-  }
+  });
 
   // @todo dev mode only
   {
@@ -570,14 +584,14 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
   // ------------
   remove_all(meshes.tiny_ground_flower);
 
-  tRNG rng2(34567.f);
-
   // Clusters
-  for (int i = 0; i < 7000; i++) {
+  parallel_for_range(0, 7000, {
+    tRNG rng(5678.f + float(__index));
+
     tVec3f center;
-    center.x = rng2.Random(-300000.f, 300000.f);
+    center.x = rng.Random(-300000.f, 300000.f);
     center.y = -875.f;
-    center.z = rng2.Random(-300000.f, 300000.f);
+    center.z = rng.Random(-300000.f, 300000.f);
 
     // 6 flowers per cluster
     // @todo avoid crashing at the limit! right now we only avoid
@@ -585,9 +599,9 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
     // spawn flowers on
     for (int i = 0; i < 6; i++) {
       tVec3f position;
-      position.x = center.x + rng2.Random(-1000.f, 1000.f);
-      position.y = center.y + rng2.Random(-60.f, 60.f);
-      position.z = center.z + rng2.Random(-1000.f, 1000.f);
+      position.x = center.x + rng.Random(-1000.f, 1000.f);
+      position.y = center.y + rng.Random(-60.f, 60.f);
+      position.z = center.z + rng.Random(-1000.f, 1000.f);
 
       if (
         IsPointOnAnyPlane(position, dirt_path_planes) ||
@@ -605,7 +619,7 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
 
       commit(flower);
     }
-  }
+  });
 
   // @todo dev mode only
   {
