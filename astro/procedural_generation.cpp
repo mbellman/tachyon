@@ -1078,10 +1078,10 @@ static void UpdateStonePaths(Tachyon* tachyon, State& state) {
     // @todo weathering and aging with time
     {
       if (path.scale.x > 0.f) {
-        float construction_progress_alpha = age / 30.f;
-        if (construction_progress_alpha > 1.f) construction_progress_alpha = 1.f;
+        float construction_alpha = age / 30.f;
+        if (construction_alpha > 1.f) construction_alpha = 1.f;
 
-        uint16 stones_per_segment = uint16(7.f * construction_progress_alpha);
+        uint16 stones_per_segment = uint16(7.f * construction_alpha);
 
         uint16 start = total_path_stones;
         uint16 end = total_path_stones + stones_per_segment;
