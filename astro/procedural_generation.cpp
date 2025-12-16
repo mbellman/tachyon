@@ -993,24 +993,27 @@ static void UpdateStonePaths(Tachyon* tachyon, State& state) {
   uint16 total_path_stones = 0;
 
   Quaternion rotations[] = {
-    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 0.5f),
-    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 1.f),
-    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 1.5f),
-    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 2.f),
-    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 2.5f),
-    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 3.f),
-    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 3.5f),
-    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 4.f),
-    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 4.5f),
-    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 5.f)
+    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 0.f),
+    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 0.1f),
+    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 0.2f),
+    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -0.1f),
+    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -0.2f)
   };
 
   tVec3f offsets[] = {
-    tVec3f(0, 115.f, 0),
-    tVec3f(-400.f, 150.f, -400.f),
-    tVec3f(-400.f, 100.f, +400.f),
-    tVec3f(+400.f, 120.f, -400.f),
-    tVec3f(+400.f, 135.f, +400.f)
+    tVec3f(0.f, 0.f, 0.f),
+    tVec3f(-500.f, 0.f, -500.f),
+    tVec3f(-500.f, 0.f, +500.f),
+    tVec3f(+500.f, 0.f, -500.f),
+    tVec3f(+500.f, 0.f, +500.f),
+  };
+
+  float y_offsets[] = {
+    115.f,
+    50.f,
+    150.f,
+    110.f,
+    125.f
   };
 
   for (auto& segment : state.stone_path_segments) {
@@ -1029,7 +1032,7 @@ static void UpdateStonePaths(Tachyon* tachyon, State& state) {
 
     path.position = segment.base_position;
     path.position.y = -1470.f;
-    path.scale = segment.base_scale;
+    path.scale = segment.base_scale * 1.2f;
     path.color = path_color;
     path.material = tVec4f(1.f, 0, 0, 0);
 
@@ -1070,18 +1073,29 @@ static void UpdateStonePaths(Tachyon* tachyon, State& state) {
     // @todo weathering and aging with time
     {
       if (path.scale.x > 0.f) {
+        float total_alpha = age / 20.f;
+        if (total_alpha > 1.f) total_alpha = 1.f;
+
+        uint16 total_stones = uint16(5.f * total_alpha);
+
         uint16 start = total_path_stones;
-        uint16 end = total_path_stones + 4;
+        uint16 end = total_path_stones + total_stones;
         int step = 0;
+
+        tMat4f rotation_matrix = path.rotation.toMatrix4f();
 
         for (uint16 i = start; i < end; i++) {
           auto& stone = objects(meshes.path_stone)[i];
-          int iteration = int(abs(path.position.x + path.position.z) + step++);
+          // int iteration = int(abs(path.position.x + path.position.z) + step++);
+          int y_iteration = int(abs(2.f * path.position.x + path.position.z));
+          int r_iteration = int(abs(path.position.x + 2.f * path.position.z));
 
-          stone.position = path.position + offsets[iteration % 5];
+          stone.position = path.position + rotation_matrix * offsets[step++];
+          stone.position.y += y_offsets[y_iteration % 5];
           stone.scale = tVec3f(300.f);
-          stone.rotation = rotations[iteration % 10];
+          stone.rotation = path.rotation * rotations[r_iteration % 5];
           stone.color = tVec3f(0.4f);
+          stone.material = tVec4f(0.1f, 0, 0, 0.2f);
 
           commit(stone);
         }
