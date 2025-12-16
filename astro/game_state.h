@@ -41,6 +41,7 @@ namespace astro {
       // Procedural path meshes
       dirt_path,
       stone_path,
+      path_stone,
 
       // HUD meshes
       astrolabe_rear,

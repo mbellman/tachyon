@@ -959,6 +959,14 @@ static void GenerateStonePaths(Tachyon* tachyon, State& state) {
 
   auto& meshes = state.meshes;
 
+  // Generate smaller path pieces
+  remove_all(meshes.path_stone);
+
+  for (uint16 i = 0; i < 1000; i++) {
+    create(meshes.path_stone);
+  }
+
+  // Generate path segment objects
   remove_all(meshes.stone_path);
 
   PathGeneration::GeneratePaths(tachyon, state, state.stone_path_nodes, state.stone_path_segments, meshes.stone_path);
@@ -971,7 +979,6 @@ static void GenerateStonePaths(Tachyon* tachyon, State& state) {
   }
 }
 
-// @todo have stone pieces generate in place
 static void UpdateStonePaths(Tachyon* tachyon, State& state) {
   profile("UpdateStonePaths()");
 
@@ -979,9 +986,32 @@ static void UpdateStonePaths(Tachyon* tachyon, State& state) {
   auto& player_position = state.player_position;
 
   const tVec3f solid_ground_color = tVec3f(0.3f, 0.5f, 0.1f);
-  tVec3f path_color = tVec3f(0.5f);
+  tVec3f path_color = tVec3f(0.2f, 0.3f, 0.2f);
 
   const float distance_limit = 17000.f;
+
+  uint16 total_path_stones = 0;
+
+  Quaternion rotations[] = {
+    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 0.5f),
+    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 1.f),
+    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 1.5f),
+    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 2.f),
+    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 2.5f),
+    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 3.f),
+    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 3.5f),
+    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 4.f),
+    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 4.5f),
+    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 5.f)
+  };
+
+  tVec3f offsets[] = {
+    tVec3f(0, 115.f, 0),
+    tVec3f(-400.f, 150.f, -400.f),
+    tVec3f(-400.f, 100.f, +400.f),
+    tVec3f(+400.f, 120.f, -400.f),
+    tVec3f(+400.f, 135.f, +400.f)
+  };
 
   for (auto& segment : state.stone_path_segments) {
     auto& position = segment.base_position;
@@ -1005,10 +1035,10 @@ static void UpdateStonePaths(Tachyon* tachyon, State& state) {
 
     // Reduce the size/conspicuousness of the path
     // as we approach its starting time
-    if (age < 20.f && astro_start_time != 0.f) {
+    if (age < 30.f && astro_start_time != 0.f) {
       // @temporary
       const tVec3f ground_color = solid_ground_color;
-      float alpha = age / 20.f;
+      float alpha = age / 30.f;
 
       // @temporary
       path.color = tVec3f::lerp(ground_color, path_color, alpha);
@@ -1017,10 +1047,10 @@ static void UpdateStonePaths(Tachyon* tachyon, State& state) {
     }
 
     // Erode the path toward its end time
-    if (remaining_time < 40.f && astro_end_time != 0.f) {
+    if (remaining_time < 30.f && astro_end_time != 0.f) {
       // @temporary
       const tVec3f ground_color = solid_ground_color;
-      float alpha = remaining_time / 40.f;
+      float alpha = remaining_time / 30.f;
 
       // @temporary
       path.color = tVec3f::lerp(ground_color, path_color, alpha);
@@ -1035,10 +1065,37 @@ static void UpdateStonePaths(Tachyon* tachyon, State& state) {
       path.scale = tVec3f(0.f);
     }
 
+    // Generate path stones
+    // @todo make stones gradually appear/disappear with time
+    // @todo weathering and aging with time
+    {
+      if (path.scale.x > 0.f) {
+        uint16 start = total_path_stones;
+        uint16 end = total_path_stones + 4;
+        int step = 0;
+
+        for (uint16 i = start; i < end; i++) {
+          auto& stone = objects(meshes.path_stone)[i];
+          int iteration = int(abs(path.position.x + path.position.z) + step++);
+
+          stone.position = path.position + offsets[iteration % 5];
+          stone.scale = tVec3f(300.f);
+          stone.rotation = rotations[iteration % 10];
+          stone.color = tVec3f(0.4f);
+
+          commit(stone);
+        }
+
+        total_path_stones = end;
+      }
+    }
+
     segment.plane = CollisionSystem::CreatePlane(path.position, path.scale, path.rotation);
 
     commit(path);
   }
+
+  mesh(meshes.path_stone).lod_1.instance_count = total_path_stones;
 }
 
 /* ---------------------------- */
