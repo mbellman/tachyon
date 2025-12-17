@@ -407,7 +407,12 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
     ResolveSingleRadiusCollision(state, entity.position, entity.visible_scale, 0.5f);
   }
 
+  // @temporary
+  float player_bottom_y = state.player_position.y - 1500.f;
+
   for (auto& rock : objects(state.meshes.rock_1)) {
+    if (rock.position.y + rock.scale.y < player_bottom_y) continue;
+
     ResolveSingleRadiusCollision(state, rock.position, rock.scale, 1.f);
   }
 

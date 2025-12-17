@@ -147,10 +147,10 @@ static void GenerateGrass(Tachyon* tachyon, State& state) {
       float wz = ground.position.z + (lx * sinf(theta) + lz * cosf(theta));
 
       grass.position.x = wx;
-      grass.position.y = ground.position.y + 0.2f * ground.scale.y;
+      grass.position.y = ground.position.y + 0.3f * ground.scale.y;
       grass.position.z = wz;
 
-      grass.scale = tVec3f(1000.f);
+      grass.scale = tVec3f(600.f);
       // grass.color = tVec4f(0.1f, 0.3f, 0.1f, 0.2f);
       grass.color = tVec4f(0.2f, 0.3f, 0.1f, 0.1f);
       grass.material = tVec4f(0.8f, 0, 0, 1.f);
@@ -178,11 +178,11 @@ static void UpdateGrass(Tachyon* tachyon, State& state) {
   };
 
   static const float scales[] = {
-    1200.f,
-    1000.f,
-    1400.f,
     800.f,
-    950.f
+    600.f,
+    850.f,
+    500.f,
+    700.f
   };
 
   const float growth_rate = 0.7f;
@@ -662,7 +662,7 @@ static void UpdateGroundFlowers(Tachyon* tachyon, State& state) {
 
     flower.position = base_position + offsets[life_cycle % 5];
 
-    UpdateBloomingFlower(flower, blossom_color, 250.f, alpha, lifetime);
+    UpdateBloomingFlower(flower, blossom_color, 200.f, alpha, lifetime);
 
     commit(flower);
 
@@ -763,7 +763,7 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
 
     if (distance < 25000.f) {
       float entity_life_progress = GetLivingEntityProgress(state, entity, plant_lifetime);
-      float flower_size = 400.f * sqrtf(sinf(entity_life_progress * t_PI));
+      float flower_size = 300.f * sqrtf(sinf(entity_life_progress * t_PI));
 
       float vx = abs(entity.visible_position.x);
       float vz = abs(entity.visible_position.z);
@@ -1128,7 +1128,6 @@ void ProceduralGeneration::RebuildSimpleProceduralObjects(Tachyon* tachyon, Stat
 void ProceduralGeneration::RebuildAllProceduralObjects(Tachyon* tachyon, State& state) {
   RebuildSimpleProceduralObjects(tachyon, state);
 
-  // @todo refactor these two
   GenerateGrass(tachyon, state);
   GenerateSmallGrass(tachyon, state);
 
@@ -1142,7 +1141,6 @@ void ProceduralGeneration::UpdateProceduralObjects(Tachyon* tachyon, State& stat
   UpdateDirtPaths(tachyon, state);
   UpdateStonePaths(tachyon, state);
 
-  // @todo refactor these two
   UpdateGrass(tachyon, state);
   UpdateSmallGrass(tachyon, state);
 
