@@ -253,6 +253,25 @@ namespace astro {
             }
           }
 
+          // Death
+          // @todo factor
+          {
+            float time_since_death = time_since(entity.enemy_state.last_death_time);
+
+            if (
+              entity.enemy_state.last_death_time != 0.f &&
+              time_since_death > 0.f
+            ) {
+              float death_alpha = 2.f * time_since_death;
+              if (death_alpha > 1.f) death_alpha = 1.f;
+
+              Quaternion final_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -t_HALF_PI);
+
+              shield.position.y = Tachyon_Lerpf(shield.position.y, -1400.f, death_alpha);
+              shield.rotation = Quaternion::slerp(shield.rotation, final_rotation, death_alpha);
+            }
+          }
+
           commit(shield);
         }
 
@@ -339,6 +358,31 @@ namespace astro {
                   state.player_velocity = knockback_direction * 10000.f;
                 }
               }
+            }
+          }
+
+          // Death
+          // @todo factor
+          {
+            float time_since_death = time_since(entity.enemy_state.last_death_time);
+
+            if (
+              entity.enemy_state.last_death_time != 0.f &&
+              time_since_death > 0.f
+            ) {
+              float death_alpha = 2.f * time_since_death;
+              if (death_alpha > 1.f) death_alpha = 1.f;
+
+              float z_angle = fmodf(abs(entity.visible_position.x), 2.f) - 1.f;
+
+              Quaternion final_rotation = (
+                entity.visible_rotation *
+                Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -t_HALF_PI) *
+                Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), z_angle)
+              );
+
+              sword.position.y = Tachyon_Lerpf(sword.position.y, -1400.f, death_alpha);
+              sword.rotation = Quaternion::slerp(sword.rotation, final_rotation, death_alpha);
             }
           }
 
