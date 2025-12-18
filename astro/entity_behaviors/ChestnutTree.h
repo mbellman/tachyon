@@ -93,9 +93,7 @@ namespace astro {
         index++;
       }
 
-      mesh(meshes.oak_tree_roots).lod_1.instance_count = index;
       mesh(meshes.chestnut_tree_trunk).lod_1.instance_count = index;
-      mesh(meshes.oak_tree_branches).lod_1.instance_count = index;
       mesh(meshes.chestnut_tree_leaves).lod_1.instance_count = index;
     }
   };
