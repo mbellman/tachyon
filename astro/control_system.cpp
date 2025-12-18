@@ -321,6 +321,10 @@ static void HandleEnemyDamageFromWandSwing(Tachyon* tachyon, State& state) {
 
         // Block
         enemy.last_block_time = get_scene_time();
+      } else if (entity.type == LOW_GUARD) {
+        // Armor block
+        // @todo allow magical piercing attacks
+        enemy.last_block_time = get_scene_time();
       } else if (distance_from_player < 3500.f) {
         // @temporary
         if (entity.type == LESSER_GUARD) {
@@ -367,6 +371,11 @@ static bool TestForStrongAttack(Tachyon* tachyon, State& state) {
       // @temporary
       if (target.type == LESSER_GUARD) {
         enemy.health -= 50.f;
+      }
+      else if (target.type == LOW_GUARD) {
+        // Armor block
+        // @todo allow magical piercing attacks
+        enemy.last_block_time = get_scene_time();
       }
 
       // @todo factor

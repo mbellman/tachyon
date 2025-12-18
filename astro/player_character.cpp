@@ -110,8 +110,8 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
       wand.rotation = player_rotation * sample.rotation;
 
       if (
-        state.last_strong_attack_time == 0.f &&
-        time_since_last_swing > s1.duration && time_since_last_swing < s1.duration + s2.duration
+        time_since_last_swing > s1.duration &&
+        time_since_last_swing < s1.duration + s2.duration
       ) {
         // Check for collisions
         // @temporary
