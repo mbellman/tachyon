@@ -36,7 +36,8 @@ uint16 DataLoader::MeshIndexToId(State& state, uint16 mesh_index) {
     { meshes.ground_1, 2 },
     { meshes.flat_ground, 3 },
     { meshes.lookout_tower, 4 },
-    { meshes.river_edge, 5 }
+    { meshes.river_edge, 5 },
+    { meshes.rock_2, 6 }
   };
 
   return mesh_map.at(mesh_index);
@@ -50,7 +51,8 @@ uint16 DataLoader::MeshIdToIndex(State& state, uint16 mesh_id) {
     { 2, meshes.ground_1 },
     { 3, meshes.flat_ground },
     { 4, meshes.lookout_tower },
-    { 5, meshes.river_edge }
+    { 5, meshes.river_edge },
+    { 6, meshes.rock_2 }
   };
 
   return mesh_map.at(mesh_id);
@@ -123,10 +125,12 @@ void DataLoader::LoadLevelData(Tachyon* tachyon, State& state) {
 
       // @temporary
       // @todo set mesh material properties
-      if (mesh_index == state.meshes.rock_1) {
+      if (mesh_index == state.meshes.rock_1 || mesh_index == state.meshes.rock_2) {
         object.material = tVec4f(1., 0, 0, 0);
       }
 
+      // @temporary
+      // @todo set mesh material properties
       if (mesh_index == state.meshes.river_edge) {
         object.color = tVec3f(0.27f, 0.135f, 0.135f);
         object.material = tVec4f(1.f, 0, 0, 1.f);

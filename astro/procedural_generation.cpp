@@ -703,7 +703,7 @@ static void UpdateGroundFlowers(Tachyon* tachyon, State& state) {
 static void GenerateBushFlowers(Tachyon* tachyon, State& state) {
   remove_all(state.meshes.bush_flower);
 
-  for (int i = 0; i < 200; i++) {
+  for (int i = 0; i < 500; i++) {
     commit(create(state.meshes.bush_flower));
   }
 }
@@ -805,6 +805,11 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
   auto& mesh = mesh(state.meshes.bush_flower);
 
   mesh.lod_1.instance_count = flower_index;
+
+  // @todo dev only
+  {
+    add_dev_label("  Total bush flowers: ", std::to_string(flower_index));
+  }
 }
 
 /**

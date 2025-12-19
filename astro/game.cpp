@@ -49,6 +49,7 @@ static void UpdateLevelsOfDetail(Tachyon* tachyon, State& state) {
 
   // Decorative objects
   Tachyon_UseLodByDistance(tachyon, meshes.rock_1, 40000.f);
+  Tachyon_UseLodByDistance(tachyon, meshes.rock_2, 40000.f);
   Tachyon_UseLodByDistance(tachyon, meshes.river_edge, 40000.f);
   Tachyon_UseLodByDistance(tachyon, meshes.ground_1, 40000.f);
 
@@ -68,6 +69,7 @@ static void ShowHighestLevelsOfDetail(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   Tachyon_ShowHighestLevelsOfDetail(tachyon, meshes.rock_1);
+  Tachyon_ShowHighestLevelsOfDetail(tachyon, meshes.rock_2);
   Tachyon_ShowHighestLevelsOfDetail(tachyon, meshes.river_edge);
   Tachyon_ShowHighestLevelsOfDetail(tachyon, meshes.ground_1);
   Tachyon_ShowHighestLevelsOfDetail(tachyon, meshes.grass);

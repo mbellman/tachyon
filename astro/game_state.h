@@ -60,6 +60,7 @@ namespace astro {
       // Decorative meshes
       flat_ground,
       rock_1,
+      rock_2,
       river_edge,
       ground_1,
       lookout_tower,

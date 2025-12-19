@@ -420,6 +420,10 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
     ResolveSingleRadiusCollision(state, rock.position, rock.scale, 1.f);
   }
 
+  for (auto& rock : objects(state.meshes.rock_2)) {
+    ResolveSingleRadiusCollision(state, rock.position, rock.scale, 1.f);
+  }
+
   for (auto& entity : state.light_posts) {
     ResolveSingleRadiusCollision(state, entity.position, entity.scale, 0.6f);
   }

@@ -36,12 +36,14 @@ static void AddDecorativeMeshes(Tachyon* tachyon, State& state) {
 
   meshes.flat_ground   = PLANE_MESH(1000);
   meshes.rock_1        = MODEL_MESH("./astro/3d_models/rock_1.obj", 5000);
+  meshes.rock_2        = MODEL_MESH("./astro/3d_models/rock_2.obj", 5000);
   meshes.river_edge    = MODEL_MESH("./astro/3d_models/river_edge.obj", 5000);
   meshes.ground_1      = MODEL_MESH("./astro/3d_models/ground_1.obj", 5000);
   meshes.lookout_tower = MODEL_MESH("./astro/3d_models/decoratives/lookout_tower.obj", 100);
 
   mesh(meshes.flat_ground).shadow_cascade_ceiling = 0;
   mesh(meshes.rock_1).shadow_cascade_ceiling = 2;
+  mesh(meshes.rock_2).shadow_cascade_ceiling = 2;
   mesh(meshes.river_edge).shadow_cascade_ceiling = 2;
   mesh(meshes.ground_1).shadow_cascade_ceiling = 2;
 }
@@ -109,7 +111,7 @@ static void AddProceduralMeshes(Tachyon* tachyon, State& state) {
 
   // bush_flower
   {
-    meshes.bush_flower = MODEL_MESH("./astro/3d_models/flower.obj", 1000);
+    meshes.bush_flower = MODEL_MESH("./astro/3d_models/flower.obj", 500);
 
     mesh(meshes.bush_flower).type = GRASS_MESH;
     mesh(meshes.bush_flower).shadow_cascade_ceiling = 2;
