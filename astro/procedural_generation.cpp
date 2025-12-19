@@ -712,7 +712,7 @@ static void GenerateBushFlowers(Tachyon* tachyon, State& state) {
 static tVec3f GetBushFlowerBlossomColor(const float astro_time) {
   auto& periods = astro_time_periods;
 
-  tVec3f present_color = tVec3f(1.f, 0.2f, 0.1f);
+  tVec3f present_color = tVec3f(1.f, 0.3f, 0.1f);
   tVec3f past_color = tVec3f(1.f, 0.8f, 0.2f);
   tVec3f distant_past_color = tVec3f(1.f, 0.8f, 1.f);
 

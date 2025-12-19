@@ -407,6 +407,10 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
     ResolveSingleRadiusCollision(state, entity.position, entity.visible_scale, 0.5f);
   }
 
+  for (auto& entity : state.chestnut_trees) {
+    ResolveSingleRadiusCollision(state, entity.position, entity.visible_scale, 0.6f);
+  }
+
   // @temporary
   float player_bottom_y = state.player_position.y - 1500.f;
 
