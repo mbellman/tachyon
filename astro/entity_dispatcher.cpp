@@ -19,6 +19,7 @@
 #include "astro/entity_behaviors/Npc.h"
 #include "astro/entity_behaviors/OakTree.h"
 #include "astro/entity_behaviors/RiverLog.h"
+#include "astro/entity_behaviors/Sculpture_1.h"
 #include "astro/entity_behaviors/Shrub.h"
 #include "astro/entity_behaviors/SmallStoneBridge.h"
 #include "astro/entity_behaviors/StonePathNode.h"
@@ -75,6 +76,7 @@ using namespace astro;
   behavior_macro(LIGHT_POST, LightPost);\
   behavior_macro(LAMPPOST, Lamppost);\
   behavior_macro(WIND_CHIMES, WindChimes);\
+  behavior_macro(SCULPTURE_1, Sculpture_1);\
   behavior_macro(ALTAR, Altar);\
   behavior_macro(HOUSE, House);\
   behavior_macro(NPC, Npc);\
@@ -106,6 +108,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
     dispatch_GetEntityContainer(LIGHT_POST, state.light_posts);
     dispatch_GetEntityContainer(LAMPPOST, state.lampposts);
     dispatch_GetEntityContainer(WIND_CHIMES, state.wind_chimes);
+    dispatch_GetEntityContainer(SCULPTURE_1, state.sculpture_1s);
     dispatch_GetEntityContainer(ALTAR, state.altars);
     dispatch_GetEntityContainer(HOUSE, state.houses);
     dispatch_GetEntityContainer(NPC, state.npcs);

@@ -41,7 +41,8 @@ namespace astro {
     CHESTNUT_TREE,
     NPC,
     LESSER_GUARD,
-    STONE_PATH_NODE
+    STONE_PATH_NODE,
+    SCULPTURE_1
   };
 
   /**
@@ -74,6 +75,7 @@ namespace astro {
     LAMPPOST,
     FOG_SPAWN,
     WIND_CHIMES,
+    SCULPTURE_1,
     WATER_WHEEL,
     CHESTNUT_TREE,
     NPC,
@@ -310,6 +312,11 @@ namespace astro {
       wind_chimes_placeholder,
       wind_chimes_stand,
 
+      // SCULPTURE_1,
+      sculpture_1_placeholder,
+      sculpture_1_stand,
+      sculpture_1_wheel,
+
       // WATER_WHEEL
       water_wheel_placeholder,
       water_wheel,
@@ -334,6 +341,7 @@ namespace astro {
    */
   struct EntityContainers {
     std::vector<GameEntity> wind_chimes;
+    std::vector<GameEntity> sculpture_1s;
     std::vector<GameEntity> altars;
     std::vector<GameEntity> item_pickups;
     std::vector<GameEntity> fog_spawns;
@@ -388,6 +396,12 @@ namespace astro {
     { WIND_CHIMES, {
       .name = "Wind Chimes",
       .scale = tVec3f(1000.f),
+      .tint = tVec3f(1.f)
+    } },
+
+    { SCULPTURE_1, {
+      .name = "Sculpture 1",
+      .scale = tVec3f(3000.f),
       .tint = tVec3f(1.f)
     } },
 
