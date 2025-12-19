@@ -19,8 +19,8 @@ static void UpdateCameraNearEntities(State& state, tVec3f& new_camera_position) 
   UpdateCameraNearEntities(state, state.light_posts, new_camera_position, 10000.f, tVec3f(0, 2000.f, 2000.f));
   UpdateCameraNearEntities(state, state.gates, new_camera_position, 10000.f, tVec3f(0, 2000.f, 3000.f));
   UpdateCameraNearEntities(state, state.water_wheels, new_camera_position, 20000.f, tVec3f(0, 3000.f, 5000.f));
-  UpdateCameraNearEntities(state, state.lesser_guards, new_camera_position, 20000.f, tVec3f(0, 500.f, 800.f));
-  UpdateCameraNearEntities(state, state.low_guards, new_camera_position, 20000.f, tVec3f(0, 500.f, 800.f));
+  UpdateCameraNearEntities(state, state.lesser_guards, new_camera_position, 20000.f, tVec3f(0, 500.f, 200.f));
+  UpdateCameraNearEntities(state, state.low_guards, new_camera_position, 20000.f, tVec3f(0, 500.f, 200.f));
 }
 
 void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state) {

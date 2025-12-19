@@ -459,12 +459,12 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   // @todo HandleFrameEnd()
   {
     auto& fx = tachyon->fx;
-    float max_blur_factor = 0.98f - 5.f * state.dt;
+    float max_blur_factor = 0.99f - 5.f * state.dt;
 
     state.movement_distance += tVec3f::distance(state.player_position, state.last_player_position);
     state.last_player_position = state.player_position;
 
-    fx.accumulation_blur_factor = sqrtf(abs(state.astro_turn_speed)) * 4.f;
+    fx.accumulation_blur_factor = sqrtf(abs(state.astro_turn_speed)) * 4.1f;
 
     if (fx.accumulation_blur_factor > max_blur_factor) {
       fx.accumulation_blur_factor = max_blur_factor;

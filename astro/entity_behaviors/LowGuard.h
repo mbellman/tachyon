@@ -226,6 +226,10 @@ namespace astro {
 
             handle_enemy_behavior(LowGuard);
           }
+
+          // Remain aligned with the ground
+          // @todo use proper ground height
+          entity.visible_position.y = 0.f;
         } else {
           // Hide and reset
           // @todo factor

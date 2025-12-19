@@ -179,11 +179,11 @@ namespace astro {
             if (entity.enemy_state.health > 0.f) {
               handle_enemy_behavior(LesserGuard);
             }
-
-            // Remain aligned with the ground
-            // @todo use proper ground height
-            entity.visible_position.y = 0.f;
           }
+
+          // Remain aligned with the ground
+          // @todo use proper ground height
+          entity.visible_position.y = 0.f;
         } else {
           HardResetEntity(entity);
         }
