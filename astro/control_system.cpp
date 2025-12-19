@@ -65,6 +65,7 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
 
     if (
       speed > max_speed &&
+      state.player_hp >= 0.f &&
       time_since(state.last_dodge_time) > dodge_cooldown_time &&
       time_since(state.last_strong_attack_time) > strong_attack_cooldown_time
     ) {
