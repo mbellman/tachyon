@@ -1,5 +1,6 @@
 #include <math.h>
 
+#include "engine/tachyon_constants.h"
 #include "engine/tachyon_easing.h"
 
 float Tachyon_Lerpf(const float a, const float b, const float alpha) {
@@ -12,6 +13,10 @@ float Tachyon_InverseLerp(const float start, const float end, const float value)
   if (alpha > 1.f) alpha = 1.f;
 
   return alpha;
+}
+
+float Tachyon_EaseOutSine(float t) {
+  return sinf((t * t_PI) * 0.5f);
 }
 
 float Tachyon_EaseOutQuad(float t) {

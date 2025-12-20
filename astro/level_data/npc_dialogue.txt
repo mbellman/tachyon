@@ -3,4 +3,5 @@ Hello, world!
 This is a dialogue test.
 
 @watermill_house
-Oh, go away! Leave us alone, why don't you!
+[1] Oh, bugger off! Leave me be, why don't you!
+[2] I've nothing to do with you interlopers!

@@ -401,6 +401,13 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
         entity.game_activation_time = -1.f;
       }
 
+      for_entities(state.water_wheels) {
+        auto& entity = state.water_wheels[i];
+
+        entity.astro_activation_time = 0.f;
+        entity.game_activation_time = -1.f;
+      }
+
       show_overlay_message("Reset activated entities");
     }
 
