@@ -42,7 +42,8 @@ namespace astro {
     NPC,
     LESSER_GUARD,
     STONE_PATH_NODE,
-    SCULPTURE_1
+    SCULPTURE_1,
+    WOODEN_BRIDGE
   };
 
   /**
@@ -55,6 +56,7 @@ namespace astro {
     OAK_TREE,
     WILLOW_TREE,
     SMALL_STONE_BRIDGE,
+    WOODEN_BRIDGE,
     WOODEN_GATE_DOOR,
     RIVER_LOG,
     LOW_GUARD,
@@ -214,6 +216,10 @@ namespace astro {
       small_stone_bridge_columns,
       small_stone_bridge_base,
 
+      // WOODEN_BRIDGE
+      wooden_bridge_placeholder,
+      wooden_bridge_platform,
+
       // WOODEN_GATE_DOOR
       wooden_gate_door_placeholder,
       wooden_gate_door,
@@ -359,6 +365,7 @@ namespace astro {
     std::vector<GameEntity> river_logs;
 
     std::vector<GameEntity> small_stone_bridges;
+    std::vector<GameEntity> wooden_bridges;
     std::vector<GameEntity> stone_walls;
     std::vector<GameEntity> wooden_gate_doors;
     std::vector<GameEntity> gates;
@@ -487,6 +494,12 @@ namespace astro {
 
     { SMALL_STONE_BRIDGE, {
       .name = "Small Stone Bridge",
+      .scale = tVec3f(3000.f),
+      .tint = tVec3f(0.6f)
+    } },
+
+    { WOODEN_BRIDGE, {
+      .name = "Wooden Bridge",
       .scale = tVec3f(3000.f),
       .tint = tVec3f(0.6f)
     } },

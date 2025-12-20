@@ -3,8 +3,8 @@
 
 using namespace astro;
 
-constexpr static float player_radius = 600.f;
-constexpr static float player_height = 1500.f;
+constexpr static float PLAYER_RADIUS = 600.f;
+constexpr static float PLAYER_HEIGHT = 1500.f;
 
 static inline bool IsPointInsideEdge(const tVec3f& point, const tVec3f& e1, const tVec3f& e2) {
   return (
@@ -51,7 +51,7 @@ static inline void ResolveSingleRadiusCollision(State& state, const tVec3f& posi
 
   float dx = state.player_position.x - position.x;
   float dz = state.player_position.z - position.z;
-  float distance = sqrtf(dx*dx + dz*dz) - player_radius;
+  float distance = sqrtf(dx*dx + dz*dz) - PLAYER_RADIUS;
 
   // Prevent excessively small or negative distances
   if (distance < 100.f) distance = 100.f;
@@ -186,7 +186,7 @@ static void HandleHouseCollisions(Tachyon* tachyon, State& state) {
 }
 
 static void HandleFlatGroundCollisions(Tachyon* tachyon, State& state) {
-  state.player_position.y = state.water_level + player_height;
+  state.player_position.y = state.water_level + PLAYER_HEIGHT;
 
   for (auto& ground : objects(state.meshes.flat_ground)) {
     auto ground_plane = CollisionSystem::CreatePlane(ground.position, ground.scale, ground.rotation);
@@ -200,7 +200,7 @@ static void HandleFlatGroundCollisions(Tachyon* tachyon, State& state) {
   }
 }
 
-static void HandleBridgeCollisions(Tachyon* tachyon, State& state) {
+static void HandleSmallStoneBridgeCollisions(Tachyon* tachyon, State& state) {
   for (auto& entity : state.small_stone_bridges) {
     if (entity.visible_scale == tVec3f(0.f)) {
       continue;
@@ -217,6 +217,22 @@ static void HandleBridgeCollisions(Tachyon* tachyon, State& state) {
       float midpoint_ratio = 1.f - abs(player_position_in_bridge_space.x) / entity.scale.x;
       float floor_height = Tachyon_EaseOutQuad(midpoint_ratio);
       float player_y = floor_height * entity.scale.y / 2.2f;
+
+      AllowPlayerMovement(state, player_y, bridge_plane);
+
+      break;
+    }
+  }
+}
+
+static void HandleWoodenBridgeCollisions(Tachyon* tachyon, State& state) {
+  for (auto& entity : state.wooden_bridges) {
+    if (entity.visible_scale == tVec3f(0.f)) continue;
+
+    auto bridge_plane = CollisionSystem::CreatePlane(entity.visible_position, entity.visible_scale * tVec3f(1.1f, 0, 0.4f), entity.visible_rotation);
+
+    if (CollisionSystem::IsPointOnPlane(state.player_position.xz(), bridge_plane)) {
+      float player_y = entity.visible_position.y + PLAYER_HEIGHT;
 
       AllowPlayerMovement(state, player_y, bridge_plane);
 
@@ -243,7 +259,7 @@ static void HandleAltarCollisions(Tachyon* tachyon, State& state) {
       tVec3f entity_to_player = state.player_position - entity.position;
       tVec3f player_position_in_entity_space = entity.orientation.toMatrix4f().inverse() * entity_to_player;
       float progress_along_x = player_position_in_entity_space.x / collision_scale.x;
-      float altar_floor_y = (entity.position.y + player_height) + entity.scale.y * 0.35f;
+      float altar_floor_y = (entity.position.y + PLAYER_HEIGHT) + entity.scale.y * 0.35f;
 
       if (progress_along_x > 0.f) {
         // Walking up the ramp onto the altar
@@ -278,7 +294,7 @@ static void HandleRiverLogCollisions(Tachyon* tachyon, State& state) {
     auto log_plane = CollisionSystem::CreatePlane(log.position, log.scale * tVec3f(0.2f, 1.f, 1.f), log.rotation);
 
     if (CollisionSystem::IsPointOnPlane(state.player_position.xz(), log_plane)) {
-      float player_y = log.position.y + log.scale.y * 0.2f + player_height;
+      float player_y = log.position.y + log.scale.y * 0.2f + PLAYER_HEIGHT;
 
       AllowPlayerMovement(state, player_y, log_plane);
 
@@ -310,7 +326,7 @@ static void HandleWaterWheelCollisions(Tachyon* tachyon, State& state) {
 
         // @todo base height should be based on the last flat ground/surface
         float base_y = 0.f;
-        float target_y = entity.position.y + entity.scale.y * 0.1f + player_height;
+        float target_y = entity.position.y + entity.scale.y * 0.1f + PLAYER_HEIGHT;
         float player_y = Tachyon_Lerpf(base_y, target_y, height_alpha);
 
         AllowPlayerMovement(state, player_y, wheel_plane);
@@ -324,7 +340,7 @@ static void HandleWaterWheelCollisions(Tachyon* tachyon, State& state) {
     auto platform_plane = CollisionSystem::CreatePlane(platform_center_position, entity.scale * tVec3f(1.5f, 1.f, 0.25f), entity.orientation);
 
     if (CollisionSystem::IsPointOnPlane(player_xz, platform_plane)) {
-      float player_y = entity.position.y - entity.scale.y * 0.1f + player_height;
+      float player_y = entity.position.y - entity.scale.y * 0.1f + PLAYER_HEIGHT;
 
       AllowPlayerMovement(state, player_y, platform_plane);
     }
@@ -472,7 +488,8 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   HandleFlatGroundCollisions(tachyon, state);
 
   // Resolve collisions with irregularly-shaped entities
-  HandleBridgeCollisions(tachyon, state);
+  HandleSmallStoneBridgeCollisions(tachyon, state);
+  HandleWoodenBridgeCollisions(tachyon, state);
   HandleAltarCollisions(tachyon, state);
   HandleRiverLogCollisions(tachyon, state);
   HandleWaterWheelCollisions(tachyon, state);
