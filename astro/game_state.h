@@ -179,6 +179,16 @@ namespace astro {
 
   /**
    * ----------------------------
+   * Dialogue
+   * ----------------------------
+   */
+  struct DialogueSet {
+    bool random = false;
+    std::vector<std::string> lines;
+  };
+
+  /**
+   * ----------------------------
    * Game state
    * ----------------------------
    */
@@ -255,8 +265,8 @@ namespace astro {
     float last_dialogue_sound_time = 0.f;
     bool has_blocking_dialogue = false;
     bool dismissed_blocking_dialogue = false;
-    std::unordered_map<std::string, std::vector<std::string>> npc_dialogue;
-    std::string current_dialogue_sequence = "";
+    std::unordered_map<std::string, DialogueSet> npc_dialogue;
+    std::string current_dialogue_set = "";
     int32 current_dialogue_step = 0;
 
     // Music

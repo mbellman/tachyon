@@ -69,8 +69,8 @@ namespace astro {
               // Reset player speed
               state.player_velocity = tVec3f(0.f);
 
-              // Start dialogue sequence
-              state.current_dialogue_sequence = entity.unique_name;
+              // Start dialogue
+              state.current_dialogue_set = entity.unique_name;
               state.current_dialogue_step = 0;
             }
           }

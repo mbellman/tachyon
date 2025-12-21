@@ -2,6 +2,6 @@
 Hello, world!
 This is a dialogue test.
 
-@watermill_house
-[1] Oh, bugger off! Leave me be, why don't you!
-[2] I've nothing to do with you interlopers!
+@@watermill_house
+Oh, bugger off! Leave me be, why don't you!
+I've nothing to do with you interlopers!

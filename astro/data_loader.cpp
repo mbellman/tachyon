@@ -160,16 +160,24 @@ void DataLoader::LoadNpcDialogue(Tachyon* tachyon, State& state) {
 
   for (auto& line : lines) {
     if (line[0] == '@') {
-      // NPC
-      current_npc_name = line.substr(1);
+      // NPC or other dialogue trigger
+      DialogueSet dialogue;
 
-      state.npc_dialogue[current_npc_name] = {};
+      if (line[1] == '@') {
+        dialogue.random = true;
+
+        current_npc_name = line.substr(2);
+      } else {
+        current_npc_name = line.substr(1);
+      }
+
+      state.npc_dialogue[current_npc_name] = dialogue;
     }
     else if (line.size() > 0) {
       // Dialogue lines
-      auto& dialogue_sequence = state.npc_dialogue[current_npc_name];
+      auto& dialogue_set = state.npc_dialogue[current_npc_name];
 
-      dialogue_sequence.push_back(line);
+      dialogue_set.lines.push_back(line);
     }
   }
 }
