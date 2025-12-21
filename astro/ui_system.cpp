@@ -2,18 +2,27 @@
 
 using namespace astro;
 
-static void HandleCurrentDialogueSequence(Tachyon* tachyon, State& state) {
+static void CompleteCurrentDialogueSet(State& state) {
+  state.current_dialogue_set = "";
+  state.current_dialogue_step = 0;
+}
+
+static void HandleCurrentDialogueSet(Tachyon* tachyon, State& state) {
   auto& dialogue_set = state.npc_dialogue[state.current_dialogue_set];
 
   if (did_press_key(tKey::CONTROLLER_A)) {
-    // Show next dialogue line
-    state.current_dialogue_step++;
+    if (dialogue_set.random) {
+      CompleteCurrentDialogueSet(state);
+
+      return;
+    } else {
+      // Show next dialogue line
+      state.current_dialogue_step++;
+    }
   }
 
   if (state.current_dialogue_step > dialogue_set.lines.size() - 1) {
-    // Sequence completed
-    state.current_dialogue_set = "";
-    state.current_dialogue_step = 0;
+    CompleteCurrentDialogueSet(state);
 
     return;
   }
@@ -21,6 +30,20 @@ static void HandleCurrentDialogueSequence(Tachyon* tachyon, State& state) {
   auto& current_dialogue_line = dialogue_set.lines[state.current_dialogue_step];
 
   UISystem::ShowBlockingDialogue(tachyon, state, current_dialogue_line);
+}
+
+void UISystem::StartDialogueSet(State& state, const std::string set_name) {
+  state.current_dialogue_set = set_name;
+  state.current_dialogue_step = 0;
+
+  if (state.npc_dialogue.find(set_name) != state.npc_dialogue.end()) {
+    auto& dialogue_set = state.npc_dialogue[set_name];
+
+    if (dialogue_set.random) {
+      // For random dialogue, start on a random step in the sequence
+      state.current_dialogue_step = Tachyon_GetRandom(0, dialogue_set.lines.size() - 1);
+    }
+  }
 }
 
 void UISystem::ShowDialogue(Tachyon* tachyon, State& state, const std::string& message) {
@@ -102,6 +125,6 @@ void UISystem::HandleDialogue(Tachyon* tachyon, State& state) {
   }
 
   if (state.current_dialogue_set != "") {
-    HandleCurrentDialogueSequence(tachyon, state);
+    HandleCurrentDialogueSet(tachyon, state);
   }
 }

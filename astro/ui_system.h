@@ -5,6 +5,7 @@
 
 namespace astro {
   namespace UISystem {
+    void StartDialogueSet(State& state, const std::string set_name);
     void ShowDialogue(Tachyon* tachyon, State& state, const std::string& message);
     void ShowTransientDialogue(Tachyon* tachyon, State& state, const std::string& message);
     void ShowBlockingDialogue(Tachyon* tachyon, State& state, const std::string& message);

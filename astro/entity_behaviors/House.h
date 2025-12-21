@@ -63,15 +63,13 @@ namespace astro {
             UISystem::ShowTransientDialogue(tachyon, state, "[X] Knock");
 
             if (
-              !state.has_blocking_dialogue &&
-              did_press_key(tKey::CONTROLLER_A)
+              did_press_key(tKey::CONTROLLER_A) &&
+              !state.has_blocking_dialogue
             ) {
               // Reset player speed
               state.player_velocity = tVec3f(0.f);
 
-              // Start dialogue
-              state.current_dialogue_set = entity.unique_name;
-              state.current_dialogue_step = 0;
+              UISystem::StartDialogueSet(state, entity.unique_name);
             }
           }
         }
