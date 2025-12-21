@@ -3,6 +3,7 @@
 uniform mat4 view_projection_matrix;
 uniform vec3 transform_origin;
 uniform bool is_grass;
+uniform bool is_foliage;
 uniform vec3 foliage_mover_position;
 uniform vec3 foliage_mover_velocity;
 uniform float scene_time;
@@ -64,15 +65,15 @@ void main() {
   vec3 translation = vec3(modelMatrix[3][0], modelMatrix[3][1], modelMatrix[3][2]);
   vec3 world_space_position = model_space_position + (translation - transform_origin);
 
-  // @todo separate foliage shader?
-  // @todo handle foliage behavior in shadow map pass
+  // @todo handle grass behavior in shadow map pass
   if (is_grass) {
+    const float wind_strength = 250.0;
+    const float wind_speed = 2.0;
+
     float model_y = model_space_position.y;
     float vertex_y = vertexPosition.y;
 
     // Calculate wind
-    float wind_strength = 250.0;
-    float wind_speed = 2.0;
     float local_wind = GetFoliageLocalWind(modelMatrix, wind_speed, wind_strength);
 
     // Calculate the local drift intensity
@@ -89,6 +90,17 @@ void main() {
     foliage_mover_factor *= foliage_mover_factor;
 
     world_space_position += foliage_mover_velocity * foliage_mover_factor;
+  }
+
+  // @todo handle foliage behavior in shadow map pass
+  if (is_foliage) {
+    const float wind_strength = 10.0;
+    const float wind_speed = 1.5;
+
+    float alpha = 2.0 * scene_time + world_space_position.y * 0.002;
+
+    world_space_position.x += wind_strength * sin(wind_speed * alpha);
+    world_space_position.z += wind_strength * cos(1.3 * wind_speed * alpha);
   }
 
   gl_Position = view_projection_matrix * vec4(world_space_position, 1.0);

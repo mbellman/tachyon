@@ -735,20 +735,29 @@ static void RenderPbrMeshes(Tachyon* tachyon) {
   SetShaderBool(locations.has_texture, false);
   SetShaderMat4f(locations.view_projection_matrix, ctx.view_projection_matrix);
   SetShaderVec3f(locations.transform_origin, tachyon->scene.transform_origin);
+  SetShaderFloat(locations.scene_time, tachyon->scene.scene_time);
 
   // Render regular, untextured PBR meshes
   RenderMeshesByType(tachyon, PBR_MESH);
 
-  // Render grass PBR meshes
+  // Render grass meshes
   if (HasObjectsOfMeshType(tachyon, GRASS_MESH)) {
     SetShaderBool(locations.is_grass, true);
     SetShaderVec3f(locations.foliage_mover_position, tachyon->scene.foliage_mover_position);
     SetShaderVec3f(locations.foliage_mover_velocity, tachyon->scene.foliage_mover_velocity);
-    SetShaderFloat(locations.scene_time, tachyon->scene.scene_time);
 
     RenderMeshesByType(tachyon, GRASS_MESH);
 
     SetShaderBool(locations.is_grass, false);
+  }
+
+  // Render foliage meshes
+  if (HasObjectsOfMeshType(tachyon, FOLIAGE_MESH)) {
+    SetShaderBool(locations.is_foliage, true);
+
+    RenderMeshesByType(tachyon, FOLIAGE_MESH);
+
+    SetShaderBool(locations.is_foliage, false);
   }
 
   SetShaderBool(locations.has_texture, true);
@@ -828,8 +837,8 @@ static void RenderShadowMaps(Tachyon* tachyon) {
       if (
         record.group.disabled ||
         record.group.total_active == 0 ||
-        // @todo render grass with animation
-        (record.type != PBR_MESH && record.type != GRASS_MESH) ||
+        // @todo render grass + foliage with animation
+        (record.type != PBR_MESH && record.type != GRASS_MESH && record.type != FOLIAGE_MESH) ||
         record.shadow_cascade_ceiling <= cascade_index
       ) {
         continue;

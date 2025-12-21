@@ -30,6 +30,7 @@ struct tUniformLocations {
     has_texture,
     albedo_texture,
     is_grass,
+    is_foliage,
     foliage_mover_position,
     foliage_mover_velocity,
     scene_time

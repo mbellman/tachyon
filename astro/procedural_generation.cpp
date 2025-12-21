@@ -1137,7 +1137,7 @@ void ProceduralGeneration::RebuildAllProceduralObjects(Tachyon* tachyon, State& 
   GenerateSmallGrass(tachyon, state);
 
   GenerateGroundFlowers(tachyon, state);
-  GenerateGroundLeaves(tachyon, state);
+  // GenerateGroundLeaves(tachyon, state);
 }
 
 void ProceduralGeneration::UpdateProceduralObjects(Tachyon* tachyon, State& state) {
@@ -1151,5 +1151,5 @@ void ProceduralGeneration::UpdateProceduralObjects(Tachyon* tachyon, State& stat
 
   UpdateGroundFlowers(tachyon, state);
   UpdateBushFlowers(tachyon, state);
-  UpdateGroundLeaves(tachyon, state);
+  // UpdateGroundLeaves(tachyon, state);
 }

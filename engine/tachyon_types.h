@@ -127,7 +127,8 @@ enum tMeshType {
   ION_THRUSTER_MESH,
   WIREFRAME_MESH,
   WATER_MESH,
-  GRASS_MESH
+  GRASS_MESH,
+  FOLIAGE_MESH
 };
 
 struct tMeshGeometry {

@@ -11,10 +11,11 @@ namespace astro {
       meshes.oak_tree_branches = MODEL_MESH("./astro/3d_models/oak_tree/branches.obj", 500);
       meshes.oak_tree_leaves = MODEL_MESH("./astro/3d_models/oak_tree/leaves.obj", 500);
 
-      mesh(meshes.oak_tree_roots).shadow_cascade_ceiling = 3;
-      mesh(meshes.oak_tree_trunk).shadow_cascade_ceiling = 3;
-      mesh(meshes.oak_tree_branches).shadow_cascade_ceiling = 3;
-      mesh(meshes.oak_tree_leaves).shadow_cascade_ceiling = 3;
+      mesh(meshes.oak_tree_roots).shadow_cascade_ceiling = 2;
+      mesh(meshes.oak_tree_trunk).shadow_cascade_ceiling = 2;
+      mesh(meshes.oak_tree_branches).shadow_cascade_ceiling = 2;
+      mesh(meshes.oak_tree_leaves).type = FOLIAGE_MESH;
+      mesh(meshes.oak_tree_leaves).shadow_cascade_ceiling = 2;
 
       // mesh(meshes.oak_tree_leaves).type = GRASS_MESH;
     }
@@ -114,8 +115,11 @@ namespace astro {
         auto& leaves = objects(meshes.oak_tree_leaves)[index];
 
         leaves.position = entity.position;
-        leaves.position.y += entity.scale.y * 0.8f;
-        leaves.scale = entity.visible_scale * tVec3f(branches_size);
+        leaves.position.y += entity.scale.y * 0.1f;
+        // leaves.scale = entity.visible_scale * 1.1f * tVec3f(branches_size);
+        leaves.scale = entity.visible_scale;
+        leaves.scale.x = branches.scale.x * 1.2f;
+        leaves.scale.z = branches.scale.z * 1.2f;
         leaves.rotation = entity.orientation;
         leaves.color = leaves_color;
         leaves.material = tVec4f(0.8f, 0, 0, 1.f);
