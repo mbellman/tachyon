@@ -58,7 +58,10 @@ namespace astro {
 
         body.material = tVec4f(0.9f, 0, 0, 0);
 
+        door_left.color = tVec3f(1.f, 0.8f, 0.2f);
         door_left.material = tVec4f(0.2f, 1.f, 0, 0);
+
+        door_right.color = tVec3f(1.f, 0.8f, 0.2f);
         door_right.material = tVec4f(0.2f, 1.f, 0, 0);
 
         lock.position = UnitEntityToWorldPosition(entity, tVec3f(0.2f, -0.2f, 0));
