@@ -94,10 +94,10 @@ void main() {
 
   // @todo handle foliage behavior in shadow map pass
   if (is_foliage) {
-    const float wind_strength = 10.0;
+    const float wind_strength = 20.0;
     const float wind_speed = 1.5;
 
-    float alpha = 2.0 * scene_time + world_space_position.y * 0.002;
+    float alpha = 2.0 * scene_time + world_space_position.y * 0.006;
 
     world_space_position.x += wind_strength * sin(wind_speed * alpha);
     world_space_position.z += wind_strength * cos(1.3 * wind_speed * alpha);

@@ -206,6 +206,7 @@ namespace astro {
       // WILLOW_TREE
       willow_tree_placeholder,
       willow_tree_trunk,
+      willow_tree_branches,
 
       // RIVER_LOG
       river_log_placeholder,
@@ -485,11 +486,10 @@ namespace astro {
       .tint = tVec3f(0.3f, 0.15f, 0.1f)
     } },
 
-    // @todo
     { WILLOW_TREE, {
       .name = "Willow Tree",
-      .scale = tVec3f(500.f, 2000.f, 500.f ),
-      .tint = tVec3f(1.f, 0.6f, 0.3f )
+      .scale = tVec3f(2000.f),
+      .tint = tVec3f(1.f, 0.6f, 0.3f)
     } },
 
     { SMALL_STONE_BRIDGE, {
