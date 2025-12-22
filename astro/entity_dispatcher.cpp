@@ -13,6 +13,7 @@
 #include "astro/entity_behaviors/Lamppost.h"
 #include "astro/entity_behaviors/LightPost.h"
 #include "astro/entity_behaviors/Lilac_Bush.h"
+#include "astro/entity_behaviors/LilyPad.h"
 #include "astro/entity_behaviors/LesserGuard.h"
 #include "astro/entity_behaviors/LowGuard.h"
 #include "astro/entity_behaviors/Mushroom.h"
@@ -69,6 +70,7 @@ using namespace astro;
   behavior_macro(SHRUB, Shrub);\
   behavior_macro(FLOWER_BUSH, FlowerBush);\
   behavior_macro(LILAC_BUSH, LilacBush);\
+  behavior_macro(LILY_PAD, LilyPad);\
   behavior_macro(MUSHROOM, Mushroom);\
   behavior_macro(GLOW_FLOWER, GlowFlower);\
   behavior_macro(SMALL_STONE_BRIDGE, SmallStoneBridge);\
@@ -102,6 +104,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
     dispatch_GetEntityContainer(SHRUB, state.shrubs);
     dispatch_GetEntityContainer(FLOWER_BUSH, state.flower_bushes);
     dispatch_GetEntityContainer(LILAC_BUSH, state.lilac_bushes);
+    dispatch_GetEntityContainer(LILY_PAD, state.lily_pads);
     dispatch_GetEntityContainer(MUSHROOM, state.mushrooms);
     dispatch_GetEntityContainer(GLOW_FLOWER, state.glow_flowers);
     dispatch_GetEntityContainer(SMALL_STONE_BRIDGE, state.small_stone_bridges);

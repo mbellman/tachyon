@@ -43,7 +43,8 @@ namespace astro {
     LESSER_GUARD,
     STONE_PATH_NODE,
     SCULPTURE_1,
-    WOODEN_BRIDGE
+    WOODEN_BRIDGE,
+    LILY_PAD
   };
 
   /**
@@ -63,6 +64,7 @@ namespace astro {
     BANDIT,
     STONE_WALL,
     FLOWER_BUSH,
+    LILY_PAD,
     ITEM_PICKUP,
     GLOW_FLOWER,
     DIRT_PATH_NODE,
@@ -256,6 +258,10 @@ namespace astro {
       flower_bush_placeholder,
       flower_bush_leaves,
 
+      // LILY_PAD
+      lily_pad_placeholder,
+      lily_pad,
+
       // ITEM_PICKUP
       item_pickup_placeholder,
 
@@ -359,6 +365,7 @@ namespace astro {
     std::vector<GameEntity> shrubs;
     std::vector<GameEntity> flower_bushes;
     std::vector<GameEntity> lilac_bushes;
+    std::vector<GameEntity> lily_pads;
     std::vector<GameEntity> mushrooms;
     std::vector<GameEntity> glow_flowers;
     std::vector<GameEntity> oak_trees;
@@ -461,6 +468,12 @@ namespace astro {
       .name = "Lilac Bush",
       .scale = tVec3f(800.f),
       .tint = tVec3f(1.f, 0.4f, 1.f)
+    } },
+
+    { LILY_PAD, {
+      .name = "Lily Pad",
+      .scale = tVec3f(500.f),
+      .tint = tVec3f(0.3f, 0.7f, 0.1f)
     } },
 
     { MUSHROOM, {

@@ -48,6 +48,7 @@ namespace astro {
       for_entities(state.oak_trees) {
         auto& entity = state.oak_trees[i];
 
+        // @todo factor
         if (abs(state.player_position.x - entity.position.x) > 30000.f) continue;
         if (abs(state.player_position.z - entity.position.z) > 30000.f) continue;
 
