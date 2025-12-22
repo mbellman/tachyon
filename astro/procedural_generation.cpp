@@ -879,7 +879,7 @@ static void GenerateDirtPaths(Tachyon* tachyon, State& state) {
   {
     remove_all(meshes.rock_dirt);
 
-    for (uint16 i = 0; i < 200; i++) {
+    for (uint16 i = 0; i < 400; i++) {
       create(meshes.rock_dirt);
     }
   }
@@ -957,18 +957,25 @@ static void UpdateDirtPaths(Tachyon* tachyon, State& state) {
       path.scale = tVec3f(0.f);
     } else {
       // Add little rocks to the edges of the path
-      float size_variance = fmodf(abs(path.position.x), 100.f);
+      float size_variance = fmodf(abs(path.position.x), 150.f);
 
-      auto& rock = objects(meshes.rock_dirt)[total_rocks++];
+      auto& large_rock = objects(meshes.rock_dirt)[total_rocks++];
+      auto& small_rock = objects(meshes.rock_dirt)[total_rocks++];
 
-      rock.position = path.position;
-      rock.scale = tVec3f(50.f + size_variance);
-      rock.color = path.color;
-      rock.material = tVec4f(1.f, 0, 0, 0.1f);
+      large_rock.position = UnitObjectToWorldPosition(path, tVec3f(0.7f, 0, 0));
+      large_rock.scale = tVec3f(10.f + size_variance);
+      large_rock.rotation = path.rotation;
+      large_rock.color = tVec3f(1.f, 0.4f, 0.2f);
+      large_rock.material = tVec4f(1.f, 0, 0, 0.1f);
 
-      rock.position = UnitObjectToWorldPosition(path, tVec3f(0.8f, 0, 0));
+      small_rock.position = UnitObjectToWorldPosition(path, tVec3f(0.7f, 0, 0.8f));
+      small_rock.scale = tVec3f(20.f + size_variance * 0.3f);
+      small_rock.rotation = path.rotation;
+      small_rock.color = tVec3f(0.8f, 0.4f, 0.2f);
+      small_rock.material = tVec4f(1.f, 0, 0, 0.1f);
 
-      commit(rock);
+      commit(large_rock);
+      commit(small_rock);
     }
 
     segment.plane = CollisionSystem::CreatePlane(path.position, path.scale, path.rotation);
