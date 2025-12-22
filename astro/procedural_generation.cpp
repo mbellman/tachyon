@@ -875,6 +875,15 @@ static void GenerateDirtPaths(Tachyon* tachyon, State& state) {
 
   PathGeneration::GeneratePaths(tachyon, state, state.dirt_path_nodes, state.dirt_path_segments, meshes.dirt_path);
 
+  // Rocks and debris pieces
+  {
+    remove_all(meshes.rock_dirt);
+
+    for (uint16 i = 0; i < 200; i++) {
+      create(meshes.rock_dirt);
+    }
+  }
+
   // @todo dev mode only
   {
     std::string message = "Generated " + std::to_string(objects(meshes.dirt_path).total_active) + " dirt path segments";
@@ -893,6 +902,8 @@ static void UpdateDirtPaths(Tachyon* tachyon, State& state) {
   // @todo change by area/world position
   tVec3f path_color = tVec3f(1.f, 0.4f, 0.1f);
   const float distance_limit = 17000.f;
+
+  uint16 total_rocks = 0;
 
   // @todo @optimize We can store an array of path segment "connections" based on entity index,
   // and just iterate over nearby nodes and then update their segments, rather than iterating
@@ -941,17 +952,31 @@ static void UpdateDirtPaths(Tachyon* tachyon, State& state) {
       path.scale.x *= alpha;
     }
 
-    if (
-      age < 0.f ||
-      (remaining_time < 0.f && astro_end_time != 0.f)
-    ) {
+    if (age < 0.f || (remaining_time < 0.f && astro_end_time != 0.f)) {
+      // Path does not exist at the current astro time
       path.scale = tVec3f(0.f);
+    } else {
+      // Add little rocks to the edges of the path
+      float size_variance = fmodf(abs(path.position.x), 100.f);
+
+      auto& rock = objects(meshes.rock_dirt)[total_rocks++];
+
+      rock.position = path.position;
+      rock.scale = tVec3f(50.f + size_variance);
+      rock.color = path.color;
+      rock.material = tVec4f(1.f, 0, 0, 0.1f);
+
+      rock.position = UnitObjectToWorldPosition(path, tVec3f(0.8f, 0, 0));
+
+      commit(rock);
     }
 
     segment.plane = CollisionSystem::CreatePlane(path.position, path.scale, path.rotation);
 
     commit(path);
   }
+
+  mesh(meshes.rock_dirt).lod_1.instance_count = total_rocks;
 }
 
 /**

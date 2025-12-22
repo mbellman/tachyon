@@ -40,6 +40,7 @@ namespace astro {
 
       // Procedural path meshes
       dirt_path,
+      rock_dirt,
       stone_path,
       path_stone,
 

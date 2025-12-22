@@ -125,11 +125,13 @@ static void AddProceduralMeshes(Tachyon* tachyon, State& state) {
     mesh(meshes.ground_1_leaves).shadow_cascade_ceiling = 2;
   }
 
-  // dirt_path
+  // Dirt paths
   {
     meshes.dirt_path = MODEL_MESH("./astro/3d_models/dirt_path.obj", 10000);
+    meshes.rock_dirt = MODEL_MESH("./astro/3d_models/rock_dirt.obj", 200);
 
     mesh(meshes.dirt_path).shadow_cascade_ceiling = 0;
+    mesh(meshes.rock_dirt).shadow_cascade_ceiling = 0;
   }
 
   // stone_path
