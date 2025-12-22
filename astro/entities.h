@@ -207,6 +207,7 @@ namespace astro {
       willow_tree_placeholder,
       willow_tree_trunk,
       willow_tree_branches,
+      willow_tree_leaves,
 
       // RIVER_LOG
       river_log_placeholder,

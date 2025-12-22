@@ -9,15 +9,15 @@ namespace astro {
       meshes.oak_tree_roots = MODEL_MESH("./astro/3d_models/oak_tree/roots.obj", 500);
       meshes.oak_tree_trunk = MODEL_MESH("./astro/3d_models/oak_tree/trunk.obj", 500);
       meshes.oak_tree_branches = MODEL_MESH("./astro/3d_models/oak_tree/branches.obj", 500);
-      meshes.oak_tree_leaves = MODEL_MESH("./astro/3d_models/oak_tree/leaves.obj", 500);
+      meshes.oak_tree_leaves = MODEL_MESH_LOD_2("./astro/3d_models/oak_tree/leaves.obj", "./astro/3d_models/oak_tree/leaves_lod.obj", 500);
 
       mesh(meshes.oak_tree_roots).shadow_cascade_ceiling = 2;
       mesh(meshes.oak_tree_trunk).shadow_cascade_ceiling = 2;
       mesh(meshes.oak_tree_branches).shadow_cascade_ceiling = 2;
+
       mesh(meshes.oak_tree_leaves).type = FOLIAGE_MESH;
       mesh(meshes.oak_tree_leaves).shadow_cascade_ceiling = 2;
-
-      // mesh(meshes.oak_tree_leaves).type = GRASS_MESH;
+      mesh(meshes.oak_tree_leaves).use_lowest_lod_for_shadows = true;
     }
 
     getMeshes() {

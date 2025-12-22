@@ -63,6 +63,7 @@ static void UpdateLevelsOfDetail(Tachyon* tachyon, State& state) {
   // it's annoying to manage them here
   Tachyon_UseLodByDistance(tachyon, meshes.shrub_leaves, 35000.f);
   Tachyon_UseLodByDistance(tachyon, meshes.flower_bush_leaves, 35000.f);
+  Tachyon_UseLodByDistance(tachyon, meshes.willow_tree_leaves, 35000.f);
 }
 
 static void ShowHighestLevelsOfDetail(Tachyon* tachyon, State& state) {

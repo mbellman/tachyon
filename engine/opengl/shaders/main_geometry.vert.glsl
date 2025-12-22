@@ -97,7 +97,7 @@ void main() {
     const float wind_strength = 20.0;
     const float wind_speed = 1.5;
 
-    float alpha = 2.0 * scene_time + world_space_position.y * 0.006;
+    float alpha = 2.0 * scene_time + (world_space_position.z + world_space_position.y) * 0.002;
 
     world_space_position.x += wind_strength * sin(wind_speed * alpha);
     world_space_position.z += wind_strength * cos(1.3 * wind_speed * alpha);

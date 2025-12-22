@@ -8,12 +8,20 @@ namespace astro {
       meshes.willow_tree_placeholder = MODEL_MESH("./astro/3d_models/willow_tree/placeholder.obj", 500);
       meshes.willow_tree_trunk = MODEL_MESH("./astro/3d_models/willow_tree/trunk.obj", 500);
       meshes.willow_tree_branches = MODEL_MESH("./astro/3d_models/willow_tree/branches.obj", 500);
+      meshes.willow_tree_leaves = MODEL_MESH("./astro/3d_models/willow_tree/leaves.obj", 500);
+
+      mesh(meshes.willow_tree_trunk).shadow_cascade_ceiling = 2;
+      mesh(meshes.willow_tree_branches).shadow_cascade_ceiling = 2;
+
+      mesh(meshes.willow_tree_leaves).type = FOLIAGE_MESH;
+      mesh(meshes.willow_tree_leaves).shadow_cascade_ceiling = 2;
     }
 
     getMeshes() {
       return_meshes({
         meshes.willow_tree_trunk,
-        meshes.willow_tree_branches
+        meshes.willow_tree_branches,
+        meshes.willow_tree_leaves
       });
     }
 
@@ -74,6 +82,19 @@ namespace astro {
           commit(branches);
         }
 
+        // Leaves
+        {
+          auto& leaves = objects(meshes.willow_tree_leaves)[i];
+
+          Sync(leaves, entity);
+
+          leaves.position.y += entity.visible_scale.y * 0.15f;
+          leaves.scale = entity.scale * growth_factor;
+          leaves.color = tVec4f(0.3f, 0.5f, 0.1f, 0.5f);
+          leaves.material = tVec4f(0.8f, 0, 0, 1.f);
+
+          commit(leaves);
+        }
       }
     }
   };
