@@ -161,7 +161,7 @@ namespace astro {
 
   /**
    * ----------------------------
-   * Grass
+   * Small grass
    * ----------------------------
    */
   struct GrassBlade {
@@ -176,6 +176,16 @@ namespace astro {
     tVec3f center_position;
     std::vector<GrassBlade> grass_blades;
     bool is_currently_in_view = false;
+  };
+
+  /**
+   * ----------------------------
+   * Larger grass
+   * ----------------------------
+   */
+  struct GroundGrassCluster {
+    tVec3f position;
+    std::vector<tVec3f> grass_positions;
   };
 
   /**
@@ -223,6 +233,7 @@ namespace astro {
     std::vector<PathSegment> dirt_path_segments;
     std::vector<PathSegment> stone_path_segments;
     std::vector<GrassChunk> grass_chunks;
+    std::vector<GroundGrassCluster> ground_grass_clusters;
 
     // Targeted entities
     EntityRecord target_entity; // @todo rename target_entity_record

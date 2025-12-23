@@ -1787,6 +1787,7 @@ void LevelEditor::OpenLevelEditor(Tachyon* tachyon, State& state) {
   objects(meshes.astrolabe_hand).disabled = true;
   objects(meshes.target_reticle).disabled = true;
   objects(meshes.small_grass).disabled = true;
+  objects(meshes.grass).disabled = true;
 
   // Disable unnecessary shadows
   mesh(meshes.grass).shadow_cascade_ceiling = 0;
@@ -1876,6 +1877,7 @@ void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
   objects(meshes.astrolabe_hand).disabled = false;
   objects(meshes.target_reticle).disabled = false;
   objects(meshes.small_grass).disabled = false;
+  objects(meshes.grass).disabled = false;
 
   // Re-enable shadows for certain objects
   mesh(meshes.grass).shadow_cascade_ceiling = 2;
