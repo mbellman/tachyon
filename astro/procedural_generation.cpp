@@ -134,7 +134,8 @@ static void GenerateGrass(Tachyon* tachyon, State& state) {
     tVec3f direction = ground.rotation.getDirection();
     float theta = atan2f(direction.z, direction.x) + t_HALF_PI;
 
-    for (uint16 i = 0; i < 10; i++) {
+    // @TEMPORARY!!!!!!!!!
+    for (uint16 i = 0; i < 50; i++) {
       auto& grass = create(state.meshes.grass);
 
       float x = Tachyon_GetRandom(bounds.x[0], bounds.x[1]);
@@ -146,13 +147,16 @@ static void GenerateGrass(Tachyon* tachyon, State& state) {
       float wx = ground.position.x + (lx * cosf(theta) - lz * sinf(theta));
       float wz = ground.position.z + (lx * sinf(theta) + lz * cosf(theta));
 
+      float adjusted_scale = (ground.scale.x + ground.scale.z) / 2.f;
+      float height_alpha = 1.f - sqrtf(lx*lx + lz*lz) / adjusted_scale;
+      float y_factor = Tachyon_Lerpf(0.2f, 0.7f, height_alpha);
+
       grass.position.x = wx;
-      grass.position.y = ground.position.y + 0.3f * ground.scale.y;
+      grass.position.y = ground.position.y + y_factor * ground.scale.y;
       grass.position.z = wz;
 
       grass.scale = tVec3f(600.f);
-      // grass.color = tVec4f(0.1f, 0.3f, 0.1f, 0.2f);
-      grass.color = tVec4f(0.2f, 0.3f, 0.1f, 0.1f);
+      grass.color = tVec4f(0.1f, 0.2f, 0.1f, 0.6f);
       grass.material = tVec4f(0.8f, 0, 0, 1.f);
 
       commit(grass);
@@ -178,11 +182,11 @@ static void UpdateGrass(Tachyon* tachyon, State& state) {
   };
 
   static const float scales[] = {
+    700.f,
     800.f,
-    600.f,
-    850.f,
-    500.f,
-    700.f
+    750.f,
+    650.f,
+    600.f
   };
 
   const float growth_rate = 0.7f;
@@ -190,18 +194,22 @@ static void UpdateGrass(Tachyon* tachyon, State& state) {
   auto& player_position = state.player_position;
 
   for (auto& grass : objects(state.meshes.grass)) {
-    if (abs(grass.position.x - player_position.x) > 15000.f || abs(grass.position.z - player_position.z) > 15000.f) {
-      continue;
-    }
+    if (abs(grass.position.x - player_position.x) > 15000.f) continue;
+    if (abs(grass.position.z - player_position.z) > 15000.f) continue;
 
     float alpha = state.astro_time + grass.position.x + grass.position.z;
     int iteration = (int)abs(growth_rate * alpha / t_TAU - 0.8f);
     float rotation_angle = grass.position.x + float(iteration) * 1.3f;
 
+    float scale_factor = 0.5f + (grass.position.y - -1500.f) * 0.001f;
+    if (scale_factor > 1.5f) scale_factor = 1.5f;
+
     tVec3f base_position = grass.position;
 
     grass.position += offsets[iteration % 4];
-    grass.scale = tVec3f(scales[iteration % 5]) * 1.2f * sqrtf(0.5f + 0.5f * sinf(growth_rate * alpha));
+    grass.scale = tVec3f(scales[iteration % 5]) * sqrtf(0.5f + 0.5f * sinf(growth_rate * alpha));
+    grass.scale *= scale_factor;
+
     grass.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), rotation_angle);
 
     commit(grass);
@@ -957,7 +965,7 @@ static void UpdateDirtPaths(Tachyon* tachyon, State& state) {
       path.scale = tVec3f(0.f);
     } else {
       // Add little rocks to the edges of the path
-      float size_variance = fmodf(abs(path.position.x), 150.f);
+      float size_variance = fmodf(abs(path.position.x), 170.f);
 
       auto& large_rock = objects(meshes.rock_dirt)[total_rocks++];
       auto& small_rock = objects(meshes.rock_dirt)[total_rocks++];

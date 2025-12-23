@@ -50,7 +50,8 @@ namespace astro {
 
         // @todo factor
         if (abs(state.player_position.x - entity.position.x) > 30000.f) continue;
-        if (abs(state.player_position.z - entity.position.z) > 30000.f) continue;
+        if (entity.position.z - state.player_position.z > 12000.f) continue;
+        if (state.player_position.z - entity.position.z > 30000.f) continue;
 
         float life_progress = GetLivingEntityProgress(state, entity, lifetime);
         float growth_factor = 0.f;
@@ -117,7 +118,6 @@ namespace astro {
 
         leaves.position = entity.position;
         leaves.position.y += entity.scale.y * 0.1f;
-        // leaves.scale = entity.visible_scale * 1.1f * tVec3f(branches_size);
         leaves.scale = entity.visible_scale;
         leaves.scale.x = branches.scale.x * 1.2f;
         leaves.scale.z = branches.scale.z * 1.2f;

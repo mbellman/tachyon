@@ -78,7 +78,7 @@ static void AddProceduralMeshes(Tachyon* tachyon, State& state) {
 
   // grass
   {
-    meshes.grass = MODEL_MESH("./astro/3d_models/grass.obj", 30000);
+    meshes.grass = MODEL_MESH("./astro/3d_models/grass.obj", 60000);
 
     mesh(meshes.grass).type = GRASS_MESH;
     mesh(meshes.grass).shadow_cascade_ceiling = 2;
