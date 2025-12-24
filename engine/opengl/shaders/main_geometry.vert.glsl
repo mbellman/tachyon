@@ -84,6 +84,7 @@ void main() {
     world_space_position.x += drift_factor * sin(alpha);
     world_space_position.z += drift_factor * cos(1.5 * alpha);
 
+    // @todo refactor
     float foliage_mover_factor = 1000.0 / distance(foliage_mover_position, world_space_position);
     if (foliage_mover_factor > 1.0) foliage_mover_factor = 1.0;
     foliage_mover_factor *= foliage_mover_factor;
@@ -101,6 +102,14 @@ void main() {
 
     world_space_position.x += wind_strength * sin(wind_speed * alpha);
     world_space_position.z += wind_strength * cos(1.3 * wind_speed * alpha);
+
+    // @todo refactor
+    float foliage_mover_factor = 1000.0 / distance(foliage_mover_position, world_space_position);
+    if (foliage_mover_factor > 1.0) foliage_mover_factor = 1.0;
+    foliage_mover_factor *= foliage_mover_factor;
+    foliage_mover_factor *= foliage_mover_factor;
+
+    world_space_position += foliage_mover_velocity * foliage_mover_factor;
   }
 
   gl_Position = view_projection_matrix * vec4(world_space_position, 1.0);

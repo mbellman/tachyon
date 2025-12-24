@@ -16,9 +16,9 @@ namespace astro {
       meshes.lilac_leaves = MODEL_MESH("./astro/3d_models/shrub/leaves.obj", 500);
       meshes.lilac_flower = MODEL_MESH("./astro/3d_models/lilac_bush/flower.obj", 3000);
 
-      mesh(meshes.lilac_placeholder).type = GRASS_MESH;
-      mesh(meshes.lilac_leaves).type = GRASS_MESH;
-      mesh(meshes.lilac_flower).type = GRASS_MESH;
+      mesh(meshes.lilac_placeholder).type = FOLIAGE_MESH;
+      mesh(meshes.lilac_leaves).type = FOLIAGE_MESH;
+      mesh(meshes.lilac_flower).type = FOLIAGE_MESH;
     }
 
     getMeshes() {

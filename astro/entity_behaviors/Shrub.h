@@ -8,8 +8,8 @@ namespace astro {
       meshes.shrub_placeholder = MODEL_MESH("./astro/3d_models/shrub/placeholder.obj", 500);
       meshes.shrub_leaves = MODEL_MESH("./astro/3d_models/shrub/leaves.obj", 500);
 
-      mesh(meshes.shrub_placeholder).type = GRASS_MESH;
-      mesh(meshes.shrub_leaves).type = GRASS_MESH;
+      mesh(meshes.shrub_placeholder).type = FOLIAGE_MESH;
+      mesh(meshes.shrub_leaves).type = FOLIAGE_MESH;
     }
 
     getMeshes() {
