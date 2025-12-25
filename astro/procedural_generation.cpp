@@ -118,28 +118,34 @@ static void UpdateBloomingFlower(tObject& flower, const tVec3f& blossom_color, c
 
 /**
  * ----------------------------
- * Grass
+ * ground_1 plants
  * ----------------------------
  */
-static void GenerateGrass(Tachyon* tachyon, State& state) {
-  log_time("GenerateGrass()");
+static void GenerateGround1Plants(Tachyon* tachyon, State& state) {
+  log_time("GenerateGround1Plants()");
 
-  // Reset grass objects
+  // Reset objects
   {
     remove_all(state.meshes.grass);
+    remove_all(state.meshes.ground_1_flower);
 
     for (uint16 i = 0; i < 10000; i++) {
       create(state.meshes.grass);
+    }
+
+    for (uint16 i = 0; i < 1000; i++) {
+      create(state.meshes.ground_1_flower);
     }
   }
 
   // Reset clusters
   {
-    for (auto& cluster : state.ground_grass_clusters) {
+    for (auto& cluster : state.ground_plant_clusters) {
       cluster.grass_positions.clear();
+      cluster.flower_positions.clear();
     }
 
-    state.ground_grass_clusters.clear();
+    state.ground_plant_clusters.clear();
   }
 
   // Create new clusters
@@ -150,11 +156,12 @@ static void GenerateGrass(Tachyon* tachyon, State& state) {
     tVec3f direction = ground.rotation.getDirection();
     float theta = atan2f(direction.z, direction.x) + t_HALF_PI;
 
-    GroundGrassCluster cluster;
+    GroundPlantCluster cluster;
     cluster.position = ground.position;
 
-    // Generate grass pieces within the cluster
+    // Generate grass pieces
     for (uint16 i = 0; i < 50; i++) {
+      // @todo factor
       float x = Tachyon_GetRandom(bounds.x[0], bounds.x[1]);
       float z = Tachyon_GetRandom(bounds.z[0], bounds.z[1]);
 
@@ -175,20 +182,43 @@ static void GenerateGrass(Tachyon* tachyon, State& state) {
       });
     }
 
+    // Generate flowers
+    for (uint16 i = 0; i < 5; i++) {
+      // @todo factor
+      float x = Tachyon_GetRandom(bounds.x[0], bounds.x[1]);
+      float z = Tachyon_GetRandom(bounds.z[0], bounds.z[1]);
+
+      float lx = x - ground.position.x;
+      float lz = z - ground.position.z;
+
+      float wx = ground.position.x + (lx * cosf(theta) - lz * sinf(theta));
+      float wz = ground.position.z + (lx * sinf(theta) + lz * cosf(theta));
+
+      float adjusted_scale = (ground.scale.x + ground.scale.z) / 2.f;
+      float height_alpha = 1.f - sqrtf(lx*lx + lz*lz) / adjusted_scale;
+      float y_factor = Tachyon_Lerpf(0.4f, 0.7f, height_alpha);
+
+      cluster.flower_positions.push_back({
+        wx,
+        ground.position.y + y_factor * ground.scale.y,
+        wz
+      });
+    }
+
     // Save the cluster
-    state.ground_grass_clusters.push_back(cluster);
+    state.ground_plant_clusters.push_back(cluster);
   }
 
   // @todo dev mode only
   {
-    std::string message = "Generated " + std::to_string(state.ground_grass_clusters.size()) + " grass clusters";
+    std::string message = "Generated " + std::to_string(state.ground_plant_clusters.size()) + " grass clusters";
 
     console_log(message);
   }
 }
 
-static void UpdateGrass(Tachyon* tachyon, State& state) {
-  profile("UpdateGrass()");
+static void UpdateGround1Plants(Tachyon* tachyon, State& state) {
+  profile("UpdateGround1Plants()");
 
   static const tVec3f offsets[] = {
     tVec3f(0, 0, 0),
@@ -210,12 +240,14 @@ static void UpdateGrass(Tachyon* tachyon, State& state) {
   auto& player_position = state.player_position;
 
   uint16 total_grass = 0;
+  uint16 total_flowers = 0;
 
-  for (auto& cluster : state.ground_grass_clusters) {
+  for (auto& cluster : state.ground_plant_clusters) {
     if (abs(cluster.position.x - player_position.x) > 15000.f) continue;
     if (abs(cluster.position.z - player_position.z) > 20000.f) continue;
 
     for (auto& position : cluster.grass_positions) {
+      // @todo factor
       float alpha = state.astro_time + position.x + position.z;
       int iteration = (int)abs(growth_rate * alpha / t_TAU - 0.8f);
       float rotation_angle = position.x + float(iteration) * 1.3f;
@@ -236,9 +268,34 @@ static void UpdateGrass(Tachyon* tachyon, State& state) {
 
       commit(grass);
     }
+
+    for (auto& position : cluster.flower_positions) {
+      // @todo factor
+      float alpha = state.astro_time + position.x + position.z;
+      int iteration = (int)abs(growth_rate * alpha / t_TAU - 0.8f);
+      float rotation_angle = position.x + float(iteration) * 1.3f;
+
+      float scale_factor = 0.5f + (position.y - -1500.f) * 0.001f;
+      if (scale_factor > 1.5f) scale_factor = 1.5f;
+      scale_factor *= 0.2f;
+
+      auto& flower = objects(state.meshes.ground_1_flower)[total_flowers++];
+
+      flower.position = position + offsets[iteration % 4];
+      flower.scale = tVec3f(scales[iteration % 5]) * sqrtf(0.5f + 0.5f * sinf(growth_rate * alpha));
+      flower.scale *= scale_factor;
+
+      flower.color = tVec4f(0.8f, 0.3f, 0.3f, 0);
+      flower.material = tVec4f(0.8f, 0, 0, 0.7f);
+
+      flower.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), rotation_angle);
+
+      commit(flower);
+    }
   }
 
   mesh(state.meshes.grass).lod_1.instance_count = total_grass;
+  mesh(state.meshes.ground_1_flower).lod_1.instance_count = total_flowers;
 
   // @todo dev mode only
   {
@@ -849,55 +906,6 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
 
 /**
  * ----------------------------
- * Ground leaves
- * ----------------------------
- */
-static void GenerateGroundLeaves(Tachyon* tachyon, State& state) {
-  remove_all(state.meshes.ground_1_leaves);
-
-  for (int i = 0; i < 200; i++) {
-    commit(create(state.meshes.ground_1_leaves));
-  }
-}
-
-static void UpdateGroundLeaves(Tachyon* tachyon, State& state) {
-  auto& meshes = state.meshes;
-  uint16 index = 0;
-
-  // @todo factor
-  auto& camera = tachyon->scene.camera;
-  // @hack Invert y to get the proper direction. Probably a mistake somewhere.
-  tVec3f camera_direction = camera.rotation.getDirection() * tVec3f(1.f, -1.f, 1.f);
-  float camera_height = camera.position.y - -1500.f;
-  float distance = -camera_height / camera_direction.y;
-  tVec3f camera_center = camera.position + camera_direction * distance;
-
-  // for (auto& ground : objects(state.meshes.ground_1)) {
-  for_entities(state.oak_trees) {
-    auto& entity = state.oak_trees[i];
-
-    float distance = tVec3f::distance(entity.position, camera_center);
-
-    if (distance < 20000 && entity.position.y > -2500.f) {
-      auto& leaves = objects(meshes.ground_1_leaves)[index++];
-      float rotation_angle = fmodf(entity.position.x, t_TAU);
-
-      leaves.position = entity.position;
-      leaves.position.y = entity.position.y - 1.2f * entity.scale.y;
-      leaves.scale = entity.scale * 1.2f;
-      leaves.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), rotation_angle);
-      leaves.color = tVec3f(0.2f, 0.3f, 0.1f);
-      leaves.material = tVec4f(1.f, 0, 0, 0.5f);
-
-      commit(leaves);
-    }
-  }
-
-  mesh(state.meshes.ground_1_leaves).lod_1.instance_count = index;
-}
-
-/**
- * ----------------------------
  * Dirt paths
  * ----------------------------
  */
@@ -1200,11 +1208,10 @@ void ProceduralGeneration::RebuildSimpleProceduralObjects(Tachyon* tachyon, Stat
 void ProceduralGeneration::RebuildAllProceduralObjects(Tachyon* tachyon, State& state) {
   RebuildSimpleProceduralObjects(tachyon, state);
 
-  GenerateGrass(tachyon, state);
+  GenerateGround1Plants(tachyon, state);
   GenerateSmallGrass(tachyon, state);
 
   GenerateGroundFlowers(tachyon, state);
-  // GenerateGroundLeaves(tachyon, state);
 }
 
 void ProceduralGeneration::UpdateProceduralObjects(Tachyon* tachyon, State& state) {
@@ -1213,10 +1220,9 @@ void ProceduralGeneration::UpdateProceduralObjects(Tachyon* tachyon, State& stat
   UpdateDirtPaths(tachyon, state);
   UpdateStonePaths(tachyon, state);
 
-  UpdateGrass(tachyon, state);
+  UpdateGround1Plants(tachyon, state);
   UpdateSmallGrass(tachyon, state);
 
   UpdateGroundFlowers(tachyon, state);
   UpdateBushFlowers(tachyon, state);
-  // UpdateGroundLeaves(tachyon, state);
 }

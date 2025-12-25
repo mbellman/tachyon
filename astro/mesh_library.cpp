@@ -78,7 +78,7 @@ static void AddProceduralMeshes(Tachyon* tachyon, State& state) {
 
   // grass
   {
-    meshes.grass = MODEL_MESH("./astro/3d_models/grass.obj", 10000);
+    meshes.grass = MODEL_MESH("./astro/3d_models/ground_1_grass.obj", 10000);
 
     mesh(meshes.grass).type = GRASS_MESH;
     mesh(meshes.grass).shadow_cascade_ceiling = 2;
@@ -106,7 +106,15 @@ static void AddProceduralMeshes(Tachyon* tachyon, State& state) {
     meshes.tiny_ground_flower = MODEL_MESH("./astro/3d_models/tiny_flower.obj", 20000);
 
     mesh(meshes.tiny_ground_flower).type = GRASS_MESH;
-    mesh(meshes.tiny_ground_flower).shadow_cascade_ceiling = 2;
+    mesh(meshes.tiny_ground_flower).shadow_cascade_ceiling = 0;
+  }
+
+  // ground_1_flower
+  {
+    meshes.ground_1_flower = MODEL_MESH("./astro/3d_models/ground_1_flower.obj", 1000);
+
+    mesh(meshes.ground_1_flower).type = GRASS_MESH;
+    mesh(meshes.ground_1_flower).shadow_cascade_ceiling = 0;
   }
 
   // bush_flower
@@ -115,14 +123,6 @@ static void AddProceduralMeshes(Tachyon* tachyon, State& state) {
 
     mesh(meshes.bush_flower).type = GRASS_MESH;
     mesh(meshes.bush_flower).shadow_cascade_ceiling = 2;
-  }
-
-  // ground_1_leaves
-  {
-    meshes.ground_1_leaves = MODEL_MESH("./astro/3d_models/ground_1_leaves.obj", 200);
-
-    mesh(meshes.ground_1_leaves).type = GRASS_MESH;
-    mesh(meshes.ground_1_leaves).shadow_cascade_ceiling = 2;
   }
 
   // Dirt paths

@@ -31,12 +31,12 @@ namespace astro {
       snow_particle,
 
       // Procedural meshes
-      grass,
+      grass, // @todo rename ground_1_grass
       small_grass,
       ground_flower,
       tiny_ground_flower,
+      ground_1_flower,
       bush_flower,
-      ground_1_leaves,
 
       // Procedural path meshes
       dirt_path,
@@ -183,9 +183,10 @@ namespace astro {
    * Larger grass
    * ----------------------------
    */
-  struct GroundGrassCluster {
+  struct GroundPlantCluster {
     tVec3f position;
     std::vector<tVec3f> grass_positions;
+    std::vector<tVec3f> flower_positions;
   };
 
   /**
@@ -233,7 +234,7 @@ namespace astro {
     std::vector<PathSegment> dirt_path_segments;
     std::vector<PathSegment> stone_path_segments;
     std::vector<GrassChunk> grass_chunks;
-    std::vector<GroundGrassCluster> ground_grass_clusters;
+    std::vector<GroundPlantCluster> ground_plant_clusters;
 
     // Targeted entities
     EntityRecord target_entity; // @todo rename target_entity_record
