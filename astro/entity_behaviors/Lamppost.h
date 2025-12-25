@@ -35,6 +35,8 @@ namespace astro {
 
           Sync(stand, entity);
 
+          stand.material = tVec4f(0.9f, 0, 0, 0);
+
           commit(stand);
         }
 

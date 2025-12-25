@@ -231,7 +231,7 @@ static void HandleMusicLevels(Tachyon* tachyon, State& state) {
     // Background music
     {
       if (IsInStealthMode(state) || Targeting::IsInCombatMode(state)) {
-        BGM::FadeCurrentMusicVolumeTo(0.1f, 500);
+        BGM::FadeCurrentMusicVolumeTo(0.3f, 500);
       }
       else if (state.astro_turn_speed != 0.f) {
         BGM::FadeCurrentMusicVolumeTo(0.f, 500);
