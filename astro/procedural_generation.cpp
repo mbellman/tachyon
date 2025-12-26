@@ -243,7 +243,8 @@ static void UpdateGround1Plants(Tachyon* tachyon, State& state) {
   uint16 total_flowers = 0;
 
   for (auto& cluster : state.ground_plant_clusters) {
-    if (abs(cluster.position.x - player_position.x) > 15000.f) continue;
+    // @todo factor
+    if (abs(cluster.position.x - player_position.x) > 20000.f) continue;
     if (abs(cluster.position.z - player_position.z) > 20000.f) continue;
 
     for (auto& position : cluster.grass_positions) {

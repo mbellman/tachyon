@@ -25,7 +25,7 @@ namespace astro {
     timeEvolve() {
       auto& meshes = state.meshes;
 
-      const tVec3f default_color = tVec3f(0.3f, 0.7f, 0.1f);
+      const tVec3f default_color = tVec3f(0.3f, 0.5f, 0.1f);
 
       for_entities(state.lily_pads) {
         auto& entity = state.lily_pads[i];
