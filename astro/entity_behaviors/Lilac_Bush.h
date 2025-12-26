@@ -11,9 +11,9 @@ namespace astro {
     }
 
     addMeshes() {
-      // @todo use own model for placeholder + leaves
+      // @todo use own model for placeholder
       meshes.lilac_placeholder = MODEL_MESH("./astro/3d_models/shrub/placeholder.obj", 500);
-      meshes.lilac_leaves = MODEL_MESH("./astro/3d_models/shrub/leaves.obj", 500);
+      meshes.lilac_leaves = MODEL_MESH("./astro/3d_models/lilac_bush/leaves.obj", 500);
       meshes.lilac_flower = MODEL_MESH("./astro/3d_models/lilac_bush/flower.obj", 3000);
 
       mesh(meshes.lilac_placeholder).type = FOLIAGE_MESH;

@@ -196,7 +196,9 @@ namespace astro {
     uint16
       // SHRUB
       shrub_placeholder,
-      shrub_leaves,
+      shrub_bottom,
+      shrub_middle,
+      shrub_top,
 
       // OAK_TREE
       oak_tree_placeholder,

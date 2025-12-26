@@ -60,7 +60,6 @@ static void UpdateLevelsOfDetail(Tachyon* tachyon, State& state) {
   // Entity parts
   // @todo handle distance LoD stuff in entity behavior files;
   // it's annoying to manage them here
-  Tachyon_UseLodByDistance(tachyon, meshes.shrub_leaves, 35000.f);
   Tachyon_UseLodByDistance(tachyon, meshes.flower_bush_leaves, 35000.f);
   Tachyon_UseLodByDistance(tachyon, meshes.willow_tree_leaves, 35000.f);
 }

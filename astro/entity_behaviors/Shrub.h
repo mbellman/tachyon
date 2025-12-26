@@ -4,17 +4,44 @@
 
 namespace astro {
   behavior Shrub {
+    static void ApplyDefaultProperties(GameEntity& entity, tObject& leaves) {
+      const tVec3f leaves_color = tVec3f(0.07f, 0.14f, 0.07f);
+
+      leaves.position = entity.position;
+      leaves.position.y -= (entity.scale.y - leaves.scale.y);
+
+      leaves.rotation = entity.orientation;
+      leaves.color = leaves_color;
+      leaves.material = tVec4f(0.7f, 0, 0, 0.2f);
+    }
+
+    static float GetGrowthFactor(const float life_progress, const float offset) {
+      float growth_factor = sinf((life_progress + offset) * t_PI);
+
+      if (life_progress == 0.f || life_progress == 1.f) {
+        growth_factor = 0.f;
+      }
+
+      return growth_factor;
+    }
+
     addMeshes() {
       meshes.shrub_placeholder = MODEL_MESH("./astro/3d_models/shrub/placeholder.obj", 500);
-      meshes.shrub_leaves = MODEL_MESH("./astro/3d_models/shrub/leaves.obj", 500);
+      meshes.shrub_bottom = MODEL_MESH("./astro/3d_models/shrub/bottom.obj", 500);
+      meshes.shrub_middle = MODEL_MESH("./astro/3d_models/shrub/middle.obj", 500);
+      meshes.shrub_top = MODEL_MESH("./astro/3d_models/shrub/top.obj", 500);
 
       mesh(meshes.shrub_placeholder).type = FOLIAGE_MESH;
-      mesh(meshes.shrub_leaves).type = FOLIAGE_MESH;
+      mesh(meshes.shrub_bottom).type = FOLIAGE_MESH;
+      mesh(meshes.shrub_middle).type = FOLIAGE_MESH;
+      mesh(meshes.shrub_top).type = FOLIAGE_MESH;
     }
 
     getMeshes() {
       return_meshes({
-        meshes.shrub_leaves
+        meshes.shrub_bottom,
+        meshes.shrub_middle,
+        meshes.shrub_top
       });
     }
 
@@ -30,38 +57,73 @@ namespace astro {
       const float lifetime = 100.f;
       const tVec3f leaves_color = tVec3f(0.07f, 0.14f, 0.07f);
 
-      // @todo @optimize don't update shrubs out of range
+      uint16 shrub_index = 0;
+
       for_entities(state.shrubs) {
         auto& entity = state.shrubs[i];
+
+        if (abs(state.player_position.x - entity.position.x) > 25000.f) continue;
+        if (abs(state.player_position.z - entity.position.z) > 25000.f) continue;
+
         float life_progress = GetLivingEntityProgress(state, entity, lifetime);
 
-        // @todo factor
-        auto& leaves = objects(meshes.shrub_leaves)[i];
+        // Bottom
+        {
+          auto& bottom = objects(meshes.shrub_bottom)[shrub_index];
 
-        leaves.scale = entity.scale * sinf(life_progress * t_PI);
+          bottom.scale = entity.scale * GetGrowthFactor(life_progress, 0.f);
 
-        if (life_progress == 0.f || life_progress == 1.f) {
-          // Not yet started growing, or dead
-          leaves.scale = tVec3f(0.f);
+          // @todo factor
+          if (life_progress > 0.5f && life_progress != 1.f) {
+            bottom.scale.x = entity.scale.x;
+            bottom.scale.z = entity.scale.z;
+          }
+
+          ApplyDefaultProperties(entity, bottom);
+
+          commit(bottom);
         }
-        else if (life_progress > 0.5f) {
-          leaves.scale.x = entity.scale.x;
-          leaves.scale.z = entity.scale.z;
+
+        // Middle
+        {
+          auto& middle = objects(meshes.shrub_middle)[shrub_index];
+
+          middle.scale = entity.scale * GetGrowthFactor(life_progress, -0.15f);
+
+          // @todo factor
+          if (life_progress > 0.5f && life_progress != 1.f) {
+            middle.scale.x = entity.scale.x;
+            middle.scale.z = entity.scale.z;
+          }
+
+          ApplyDefaultProperties(entity, middle);
+
+          commit(middle);
         }
 
-        leaves.position = entity.position;
-        leaves.position.y -= (entity.scale.y - leaves.scale.y);
+        // Top
+        {
+          auto& top = objects(meshes.shrub_top)[shrub_index];
 
-        leaves.rotation = entity.orientation;
-        leaves.color = leaves_color;
-        leaves.material = tVec4f(0.7f, 0, 0, 0.2f);
+          top.scale = entity.scale * GetGrowthFactor(life_progress, -0.3f);
+
+          // @todo factor
+          if (life_progress > 0.5f && life_progress != 1.f) {
+            top.scale.x = entity.scale.x;
+            top.scale.z = entity.scale.z;
+          }
+
+          ApplyDefaultProperties(entity, top);
+
+          commit(top);
+        }
 
         // Collision
-        entity.visible_position = leaves.position;
-        entity.visible_scale = leaves.scale;
-        entity.visible_rotation = leaves.rotation;
+        entity.visible_position = entity.position;
+        entity.visible_scale = entity.scale * GetGrowthFactor(life_progress, 0.f);
+        entity.visible_rotation = entity.orientation;
 
-        commit(leaves);
+        shrub_index++;
       }
     }
   };
