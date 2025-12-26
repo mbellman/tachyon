@@ -32,9 +32,16 @@ namespace astro {
       meshes.shrub_top = MODEL_MESH("./astro/3d_models/shrub/top.obj", 500);
 
       mesh(meshes.shrub_placeholder).type = FOLIAGE_MESH;
+      mesh(meshes.shrub_placeholder).shadow_cascade_ceiling = 2;
+
       mesh(meshes.shrub_bottom).type = FOLIAGE_MESH;
+      mesh(meshes.shrub_bottom).shadow_cascade_ceiling = 2;
+
       mesh(meshes.shrub_middle).type = FOLIAGE_MESH;
+      mesh(meshes.shrub_middle).shadow_cascade_ceiling = 2;
+
       mesh(meshes.shrub_top).type = FOLIAGE_MESH;
+      mesh(meshes.shrub_top).shadow_cascade_ceiling = 2;
     }
 
     getMeshes() {
@@ -125,6 +132,10 @@ namespace astro {
 
         shrub_index++;
       }
+
+      mesh(meshes.shrub_bottom).lod_1.instance_count = shrub_index;
+      mesh(meshes.shrub_middle).lod_1.instance_count = shrub_index;
+      mesh(meshes.shrub_top).lod_1.instance_count = shrub_index;
     }
   };
 }

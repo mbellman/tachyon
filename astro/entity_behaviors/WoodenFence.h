@@ -69,9 +69,10 @@ namespace astro {
             post.scale = entity.scale;
 
             // Middle posts
-            if (index == 1 || index == 2 || index == 3) {
+            if (index > 0 && index < 4) {
               // Offset behind beams
-              post.position -= z_offset * 200.f;
+              post.position -= z_offset * 150.f;
+              post.position.y -= 200.f;
 
               // Tilt
               Quaternion tilt_rotation = tilt_rotations[int(abs(post.position.x)) % 3];
@@ -80,7 +81,7 @@ namespace astro {
 
               // Make thinner
               post.scale.x *= 0.6f;
-              post.scale.z *= 0.6f;
+              post.scale.z *= 0.4f;
             }
 
             // Reveal posts only after a bit of time
@@ -91,7 +92,7 @@ namespace astro {
 
             if (age == 0.f) post.scale = tVec3f(0.f);
 
-            post.color = tVec3f(1.f, 0.8f, 0.4f);
+            post.color = tVec3f(0.7f, 0.5f, 0.2f);
 
             commit(post);
           }
@@ -105,7 +106,7 @@ namespace astro {
           top_beam.position = bottom_beam.position = entity.position;
           top_beam.scale = bottom_beam.scale = entity.scale;
           top_beam.rotation = bottom_beam.rotation = entity.orientation;
-          top_beam.color = bottom_beam.color = tVec3f(1.f, 0.8f, 0.4f);
+          top_beam.color = bottom_beam.color = tVec3f(0.7f, 0.5f, 0.2f);
 
           top_beam.position.y += 1.f * entity.scale.y;
           bottom_beam.position.y += 0.4f * entity.scale.y;
