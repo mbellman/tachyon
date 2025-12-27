@@ -283,7 +283,7 @@ void main() {
   const vec3 base_underwater_color = vec3(0.4, 0.6, 0.9);
 
   // Shadow term
-  float shadow_factor = GetPrimaryLightShadowFactor(fragPosition - N * 500.0);
+  float shadow_factor = GetPrimaryLightShadowFactor(fragPosition - N * 200.0);
 
   // Sample objects beneath the surface of the water.
   // For now we just sample depth and fade to a light
@@ -337,7 +337,7 @@ void main() {
 
   // Shadows
   {
-    out_color = mix(out_color, base_water_color, shadow_factor * 0.5);
+    out_color = mix(out_color, base_water_color, shadow_factor * 0.8);
   }
 
   // @todo fog
