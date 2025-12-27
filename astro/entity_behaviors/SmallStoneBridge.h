@@ -36,13 +36,13 @@ namespace astro {
         base.position = bridge.position;
         base.scale = bridge.scale;
         base.rotation = bridge.orientation;
-        base.color = bridge.tint;
+        base.color = tVec3f(0.6f, 0.5f, 0.4f);
         base.material = tVec4f(1.f, 0, 0, 0);
 
         columns.position = bridge.position;
         columns.scale = bridge.scale;
         columns.rotation = bridge.orientation;
-        columns.color = bridge.tint;
+        columns.color = tVec3f(0.6f, 0.5f, 0.4f);
         columns.material = tVec4f(1.f, 0, 0, 0);
 
         if (age < 8.f) base.scale = tVec3f(0.f);

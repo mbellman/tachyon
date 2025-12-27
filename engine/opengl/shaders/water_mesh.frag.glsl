@@ -251,7 +251,7 @@ void main() {
   float wz = fragPosition.z;
 
   // Noise/turbulence
-  N.xz += 0.1 * vec2(simplex_noise(vec2(water_speed * 0.5 + wx * 0.0005, water_speed * 0.5 + wz * 0.0005)));
+  N.xz += 0.2 * vec2(simplex_noise(vec2(water_speed * 0.5 + wx * 0.0005, water_speed * 0.5 + wz * 0.0005)));
   N.xz += 0.05 * vec2(simplex_noise(vec2(water_speed * 0.5 + wx * 0.002, water_speed * 0.5 + wz * 0.002)));
   // N.xz += 0.01 * vec2(simplex_noise(vec2(time * 0.5 + wx * 0.004, time * 0.5 + wz * 0.004)));
 
@@ -280,7 +280,7 @@ void main() {
   vec3 out_color = vec3(0.0);
 
   const vec3 base_water_color = vec3(0, 0.1, 0.3);
-  const vec3 base_underwater_color = vec3(0.4, 0.6, 0.9);
+  const vec3 base_underwater_color = vec3(0.3, 0.5, 0.8);
 
   // Shadow term
   float shadow_factor = GetPrimaryLightShadowFactor(fragPosition - N * 200.0);
@@ -321,7 +321,7 @@ void main() {
     reflection_color += GetReflectionColor(R);
 
     // Light reflection
-    reflection_color += 3.0 * vec3(1.0, 1.0, 0.6) * pow(hRdotL, 2.0);
+    reflection_color += 5.0 * vec3(1.0, 1.0, 0.6) * pow(RdotL, 5.0);
 
     // Apply ambient reflections
     float fresnel_factor = pow(max(0.0, dot(R, -V)), 2.0);
@@ -331,7 +331,7 @@ void main() {
 
     if (shadow_factor < 1.0) {
       // Highlights
-      out_color += 4.0 * vec3(1.0, 0.9, 0.6) * pow(hRdotL, 50.0) * smoothstep(0.2, 0.4, 1.0 - RdotU);
+      out_color += 4.0 * vec3(1.0, 0.9, 0.6) * pow(hRdotL, 100.0) * smoothstep(0.2, 0.4, 1.0 - RdotU);
     }
   }
 
