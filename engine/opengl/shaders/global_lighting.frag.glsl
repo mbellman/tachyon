@@ -234,7 +234,6 @@ float GetAverageShadowFactor(sampler2D shadow_map, vec3 light_space_position, in
   return shadow_factor / 5.0;
 }
 
-// @todo fade out far cascade
 float GetPrimaryLightShadowFactor(vec3 world_position) {
   int cascade_index = GetCascadeIndex(world_position);
   vec4 light_space_position = light_matrices[cascade_index] * vec4(world_position, 1.0);

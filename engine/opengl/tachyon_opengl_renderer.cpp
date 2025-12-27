@@ -992,7 +992,11 @@ static void RenderPostMeshes(Tachyon* tachyon) {
   if (HasObjectsOfMeshType(tachyon, WATER_MESH)) {
     auto& shader = renderer.shaders.water_mesh;
     auto& locations = renderer.shaders.locations.water_mesh;
+    auto& camera = tachyon->scene.camera;
     auto& fx = tachyon->fx;
+
+    // @todo allow multiple directional lights
+    auto& primary_light_direction = tachyon->scene.primary_light_direction;
 
     renderer.g_buffer.read();
 
@@ -1005,6 +1009,14 @@ static void RenderPostMeshes(Tachyon* tachyon) {
     SetShaderVec3f(locations.primary_light_direction, scene.primary_light_direction);
     SetShaderInt(locations.previous_color_and_depth, ACCUMULATION_COLOR_AND_DEPTH);
     SetShaderInt(locations.in_normal_and_depth, G_BUFFER_NORMALS_AND_DEPTH);
+    SetShaderInt(locations.in_shadow_map_cascade_1, DIRECTIONAL_SHADOW_MAP_CASCADE_1);
+    SetShaderInt(locations.in_shadow_map_cascade_2, DIRECTIONAL_SHADOW_MAP_CASCADE_2);
+    SetShaderInt(locations.in_shadow_map_cascade_3, DIRECTIONAL_SHADOW_MAP_CASCADE_3);
+    SetShaderInt(locations.in_shadow_map_cascade_4, DIRECTIONAL_SHADOW_MAP_CASCADE_4);
+    SetShaderMat4f(locations.light_matrix_cascade_1, CreateCascadedLightMatrix(0, primary_light_direction, camera));
+    SetShaderMat4f(locations.light_matrix_cascade_2, CreateCascadedLightMatrix(1, primary_light_direction, camera));
+    SetShaderMat4f(locations.light_matrix_cascade_3, CreateCascadedLightMatrix(2, primary_light_direction, camera));
+    SetShaderMat4f(locations.light_matrix_cascade_4, CreateCascadedLightMatrix(3, primary_light_direction, camera));
     SetShaderFloat(locations.accumulation_blur_factor, fx.accumulation_blur_factor);
     SetShaderFloat(locations.time, fx.water_time);
 

@@ -7,6 +7,15 @@ uniform float time;
 uniform sampler2D previous_color_and_depth;
 uniform sampler2D in_normal_and_depth;
 
+uniform sampler2D in_shadow_map_cascade_1;
+uniform sampler2D in_shadow_map_cascade_2;
+uniform sampler2D in_shadow_map_cascade_3;
+uniform sampler2D in_shadow_map_cascade_4;
+uniform mat4 light_matrix_cascade_1;
+uniform mat4 light_matrix_cascade_2;
+uniform mat4 light_matrix_cascade_3;
+uniform mat4 light_matrix_cascade_4;
+
 // Frame blur
 uniform float accumulation_blur_factor;
 
@@ -127,6 +136,104 @@ vec2 GetScreenUvs(vec2 screen_coordinates) {
   return sample_uv;
 }
 
+/**
+ * Returns a value within the range -1.0 - 1.0, constant
+ * in screen space, acting as a noise filter.
+ */
+float noise(float seed) {
+  return 2.0 * (fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * seed * 43758.545312) - 0.5);
+}
+
+const mat4[] light_matrices = {
+  light_matrix_cascade_1,
+  light_matrix_cascade_2,
+  light_matrix_cascade_3,
+  light_matrix_cascade_4
+};
+
+int GetCascadeIndex(vec3 world_position) {
+  float camera_distance = length(camera_position - world_position);
+
+  // @todo make these depend on defined cascade ranges
+  if (camera_distance < 19000.0) {
+    return 0;
+  } else if (camera_distance < 50000.0) {
+    return 1;
+  } else if (camera_distance < 100000.0) {
+    return 2;
+  } else {
+    return 3;
+  }
+}
+
+float GetAverageShadowFactor(sampler2D shadow_map, vec3 light_space_position, int cascade_index) {
+  const vec2 texel_size = 1.0 / vec2(2048.0);
+  float t = fract(time);
+
+  const float[] biases = {
+    0.0002,
+    0.0004,
+    0.0008,
+    0.0008
+  };
+
+  const float[] spatial_spread_per_cascade = {
+    4.0,
+    2.0,
+    3.0,
+    1.5
+  };
+
+  const vec2[] offsets = {
+    vec2(0.0),
+    vec2(noise(1.0 + t), noise(2.0 + t)),
+    vec2(noise(3.0 + t), noise(4.0 + t)),
+    vec2(noise(5.0 + t), noise(6.0 + t)),
+    vec2(noise(7.0 + t), noise(8.0 + t)),
+  };
+
+  const float bias = biases[cascade_index];
+  const float spread = spatial_spread_per_cascade[cascade_index];
+
+  float shadow_factor = 0.0;
+
+  for (int i = 0; i < 5; i++) {
+    vec4 shadow_sample = texture(shadow_map, light_space_position.xy + spread * offsets[i] * texel_size);
+
+    if (shadow_sample.r >= light_space_position.z - bias) {
+      shadow_factor += 1.0;
+    }
+  }
+
+  return 1.0 - shadow_factor / 5.0;
+}
+
+float GetPrimaryLightShadowFactor(vec3 world_position) {
+  int cascade_index = GetCascadeIndex(world_position);
+  vec4 light_space_position = light_matrices[cascade_index] * vec4(world_position, 1.0);
+
+  light_space_position.xyz /= light_space_position.w;
+  light_space_position.xyz *= 0.5;
+  light_space_position.xyz += 0.5;
+
+  if (light_space_position.z > 0.999) {
+    // If the position-to-light space transform depth
+    // is out of range, we've sampled outside the
+    // shadow map and can just render the fragment
+    // with full illumination.
+    return 0.0;
+  }
+
+  return GetAverageShadowFactor(
+    cascade_index == 0 ? in_shadow_map_cascade_1 :
+    cascade_index == 1 ? in_shadow_map_cascade_2 :
+    cascade_index == 2 ? in_shadow_map_cascade_3 :
+    in_shadow_map_cascade_4,
+    light_space_position.xyz,
+    cascade_index
+  );
+}
+
 void main() {
   vec3 N = normalize(fragNormal);
 
@@ -137,16 +244,16 @@ void main() {
   float small_wave = sin(fragPosition.z * 0.001 + fragPosition.x * 0.001 + ripple_speed);
 
   // Directional waves
-  N.z += 0.1 * sin(fragPosition.z * 0.001 - fragPosition.x * 0.001 + water_speed + big_wave);
-  N.x += 0.1 * cos(fragPosition.z * 0.0025 - fragPosition.x * 0.001 + water_speed + small_wave);
+  N.z += 0.2 * sin(fragPosition.z * 0.001 - fragPosition.x * 0.001 + water_speed + big_wave);
+  N.x += 0.2 * cos(fragPosition.z * 0.0025 - fragPosition.x * 0.001 + water_speed + small_wave);
 
   float wx = fragPosition.x;
   float wz = fragPosition.z;
 
   // Noise/turbulence
-  N.xz += 0.15 * vec2(simplex_noise(vec2(water_speed * 0.5 + wx * 0.0005, water_speed * 0.5 + wz * 0.0005)));
+  N.xz += 0.1 * vec2(simplex_noise(vec2(water_speed * 0.5 + wx * 0.0005, water_speed * 0.5 + wz * 0.0005)));
   N.xz += 0.05 * vec2(simplex_noise(vec2(water_speed * 0.5 + wx * 0.002, water_speed * 0.5 + wz * 0.002)));
-  // N.xz += 0.04 * vec2(simplex_noise(vec2(time * 0.5 + wx * 0.004, time * 0.5 + wz * 0.004)));
+  // N.xz += 0.01 * vec2(simplex_noise(vec2(time * 0.5 + wx * 0.004, time * 0.5 + wz * 0.004)));
 
   // Normal used for specular highlights; more intense than the normal
   // used for regular reflections
@@ -168,12 +275,15 @@ void main() {
   // Special terms for specular highlight output
   vec3 hR = reflect(D, hN);
   float hRdotL = max(0.0, dot(hR, L));
-  float RdotU = max(0.0, dot(R, vec3(0, 1, 0)));
+  float RdotU = max(0.0, dot(hR, vec3(0, 1, 0)));
 
   vec3 out_color = vec3(0.0);
 
-  const vec3 base_water_color = vec3(0, 0.05, 0.2);
-  const vec3 base_underwater_color = vec3(0.2, 0.3, 0.6);
+  const vec3 base_water_color = vec3(0, 0.1, 0.3);
+  const vec3 base_underwater_color = vec3(0.4, 0.6, 0.9);
+
+  // Shadow term
+  float shadow_factor = GetPrimaryLightShadowFactor(fragPosition - N * 500.0);
 
   // Sample objects beneath the surface of the water.
   // For now we just sample depth and fade to a light
@@ -211,17 +321,23 @@ void main() {
     reflection_color += GetReflectionColor(R);
 
     // Light reflection
-    reflection_color += vec3(1.0, 1.0, 0.5) * 5.0 * pow(RdotL, 5.0);
+    reflection_color += 3.0 * vec3(1.0, 1.0, 0.6) * pow(hRdotL, 2.0);
 
-    // @todo refine
+    // Apply ambient reflections
     float fresnel_factor = pow(max(0.0, dot(R, -V)), 2.0);
 
     out_color = mix(out_color, reflection_color, fresnel_factor);
     out_color = mix(out_color, vec3(0.4), 0.2);
 
-    // Highlights
-    out_color += 10.0 * pow(hRdotL, 100.0) * smoothstep(0.25, 0.4, 1.0 - RdotU);
-    // out_color += 10.0 * pow(1.0 - hRdotL, 100.0) * smoothstep(0.55, 0.65, 1.0 - RdotU);
+    if (shadow_factor < 1.0) {
+      // Highlights
+      out_color += 4.0 * vec3(1.0, 0.9, 0.6) * pow(hRdotL, 50.0) * smoothstep(0.2, 0.4, 1.0 - RdotU);
+    }
+  }
+
+  // Shadows
+  {
+    out_color = mix(out_color, base_water_color, shadow_factor * 0.5);
   }
 
   // @todo fog

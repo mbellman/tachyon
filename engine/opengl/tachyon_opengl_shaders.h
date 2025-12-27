@@ -119,6 +119,14 @@ struct tUniformLocations {
     primary_light_direction,
     previous_color_and_depth,
     in_normal_and_depth,
+    in_shadow_map_cascade_1,
+    in_shadow_map_cascade_2,
+    in_shadow_map_cascade_3,
+    in_shadow_map_cascade_4,
+    light_matrix_cascade_1,
+    light_matrix_cascade_2,
+    light_matrix_cascade_3,
+    light_matrix_cascade_4,
     accumulation_blur_factor,
     time
   ) water_mesh;
