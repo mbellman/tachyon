@@ -8,6 +8,9 @@ namespace astro {
       meshes.small_stone_bridge_placeholder = MODEL_MESH("./astro/3d_models/small_stone_bridge/placeholder.obj", 500);
       meshes.small_stone_bridge_base = MODEL_MESH("./astro/3d_models/small_stone_bridge/base.obj", 500);
       meshes.small_stone_bridge_columns = MODEL_MESH("./astro/3d_models/small_stone_bridge/columns.obj", 500);
+
+      mesh(meshes.small_stone_bridge_base).shadow_cascade_ceiling = 2;
+      mesh(meshes.small_stone_bridge_columns).shadow_cascade_ceiling = 2;
     }
 
     getMeshes() {
@@ -34,11 +37,13 @@ namespace astro {
         base.scale = bridge.scale;
         base.rotation = bridge.orientation;
         base.color = bridge.tint;
+        base.material = tVec4f(1.f, 0, 0, 0);
 
         columns.position = bridge.position;
         columns.scale = bridge.scale;
         columns.rotation = bridge.orientation;
         columns.color = bridge.tint;
+        columns.material = tVec4f(1.f, 0, 0, 0);
 
         if (age < 8.f) base.scale = tVec3f(0.f);
         if (age < 4.f) columns.scale.y *= 0.5f;
@@ -51,6 +56,8 @@ namespace astro {
         commit(base);
         commit(columns);
       }
+
+      Tachyon_UseLodByDistance(tachyon, meshes.small_stone_bridge_columns, 30000.f);
     }
   };
 }
