@@ -264,6 +264,7 @@ namespace astro {
     bool is_astrolabe_stopped = true;
     bool is_astro_traveling = false;
     int32 astrolabe_light_id = -1;
+    std::vector<int32> astro_light_ids;
 
     Spells spells;
 

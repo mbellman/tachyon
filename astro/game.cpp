@@ -151,6 +151,36 @@ static void HandleSnow(Tachyon* tachyon, State& state) {
   }
 }
 
+// @todo Particles::
+static void HandleParticles(Tachyon* tachyon, State& state) {
+  float particle_intensity;
+  float turn_duration = time_since(state.game_time_at_start_of_turn);
+  float spread = 5000.f * (turn_duration / (turn_duration + 0.3f));
+
+  if (state.astro_turn_speed != 0.f) {
+    particle_intensity = 1.f - (turn_duration / (turn_duration + 1.f));
+  } else {
+    particle_intensity = 0.f;
+  }
+
+  for (size_t i = 0; i < state.astro_light_ids.size(); i++) {
+    int32 light_id = state.astro_light_ids[i];
+    auto& light = *get_point_light(light_id);
+
+    float angle_alpha = float(i) / float(state.astro_light_ids.size()) + 0.1f * get_scene_time();
+    float angle = t_TAU * angle_alpha;
+
+    light.power = particle_intensity;
+    light.radius = 1000.f;
+    light.glow_power = 2.f * particle_intensity;
+    light.color = tVec3f(1.f, 0.8f, 0.3f);
+
+    light.position = state.player_position;
+    light.position.x += spread * sinf(angle);
+    light.position.z += spread * cosf(angle);
+  }
+}
+
 // @todo 3d positioned sfx
 static void HandleWalkSounds(Tachyon* tachyon, State& state) {
   float distance_threshold = is_key_held(tKey::CONTROLLER_A) ? 2200.f : 1400.f;
@@ -325,6 +355,10 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
   state.player_light_id = create_point_light();
   state.astrolabe_light_id = create_point_light();
 
+  for (int i = 0; i < 10; i++) {
+    state.astro_light_ids.push_back(create_point_light());
+  }
+
   tachyon->scene.scene_time = 0.f;
 }
 
@@ -442,6 +476,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   UISystem::HandleDialogue(tachyon, state);
   HandleFog(tachyon, state);
   HandleSnow(tachyon, state);
+  HandleParticles(tachyon, state);
   HandleWalkSounds(tachyon, state);
   HandleCurrentAreaMusic(tachyon, state);
   HandleMusicLevels(tachyon, state);
