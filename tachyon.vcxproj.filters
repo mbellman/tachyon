@@ -600,6 +600,9 @@
     <ClInclude Include="astro\entity_behaviors\LilyPad.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="astro\particles.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -786,6 +789,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="astro\path_generation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="astro\particles.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
