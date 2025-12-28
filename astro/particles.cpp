@@ -2,12 +2,31 @@
 
 using namespace astro;
 
+static inline float pow10(const float t) {
+  float p5 = t * t * t * t * t;
+
+  return p5 * p5;
+}
+
 static void HandleAstroParticles(Tachyon* tachyon, State& state) {
   const float angle_offsets[] = {
     0.6f,
     -0.8f,
     0.4f,
     -0.5f
+  };
+
+  const float heights[] = {
+    3000.f,
+    7500.f,
+    3800.f,
+    5200.f
+  };
+
+  const float radii[] = {
+    500.f,
+    300.f,
+    600.f
   };
 
   float max_particle_intensity;
@@ -26,6 +45,8 @@ static void HandleAstroParticles(Tachyon* tachyon, State& state) {
     max_particle_intensity = 0.f;
   }
 
+  float rotation_rate = state.astro_turn_speed < 0.f ? 0.1f : -0.1f;
+
   for (size_t i = 0; i < state.astro_light_ids.size(); i++) {
     int32 light_id = state.astro_light_ids[i];
     auto& light = *get_point_light(light_id);
@@ -37,24 +58,26 @@ static void HandleAstroParticles(Tachyon* tachyon, State& state) {
     float angle =
       // Base angular position
       t_TAU * angle_alpha +
-      // Different angles per level
+      // Offset angles with each spread level
       spread_level +
-      // Random offsets
-      angle_offsets[i % 4];
+      // Subtle random offsets
+      angle_offsets[i % 4] +
+      // Rotation
+      rotation_rate * get_scene_time();
 
     float max_spread = 6000.f + 1500.f * spread_level;
     float t = turn_duration - spread_level * 0.2f;
     if (t < 0.f) t = 0.f;
     float spread = max_spread * (t / (t + 0.3f));
-    float intensity_factor = spread / max_spread;
+    float spread_alpha = spread / max_spread;
 
-    light.power = intensity_factor * max_particle_intensity;
-    light.radius = 500.f;
-    light.glow_power = 2.f * intensity_factor * max_particle_intensity;
-    light.color = tVec3f(1.f, 0.3f, 0.1f);
+    light.power = spread_alpha * max_particle_intensity;
+    light.radius = radii[i % 3];
+    light.glow_power = 2.f * spread_alpha * max_particle_intensity;
+    light.color = tVec3f(1.f, 0.7f, 0.2f);
 
     light.position = state.player_position;
-    light.position.y -= 2000.f - 4000.f * (intensity_factor * intensity_factor * intensity_factor);
+    light.position.y -= 1500.f - heights[i % 4] * pow10(spread_alpha);
     light.position.x += spread * sinf(angle);
     light.position.z += spread * cosf(angle);
   }
