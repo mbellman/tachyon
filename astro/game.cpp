@@ -152,30 +152,47 @@ static void HandleSnow(Tachyon* tachyon, State& state) {
 }
 
 // @todo Particles::
-static void HandleParticles(Tachyon* tachyon, State& state) {
-  float particle_intensity;
-  float turn_duration = time_since(state.game_time_at_start_of_turn);
-  float spread = 5000.f * (turn_duration / (turn_duration + 0.3f));
+static void HandleAstroParticles(Tachyon* tachyon, State& state) {
+  profile("HandleAstroParticles()");
 
-  if (state.astro_turn_speed != 0.f) {
-    particle_intensity = 1.f - (turn_duration / (turn_duration + 1.f));
+  float max_particle_intensity;
+
+  float turn_duration = time_since(state.game_time_at_start_of_turn);
+  turn_duration -= 0.3f;
+  if (turn_duration < 0.f) turn_duration = 0.f;
+
+  if (state.game_time_at_start_of_turn != 0.f && turn_duration > 0.f) {
+    float alpha = turn_duration * 0.3f;
+    if (alpha > 1.f) alpha = 1.f;
+
+    max_particle_intensity = Tachyon_Lerpf(2.f, 0.f, alpha);
+    max_particle_intensity = sqrtf(max_particle_intensity);
   } else {
-    particle_intensity = 0.f;
+    max_particle_intensity = 0.f;
   }
 
   for (size_t i = 0; i < state.astro_light_ids.size(); i++) {
     int32 light_id = state.astro_light_ids[i];
     auto& light = *get_point_light(light_id);
 
-    float angle_alpha = float(i) / float(state.astro_light_ids.size()) + 0.1f * get_scene_time();
-    float angle = t_TAU * angle_alpha;
+    float spread_level = floorf(float(i) / 10.f);
 
-    light.power = particle_intensity;
-    light.radius = 1000.f;
-    light.glow_power = 2.f * particle_intensity;
-    light.color = tVec3f(1.f, 0.8f, 0.3f);
+    float angle_alpha = (float(i) / 10.f);
+    float angle = t_TAU * angle_alpha + spread_level;
+
+    float max_spread = 6000.f + 1200.f * spread_level;
+    float t = turn_duration - spread_level * 0.2f;
+    if (t < 0.f) t = 0.f;
+    float spread = max_spread * (t / (t + 0.3f));
+    float intensity_factor = spread / max_spread;
+
+    light.power = intensity_factor * max_particle_intensity;
+    light.radius = 500.f;
+    light.glow_power = 2.f * intensity_factor * max_particle_intensity;
+    light.color = tVec3f(1.f, 0.3f, 0.1f);
 
     light.position = state.player_position;
+    light.position.y -= 2000.f - 4000.f * (intensity_factor * intensity_factor);
     light.position.x += spread * sinf(angle);
     light.position.z += spread * cosf(angle);
   }
@@ -355,7 +372,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
   state.player_light_id = create_point_light();
   state.astrolabe_light_id = create_point_light();
 
-  for (int i = 0; i < 10; i++) {
+  for (int i = 0; i < 50; i++) {
     state.astro_light_ids.push_back(create_point_light());
   }
 
@@ -476,7 +493,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   UISystem::HandleDialogue(tachyon, state);
   HandleFog(tachyon, state);
   HandleSnow(tachyon, state);
-  HandleParticles(tachyon, state);
+  HandleAstroParticles(tachyon, state);
   HandleWalkSounds(tachyon, state);
   HandleCurrentAreaMusic(tachyon, state);
   HandleMusicLevels(tachyon, state);
