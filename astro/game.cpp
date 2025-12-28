@@ -320,15 +320,12 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
   Items::SpawnItemObjects(tachyon, state);
   ProceduralGeneration::RebuildAllProceduralObjects(tachyon, state);
   EntityManager::CreateEntityAssociations(state);
+  Particles::InitParticles(tachyon, state);
 
   RespawnPlayer(tachyon, state);
 
   state.player_light_id = create_point_light();
   state.astrolabe_light_id = create_point_light();
-
-  for (int i = 0; i < 70; i++) {
-    state.astro_light_ids.push_back(create_point_light());
-  }
 
   tachyon->scene.scene_time = 0.f;
 }
@@ -471,15 +468,19 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   // @todo HandleFrameEnd()
   {
     auto& fx = tachyon->fx;
-    float max_blur_factor = 0.98f - 5.f * state.dt;
 
     state.movement_distance += tVec3f::distance(state.player_position, state.last_player_position);
     state.last_player_position = state.player_position;
 
-    fx.accumulation_blur_factor = sqrtf(abs(state.astro_turn_speed)) * 4.1f;
+    // Accumulation blur
+    {
+      float max_blur_factor = 0.98f - 5.f * state.dt;
 
-    if (fx.accumulation_blur_factor > max_blur_factor) {
-      fx.accumulation_blur_factor = max_blur_factor;
+      fx.accumulation_blur_factor = sqrtf(abs(state.astro_turn_speed)) * 4.1f;
+
+      if (fx.accumulation_blur_factor > max_blur_factor) {
+        fx.accumulation_blur_factor = max_blur_factor;
+      }
     }
 
     // Time warp effects
@@ -501,15 +502,25 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
       fx.vignette_intensity = Tachyon_Lerpf(fx.vignette_intensity, desired_vignette_intensity, 2.f * state.dt);
     }
 
-    auto& velocity = state.player_velocity;
-    float speed = velocity.magnitude();
-    tVec3f foliage_movement_offset = (speed > 0.f ? velocity.invert().unit() * 500.f : 0.f);
+    // Foliage collision
+    {
+      auto& velocity = state.player_velocity;
+      float speed = velocity.magnitude();
+      tVec3f foliage_movement_offset = (speed > 0.f ? velocity.invert().unit() * 500.f : 0.f);
 
-    scene.foliage_mover_position = state.player_position + foliage_movement_offset;
-    scene.foliage_mover_velocity = velocity;
+      scene.foliage_mover_position = state.player_position + foliage_movement_offset;
+      scene.foliage_mover_velocity = velocity;
 
-    if (speed > 300.f) {
-      scene.foliage_mover_velocity = velocity.unit() * 300.f;
+      if (speed > 300.f) {
+        scene.foliage_mover_velocity = velocity.unit() * 300.f;
+      }
+    }
+
+    // Astro turn direction tracking
+    {
+      if (state.astro_turn_speed != 0.f) {
+        state.last_astro_turn_direction = state.astro_turn_speed > 0.f ? 1.f : -1.f;
+      }
     }
 
     // @todo ui.cpp
