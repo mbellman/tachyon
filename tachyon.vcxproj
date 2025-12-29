@@ -172,6 +172,7 @@
     <ClInclude Include="astro\path_generation.h" />
     <ClInclude Include="astro\player_character.h" />
     <ClInclude Include="astro\procedural_generation.h" />
+    <ClInclude Include="astro\procedural_trees.h" />
     <ClInclude Include="astro\sfx.h" />
     <ClInclude Include="astro\simple_animation.h" />
     <ClInclude Include="astro\spell_system.h" />
@@ -331,6 +332,7 @@
     <ClCompile Include="astro\path_generation.cpp" />
     <ClCompile Include="astro\player_character.cpp" />
     <ClCompile Include="astro\procedural_generation.cpp" />
+    <ClCompile Include="astro\procedural_trees.cpp" />
     <ClCompile Include="astro\sfx.cpp" />
     <ClCompile Include="astro\simple_animation.cpp" />
     <ClCompile Include="astro\spell_system.cpp" />
