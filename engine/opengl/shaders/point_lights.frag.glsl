@@ -187,5 +187,12 @@ void main() {
     out_color *= 0.2;
   }
 
+  // @hack Fix lights being dimmed against the sky. Unfortunately,
+  // the cause of the misbehavior is too tricky to ascertain right now.
+  // It's something to do with blending but beyond that I'm just unsure.
+  if (frag_normal_and_depth.w == 1.0) {
+    out_color *= 4.0;
+  }
+
   out_color_and_depth = vec4(out_color, 0);
 }

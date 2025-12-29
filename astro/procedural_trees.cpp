@@ -5,7 +5,7 @@ using namespace astro;
 void ProceduralGeneration::GenerateTreeMushrooms(Tachyon* tachyon, State& state) {
   remove_all(state.meshes.tree_mushroom);
 
-  for (uint16 i = 0; i < 100; i++) {
+  for (uint16 i = 0; i < 200; i++) {
     create(state.meshes.tree_mushroom);
   }
 }
@@ -14,6 +14,25 @@ void ProceduralGeneration::UpdateTreeMushrooms(Tachyon* tachyon, State& state) {
   profile("UpdateTreeMushrooms()");
 
   uint16 total_mushrooms = 0;
+
+  static tVec3f xz_positions[] = {
+    tVec3f(0, 0, 1.f),
+    tVec3f(0, 0, 1.f),
+    tVec3f(0, 0, 1.f),
+    tVec3f(1.f, 0, 1.f).unit(),
+    tVec3f(1.f, 0, 1.f).unit(),
+    tVec3f(-1.f, 0, 1.f).unit(),
+    tVec3f(-1.f, 0, 1.f).unit(),
+    tVec3f(-1.f, 0, 1.f).unit()
+  };
+
+  static float y_positions[] = {
+    1500.f,
+    300.f,
+    700.f,
+    1100.f,
+    -100.f
+  };
 
   static Quaternion rotations[] = {
     Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 0.f),
@@ -38,15 +57,27 @@ void ProceduralGeneration::UpdateTreeMushrooms(Tachyon* tachyon, State& state) {
     if (abs(state.player_position.x - entity.position.x) > 20000.f) continue;
     if (abs(state.player_position.z - entity.position.z) > 20000.f) continue;
 
-    if (state.astro_time > entity.astro_start_time + 200.f) {
+    float group_growth_duration = state.astro_time - (entity.astro_start_time + 200.f);
+
+    if (group_growth_duration > 0.f) {
       for (int i = 0; i < 5; i++) {
+        float mushroom_growth_duration = group_growth_duration - (float(i) * 5.f);
+
+        // Don't spawn mushrooms before they've started growing
+        if (mushroom_growth_duration < 0.f) continue;
+
         auto& mushroom = objects(state.meshes.tree_mushroom)[total_mushrooms++];
-        float scale = scales[((i + entity.id)) % 5];
+
+        float scale_alpha = mushroom_growth_duration / 10.f;
+        if (scale_alpha > 1.f) scale_alpha = 1.f;
+
+        float scale = scales[((i + entity.id)) % 5] * scale_alpha;
 
         mushroom.position = entity.position;
-        mushroom.position.z += entity.visible_scale.x * 0.32f;
-        mushroom.position.y += 1000.f;
-        mushroom.position.y -= 300.f * float(i);
+        mushroom.position += xz_positions[(i + entity.id) % 8] * entity.visible_scale.x * 0.32f;
+        // mushroom.position.y += 1500.f;
+        // mushroom.position.y -= 400.f * float(i);
+        mushroom.position.y += y_positions[((i + entity.id)) % 5];
         mushroom.position.x += fmodf(abs(entity.position.x) + 70.f * float(i), 300.f) - 150.f;
 
         mushroom.rotation = rotations[i];
