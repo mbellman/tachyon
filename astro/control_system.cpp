@@ -109,8 +109,8 @@ static void HandleAstroControls(Tachyon* tachyon, State& state) {
   if (started_turning) {
     state.astro_time_at_start_of_turn = state.astro_time;
     state.game_time_at_start_of_turn = get_scene_time();
-    state.is_astrolabe_stopped = false;
     state.player_position_at_start_of_turn = state.player_position;
+    state.is_astrolabe_stopped = false;
 
     // Force deselection of the current target, if any
     Targeting::DeselectCurrentTarget(tachyon, state);
