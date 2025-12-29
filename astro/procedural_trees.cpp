@@ -15,7 +15,7 @@ void ProceduralGeneration::UpdateTreeMushrooms(Tachyon* tachyon, State& state) {
 
   uint16 total_mushrooms = 0;
 
-  static tVec3f xz_positions[] = {
+  const static tVec3f xz_positions[] = {
     tVec3f(0, 0, 1.f),
     tVec3f(0, 0, 1.f),
     tVec3f(0, 0, 1.f),
@@ -26,7 +26,7 @@ void ProceduralGeneration::UpdateTreeMushrooms(Tachyon* tachyon, State& state) {
     tVec3f(-1.f, 0, 1.f).unit()
   };
 
-  static float y_positions[] = {
+  const static float y_positions[] = {
     1500.f,
     300.f,
     700.f,
@@ -34,7 +34,7 @@ void ProceduralGeneration::UpdateTreeMushrooms(Tachyon* tachyon, State& state) {
     -100.f
   };
 
-  static Quaternion rotations[] = {
+  const static Quaternion rotations[] = {
     Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 0.f),
     Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 1.f),
     Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 2.f),
@@ -42,7 +42,7 @@ void ProceduralGeneration::UpdateTreeMushrooms(Tachyon* tachyon, State& state) {
     Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 4.f)
   };
 
-  static float scales[] = {
+  const static float scales[] = {
     400.f,
     300.f,
     500.f,
@@ -75,8 +75,6 @@ void ProceduralGeneration::UpdateTreeMushrooms(Tachyon* tachyon, State& state) {
 
         mushroom.position = entity.position;
         mushroom.position += xz_positions[(i + entity.id) % 8] * entity.visible_scale.x * 0.32f;
-        // mushroom.position.y += 1500.f;
-        // mushroom.position.y -= 400.f * float(i);
         mushroom.position.y += y_positions[((i + entity.id)) % 5];
         mushroom.position.x += fmodf(abs(entity.position.x) + 70.f * float(i), 300.f) - 150.f;
 

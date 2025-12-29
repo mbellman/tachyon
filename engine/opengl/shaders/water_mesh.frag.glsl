@@ -259,7 +259,12 @@ void main() {
   // used for regular reflections
   vec3 hN = normalize(N);
 
-  N.xz *= 0.3;
+  float flattening_alpha = min(1.0, length(camera_position - fragPosition) / 50000.0);
+  flattening_alpha *= flattening_alpha;
+
+  float flattening_factor = mix(0.3, 0.0, flattening_alpha);
+
+  N.xz *= flattening_factor;
   N = normalize(N);
 
   vec3 V = normalize(camera_position - fragPosition);
