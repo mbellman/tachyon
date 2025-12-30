@@ -197,7 +197,9 @@ namespace astro {
    */
   struct DialogueSet {
     bool random = false;
+    bool invoked = false;
     std::vector<std::string> lines;
+    int32 returning_first_line_index = 0;
   };
 
   /**

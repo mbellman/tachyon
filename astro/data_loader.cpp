@@ -177,7 +177,13 @@ void DataLoader::LoadNpcDialogue(Tachyon* tachyon, State& state) {
       // Dialogue lines
       auto& dialogue_set = state.npc_dialogue[current_npc_name];
 
-      dialogue_set.lines.push_back(line);
+      if (line.starts_with("+")) {
+        dialogue_set.returning_first_line_index++;
+
+        dialogue_set.lines.push_back(line.substr(1));
+      } else {
+        dialogue_set.lines.push_back(line);
+      }
     }
   }
 }
