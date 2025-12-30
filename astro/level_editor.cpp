@@ -1533,7 +1533,7 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
     }
   }
 
-  if (did_press_key(tKey::F) && !tachyon->hotkeys_enabled) {
+  if (did_press_key(tKey::F) && tachyon->hotkeys_enabled) {
     editor.show_fog_volumes = !editor.show_fog_volumes;
 
     if (editor.show_fog_volumes) {

@@ -44,7 +44,8 @@ namespace astro {
     STONE_PATH_NODE,
     SCULPTURE_1,
     WOODEN_BRIDGE,
-    LILY_PAD
+    LILY_PAD,
+    BELLFLOWER
   };
 
   /**
@@ -65,6 +66,7 @@ namespace astro {
     STONE_WALL,
     FLOWER_BUSH,
     LILY_PAD,
+    BELLFLOWER,
     ITEM_PICKUP,
     GLOW_FLOWER,
     DIRT_PATH_NODE,
@@ -264,6 +266,11 @@ namespace astro {
       lily_pad_placeholder,
       lily_pad,
 
+      // BELLFLOWER
+      bellflower_placeholder,
+      bellflower_stems,
+      bellflower_petals,
+
       // ITEM_PICKUP
       item_pickup_placeholder,
 
@@ -366,6 +373,7 @@ namespace astro {
 
     std::vector<GameEntity> shrubs;
     std::vector<GameEntity> flower_bushes;
+    std::vector<GameEntity> bellflowers;
     std::vector<GameEntity> lilac_bushes;
     std::vector<GameEntity> lily_pads;
     std::vector<GameEntity> mushrooms;
@@ -464,6 +472,12 @@ namespace astro {
       .name = "Flower Bush",
       .scale = tVec3f(2000.f),
       .tint = tVec3f(0.2f, 0.6f, 0.3f)
+    } },
+
+    { BELLFLOWER, {
+      .name = "Bellflower",
+      .scale = tVec3f(1200.f),
+      .tint = tVec3f(1.f, 0.6f, 0.5f)
     } },
 
     { LILAC_BUSH, {
