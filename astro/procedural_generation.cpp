@@ -750,7 +750,7 @@ static void UpdateGroundFlowers(Tachyon* tachyon, State& state) {
 
     tVec3f base_position = flower.position;
 
-    flower.position = base_position + offsets[life_cycle % 5];
+    flower.position = base_position + offsets[life_cycle % 4];
 
     UpdateBloomingFlower(flower, blossom_color, 200.f, alpha, lifetime);
 

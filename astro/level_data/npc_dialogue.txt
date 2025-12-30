@@ -5,3 +5,31 @@ This is a dialogue test.
 @@watermill_house
 Oh, bugger off! Leave me be, why don't you!
 Go away! I've nothing to do with you interlopers!
+
+@villager_gardener
++Oh, greetings. Are you passing through?
+If you seek sustenance or lodging, there's an inn, yonder.
+Regrettably, I have but limited provisions myself.
+
+@villager_builder
++Hmm...I've not seen you before.
+Little time for idle chatter, I'm afraid.
+
+@villager_center
++...
++Thy countenance obscured...
++Though thy eyes recall another, familiar to me.
+Dost thou have special business here?
+A subject thy seeketh, perhaps?
+
+@villager_loafer
++You! Come from the southern wood, aye? Nay?
+The forest ahead is nary safer.
+At night the mist lessens, though it be to little avail.
+No less treacherous of a place, at that.
+
+@villager_south
++An unfamiliar face. Well, good day to thee.
+Considerable toil we spent settling here from the west.
+Our old village was displaced, you see.
+Decreed by the kingdom's defense ministry.

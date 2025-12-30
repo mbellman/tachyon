@@ -31,7 +31,7 @@ namespace astro {
 
         // Body
         {
-          auto& body = objects(meshes.npc)[0];
+          auto& body = objects(meshes.npc)[i];
 
           Sync(body, entity);
 

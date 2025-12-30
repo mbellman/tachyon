@@ -33,16 +33,19 @@ static void HandleCurrentDialogueSet(Tachyon* tachyon, State& state) {
 }
 
 void UISystem::StartDialogueSet(State& state, const std::string set_name) {
-  state.current_dialogue_set = set_name;
-  state.current_dialogue_step = 0;
-
   if (state.npc_dialogue.find(set_name) != state.npc_dialogue.end()) {
+    state.current_dialogue_set = set_name;
+    state.current_dialogue_step = 0;
+
     auto& dialogue_set = state.npc_dialogue[set_name];
 
     if (dialogue_set.random) {
       // For random dialogue, start on a random step in the sequence
       state.current_dialogue_step = Tachyon_GetRandom(0, dialogue_set.lines.size() - 1);
     }
+  } else if (set_name != "") {
+    // @todo dev mode only
+    console_log("Dialogue set '" + set_name + "' not found.");
   }
 }
 
