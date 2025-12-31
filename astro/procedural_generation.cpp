@@ -271,6 +271,8 @@ static void UpdateGround1Plants(Tachyon* tachyon, State& state) {
       commit(grass);
     }
 
+    float emissivity = state.is_nighttime ? 0.6f : 0.f;
+
     for (auto& position : cluster.flower_positions) {
       // @todo factor
       float alpha = state.astro_time + position.x + position.z;
@@ -287,7 +289,7 @@ static void UpdateGround1Plants(Tachyon* tachyon, State& state) {
       flower.scale = tVec3f(scales[iteration % 5]) * sqrtf(0.5f + 0.5f * sinf(growth_rate * alpha));
       flower.scale *= scale_factor;
 
-      flower.color = tVec4f(0.8f, 0.3f, 0.3f, 0);
+      flower.color = tVec4f(0.8f, 0.3f, 0.3f, emissivity);
       flower.material = tVec4f(0.8f, 0, 0, 0.7f);
 
       flower.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), rotation_angle);

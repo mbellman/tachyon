@@ -24,6 +24,7 @@
 #include "astro/entity_behaviors/Sculpture_1.h"
 #include "astro/entity_behaviors/Shrub.h"
 #include "astro/entity_behaviors/SmallStoneBridge.h"
+#include "astro/entity_behaviors/StarFlower.h"
 #include "astro/entity_behaviors/StonePathNode.h"
 #include "astro/entity_behaviors/StoneWall.h"
 #include "astro/entity_behaviors/WaterWheel.h"
@@ -72,6 +73,7 @@ using namespace astro;
   behavior_macro(FLOWER_BUSH, FlowerBush);\
   behavior_macro(LILAC_BUSH, LilacBush);\
   behavior_macro(BELLFLOWER, BellFlower);\
+  behavior_macro(STARFLOWER, StarFlower);\
   behavior_macro(LILY_PAD, LilyPad);\
   behavior_macro(MUSHROOM, Mushroom);\
   behavior_macro(GLOW_FLOWER, GlowFlower);\
@@ -107,6 +109,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
     dispatch_GetEntityContainer(FLOWER_BUSH, state.flower_bushes);
     dispatch_GetEntityContainer(LILAC_BUSH, state.lilac_bushes);
     dispatch_GetEntityContainer(BELLFLOWER, state.bellflowers);
+    dispatch_GetEntityContainer(STARFLOWER, state.starflowers);
     dispatch_GetEntityContainer(LILY_PAD, state.lily_pads);
     dispatch_GetEntityContainer(MUSHROOM, state.mushrooms);
     dispatch_GetEntityContainer(GLOW_FLOWER, state.glow_flowers);

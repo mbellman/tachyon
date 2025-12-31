@@ -9,8 +9,13 @@ namespace astro {
       meshes.bellflower_stems = MODEL_MESH("./astro/3d_models/bellflower/stems.obj", 500);
       meshes.bellflower_petals = MODEL_MESH("./astro/3d_models/bellflower/petals.obj", 500);
 
+      mesh(meshes.bellflower_placeholder).shadow_cascade_ceiling = 2;
+
       mesh(meshes.bellflower_stems).type = FOLIAGE_MESH;
+      mesh(meshes.bellflower_stems).shadow_cascade_ceiling = 2;
+
       mesh(meshes.bellflower_petals).type = FOLIAGE_MESH;
+      mesh(meshes.bellflower_petals).shadow_cascade_ceiling = 2;
     }
 
     getMeshes() {
@@ -33,6 +38,8 @@ namespace astro {
       const tVec3f sprouted_color = tVec3f(0.1f, 0.2f, 0.1f);
       const tVec3f wilting_color = tVec3f(0.4f, 0.2f, 0.1f);
 
+      // @todo culling
+      // @todo growth
       for_entities(state.bellflowers) {
         auto& entity = state.bellflowers[i];
         // float life_progress = GetLivingEntityProgress(state, entity, lifetime);
@@ -62,6 +69,29 @@ namespace astro {
           petals.material = tVec4f(1.f, 0, 0.2f, 1.f);
 
           commit(petals);
+        }
+
+        // Light
+        {
+          if (entity.light_id == -1) {
+            entity.light_id = create_point_light();
+          }
+
+          auto& light = *get_point_light(entity.light_id);
+
+          light.position = entity.position + tVec3f(0, 2.f * entity.scale.y, 0);
+          light.radius = 1500.f;
+          light.color = tVec3f(1.f, 0.6f, 0.6f);
+          light.glow_power = 0.f;
+
+          if (
+            abs(entity.position.x - state.player_position.x) > 20000.f ||
+            abs(entity.position.z - state.player_position.z) > 20000.f
+          ) {
+            light.power = 0.f;
+          } else {
+            light.power = 1.f;
+          }
         }
       }
     }

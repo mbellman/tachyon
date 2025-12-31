@@ -7,17 +7,22 @@ namespace astro {
     addMeshes() {
       meshes.mushroom_placeholder = MODEL_MESH("./astro/3d_models/mushroom/placeholder.obj", 500);
       meshes.mushroom_body = MODEL_MESH("./astro/3d_models/mushroom/body.obj", 500);
+      meshes.mushroom_spots = MODEL_MESH("./astro/3d_models/mushroom/spots.obj", 500);
 
       mesh(meshes.mushroom_placeholder).type = GRASS_MESH;
       mesh(meshes.mushroom_placeholder).shadow_cascade_ceiling = 2;
 
       mesh(meshes.mushroom_body).type = GRASS_MESH;
       mesh(meshes.mushroom_body).shadow_cascade_ceiling = 2;
+
+      mesh(meshes.mushroom_spots).type = GRASS_MESH;
+      mesh(meshes.mushroom_spots).shadow_cascade_ceiling = 2;
     }
 
     getMeshes() {
       return_meshes({
-        meshes.mushroom_body
+        meshes.mushroom_body,
+        meshes.mushroom_spots
       });
     }
 
@@ -32,6 +37,8 @@ namespace astro {
 
       const float lifetime = 50.f;
 
+      // @todo culling
+      // @todo growth
       for_entities(state.mushrooms) {
         auto& entity = state.mushrooms[i];
         float life_progress = GetLivingEntityProgress(state, entity, lifetime);
@@ -54,6 +61,19 @@ namespace astro {
           commit(body);
         }
 
+        // Spots
+        {
+          auto& spots = objects(meshes.mushroom_spots)[i];
+
+          Sync(spots, entity);
+
+          spots.color = tVec4f(1.f, 1.f, 1.f, 0.8f);
+          spots.material = tVec4f(1.f, 0, 0, 1.f);
+
+          commit(spots);
+        }
+
+        // @todo remove
         entity.visible_rotation = entity.orientation;
         entity.visible_position = entity.position;
         entity.visible_scale = entity.scale;

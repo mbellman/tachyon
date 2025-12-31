@@ -47,7 +47,6 @@ void AbstractLoader::load(const char* filePath) {
   FILE* f = fopen(filePath, "r");
 
   if (!f) {
-    printf("Failed to load file: %s\n", filePath);
     add_console_message("Failed to load file: " + std::string(filePath), tVec3f(1.f, 0, 0));
 
     return;

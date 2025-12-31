@@ -81,7 +81,9 @@ void ProceduralGeneration::UpdateTreeMushrooms(Tachyon* tachyon, State& state) {
         mushroom.rotation = rotations[i];
         mushroom.scale = tVec3f(scale);
 
-        mushroom.color = tVec3f(0.9f, 0.6f, 0.3f);
+        float emissivity = state.is_nighttime ? 0.3f : 0.f;
+
+        mushroom.color = tVec4f(0.9f, 0.6f, 0.3f, emissivity);
         mushroom.material = tVec4f(1.f, 0, 0, 0.4f);
 
         commit(mushroom);

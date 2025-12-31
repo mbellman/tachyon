@@ -1,10 +1,12 @@
 @lake_girl
-Hello, world!
-This is a dialogue test.
++Ah...hello.
+I have a keen memory for faces. Yours, I cannot place. Have we met?
+Well, I shall continue as I was.
 
 @@watermill_house
 Oh, bugger off! Leave me be, why don't you!
 Go away! I've nothing to do with you interlopers!
+I've had quite enough of this! Be gone, the lot of you!
 
 @villager_gardener
 +Oh, greetings. Are you passing through?
@@ -18,7 +20,7 @@ Little time for idle chatter, I'm afraid.
 @villager_center
 +...
 +Thy countenance obscured...
-+Though thy eyes recall another's, familiar to me.
++Though thine eyes recall another's, familiar to me.
 Dost thou have special business here?
 A subject thy seeketh, perhaps?
 
