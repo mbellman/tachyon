@@ -204,6 +204,21 @@ namespace astro {
 
   /**
    * ----------------------------
+   * Particles
+   * ----------------------------
+   */
+  struct AmbientParticle {
+    float spawn_time = 0.f;
+    float lifetime = 1.f;
+    float radius = 500.f;
+    tVec3f spawn_position;
+    tVec3f color = tVec3f(1.f);
+    int32 light_id = -1;
+    int32 spawning_entity_id = -1;
+  };
+
+  /**
+   * ----------------------------
    * Game state
    * ----------------------------
    */
@@ -270,6 +285,8 @@ namespace astro {
     bool is_astro_traveling = false;
     int32 astrolabe_light_id = -1;
     std::vector<int32> astro_light_ids;
+
+    std::vector<AmbientParticle> ambient_particles;
 
     Spells spells;
 

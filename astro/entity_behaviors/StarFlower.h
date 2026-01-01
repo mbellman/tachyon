@@ -30,13 +30,11 @@ namespace astro {
     }
 
     timeEvolve() {
-      // profile("  FlowerBush::timeEvolve()");
+      // profile("  StarFlower::timeEvolve()");
 
       auto& meshes = state.meshes;
 
-      const tVec3f sprout_color = tVec3f(0.2f, 0.3f, 0.1f);
-      const tVec3f sprouted_color = tVec3f(0.1f, 0.2f, 0.1f);
-      const tVec3f wilting_color = tVec3f(0.4f, 0.2f, 0.1f);
+      float petals_emissivity = state.is_nighttime ? 0.5f : 0.2f;
 
       // @todo culling
       // @todo growth
@@ -63,9 +61,7 @@ namespace astro {
 
           Sync(petals, entity);
 
-          float emissivity = state.is_nighttime ? 0.5f : 0.2f;
-
-          petals.color = tVec4f(0.8f, 1.f, 1.f, emissivity);
+          petals.color = tVec4f(0.8f, 1.f, 1.f, petals_emissivity);
           petals.material = tVec4f(0.2f, 1.f, 0.5f, 1.f);
 
           commit(petals);

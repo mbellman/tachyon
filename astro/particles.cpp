@@ -92,6 +92,106 @@ static void HandleAstroParticles(Tachyon* tachyon, State& state) {
   }
 }
 
+// @todo move to engine
+template<class T>
+static inline void RemoveFromArray(std::vector<T>& array, uint32 index) {
+  array.erase(array.begin() + index);
+}
+
+static bool EntityHasAmbientParticle(State& state, const GameEntity& entity) {
+  for (auto& particle : state.ambient_particles) {
+    if (particle.spawning_entity_id == entity.id) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+static void SpawnAmbientParticle(Tachyon* tachyon, State& state, const GameEntity& spawning_entity) {
+  // Create + add particle
+  AmbientParticle particle;
+  particle.spawn_time = get_scene_time();
+  particle.lifetime = Tachyon_GetRandom(3.f, 4.f);
+  particle.spawn_position = spawning_entity.position;
+  particle.light_id = create_point_light();
+  particle.spawning_entity_id = spawning_entity.id;
+
+  state.ambient_particles.push_back(particle);
+
+  // Initialize light
+  auto& light = *get_point_light(particle.light_id);
+
+  light.position = spawning_entity.position;
+  light.position.y += 2.f * spawning_entity.scale.y;
+
+  light.radius = particle.radius;
+  light.color = particle.color;
+}
+
+static void UpdateAmbientParticle(Tachyon* tachyon, State& state, AmbientParticle& particle) {
+  auto& light = *get_point_light(particle.light_id);
+  float alpha = time_since(particle.spawn_time) / particle.lifetime;
+  float angle = alpha * t_PI + particle.spawn_time + particle.spawn_position.x;
+
+  light.position.y += 500.f * state.dt;
+
+  light.position.x = particle.spawn_position.x + 600.f * alpha * sinf(angle);
+  light.position.z = particle.spawn_position.z + 600.f * alpha * cosf(angle);
+
+  if (alpha < 0.5f) {
+    light.power = alpha * 2.f;
+  } else if (alpha < 1.f) {
+    light.power = 1.f - 2.f * (alpha - 0.5f);
+  } else {
+    light.power = 0.f;
+  }
+
+  light.radius = 500.f + 500.f * light.power;
+}
+
+static void RemoveExpiredAmbientParticles(Tachyon* tachyon, State& state) {
+  for (size_t i = 0; i < state.ambient_particles.size(); i++) {
+    auto& particle = state.ambient_particles[i];
+
+    if (time_since(particle.spawn_time) > particle.lifetime) {
+      remove_point_light(particle.light_id);
+
+      RemoveFromArray(state.ambient_particles, i);
+    }
+  }
+}
+
+static void SpawnNewAmbientParticles(Tachyon* tachyon, State& state) {
+  for_entities(state.bellflowers) {
+    auto& entity = state.bellflowers[i];
+
+    if (abs(entity.position.x - state.player_position.x) > 20000.f) continue;
+    if (abs(entity.position.z - state.player_position.z) > 20000.f) continue;
+
+    if (!EntityHasAmbientParticle(state, entity)) {
+      SpawnAmbientParticle(tachyon, state, entity);
+    }
+  }
+
+  for_entities(state.starflowers) {
+    auto& entity = state.starflowers[i];
+
+    if (abs(entity.position.x - state.player_position.x) > 20000.f) continue;
+    if (abs(entity.position.z - state.player_position.z) > 20000.f) continue;
+
+    if (!EntityHasAmbientParticle(state, entity)) {
+      SpawnAmbientParticle(tachyon, state, entity);
+    }
+  }
+}
+
+static void UpdateAllAmbientParticles(Tachyon* tachyon, State& state) {
+  for (auto& particle : state.ambient_particles) {
+    UpdateAmbientParticle(tachyon, state, particle);
+  }
+}
+
 void Particles::InitParticles(Tachyon* tachyon, State& state) {
   for (int i = 0; i < 70; i++) {
     state.astro_light_ids.push_back(create_point_light());
@@ -99,7 +199,11 @@ void Particles::InitParticles(Tachyon* tachyon, State& state) {
 }
 
 void Particles::HandleParticles(Tachyon* tachyon, State& state) {
-  profile("HandleAstroParticles()");
+  profile("HandleParticles()");
 
   HandleAstroParticles(tachyon, state);
+
+  SpawnNewAmbientParticles(tachyon, state);
+  UpdateAllAmbientParticles(tachyon, state);
+  RemoveExpiredAmbientParticles(tachyon, state);
 }
