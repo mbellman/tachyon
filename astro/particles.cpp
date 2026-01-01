@@ -36,6 +36,10 @@ static inline float pow10(const float t) {
   return p5 * p5;
 }
 
+static inline float pow2(const float t) {
+  return t * t;
+}
+
 static void HandleAstroParticles(Tachyon* tachyon, State& state) {
   float turn_duration = time_since(state.game_time_at_start_of_turn);
   turn_duration -= 0.3f;
@@ -131,16 +135,20 @@ static void SpawnAmbientParticle(Tachyon* tachyon, State& state, const GameEntit
 
 static void UpdateAmbientParticle(Tachyon* tachyon, State& state, AmbientParticle& particle) {
   auto& light = *get_point_light(particle.light_id);
+
   float alpha = time_since(particle.spawn_time) / particle.lifetime;
+  if (alpha > 1.f) alpha = 1.f;
+
+  float speed = 750.f * (1.f - alpha);
   float angle = alpha * t_PI + particle.spawn_time + particle.spawn_position.x;
 
-  light.position.y += 500.f * state.dt;
+  light.position.y += speed * state.dt;
 
   light.position.x = particle.spawn_position.x + 600.f * alpha * sinf(angle);
   light.position.z = particle.spawn_position.z + 600.f * alpha * cosf(angle);
 
   if (alpha < 0.5f) {
-    light.power = alpha * 2.f;
+    light.power = pow2(2.f * alpha);
   } else if (alpha < 1.f) {
     light.power = 1.f - 2.f * (alpha - 0.5f);
   } else {
