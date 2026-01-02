@@ -46,7 +46,8 @@ namespace astro {
     WOODEN_BRIDGE,
     LILY_PAD,
     BELLFLOWER,
-    STARFLOWER
+    STARFLOWER,
+    FLAG
   };
 
   /**
@@ -75,6 +76,7 @@ namespace astro {
     STONE_PATH_NODE,
     HOUSE,
     GATE,
+    FLAG,
     LILAC_BUSH,
     LIGHT_POST,
     WOODEN_FENCE,
@@ -305,6 +307,11 @@ namespace astro {
       gate_right_door,
       gate_lock,
 
+      // FLAG
+      flag_placeholder,
+      flag_pole,
+      flag_banner,
+
       // LILAC
       lilac_placeholder,
       lilac_leaves,
@@ -397,6 +404,7 @@ namespace astro {
     std::vector<GameEntity> stone_walls;
     std::vector<GameEntity> wooden_gate_doors;
     std::vector<GameEntity> gates;
+    std::vector<GameEntity> flags;
     std::vector<GameEntity> lampposts;
     std::vector<GameEntity> houses;
     std::vector<GameEntity> light_posts;
@@ -559,6 +567,12 @@ namespace astro {
       .name = "Gate",
       .scale = tVec3f(4000.f),
       .tint = tVec3f(0.4f)
+    } },
+
+    { FLAG, {
+      .name = "Flag",
+      .scale = tVec3f(2000.f),
+      .tint = tVec3f(1.f)
     } },
 
     { LIGHT_POST, {

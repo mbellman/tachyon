@@ -5,6 +5,7 @@
 #include "astro/entity_behaviors/BellFlower.h"
 #include "astro/entity_behaviors/ChestnutTree.h"
 #include "astro/entity_behaviors/DirtPathNode.h"
+#include "astro/entity_behaviors/Flag.h"
 #include "astro/entity_behaviors/FlowerBush.h"
 #include "astro/entity_behaviors/FogSpawn.h"
 #include "astro/entity_behaviors/Gate.h"
@@ -80,6 +81,7 @@ using namespace astro;
   behavior_macro(SMALL_STONE_BRIDGE, SmallStoneBridge);\
   behavior_macro(STONE_WALL, StoneWall);\
   behavior_macro(GATE, Gate);\
+  behavior_macro(FLAG, Flag);\
   behavior_macro(LIGHT_POST, LightPost);\
   behavior_macro(LAMPPOST, Lamppost);\
   behavior_macro(WIND_CHIMES, WindChimes);\
@@ -116,6 +118,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
     dispatch_GetEntityContainer(SMALL_STONE_BRIDGE, state.small_stone_bridges);
     dispatch_GetEntityContainer(STONE_WALL, state.stone_walls);
     dispatch_GetEntityContainer(GATE, state.gates);
+    dispatch_GetEntityContainer(FLAG, state.flags);
     dispatch_GetEntityContainer(LIGHT_POST, state.light_posts);
     dispatch_GetEntityContainer(LAMPPOST, state.lampposts);
     dispatch_GetEntityContainer(WIND_CHIMES, state.wind_chimes);

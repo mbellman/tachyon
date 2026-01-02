@@ -16,7 +16,7 @@ namespace astro {
       mesh(meshes.mushroom_body).shadow_cascade_ceiling = 2;
 
       mesh(meshes.mushroom_spots).type = GRASS_MESH;
-      mesh(meshes.mushroom_spots).shadow_cascade_ceiling = 2;
+      mesh(meshes.mushroom_spots).shadow_cascade_ceiling = 1;
     }
 
     getMeshes() {

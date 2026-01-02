@@ -77,7 +77,7 @@ namespace astro {
         if (is_open) {
           float time_since_opened = time_since(entity.game_activation_time);
 
-          // Drop the lock
+          // Lock opening animation
           {
             float lock_alpha = time_since_opened;
             if (lock_alpha > 1.f) lock_alpha = 1.f;
@@ -86,7 +86,7 @@ namespace astro {
             lock.position -= tVec3f(0, lock_alpha * entity.scale.y, 0);
           }
 
-          // Open the doors
+          // Door opening animation
           {
             float open_alpha = time_since_opened - 0.5f;
             if (open_alpha < 0.f) open_alpha = 0.f;
@@ -111,8 +111,11 @@ namespace astro {
 
           if (did_press_key(tKey::CONTROLLER_A)) {
             if (has_gate_key) {
+              // Open the gate
               entity.game_activation_time = get_scene_time();
-              entity.astro_activation_time = state.astro_time;
+              // Add some buffer to the astro opening time to give
+              // us a bit of leeway when traveling back to that point
+              entity.astro_activation_time = state.astro_time - 4.f;
 
               UISystem::ShowDialogue(tachyon, state, "The gate was unlocked.");
             } else if (!state.has_blocking_dialogue) {
