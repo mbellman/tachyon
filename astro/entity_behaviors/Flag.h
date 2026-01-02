@@ -33,9 +33,11 @@ namespace astro {
       auto& meshes = state.meshes;
 
       // @todo culling
-      // @todo time evolution
       for_entities(state.flags) {
         auto& entity = state.flags[i];
+
+        float age = state.astro_time - entity.astro_start_time;
+        if (age < 0.f) age = 0.f;
 
         // Pole
         {
@@ -45,6 +47,10 @@ namespace astro {
 
           pole.color = tVec3f(0.7f, 0.5f, 0.2f);
           pole.material = tVec4f(1.f, 0, 0, 0.4f);
+
+          if (age < 4.f) pole.position.y = entity.position.y - entity.scale.y * 0.75f;
+          if (age < 2.f) pole.position.y = entity.position.y - entity.scale.y * 1.5f;
+          if (age == 0.f) pole.scale = tVec3f(0.f);
 
           commit(pole);
         }
@@ -57,6 +63,8 @@ namespace astro {
 
           banner.color = tVec4f(1.f, 0.8f, 0.4f, 0.1f);
           banner.material = tVec4f(0.7f, 0, 0, 1.f);
+
+          if (age < 6.f) banner.scale = tVec3f(0.f);
 
           commit(banner);
         }
