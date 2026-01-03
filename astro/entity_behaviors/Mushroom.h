@@ -37,15 +37,21 @@ namespace astro {
 
       const float lifetime = 50.f;
 
-      // @todo culling
+      reset_instances(meshes.mushroom_body);
+      reset_instances(meshes.mushroom_spots);
+
       // @todo growth
       for_entities(state.mushrooms) {
         auto& entity = state.mushrooms[i];
+
+        if (abs(entity.position.x - state.player_position.x) > 20000.f) continue;
+        if (abs(entity.position.z - state.player_position.z) > 20000.f) continue;
+
         float life_progress = GetLivingEntityProgress(state, entity, lifetime);
 
         // Mushroom
         {
-          auto& body = objects(meshes.mushroom_body)[i];
+          auto& body = use_instance(meshes.mushroom_body);
 
           Sync(body, entity);
 
@@ -63,7 +69,7 @@ namespace astro {
 
         // Spots
         {
-          auto& spots = objects(meshes.mushroom_spots)[i];
+          auto& spots = use_instance(meshes.mushroom_spots);
 
           Sync(spots, entity);
 

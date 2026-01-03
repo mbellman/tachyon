@@ -32,16 +32,22 @@ namespace astro {
     timeEvolve() {
       auto& meshes = state.meshes;
 
-      // @todo culling
+      reset_instances(meshes.flag_pole);
+      reset_instances(meshes.flag_banner);
+
       for_entities(state.flags) {
         auto& entity = state.flags[i];
 
+        if (abs(entity.position.x - state.player_position.x) > 20000.f) continue;
+        if (abs(entity.position.z - state.player_position.z) > 20000.f) continue;
+
         float age = state.astro_time - entity.astro_start_time;
         if (age < 0.f) age = 0.f;
+        if (age == 0.f) continue;
 
         // Pole
         {
-          auto& pole = objects(meshes.flag_pole)[i];
+          auto& pole = use_instance(meshes.flag_pole);
 
           Sync(pole, entity);
 
@@ -50,14 +56,13 @@ namespace astro {
 
           if (age < 4.f) pole.position.y = entity.position.y - entity.scale.y * 0.75f;
           if (age < 2.f) pole.position.y = entity.position.y - entity.scale.y * 1.5f;
-          if (age == 0.f) pole.scale = tVec3f(0.f);
 
           commit(pole);
         }
 
         // Banner
         {
-          auto& banner = objects(meshes.flag_banner)[i];
+          auto& banner = use_instance(meshes.flag_banner);
 
           Sync(banner, entity);
 

@@ -11,6 +11,15 @@
 #define remove_all(__mesh_index) Tachyon_RemoveAllObjects(tachyon, __mesh_index)
 #define commit(__object) Tachyon_CommitObject(tachyon, __object)
 #define get_live_object(__object) Tachyon_GetLiveObject(tachyon, __object)
+
+#define reset_instances(__mesh_index)\
+  mesh(__mesh_index).lod_1.instance_count = 0;\
+  mesh(__mesh_index).lod_2.instance_count = 0;\
+  mesh(__mesh_index).lod_3.instance_count = 0
+
+#define use_instance(__mesh_index)\
+  objects(__mesh_index)[mesh(__mesh_index).lod_1.instance_count++]
+
 #define create_point_light() Tachyon_CreatePointLight(tachyon)
 #define get_point_light(__light_id) Tachyon_GetPointLight(tachyon, __light_id)
 #define remove_point_light(__light) Tachyon_RemovePointLight(tachyon, __light)

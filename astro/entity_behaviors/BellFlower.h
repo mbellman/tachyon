@@ -37,16 +37,21 @@ namespace astro {
       float petals_emissivity = state.is_nighttime ? 0.6f : 0.4f;
       float light_power = state.is_nighttime ? 1.f : 0.1f;
 
-      // @todo culling
+      reset_instances(meshes.bellflower_stems);
+      reset_instances(meshes.bellflower_petals);
+
       // @todo growth
       for_entities(state.bellflowers) {
         auto& entity = state.bellflowers[i];
         // float life_progress = GetLivingEntityProgress(state, entity, lifetime);
         // float growth = sqrtf(sinf(life_progress * t_PI));
 
+        if (abs(entity.position.x - state.player_position.x) > 20000.f) continue;
+        if (abs(entity.position.z - state.player_position.z) > 20000.f) continue;
+
         // Stems
         {
-          auto& stems = objects(meshes.bellflower_stems)[i];
+          auto& stems = use_instance(meshes.bellflower_stems);
 
           Sync(stems, entity);
 
@@ -58,7 +63,7 @@ namespace astro {
 
         // Petals
         {
-          auto& petals = objects(meshes.bellflower_petals)[i];
+          auto& petals = use_instance(meshes.bellflower_petals);
 
           Sync(petals, entity);
 
