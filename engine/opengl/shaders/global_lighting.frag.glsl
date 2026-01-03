@@ -37,7 +37,7 @@ struct FogVolume {
 };
 
 uniform vec3 player_position;
-uniform FogVolume fog_volumes[20];
+uniform FogVolume fog_volumes[30];
 uniform int total_fog_volumes;
 uniform float fog_visibility;
 
