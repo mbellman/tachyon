@@ -64,7 +64,9 @@ namespace astro {
       const float lifetime = 100.f;
       const tVec3f leaves_color = tVec3f(0.07f, 0.14f, 0.07f);
 
-      uint16 shrub_index = 0;
+      reset_instances(meshes.shrub_bottom);
+      reset_instances(meshes.shrub_middle);
+      reset_instances(meshes.shrub_top);
 
       for_entities(state.shrubs) {
         auto& entity = state.shrubs[i];
@@ -76,7 +78,7 @@ namespace astro {
 
         // Bottom
         {
-          auto& bottom = objects(meshes.shrub_bottom)[shrub_index];
+          auto& bottom = use_instance(meshes.shrub_bottom);
 
           bottom.scale = entity.scale * GetGrowthFactor(life_progress, 0.f);
 
@@ -93,7 +95,7 @@ namespace astro {
 
         // Middle
         {
-          auto& middle = objects(meshes.shrub_middle)[shrub_index];
+          auto& middle = use_instance(meshes.shrub_middle);
 
           middle.scale = entity.scale * GetGrowthFactor(life_progress, -0.15f);
 
@@ -110,7 +112,7 @@ namespace astro {
 
         // Top
         {
-          auto& top = objects(meshes.shrub_top)[shrub_index];
+          auto& top = use_instance(meshes.shrub_top);
 
           top.scale = entity.scale * GetGrowthFactor(life_progress, -0.3f);
 
@@ -129,13 +131,7 @@ namespace astro {
         entity.visible_position = entity.position;
         entity.visible_scale = entity.scale * GetGrowthFactor(life_progress, 0.f);
         entity.visible_rotation = entity.orientation;
-
-        shrub_index++;
       }
-
-      mesh(meshes.shrub_bottom).lod_1.instance_count = shrub_index;
-      mesh(meshes.shrub_middle).lod_1.instance_count = shrub_index;
-      mesh(meshes.shrub_top).lod_1.instance_count = shrub_index;
     }
   };
 }

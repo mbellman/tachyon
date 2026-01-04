@@ -842,7 +842,8 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
 
   auto& player_position = state.player_position;
   float base_time_progress = 0.5f * (state.astro_time - -500.f);
-  uint16 flower_index = 0;
+
+  reset_instances(state.meshes.bush_flower);
 
   for_entities(state.flower_bushes) {
     auto& entity = state.flower_bushes[i];
@@ -861,7 +862,7 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
       float vz = abs(entity.visible_position.z);
 
       for (int i = 0; i < 3; i++) {
-        auto& flower = objects(state.meshes.bush_flower)[flower_index++];
+        auto& flower = use_instance(state.meshes.bush_flower);
 
         float offset_x = fmodf(vx + vx * 0.1f + 847.f * (float)i, spawn_radius) - half_spawn_radius;
         float offset_z = fmodf(vz + vz * 0.1f + 847.f * (float)i, spawn_radius) - half_spawn_radius;
@@ -896,11 +897,11 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
   // @todo description
   auto& mesh = mesh(state.meshes.bush_flower);
 
-  mesh.lod_1.instance_count = flower_index;
-
   // @todo dev only
   {
-    add_dev_label("  Total bush flowers: ", std::to_string(flower_index));
+    auto total_flowers = mesh(state.meshes.bush_flower).lod_1.instance_count;
+
+    add_dev_label("  Total bush flowers: ", std::to_string(total_flowers));
   }
 }
 

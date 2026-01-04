@@ -36,7 +36,8 @@ namespace astro {
       const tVec3f leaves_color = tVec3f(0.3f, 0.15f, 0.1f);
       const float lifetime = 200.f;
 
-      uint16 index = 0;
+      reset_instances(meshes.chestnut_tree_trunk);
+      reset_instances(meshes.chestnut_tree_leaves);
 
       for_entities(state.chestnut_trees) {
         auto& entity = state.chestnut_trees[i];
@@ -56,45 +57,47 @@ namespace astro {
         float tree_height = 1.f - powf(1.f - growth_factor, 4.f);
         float tree_thickness = -(cosf(t_PI * growth_factor) - 1.f) / 2.f;
 
-        // Trunk
-        auto& trunk = objects(meshes.chestnut_tree_trunk)[index];
-
-        trunk.scale = entity.scale * tVec3f(
+        tVec3f tree_scale = entity.scale * tVec3f(
           tree_thickness,
           tree_height,
           tree_thickness
         );
 
-        trunk.position = entity.position;
-        trunk.position.y = entity.position.y - entity.scale.y * (1.f - tree_thickness);
+        // Trunk
+        {
+          auto& trunk = use_instance(meshes.chestnut_tree_trunk);
 
-        trunk.rotation = entity.orientation;
-        trunk.color = wood_color;
-        trunk.material = wood_material;
+          trunk.scale = tree_scale;
+
+          trunk.position = entity.position;
+          trunk.position.y = entity.position.y - entity.scale.y * (1.f - tree_thickness);
+
+          trunk.rotation = entity.orientation;
+          trunk.color = wood_color;
+          trunk.material = wood_material;
+
+          commit(trunk);
+        }
 
         // Leaves
-        auto& leaves = objects(meshes.chestnut_tree_leaves)[index];
+        {
+          auto& leaves = use_instance(meshes.chestnut_tree_leaves);
 
-        leaves.position = entity.position;
-        leaves.position.y += entity.scale.y * 0.8f;
-        leaves.scale = trunk.scale;
-        leaves.rotation = entity.orientation;
-        leaves.color = leaves_color;
-        leaves.material = tVec4f(0.8f, 0, 0, 1.f);
+          leaves.position = entity.position;
+          leaves.position.y += entity.scale.y * 0.8f;
+          leaves.scale = tree_scale;
+          leaves.rotation = entity.orientation;
+          leaves.color = leaves_color;
+          leaves.material = tVec4f(0.8f, 0, 0, 1.f);
+
+          commit(leaves);
+        }
 
         // Collision
         entity.visible_position = entity.position;
-        entity.visible_scale = trunk.scale;
+        entity.visible_scale = tree_scale;
         entity.visible_rotation = entity.orientation;
-
-        commit(trunk);
-        commit(leaves);
-
-        index++;
       }
-
-      mesh(meshes.chestnut_tree_trunk).lod_1.instance_count = index;
-      mesh(meshes.chestnut_tree_leaves).lod_1.instance_count = index;
     }
   };
 }

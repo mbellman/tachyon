@@ -43,12 +43,14 @@ namespace astro {
       const tVec3f leaves_color = tVec3f(0.15f, 0.3f, 0.1f);
       const float lifetime = 200.f;
 
-      uint16 index = 0;
+      reset_instances(meshes.oak_tree_roots);
+      reset_instances(meshes.oak_tree_trunk);
+      reset_instances(meshes.oak_tree_branches);
+      reset_instances(meshes.oak_tree_leaves);
 
       for_entities(state.oak_trees) {
         auto& entity = state.oak_trees[i];
 
-        // @todo factor
         if (abs(state.player_position.x - entity.position.x) > 30000.f) continue;
         if (entity.position.z - state.player_position.z > 12000.f) continue;
         if (state.player_position.z - entity.position.z > 30000.f) continue;
@@ -65,83 +67,82 @@ namespace astro {
         float tree_height = 1.f - powf(1.f - growth_factor, 4.f);
         float tree_thickness = -(cosf(t_PI * growth_factor) - 1.f) / 2.f;
 
-        // Roots
-        auto& roots = objects(meshes.oak_tree_roots)[index];
-
-        roots.scale = entity.scale * tVec3f(
+        tVec3f tree_scale = entity.scale * tVec3f(
           tree_thickness,
-          tree_height * 2.5f,
+          tree_height,
           tree_thickness
         );
 
-        roots.position = entity.position;
-        roots.position.y = entity.position.y + entity.scale.y * 1.2f * tree_thickness;// - entity.scale.y * (1.f - tree_thickness);
+        // Roots
+        {
+          auto& roots = use_instance(meshes.oak_tree_roots);
 
-        roots.rotation = entity.orientation;
-        roots.color = wood_color;
-        roots.material = wood_material;
+          roots.scale = tree_scale;
+          roots.scale.y *= 2.5f;
+
+          roots.position = entity.position;
+          roots.position.y = entity.position.y + entity.scale.y * 1.2f * tree_thickness;// - entity.scale.y * (1.f - tree_thickness);
+
+          roots.rotation = entity.orientation;
+          roots.color = wood_color;
+          roots.material = wood_material;
+
+          commit(roots);
+        }
 
         // Trunk
-        auto& trunk = objects(meshes.oak_tree_trunk)[index];
+        {
+          auto& trunk = use_instance(meshes.oak_tree_trunk);
 
-        trunk.scale = entity.scale * tVec3f(
-          tree_thickness,
-          tree_height,
-          tree_thickness
-        );
+          trunk.scale = tree_scale;
 
-        trunk.position = entity.position;
-        trunk.position.y = entity.position.y - entity.scale.y * (1.f - tree_thickness);
+          trunk.position = entity.position;
+          trunk.position.y = entity.position.y - entity.scale.y * (1.f - tree_thickness);
 
-        trunk.rotation = entity.orientation;
-        trunk.color = wood_color;
-        trunk.material = wood_material;
+          trunk.rotation = entity.orientation;
+          trunk.color = wood_color;
+          trunk.material = wood_material;
+
+          commit(trunk);
+        }
 
         // Branches
-        auto& branches = objects(meshes.oak_tree_branches)[index];
-        float branches_size = growth_factor > 0.5f ? 2.f * (growth_factor - 0.5f) : 0.f;
+        {
+          auto& branches = use_instance(meshes.oak_tree_branches);
+          float branches_size = growth_factor > 0.5f ? 2.f * (growth_factor - 0.5f) : 0.f;
 
-        branches.position = entity.position;
+          branches.position = entity.position;
 
-        branches.scale = entity.scale * tVec3f(
-          branches_size,
-          tree_height,
-          branches_size
-        );
+          branches.scale = tree_scale;
 
-        branches.rotation = entity.orientation;
-        branches.color = wood_color;
-        branches.material = wood_material;
+          branches.rotation = entity.orientation;
+          branches.color = wood_color;
+          branches.material = wood_material;
+
+          commit(branches);
+        }
 
         // Leaves
-        auto& leaves = objects(meshes.oak_tree_leaves)[index];
+        {
+          auto& leaves = use_instance(meshes.oak_tree_leaves);
 
-        leaves.position = entity.position;
-        leaves.position.y += entity.scale.y * 0.1f;
-        leaves.scale = entity.visible_scale;
-        leaves.scale.x = branches.scale.x * 1.2f;
-        leaves.scale.z = branches.scale.z * 1.2f;
-        leaves.rotation = entity.orientation;
-        leaves.color = leaves_color;
-        leaves.material = tVec4f(0.8f, 0, 0, 1.f);
+          leaves.position = entity.position;
+          leaves.position.y += entity.scale.y * 0.1f;
+          leaves.scale = tree_scale;
+          leaves.scale.x = tree_scale.x * 1.2f;
+          leaves.scale.z = tree_scale.z * 1.2f;
+          leaves.rotation = entity.orientation;
+          leaves.color = leaves_color;
+          leaves.material = tVec4f(0.8f, 0, 0, 1.f);
+
+          commit(leaves);
+        }
 
         // Collision
         entity.visible_position = entity.position;
-        entity.visible_scale = trunk.scale;
+        entity.visible_scale = tree_scale;
         entity.visible_rotation = entity.orientation;
-
-        commit(roots);
-        commit(trunk);
-        commit(branches);
-        commit(leaves);
-
-        index++;
       }
-
-      mesh(meshes.oak_tree_roots).lod_1.instance_count = index;
-      mesh(meshes.oak_tree_trunk).lod_1.instance_count = index;
-      mesh(meshes.oak_tree_branches).lod_1.instance_count = index;
-      mesh(meshes.oak_tree_leaves).lod_1.instance_count = index;
     }
   };
 }

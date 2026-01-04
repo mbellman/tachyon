@@ -29,13 +29,18 @@ namespace astro {
       const tVec3f sprouted_color = tVec3f(0.1f, 0.2f, 0.1f);
       const tVec3f wilting_color = tVec3f(0.4f, 0.2f, 0.1f);
 
+      reset_instances(meshes.flower_bush_leaves);
+
       for_entities(state.flower_bushes) {
         auto& entity = state.flower_bushes[i];
+
+        if (abs(state.player_position.x - entity.position.x) > 25000.f) continue;
+        if (abs(state.player_position.z - entity.position.z) > 25000.f) continue;
+
         float life_progress = GetLivingEntityProgress(state, entity, lifetime);
         float growth = sqrtf(sinf(life_progress * t_PI));
 
-        // @todo factor
-        auto& leaves = objects(meshes.flower_bush_leaves)[i];
+        auto& leaves = use_instance(meshes.flower_bush_leaves);
 
         leaves.scale = entity.scale * growth;
         leaves.position = entity.position;
@@ -63,14 +68,13 @@ namespace astro {
           leaves.scale = tVec3f(0.f);
         }
 
-        // @todo handle flowers here, rather than in procedural_generation.cpp
+        // @todo (?) handle flowers here, rather than in procedural_generation.cpp
 
         entity.visible_scale = leaves.scale;
         entity.visible_position = entity.position;
         entity.visible_rotation = entity.orientation;
 
         commit(leaves);
-        // commit(petals);
       }
     }
   };
