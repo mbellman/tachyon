@@ -116,8 +116,8 @@ std::string SerializeEntity(const GameEntity& entity) {
     Serialize(entity.scale) + "," +
     Serialize(entity.orientation) + "," +
     Serialize(entity.tint) + "," +
-    std::to_string(entity.astro_start_time) + "," +
-    std::to_string(entity.astro_end_time) + "," +
+    Serialize(entity.astro_start_time) + "," +
+    Serialize(entity.astro_end_time) + "," +
     entity.item_pickup_name + "," +
     entity.unique_name + "," +
     entity.associated_entity_name + "," +
