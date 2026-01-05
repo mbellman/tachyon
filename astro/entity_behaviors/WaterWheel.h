@@ -4,6 +4,20 @@
 
 namespace astro {
   behavior WaterWheel {
+    const static float BASE_ROTATION_RATE = 0.7f;
+    const static float STOPPED_ROTATION = t_TAU;
+
+    // Wrap rotation to between 0 and TAU
+    static float GetNormalizedRotationAngle(float angle) {
+      float new_angle = fmodf(angle, t_TAU);
+
+      if (new_angle < 0.f) {
+        new_angle += t_TAU;
+      }
+
+      return new_angle;
+    }
+
     static bool DidStopTurning(State& state, GameEntity& entity) {
       return entity.astro_end_time != 0.f && state.astro_time > entity.astro_end_time;
     }
@@ -17,16 +31,19 @@ namespace astro {
         entity.game_activation_time != -1.f &&
         state.astro_time >= entity.astro_activation_time
       ) {
-        // Gradually stopping after activation time
-        // @todo adjust stop duration to stop rotation at an interval of t_HALF_PI
-        float stop_duration = 1.5f;
-        float stop_alpha = time_since(entity.game_activation_time) / stop_duration;
-        if (stop_alpha > 1.f) stop_alpha = 1.f;
+        // Slow down until we reach an interval of t_HALF_PI
+        float current_rotation = entity.accumulation_value;
+        float rotation_delta = STOPPED_ROTATION - current_rotation;
+        float alpha = 1.f - rotation_delta / STOPPED_ROTATION;
+        if (alpha > 1.f) alpha = 1.f;
+        alpha *= alpha;
+        alpha *= alpha;
+        alpha *= alpha;
 
-        return Tachyon_Lerpf(0.7f, 0.f, stop_alpha) * state.dt;
+        return Tachyon_Lerpf(BASE_ROTATION_RATE, 0.f, alpha) * state.dt;
       }
 
-      float rotation_speed = 0.7f + 200.f * state.astro_turn_speed;
+      float rotation_speed = BASE_ROTATION_RATE + 200.f * state.astro_turn_speed;
 
       return rotation_speed * state.dt;
     }
@@ -68,10 +85,11 @@ namespace astro {
         {
           // Accumulate rotation
           entity.accumulation_value += GetRotationVelocity(tachyon, state, entity);
+          entity.accumulation_value = GetNormalizedRotationAngle(entity.accumulation_value);
 
-          // Wrap to keep the rotation value within a reasonable range,
-          // and to avoid late-stage floating point precision errors
-          entity.accumulation_value = fmodf(entity.accumulation_value, t_TAU);
+          if (state.astro_time > entity.astro_activation_time) {
+            entity.accumulation_value = 0.f;
+          }
 
           tVec3f rotation_axis = tVec3f(0, 0, 1.f);
           float rotation_angle = DidStopTurning(state, entity) ? 0.f : entity.accumulation_value;
@@ -119,7 +137,14 @@ namespace astro {
                 entity.astro_activation_time = state.astro_time;
                 entity.game_activation_time = get_scene_time();
 
-                UISystem::ShowBlockingDialogue(tachyon, state, "The wheel stopped.");
+                if (entity.accumulation_value > t_PI + t_HALF_PI) {
+                  // If we're almost rotated into the stopping position,
+                  // set the rotation back halfway to give the stopping
+                  // animation a little more time to proceed smoothly.
+                  entity.accumulation_value -= t_PI;
+                }
+
+                UISystem::ShowBlockingDialogue(tachyon, state, "The wheel stopped turning.");
               }
             }
           }

@@ -656,6 +656,9 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
         continue;
       }
 
+      // @todo @bug create() is not technically thread-safe, which occasionally
+      // causes start-time crashes due to an incorrectly-resolved group.total_active
+      // or some related issue. This will need to be addressed.
       auto& flower = create(meshes.ground_flower);
 
       flower.position = position;
@@ -703,6 +706,9 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
         continue;
       }
 
+      // @todo @bug create() is not technically thread-safe, which occasionally
+      // causes start-time crashes due to an incorrectly-resolved group.total_active
+      // or some related issue. This will need to be addressed.
       auto& flower = create(meshes.tiny_ground_flower);
 
       flower.position = position;

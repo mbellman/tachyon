@@ -237,7 +237,7 @@ float GetPrimaryLightShadowFactor(vec3 world_position) {
 void main() {
   vec3 N = normalize(fragNormal);
 
-  float water_speed = time;
+  float water_speed = -time;
   float ripple_speed = 2.0 * water_speed;
   // @temporary
   float big_wave = sin(fragPosition.z * 0.0002 + fragPosition.x * 0.0002 + ripple_speed);
