@@ -164,6 +164,9 @@ namespace astro {
     float last_recent_position_record_time = 0.f;
     float last_recent_position_reverse_time = 0.f;
 
+    // For entities which accumulate values over time (rotation for wheels, etc.)
+    float accumulation_value = 0.f;
+
     // Used for item pickup entities, or entities which can
     // impart items to the player (e.g. guards carrying things).
     //

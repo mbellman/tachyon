@@ -4,27 +4,31 @@
 
 namespace astro {
   behavior WaterWheel {
-    static float GetRotationAngle(Tachyon* tachyon, State& state, GameEntity& entity) {
-      if (entity.astro_end_time != 0.f && state.astro_time > entity.astro_end_time) {
-        // Past end time; stopped
+    static bool DidStopTurning(State& state, GameEntity& entity) {
+      return entity.astro_end_time != 0.f && state.astro_time > entity.astro_end_time;
+    }
+
+    static float GetRotationVelocity(Tachyon* tachyon, State& state, GameEntity& entity) {
+      if (DidStopTurning(state, entity)) {
         return 0.f;
       }
 
-      float t;
-
-      if (entity.game_activation_time != -1.f) {
+      if (
+        entity.game_activation_time != -1.f &&
+        state.astro_time >= entity.astro_activation_time
+      ) {
         // Gradually stopping after activation time
-        float stop_alpha = time_since(entity.game_activation_time) / 1.5f;
+        // @todo adjust stop duration to stop rotation at an interval of t_HALF_PI
+        float stop_duration = 1.5f;
+        float stop_alpha = time_since(entity.game_activation_time) / stop_duration;
         if (stop_alpha > 1.f) stop_alpha = 1.f;
-        stop_alpha = Tachyon_EaseOutSine(stop_alpha * 0.667f);
 
-        t = Tachyon_Lerpf(entity.game_activation_time, entity.game_activation_time + 1.5f, stop_alpha);
-      } else {
-        // Rotating normally
-        t = get_scene_time();
+        return Tachyon_Lerpf(0.7f, 0.f, stop_alpha) * state.dt;
       }
 
-      return 0.5f * (2.f * state.astro_time + t);
+      float rotation_speed = 0.7f + 200.f * state.astro_turn_speed;
+
+      return rotation_speed * state.dt;
     }
 
     addMeshes() {
@@ -62,9 +66,15 @@ namespace astro {
 
         // Wheel
         {
-          // Rotation
+          // Accumulate rotation
+          entity.accumulation_value += GetRotationVelocity(tachyon, state, entity);
+
+          // Wrap to keep the rotation value within a reasonable range,
+          // and to avoid late-stage floating point precision errors
+          entity.accumulation_value = fmodf(entity.accumulation_value, t_TAU);
+
           tVec3f rotation_axis = tVec3f(0, 0, 1.f);
-          float rotation_angle = GetRotationAngle(tachyon, state, entity);
+          float rotation_angle = DidStopTurning(state, entity) ? 0.f : entity.accumulation_value;
 
           auto& wheel = objects(meshes.water_wheel)[i];
 
