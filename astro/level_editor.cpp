@@ -1118,6 +1118,10 @@ static void PlaceNewEntity(Tachyon* tachyon, State& state) {
   // @temporary
   entity.astro_start_time = -50.f;
 
+  entity.visible_position = entity.position;
+  entity.visible_rotation = entity.orientation;
+  entity.visible_scale = entity.scale;
+
   EntityManager::SaveNewEntity(state, entity);
 
   SpawnEntityObjects(tachyon, state, entity);

@@ -27,6 +27,7 @@ namespace astro {
         return 0.f;
       }
 
+      // @todo stay at 0 if we've already played the stopping animation to completion
       if (
         entity.game_activation_time != -1.f &&
         state.astro_time >= entity.astro_activation_time
@@ -157,7 +158,7 @@ namespace astro {
             entity.game_activation_time != -1.f &&
             time_since(entity.game_activation_time) > 4.f
           ) {
-            GameEvents::ProcessEvent(tachyon, state, entity.unique_name);
+            GameEvents::StartEvent(tachyon, state, entity.unique_name);
 
             entity.did_activate = true;
           }

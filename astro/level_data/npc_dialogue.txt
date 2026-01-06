@@ -27,12 +27,13 @@ A subject thy seeketh, perhaps?
 @villager_loafer
 +You there! Come from the southern woodland, aye? Nay?
 +Well, I advise caution if you're bound for the forest ahead.
-+Damned place is shrouded in fog. Can't tell your head from your rear in there.
++The wood is shrouded in fog. Can't tell your head from your rear in there.
 +At night the mist lessens, though it be to little avail.
 +No less treacherous of a place, at that.
 As a matter of fact, might I request a service of you?
-Forgive my forwardness. But, if you're determined to venture ahead...
-I've heard tales of a rare treasure sequestered within these woods.
+I humbly beg your pardon. But, if you're determined to venture ahead...
+So it goes that a rare treasure lies sequestered within these woods.
+A local folk tale, perchance, though one I am remiss to ignore.
 I would be keen to know if you can trace its whereabouts.
 Or, yet more favorable, if you manage to procure it.
 

@@ -7,6 +7,7 @@
 #include "astro/data_loader.h"
 #include "astro/entity_dispatcher.h"
 #include "astro/entity_manager.h"
+#include "astro/game_events.h"
 #include "astro/items.h"
 #include "astro/level_editor.h"
 #include "astro/mesh_library.h"
@@ -437,6 +438,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
 
   #endif
 
+  GameEvents::HandleEvents(tachyon, state);
   Targeting::HandleTargets(tachyon, state);
   ControlSystem::HandleControls(tachyon, state);
   CollisionSystem::HandleCollisions(tachyon, state);

@@ -219,6 +219,19 @@ namespace astro {
 
   /**
    * ----------------------------
+   * Events
+   * ----------------------------
+   */
+  struct EntityMoveEvent {
+    EntityRecord entity_record;
+    tVec3f start_position;
+    tVec3f end_position;
+    float start_time = 0.f;
+    float end_time = 0.f;
+  };
+
+  /**
+   * ----------------------------
    * Game state
    * ----------------------------
    */
@@ -286,10 +299,13 @@ namespace astro {
     int32 astrolabe_light_id = -1;
     std::vector<int32> astro_light_ids;
 
+    // Particles
     std::vector<AmbientParticle> ambient_particles;
 
+    // Magic
     Spells spells;
 
+    // Items
     std::vector<Item> inventory;
 
     float last_frame_left_trigger = 0.f;
@@ -304,6 +320,9 @@ namespace astro {
     std::unordered_map<std::string, DialogueSet> npc_dialogue;
     std::string current_dialogue_set = "";
     int32 current_dialogue_step = 0;
+
+    // Events
+    std::vector<EntityMoveEvent> move_events;
 
     // Music
     float bgm_start_time = -1.f;

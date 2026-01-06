@@ -665,6 +665,7 @@ namespace astro {
     return record_a.type == record_b.type && record_a.id == record_b.id;
   }
 
+  // @todo CreateRecord()
   static inline EntityRecord GetRecord(const GameEntity& entity) {
     return {
       .type = entity.type,

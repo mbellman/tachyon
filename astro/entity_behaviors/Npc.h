@@ -35,6 +35,9 @@ namespace astro {
 
           Sync(body, entity);
 
+          body.position = entity.visible_position;
+          body.rotation = entity.visible_rotation;
+
           commit(body);
         }
 
