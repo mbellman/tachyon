@@ -131,6 +131,7 @@
     <ClInclude Include="astro\entity_behaviors\BellFlower.h" />
     <ClInclude Include="astro\entity_behaviors\ChestnutTree.h" />
     <ClInclude Include="astro\entity_behaviors\DirtPathNode.h" />
+    <ClInclude Include="astro\entity_behaviors\Flag.h" />
     <ClInclude Include="astro\entity_behaviors\FlowerBush.h" />
     <ClInclude Include="astro\entity_behaviors\FogSpawn.h" />
     <ClInclude Include="astro\entity_behaviors\Gate.h" />
@@ -165,6 +166,7 @@
     <ClInclude Include="astro\entity_dispatcher.h" />
     <ClInclude Include="astro\entity_manager.h" />
     <ClInclude Include="astro\game.h" />
+    <ClInclude Include="astro\game_events.h" />
     <ClInclude Include="astro\game_state.h" />
     <ClInclude Include="astro\items.h" />
     <ClInclude Include="astro\level_editor.h" />
@@ -326,6 +328,7 @@
     <ClCompile Include="astro\entity_dispatcher.cpp" />
     <ClCompile Include="astro\entity_manager.cpp" />
     <ClCompile Include="astro\game.cpp" />
+    <ClCompile Include="astro\game_events.cpp" />
     <ClCompile Include="astro\items.cpp" />
     <ClCompile Include="astro\level_editor.cpp" />
     <ClCompile Include="astro\mesh_library.cpp" />

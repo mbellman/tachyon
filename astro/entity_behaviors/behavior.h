@@ -2,6 +2,7 @@
 
 #include "engine/tachyon.h"
 #include "astro/entities.h"
+#include "astro/game_events.h"
 #include "astro/game_state.h"
 #include "astro/player_character.h"
 #include "astro/simple_animation.h"

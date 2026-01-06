@@ -116,7 +116,7 @@ namespace astro {
           commit(platform);
         }
 
-        // Proximity to control lever
+        // Player interactions
         {
           tVec3f lever_position = UnitEntityToWorldPosition(entity, tVec3f(0, 0, 0.85f));
           float distance_from_lever = tVec3f::distance(state.player_position, lever_position);
@@ -147,6 +147,19 @@ namespace astro {
                 UISystem::ShowBlockingDialogue(tachyon, state, "The wheel stopped turning.");
               }
             }
+          }
+        }
+
+        // Event handling
+        {
+          if (
+            !entity.did_activate &&
+            entity.game_activation_time != -1.f &&
+            time_since(entity.game_activation_time) > 4.f
+          ) {
+            GameEvents::ProcessEvent(tachyon, state, entity.unique_name);
+
+            entity.did_activate = true;
           }
         }
       }

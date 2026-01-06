@@ -397,6 +397,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
       for_entities(state.gates) {
         auto& entity = state.gates[i];
 
+        entity.did_activate = false;
         entity.astro_activation_time = 0.f;
         entity.game_activation_time = -1.f;
       }
@@ -404,6 +405,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
       for_entities(state.water_wheels) {
         auto& entity = state.water_wheels[i];
 
+        entity.did_activate = false;
         entity.astro_activation_time = 0.f;
         entity.game_activation_time = -1.f;
       }
