@@ -53,7 +53,7 @@ static void RiverWheelEvent(Tachyon* tachyon, State& state) {
     }
   }
 
-  UISystem::ShowBlockingDialogue(tachyon, state, "What the devil...? get away from there at once!");
+  UISystem::ShowBlockingDialogue(tachyon, state, "What the devil...? Get away from there at once!");
 }
 
 /**

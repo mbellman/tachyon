@@ -307,7 +307,10 @@ static void HandleWaterWheelCollisions(Tachyon* tachyon, State& state) {
   tVec3f player_xz = state.player_position.xz();
 
   for (auto& entity : state.water_wheels) {
-    bool is_turning = state.astro_time <= entity.astro_end_time;
+    bool is_turning = (
+      state.astro_time <= entity.astro_end_time &&
+      !entity.did_activate
+    );
 
     // Wheel collision
     if (!is_turning) {

@@ -411,6 +411,13 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
         entity.game_activation_time = -1.f;
       }
 
+      for_entities(state.npcs) {
+        auto& entity = state.npcs[i];
+
+        entity.visible_position = entity.position;
+        entity.visible_rotation = entity.orientation;
+      }
+
       show_overlay_message("Reset activated entities");
     }
 

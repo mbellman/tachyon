@@ -23,7 +23,7 @@ static void UpdateCameraNearEntities(State& state, tVec3f& new_camera_position) 
   UpdateCameraNearEntities(state, state.low_guards, new_camera_position, 20000.f, tVec3f(0, 500.f, 200.f));
 }
 
-static void UpdateEventCamera(Tachyon* tachyon, State& state, tVec3f& new_camera_position) {
+static void UpdateCameraDuringEvent(Tachyon* tachyon, State& state, tVec3f& new_camera_position) {
   auto& active_event = state.camera_events[0];
   auto& target_entity = *EntityManager::FindEntity(state, active_event.target_entity_record);
 
@@ -104,7 +104,7 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state) {
   tVec3f new_camera_position;
 
   if (state.camera_events.size() > 0) {
-    UpdateEventCamera(tachyon, state, new_camera_position);
+    UpdateCameraDuringEvent(tachyon, state, new_camera_position);
   }
   else if (state.has_target) {
     UpdateTargetCamera(tachyon, state, new_camera_position);
