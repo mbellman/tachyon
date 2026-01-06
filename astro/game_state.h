@@ -222,12 +222,19 @@ namespace astro {
    * Events
    * ----------------------------
    */
-  struct EntityMoveEvent {
+  struct BaseEvent {
+    float start_time = 0.f;
+    float end_time = 0.f;
+  };
+
+  struct CameraEvent : BaseEvent {
+    EntityRecord target_entity_record;
+  };
+
+  struct EntityMoveEvent : BaseEvent {
     EntityRecord entity_record;
     tVec3f start_position;
     tVec3f end_position;
-    float start_time = 0.f;
-    float end_time = 0.f;
   };
 
   /**
@@ -322,6 +329,7 @@ namespace astro {
     int32 current_dialogue_step = 0;
 
     // Events
+    std::vector<CameraEvent> camera_events;
     std::vector<EntityMoveEvent> move_events;
 
     // Music

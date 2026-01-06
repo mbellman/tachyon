@@ -9,6 +9,12 @@ using namespace astro;
     return handler(tachyon, state);\
   }\
 
+// @todo move to engine
+template<class T>
+static inline void RemoveFromArray(std::vector<T>& array, uint32 index) {
+  array.erase(array.begin() + index);
+}
+
 static void AddMoveEvent(Tachyon* tachyon, State& state, GameEntity& entity, const tVec3f& end_position, const float duration) {
   EntityMoveEvent event;
   event.entity_record = GetRecord(entity);
@@ -18,6 +24,15 @@ static void AddMoveEvent(Tachyon* tachyon, State& state, GameEntity& entity, con
   event.end_time = event.start_time + duration;
 
   state.move_events.push_back(event);
+}
+
+static void AddCameraEvent(Tachyon* tachyon, State& state, GameEntity& target, const float duration) {
+  CameraEvent event;
+  event.target_entity_record = GetRecord(target);
+  event.start_time = get_scene_time();
+  event.end_time = event.start_time + duration;
+
+  state.camera_events.push_back(event);
 }
 
 /**
@@ -32,12 +47,13 @@ static void RiverWheelEvent(Tachyon* tachyon, State& state) {
       tVec3f end_position = tVec3f(-125000.f, 0, 75000.f);
 
       AddMoveEvent(tachyon, state, entity, end_position, 2.f);
+      AddCameraEvent(tachyon, state, entity, 3.f);
 
       break;
     }
   }
 
-  UISystem::ShowBlockingDialogue(tachyon, state, "Hey! What gives?");
+  UISystem::ShowBlockingDialogue(tachyon, state, "What the devil...? get away from there at once!");
 }
 
 /**
@@ -51,11 +67,21 @@ void GameEvents::StartEvent(Tachyon* tachyon, State& state, const std::string& e
 void GameEvents::HandleEvents(Tachyon* tachyon, State& state) {
   float scene_time = get_scene_time();
 
+  // @todo factor
+  for (size_t i = 0; i < state.camera_events.size(); i++) {
+    auto& event = state.camera_events[i];
+
+    if (scene_time > event.end_time) {
+      RemoveFromArray(state.camera_events, i);
+    }
+  }
+
+  // @todo factor
   for (size_t i = 0; i < state.move_events.size(); i++) {
     auto& event = state.move_events[i];
 
     if (scene_time > event.end_time) {
-      // @todo remove event
+      RemoveFromArray(state.move_events, i);
     } else {
       auto& entity = *EntityManager::FindEntity(state, event.entity_record);
       float alpha = Tachyon_InverseLerp(event.start_time, event.end_time, scene_time);
