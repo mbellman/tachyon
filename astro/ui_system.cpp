@@ -59,14 +59,15 @@ void UISystem::StartDialogueSet(State& state, const std::string& set_name) {
     state.current_dialogue_set = set_name;
 
     if (dialogue_set.invoked) {
-      std::string set_2_name = set_name + "_2";
+      // Check to see if secondary dialogue is defined for the subject;
+      // if so, use that dialogue instead. Dialogue sets can be chained
+      // using additional "+" qualifiers for the secondary set names.
+      std::string secondary_set_name = set_name + "+";
 
-      if (HasKey(state.npc_dialogue, set_2_name)) {
+      if (HasKey(state.npc_dialogue, secondary_set_name)) {
         // If there is a follow-up dialogue set available after having
         // invoked the dialogue first, use that instead
-        state.current_dialogue_set = set_2_name;
-
-        InitiateDialogueSet(state, state.npc_dialogue[set_2_name]);
+        UISystem::StartDialogueSet(state, secondary_set_name);
 
         return;
       }
