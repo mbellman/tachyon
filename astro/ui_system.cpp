@@ -2,6 +2,11 @@
 
 using namespace astro;
 
+template<class T>
+static bool HasKey(const std::unordered_map<std::string, T>& map, const std::string& key) {
+  return map.find(key) != map.end();
+}
+
 static void CompleteCurrentDialogueSet(State& state) {
   state.current_dialogue_set = "";
   state.current_dialogue_step = 0;
@@ -32,24 +37,42 @@ static void HandleCurrentDialogueSet(Tachyon* tachyon, State& state) {
   UISystem::ShowBlockingDialogue(tachyon, state, current_dialogue_line);
 }
 
-void UISystem::StartDialogueSet(State& state, const std::string set_name) {
-  if (state.npc_dialogue.find(set_name) != state.npc_dialogue.end()) {
+static void InitiateDialogueSet(State& state, DialogueSet& dialogue_set) {
+  if (dialogue_set.random) {
+    // For random dialogue, start on a random step in the sequence
+    state.current_dialogue_step = Tachyon_GetRandom(0, dialogue_set.lines.size() - 1);
+  } else if (dialogue_set.invoked) {
+    // If the set was invoked before, begin on the first line for returning interactions
+    state.current_dialogue_step = dialogue_set.returning_first_line_index;
+  } else {
+    // Start from the beginning
+    state.current_dialogue_step = 0;
+  }
+
+  dialogue_set.invoked = true;
+}
+
+void UISystem::StartDialogueSet(State& state, const std::string& set_name) {
+  if (HasKey(state.npc_dialogue, set_name)) {
     auto& dialogue_set = state.npc_dialogue[set_name];
 
     state.current_dialogue_set = set_name;
 
-    if (dialogue_set.random) {
-      // For random dialogue, start on a random step in the sequence
-      state.current_dialogue_step = Tachyon_GetRandom(0, dialogue_set.lines.size() - 1);
-    } else if (dialogue_set.invoked) {
-      // If the set was invoked before, begin on the first line for returning interactions
-      state.current_dialogue_step = dialogue_set.returning_first_line_index;
-    } else {
-      // Start from the beginning
-      state.current_dialogue_step = 0;
+    if (dialogue_set.invoked) {
+      std::string set_2_name = set_name + "_2";
+
+      if (HasKey(state.npc_dialogue, set_2_name)) {
+        // If there is a follow-up dialogue set available after having
+        // invoked the dialogue first, use that instead
+        state.current_dialogue_set = set_2_name;
+
+        InitiateDialogueSet(state, state.npc_dialogue[set_2_name]);
+
+        return;
+      }
     }
 
-    dialogue_set.invoked = true;
+    InitiateDialogueSet(state, state.npc_dialogue[set_name]);
   } else if (set_name != "") {
     // @todo dev mode only
     console_log("Dialogue set '" + set_name + "' not found.");

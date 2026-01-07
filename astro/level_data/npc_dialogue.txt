@@ -3,10 +3,28 @@
 I have a keen memory for faces. Yours, I cannot place. Have we met?
 Well, I shall continue as I was.
 
+// --------------
+// House dialogue
+// --------------
+
 @@watermill_house
 Oh, bugger off! Leave me be, why don't you!
 Go away! I've nothing to do with you interlopers!
-I've had quite enough of this! Be gone, the lot of you!
+I've had quite enough of this! Be gone, you scheming lot!
+
+@dweller_river
+You're no guardsman...in fact, I don't believe we've crossed paths!
+From whence do you hail? Thy dress is like none with which I'm familiar...
+Nay, that be of little import...to where dost thou journey?
+If thou art headed West, beyond the Falls...I bid thee safe travels.
+
+@dweller_river_2
+Oh, do forgive me! I shall make the bridge available to you.
+Bid me patience...this will take but a moment.
+
+// -----------------
+// Villager dialogue
+// -----------------
 
 @villager_gardener
 +Oh, greetings. Are you passing through?
@@ -25,13 +43,15 @@ Dost thou have special business here?
 A subject thy seeketh, perhaps?
 
 @villager_loafer
-+You there! Come from the southern woodland, aye? Nay?
-+Well, I advise caution if you're bound for the forest ahead.
-+The wood is shrouded in fog. Can't tell your head from your rear in there.
-+At night the mist lessens, though it be to little avail.
-+No less treacherous of a place, at that.
-As a matter of fact, might I request a service of you?
-I humbly beg your pardon. But, if you're determined to venture ahead...
+You there! Come from the southern woodland, aye? Nay?
+Well, I advise caution if you're bound for the forest ahead.
+The wood is shrouded in fog. Can't tell your head from your rear in there.
+At night the mist lessens, though it be to little avail.
+No less treacherous of a place, at that.
+
+@villager_loafer_2
++As a matter of fact, might I request a service of you?
++I humbly beg your pardon. But, if you're determined to venture ahead...
 So it goes that a rare treasure lies sequestered within these woods.
 A local folk tale, perchance, though one I am remiss to ignore.
 I would be keen to know if you can trace its whereabouts.
@@ -41,12 +61,4 @@ Or, yet more favorable, if you manage to procure it.
 +Ah, an unfamiliar face. Well, good day to thee.
 I pray our humble town sees fit your needs.
 Our old village was displaced, you see.
-Decreed by the kingdom's defense ministry.
-
-@dweller_river
-You're no guardsman...in fact, I don't believe we've once crossed paths!
-From whence do you hail? Thy dress is like none I've beholden...
-Nay, that be of little import...to where dost thou journey?
-If thou art headed West, beyond the Falls...I bid thee safe travels.
--Oh, do forgive me! I shall make the bridge available to you.
--Bid me patience...this will take but a moment.
+'Twas decreed by the kingdom's defense ministry.

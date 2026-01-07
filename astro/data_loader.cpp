@@ -159,11 +159,15 @@ void DataLoader::LoadNpcDialogue(Tachyon* tachyon, State& state) {
   std::string current_npc_name = "";
 
   for (auto& line : lines) {
+    if (line.size() == 0) continue;
+    if (line.starts_with("//")) continue;
+
     if (line[0] == '@') {
       // NPC or other dialogue trigger
       DialogueSet dialogue;
 
       if (line[1] == '@') {
+        // Dialogue set with lines selected at random
         dialogue.random = true;
 
         current_npc_name = line.substr(2);
@@ -172,12 +176,14 @@ void DataLoader::LoadNpcDialogue(Tachyon* tachyon, State& state) {
       }
 
       state.npc_dialogue[current_npc_name] = dialogue;
-    }
-    else if (line.size() > 0) {
+    } else {
       // Dialogue lines
       auto& dialogue_set = state.npc_dialogue[current_npc_name];
 
       if (line.starts_with("+")) {
+        // Lines starting with "+" should only be read the first time
+        // the dialogue is invoked. Upon returning to the dialogue set,
+        // we should continue from subsequent lines.
         dialogue_set.returning_first_line_index++;
 
         dialogue_set.lines.push_back(line.substr(1));
