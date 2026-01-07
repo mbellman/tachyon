@@ -70,6 +70,27 @@ static inline void ResolveSingleRadiusCollision(State& state, const tVec3f& posi
   }
 }
 
+static inline void ResolveSoftRadiusCollision(State& state, const tVec3f& position, const float radius) {
+  // Skip small or invisible radii
+  if (radius < 0.1f) return;
+
+  float dx = state.player_position.x - position.x;
+  float dz = state.player_position.z - position.z;
+  float distance = sqrtf(dx*dx + dz*dz) - PLAYER_RADIUS;
+
+  // Prevent excessively small or negative distances
+  if (distance < 100.f) distance = 100.f;
+
+  if (distance < radius) {
+    float ratio = distance / radius;
+
+    state.player_position.x += dx * state.dt * 10.f * (1.f - ratio);
+    state.player_position.z += dz * state.dt * 10.f * (1.f - ratio);
+
+    state.did_resolve_radius_collision = true;
+  }
+}
+
 static bool ResolveClippingIntoPlane(State& state, const Plane& plane) {
   tVec3f player_xz = state.player_position.xz();
 
@@ -408,18 +429,21 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   // to know in the context of resolving plane collisions
   state.did_resolve_radius_collision = false;
 
-  // @todo soft collision
+  // @todo prevent out-of-bounds stuff
   for (auto& entity : state.shrubs) {
     if (entity.visible_scale.y < 500.f) continue;
 
-    ResolveSingleRadiusCollision(state, entity.position, entity.visible_scale, 1.5f);
+    float radius = entity.visible_scale.x * 1.5f;
+
+    ResolveSoftRadiusCollision(state, entity.position, radius);
   }
 
-  // @todo soft collision
   for (auto& entity : state.lilac_bushes) {
     if (entity.visible_scale.x < 500.f) continue;
 
-    ResolveSingleRadiusCollision(state, entity.position, entity.visible_scale, 0.35f);
+    float radius = entity.visible_scale.x * 1.2f;
+
+    ResolveSoftRadiusCollision(state, entity.position, radius);
   }
 
   for (auto& entity : state.oak_trees) {
@@ -434,7 +458,7 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
     ResolveSingleRadiusCollision(state, entity.position, entity.visible_scale, 0.6f);
   }
 
-  // @temporary
+  // @temporary (?)
   float player_bottom_y = state.player_position.y - 1500.f;
 
   for (auto& rock : objects(state.meshes.rock_1)) {
@@ -444,6 +468,8 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   }
 
   for (auto& rock : objects(state.meshes.rock_2)) {
+    if (rock.position.y + rock.scale.y < player_bottom_y) continue;
+
     ResolveSingleRadiusCollision(state, rock.position, rock.scale, 1.f);
   }
 
