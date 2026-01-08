@@ -6,6 +6,8 @@
 
 using namespace astro;
 
+const static float AUTO_HOP_DURATION = 0.3f;
+
 static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& rotation, tMat4f& rotation_matrix) {
   auto& player = objects(state.meshes.player)[0];
 
@@ -18,7 +20,7 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& rotati
   {
     if (state.last_auto_hop_time != 0.f) {
       float time_since_hop = time_since(state.last_auto_hop_time);
-      float alpha = time_since_hop / 0.3f;
+      float alpha = time_since_hop / AUTO_HOP_DURATION;
       if (alpha > 1.f) alpha = 1.f;
 
       state.player_position.y += 300.f * sin(alpha * t_PI);
@@ -271,7 +273,9 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
 }
 
 void PlayerCharacter::AutoHop(Tachyon* tachyon, State& state) {
-  state.last_auto_hop_time = get_scene_time();
+  if (time_since(state.last_auto_hop_time) > AUTO_HOP_DURATION) {
+    state.last_auto_hop_time = get_scene_time();
+  }
 }
 
 bool PlayerCharacter::CanTakeDamage(Tachyon* tachyon, const State& state) {

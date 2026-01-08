@@ -269,6 +269,8 @@ namespace astro {
     float last_walk_sound_movement_distance = 0.f;
     uint8 walk_cycle = 0;
 
+    float current_ground_y = 0.f;
+
     // Large-scale generated elements
     std::vector<PathSegment> dirt_path_segments;
     std::vector<PathSegment> stone_path_segments;
