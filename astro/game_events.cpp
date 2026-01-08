@@ -40,7 +40,7 @@ static void AddCameraEvent(Tachyon* tachyon, State& state, GameEntity& target, c
  * Event: River Wheel
  * ------------------
  */
-static void RiverWheelEvent(Tachyon* tachyon, State& state) {
+static void StartRiverWheelEvent(Tachyon* tachyon, State& state) {
   for (auto& entity : state.npcs) {
     if (entity.unique_name == "dweller_river") {
       // @TEMPORARY!!!!
@@ -58,10 +58,20 @@ static void RiverWheelEvent(Tachyon* tachyon, State& state) {
 
 /**
  * ------------------
+ * Event: Bridge Open
+ * ------------------
+ */
+static void StartBridgeOpenEvent(Tachyon* tachyon, State& state) {
+  // @todo
+}
+
+/**
+ * ------------------
  */
 
 void GameEvents::StartEvent(Tachyon* tachyon, State& state, const std::string& event_trigger) {
-  process_event("river_wheel", RiverWheelEvent);
+  process_event("river_wheel", StartRiverWheelEvent);
+  process_event("bridge_open", StartBridgeOpenEvent);
 }
 
 void GameEvents::HandleEvents(Tachyon* tachyon, State& state) {

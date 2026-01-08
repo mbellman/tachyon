@@ -174,7 +174,7 @@ static void GenerateGround1Plants(Tachyon* tachyon, State& state) {
 
       float adjusted_scale = (ground.scale.x + ground.scale.z) / 2.f;
       float height_alpha = 1.f - sqrtf(lx*lx + lz*lz) / adjusted_scale;
-      float y_factor = Tachyon_Lerpf(0.2f, 0.7f, height_alpha);
+      float y_factor = Tachyon_Lerpf(0.3f, 0.5f, height_alpha);
 
       cluster.grass_positions.push_back({
         wx,

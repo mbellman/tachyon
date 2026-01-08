@@ -15,6 +15,7 @@ static void CompleteCurrentDialogueSet(State& state) {
 static void HandleCurrentDialogueSet(Tachyon* tachyon, State& state) {
   auto& dialogue_set = state.npc_dialogue[state.current_dialogue_set];
 
+  // Handle advancing dialogue
   if (did_press_key(tKey::CONTROLLER_A)) {
     if (dialogue_set.random) {
       CompleteCurrentDialogueSet(state);
@@ -26,13 +27,17 @@ static void HandleCurrentDialogueSet(Tachyon* tachyon, State& state) {
     }
   }
 
+  // Handle dialogue ending
   if (state.current_dialogue_step > dialogue_set.lines.size() - 1) {
     CompleteCurrentDialogueSet(state);
 
     return;
   }
 
+  // Show current line
   auto& current_dialogue_line = dialogue_set.lines[state.current_dialogue_step];
+
+  // @todo handle event triggers
 
   UISystem::ShowBlockingDialogue(tachyon, state, current_dialogue_line);
 }

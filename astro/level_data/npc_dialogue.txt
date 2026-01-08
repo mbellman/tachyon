@@ -16,14 +16,15 @@ I've had quite enough of this! Be gone, the lot of you!
 What the devil...? Get away from there at once!
 
 @dweller_river
-What in God's name were your intentions? You're clearly no guardman...
+What in God's name were your intentions? You're clearly no guardsman...
 From whence do you hail? Thy garments are like none other's I've seen.
-Nay, that be of little import...to where dost thou journey?
-If thou art headed West, beyond the Falls...I bid thee safe travels.
+Nay, that be of little import...to where dost thou travel?
+If thou art headed West, beyond the Falls...I bid thee a safe journey.
 
 @dweller_river+
-+Ah! I shall make the bridge available.
-+Bid me patience...this will take but a moment.
+Ah! I shall make the bridge available.
+Bid me patience...this will take but a moment.
+[event: bridge_open]
 
 @dweller_river++
 Tarry not! Be on your way.
