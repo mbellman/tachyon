@@ -14,6 +14,18 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& rotati
   player.color = tVec3f(0, 0.2f, 1.f);
   player.material = tVec4f(0.9f, 0, 0, 0);
 
+  // Auto-hop actions
+  {
+    if (state.last_auto_hop_time != 0.f) {
+      float time_since_hop = time_since(state.last_auto_hop_time);
+      float alpha = time_since_hop / 0.3f;
+      if (alpha > 1.f) alpha = 1.f;
+
+      state.player_position.y += 300.f * sin(alpha * t_PI);
+    }
+  }
+
+  // Taking damage
   // @temporary
   if (
     state.last_damage_time != 0.f &&
@@ -256,6 +268,10 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
       light.power += sinf(alpha * t_PI);
     }
   }
+}
+
+void PlayerCharacter::AutoHop(Tachyon* tachyon, State& state) {
+  state.last_auto_hop_time = get_scene_time();
 }
 
 bool PlayerCharacter::CanTakeDamage(Tachyon* tachyon, const State& state) {
