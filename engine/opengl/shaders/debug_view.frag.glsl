@@ -65,10 +65,21 @@ void main() {
 
     out_color_and_depth = vec4(color, 1.0);
   } else if (fragUv.x >= 0.5 && fragUv.y >= 0.5) {
-    // Top right (depth/position)
-    vec2 uv = 2.0 * (fragUv - vec2(0.5));
+    // Top right (material)
+    uvec4 color_and_material = texture(in_color_and_material, 2.0 * (fragUv - vec2(0.5)));
+    Material material = UnpackMaterial(color_and_material);
+
+    out_color_and_depth = vec4(material.roughness, material.metalness, material.subsurface, material.clearcoat);
+  } else if (fragUv.x < 0.5 && fragUv.y < 0.5) {
+    // Bottom left (normal)
+    vec3 normal = texture(in_normal_and_depth, fragUv * 1.999).xyz;
+
+    out_color_and_depth = vec4(normal, 1.0);
+  } else {
+    // Bottom right (depth/position)
+    vec2 uv = 2.0 * (fragUv - vec2(0.5, 0));
     float frag_depth = texture(in_normal_and_depth, uv).w;
-    float depth_color = 0.7 * pow(1.0 - LinearDepth(frag_depth, Z_NEAR, Z_FAR), 50);
+    float depth_color = 0.5 * pow(1.0 - LinearDepth(frag_depth, Z_NEAR, Z_FAR), 2048);
     vec3 position = GetWorldPosition(frag_depth, uv, inverse_projection_matrix, inverse_view_matrix);
     vec3 position_color = position * 0.001;
 
@@ -78,16 +89,5 @@ void main() {
     position_color *= 0.5;
 
     out_color_and_depth = vec4(depth_color + position_color, 1.0);
-  } else if (fragUv.x < 0.5 && fragUv.y < 0.5) {
-    // Bottom left (normal)
-    vec3 normal = texture(in_normal_and_depth, fragUv * 1.999).xyz;
-
-    out_color_and_depth = vec4(normal, 1.0);
-  } else {
-    // Bottom right (material)
-    uvec4 color_and_material = texture(in_color_and_material, 2.0 * (fragUv - vec2(0.5, 0)));
-    Material material = UnpackMaterial(color_and_material);
-
-    out_color_and_depth = vec4(material.roughness, material.metalness, material.subsurface, material.clearcoat);
   }
 }
