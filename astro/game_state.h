@@ -263,6 +263,7 @@ namespace astro {
     float last_auto_hop_time = 0.f;
     float death_time = 0.f;
     bool is_on_solid_ground = false;
+    bool is_on_solid_platform = false;
     bool did_resolve_radius_collision = false;
 
     float movement_distance = 0.f;
