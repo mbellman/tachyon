@@ -131,6 +131,7 @@ static bool ResolveClippingIntoPlane(State& state, const Plane& plane) {
 static void AllowPlayerMovement(State& state, const float y, const Plane& plane) {
   state.current_ground_y = y;
   state.last_solid_ground_position = state.player_position;
+  state.last_solid_ground_position.y = y;
   state.is_on_solid_ground = true;
   state.last_plane_walked_on = plane;
 }
@@ -236,8 +237,8 @@ static void HandleSmallStoneBridgeCollisions(Tachyon* tachyon, State& state) {
     auto edge_1_plane = CollisionSystem::CreatePlane(edge_1_center, edge_scale, entity.orientation);
     auto edge_2_plane = CollisionSystem::CreatePlane(edge_2_center, edge_scale, entity.orientation);
 
-    bool b1 = ResolveClippingIntoPlane(state, edge_1_plane);
-    bool b2 = ResolveClippingIntoPlane(state, edge_2_plane);
+    ResolveClippingIntoPlane(state, edge_1_plane);
+    ResolveClippingIntoPlane(state, edge_2_plane);
 
     // Bridge walkway collision
     auto bridge_plane = CollisionSystem::CreatePlane(entity.position, entity.scale * tVec3f(1.f, 0, 0.5f), entity.orientation);
