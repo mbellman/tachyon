@@ -415,16 +415,6 @@ static void HandleMovementOffSolidGround(State& state) {
   state.current_ground_y = state.last_solid_ground_position.y;
 }
 
-static void HandleSuddenVerticalMovement(State& state) {
-  tVec3f xz_delta = (state.player_position - state.last_player_position).xz();
-
-  state.player_position = state.last_player_position - xz_delta * 0.05f;
-  state.last_solid_ground_position = state.player_position;
-
-  // @todo slide along edge
-  state.player_velocity = tVec3f(0.f);
-}
-
 bool CollisionSystem::IsPointOnPlane(const tVec3f& point, const Plane& plane) {
   bool d1 = IsPointInsideEdge(point, plane.p2, plane.p1);
   bool d2 = IsPointInsideEdge(point, plane.p3, plane.p2);
@@ -571,10 +561,23 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
     HandleMovementOffSolidGround(state);
   }
 
-  // @todo gradually fall to current ground y
-  state.player_position.y = state.current_ground_y;
+  // Falling behavior
+  // @todo factor
+  {
+    if (state.player_position.y - state.current_ground_y > 100.f) {
+      state.fall_velocity += 50000.f * state.dt;
+    }
 
-  // if (abs(state.last_player_position.y - state.player_position.y) > 300.f) {
-  //   HandleSuddenVerticalMovement(state);
-  // }
+    if (time_since(state.last_auto_hop_time) > 0.3f) {
+      state.player_position.y -= state.fall_velocity * state.dt;
+    }
+
+    if (
+      state.player_position.y < state.current_ground_y ||
+      state.player_position.y - state.current_ground_y < 100.f
+    ) {
+      state.player_position.y = state.current_ground_y;
+      state.fall_velocity = 0.f;
+    }
+  }
 }
