@@ -18,16 +18,14 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& rotati
 
   // Auto-hop actions
   {
-    if (state.last_auto_hop_time != 0.f) {
-      float time_since_hop = time_since(state.last_auto_hop_time);
+    if (
+      state.last_auto_hop_time != 0.f &&
+      time_since(state.last_auto_hop_time) < AUTO_HOP_DURATION
+    ) {
+      float jump_height = state.current_ground_y + 500.f;
+      float alpha = 10.f * state.dt;
 
-      if (time_since_hop < AUTO_HOP_DURATION) {
-        float alpha = time_since_hop / AUTO_HOP_DURATION;
-        if (alpha > 1.f) alpha = 1.f;
-
-        // @todo prevent sudden upward movement onto higher platforms
-        state.player_position.y = state.current_ground_y + 300.f * sin(alpha * t_PI);
-      }
+      state.player_position.y = Tachyon_Lerpf(state.player_position.y, jump_height, alpha);
     }
   }
 

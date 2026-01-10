@@ -354,7 +354,7 @@ static void HandleWaterWheelCollisions(Tachyon* tachyon, State& state) {
     // Wheel collision
     if (!is_turning) {
       // @todo use wheel platforms
-      auto wheel_plane = CollisionSystem::CreatePlane(entity.position, entity.scale * tVec3f(1.5f, 1.f, 0.6f), entity.orientation);
+      auto wheel_plane = CollisionSystem::CreatePlane(entity.position, entity.scale * tVec3f(1.5f, 1.f, 0.5f), entity.orientation);
 
       if (CollisionSystem::IsPointOnPlane(player_xz, wheel_plane)) {
         tVec3f entity_to_player = state.player_position - entity.position;
@@ -565,20 +565,20 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   // Falling behavior
   // @todo factor
   {
-    if (state.player_position.y - state.current_ground_y > 100.f) {
-      state.fall_velocity += 50000.f * state.dt;
-    }
-
     if (time_since(state.last_auto_hop_time) > 0.3f) {
-      state.player_position.y -= state.fall_velocity * state.dt;
-    }
+      if (state.player_position.y - state.current_ground_y > 100.f) {
+        state.fall_velocity += 50000.f * state.dt;
+      }
 
-    if (
-      state.player_position.y < state.current_ground_y ||
-      state.player_position.y - state.current_ground_y < 100.f
-    ) {
-      state.player_position.y = state.current_ground_y;
-      state.fall_velocity = 0.f;
+      state.player_position.y -= state.fall_velocity * state.dt;
+
+      if (
+        state.player_position.y < state.current_ground_y ||
+        state.player_position.y - state.current_ground_y < 100.f
+      ) {
+        state.player_position.y = state.current_ground_y;
+        state.fall_velocity = 0.f;
+      }
     }
   }
 }
