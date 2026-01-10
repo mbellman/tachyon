@@ -285,19 +285,19 @@ static void HandleAltarCollisions(Tachyon* tachyon, State& state) {
   for (auto& entity : state.altars) {
     tVec3f collision_scale = entity.scale * tVec3f(1.9f, 1.f, 0.45f);
 
-    // Statue
+    // Prevent walking into the center statue
     tVec3f statue_center_position = UnitEntityToWorldPosition(entity, tVec3f(-0.5f, 0, 0));
 
     ResolveSingleRadiusCollision(state, statue_center_position, entity.scale * 0.7f, 1.f);
 
     // Altar ramp + platform
     auto altar_plane = CollisionSystem::CreatePlane(entity.position, collision_scale, entity.orientation);
+    float altar_floor_y = (entity.position.y + PLAYER_HEIGHT) + entity.scale.y * 0.35f;
 
     if (CollisionSystem::IsPointOnPlane(player_xz, altar_plane)) {
       tVec3f entity_to_player = state.player_position - entity.position;
       tVec3f player_position_in_entity_space = entity.orientation.toMatrix4f().inverse() * entity_to_player;
       float progress_along_x = player_position_in_entity_space.x / collision_scale.x;
-      float altar_floor_y = (entity.position.y + PLAYER_HEIGHT) + entity.scale.y * 0.35f;
       float player_y;
 
       if (progress_along_x > 0.f) {
@@ -315,7 +315,18 @@ static void HandleAltarCollisions(Tachyon* tachyon, State& state) {
       AllowPlayerMovement(state, player_y, altar_plane);
 
       state.is_on_solid_platform = true;
-    } else {
+
+    // Standing on top of altar platform disc
+    } else if (
+      tVec3f::distance(player_xz, entity.position.xz()) < (entity.scale.x + PLAYER_RADIUS) &&
+      state.player_position.y >= altar_floor_y
+    ) {
+      AllowPlayerMovement(state, altar_floor_y, altar_plane);
+
+      state.is_on_solid_platform = true;
+
+    // Prevent movement into the altar platform disc from ground level
+    } else if (state.fall_velocity == 0.f) {
       ResolveSingleRadiusCollision(state, entity.position, entity.scale, 1.f);
     }
   }
