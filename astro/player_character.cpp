@@ -8,6 +8,13 @@ using namespace astro;
 
 const static float AUTO_HOP_DURATION = 0.3f;
 
+static void HandleAutoHop(State& state) {
+  float jump_height = state.current_ground_y + 500.f;
+  float alpha = 10.f * state.dt;
+
+  state.player_position.y = Tachyon_Lerpf(state.player_position.y, jump_height, alpha);
+}
+
 static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& rotation, tMat4f& rotation_matrix) {
   auto& player = objects(state.meshes.player)[0];
 
@@ -22,10 +29,7 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& rotati
       state.last_auto_hop_time != 0.f &&
       time_since(state.last_auto_hop_time) < AUTO_HOP_DURATION
     ) {
-      float jump_height = state.current_ground_y + 500.f;
-      float alpha = 10.f * state.dt;
-
-      state.player_position.y = Tachyon_Lerpf(state.player_position.y, jump_height, alpha);
+      HandleAutoHop(state);
     }
   }
 

@@ -584,8 +584,17 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
       state.player_position.y -= state.fall_velocity * state.dt;
 
       if (
+        state.current_ground_y - state.player_position.y > 200.f &&
+        state.current_ground_y - state.player_position.y < 900.f
+      ) {
+        PlayerCharacter::AutoHop(tachyon, state);
+      }
+      else if (
         state.player_position.y < state.current_ground_y ||
-        state.player_position.y - state.current_ground_y < 100.f
+        (
+          state.player_position.y > state.current_ground_y &&
+          state.player_position.y - state.current_ground_y < 100.f
+        )
       ) {
         state.player_position.y = state.current_ground_y;
         state.fall_velocity = 0.f;
