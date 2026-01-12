@@ -146,11 +146,8 @@ namespace astro {
     }
   }
 
-  static void SoftResetEntity(GameEntity& entity, const float scene_time) {
-    auto& enemy = entity.enemy_state;
-
-    entity.visible_rotation = entity.orientation;
-
+  static void ResetEnemyState(EnemyState& enemy) {
+    enemy.mood = ENEMY_IDLE;
     enemy.health = 100.f;
     enemy.speed = 0.f;
     enemy.last_mood_change_time = 0.f;
@@ -158,28 +155,22 @@ namespace astro {
     enemy.last_attack_action_time = 0.f;
     enemy.last_block_time = 0.f;
     enemy.last_death_time = 0.f;
+  }
 
-    SetMood(entity, ENEMY_IDLE, scene_time);
+  static void SoftResetEntity(GameEntity& entity, const float scene_time) {
+    entity.visible_rotation = entity.orientation;
+
+    ResetEnemyState(entity.enemy_state);
   }
 
   static void HardResetEntity(GameEntity& entity) {
-    auto& enemy = entity.enemy_state;
-
     entity.visible_scale = tVec3f(0.f);
     entity.visible_position = entity.position;
     entity.visible_rotation = entity.orientation;
 
     entity.recent_positions.clear();
 
-    enemy.health = 100.f;
-    enemy.speed = 0.f;
-    enemy.last_mood_change_time = 0.f;
-    enemy.last_attack_start_time = 0.f;
-    enemy.last_attack_action_time = 0.f;
-    enemy.last_block_time = 0.f;
-    enemy.last_death_time = 0.f;
-
-    SetMood(entity, ENEMY_IDLE, 0.f);
+    ResetEnemyState(entity.enemy_state);
   }
 
   static tVec3f GetFacingDirection(GameEntity& entity) {
