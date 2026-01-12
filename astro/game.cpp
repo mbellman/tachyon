@@ -303,6 +303,26 @@ static void RespawnPlayer(Tachyon* tachyon, State& state) {
   state.dismissed_blocking_dialogue = true;
   state.has_blocking_dialogue = false;
   state.dialogue_start_time = 0.f;
+
+  // @todo factor
+  for_entities(state.lesser_guards) {
+    auto& entity = state.lesser_guards[i];
+
+    entity.visible_position = entity.position;
+    entity.visible_rotation = entity.orientation;
+    entity.enemy_state.mood = ENEMY_IDLE;
+    entity.enemy_state.health = 100.f;
+  }
+
+  // @todo factor
+  for_entities(state.low_guards) {
+    auto& entity = state.low_guards[i];
+
+    entity.visible_position = entity.position;
+    entity.visible_rotation = entity.orientation;
+    entity.enemy_state.mood = ENEMY_IDLE;
+    entity.enemy_state.health = 100.f;
+  }
 }
 
 void astro::InitGame(Tachyon* tachyon, State& state) {
