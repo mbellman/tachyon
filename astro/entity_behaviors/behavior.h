@@ -151,11 +151,13 @@ namespace astro {
 
     entity.visible_rotation = entity.orientation;
 
-    enemy.speed = 0.f;
-    enemy.last_death_time = 0.f;
-    enemy.last_block_time = 0.f;
-    enemy.last_attack_start_time = 0.f;
     enemy.health = 100.f;
+    enemy.speed = 0.f;
+    enemy.last_mood_change_time = 0.f;
+    enemy.last_attack_start_time = 0.f;
+    enemy.last_attack_action_time = 0.f;
+    enemy.last_block_time = 0.f;
+    enemy.last_death_time = 0.f;
 
     SetMood(entity, ENEMY_IDLE, scene_time);
   }
@@ -169,9 +171,15 @@ namespace astro {
 
     entity.recent_positions.clear();
 
-    enemy.speed = 0.f;
     enemy.health = 100.f;
+    enemy.speed = 0.f;
+    enemy.last_mood_change_time = 0.f;
+    enemy.last_attack_start_time = 0.f;
+    enemy.last_attack_action_time = 0.f;
+    enemy.last_block_time = 0.f;
     enemy.last_death_time = 0.f;
+
+    SetMood(entity, ENEMY_IDLE, 0.f);
   }
 
   static tVec3f GetFacingDirection(GameEntity& entity) {

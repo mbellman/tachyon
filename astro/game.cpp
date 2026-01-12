@@ -5,6 +5,7 @@
 #include "astro/collision_system.h"
 #include "astro/control_system.h"
 #include "astro/data_loader.h"
+#include "astro/entity_behaviors/behavior.h"
 #include "astro/entity_dispatcher.h"
 #include "astro/entity_manager.h"
 #include "astro/game_events.h"
@@ -308,20 +309,14 @@ static void RespawnPlayer(Tachyon* tachyon, State& state) {
   for_entities(state.lesser_guards) {
     auto& entity = state.lesser_guards[i];
 
-    entity.visible_position = entity.position;
-    entity.visible_rotation = entity.orientation;
-    entity.enemy_state.mood = ENEMY_IDLE;
-    entity.enemy_state.health = 100.f;
+    HardResetEntity(entity);
   }
 
   // @todo factor
   for_entities(state.low_guards) {
     auto& entity = state.low_guards[i];
 
-    entity.visible_position = entity.position;
-    entity.visible_rotation = entity.orientation;
-    entity.enemy_state.mood = ENEMY_IDLE;
-    entity.enemy_state.health = 100.f;
+    HardResetEntity(entity);
   }
 }
 
