@@ -18,8 +18,7 @@ static void HandleAutoHop(State& state) {
 static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& rotation, tMat4f& rotation_matrix) {
   auto& player = objects(state.meshes.player)[0];
 
-  // @temporary
-  player.scale = tVec3f(600.f, 1500.f, 600.f);
+  player.scale = tVec3f(1500.f);
   player.color = tVec3f(0, 0.2f, 1.f);
   player.material = tVec4f(0.9f, 0, 0, 0);
 

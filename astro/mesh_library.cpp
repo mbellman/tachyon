@@ -173,11 +173,14 @@ void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
 
   auto& meshes = state.meshes;
 
-  // @temporary
-  meshes.player = MODEL_MESH("./astro/3d_models/guy.obj", 1);
-  meshes.wand = MODEL_MESH("./astro/3d_models/wand.obj", 1);
+  meshes.player = MODEL_MESH("./astro/3d_models/characters/player_body.obj", 1);
+  meshes.wand = MODEL_MESH("./astro/3d_models/characters/player_wand.obj", 1);
   meshes.water_plane = PLANE_MESH(1);
+  // @temporary
   meshes.snow_particle = MODEL_MESH("./astro/3d_models/snow.obj", 100);
+
+  mesh(meshes.player).shadow_cascade_ceiling = 2;
+  mesh(meshes.wand).shadow_cascade_ceiling = 2;
 
   mesh(meshes.water_plane).type = WATER_MESH;
   mesh(meshes.water_plane).shadow_cascade_ceiling = 0;

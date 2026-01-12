@@ -676,6 +676,9 @@ void main() {
   ssao = clamp(ssao, 0.0, 1.0);
   shadow = clamp(shadow, 0.0, 1.0);
 
+  // @todo come up with a different way to mark objects as non-shadowed.
+  // We primarily want this to affect "HUD" objects floating just in front
+  // of the camera, which would be considered independent of the game scene.
   if (frag_distance_from_camera < 2600.0) {
     shadow = 1.0;
   }
