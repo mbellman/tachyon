@@ -16,7 +16,9 @@ static void HandleAutoHop(State& state) {
 }
 
 static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& rotation, tMat4f& rotation_matrix) {
-  auto& player = objects(state.meshes.player)[0];
+  auto& meshes = state.meshes;
+
+  auto& player = objects(meshes.player)[0];
 
   player.scale = tVec3f(1500.f);
   player.color = tVec3f(0, 0.2f, 1.f);
@@ -59,6 +61,19 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& rotati
   }
 
   commit(player);
+
+  // Clothing
+  {
+    auto& clothing = objects(meshes.player_clothing)[0];
+
+    clothing.position = player.position;
+    clothing.rotation = player.rotation;
+    clothing.scale = player.scale;
+    clothing.color = player.color;
+    clothing.material = tVec4f(1.f, 0, 0, 0.4f);
+
+    commit(clothing);
+  }
 }
 
 static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotation, tMat4f& player_rotation_matrix) {

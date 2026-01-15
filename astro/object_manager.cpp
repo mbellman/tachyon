@@ -7,6 +7,7 @@ void ObjectManager::CreateObjects(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   create(meshes.player);
+  create(meshes.player_clothing);
   create(meshes.wand);
 
   create(meshes.water_plane);
