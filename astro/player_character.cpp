@@ -21,7 +21,7 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& rotati
   auto& player = objects(meshes.player)[0];
 
   player.scale = tVec3f(1500.f);
-  player.color = tVec3f(0, 0.1f, 0.4f);
+  player.color = tVec3f(0, 0, 0.2f);
   player.material = tVec4f(0.9f, 0, 0, 0);
 
   // Auto-hop actions
@@ -69,8 +69,8 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& rotati
     clothing.position = player.position;
     clothing.rotation = player.rotation;
     clothing.scale = player.scale;
-    clothing.color = tVec3f(0, 0.2f, 0.8f);
-    clothing.material = tVec4f(1.f, 0, 0, 0.4f);
+    clothing.color = tVec3f(0, 0.2f, 0.6f);
+    clothing.material = tVec4f(1.f, 0, 0, 0.2f);
 
     commit(clothing);
   }
