@@ -29,6 +29,8 @@ namespace astro {
       for_entities(state.npcs) {
         auto& entity = state.npcs[i];
 
+        bool is_active = IsDuringActiveTime(entity, state);
+
         // Body
         {
           auto& body = objects(meshes.npc)[i];
@@ -38,6 +40,11 @@ namespace astro {
           body.position = entity.visible_position;
           body.rotation = entity.visible_rotation;
 
+          if (!is_active) {
+            // Make invisible during inactive times
+            body.scale = tVec3f(0.f);
+          }
+
           commit(body);
         }
 
@@ -46,7 +53,11 @@ namespace astro {
           float player_distance = tVec3f::distance(state.player_position, entity.visible_position);
 
           // Initiating dialogue
-          if (player_distance < 3000.f && player_speed < 200.f) {
+          if (
+            is_active &&
+            player_distance < 3000.f &&
+            player_speed < 200.f
+          ) {
             UISystem::ShowTransientDialogue(tachyon, state, "[X] Speak");
 
             if (

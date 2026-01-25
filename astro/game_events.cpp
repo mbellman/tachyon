@@ -4,9 +4,9 @@
 
 using namespace astro;
 
-#define process_event(name, handler)\
+#define check_event_trigger(name, handler)\
   if (event_trigger == name) {\
-    return handler(tachyon, state);\
+    handler(tachyon, state);\
   }\
 
 // @todo move to engine
@@ -33,6 +33,18 @@ static void AddCameraEvent(Tachyon* tachyon, State& state, GameEntity& target, c
   event.end_time = event.start_time + duration;
 
   state.camera_events.push_back(event);
+}
+
+/**
+ * ------------------------
+ * Event: Village Gate Open
+ * ------------------------
+ */
+static void StartVillageGateEvent(Tachyon* tachyon, State& state) {
+  // @temporary
+  console_log("Village Gate Event!");
+
+  // @todo
 }
 
 /**
@@ -70,8 +82,14 @@ static void StartBridgeOpenEvent(Tachyon* tachyon, State& state) {
  */
 
 void GameEvents::StartEvent(Tachyon* tachyon, State& state, const std::string& event_trigger) {
-  process_event("river_wheel", StartRiverWheelEvent);
-  process_event("bridge_open", StartBridgeOpenEvent);
+  check_event_trigger("village_gate", StartVillageGateEvent);
+  check_event_trigger("river_wheel", StartRiverWheelEvent);
+  check_event_trigger("bridge_open", StartBridgeOpenEvent);
+
+  // @todo dev mode only
+  {
+    console_log("EVENT: " + event_trigger);
+  }
 }
 
 void GameEvents::HandleEvents(Tachyon* tachyon, State& state) {

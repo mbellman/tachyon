@@ -129,6 +129,19 @@ namespace astro {
           }
         }
 
+        // Event handling
+        {
+          if (
+            !entity.did_activate &&
+            entity.game_activation_time != -1.f &&
+            time_since(entity.game_activation_time) > 2.f
+          ) {
+            GameEvents::StartEvent(tachyon, state, entity.unique_name);
+
+            entity.did_activate = true;
+          }
+        }
+
         // Collision
         entity.visible_position = entity.position;
         entity.visible_rotation = entity.orientation;
