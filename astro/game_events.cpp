@@ -15,22 +15,27 @@ static inline void RemoveFromArray(std::vector<T>& array, uint32 index) {
   array.erase(array.begin() + index);
 }
 
-static void AddMoveEvent(Tachyon* tachyon, State& state, GameEntity& entity, const tVec3f& end_position, const float duration) {
+struct EventSettings {
+  float delay = 0.f;
+  float duration = 1.f;
+};
+
+static void AddMoveEvent(Tachyon* tachyon, State& state, GameEntity& entity, const tVec3f& end_position, const EventSettings& settings) {
   EntityMoveEvent event;
   event.entity_record = GetRecord(entity);
   event.start_position = entity.visible_position;
   event.end_position = end_position;
-  event.start_time = get_scene_time();
-  event.end_time = event.start_time + duration;
+  event.start_time = get_scene_time() + settings.delay;
+  event.end_time = event.start_time + settings.duration;
 
   state.move_events.push_back(event);
 }
 
-static void AddCameraEvent(Tachyon* tachyon, State& state, GameEntity& target, const float duration) {
+static void AddCameraEvent(Tachyon* tachyon, State& state, GameEntity& target, const EventSettings& settings) {
   CameraEvent event;
   event.target_entity_record = GetRecord(target);
-  event.start_time = get_scene_time();
-  event.end_time = event.start_time + duration;
+  event.start_time = get_scene_time() + settings.delay;
+  event.end_time = event.start_time + settings.duration;
 
   state.camera_events.push_back(event);
 }
@@ -43,7 +48,10 @@ static void AddCameraEvent(Tachyon* tachyon, State& state, GameEntity& target, c
 static void StartVillageGateEvent(Tachyon* tachyon, State& state) {
   for (auto& entity : state.npcs) {
     if (entity.unique_name == "gate_villager") {
-      AddCameraEvent(tachyon, state, entity, 2.f);
+      AddCameraEvent(tachyon, state, entity, {
+        .delay = 1.f,
+        .duration = 2.f
+      });
     }
   }
 
@@ -61,8 +69,13 @@ static void StartRiverWheelEvent(Tachyon* tachyon, State& state) {
       // @TEMPORARY!!!!
       tVec3f end_position = tVec3f(-125000.f, 0, 75000.f);
 
-      AddMoveEvent(tachyon, state, entity, end_position, 2.f);
-      AddCameraEvent(tachyon, state, entity, 3.f);
+      AddMoveEvent(tachyon, state, entity, end_position, {
+        .duration = 2.f
+      });
+
+      AddCameraEvent(tachyon, state, entity, {
+        .duration = 3.f
+      });
 
       break;
     }

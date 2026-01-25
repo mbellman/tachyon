@@ -8,9 +8,9 @@ Well, I shall continue as I was.
 // ----------------------
 
 @gate_villager
-+Ah, sod it all...they've locked the damn thing...
-+W-why, good heavens! You gave me a right start.
-I say, you wouldn't happen to have a key to the gate here?
++Ah, sod it all...the damn thing's locked...
++Why, good heavens! You gave me a right start.
+I say, you wouldn't happen to have a gate key on hand?
 Ah, bugger it...I fear we're in this pickle together, then.
 I don't suppose we should ask the next fellow who trods along! Ha.
 
