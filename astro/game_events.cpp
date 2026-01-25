@@ -41,10 +41,13 @@ static void AddCameraEvent(Tachyon* tachyon, State& state, GameEntity& target, c
  * ------------------------
  */
 static void StartVillageGateEvent(Tachyon* tachyon, State& state) {
-  // @temporary
-  console_log("Village Gate Event!");
+  for (auto& entity : state.npcs) {
+    if (entity.unique_name == "gate_villager") {
+      AddCameraEvent(tachyon, state, entity, 2.f);
+    }
+  }
 
-  // @todo
+  UISystem::StartDialogueSet(state, "gate_villager_cutscene");
 }
 
 /**

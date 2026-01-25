@@ -3,12 +3,19 @@
 I have a keen memory for faces. Yours, I cannot place. Have we met?
 Well, I shall continue as I was.
 
+// ----------------------
+// Gate villager dialogue
+// ----------------------
+
 @gate_villager
 +Ah, sod it all...they've locked the damn thing...
 +W-why, good heavens! You gave me a right start.
 I say, you wouldn't happen to have a key to the gate here?
 Ah, bugger it...I fear we're in this pickle together, then.
 I don't suppose we should ask the next fellow who trods along! Ha.
+
+@gate_villager_cutscene
+Oh, thank goodness! You're a gentleman and a scholar.
 
 // ----------------
 // Dweller dialogue
