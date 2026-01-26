@@ -300,6 +300,8 @@ namespace astro {
       house_placeholder,
       house_body,
       house_frame,
+      house_door,
+      house_window_panes,
       house_roof,
       house_chimney,
 
