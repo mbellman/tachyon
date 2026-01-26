@@ -2,12 +2,13 @@
 
 using namespace astro;
 
-// @todo remove
+// @todo just do this in game.cpp
 void ObjectManager::CreateObjects(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   create(meshes.player);
   create(meshes.player_clothing);
+  create(meshes.player_boots);
   create(meshes.wand);
 
   create(meshes.water_plane);

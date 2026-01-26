@@ -74,6 +74,19 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& rotati
 
     commit(clothing);
   }
+
+  // Boots
+  {
+    auto& boots = objects(meshes.player_boots)[0];
+
+    boots.position = player.position;
+    boots.rotation = player.rotation;
+    boots.scale = player.scale;
+    boots.color = 0x2110;
+    boots.material = tVec4f(1.f, 0, 0, 0.4f);
+
+    commit(boots);
+  }
 }
 
 static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotation, tMat4f& player_rotation_matrix) {

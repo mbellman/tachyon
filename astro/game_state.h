@@ -25,6 +25,7 @@ namespace astro {
       // Character meshes
       player,
       player_clothing,
+      player_boots,
       wand,
 
       // Static environment meshes
