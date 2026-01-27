@@ -14,6 +14,42 @@ namespace astro {
     const static float wind_down_duration = 0.8f;
     const static float attack_duration = wind_up_duration + stab_duration + wind_down_duration;
 
+    static void HandleShieldBlockActions(Tachyon* tachyon, State& state, GameEntity& entity, tObject& shield) {
+      const float BLOCK_DURATION = 1.f;
+
+      float time_since_blocking = time_since(entity.enemy_state.last_block_time);
+
+      if (time_since_blocking < BLOCK_DURATION) {
+        float alpha = time_since_blocking / BLOCK_DURATION;
+        if (alpha > 1.f) alpha = 1.f;
+
+        tVec3f enemy_direction = GetFacingDirection(entity);
+        float offset_factor = sqrtf(sinf(alpha * t_PI));
+
+        // Forward motion
+        shield.position += enemy_direction * 200.f * offset_factor;
+        // Upward motion
+        shield.position.y += 600.f * offset_factor;
+      }
+    }
+
+    static void HandleShieldFallActions(Tachyon* tachyon, State& state, GameEntity& entity, tObject& shield) {
+      float time_since_death = time_since(entity.enemy_state.last_death_time);
+
+      if (
+        entity.enemy_state.last_death_time != 0.f &&
+        time_since_death > 0.f
+      ) {
+        float death_alpha = 2.f * time_since_death;
+        if (death_alpha > 1.f) death_alpha = 1.f;
+
+        Quaternion final_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -t_HALF_PI);
+
+        shield.position.y = Tachyon_Lerpf(shield.position.y, -1400.f, death_alpha);
+        shield.rotation = Quaternion::slerp(shield.rotation, final_rotation, death_alpha);
+      }
+    }
+
     addMeshes() {
       meshes.lesser_guard_placeholder = MODEL_MESH("./astro/3d_models/guy.obj", 500);
       meshes.lesser_guard_body = MODEL_MESH("./astro/3d_models/low_guard/body.obj", 500);
@@ -87,7 +123,7 @@ namespace astro {
               enemy.speed *= 1.f - 5.f * state.dt;
             }
 
-            if (player_distance > 3500.f) {
+            if (player_distance > 3500.f || enemy.speed < 0.f) {
               FollowPlayer(entity, player_direction, state.dt);
             }
             else if (player_distance < 2000.f) {
@@ -128,10 +164,10 @@ namespace astro {
 
           if (
             player_distance < 4000.f &&
-            time_since(enemy.last_attack_start_time) > 2.f * attack_duration &&
+            time_since(enemy.last_attack_start_time) > 1.2f * attack_duration &&
             time_since(enemy.last_mood_change_time) > 0.5f
           ) {
-            // Attacking
+            // Start an attack
             enemy.last_attack_start_time = get_scene_time();
           }
         }
@@ -235,42 +271,8 @@ namespace astro {
             }
           }
 
-          // Blocking
-          {
-            float time_since_blocking = time_since(entity.enemy_state.last_block_time);
-
-            if (time_since_blocking < 1.f) {
-              float alpha = time_since_blocking;
-              if (alpha > 1.f) alpha = 1.f;
-
-              tVec3f enemy_direction = GetFacingDirection(entity);
-              float offset_factor = powf(sinf(alpha * t_PI), 2.f);
-
-              // Forward motion
-              shield.position += enemy_direction * 200.f * offset_factor;
-              // Upward motion
-              shield.position.y += 600.f * offset_factor;
-            }
-          }
-
-          // Death
-          // @todo factor
-          {
-            float time_since_death = time_since(entity.enemy_state.last_death_time);
-
-            if (
-              entity.enemy_state.last_death_time != 0.f &&
-              time_since_death > 0.f
-            ) {
-              float death_alpha = 2.f * time_since_death;
-              if (death_alpha > 1.f) death_alpha = 1.f;
-
-              Quaternion final_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -t_HALF_PI);
-
-              shield.position.y = Tachyon_Lerpf(shield.position.y, -1400.f, death_alpha);
-              shield.rotation = Quaternion::slerp(shield.rotation, final_rotation, death_alpha);
-            }
-          }
+          HandleShieldBlockActions(tachyon, state, entity, shield);
+          HandleShieldFallActions(tachyon, state, entity, shield);
 
           commit(shield);
         }
@@ -293,6 +295,7 @@ namespace astro {
           }
 
           // Attacking
+          // @todo eventually use real attack animations
           {
             float time_since_starting_attack = time_since(entity.enemy_state.last_attack_start_time);
 

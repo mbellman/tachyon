@@ -313,14 +313,10 @@ static void HandleEnemyDamageFromWandSwing(Tachyon* tachyon, State& state) {
     float distance_from_player = tVec3f::distance(entity.visible_position, state.player_position);
 
     // @todo handle per enemy type (target.type)
-    float attack_duration = 2.f;
+    float attack_without_blocking_duration = 1.2f;
 
     if (distance_from_player < 4000.f && enemy.health > 0.f) {
-      if (time_since(enemy.last_attack_start_time) > attack_duration) {
-        // Reset attack motion if not already attacking
-        enemy.last_attack_start_time = get_scene_time() - attack_duration;
-        enemy.last_attack_action_time = 0.f;
-
+      if (time_since(enemy.last_attack_start_time) > attack_without_blocking_duration) {
         // Block
         enemy.last_block_time = get_scene_time();
       } else if (entity.type == LOW_GUARD) {
