@@ -732,6 +732,7 @@ static void RenderPbrMeshes(Tachyon* tachyon) {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
   glUseProgram(shader.program);
+  SetShaderBool(locations.use_close_camera_disocclusion, tachyon->scene.use_close_camera_disocclusion);
   SetShaderBool(locations.has_texture, false);
   SetShaderMat4f(locations.view_projection_matrix, ctx.view_projection_matrix);
   SetShaderVec3f(locations.transform_origin, tachyon->scene.transform_origin);

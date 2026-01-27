@@ -33,7 +33,8 @@ struct tUniformLocations {
     is_foliage,
     foliage_mover_position,
     foliage_mover_velocity,
-    scene_time
+    scene_time,
+    use_close_camera_disocclusion
   ) main_geometry;
 
   uniform_locations(

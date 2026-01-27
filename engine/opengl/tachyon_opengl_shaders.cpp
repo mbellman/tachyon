@@ -89,7 +89,7 @@ static void StoreShaderUniforms(tOpenGLShaders& shaders) {
   store_shader_uniform(main_geometry, foliage_mover_position);
   store_shader_uniform(main_geometry, foliage_mover_velocity);
   store_shader_uniform(main_geometry, scene_time);
-
+  store_shader_uniform(main_geometry, use_close_camera_disocclusion);
 
   store_shader_uniform(shadow_map, light_matrix);
   store_shader_uniform(shadow_map, transform_origin);

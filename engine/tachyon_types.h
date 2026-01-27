@@ -264,6 +264,8 @@ struct Tachyon {
 
     tVec3f foliage_mover_position;
     tVec3f foliage_mover_velocity;
+
+    bool use_close_camera_disocclusion = false;
   } scene;
 
   struct Fx {

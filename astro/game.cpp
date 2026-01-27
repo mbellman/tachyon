@@ -22,7 +22,7 @@
 #include "astro/time_evolution.h"
 #include "astro/ui_system.h"
 
-#define MUSIC_ENABLED 0
+#define MUSIC_ENABLED 1
 
 using namespace astro;
 
@@ -231,11 +231,11 @@ static void HandleMusicLevels(Tachyon* tachyon, State& state) {
 
     // Background music
     {
-      if (IsInStealthMode(state) || Targeting::IsInCombatMode(state)) {
-        BGM::FadeCurrentMusicVolumeTo(0.3f, 500);
-      }
-      else if (state.astro_turn_speed != 0.f) {
+      if (state.astro_turn_speed != 0.f) {
         BGM::FadeCurrentMusicVolumeTo(0.f, 500);
+      }
+      else if (IsInStealthMode(state) || Targeting::IsInCombatMode(state)) {
+        BGM::FadeCurrentMusicVolumeTo(0.3f, 500);
       }
       else {
         BGM::FadeCurrentMusicVolumeTo(0.4f, 2000);
@@ -343,6 +343,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
   state.astrolabe_light_id = create_point_light();
 
   tachyon->scene.scene_time = 0.f;
+  tachyon->scene.use_close_camera_disocclusion = true;
 }
 
 void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {

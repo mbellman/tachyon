@@ -1777,6 +1777,8 @@ void LevelEditor::OpenLevelEditor(Tachyon* tachyon, State& state) {
 
   show_overlay_message("Entering editor");
 
+  tachyon->scene.use_close_camera_disocclusion = false;
+
   state.is_level_editor_open = true;
 
   editor.show_fog_volumes = true;
@@ -1853,6 +1855,7 @@ void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   tachyon->use_high_visibility_mode = false;
+  tachyon->scene.use_close_camera_disocclusion = true;
 
   state.is_level_editor_open = false;
 

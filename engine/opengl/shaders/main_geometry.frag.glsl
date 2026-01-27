@@ -1,5 +1,7 @@
 #version 460 core
 
+uniform bool use_close_camera_disocclusion;
+
 uniform bool has_texture;
 uniform sampler2D albedo_texture;
 
@@ -159,19 +161,21 @@ mat4 dither_kernels[] = {
 };
 
 void main() {
-  bool is_close_to_camera = GetWorldDepth(gl_FragCoord.z, Z_NEAR, Z_FAR) < 9000.0;
-  float screen_center_distance = length(gl_FragCoord.xy - RESOLUTION / 2.0);
-  bool is_center_frame = screen_center_distance < 900.0;
-  int dither_level = clamp(int(screen_center_distance / 50.0) - 1, 0, 15);
-  mat4 dither_kernel = dither_kernels[dither_level];
-  float dither_value = dither_kernel[int(gl_FragCoord.x) % 4][int(gl_FragCoord.y) % 4];
+  if (use_close_camera_disocclusion) {
+    bool is_close_to_camera = GetWorldDepth(gl_FragCoord.z, Z_NEAR, Z_FAR) < 9000.0;
+    float screen_center_distance = length(gl_FragCoord.xy - RESOLUTION / 2.0);
+    bool is_center_frame = screen_center_distance < 900.0;
+    int dither_level = clamp(int(screen_center_distance / 50.0) - 1, 0, 15);
+    mat4 dither_kernel = dither_kernels[dither_level];
+    float dither_value = dither_kernel[int(gl_FragCoord.x) % 4][int(gl_FragCoord.y) % 4];
 
-  if (
-    is_close_to_camera &&
-    is_center_frame &&
-    dither_value == 0.0
-  ) {
-    discard;
+    if (
+      is_close_to_camera &&
+      is_center_frame &&
+      dither_value == 0.0
+    ) {
+      discard;
+    }
   }
 
   out_normal_and_depth = vec4(normalize(fragNormal), gl_FragCoord.z);
