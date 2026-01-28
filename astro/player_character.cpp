@@ -1,4 +1,5 @@
 #include "astro/player_character.h"
+#include "astro/combat.h"
 #include "astro/entity_manager.h"
 #include "astro/sfx.h"
 #include "astro/simple_animation.h"
@@ -160,27 +161,7 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
         time_since_last_swing > s1.duration &&
         time_since_last_swing < s1.duration + s2.duration
       ) {
-        // Check for collisions
-        // @temporary
-        // @todo factor (Combat::) + check for other collisions
-        for (auto& target : state.targetable_entities) {
-          auto& entity = *EntityManager::FindEntity(state, target);
-          float distance = tVec3f::distance(entity.visible_position, state.player_position);
-          float time_since_blocking = time_since(entity.enemy_state.last_block_time);
-
-          if (distance < 3000.f) {
-            if (time_since_blocking < 1.f) {
-              // Wand recoil when the enemy is blocking
-              state.last_wand_swing_time = 0.f;
-              state.last_wand_bounce_time = get_scene_time();
-
-              Sfx::PlaySound(SFX_WAND_RECOIL, 0.5f);
-            } else {
-              // Enemy knockback on contact
-              entity.enemy_state.speed = -7000.f;
-            }
-          }
-        }
+        Combat::HandleWandStrikeWindow(tachyon, state);
       }
     }
 

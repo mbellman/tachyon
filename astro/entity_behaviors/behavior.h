@@ -173,6 +173,16 @@ namespace astro {
     ResetEnemyState(entity.enemy_state);
   }
 
+  static void KillEnemy(GameEntity& entity, const float scene_time) {
+    auto& enemy = entity.enemy_state;
+
+    enemy.health = 0.f;
+
+    enemy.last_death_time = scene_time;
+    enemy.last_attack_start_time = 0.f;
+    enemy.last_block_time = 0.f;
+  }
+
   static tVec3f GetFacingDirection(GameEntity& entity) {
     // @todo why do we have to invert this?
     return entity.visible_rotation.getDirection().invert();

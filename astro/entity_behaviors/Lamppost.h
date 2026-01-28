@@ -74,7 +74,7 @@ namespace astro {
           light.position = UnitEntityToWorldPosition(entity, tVec3f(-0.4f, 0.45f, 0));
           light.radius = 5000.f;
           light.color = tVec3f(1.f, 0.5f, 0.2f);
-          light.power = 2.f;
+          light.power = 4.f;
           light.glow_power = 2.5f + sinf(3.f * get_scene_time());
 
           if (state.is_nighttime) {
