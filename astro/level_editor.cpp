@@ -9,7 +9,6 @@
 #include "astro/entity_manager.h"
 #include "astro/entity_dispatcher.h"
 #include "astro/items.h"
-#include "astro/object_manager.h"
 #include "astro/procedural_generation.h"
 
 using namespace astro;

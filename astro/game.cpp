@@ -12,7 +12,6 @@
 #include "astro/items.h"
 #include "astro/level_editor.h"
 #include "astro/mesh_library.h"
-#include "astro/object_manager.h"
 #include "astro/particles.h"
 #include "astro/player_character.h"
 #include "astro/procedural_generation.h"
@@ -25,6 +24,33 @@
 #define MUSIC_ENABLED 0
 
 using namespace astro;
+
+static void CreateConstantObjects(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
+  create(meshes.player);
+  create(meshes.player_clothing);
+  create(meshes.player_boots);
+  create(meshes.wand);
+
+  create(meshes.water_plane);
+
+  for (uint16 i = 0; i < 100; i++) {
+    create(meshes.snow_particle);
+  }
+
+  create(meshes.astrolabe_rear);
+  create(meshes.astrolabe_base);
+  create(meshes.astrolabe_plate);
+  create(meshes.astrolabe_fragment_ul);
+  create(meshes.astrolabe_fragment_ll);
+  create(meshes.astrolabe_ring);
+  create(meshes.astrolabe_hand);
+
+  create(meshes.item_gate_key);
+
+  create(meshes.target_reticle);
+}
 
 static void UpdateWaterPlane(Tachyon* tachyon, State& state) {
   auto& water_plane = objects(state.meshes.water_plane)[0];
@@ -327,9 +353,8 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
   state.debug_text = Tachyon_CreateUIText("./fonts/CascadiaMonoNF.ttf", 19);
   state.debug_text_large = Tachyon_CreateUIText("./fonts/OpenSans-Regular.ttf", 32);
 
-  Tachyon_InitializeObjects(tachyon);
+  CreateConstantObjects(tachyon, state);
 
-  ObjectManager::CreateObjects(tachyon, state);
   DataLoader::LoadLevelData(tachyon, state);
   DataLoader::LoadNpcDialogue(tachyon, state);
   Items::SpawnItemObjects(tachyon, state);

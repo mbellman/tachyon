@@ -172,7 +172,6 @@
     <ClInclude Include="astro\items.h" />
     <ClInclude Include="astro\level_editor.h" />
     <ClInclude Include="astro\mesh_library.h" />
-    <ClInclude Include="astro\object_manager.h" />
     <ClInclude Include="astro\particles.h" />
     <ClInclude Include="astro\path_generation.h" />
     <ClInclude Include="astro\player_character.h" />
@@ -334,7 +333,6 @@
     <ClCompile Include="astro\items.cpp" />
     <ClCompile Include="astro\level_editor.cpp" />
     <ClCompile Include="astro\mesh_library.cpp" />
-    <ClCompile Include="astro\object_manager.cpp" />
     <ClCompile Include="astro\particles.cpp" />
     <ClCompile Include="astro\path_generation.cpp" />
     <ClCompile Include="astro\player_character.cpp" />

@@ -195,5 +195,9 @@ void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
   AddProceduralMeshes(tachyon, state);
 
   // @todo dev mode only
-  AddEditorMeshes(tachyon, state);
+  {
+    AddEditorMeshes(tachyon, state);
+  }
+
+  Tachyon_InitializeObjects(tachyon);
 }
