@@ -848,6 +848,42 @@ static void HandleEntityPropertiesEditor(Tachyon* tachyon, State& state) {
 
 /**
  * ----------------------------
+ * Sets the current entity type based on a Selectable.
+ * ----------------------------
+ */
+static void SetCurrentEntityType(Selectable& selectable) {
+  for (size_t index = 0; index < entity_types.size(); index++) {
+    if (selectable.entity_record.type == entity_types[index]) {
+      editor.is_placing_entity = true;
+      editor.current_entity_index = index;
+
+      break;
+    }
+  }
+}
+
+/**
+ * ----------------------------
+ * Sets the current decorative mesh type based on a Selectable.
+ * ----------------------------
+ */
+static void SetCurrentDecorativeMeshType(State& state, Selectable& selectable) {
+  auto& decorative_meshes = GetDecorativeMeshes(state);
+
+  for (size_t index = 0; index < decorative_meshes.size(); index++) {
+    uint16 mesh_index = decorative_meshes[index].mesh_index;
+
+    if (selectable.placeholder.mesh_index == mesh_index) {
+      editor.is_placing_entity = false;
+      editor.current_decorative_mesh_index = index;
+
+      break;
+    }
+  }
+}
+
+/**
+ * ----------------------------
  * Selects a given Selectable, either an entity or plain object.
  * ----------------------------
  */
@@ -863,6 +899,12 @@ static void MakeSelection(Tachyon* tachyon, State& state, Selectable& selectable
   commit(placeholder);
 
   CreateGizmo(tachyon, state, editor.current_gizmo_action);
+
+  if (selectable.is_entity) {
+    SetCurrentEntityType(selectable);
+  } else {
+    SetCurrentDecorativeMeshType(state, selectable);
+  }
 }
 
 /**
