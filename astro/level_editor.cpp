@@ -851,7 +851,7 @@ static void HandleEntityPropertiesEditor(Tachyon* tachyon, State& state) {
  * Sets the current entity type based on a Selectable.
  * ----------------------------
  */
-static void SetCurrentEntityType(Selectable& selectable) {
+static void SetCurrentEntityTypeFromSelectable(Selectable& selectable) {
   for (size_t index = 0; index < entity_types.size(); index++) {
     if (selectable.entity_record.type == entity_types[index]) {
       editor.is_placing_entity = true;
@@ -867,7 +867,7 @@ static void SetCurrentEntityType(Selectable& selectable) {
  * Sets the current decorative mesh type based on a Selectable.
  * ----------------------------
  */
-static void SetCurrentDecorativeMeshType(State& state, Selectable& selectable) {
+static void SetCurrentDecorativeMeshTypeFromSelectable(State& state, Selectable& selectable) {
   auto& decorative_meshes = GetDecorativeMeshes(state);
 
   for (size_t index = 0; index < decorative_meshes.size(); index++) {
@@ -901,9 +901,9 @@ static void MakeSelection(Tachyon* tachyon, State& state, Selectable& selectable
   CreateGizmo(tachyon, state, editor.current_gizmo_action);
 
   if (selectable.is_entity) {
-    SetCurrentEntityType(selectable);
+    SetCurrentEntityTypeFromSelectable(selectable);
   } else {
-    SetCurrentDecorativeMeshType(state, selectable);
+    SetCurrentDecorativeMeshTypeFromSelectable(state, selectable);
   }
 }
 
@@ -1126,6 +1126,12 @@ static void PlaceNewDecorativeObject(Tachyon* tachyon, State& state) {
   // @todo define default materials
   if (defaults.mesh_index == state.meshes.flat_ground) {
     object.material = tVec4f(1., 0, 0, 0);
+  }
+
+  // @temporary
+  // @todo define default materials
+  if (defaults.mesh_index == state.meshes.ground_1) {
+    object.material = tVec4f(1.f, 0, 0, 0.1f);
   }
 
   // @temporary
