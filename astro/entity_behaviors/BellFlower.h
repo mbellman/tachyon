@@ -34,7 +34,7 @@ namespace astro {
 
       auto& meshes = state.meshes;
 
-      float petals_emissivity = state.is_nighttime ? 0.6f : 0.4f;
+      float petals_emissivity = state.is_nighttime ? 0.8f : 0.4f;
       float light_power = state.is_nighttime ? 1.f : 0.1f;
 
       reset_instances(meshes.bellflower_stems);

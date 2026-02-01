@@ -792,6 +792,12 @@ void main() {
 
       if (frag_distance_from_camera > 2600.0) {
         out_color = mix(out_color, fog_color, fog_thickness);
+
+        // Increase contrast with fog thickness for artistic effect
+        // @todo continue adjusting this
+        vec3 high_contrast_color = ((out_color.rgb - 0.5) * max(2.0, 0.0)) + 0.5;
+
+        out_color = mix(out_color, high_contrast_color, fog_thickness);
       }
     }
   } else {
