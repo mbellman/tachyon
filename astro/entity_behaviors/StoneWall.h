@@ -33,7 +33,7 @@ namespace astro {
 
         wall.position = entity.position;
         wall.rotation = entity.orientation;
-        wall.color = entity.tint;
+        wall.color = tVec3f(0.8f, 0.8f, 0.7f);
 
         if (is_active) {
           float age = state.astro_time - entity.astro_start_time;

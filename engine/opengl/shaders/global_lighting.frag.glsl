@@ -797,7 +797,7 @@ void main() {
         // @todo continue adjusting this
         vec3 high_contrast_color = ((out_color.rgb - 0.5) * max(2.0, 0.0)) + 0.5;
 
-        out_color = mix(out_color, high_contrast_color, fog_thickness);
+        out_color = mix(out_color, high_contrast_color, fog_thickness * fog_thickness);
       }
     }
   } else {
