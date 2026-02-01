@@ -24,9 +24,12 @@ uniform float scene_time;
 uniform float running_time;
 
 // Primary lighting
-// @todo allow multiple directional lights
 uniform vec3 primary_light_direction;
 uniform vec3 primary_light_color;
+
+// Ambient sky lighting
+uniform vec3 sky_light_direction;
+uniform vec3 sky_light_color;
 
 // Fog
 struct FogVolume {
@@ -261,7 +264,7 @@ float GetPrimaryLightShadowFactor(vec3 world_position) {
 }
 
 vec3 GetAmbientFresnel(float NdotV) {
-  return 0.02 * vec3(pow(1.0 - NdotV, 5.0));
+  return vec3(pow(1.0 - NdotV, 5.0)) * sky_light_color * 0.2;
 }
 
 vec4 UnpackColor(uvec4 surface) {
@@ -711,13 +714,9 @@ void main() {
     out_color += albedo * vec3(0.1, 0.2, 1.0) * (0.005 + 0.02 * (1.0 - NdotL));
   }
 
-  // Earth bounce light (or ambient sky light)
-  // @todo make customizable
+  // Ambient sky light
   {
-    const vec3 earth_light_direction = vec3(0, -1.0, 0);
-    const vec3 earth_light_color = vec3(0.2, 0.5, 1.0) * 0.2;
-
-    out_color += GetDirectionalLightRadiance(earth_light_direction, earth_light_color, albedo, position, N, V, NdotV, mix(roughness, 1.0, 0.5), metalness, 0.0, 0.0, 1.0);
+    out_color += GetDirectionalLightRadiance(sky_light_direction, sky_light_color, albedo, position, N, V, NdotV, mix(roughness, 1.0, 0.5), metalness, 0.0, 0.0, 1.0);
   }
 
   // Reflections

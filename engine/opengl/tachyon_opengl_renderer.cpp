@@ -797,16 +797,13 @@ static void RenderPbrMeshes(Tachyon* tachyon) {
 }
 
 static void RenderShadowMaps(Tachyon* tachyon) {
-  auto& camera = tachyon->scene.camera;
+  auto& scene = tachyon->scene;
+  auto& camera = scene.camera;
   auto& renderer = get_renderer();
   auto& shader = renderer.shaders.shadow_map;
   auto& locations = renderer.shaders.locations.shadow_map;
   auto& ctx = renderer.ctx;
   auto& gl_mesh_pack = renderer.mesh_pack;
-
-  // @temporary
-  // @todo allow multiple directional lights
-  auto& primary_light_direction = tachyon->scene.primary_light_direction;
 
   glBindVertexArray(gl_mesh_pack.vao);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gl_mesh_pack.ebo);
@@ -816,7 +813,7 @@ static void RenderShadowMaps(Tachyon* tachyon) {
   // Directional shadow map
   for (uint8 attachment = DIRECTIONAL_SHADOW_MAP_CASCADE_1; attachment <= DIRECTIONAL_SHADOW_MAP_CASCADE_4; attachment++) {
     auto cascade_index = attachment - DIRECTIONAL_SHADOW_MAP_CASCADE_1;
-    auto light_matrix = CreateCascadedLightMatrix(cascade_index, primary_light_direction, camera);
+    auto light_matrix = CreateCascadedLightMatrix(cascade_index, scene.primary_light_direction, camera);
 
     renderer.directional_shadow_map.writeToAttachment(cascade_index);
 
@@ -873,9 +870,6 @@ static void RenderGlobalLighting(Tachyon* tachyon) {
   auto& locations = renderer.shaders.locations.global_lighting;
   auto& ctx = renderer.ctx;
 
-  // @todo allow multiple directional lights
-  auto& primary_light_direction = tachyon->scene.primary_light_direction;
-
   auto& previous_accumulation_buffer = renderer.current_frame % 2 == 0
     ? renderer.accumulation_buffer_b
     : renderer.accumulation_buffer_a;
@@ -902,10 +896,10 @@ static void RenderGlobalLighting(Tachyon* tachyon) {
   SetShaderInt(locations.in_shadow_map_cascade_2, DIRECTIONAL_SHADOW_MAP_CASCADE_2);
   SetShaderInt(locations.in_shadow_map_cascade_3, DIRECTIONAL_SHADOW_MAP_CASCADE_3);
   SetShaderInt(locations.in_shadow_map_cascade_4, DIRECTIONAL_SHADOW_MAP_CASCADE_4);
-  SetShaderMat4f(locations.light_matrix_cascade_1, CreateCascadedLightMatrix(0, primary_light_direction, camera));
-  SetShaderMat4f(locations.light_matrix_cascade_2, CreateCascadedLightMatrix(1, primary_light_direction, camera));
-  SetShaderMat4f(locations.light_matrix_cascade_3, CreateCascadedLightMatrix(2, primary_light_direction, camera));
-  SetShaderMat4f(locations.light_matrix_cascade_4, CreateCascadedLightMatrix(3, primary_light_direction, camera));
+  SetShaderMat4f(locations.light_matrix_cascade_1, CreateCascadedLightMatrix(0, scene.primary_light_direction, camera));
+  SetShaderMat4f(locations.light_matrix_cascade_2, CreateCascadedLightMatrix(1, scene.primary_light_direction, camera));
+  SetShaderMat4f(locations.light_matrix_cascade_3, CreateCascadedLightMatrix(2, scene.primary_light_direction, camera));
+  SetShaderMat4f(locations.light_matrix_cascade_4, CreateCascadedLightMatrix(3, scene.primary_light_direction, camera));
   SetShaderMat4f(locations.projection_matrix, ctx.projection_matrix);
   SetShaderMat4f(locations.view_matrix, ctx.view_matrix);
   SetShaderMat4f(locations.previous_view_matrix, ctx.previous_view_matrix);
@@ -914,9 +908,10 @@ static void RenderGlobalLighting(Tachyon* tachyon) {
   SetShaderVec3f(locations.camera_position, ctx.camera_position);
   SetShaderFloat(locations.scene_time, scene.scene_time);
   SetShaderFloat(locations.running_time, tachyon->running_time);
-  // @todo allow multiple directional lights
   SetShaderVec3f(locations.primary_light_direction, scene.primary_light_direction);
   SetShaderVec3f(locations.primary_light_color, scene.primary_light_color);
+  SetShaderVec3f(locations.sky_light_direction, scene.sky_light_direction);
+  SetShaderVec3f(locations.sky_light_color, scene.sky_light_color);
   SetShaderVec3f(locations.player_position, fx.player_position);
   SetShaderFloat(locations.accumulation_blur_factor, tachyon->fx.accumulation_blur_factor);
   SetShaderBool(locations.use_high_visibility_mode, tachyon->use_high_visibility_mode);
@@ -996,9 +991,6 @@ static void RenderPostMeshes(Tachyon* tachyon) {
     auto& camera = tachyon->scene.camera;
     auto& fx = tachyon->fx;
 
-    // @todo allow multiple directional lights
-    auto& primary_light_direction = tachyon->scene.primary_light_direction;
-
     renderer.g_buffer.read();
 
     glDisable(GL_BLEND);
@@ -1014,10 +1006,10 @@ static void RenderPostMeshes(Tachyon* tachyon) {
     SetShaderInt(locations.in_shadow_map_cascade_2, DIRECTIONAL_SHADOW_MAP_CASCADE_2);
     SetShaderInt(locations.in_shadow_map_cascade_3, DIRECTIONAL_SHADOW_MAP_CASCADE_3);
     SetShaderInt(locations.in_shadow_map_cascade_4, DIRECTIONAL_SHADOW_MAP_CASCADE_4);
-    SetShaderMat4f(locations.light_matrix_cascade_1, CreateCascadedLightMatrix(0, primary_light_direction, camera));
-    SetShaderMat4f(locations.light_matrix_cascade_2, CreateCascadedLightMatrix(1, primary_light_direction, camera));
-    SetShaderMat4f(locations.light_matrix_cascade_3, CreateCascadedLightMatrix(2, primary_light_direction, camera));
-    SetShaderMat4f(locations.light_matrix_cascade_4, CreateCascadedLightMatrix(3, primary_light_direction, camera));
+    SetShaderMat4f(locations.light_matrix_cascade_1, CreateCascadedLightMatrix(0, scene.primary_light_direction, camera));
+    SetShaderMat4f(locations.light_matrix_cascade_2, CreateCascadedLightMatrix(1, scene.primary_light_direction, camera));
+    SetShaderMat4f(locations.light_matrix_cascade_3, CreateCascadedLightMatrix(2, scene.primary_light_direction, camera));
+    SetShaderMat4f(locations.light_matrix_cascade_4, CreateCascadedLightMatrix(3, scene.primary_light_direction, camera));
     SetShaderFloat(locations.accumulation_blur_factor, fx.accumulation_blur_factor);
     SetShaderFloat(locations.time, fx.water_time);
 

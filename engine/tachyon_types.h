@@ -262,6 +262,9 @@ struct Tachyon {
     tVec3f primary_light_direction = tVec3f(0, -1.f, 0);
     tVec3f primary_light_color = tVec3f(1.f);
 
+    tVec3f sky_light_direction = tVec3f(0, -1.f, 0);
+    tVec3f sky_light_color = tVec3f(0.2f, 0.5f, 1.0f) * 0.2f;
+
     tVec3f foliage_mover_position;
     tVec3f foliage_mover_velocity;
 

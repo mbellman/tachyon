@@ -116,10 +116,15 @@ static void StoreShaderUniforms(tOpenGLShaders& shaders) {
   store_shader_uniform(global_lighting, camera_position);
   store_shader_uniform(global_lighting, scene_time);
   store_shader_uniform(global_lighting, running_time);
-  // @todo allow multiple directional lights
   store_shader_uniform(global_lighting, primary_light_direction);
   store_shader_uniform(global_lighting, primary_light_color);
+  store_shader_uniform(global_lighting, sky_light_direction);
+  store_shader_uniform(global_lighting, sky_light_color);
   store_shader_uniform(global_lighting, player_position);
+  // @todo Right now this is commented out because the volumes
+  // are in an array, so we need to iterate over their indexes
+  // and set by interpolated uniform locations. Ideally we'd use
+  // a UBO or SSBO or similar.
   // store_shader_uniform(global_lighting, fog_volumes);
   store_shader_uniform(global_lighting, total_fog_volumes);
   store_shader_uniform(global_lighting, fog_visibility);

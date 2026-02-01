@@ -55,8 +55,19 @@ void TimeEvolution::UpdateAstroTime(Tachyon* tachyon, State& state) {
 
   float alpha = -1.f * (state.astro_time / 250.f);
 
-  tachyon->scene.primary_light_color = GetLightColor(state.astro_time, state.is_nighttime);
+  // Primary + ambient sky light
+  {
+    auto& scene = tachyon->scene;
 
-  // @todo unit() this in the renderer
-  tachyon->scene.primary_light_direction = tVec3f::lerp(start_direction, end_direction, alpha).unit();
+    scene.primary_light_color = GetLightColor(state.astro_time, state.is_nighttime);
+
+    // @todo unit() this in the renderer
+    scene.primary_light_direction = tVec3f::lerp(start_direction, end_direction, alpha).unit();
+
+    if (state.is_nighttime) {
+      scene.sky_light_color = tVec3f(0, 0, 0.4f);
+    } else {
+      scene.sky_light_color = tVec3f(0.2f, 0.5f, 1.0f) * 0.2f;
+    }
+  }
 }

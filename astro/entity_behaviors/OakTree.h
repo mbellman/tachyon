@@ -135,6 +135,11 @@ namespace astro {
           leaves.color = leaves_color;
           leaves.material = tVec4f(0.8f, 0, 0, 1.f);
 
+          if (state.is_nighttime) {
+            // @todo use different leaf colors in Faeries' Domain
+            // leaves.color = tVec4f(0.4f, 0.6f, 1.f, 0.5f);
+          }
+
           commit(leaves);
         }
 

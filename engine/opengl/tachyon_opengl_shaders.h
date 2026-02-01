@@ -65,9 +65,10 @@ struct tUniformLocations {
     camera_position,
     scene_time,
     running_time,
-    // @todo allow multiple directional lights
     primary_light_direction,
     primary_light_color,
+    sky_light_direction,
+    sky_light_color,
     player_position,
     fog_volumes,
     total_fog_volumes,
