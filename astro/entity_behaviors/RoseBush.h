@@ -103,11 +103,14 @@ namespace astro {
 
         // Flowers
         {
+          float life_alpha = life_progress - 0.1f;
+          if (life_alpha < 0.f) life_alpha = 0.f;
+
           for (int j = 0; j < 6; j++) {
             auto& flower = use_instance(meshes.rose_bush_flower);
             float alpha = float(j) / 5.f;
 
-            float flower_growth = powf(sinf(life_progress * t_PI + alpha * 0.5f), 3.f);
+            float flower_growth = sinf(2.f * life_alpha * t_PI);
             tVec3f flower_scale = entity.scale * 2.f * flower_growth;
             float flower_scale_y = entity.scale.y * 2.f * sqrtf(flower_growth);
 
