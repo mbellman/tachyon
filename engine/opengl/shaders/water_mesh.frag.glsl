@@ -38,8 +38,12 @@ float GetWorldDepth(float depth, float near, float far) {
   return 2.0 * near * far / (far + near - clip_depth * (far - near));
 }
 
+// @todo nighttime color
 vec3 GetSkyColor(vec3 sky_direction, float sun_glare_factor) {
-  float up_dot = 0.5 + 0.5 * max(0.0, dot(sky_direction, vec3(0, 1.0, 0)));
+  float DdotU = max(0.0, dot(sky_direction, vec3(0, 1.0, 0)));
+  float up_dot = 0.5 + 0.5 * DdotU;
+
+  // return vec3(0, 0, 0.5) * (1.0 - DdotU);
 
   return normalize(vec3(
     sqrt(1.0 - up_dot),
