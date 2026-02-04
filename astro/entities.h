@@ -47,7 +47,8 @@ namespace astro {
     LILY_PAD,
     BELLFLOWER,
     STARFLOWER,
-    FLAG
+    FLAG,
+    ROSE_BUSH
   };
 
   /**
@@ -78,6 +79,7 @@ namespace astro {
     GATE,
     FLAG,
     LILAC_BUSH,
+    ROSE_BUSH,
     LIGHT_POST,
     WOODEN_FENCE,
     ALTAR,
@@ -317,10 +319,15 @@ namespace astro {
       flag_pole,
       flag_banner,
 
-      // LILAC
+      // LILAC_BUSH
       lilac_placeholder,
       lilac_leaves,
       lilac_flower,
+
+      // ROSE_BUSH
+      rose_bush_placeholder,
+      rose_bush_leaves,
+      rose_bush_flower,
 
       // LIGHT_POST
       light_post_placeholder,
@@ -396,6 +403,7 @@ namespace astro {
     std::vector<GameEntity> bellflowers;
     std::vector<GameEntity> starflowers;
     std::vector<GameEntity> lilac_bushes;
+    std::vector<GameEntity> rose_bushes;
     std::vector<GameEntity> lily_pads;
     std::vector<GameEntity> mushrooms;
     std::vector<GameEntity> glow_flowers;
@@ -512,6 +520,12 @@ namespace astro {
       .name = "Lilac Bush",
       .scale = tVec3f(800.f),
       .tint = tVec3f(1.f, 0.4f, 1.f)
+    } },
+
+    { ROSE_BUSH, {
+      .name = "Rose Bush",
+      .scale = tVec3f(800.f),
+      .tint = tVec3f(1.f, 0.2f, 0.1f)
     } },
 
     { LILY_PAD, {

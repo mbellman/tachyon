@@ -22,6 +22,7 @@
 #include "astro/entity_behaviors/Npc.h"
 #include "astro/entity_behaviors/OakTree.h"
 #include "astro/entity_behaviors/RiverLog.h"
+#include "astro/entity_behaviors/RoseBush.h"
 #include "astro/entity_behaviors/Sculpture_1.h"
 #include "astro/entity_behaviors/Shrub.h"
 #include "astro/entity_behaviors/SmallStoneBridge.h"
@@ -59,41 +60,42 @@ using namespace astro;
     __Behavior::_TimeEvolve(tachyon, state);\
     break\
 
-#define create_dispatch_cases(behavior_macro)\
-  behavior_macro(BANDIT, Bandit);\
-  behavior_macro(CHESTNUT_TREE, ChestnutTree);\
-  behavior_macro(STONE_PATH_NODE, StonePathNode);\
-  behavior_macro(DIRT_PATH_NODE, DirtPathNode);\
-  behavior_macro(FOG_SPAWN, FogSpawn);\
-  behavior_macro(ITEM_PICKUP, ItemPickup);\
-  behavior_macro(LESSER_GUARD, LesserGuard);\
-  behavior_macro(LOW_GUARD, LowGuard);\
-  behavior_macro(OAK_TREE, OakTree);\
-  behavior_macro(RIVER_LOG, RiverLog);\
-  behavior_macro(SHRUB, Shrub);\
-  behavior_macro(FLOWER_BUSH, FlowerBush);\
-  behavior_macro(LILAC_BUSH, LilacBush);\
-  behavior_macro(BELLFLOWER, BellFlower);\
-  behavior_macro(STARFLOWER, StarFlower);\
-  behavior_macro(LILY_PAD, LilyPad);\
-  behavior_macro(MUSHROOM, Mushroom);\
-  behavior_macro(GLOW_FLOWER, GlowFlower);\
-  behavior_macro(SMALL_STONE_BRIDGE, SmallStoneBridge);\
-  behavior_macro(STONE_WALL, StoneWall);\
-  behavior_macro(GATE, Gate);\
-  behavior_macro(FLAG, Flag);\
-  behavior_macro(LIGHT_POST, LightPost);\
-  behavior_macro(LAMPPOST, Lamppost);\
-  behavior_macro(WIND_CHIMES, WindChimes);\
-  behavior_macro(SCULPTURE_1, Sculpture_1);\
-  behavior_macro(ALTAR, Altar);\
-  behavior_macro(HOUSE, House);\
-  behavior_macro(NPC, Npc);\
-  behavior_macro(WATER_WHEEL, WaterWheel);\
-  behavior_macro(WILLOW_TREE, WillowTree);\
-  behavior_macro(WOODEN_BRIDGE, WoodenBridge);\
-  behavior_macro(WOODEN_FENCE, WoodenFence);\
-  behavior_macro(WOODEN_GATE_DOOR, WoodenGateDoor);
+#define create_dispatch_cases(dispatch_macro)\
+  dispatch_macro(BANDIT, Bandit);\
+  dispatch_macro(CHESTNUT_TREE, ChestnutTree);\
+  dispatch_macro(STONE_PATH_NODE, StonePathNode);\
+  dispatch_macro(DIRT_PATH_NODE, DirtPathNode);\
+  dispatch_macro(FOG_SPAWN, FogSpawn);\
+  dispatch_macro(ITEM_PICKUP, ItemPickup);\
+  dispatch_macro(LESSER_GUARD, LesserGuard);\
+  dispatch_macro(LOW_GUARD, LowGuard);\
+  dispatch_macro(OAK_TREE, OakTree);\
+  dispatch_macro(RIVER_LOG, RiverLog);\
+  dispatch_macro(SHRUB, Shrub);\
+  dispatch_macro(FLOWER_BUSH, FlowerBush);\
+  dispatch_macro(LILAC_BUSH, LilacBush);\
+  dispatch_macro(ROSE_BUSH, RoseBush);\
+  dispatch_macro(BELLFLOWER, BellFlower);\
+  dispatch_macro(STARFLOWER, StarFlower);\
+  dispatch_macro(LILY_PAD, LilyPad);\
+  dispatch_macro(MUSHROOM, Mushroom);\
+  dispatch_macro(GLOW_FLOWER, GlowFlower);\
+  dispatch_macro(SMALL_STONE_BRIDGE, SmallStoneBridge);\
+  dispatch_macro(STONE_WALL, StoneWall);\
+  dispatch_macro(GATE, Gate);\
+  dispatch_macro(FLAG, Flag);\
+  dispatch_macro(LIGHT_POST, LightPost);\
+  dispatch_macro(LAMPPOST, Lamppost);\
+  dispatch_macro(WIND_CHIMES, WindChimes);\
+  dispatch_macro(SCULPTURE_1, Sculpture_1);\
+  dispatch_macro(ALTAR, Altar);\
+  dispatch_macro(HOUSE, House);\
+  dispatch_macro(NPC, Npc);\
+  dispatch_macro(WATER_WHEEL, WaterWheel);\
+  dispatch_macro(WILLOW_TREE, WillowTree);\
+  dispatch_macro(WOODEN_BRIDGE, WoodenBridge);\
+  dispatch_macro(WOODEN_FENCE, WoodenFence);\
+  dispatch_macro(WOODEN_GATE_DOOR, WoodenGateDoor);
 
 std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, EntityType type) {
   switch (type) {
@@ -110,6 +112,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
     dispatch_GetEntityContainer(SHRUB, state.shrubs);
     dispatch_GetEntityContainer(FLOWER_BUSH, state.flower_bushes);
     dispatch_GetEntityContainer(LILAC_BUSH, state.lilac_bushes);
+    dispatch_GetEntityContainer(ROSE_BUSH, state.rose_bushes);
     dispatch_GetEntityContainer(BELLFLOWER, state.bellflowers);
     dispatch_GetEntityContainer(STARFLOWER, state.starflowers);
     dispatch_GetEntityContainer(LILY_PAD, state.lily_pads);

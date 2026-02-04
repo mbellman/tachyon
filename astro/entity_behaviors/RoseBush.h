@@ -3,7 +3,7 @@
 #include "astro/entity_behaviors/behavior.h"
 
 namespace astro {
-  behavior LilacBush {
+  behavior RoseBush {
     static inline float RandomWithinRange(float seed, float low, float high) {
       float r = fmod(abs(seed), 1.f);
 
@@ -12,47 +12,47 @@ namespace astro {
 
     addMeshes() {
       // @todo use own model for placeholder
-      meshes.lilac_placeholder = MODEL_MESH("./astro/3d_models/shrub/placeholder.obj", 500);
-      meshes.lilac_leaves = MODEL_MESH("./astro/3d_models/lilac_bush/leaves.obj", 500);
-      meshes.lilac_flower = MODEL_MESH("./astro/3d_models/lilac_bush/flower.obj", 3000);
+      meshes.rose_bush_placeholder = MODEL_MESH("./astro/3d_models/shrub/placeholder.obj", 500);
+      meshes.rose_bush_leaves = MODEL_MESH("./astro/3d_models/rose_bush/leaves.obj", 500);
+      meshes.rose_bush_flower = MODEL_MESH("./astro/3d_models/lilac_bush/flower.obj", 3000);
 
-      mesh(meshes.lilac_placeholder).type = FOLIAGE_MESH;
-      mesh(meshes.lilac_leaves).type = FOLIAGE_MESH;
-      mesh(meshes.lilac_flower).type = FOLIAGE_MESH;
+      mesh(meshes.rose_bush_placeholder).type = FOLIAGE_MESH;
+      mesh(meshes.rose_bush_leaves).type = FOLIAGE_MESH;
+      mesh(meshes.rose_bush_flower).type = FOLIAGE_MESH;
     }
 
     getMeshes() {
       return_meshes({
-        meshes.lilac_leaves,
+        meshes.rose_bush_leaves,
 
         // Use 6 flowers per bush
-        meshes.lilac_flower,
-        meshes.lilac_flower,
-        meshes.lilac_flower,
-        meshes.lilac_flower,
-        meshes.lilac_flower,
-        meshes.lilac_flower
+        meshes.rose_bush_flower,
+        meshes.rose_bush_flower,
+        meshes.rose_bush_flower,
+        meshes.rose_bush_flower,
+        meshes.rose_bush_flower,
+        meshes.rose_bush_flower
       });
     }
 
     getPlaceholderMesh() {
-      return meshes.lilac_placeholder;
+      return meshes.rose_bush_placeholder;
     }
 
     timeEvolve() {
-      profile("  LilacBush::timeEvolve()");
+      profile("  RoseBush::timeEvolve()");
 
       auto& meshes = state.meshes;
 
       const float lifetime = 100.f;
-      const tVec3f leaves_color = tVec3f(0.07f, 0.14f, 0.07f);
+      const tVec3f leaves_color = tVec3f(0.14f, 0.3f, 0.1f);
       const tVec3f leaves_wilting_color = tVec3f(0.4f, 0.2f, 0.1f);
 
-      reset_instances(meshes.lilac_leaves);
-      reset_instances(meshes.lilac_flower);
+      reset_instances(meshes.rose_bush_leaves);
+      reset_instances(meshes.rose_bush_flower);
 
-      for_entities(state.lilac_bushes) {
-        auto& entity = state.lilac_bushes[i];
+      for_entities(state.rose_bushes) {
+        auto& entity = state.rose_bushes[i];
 
         if (abs(state.player_position.x - entity.position.x) > 25000.f) continue;
         if (abs(state.player_position.z - entity.position.z) > 25000.f) continue;
@@ -68,12 +68,13 @@ namespace astro {
         float plant_growth = sqrtf(sinf(life_progress * t_PI));
 
         // Leaves
-        auto& leaves = use_instance(meshes.lilac_leaves);
+        auto& leaves = use_instance(meshes.rose_bush_leaves);
 
-        leaves.scale = entity.scale * plant_growth;
-        leaves.scale.x = entity.scale.x * (life_progress > 0.5f ? 1.f : plant_growth);
+        // leaves.scale = entity.scale * plant_growth;
+        // leaves.scale.x = entity.scale.x * (life_progress > 0.5f ? 1.f : plant_growth);
+        leaves.scale = tVec3f(0.f);
         leaves.scale.y = entity.scale.y * plant_growth;
-        leaves.scale.z = entity.scale.z * (life_progress > 0.5f ? 1.f : plant_growth);
+        // leaves.scale.z = entity.scale.z * (life_progress > 0.5f ? 1.f : plant_growth);
 
         leaves.position = entity.position;
         leaves.rotation = entity.orientation;
@@ -96,12 +97,14 @@ namespace astro {
           leaves.color = tVec3f::lerp(leaves_color, leaves_wilting_color, alpha);
         }
 
+        leaves.scale *= 4.f;
+
         commit(leaves);
 
         // Flowers
         {
           for (int j = 0; j < 6; j++) {
-            auto& flower = use_instance(meshes.lilac_flower);
+            auto& flower = use_instance(meshes.rose_bush_flower);
             float alpha = float(j) / 5.f;
 
             float flower_growth = powf(sinf(life_progress * t_PI + alpha * 0.5f), 3.f);
@@ -121,9 +124,10 @@ namespace astro {
             );
 
             flower.position = entity.position + random_offset;
+            flower.position.y -= leaves.scale.y * 0.35f;
             flower.scale = flower_scale;
             flower.scale.y = flower_scale_y;
-            flower.color = tVec3f(1.f, 0.4f, 1.f);
+            flower.color = tVec3f(1.f, 0.1f, 0.2f);
             flower.material = tVec4f(0.8f, 0, 0, 0.6f);
 
             // @todo optimize
