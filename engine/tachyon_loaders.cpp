@@ -231,6 +231,11 @@ void GltfLoader::parseNodes() {
     node_json += line;
     node_json += "\n";
 
+    if (line.starts_with("    \"")) {
+      // If we reach another root property beside "nodes", terminate here
+      break;
+    }
+
     if (line.ends_with("},")) {
       // auto name = readStringProperty(node_json, "name");
 
@@ -247,6 +252,8 @@ void GltfLoader::parseNodes() {
           bone.rotation.y = rotation_values[1];
           bone.rotation.z = rotation_values[2];
           bone.rotation.w = rotation_values[3];
+        } else {
+          bone.rotation = Quaternion(1.f, 0, 0, 0);
         }
       }
 
