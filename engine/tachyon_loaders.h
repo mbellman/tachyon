@@ -104,6 +104,8 @@ public:
 
 private:
   void parseNodes();
+  std::vector<float> parseFloatArray(const std::string& array_string);
+  std::vector<int32> parseIntArray(const std::string& array_string);
   std::string readArrayProperty(const std::string& json_string, const std::string& property_name);
   std::string readStringProperty(const std::string& json_string, const std::string& property_name);
 };

@@ -239,18 +239,93 @@ void GltfLoader::parseNodes() {
       auto translation = readArrayProperty(node_json, "translation");
 
       // @temporary
-      printf("Bone (%d):\n\n", node_index);
-      printf("Children: %s\n", children.c_str());
+      printf("Bone (%d):\n", node_index);
+      // printf("Children: %s\n", children.c_str());
       printf("Name: %s\n", name.c_str());
       printf("Rotation: %s\n", rotation.c_str());
       printf("Scale: %s\n", scale.c_str());
       printf("Translation: %s\n", translation.c_str());
+
+      auto rotation_values = parseFloatArray(rotation);
+      auto scale_values = parseFloatArray(scale);
+      auto translation_values = parseFloatArray(translation);
+
+      Quaternion r;
+
+      if (rotation_values.size() == 4) {
+        r.x = rotation_values[0];
+        r.y = rotation_values[1];
+        r.z = rotation_values[2];
+        r.w = rotation_values[3];
+      }
+
+      tVec3f s;
+
+      if (scale_values.size() == 3) {
+        s.x = scale_values[0];
+        s.y = scale_values[1];
+        s.z = scale_values[2];
+      }
+
+      tVec3f t;
+
+      if (translation_values.size() == 3) {
+        t.x = translation_values[0];
+        t.y = translation_values[1];
+        t.z = translation_values[2];
+      }
+
+      // console_log(r);
+      // console_log(s);
+      // console_log(t);
+
       printf("\n\n");
 
       node_json.clear();
       node_index++;
     }
   }
+}
+
+// @optimize
+std::vector<float> GltfLoader::parseFloatArray(const std::string& array_string) {
+  std::vector<float> values;
+  int32 current_index = 1;
+  bool ended = false;
+
+  if (array_string == "[]") {
+    return values;
+  }
+
+  while (!ended) {
+    auto next_index = array_string.find(",", current_index);
+
+    if (next_index == std::string::npos) {
+      auto final_index = array_string.find("]", current_index);
+      auto length = final_index - current_index;
+      auto value_string = array_string.substr(current_index, length);
+      float value = stof(value_string);
+
+      values.push_back(value);
+
+      ended = true;
+    } else {
+      auto length = next_index - current_index;
+      auto value_string = array_string.substr(current_index, length);
+      float value = stof(value_string);
+
+      values.push_back(value);
+    }
+
+    current_index = next_index + 1;
+  }
+
+  return values;
+}
+
+std::vector<int32> GltfLoader::parseIntArray(const std::string& array_string) {
+  // @todo
+  return {};
 }
 
 std::string GltfLoader::readArrayProperty(const std::string& json_string, const std::string& property_name) {
