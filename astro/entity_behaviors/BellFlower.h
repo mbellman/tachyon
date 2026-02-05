@@ -30,7 +30,7 @@ namespace astro {
     }
 
     timeEvolve() {
-      // profile("  BellFlower::timeEvolve()");
+      profile("  BellFlower::timeEvolve()");
 
       auto& meshes = state.meshes;
 

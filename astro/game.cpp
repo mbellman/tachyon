@@ -420,6 +420,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   {
     if (did_press_key(tKey::SPACE)) {
       state.show_game_stats = !state.show_game_stats;
+      tachyon->scene.use_close_camera_disocclusion = !state.show_game_stats;
     }
 
     if (did_press_key(tKey::ARROW_DOWN)) {
