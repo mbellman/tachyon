@@ -2,6 +2,8 @@
 
 #include "engine/tachyon.h"
 
+#include "engine/tachyon_loaders.h"
+
 // #include "cosmodrone/game.h"
 
 // int main(int argc, char* argv[]) {
@@ -27,16 +29,20 @@
 int main(int argc, char* argv[]) {
   auto* tachyon = Tachyon_Init();
 
-  Tachyon_SpawnWindow(tachyon, "Astrolabe", 1536, 850);
+  GltfLoader skeleton("./astro/3d_models/characters/player_skeleton.gltf");
 
-  astro::State state;
-  astro::InitGame(tachyon, state);
+  // Tachyon_SpawnWindow(tachyon, "Astrolabe", 1536, 850);
 
-  Tachyon_UseRenderBackend(tachyon, TachyonRenderBackend::OPENGL);
+  // astro::State state;
+  // astro::InitGame(tachyon, state);
 
-  Tachyon_RunMainLoop({
-    astro::UpdateGame(tachyon, state, dt);
-  });
+  // Tachyon_UseRenderBackend(tachyon, TachyonRenderBackend::OPENGL);
+
+  // Tachyon_RunMainLoop({
+  //   astro::UpdateGame(tachyon, state, dt);
+  // });
+
+
 
   Tachyon_Exit(tachyon);
 

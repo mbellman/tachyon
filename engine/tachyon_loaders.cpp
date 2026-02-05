@@ -199,3 +199,78 @@ VertexData ObjLoader::parseVertexData(const std::string& chunk) {
 
   return vertexData;
 }
+
+// ----------
+// GltfLoader
+// ----------
+GltfLoader::GltfLoader(const char* path) {
+  load(path);
+
+  while (isLoading) {
+    setChunkDelimiter("\n");
+
+    auto& line = readNextChunk();
+
+    if (line == "    \"nodes\" : [") {
+      parseNodes();
+    }
+  }
+}
+
+GltfLoader::~GltfLoader() {
+
+}
+
+void GltfLoader::parseNodes() {
+  std::string bone_data;
+
+  while (isLoading) {
+    auto& line = readNextChunk();
+
+    bone_data += line;
+    bone_data += "\n";
+
+    if (line.ends_with("},")) {
+      auto children = readArrayProperty(bone_data, "children");
+      auto name = readStringProperty(bone_data, "name");
+      auto rotation = readArrayProperty(bone_data, "rotation");
+      auto scale = readArrayProperty(bone_data, "scale");
+      auto translation = readArrayProperty(bone_data, "translation");
+
+      // @temporary
+      printf("Bone:\n\n");
+      printf("Children: %s\n", children.c_str());
+      printf("Name: %s\n", name.c_str());
+      printf("Rotation: %s\n", rotation.c_str());
+      printf("Scale: %s\n", scale.c_str());
+      printf("Translation: %s\n", translation.c_str());
+      printf("\n\n");
+
+      bone_data.clear();
+    }
+  }
+}
+
+std::string GltfLoader::readArrayProperty(const std::string& bone_data, const std::string& property_name) {
+  std::string property_term = "\"" + property_name + "\"";
+  auto index = bone_data.find(property_term);
+
+  if (index == std::string::npos) {
+    return "[]";
+  } else {
+    // @todo
+    return "Array!";
+  }
+}
+
+std::string GltfLoader::readStringProperty(const std::string& bone_data, const std::string& property_name) {
+  std::string property_term = "\"" + property_name + "\"";
+  auto index = bone_data.find(property_term);
+
+  if (index == std::string::npos) {
+    return "-";
+  } else {
+    // @todo
+    return "String!";
+  }
+}

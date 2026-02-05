@@ -85,3 +85,25 @@ private:
   void handleTextureCoordinate();
   VertexData parseVertexData(const std::string& data);
 };
+
+/**
+ * GltfLoader
+ * ----------
+ *
+ * Opens and parses .gltf files into an intermediate representation
+ * for conversion into Model instances.
+ *
+ * Usage:
+ *
+ *  GltfLoader modelGltf("path/to/file.gltf");
+ */
+class GltfLoader : public AbstractLoader {
+public:
+  GltfLoader(const char* path);
+  ~GltfLoader();
+
+private:
+  void parseNodes();
+  std::string readArrayProperty(const std::string& bone_data, const std::string& property_name);
+  std::string readStringProperty(const std::string& bone_data, const std::string& property_name);
+};
