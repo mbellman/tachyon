@@ -222,23 +222,24 @@ GltfLoader::~GltfLoader() {
 }
 
 void GltfLoader::parseNodes() {
-  std::string bone_data;
+  std::string node_json;
+  int32 node_index = 0;
 
   while (isLoading) {
     auto& line = readNextChunk();
 
-    bone_data += line;
-    bone_data += "\n";
+    node_json += line;
+    node_json += "\n";
 
     if (line.ends_with("},")) {
-      auto children = readArrayProperty(bone_data, "children");
-      auto name = readStringProperty(bone_data, "name");
-      auto rotation = readArrayProperty(bone_data, "rotation");
-      auto scale = readArrayProperty(bone_data, "scale");
-      auto translation = readArrayProperty(bone_data, "translation");
+      auto children = readArrayProperty(node_json, "children");
+      auto name = readStringProperty(node_json, "name");
+      auto rotation = readArrayProperty(node_json, "rotation");
+      auto scale = readArrayProperty(node_json, "scale");
+      auto translation = readArrayProperty(node_json, "translation");
 
       // @temporary
-      printf("Bone:\n\n");
+      printf("Bone (%d):\n\n", node_index);
       printf("Children: %s\n", children.c_str());
       printf("Name: %s\n", name.c_str());
       printf("Rotation: %s\n", rotation.c_str());
@@ -246,31 +247,38 @@ void GltfLoader::parseNodes() {
       printf("Translation: %s\n", translation.c_str());
       printf("\n\n");
 
-      bone_data.clear();
+      node_json.clear();
+      node_index++;
     }
   }
 }
 
-std::string GltfLoader::readArrayProperty(const std::string& bone_data, const std::string& property_name) {
+std::string GltfLoader::readArrayProperty(const std::string& json_string, const std::string& property_name) {
   std::string property_term = "\"" + property_name + "\"";
-  auto index = bone_data.find(property_term);
+  auto index = json_string.find(property_term);
 
   if (index == std::string::npos) {
     return "[]";
   } else {
-    // @todo
-    return "Array!";
+    auto start_index = json_string.find("[", index);
+    auto end_index = json_string.find("]", start_index);
+    auto length = (end_index - start_index) + 1;
+
+    return json_string.substr(start_index, length);
   }
 }
 
-std::string GltfLoader::readStringProperty(const std::string& bone_data, const std::string& property_name) {
+std::string GltfLoader::readStringProperty(const std::string& json_string, const std::string& property_name) {
   std::string property_term = "\"" + property_name + "\"";
-  auto index = bone_data.find(property_term);
+  auto index = json_string.find(property_term);
 
   if (index == std::string::npos) {
     return "-";
   } else {
-    // @todo
-    return "String!";
+    auto start_index = json_string.find(" : ", index) + 3;
+    auto end_index = json_string.find(",\n", index);
+    auto length = end_index - start_index;
+
+    return json_string.substr(start_index, length);
   }
 }

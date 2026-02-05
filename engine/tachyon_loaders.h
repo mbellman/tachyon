@@ -104,6 +104,6 @@ public:
 
 private:
   void parseNodes();
-  std::string readArrayProperty(const std::string& bone_data, const std::string& property_name);
-  std::string readStringProperty(const std::string& bone_data, const std::string& property_name);
+  std::string readArrayProperty(const std::string& json_string, const std::string& property_name);
+  std::string readStringProperty(const std::string& json_string, const std::string& property_name);
 };
