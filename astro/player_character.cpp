@@ -10,7 +10,7 @@ using namespace astro;
 const static float AUTO_HOP_DURATION = 0.3f;
 
 // @todo debug mode only
-static void ShowDebugPlayerSkeleton(Tachyon* tachyon, State& state) {
+static void ShowDebugPlayerSkeleton(Tachyon* tachyon, State& state, Quaternion& rotation, tMat4f& rotation_matrix) {
   profile("ShowDebugPlayerSkeleton()");
 
   auto& camera = tachyon->scene.camera;
@@ -21,15 +21,61 @@ static void ShowDebugPlayerSkeleton(Tachyon* tachyon, State& state) {
 
   reset_instances(meshes.debug_skeleton_bone);
 
-  for (auto& bone : state.player_skeleton.bones) {
-    // @todo calculate from parent bone hierarchy
+  int index = int(tachyon->running_time * 8.f) % state.animations.player_walk.size();
+  auto& skeleton = state.animations.player_walk[index];
+
+  for (auto& bone : skeleton.bones) {
     tVec3f bone_translation = bone.translation;
+    Quaternion bone_rotation = bone.rotation;
+    int32 next_parent_index = bone.parent_bone_index;
+
+    // Offset the bone so that it can be represented as a stick
+    // in between its translation and the next bone, and not just
+    // a point at its initial translation coordinate
+    //
+    // @bug this is still slightly wrong sometimes
+    bone_translation += bone.rotation.toMatrix4f() * (bone.translation * 0.5f);
+
+    while (next_parent_index != -1) {
+      auto& parent_bone = skeleton.bones[next_parent_index];
+
+      bone_translation = parent_bone.translation + parent_bone.rotation.toMatrix4f() * bone_translation;
+      bone_rotation = parent_bone.rotation * bone_rotation;
+      next_parent_index = parent_bone.parent_bone_index;
+    }
 
     auto& bone_object = use_instance(meshes.debug_skeleton_bone);
+    float bone_length = bone.translation.magnitude() * 25.f;
 
-    bone_object.position = skeleton_origin + bone_translation * tVec3f(80.f);
-    bone_object.scale = tVec3f(1.f);
+    // @todo cleanup
+    if (bone.parent_bone_index != -1) {
+      auto& parent = skeleton.bones[bone.parent_bone_index];
+      float parent_bone_length = parent.translation.magnitude() * 25.f;
+
+      if (parent_bone_length > bone_length) {
+        bone_length = parent_bone_length;
+      }
+    }
+
+    // @todo cleanup
+    if (bone.child_bone_indexes.size() > 0) {
+      auto& child = skeleton.bones[bone.child_bone_indexes[0]];
+      float child_bone_length = child.translation.magnitude() * 25.f;
+
+      if (child_bone_length > bone_length) {
+        bone_length = child_bone_length;
+      }
+    }
+
+    bone_object.position = skeleton_origin + rotation_matrix * (bone_translation * tVec3f(75.f));
+    bone_object.scale = tVec3f(0.5f, bone_length, 0.5f);
     bone_object.color = tVec4f(0.2f, 0.8f, 1.f, 1.f);
+    bone_object.rotation = rotation * bone_rotation;
+
+    // @temporary (?)
+    if (bone.child_bone_indexes.size() == 0) {
+      bone_object.color = tVec4f(1.f, 0.2f, 1.f, 1.f);
+    }
 
     commit(bone_object);
   }
@@ -116,7 +162,7 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& rotati
   }
 
   if (state.show_game_stats) {
-    ShowDebugPlayerSkeleton(tachyon, state);
+    ShowDebugPlayerSkeleton(tachyon, state, rotation, rotation_matrix);
   } else {
     reset_instances(meshes.debug_skeleton_bone);
   }

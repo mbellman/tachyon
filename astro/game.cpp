@@ -360,9 +360,17 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
 
   // @todo factor
   {
-    GltfLoader skeletonData("./astro/3d_models/characters/player_skeleton.gltf");
-
-    state.player_skeleton = skeletonData.skeleton;
+    state.animations.player_walk = {
+      GltfLoader("./astro/3d_skeletons/player_walk/walk_1.gltf").skeleton,
+      GltfLoader("./astro/3d_skeletons/player_walk/walk_2.gltf").skeleton,
+      GltfLoader("./astro/3d_skeletons/player_walk/walk_3.gltf").skeleton,
+      GltfLoader("./astro/3d_skeletons/player_walk/walk_4.gltf").skeleton,
+      GltfLoader("./astro/3d_skeletons/player_walk/walk_5.gltf").skeleton,
+      GltfLoader("./astro/3d_skeletons/player_walk/walk_6.gltf").skeleton,
+      GltfLoader("./astro/3d_skeletons/player_walk/walk_7.gltf").skeleton,
+      GltfLoader("./astro/3d_skeletons/player_walk/walk_8.gltf").skeleton,
+      GltfLoader("./astro/3d_skeletons/player_walk/walk_9.gltf").skeleton,
+    };
   }
 
   // @todo ui.cpp
