@@ -9,6 +9,32 @@ using namespace astro;
 
 const static float AUTO_HOP_DURATION = 0.3f;
 
+// @todo debug mode only
+static void ShowDebugPlayerSkeleton(Tachyon* tachyon, State& state) {
+  profile("ShowDebugPlayerSkeleton()");
+
+  auto& camera = tachyon->scene.camera;
+  auto& meshes = state.meshes;
+
+  tVec3f camera_to_player = state.player_position - camera.position;
+  tVec3f skeleton_origin = camera.position + camera_to_player.unit() * 650.f;
+
+  reset_instances(meshes.debug_skeleton_bone);
+
+  for (auto& bone : state.player_skeleton.bones) {
+    // @todo calculate from parent bone hierarchy
+    tVec3f bone_translation = bone.translation;
+
+    auto& bone_object = use_instance(meshes.debug_skeleton_bone);
+
+    bone_object.position = skeleton_origin + bone_translation * tVec3f(80.f);
+    bone_object.scale = tVec3f(1.f);
+    bone_object.color = tVec4f(0.2f, 0.8f, 1.f, 1.f);
+
+    commit(bone_object);
+  }
+}
+
 static void HandleAutoHop(State& state) {
   float jump_height = state.current_ground_y + 500.f;
   float alpha = 10.f * state.dt;
@@ -87,6 +113,12 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& rotati
     boots.material = tVec4f(1.f, 0, 0, 0.4f);
 
     commit(boots);
+  }
+
+  if (state.show_game_stats) {
+    ShowDebugPlayerSkeleton(tachyon, state);
+  } else {
+    reset_instances(meshes.debug_skeleton_bone);
   }
 }
 

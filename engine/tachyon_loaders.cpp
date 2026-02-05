@@ -235,6 +235,7 @@ void GltfLoader::parseNodes() {
       // auto name = readStringProperty(node_json, "name");
 
       tBone bone;
+      bone.index = node_index;
 
       // Parse rotation
       {
@@ -286,6 +287,15 @@ void GltfLoader::parseNodes() {
       // Allow us to proceed to the next bone
       node_json.clear();
       node_index++;
+    }
+  }
+
+  // Define child -> parent bone relationships
+  for (auto& bone : skeleton.bones) {
+    for (auto index : bone.child_bone_indexes) {
+      auto& child_bone = skeleton.bones[index];
+
+      child_bone.parent_bone_index = bone.index;
     }
   }
 }

@@ -168,6 +168,12 @@ static void AddEditorMeshes(Tachyon* tachyon, State& state) {
   mesh(meshes.editor_placer).shadow_cascade_ceiling = 0;
 }
 
+static void AddDebugMeshes(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
+  meshes.debug_skeleton_bone = CUBE_MESH(1000);
+}
+
 void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
   log_time("AddMeshes()");
 
@@ -197,6 +203,7 @@ void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
   // @todo dev mode only
   {
     AddEditorMeshes(tachyon, state);
+    AddDebugMeshes(tachyon, state);
   }
 
   Tachyon_InitializeObjects(tachyon);

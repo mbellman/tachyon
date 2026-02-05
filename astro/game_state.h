@@ -28,6 +28,9 @@ namespace astro {
       player_boots,
       wand,
 
+      // Animation bone debugging
+      debug_skeleton_bone,
+
       // Static environment meshes
       water_plane,
       snow_particle,

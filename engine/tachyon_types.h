@@ -115,11 +115,14 @@ struct tObjectGroup {
 };
 
 struct tBone {
+  int32 index = -1;
+
   Quaternion rotation;
   tVec3f scale;
   tVec3f translation;
 
   std::vector<int32> child_bone_indexes;
+  int32 parent_bone_index = -1;
 };
 
 struct tSkeleton {

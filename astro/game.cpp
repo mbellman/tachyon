@@ -52,6 +52,13 @@ static void CreateConstantObjects(Tachyon* tachyon, State& state) {
   create(meshes.item_gate_key);
 
   create(meshes.target_reticle);
+
+  // @todo dev mode only
+  {
+    for (uint16 i = 0; i < 100; i++) {
+      create(meshes.debug_skeleton_bone);
+    }
+  }
 }
 
 static void UpdateWaterPlane(Tachyon* tachyon, State& state) {
@@ -356,25 +363,6 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
     GltfLoader skeletonData("./astro/3d_models/characters/player_skeleton.gltf");
 
     state.player_skeleton = skeletonData.skeleton;
-
-    // @temporary
-    int32 i = 0;
-
-    // @temporary
-    for (auto& bone : state.player_skeleton.bones) {
-      printf("Bone (%d):\n", i);
-      console_log(bone.rotation);
-      console_log(bone.scale);
-      console_log(bone.translation);
-
-      for (auto index : bone.child_bone_indexes) {
-        printf("%d, ", index);
-      }
-
-      printf("\n\n");
-
-      i++;
-    }
   }
 
   // @todo ui.cpp
