@@ -114,6 +114,18 @@ struct tObjectGroup {
   }
 };
 
+struct tBone {
+  Quaternion rotation;
+  tVec3f scale;
+  tVec3f translation;
+
+  std::vector<int32> child_bone_indexes;
+};
+
+struct tSkeleton {
+  std::vector<tBone> bones;
+};
+
 struct tMesh {
   std::vector<tVertex> vertices;
   std::vector<uint32> face_elements;

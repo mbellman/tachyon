@@ -267,6 +267,7 @@ namespace astro {
     bool is_on_solid_ground = false;
     bool is_on_solid_platform = false;
     bool did_resolve_radius_collision = false;
+    tSkeleton player_skeleton;
 
     float movement_distance = 0.f;
     float last_walk_sound_movement_distance = 0.f;

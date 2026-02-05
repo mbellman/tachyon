@@ -99,6 +99,8 @@ private:
  */
 class GltfLoader : public AbstractLoader {
 public:
+  tSkeleton skeleton;
+
   GltfLoader(const char* path);
   ~GltfLoader();
 

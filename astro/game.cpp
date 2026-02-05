@@ -21,6 +21,8 @@
 #include "astro/time_evolution.h"
 #include "astro/ui_system.h"
 
+#include "engine/tachyon_loaders.h"
+
 #define MUSIC_ENABLED 0
 
 using namespace astro;
@@ -348,6 +350,32 @@ static void RespawnPlayer(Tachyon* tachyon, State& state) {
 
 void astro::InitGame(Tachyon* tachyon, State& state) {
   MeshLibrary::AddMeshes(tachyon, state);
+
+  // @todo factor
+  {
+    GltfLoader skeletonData("./astro/3d_models/characters/player_skeleton.gltf");
+
+    state.player_skeleton = skeletonData.skeleton;
+
+    // @temporary
+    int32 i = 0;
+
+    // @temporary
+    for (auto& bone : state.player_skeleton.bones) {
+      printf("Bone (%d):\n", i);
+      console_log(bone.rotation);
+      console_log(bone.scale);
+      console_log(bone.translation);
+
+      for (auto index : bone.child_bone_indexes) {
+        printf("%d, ", index);
+      }
+
+      printf("\n\n");
+
+      i++;
+    }
+  }
 
   // @todo ui.cpp
   state.debug_text = Tachyon_CreateUIText("./fonts/CascadiaMonoNF.ttf", 19);
