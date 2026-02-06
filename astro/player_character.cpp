@@ -12,25 +12,30 @@ const static float AUTO_HOP_DURATION = 0.3f;
 static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
   profile("UpdatePlayerSkeleton()");
 
-  float t = tachyon->running_time * 8.f;
-
   // @temporary
-  auto& animation = state.animations.player_walk;
+  // @todo blend between animations
+  auto& animation = state.player_velocity.magnitude() > 50.f
+    ? state.animations.player_walk
+    : state.animations.player_idle;
 
-  int32 start_index = int(t) % (animation.size() - 1);
-  int32 end_index = (start_index + 1) % (animation.size() - 1);
-  auto& start_skeleton = animation[start_index];
-  auto& end_skeleton = animation[end_index];
+  float seek_time = tachyon->running_time * animation.speed;
+  float blend_alpha = fmodf(seek_time, 1.f);
 
-  float alpha = fmodf(t, 1.f);
+  if (animation.frames.size() == 2) {
+    // Special treatment for 2-frame animations: alternate between
+    // both frames using an ease-in-out transition
+    blend_alpha = Tachyon_EaseInOutf(blend_alpha);
+  }
+
+  int32 start_index = int(seek_time) % animation.frames.size();
+  int32 end_index = (start_index + 1) % animation.frames.size();
+  auto& start_skeleton = animation.frames[start_index];
+  auto& end_skeleton = animation.frames[end_index];
 
   for (int32 i = 0; i < start_skeleton.bones.size(); i++) {
     auto& start_bone = start_skeleton.bones[i];
     auto& end_bone = end_skeleton.bones[i];
-
-    tVec3f bone_translation = start_bone.translation;
-    Quaternion blended_rotation = Quaternion::nlerp(start_bone.rotation, end_bone.rotation, alpha);
-    int32 next_parent_index = start_bone.parent_bone_index;
+    Quaternion blended_rotation = Quaternion::nlerp(start_bone.rotation, end_bone.rotation, blend_alpha);
 
     state.player_skeleton.bones[i].rotation = blended_rotation;
 

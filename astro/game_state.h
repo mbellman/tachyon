@@ -273,8 +273,14 @@ namespace astro {
 
     tSkeleton player_skeleton;
 
-    struct Animation {
-      std::vector<tSkeleton> player_walk;
+    struct SkeletonAnimations {
+      struct SkeletonAnimation {
+        std::vector<tSkeleton> frames;
+        float speed = 1.f;
+      };
+
+      SkeletonAnimation player_idle;
+      SkeletonAnimation player_walk;
     } animations;
 
     float movement_distance = 0.f;
