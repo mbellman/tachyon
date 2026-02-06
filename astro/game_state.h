@@ -271,6 +271,8 @@ namespace astro {
     bool is_on_solid_platform = false;
     bool did_resolve_radius_collision = false;
 
+    tSkeleton player_skeleton;
+
     struct Animation {
       std::vector<tSkeleton> player_walk;
     } animations;

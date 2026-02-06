@@ -18,6 +18,7 @@ struct Quaternion {
   static Quaternion fromAxisAngle(const tVec3f& axis, float angle);
   static Quaternion FromDirection(const tVec3f& forward, const tVec3f& up);
   static Quaternion fromEulerAngles(float x, float y, float z);
+  static Quaternion nlerp(const Quaternion& q1, const Quaternion& q2, float alpha);
   static Quaternion slerp(const Quaternion& q1, const Quaternion& q2, float alpha);
 
   bool operator==(const Quaternion& q2) const;

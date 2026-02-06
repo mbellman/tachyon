@@ -91,6 +91,20 @@ Quaternion Quaternion::fromEulerAngles(float x, float y, float z) {
   return roll * pitch * yaw;
 }
 
+Quaternion Quaternion::nlerp(const Quaternion& q1, const Quaternion& q2, float alpha) {
+  #define fast_lerp(a, b, __alpha) (a + (b - a) * __alpha)
+
+  Quaternion q;
+  q.w = fast_lerp(q1.w, q2.w, alpha);
+  q.x = fast_lerp(q1.x, q2.x, alpha);
+  q.y = fast_lerp(q1.y, q2.y, alpha);
+  q.z = fast_lerp(q1.z, q2.z, alpha);
+
+  #undef fast_lerp
+
+  return q.unit();
+}
+
 /**
  * @source: https://wrf.ecse.rpi.edu/wiki/ComputerGraphicsFall2013/guha/Code/quaternionAnimation.cpp
  */

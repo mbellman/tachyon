@@ -371,6 +371,10 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
       GltfLoader("./astro/3d_skeleton_animations/player_walk/walk_8.gltf").skeleton,
       GltfLoader("./astro/3d_skeleton_animations/player_walk/walk_9.gltf").skeleton,
     };
+
+    for (auto& bone : state.animations.player_walk[0].bones) {
+      state.player_skeleton.bones.push_back(bone);
+    }
   }
 
   // @todo ui.cpp

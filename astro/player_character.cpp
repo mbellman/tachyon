@@ -9,20 +9,50 @@ using namespace astro;
 
 const static float AUTO_HOP_DURATION = 0.3f;
 
+static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
+  profile("UpdatePlayerSkeleton()");
+
+  float t = tachyon->running_time * 8.f;
+
+  // @temporary
+  auto& animation = state.animations.player_walk;
+
+  int32 start_index = int(t) % (animation.size() - 1);
+  int32 end_index = (start_index + 1) % (animation.size() - 1);
+  auto& start_skeleton = animation[start_index];
+  auto& end_skeleton = animation[end_index];
+
+  float alpha = fmodf(t, 1.f);
+
+  for (int32 i = 0; i < start_skeleton.bones.size(); i++) {
+    auto& start_bone = start_skeleton.bones[i];
+    auto& end_bone = end_skeleton.bones[i];
+
+    tVec3f bone_translation = start_bone.translation;
+    Quaternion blended_rotation = Quaternion::nlerp(start_bone.rotation, end_bone.rotation, alpha);
+    int32 next_parent_index = start_bone.parent_bone_index;
+
+    state.player_skeleton.bones[i].rotation = blended_rotation;
+
+    // @todo blend translations (+ scale??)
+  }
+
+  // @todo precompute object-space bone rotations/offsets
+}
+
 // @todo debug mode only
-static void ShowDebugPlayerSkeleton(Tachyon* tachyon, State& state, Quaternion& rotation, tMat4f& rotation_matrix) {
+static void ShowDebugPlayerSkeleton(Tachyon* tachyon, State& state, Quaternion& player_rotation, tMat4f& player_rotation_matrix) {
   profile("ShowDebugPlayerSkeleton()");
 
   auto& camera = tachyon->scene.camera;
   auto& meshes = state.meshes;
 
   tVec3f camera_to_player = state.player_position - camera.position;
-  tVec3f skeleton_origin = camera.position + camera_to_player.unit() * 650.f;
+  tVec3f base_position = camera.position + camera_to_player.unit() * 650.f;
 
   reset_instances(meshes.debug_skeleton_bone);
 
-  int index = int(tachyon->running_time * 8.f) % state.animations.player_walk.size();
-  auto& skeleton = state.animations.player_walk[index];
+  auto& skeleton = state.player_skeleton;
 
   for (auto& bone : skeleton.bones) {
     tVec3f bone_translation = bone.translation;
@@ -44,7 +74,7 @@ static void ShowDebugPlayerSkeleton(Tachyon* tachyon, State& state, Quaternion& 
       next_parent_index = parent_bone.parent_bone_index;
     }
 
-    auto& bone_object = use_instance(meshes.debug_skeleton_bone);
+    auto& debug_bone = use_instance(meshes.debug_skeleton_bone);
     float bone_length = bone.translation.magnitude() * 25.f;
 
     // @todo cleanup
@@ -67,17 +97,17 @@ static void ShowDebugPlayerSkeleton(Tachyon* tachyon, State& state, Quaternion& 
       }
     }
 
-    bone_object.position = skeleton_origin + rotation_matrix * (bone_translation * tVec3f(75.f));
-    bone_object.scale = tVec3f(0.5f, bone_length, 0.5f);
-    bone_object.color = tVec4f(0.2f, 0.8f, 1.f, 1.f);
-    bone_object.rotation = rotation * bone_rotation;
+    debug_bone.position = base_position + player_rotation_matrix * (bone_translation * tVec3f(75.f));
+    debug_bone.scale = tVec3f(0.5f, bone_length, 0.5f);
+    debug_bone.color = tVec4f(0.2f, 0.8f, 1.f, 1.f);
+    debug_bone.rotation = player_rotation * bone_rotation;
 
-    // @temporary (?)
+    // Show leaf bones in a different color
     if (bone.child_bone_indexes.size() == 0) {
-      bone_object.color = tVec4f(1.f, 0.2f, 1.f, 1.f);
+      debug_bone.color = tVec4f(1.f, 0.2f, 1.f, 1.f);
     }
 
-    commit(bone_object);
+    commit(debug_bone);
   }
 }
 
@@ -160,6 +190,8 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& rotati
 
     commit(boots);
   }
+
+  UpdatePlayerSkeleton(tachyon, state);
 
   if (state.show_game_stats) {
     ShowDebugPlayerSkeleton(tachyon, state, rotation, rotation_matrix);
