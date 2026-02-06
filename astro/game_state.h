@@ -271,24 +271,31 @@ namespace astro {
     bool is_on_solid_platform = false;
     bool did_resolve_radius_collision = false;
 
-    tSkeleton player_skeleton;
-
-    struct SkeletonAnimations {
-      struct SkeletonAnimation {
-        std::vector<tSkeleton> frames;
-        float speed = 1.f;
-      };
-
-      SkeletonAnimation player_idle;
-      SkeletonAnimation player_walk;
-    } animations;
-
     float movement_distance = 0.f;
     float last_walk_sound_movement_distance = 0.f;
     uint8 walk_cycle = 0;
 
     float fall_velocity = 0.f;
     float current_ground_y = 0.f;
+
+    // Animations
+    struct SkeletonAnimation {
+      std::vector<tSkeleton> frames;
+      tSkeleton current_pose;
+      float speed = 1.f;
+    };
+
+    struct SkeletonAnimations {
+      SkeletonAnimation player_idle;
+      SkeletonAnimation player_walk;
+    } animations;
+
+    // @todo factor to make blended animations reusable
+    tSkeleton player_skeleton;
+    SkeletonAnimation* current_animation = nullptr;
+    SkeletonAnimation* next_animation = nullptr;
+    float animation_seek_time = 0.f;
+    float time_since_last_animation_change = 0.f;
 
     // Large-scale generated elements
     std::vector<PathSegment> dirt_path_segments;

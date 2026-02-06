@@ -9,16 +9,17 @@ using namespace astro;
 
 const static float AUTO_HOP_DURATION = 0.3f;
 
-static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
-  profile("UpdatePlayerSkeleton()");
+// @todo move to Animation::
+static void ReserveAnimationPoseData(State::SkeletonAnimation& animation) {
+  if (animation.current_pose.bones.size() == 0) {
+    for (auto& bone : animation.frames[0].bones) {
+      animation.current_pose.bones.push_back(bone);
+    }
+  }
+}
 
-  // @temporary
-  // @todo blend between animations
-  auto& animation = state.player_velocity.magnitude() > 50.f
-    ? state.animations.player_walk
-    : state.animations.player_idle;
-
-  float seek_time = tachyon->running_time * animation.speed;
+// @todo move to Animation::
+static void EvaluateAnimation(State::SkeletonAnimation& animation, const float seek_time) {
   float blend_alpha = fmodf(seek_time, 1.f);
 
   if (animation.frames.size() == 2) {
@@ -29,20 +30,107 @@ static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
 
   int32 start_index = int(seek_time) % animation.frames.size();
   int32 end_index = (start_index + 1) % animation.frames.size();
-  auto& start_skeleton = animation.frames[start_index];
-  auto& end_skeleton = animation.frames[end_index];
 
-  for (int32 i = 0; i < start_skeleton.bones.size(); i++) {
-    auto& start_bone = start_skeleton.bones[i];
-    auto& end_bone = end_skeleton.bones[i];
+  auto& start_frame = animation.frames[start_index];
+  auto& end_frame = animation.frames[end_index];
+
+  for (int32 i = 0; i < start_frame.bones.size(); i++) {
+    auto& start_bone = start_frame.bones[i];
+    auto& end_bone = end_frame.bones[i];
     Quaternion blended_rotation = Quaternion::nlerp(start_bone.rotation, end_bone.rotation, blend_alpha);
 
-    state.player_skeleton.bones[i].rotation = blended_rotation;
+    animation.current_pose.bones[i].rotation = blended_rotation;
 
     // @todo blend translations (+ scale??)
   }
+}
 
-  // @todo precompute object-space bone rotations/offsets
+// @todo move to Animation::
+static void SetNextAnimation(State& state, State::SkeletonAnimation* animation) {
+  if (state.next_animation == animation) {
+    return;
+  }
+
+  ReserveAnimationPoseData(*animation);
+
+  state.next_animation = animation;
+  state.time_since_last_animation_change = 0.f;
+}
+
+static float GetMaxSeekTime(State::SkeletonAnimation& animation) {
+  return (float)animation.frames.size();
+}
+
+// @todo move to Animation::
+// @todo refactor to allow for generic skeleton animation blending etc.
+static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
+  profile("UpdatePlayerSkeleton()");
+
+  // Set the default current animation if not initialized
+  if (state.current_animation == nullptr) {
+    state.current_animation = &state.animations.player_idle;
+  }
+
+  // @temporary
+  // @todo set the active animation based on player actions
+  if (state.player_velocity.magnitude() > 50.f) {
+    SetNextAnimation(state, &state.animations.player_walk);
+  } else {
+    SetNextAnimation(state, &state.animations.player_idle);
+  }
+
+  // Accumulate animation time
+  state.animation_seek_time += state.next_animation->speed * state.dt;
+
+  // Limit and wrap the animation time to a common multiple of the
+  // current/next animation times so that we don't eventually encounter
+  // accumulation precision errors
+  {
+    float max_seek_time = GetMaxSeekTime(*state.current_animation) * GetMaxSeekTime(*state.next_animation);
+
+    if (state.animation_seek_time > max_seek_time) {
+      state.animation_seek_time -= max_seek_time;
+    }
+  }
+
+  // Track time between changing animations so they can be blended
+  {
+    state.time_since_last_animation_change += 3.f * state.dt;
+
+    if (state.time_since_last_animation_change > 1.f) {
+      state.time_since_last_animation_change = 1.f;
+    }
+  }
+
+  // Update the current animation when a full blend from current -> next is complete
+  if (
+    state.current_animation != state.next_animation &&
+    state.time_since_last_animation_change == 1.f
+  ) {
+    state.current_animation = state.next_animation;
+  }
+
+  // Evaluate the current and next animations simultaneously so they can be blended
+  // @optimize this only has to be done when transitioning between animations
+  EvaluateAnimation(*state.current_animation, state.animation_seek_time);
+  EvaluateAnimation(*state.next_animation, state.animation_seek_time);
+
+  // Update the player skeleton based on the blended result of the current/next animations
+  {
+    float blend_alpha = state.time_since_last_animation_change;
+
+    for (int32 i = 0; i < state.current_animation->current_pose.bones.size(); i++) {
+      auto& bone_1 = state.current_animation->current_pose.bones[i];
+      auto& bone_2 = state.next_animation->current_pose.bones[i];
+      Quaternion blended_rotation = Quaternion::nlerp(bone_1.rotation, bone_2.rotation, blend_alpha);
+
+      state.player_skeleton.bones[i].rotation = blended_rotation;
+
+      // @todo blend translations (+ scale??)
+    }
+
+    // @todo precompute object-space bone rotations/offsets
+  }
 }
 
 // @todo debug mode only
@@ -60,6 +148,9 @@ static void ShowDebugPlayerSkeleton(Tachyon* tachyon, State& state, Quaternion& 
   auto& skeleton = state.player_skeleton;
 
   for (auto& bone : skeleton.bones) {
+    // End on the root bone, since it does not need to be visualized
+    if (bone.index == skeleton.bones.size() - 1) break;
+
     tVec3f bone_translation = bone.translation;
     Quaternion bone_rotation = bone.rotation;
     int32 next_parent_index = bone.parent_bone_index;
