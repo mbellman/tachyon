@@ -120,9 +120,9 @@ static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
     float blend_alpha = state.time_since_last_animation_change;
 
     for (int32 i = 0; i < state.current_animation->current_pose.bones.size(); i++) {
-      auto& bone_1 = state.current_animation->current_pose.bones[i];
-      auto& bone_2 = state.next_animation->current_pose.bones[i];
-      Quaternion blended_rotation = Quaternion::nlerp(bone_1.rotation, bone_2.rotation, blend_alpha);
+      auto& current_bone = state.current_animation->current_pose.bones[i];
+      auto& next_bone = state.next_animation->current_pose.bones[i];
+      Quaternion blended_rotation = Quaternion::nlerp(current_bone.rotation, next_bone.rotation, blend_alpha);
 
       state.player_skeleton.bones[i].rotation = blended_rotation;
 
