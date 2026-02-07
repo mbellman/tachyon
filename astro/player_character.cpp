@@ -322,7 +322,7 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
     wand.position = state.player_position + offset * 900.f;
     wand.rotation = player_rotation;
 
-    // Sync the want to the player's right hand
+    // Sync the wand to the player's right hand
     // @todo factor
     {
       wand.position = state.player_position;

@@ -209,8 +209,69 @@ tSkinnedMesh Tachyon_LoadSkinnedMesh(const char* path, const tSkeleton& skeleton
     skinned_mesh.face_elements.push_back(element);
   }
 
-  // Assign vertex bone weights
-  // @todo
+  // Assign vertex bones + weights
+  for (auto& vertex : skinned_mesh.vertices) {
+    float closest_1 = FLT_MAX;
+    float closest_2 = FLT_MAX;
+    float closest_3 = FLT_MAX;
+    float closest_4 = FLT_MAX;
+
+    // Bone 1
+    // @todo factor
+    for (auto& bone : skeleton.bones) {
+      float distance = (vertex.position - bone.translation).magnitude();
+
+      if (distance < closest_1) {
+        vertex.bone_indexes[0] = bone.index;
+        closest_1 = distance;
+      }
+    }
+
+    // Bone 2
+    // @todo factor
+    for (auto& bone : skeleton.bones) {
+      float distance = (vertex.position - bone.translation).magnitude();
+
+      if (distance > closest_1 && distance < closest_2) {
+        vertex.bone_indexes[1] = bone.index;
+        closest_2 = distance;
+      }
+    }
+
+    // Bone 3
+    // @todo factor
+    for (auto& bone : skeleton.bones) {
+      float distance = (vertex.position - bone.translation).magnitude();
+
+      if (distance > closest_2 && distance < closest_3) {
+        vertex.bone_indexes[2] = bone.index;
+        closest_3 = distance;
+      }
+    }
+
+    // Bone 4
+    // @todo factor
+    for (auto& bone : skeleton.bones) {
+      float distance = (vertex.position - bone.translation).magnitude();
+
+      if (distance > closest_3 && distance < closest_4) {
+        vertex.bone_indexes[3] = bone.index;
+        closest_2 = distance;
+      }
+    }
+
+    // Assign weight values
+    float w1 = 1.f / closest_1;
+    float w2 = 1.f / closest_2;
+    float w3 = 1.f / closest_3;
+    float w4 = 1.f / closest_4;
+    float sum = w1 + w2 + w3 + w4;
+
+    vertex.bone_weights[0] = w1 / sum;
+    vertex.bone_weights[1] = w2 / sum;
+    vertex.bone_weights[2] = w3 / sum;
+    vertex.bone_weights[3] = w4 / sum;
+  }
 
   return skinned_mesh;
 }

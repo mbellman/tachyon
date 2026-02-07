@@ -154,6 +154,34 @@ static void AddProceduralMeshes(Tachyon* tachyon, State& state) {
   }
 }
 
+static void AddSkinnedMeshes(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
+  tSkeleton player_skeleton = GltfLoader("./astro/3d_skeleton_animations/player_skeleton.gltf").skeleton;
+
+  // @todo factor
+  auto& skeleton = player_skeleton;
+
+  for (auto& bone : skeleton.bones) {
+    int32 parent_index = bone.parent_bone_index;
+
+    while (parent_index != -1) {
+      auto& parent_bone = skeleton.bones[parent_index];
+
+      bone.translation = parent_bone.translation + parent_bone.rotation.toMatrix4f() * bone.translation;
+      parent_index = parent_bone.parent_bone_index;
+    }
+  }
+
+  tSkinnedMesh player_robes = Tachyon_LoadSkinnedMesh("./astro/3d_models/characters/player_robes.obj", player_skeleton);
+  tSkinnedMesh player_pants = Tachyon_LoadSkinnedMesh("./astro/3d_models/characters/player_pants.obj", player_skeleton);
+  tSkinnedMesh player_boots = Tachyon_LoadSkinnedMesh("./astro/3d_models/characters/player_boots.obj", player_skeleton);
+
+  meshes.player_robes = Tachyon_AddSkinnedMesh(tachyon, player_robes);
+  meshes.player_pants = Tachyon_AddSkinnedMesh(tachyon, player_pants);
+  meshes.player_boots = Tachyon_AddSkinnedMesh(tachyon, player_boots);
+}
+
 static void AddEditorMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
@@ -200,19 +228,7 @@ void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
   AddEntityMeshes(tachyon, state);
   AddItemMeshes(tachyon, state);
   AddProceduralMeshes(tachyon, state);
-
-  // Skinned meshes
-  // @todo factor
-  {
-    tSkeleton player_skeleton = GltfLoader("./astro/3d_skeleton_animations/player_skeleton.gltf").skeleton;
-    tSkinnedMesh player_robes = Tachyon_LoadSkinnedMesh("./astro/3d_models/characters/player_robes.obj", player_skeleton);
-    tSkinnedMesh player_pants = Tachyon_LoadSkinnedMesh("./astro/3d_models/characters/player_pants.obj", player_skeleton);
-    tSkinnedMesh player_boots = Tachyon_LoadSkinnedMesh("./astro/3d_models/characters/player_boots.obj", player_skeleton);
-
-    meshes.player_robes = Tachyon_AddSkinnedMesh(tachyon, player_robes);
-    meshes.player_pants = Tachyon_AddSkinnedMesh(tachyon, player_pants);
-    meshes.player_boots = Tachyon_AddSkinnedMesh(tachyon, player_boots);
-  }
+  AddSkinnedMeshes(tachyon, state);
 
   // @todo dev mode only
   {
