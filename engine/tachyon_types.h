@@ -175,7 +175,7 @@ struct tMeshPack {
 };
 
 struct tSkinnedVertex : tVertex {
-  uint32 bone_indexes_packed;
+  uint32 bone_indexes_packed = 0;
   tVec4f bone_weights;
 };
 

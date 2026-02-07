@@ -222,7 +222,7 @@ tSkinnedMesh Tachyon_LoadSkinnedMesh(const char* path, const tSkeleton& skeleton
       float distance = (vertex.position - bone.translation).magnitude();
 
       if (distance < closest_1) {
-        vertex.bone_indexes_packed = (uint8)bone.index;
+        vertex.bone_indexes_packed = (uint32)bone.index;
         closest_1 = distance;
       }
     }
@@ -233,7 +233,7 @@ tSkinnedMesh Tachyon_LoadSkinnedMesh(const char* path, const tSkeleton& skeleton
       float distance = (vertex.position - bone.translation).magnitude();
 
       if (distance > closest_1 && distance < closest_2) {
-        vertex.bone_indexes_packed |= ((uint8)bone.index << 8);
+        vertex.bone_indexes_packed |= ((uint32)bone.index << 8);
         closest_2 = distance;
       }
     }
@@ -244,7 +244,7 @@ tSkinnedMesh Tachyon_LoadSkinnedMesh(const char* path, const tSkeleton& skeleton
       float distance = (vertex.position - bone.translation).magnitude();
 
       if (distance > closest_2 && distance < closest_3) {
-        vertex.bone_indexes_packed |= ((uint8)bone.index << 16);
+        vertex.bone_indexes_packed |= ((uint32)bone.index << 16);
         closest_3 = distance;
       }
     }
@@ -255,7 +255,7 @@ tSkinnedMesh Tachyon_LoadSkinnedMesh(const char* path, const tSkeleton& skeleton
       float distance = (vertex.position - bone.translation).magnitude();
 
       if (distance > closest_3 && distance < closest_4) {
-        vertex.bone_indexes_packed |= ((uint8)bone.index << 24);
+        vertex.bone_indexes_packed |= ((uint32)bone.index << 24);
         closest_4 = distance;
       }
     }

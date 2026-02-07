@@ -73,6 +73,10 @@ static void SetShaderInt(GLint location, const int value) {
   glUniform1i(location, value);
 }
 
+static void SetShaderUint(GLint location, const uint32 value) {
+  glUniform1ui(location, value);
+}
+
 static void SetShaderFloat(GLint location, const float value) {
   glUniform1f(location, value);
 }
@@ -716,7 +720,7 @@ static void RenderMeshesByType(Tachyon* tachyon, tMeshType type) {
   }
 }
 
-static void RenderPbrMeshes(Tachyon* tachyon) {
+static void RenderStaticMeshes(Tachyon* tachyon) {
   auto& renderer = get_renderer();
   auto& shader = renderer.shaders.main_geometry;
   auto& locations = renderer.shaders.locations.main_geometry;
@@ -796,6 +800,39 @@ static void RenderPbrMeshes(Tachyon* tachyon) {
   }
 }
 
+static void RenderSkinnedMeshes(Tachyon* tachyon) {
+  auto& scene = tachyon->scene;
+  auto& renderer = get_renderer();
+  auto& shader = renderer.shaders.skinned_mesh;
+  auto& locations = renderer.shaders.locations.skinned_mesh;
+  auto& ctx = renderer.ctx;
+
+  if (renderer.skinned_meshes.size() == 0) {
+    return;
+  }
+
+  glUseProgram(shader.program);
+  SetShaderMat4f(locations.view_projection_matrix, ctx.view_projection_matrix);
+  SetShaderVec3f(locations.transform_origin, scene.transform_origin);
+
+  for (auto& gl_mesh : renderer.skinned_meshes) {
+    auto& base_mesh = tachyon->skinned_meshes[gl_mesh.mesh_index];
+
+    SetShaderMat4f(locations.model_matrix, base_mesh.matrix);
+    SetShaderUint(locations.model_surface, base_mesh.surface);
+
+    glBindVertexArray(gl_mesh.vao);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gl_mesh.ebo);
+
+    glDrawElements(GL_TRIANGLES, base_mesh.face_elements.size(), GL_UNSIGNED_INT, 0);
+
+    // @todo dev mode only
+    {
+      renderer.total_draw_calls += 1;
+    }
+  }
+}
+
 static void RenderShadowMaps(Tachyon* tachyon) {
   auto& scene = tachyon->scene;
   auto& camera = scene.camera;
@@ -810,6 +847,8 @@ static void RenderShadowMaps(Tachyon* tachyon) {
 
   renderer.directional_shadow_map.write();
 
+  glUseProgram(shader.program);
+
   // Directional shadow map
   for (uint8 attachment = DIRECTIONAL_SHADOW_MAP_CASCADE_1; attachment <= DIRECTIONAL_SHADOW_MAP_CASCADE_4; attachment++) {
     auto cascade_index = attachment - DIRECTIONAL_SHADOW_MAP_CASCADE_1;
@@ -820,7 +859,6 @@ static void RenderShadowMaps(Tachyon* tachyon) {
     glClearColor(1.f, 1.f, 1.f, 1.f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glUseProgram(shader.program);
     SetShaderMat4f(locations.light_matrix, light_matrix);
     SetShaderVec3f(locations.transform_origin, tachyon->scene.transform_origin);
 
@@ -1368,7 +1406,8 @@ void Tachyon_OpenGL_RenderScene(Tachyon* tachyon) {
   }
 
   UpdateRendererContext(tachyon);
-  RenderPbrMeshes(tachyon);
+  RenderStaticMeshes(tachyon);
+  RenderSkinnedMeshes(tachyon);
   RenderShadowMaps(tachyon);
 
   // The next steps in the pipeline render quads in screen space,

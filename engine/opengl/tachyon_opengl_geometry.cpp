@@ -77,6 +77,8 @@ tOpenGLSkinnedMesh Tachyon_CreateOpenGLSkinnedMesh(Tachyon* tachyon, const tSkin
   glGenBuffers(1, &gl_skinned_mesh.vbo);
   glGenBuffers(1, &gl_skinned_mesh.ebo);
 
+  glBindVertexArray(gl_skinned_mesh.vao);
+
   // Buffer vertex data
   glBindBuffer(GL_ARRAY_BUFFER, gl_skinned_mesh.vbo);
   glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(tSkinnedVertex), vertices.data(), GL_STATIC_DRAW);
@@ -101,7 +103,7 @@ tOpenGLSkinnedMesh Tachyon_CreateOpenGLSkinnedMesh(Tachyon* tachyon, const tSkin
   glVertexAttribPointer(VERTEX_UV, 2, GL_FLOAT, GL_FALSE, sizeof(tSkinnedVertex), (void*)offsetof(tSkinnedVertex, uv));
 
   glEnableVertexAttribArray(VERTEX_BONE_INDEXES);
-  glVertexAttribPointer(VERTEX_BONE_INDEXES, 1, GL_UNSIGNED_INT, GL_FALSE, sizeof(tSkinnedVertex), (void*)offsetof(tSkinnedVertex, bone_indexes_packed));
+  glVertexAttribIPointer(VERTEX_BONE_INDEXES, 1, GL_UNSIGNED_INT, sizeof(tSkinnedVertex), (void*)offsetof(tSkinnedVertex, bone_indexes_packed));
 
   glEnableVertexAttribArray(VERTEX_BONE_WEIGHTS);
   glVertexAttribPointer(VERTEX_BONE_WEIGHTS, 4, GL_FLOAT, GL_FALSE, sizeof(tSkinnedVertex), (void*)offsetof(tSkinnedVertex, bone_weights));

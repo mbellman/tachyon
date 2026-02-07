@@ -39,7 +39,9 @@ struct tUniformLocations {
 
   uniform_locations(
     view_projection_matrix,
-    transform_origin
+    transform_origin,
+    model_matrix,
+    model_surface
   ) skinned_mesh;
 
   uniform_locations(

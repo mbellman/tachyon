@@ -1,14 +1,16 @@
 #version 460 core
 
 uniform mat4 view_projection_matrix;
+uniform vec3 transform_origin;
 uniform mat4 model_matrix;
 uniform uint model_surface;
-uniform vec3 transform_origin;
 
 layout (location = 0) in vec3 vertexPosition;
 layout (location = 1) in vec3 vertexNormal;
 layout (location = 2) in vec3 vertexTangent;
 layout (location = 3) in vec2 vertexUv;
+layout (location = 4) in uint bone_indexes_packed;
+layout (location = 5) in vec4 bone_weights;
 
 flat out uvec4 fragSurface;
 out vec3 fragNormal;
