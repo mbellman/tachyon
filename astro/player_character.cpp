@@ -289,15 +289,15 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& rotati
 
   // Boots
   {
-    auto& boots = objects(meshes.player_boots)[0];
+    // auto& boots = objects(meshes.player_boots)[0];
 
-    boots.position = player.position;
-    boots.rotation = player.rotation;
-    boots.scale = player.scale;
-    boots.color = 0x2110;
-    boots.material = tVec4f(1.f, 0, 0, 0.4f);
+    // boots.position = player.position;
+    // boots.rotation = player.rotation;
+    // boots.scale = player.scale;
+    // boots.color = 0x2110;
+    // boots.material = tVec4f(1.f, 0, 0, 0.4f);
 
-    commit(boots);
+    // commit(boots);
   }
 
   UpdatePlayerSkeleton(tachyon, state);

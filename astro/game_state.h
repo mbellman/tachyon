@@ -21,11 +21,11 @@ namespace astro {
    * ----------------------------
    */
   struct MeshIds : EntityMeshIds {
+    // Static meshes
     uint16
       // Character meshes
       player,
       player_clothing,
-      player_boots,
       wand,
 
       // Animation bone debugging
@@ -78,6 +78,12 @@ namespace astro {
       gizmo_resizer,
       gizmo_rotator,
       editor_placer;
+
+    // Skinned meshes
+    int32
+      player_robes,
+      player_pants,
+      player_boots;
   };
 
   // @todo move to engine?

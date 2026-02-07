@@ -174,6 +174,22 @@ struct tMeshPack {
   std::vector<tMeshRecord> mesh_records;
 };
 
+struct tSkinnedVertex : tVertex {
+  int32 bone_indexes[4];
+  float bone_weights[4];
+};
+
+struct tSkinnedMesh {
+  std::vector<tSkinnedVertex> vertices;
+  std::vector<uint32> face_elements;
+
+  tVec3f position;
+  tVec3f scale;
+  Quaternion rotation = Quaternion(1.f, 0, 0, 0);
+  tColor color = tVec3f(1.f);
+  tMaterial material = tVec4f(0.6f, 0, 0, 0);
+};
+
 struct tPointLight {
   int32 id = -1;
   tVec3f position;
@@ -230,16 +246,20 @@ struct Tachyon {
   bool is_running = true;
   bool is_window_focused = false;
 
+  // Static meshes
   tMeshPack mesh_pack;
-
-  // @todo should these go into tMeshPack? use a global array per mesh pack?
   std::vector<tObject> objects;
   std::vector<uint32> surfaces;
   std::vector<tMat4f> matrices;
 
+  // Skinned/animated meshes
+  std::vector<tSkinnedMesh> skinned_meshes;
+
+  // Lights & fog
   std::vector<tPointLight> point_lights;
   std::vector<tFogVolume> fog_volumes;
 
+  // UI elements
   std::vector<tUIDrawCommand> ui_draw_commands;
 
   uint64 held_key_state = 0;

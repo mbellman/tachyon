@@ -188,6 +188,33 @@ tMesh Tachyon_LoadMesh(const char* path, const tVec3f& axis_factors) {
   return mesh;
 }
 
+tSkinnedMesh Tachyon_LoadSkinnedMesh(const char* path, const tSkeleton& skeleton) {
+  tMesh base_mesh = Tachyon_LoadMesh(path);
+
+  tSkinnedMesh skinned_mesh;
+
+  // Copy vertices
+  for (auto& vertex : base_mesh.vertices) {
+    tSkinnedVertex skinned_vertex;
+    skinned_vertex.position = vertex.position;
+    skinned_vertex.normal = vertex.normal;
+    skinned_vertex.tangent = vertex.tangent;
+    skinned_vertex.uv = vertex.uv;
+
+    skinned_mesh.vertices.push_back(skinned_vertex);
+  }
+
+  // Copy face elements
+  for (auto element : base_mesh.face_elements) {
+    skinned_mesh.face_elements.push_back(element);
+  }
+
+  // Assign vertex bone weights
+  // @todo
+
+  return skinned_mesh;
+}
+
 tMesh Tachyon_CreatePlaneMesh() {
   tMesh mesh;
 
@@ -476,6 +503,12 @@ uint16 Tachyon_AddMesh(Tachyon* tachyon, const tMesh& mesh_lod_1, const tMesh& m
   pack.mesh_records.push_back(record);
 
   return record.mesh_index;
+}
+
+int32 Tachyon_AddSkinnedMesh(Tachyon* tachyon, const tSkinnedMesh& skinned_mesh) {
+  tachyon->skinned_meshes.push_back(skinned_mesh);
+
+  return (int32)tachyon->skinned_meshes.size();
 }
 
 void Tachyon_InitializeObjects(Tachyon* tachyon) {

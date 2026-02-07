@@ -1,3 +1,5 @@
+#include "engine/tachyon_loaders.h"
+
 #include "astro/mesh_library.h"
 #include "astro/entity_dispatcher.h"
 
@@ -181,7 +183,6 @@ void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
 
   meshes.player = MODEL_MESH("./astro/3d_models/characters/player_body.obj", 1);
   meshes.player_clothing = MODEL_MESH("./astro/3d_models/characters/player_clothing.obj", 1);
-  meshes.player_boots = MODEL_MESH("./astro/3d_models/characters/player_boots.obj", 1);
   meshes.wand = MODEL_MESH("./astro/3d_models/characters/player_wand.obj", 1);
   meshes.water_plane = PLANE_MESH(1);
   // @temporary
@@ -199,6 +200,19 @@ void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
   AddEntityMeshes(tachyon, state);
   AddItemMeshes(tachyon, state);
   AddProceduralMeshes(tachyon, state);
+
+  // Skinned meshes
+  // @todo factor
+  {
+    tSkeleton player_skeleton = GltfLoader("./astro/3d_skeleton_animations/player_skeleton.gltf").skeleton;
+    tSkinnedMesh player_robes = Tachyon_LoadSkinnedMesh("./astro/3d_models/characters/player_robes.obj", player_skeleton);
+    tSkinnedMesh player_pants = Tachyon_LoadSkinnedMesh("./astro/3d_models/characters/player_pants.obj", player_skeleton);
+    tSkinnedMesh player_boots = Tachyon_LoadSkinnedMesh("./astro/3d_models/characters/player_boots.obj", player_skeleton);
+
+    meshes.player_robes = Tachyon_AddSkinnedMesh(tachyon, player_robes);
+    meshes.player_pants = Tachyon_AddSkinnedMesh(tachyon, player_pants);
+    meshes.player_boots = Tachyon_AddSkinnedMesh(tachyon, player_boots);
+  }
 
   // @todo dev mode only
   {
