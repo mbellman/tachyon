@@ -38,7 +38,11 @@ static tOpenGLShaderAttachment AttachShader(tOpenGLShader& shader, GLenum type, 
 
   // @todo handle #includes/other directives etc.
 
-  SaveSourceFileRecord(path);
+  if (shader_file_contents != "") {
+    SaveSourceFileRecord(path);
+  } else {
+    printf("\033[33m" "[Tachyon] No contents loaded for shader: %s\n" "\033[0m", path);
+  }
 
   glShaderSource(id, 1, &shader_file_contents_pointer, 0);
   glCompileShader(id);
@@ -90,6 +94,9 @@ static void StoreShaderUniforms(tOpenGLShaders& shaders) {
   store_shader_uniform(main_geometry, foliage_mover_velocity);
   store_shader_uniform(main_geometry, scene_time);
   store_shader_uniform(main_geometry, use_close_camera_disocclusion);
+
+  store_shader_uniform(skinned_mesh_geometry, view_projection_matrix);
+  store_shader_uniform(skinned_mesh_geometry, transform_origin);
 
   store_shader_uniform(shadow_map, light_matrix);
   store_shader_uniform(shadow_map, transform_origin);
@@ -227,6 +234,12 @@ void Tachyon_OpenGL_InitShaders(tOpenGLShaders& shaders) {
     shaders.main_geometry,
     "./engine/opengl/shaders/main_geometry.vert.glsl",
     "./engine/opengl/shaders/main_geometry.frag.glsl"
+  );
+
+  InitVertexFragmentShader(
+    shaders.skinned_mesh_geometry,
+    "./engine/opengl/shaders/skinned_mesh_geometry.vert.glsl",
+    "./engine/opengl/shaders/skinned_mesh_geometry.frag.glsl"
   );
 
   InitVertexFragmentShader(

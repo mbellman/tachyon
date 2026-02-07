@@ -8,7 +8,7 @@ std::string Tachyon_GetFileContents(const char* path) {
   std::ifstream file(path);
 
   if (file.fail()) {
-    printf("[Tachyon_GetFileContents] Failed to load file: %s\n", path);
+    printf("\033[31m" "[Tachyon_GetFileContents] Failed to load file: %s\n" "\033[0m", path);
 
     return "";
   }
