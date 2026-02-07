@@ -222,7 +222,7 @@ tSkinnedMesh Tachyon_LoadSkinnedMesh(const char* path, const tSkeleton& skeleton
       float distance = (vertex.position - bone.translation).magnitude();
 
       if (distance < closest_1) {
-        vertex.bone_indexes[0] = bone.index;
+        vertex.bone_indexes_packed = (uint8)bone.index;
         closest_1 = distance;
       }
     }
@@ -233,7 +233,7 @@ tSkinnedMesh Tachyon_LoadSkinnedMesh(const char* path, const tSkeleton& skeleton
       float distance = (vertex.position - bone.translation).magnitude();
 
       if (distance > closest_1 && distance < closest_2) {
-        vertex.bone_indexes[1] = bone.index;
+        vertex.bone_indexes_packed |= ((uint8)bone.index << 8);
         closest_2 = distance;
       }
     }
@@ -244,7 +244,7 @@ tSkinnedMesh Tachyon_LoadSkinnedMesh(const char* path, const tSkeleton& skeleton
       float distance = (vertex.position - bone.translation).magnitude();
 
       if (distance > closest_2 && distance < closest_3) {
-        vertex.bone_indexes[2] = bone.index;
+        vertex.bone_indexes_packed |= ((uint8)bone.index << 16);
         closest_3 = distance;
       }
     }
@@ -255,8 +255,8 @@ tSkinnedMesh Tachyon_LoadSkinnedMesh(const char* path, const tSkeleton& skeleton
       float distance = (vertex.position - bone.translation).magnitude();
 
       if (distance > closest_3 && distance < closest_4) {
-        vertex.bone_indexes[3] = bone.index;
-        closest_2 = distance;
+        vertex.bone_indexes_packed |= ((uint8)bone.index << 24);
+        closest_4 = distance;
       }
     }
 
@@ -267,10 +267,10 @@ tSkinnedMesh Tachyon_LoadSkinnedMesh(const char* path, const tSkeleton& skeleton
     float w4 = 1.f / closest_4;
     float sum = w1 + w2 + w3 + w4;
 
-    vertex.bone_weights[0] = w1 / sum;
-    vertex.bone_weights[1] = w2 / sum;
-    vertex.bone_weights[2] = w3 / sum;
-    vertex.bone_weights[3] = w4 / sum;
+    vertex.bone_weights.x = w1 / sum;
+    vertex.bone_weights.y = w2 / sum;
+    vertex.bone_weights.z = w3 / sum;
+    vertex.bone_weights.w = w4 / sum;
   }
 
   return skinned_mesh;

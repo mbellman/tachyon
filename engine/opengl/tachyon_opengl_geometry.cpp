@@ -4,14 +4,17 @@
 #include "engine/tachyon_constants.h"
 #include "engine/opengl/tachyon_opengl_geometry.h"
 
-tOpenGLMeshPack Tachyon_CreateOpenGLMeshPack(Tachyon* tachyon) {
-  #define VERTEX_POSITION 0
-  #define VERTEX_NORMAL 1
-  #define VERTEX_TANGENT 2
-  #define VERTEX_UV 3
-  #define MODEL_MATRIX 5
-  #define MODEL_SURFACE 4
+#define VERTEX_POSITION 0
+#define VERTEX_NORMAL 1
+#define VERTEX_TANGENT 2
+#define VERTEX_UV 3
+#define MODEL_SURFACE 4
+#define MODEL_MATRIX 5
 
+#define VERTEX_BONE_INDEXES 4
+#define VERTEX_BONE_WEIGHTS 5
+
+tOpenGLMeshPack Tachyon_CreateOpenGLMeshPack(Tachyon* tachyon) {
   auto& pack = tachyon->mesh_pack;
   auto& vertices = pack.vertex_stream;
   auto& faceElements = pack.face_element_stream;
@@ -65,9 +68,43 @@ tOpenGLMeshPack Tachyon_CreateOpenGLMeshPack(Tachyon* tachyon) {
 }
 
 tOpenGLSkinnedMesh Tachyon_CreateOpenGLSkinnedMesh(Tachyon* tachyon, const tSkinnedMesh& skinned_mesh) {
+  auto& vertices = skinned_mesh.vertices;
+  auto& face_elements = skinned_mesh.face_elements;
+
   tOpenGLSkinnedMesh gl_skinned_mesh;
 
-  // @todo
+  glGenVertexArrays(1, &gl_skinned_mesh.vao);
+  glGenBuffers(1, &gl_skinned_mesh.vbo);
+  glGenBuffers(1, &gl_skinned_mesh.ebo);
+
+  // Buffer vertex data
+  glBindBuffer(GL_ARRAY_BUFFER, gl_skinned_mesh.vbo);
+  glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(tSkinnedVertex), vertices.data(), GL_STATIC_DRAW);
+
+  // Buffer vertex element data
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gl_skinned_mesh.ebo);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, face_elements.size() * sizeof(uint32), face_elements.data(), GL_STATIC_DRAW);
+
+  // Define vertex attributes
+  glBindBuffer(GL_ARRAY_BUFFER, gl_skinned_mesh.vbo);
+
+  glEnableVertexAttribArray(VERTEX_POSITION);
+  glVertexAttribPointer(VERTEX_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(tSkinnedVertex), (void*)offsetof(tSkinnedVertex, position));
+
+  glEnableVertexAttribArray(VERTEX_NORMAL);
+  glVertexAttribPointer(VERTEX_NORMAL, 3, GL_FLOAT, GL_FALSE, sizeof(tSkinnedVertex), (void*)offsetof(tSkinnedVertex, normal));
+
+  glEnableVertexAttribArray(VERTEX_TANGENT);
+  glVertexAttribPointer(VERTEX_TANGENT, 3, GL_FLOAT, GL_FALSE, sizeof(tSkinnedVertex), (void*)offsetof(tSkinnedVertex, tangent));
+
+  glEnableVertexAttribArray(VERTEX_UV);
+  glVertexAttribPointer(VERTEX_UV, 2, GL_FLOAT, GL_FALSE, sizeof(tSkinnedVertex), (void*)offsetof(tSkinnedVertex, uv));
+
+  glEnableVertexAttribArray(VERTEX_BONE_INDEXES);
+  glVertexAttribPointer(VERTEX_BONE_INDEXES, 1, GL_UNSIGNED_INT, GL_FALSE, sizeof(tSkinnedVertex), (void*)offsetof(tSkinnedVertex, bone_indexes_packed));
+
+  glEnableVertexAttribArray(VERTEX_BONE_WEIGHTS);
+  glVertexAttribPointer(VERTEX_BONE_WEIGHTS, 4, GL_FLOAT, GL_FALSE, sizeof(tSkinnedVertex), (void*)offsetof(tSkinnedVertex, bone_weights));
 
   return gl_skinned_mesh;
 }
