@@ -207,7 +207,7 @@ static void UpdateInternalRendererSize(Tachyon* tachyon, Resolution resolution) 
   }
 }
 
-static void InitRenderBuffers(Tachyon* tachyon) {
+static void InitRenderTargetBuffers(Tachyon* tachyon) {
   auto& renderer = get_renderer();
   auto& ctx = renderer.ctx;
   auto& g_buffer = renderer.g_buffer;
@@ -1282,13 +1282,14 @@ void Tachyon_OpenGL_InitRenderer(Tachyon* tachyon) {
 
   Tachyon_OpenGL_InitShaders(renderer->shaders);
 
-  // Initialize buffers
+  // Initialize rendering buffers
   {
     glGenBuffers(1, &renderer->indirect_buffer);
-    InitRenderBuffers(tachyon);
+
+    InitRenderTargetBuffers(tachyon);
   }
 
-  // Set up screen quad texture binding
+  // Initialize screen squad texture binding
   {
     glGenTextures(1, &renderer->screen_quad_texture);
     glBindTexture(GL_TEXTURE_2D, renderer->screen_quad_texture);
@@ -1296,11 +1297,20 @@ void Tachyon_OpenGL_InitRenderer(Tachyon* tachyon) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   }
 
-  // Create additional resources
+  // Initialize geometry buffers
   {
     renderer->mesh_pack = Tachyon_CreateOpenGLMeshPack(tachyon);
     renderer->screen_quad = Tachyon_CreateOpenGLScreenQuad(tachyon);
     renderer->point_light_disc = Tachyon_CreateOpenGLPointLightDisc(tachyon);
+
+    for (size_t index = 0; index < tachyon->skinned_meshes.size(); index++) {
+      auto& skinned_mesh = tachyon->skinned_meshes[index];
+      auto gl_skinned_mesh = Tachyon_CreateOpenGLSkinnedMesh(tachyon, skinned_mesh);
+
+      gl_skinned_mesh.mesh_index = index;
+
+      renderer->skinned_meshes.push_back(gl_skinned_mesh);
+    }
   }
 
   {
@@ -1324,7 +1334,7 @@ void Tachyon_OpenGL_HandleWindowResize(Tachyon* tachyon) {
   renderer.accumulation_buffer_b.destroy();
   renderer.directional_shadow_map.destroy();
 
-  InitRenderBuffers(tachyon);
+  InitRenderTargetBuffers(tachyon);
 }
 
 void Tachyon_OpenGL_RenderScene(Tachyon* tachyon) {

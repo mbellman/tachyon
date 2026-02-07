@@ -64,6 +64,14 @@ tOpenGLMeshPack Tachyon_CreateOpenGLMeshPack(Tachyon* tachyon) {
   return glPack;
 }
 
+tOpenGLSkinnedMesh Tachyon_CreateOpenGLSkinnedMesh(Tachyon* tachyon, const tSkinnedMesh& skinned_mesh) {
+  tOpenGLSkinnedMesh gl_skinned_mesh;
+
+  // @todo
+
+  return gl_skinned_mesh;
+}
+
 tOpenGLScreenQuad Tachyon_CreateOpenGLScreenQuad(Tachyon* tachyon) {
   #define QUAD_POSITION 0
   #define QUAD_UV 1

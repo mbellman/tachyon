@@ -12,8 +12,8 @@ struct tOpenGLRenderer {
   SDL_GLContext gl_context;
   GLuint indirect_buffer;
   tOpenGLShaders shaders;
-  // @todo will we need multiple mesh packs?
   tOpenGLMeshPack mesh_pack;
+  std::vector<tOpenGLSkinnedMesh> skinned_meshes;
 
   struct tOpenGLRendererContext {
     int32 internal_width;
