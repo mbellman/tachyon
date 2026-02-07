@@ -569,7 +569,7 @@ uint16 Tachyon_AddMesh(Tachyon* tachyon, const tMesh& mesh_lod_1, const tMesh& m
 int32 Tachyon_AddSkinnedMesh(Tachyon* tachyon, const tSkinnedMesh& skinned_mesh) {
   tachyon->skinned_meshes.push_back(skinned_mesh);
 
-  return (int32)tachyon->skinned_meshes.size();
+  return (int32)(tachyon->skinned_meshes.size() - 1);
 }
 
 void Tachyon_InitializeObjects(Tachyon* tachyon) {
@@ -706,13 +706,18 @@ void Tachyon_RemoveAllObjects(Tachyon* tachyon, uint16 mesh_index) {
   record.lod_3.instance_count = 0;
 }
 
-void Tachyon_CommitObject(Tachyon* tachyon, const tObject& object) {
+void Tachyon_Commit(Tachyon* tachyon, const tObject& object) {
   auto& group = tachyon->mesh_pack.mesh_records[object.mesh_index].group;
   auto index = group.id_to_index[object.object_id];
 
   group.surfaces[index] = (uint32(object.color.rgba) << 16) | (uint32)object.material.data;
   group.matrices[index] = tMat4f::transformation(object.position, object.scale, object.rotation).transpose();
   group.buffered = false;
+}
+
+void Tachyon_Commit(Tachyon* tachyon, tSkinnedMesh& skinned_mesh) {
+  skinned_mesh.matrix = tMat4f::transformation(skinned_mesh.position, skinned_mesh.scale, skinned_mesh.rotation).transpose();
+  skinned_mesh.surface = (uint32(skinned_mesh.color.rgba) << 16) | (uint32)skinned_mesh.material.data;
 }
 
 tObject* Tachyon_GetLiveObject(Tachyon* tachyon, const tObject& object) {

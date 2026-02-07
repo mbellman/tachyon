@@ -276,28 +276,31 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& rotati
 
   // Clothing
   {
-    auto& clothing = objects(meshes.player_clothing)[0];
+    auto& robes = skinned_mesh(meshes.player_robes);
+    auto& pants = skinned_mesh(meshes.player_pants);
+    auto& boots = skinned_mesh(meshes.player_boots);
 
-    clothing.position = player.position;
-    clothing.rotation = player.rotation;
-    clothing.scale = player.scale;
-    clothing.color = tVec3f(0, 0.2f, 0.6f);
-    clothing.material = tVec4f(1.f, 0, 0, 0.2f);
+    robes.position = player.position;
+    robes.rotation = player.rotation;
+    robes.scale = player.scale;
+    robes.color = tVec3f(0, 0.2f, 0.6f);
+    robes.material = tVec4f(1.f, 0, 0, 0.2f);
 
-    commit(clothing);
-  }
+    pants.position = player.position;
+    pants.rotation = player.rotation;
+    pants.scale = player.scale;
+    pants.color = tVec3f(0, 0.2f, 0.6f);
+    pants.material = tVec4f(1.f, 0, 0, 0.2f);
 
-  // Boots
-  {
-    // auto& boots = objects(meshes.player_boots)[0];
+    boots.position = player.position;
+    boots.rotation = player.rotation;
+    boots.scale = player.scale;
+    boots.color = tVec3f(0.2f, 0.1f, 0.1f);
+    boots.material = tVec4f(1.f, 0, 0, 0.4f);
 
-    // boots.position = player.position;
-    // boots.rotation = player.rotation;
-    // boots.scale = player.scale;
-    // boots.color = 0x2110;
-    // boots.material = tVec4f(1.f, 0, 0, 0.4f);
-
-    // commit(boots);
+    commit(robes);
+    commit(pants);
+    commit(boots);
   }
 
   UpdatePlayerSkeleton(tachyon, state);

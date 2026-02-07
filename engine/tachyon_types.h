@@ -188,6 +188,9 @@ struct tSkinnedMesh {
   Quaternion rotation = Quaternion(1.f, 0, 0, 0);
   tColor color = tVec3f(1.f);
   tMaterial material = tVec4f(0.6f, 0, 0, 0);
+
+  tMat4f matrix;
+  uint32 surface = 0;
 };
 
 struct tPointLight {

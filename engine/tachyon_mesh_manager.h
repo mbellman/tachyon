@@ -5,11 +5,12 @@
 
 #define add_mesh(__mesh, __total) Tachyon_AddMesh(tachyon, __mesh, __total)
 #define mesh(__mesh_index) tachyon->mesh_pack.mesh_records[__mesh_index]
+#define skinned_mesh(__mesh_index) tachyon->skinned_meshes[__mesh_index]
 #define objects(__mesh_index) tachyon->mesh_pack.mesh_records[__mesh_index].group
 #define create(__mesh_index) Tachyon_CreateObject(tachyon, __mesh_index)
 #define remove_object(...) Tachyon_RemoveObject(tachyon, __VA_ARGS__)
 #define remove_all(__mesh_index) Tachyon_RemoveAllObjects(tachyon, __mesh_index)
-#define commit(__object) Tachyon_CommitObject(tachyon, __object)
+#define commit(__object_or_skinned_mesh) Tachyon_Commit(tachyon, __object_or_skinned_mesh)
 #define get_live_object(__object) Tachyon_GetLiveObject(tachyon, __object)
 
 #define reset_instances(__mesh_index)\
@@ -38,7 +39,8 @@ tObject& Tachyon_CreateObject(Tachyon* tachyon, uint16 mesh_index);
 void Tachyon_RemoveObject(Tachyon* tachyon, uint16 mesh_index, uint16 object_id);
 void Tachyon_RemoveObject(Tachyon* tachyon, tObject& object);
 void Tachyon_RemoveAllObjects(Tachyon* tachyon, uint16 mesh_index);
-void Tachyon_CommitObject(Tachyon* tachyon, const tObject& object);
+void Tachyon_Commit(Tachyon* tachyon, const tObject& object);
+void Tachyon_Commit(Tachyon* tachyon, tSkinnedMesh& skinned_mesh);
 tObject* Tachyon_GetLiveObject(Tachyon* tachyon, const tObject& object);
 uint16 Tachyon_PartitionObjectsByDistance(Tachyon* tachyon, tObjectGroup& group, const uint16 start, const float distance);
 void Tachyon_UseLodByDistance(Tachyon* tachyon, const uint16 mesh_index, const float distance);

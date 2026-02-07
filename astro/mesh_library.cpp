@@ -210,7 +210,6 @@ void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   meshes.player = MODEL_MESH("./astro/3d_models/characters/player_body.obj", 1);
-  meshes.player_clothing = MODEL_MESH("./astro/3d_models/characters/player_clothing.obj", 1);
   meshes.wand = MODEL_MESH("./astro/3d_models/characters/player_wand.obj", 1);
   meshes.water_plane = PLANE_MESH(1);
   // @temporary
