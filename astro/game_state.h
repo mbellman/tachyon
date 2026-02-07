@@ -288,6 +288,7 @@ namespace astro {
     struct SkeletonAnimations {
       SkeletonAnimation player_idle;
       SkeletonAnimation player_walk;
+      SkeletonAnimation player_run;
     } animations;
 
     // @todo factor to make blended animations reusable

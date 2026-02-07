@@ -73,7 +73,9 @@ static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
 
   // @temporary
   // @todo set the active animation based on player actions
-  if (state.player_velocity.magnitude() > 50.f) {
+  if (state.player_velocity.magnitude() > 600.f) {
+    SetNextAnimation(state, &state.animations.player_run);
+  } else if (state.player_velocity.magnitude() > 50.f) {
     SetNextAnimation(state, &state.animations.player_walk);
   } else {
     SetNextAnimation(state, &state.animations.player_idle);
@@ -140,7 +142,9 @@ static void ShowDebugPlayerSkeleton(Tachyon* tachyon, State& state, Quaternion& 
   auto& camera = tachyon->scene.camera;
   auto& meshes = state.meshes;
 
-  tVec3f camera_to_player = state.player_position - camera.position;
+  auto& player = objects(meshes.player)[0];
+
+  tVec3f camera_to_player = player.position - camera.position;
   tVec3f base_position = camera.position + camera_to_player.unit() * 650.f;
 
   reset_instances(meshes.debug_skeleton_bone);
@@ -255,8 +259,17 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& rotati
     player.position.y = Tachyon_Lerpf(player.position.y, -1100.f, 4.f * state.dt);
     player.position += state.player_velocity * (1.f - death_alpha) * state.dt;
   } else {
+    float player_speed = state.player_velocity.magnitude();
+
     player.rotation = rotation;
     player.position = state.player_position;
+
+    if (player_speed > 600.f) {
+      float run_bounce_height = 200.f * Tachyon_InverseLerp(600.f, 1300.f, player_speed);
+      float run_bounce_cycle = 0.5f + 0.5f * sinf(get_scene_time() * t_TAU * 3.f);
+
+      player.position.y += run_bounce_height * run_bounce_cycle;
+    }
   }
 
   commit(player);
