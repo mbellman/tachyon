@@ -95,8 +95,8 @@ static void StoreShaderUniforms(tOpenGLShaders& shaders) {
   store_shader_uniform(main_geometry, scene_time);
   store_shader_uniform(main_geometry, use_close_camera_disocclusion);
 
-  store_shader_uniform(skinned_mesh_geometry, view_projection_matrix);
-  store_shader_uniform(skinned_mesh_geometry, transform_origin);
+  store_shader_uniform(skinned_mesh, view_projection_matrix);
+  store_shader_uniform(skinned_mesh, transform_origin);
 
   store_shader_uniform(shadow_map, light_matrix);
   store_shader_uniform(shadow_map, transform_origin);
@@ -237,9 +237,9 @@ void Tachyon_OpenGL_InitShaders(tOpenGLShaders& shaders) {
   );
 
   InitVertexFragmentShader(
-    shaders.skinned_mesh_geometry,
-    "./engine/opengl/shaders/skinned_mesh_geometry.vert.glsl",
-    "./engine/opengl/shaders/skinned_mesh_geometry.frag.glsl"
+    shaders.skinned_mesh,
+    "./engine/opengl/shaders/skinned_mesh.vert.glsl",
+    "./engine/opengl/shaders/skinned_mesh.frag.glsl"
   );
 
   InitVertexFragmentShader(

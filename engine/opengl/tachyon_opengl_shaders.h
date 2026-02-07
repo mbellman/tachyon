@@ -40,7 +40,7 @@ struct tUniformLocations {
   uniform_locations(
     view_projection_matrix,
     transform_origin
-  ) skinned_mesh_geometry;
+  ) skinned_mesh;
 
   uniform_locations(
     light_matrix,
@@ -178,7 +178,7 @@ struct tUniformLocations {
 
 struct tOpenGLShaders {
   tOpenGLShader main_geometry;
-  tOpenGLShader skinned_mesh_geometry;
+  tOpenGLShader skinned_mesh;
   tOpenGLShader shadow_map;
   tOpenGLShader global_lighting;
   tOpenGLShader point_lights;
