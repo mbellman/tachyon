@@ -308,6 +308,49 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
   if (state.player_hp > 0.f) {
     wand.position = state.player_position + offset * 900.f;
     wand.rotation = player_rotation;
+
+    // Sync the want to the player's right hand
+    // @todo factor
+    {
+      wand.position = state.player_position;
+
+      auto& skeleton = state.player_skeleton;
+      auto& right_hand = skeleton.bones[5];
+      tVec3f position = right_hand.translation;
+      Quaternion rotation = right_hand.rotation;
+      int32 parent_index = right_hand.parent_bone_index;
+
+      position += right_hand.rotation.toMatrix4f() * (right_hand.translation * 0.8f);
+
+      // @todo @optimize once the bone offsets/rotations are precomputed,
+      // just use the precomputed values
+      while (parent_index != -1) {
+        auto& parent_bone = skeleton.bones[parent_index];
+        Quaternion rotation = parent_bone.rotation;
+
+        position = parent_bone.translation + parent_bone.rotation.toMatrix4f() * position;
+        rotation = parent_bone.rotation * rotation;
+        parent_index = parent_bone.parent_bone_index;
+      }
+
+      // For some reason, the wand pitches opposite to the hand bone
+      // even when using its transformed rotation. To correct this,
+      // we apply a 180-degree yaw rotation at both ends of the chain.
+      // The initial yaw flip (at the end of the multiplication) ensures
+      // that the final corrective flip only serves to correct its
+      // pitch orientation, and does not change its facing direction.
+      // This is obviously not ideal but it does mitigate the issue.
+      Quaternion yaw_flip = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI);
+
+      wand.rotation =
+        yaw_flip *
+        player_rotation * rotation *
+        Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -1.f) *
+        yaw_flip;
+
+      wand.position = state.player_position + player_rotation_matrix * (position * 1500.f);
+      wand.position -= wand.rotation.toMatrix4f() * tVec3f(0, 200.f, 0);
+    }
   }
 
   // Stun spell actions
@@ -368,6 +411,12 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
         time_since_last_swing < s1.duration + s2.duration
       ) {
         Combat::HandleWandStrikeWindow(tachyon, state);
+      }
+
+      // Allow the wand to revert to its original position after the swing completes
+      // @temporary
+      if (time_since_last_swing > s1.duration + s2.duration + s3.duration) {
+        state.last_wand_swing_time = 0.f;
       }
     }
 
