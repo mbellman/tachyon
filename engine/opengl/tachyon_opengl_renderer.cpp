@@ -829,6 +829,8 @@ static void RenderSkinnedMeshes(Tachyon* tachyon) {
     // @todo dev mode only
     {
       renderer.total_draw_calls += 1;
+      renderer.total_triangles += base_mesh.face_elements.size() / 3;
+      renderer.total_vertices += base_mesh.vertices.size();
     }
   }
 }

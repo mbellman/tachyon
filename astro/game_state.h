@@ -80,7 +80,9 @@ namespace astro {
 
     // Skinned meshes
     int32
+      player_hood,
       player_robes,
+      player_shirt,
       player_pants,
       player_boots;
   };
