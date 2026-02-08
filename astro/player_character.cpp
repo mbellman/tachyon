@@ -130,12 +130,34 @@ static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
 
       // @todo blend translations (+ scale??)
     }
+  }
 
-    // @todo precompute object-space bone rotations/offsets
+  // Precompute bones in object space so the data can be used for skinned vertices
+  // @todo factor
+  {
+    auto& pose = state.player_current_pose;
+
+    for (auto& base_bone : state.player_skeleton.bones) {
+      auto& pose_bone = pose.bones[base_bone.index];
+
+      pose_bone.translation = base_bone.translation;
+      pose_bone.rotation = base_bone.rotation;
+
+      int32 next_parent_index = pose_bone.parent_bone_index;
+
+      while (next_parent_index != -1) {
+        auto& parent_bone = state.player_skeleton.bones[next_parent_index];
+
+        pose_bone.translation = parent_bone.translation + parent_bone.rotation.toMatrix4f() * pose_bone.translation;
+        pose_bone.rotation = parent_bone.rotation * pose_bone.rotation;
+        next_parent_index = parent_bone.parent_bone_index;
+      }
+    }
   }
 }
 
 // @todo debug mode only
+// @todo factor to allow any skeleton pose to be visualized
 static void ShowDebugPlayerSkeleton(Tachyon* tachyon, State& state, Quaternion& player_rotation, tMat4f& player_rotation_matrix) {
   profile("ShowDebugPlayerSkeleton()");
 
@@ -149,7 +171,7 @@ static void ShowDebugPlayerSkeleton(Tachyon* tachyon, State& state, Quaternion& 
 
   reset_instances(meshes.debug_skeleton_bone);
 
-  auto& skeleton = state.player_skeleton;
+  auto& skeleton = state.player_current_pose;
 
   for (auto& bone : skeleton.bones) {
     // End on the root bone, since it does not need to be visualized
@@ -164,38 +186,11 @@ static void ShowDebugPlayerSkeleton(Tachyon* tachyon, State& state, Quaternion& 
     // a point at its initial translation coordinate
     //
     // @bug this is still slightly wrong sometimes
-    bone_translation += bone.rotation.toMatrix4f() * (bone.translation * 0.5f);
-
-    while (next_parent_index != -1) {
-      auto& parent_bone = skeleton.bones[next_parent_index];
-
-      bone_translation = parent_bone.translation + parent_bone.rotation.toMatrix4f() * bone_translation;
-      bone_rotation = parent_bone.rotation * bone_rotation;
-      next_parent_index = parent_bone.parent_bone_index;
-    }
+    bone_translation += bone.rotation.toMatrix4f() * tVec3f(0, 0.15f, 0);
 
     auto& debug_bone = use_instance(meshes.debug_skeleton_bone);
-    float bone_length = bone.translation.magnitude() * 25.f;
-
-    // @todo cleanup
-    if (bone.parent_bone_index != -1) {
-      auto& parent = skeleton.bones[bone.parent_bone_index];
-      float parent_bone_length = parent.translation.magnitude() * 25.f;
-
-      if (parent_bone_length > bone_length) {
-        bone_length = parent_bone_length;
-      }
-    }
-
-    // @todo cleanup
-    if (bone.child_bone_indexes.size() > 0) {
-      auto& child = skeleton.bones[bone.child_bone_indexes[0]];
-      float child_bone_length = child.translation.magnitude() * 25.f;
-
-      if (child_bone_length > bone_length) {
-        bone_length = child_bone_length;
-      }
-    }
+    // @todo compute properly
+    float bone_length = 10.f;
 
     debug_bone.position = base_position + player_rotation_matrix * (bone_translation * tVec3f(75.f));
     debug_bone.scale = tVec3f(0.5f, bone_length, 0.5f);

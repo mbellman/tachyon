@@ -191,6 +191,8 @@ struct tSkinnedMesh {
 
   tMat4f matrix;
   uint32 surface = 0;
+
+  tSkeleton* current_pose = nullptr;
 };
 
 struct tPointLight {

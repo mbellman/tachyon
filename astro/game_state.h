@@ -300,6 +300,7 @@ namespace astro {
 
     // @todo factor to make blended animations reusable
     tSkeleton player_skeleton;
+    tSkeleton player_current_pose;
     SkeletonAnimation* current_animation = nullptr;
     SkeletonAnimation* next_animation = nullptr;
     float animation_seek_time = 0.f;
