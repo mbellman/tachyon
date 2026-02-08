@@ -821,6 +821,10 @@ static void RenderSkinnedMeshes(Tachyon* tachyon) {
     SetShaderMat4f(locations.model_matrix, base_mesh.matrix);
     SetShaderUint(locations.model_surface, base_mesh.surface);
 
+    if (base_mesh.skinned) {
+      // @todo buffer skeleton pose data
+    }
+
     glBindVertexArray(gl_mesh.vao);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gl_mesh.ebo);
 

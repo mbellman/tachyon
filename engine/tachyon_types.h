@@ -192,6 +192,7 @@ struct tSkinnedMesh {
   tMat4f matrix;
   uint32 surface = 0;
 
+  bool skinned = false;
   tSkeleton* current_pose = nullptr;
 };
 
