@@ -111,3 +111,23 @@ private:
   std::string readArrayProperty(const std::string& json_string, const std::string& property_name);
   std::string readStringProperty(const std::string& json_string, const std::string& property_name);
 };
+
+/**
+ * SkinLoader
+ * ----------
+ *
+ * Parses a proprietary .skin file format into a collection
+ * of bone indexes/weights for each vertex in a mesh.
+ *
+ * Usage:
+ *
+ *  SkinLoader skin("path/to/mesh.skin");
+ */
+class SkinLoader : public AbstractLoader {
+public:
+  std::vector<uint32> bone_indexes_packed;
+  std::vector<tVec4f> bone_weights;
+
+  SkinLoader(const char* path);
+  ~SkinLoader();
+};

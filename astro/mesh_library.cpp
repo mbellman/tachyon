@@ -173,11 +173,30 @@ static void AddSkinnedMeshes(Tachyon* tachyon, State& state) {
     }
   }
 
-  tSkinnedMesh player_hood = Tachyon_LoadSkinnedMesh("./astro/3d_models/characters/player_hood.obj", player_skeleton);
-  tSkinnedMesh player_robes = Tachyon_LoadSkinnedMesh("./astro/3d_models/characters/player_robes.obj", player_skeleton);
-  tSkinnedMesh player_shirt = Tachyon_LoadSkinnedMesh("./astro/3d_models/characters/player_shirt.obj", player_skeleton);
-  tSkinnedMesh player_pants = Tachyon_LoadSkinnedMesh("./astro/3d_models/characters/player_pants.obj", player_skeleton);
-  tSkinnedMesh player_boots = Tachyon_LoadSkinnedMesh("./astro/3d_models/characters/player_boots.obj", player_skeleton);
+  tSkinnedMesh player_hood = Tachyon_LoadSkinnedMesh(
+    "./astro/3d_models/characters/player_hood.obj",
+    "./astro/3d_models/characters/player_hood.skin"
+  );
+
+  tSkinnedMesh player_robes = Tachyon_LoadSkinnedMesh(
+    "./astro/3d_models/characters/player_robes.obj",
+    "./astro/3d_models/characters/player_robes.skin"
+  );
+
+  tSkinnedMesh player_shirt = Tachyon_LoadSkinnedMesh(
+    "./astro/3d_models/characters/player_shirt.obj",
+    "./astro/3d_models/characters/player_shirt.skin"
+  );
+
+  tSkinnedMesh player_pants = Tachyon_LoadSkinnedMesh(
+    "./astro/3d_models/characters/player_pants.obj",
+    "./astro/3d_models/characters/player_pants.skin"
+  );
+
+  tSkinnedMesh player_boots = Tachyon_LoadSkinnedMesh(
+    "./astro/3d_models/characters/player_boots.obj",
+    "./astro/3d_models/characters/player_boots.skin"
+  );
 
   meshes.player_hood = Tachyon_AddSkinnedMesh(tachyon, player_hood);
   meshes.player_robes = Tachyon_AddSkinnedMesh(tachyon, player_robes);

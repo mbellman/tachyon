@@ -188,8 +188,8 @@ tMesh Tachyon_LoadMesh(const char* path, const tVec3f& axis_factors) {
   return mesh;
 }
 
-tSkinnedMesh Tachyon_LoadSkinnedMesh(const char* path, const tSkeleton& skeleton) {
-  tMesh base_mesh = Tachyon_LoadMesh(path);
+tSkinnedMesh Tachyon_LoadSkinnedMesh(const char* obj_path, const char* skin_path) {
+  tMesh base_mesh = Tachyon_LoadMesh(obj_path);
 
   tSkinnedMesh skinned_mesh;
 
@@ -210,67 +210,15 @@ tSkinnedMesh Tachyon_LoadSkinnedMesh(const char* path, const tSkeleton& skeleton
   }
 
   // Assign vertex bones + weights
-  for (auto& vertex : skinned_mesh.vertices) {
-    float closest_1 = FLT_MAX;
-    float closest_2 = FLT_MAX;
-    float closest_3 = FLT_MAX;
-    float closest_4 = FLT_MAX;
+  {
+    SkinLoader skin(skin_path);
 
-    // Bone 1
-    // @todo factor
-    for (auto& bone : skeleton.bones) {
-      float distance = (vertex.position - bone.translation).magnitude();
+    for (size_t i = 0; i < skin.bone_indexes_packed.size(); i++) {
+      auto& skinned_vertex = skinned_mesh.vertices[i];
 
-      if (distance < closest_1) {
-        vertex.bone_indexes_packed = (uint32)bone.index;
-        closest_1 = distance;
-      }
+      skinned_vertex.bone_indexes_packed = skin.bone_indexes_packed[i];
+      skinned_vertex.bone_weights = skin.bone_weights[i];
     }
-
-    // Bone 2
-    // @todo factor
-    for (auto& bone : skeleton.bones) {
-      float distance = (vertex.position - bone.translation).magnitude();
-
-      if (distance > closest_1 && distance < closest_2) {
-        vertex.bone_indexes_packed |= ((uint32)bone.index << 8);
-        closest_2 = distance;
-      }
-    }
-
-    // Bone 3
-    // @todo factor
-    for (auto& bone : skeleton.bones) {
-      float distance = (vertex.position - bone.translation).magnitude();
-
-      if (distance > closest_2 && distance < closest_3) {
-        vertex.bone_indexes_packed |= ((uint32)bone.index << 16);
-        closest_3 = distance;
-      }
-    }
-
-    // Bone 4
-    // @todo factor
-    for (auto& bone : skeleton.bones) {
-      float distance = (vertex.position - bone.translation).magnitude();
-
-      if (distance > closest_3 && distance < closest_4) {
-        vertex.bone_indexes_packed |= ((uint32)bone.index << 24);
-        closest_4 = distance;
-      }
-    }
-
-    // Assign weight values
-    float w1 = 1.f / closest_1;
-    float w2 = 1.f / closest_2;
-    float w3 = 1.f / closest_3;
-    float w4 = 1.f / closest_4;
-    float sum = w1 + w2 + w3 + w4;
-
-    vertex.bone_weights.x = w1 / sum;
-    vertex.bone_weights.y = w2 / sum;
-    vertex.bone_weights.z = w3 / sum;
-    vertex.bone_weights.w = w4 / sum;
   }
 
   return skinned_mesh;

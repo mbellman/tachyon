@@ -1,6 +1,11 @@
 #include "engine/tachyon_console.h"
 #include "engine/tachyon_loaders.h"
 
+/**
+ * --------------
+ * AbstractLoader
+ * --------------
+ */
 void AbstractLoader::fillBufferUntil(const std::string& end) {
   if (!isLoading) {
     return;
@@ -78,9 +83,11 @@ void AbstractLoader::setChunkDelimiter(const std::string& delimiter) {
   this->delimiter = delimiter;
 }
 
-// ---------
-// ObjLoader
-// ---------
+/**
+ * ---------
+ * ObjLoader
+ * ---------
+ */
 static std::string VERTEX_LABEL = "v";
 static std::string TEXTURE_COORDINATE_LABEL = "vt";
 static std::string NORMAL_LABEL = "vn";
@@ -88,6 +95,10 @@ static std::string FACE_LABEL = "f";
 
 ObjLoader::ObjLoader(const char* path) {
   load(path);
+
+  if (!isLoading) {
+    printf("\033[33m" "[ObjLoader] OBJ file failed to load: %s\n" "\033[0m", path);
+  }
 
   while (isLoading) {
     setChunkDelimiter(" ");
@@ -200,9 +211,11 @@ VertexData ObjLoader::parseVertexData(const std::string& chunk) {
   return vertexData;
 }
 
-// ----------
-// GltfLoader
-// ----------
+/**
+ * ----------
+ * GltfLoader
+ * ----------
+ */
 GltfLoader::GltfLoader(const char* path) {
   load(path);
 
@@ -409,4 +422,47 @@ std::string GltfLoader::readStringProperty(const std::string& json_string, const
 
     return json_string.substr(start_index, length);
   }
+}
+
+/**
+ * ----------
+ * SkinLoader
+ * ----------
+ */
+SkinLoader::SkinLoader(const char* path) {
+  load(path);
+
+  if (!isLoading) {
+    printf("\033[33m" "[SkinLoader] Mesh skin failed to load: %s\n" "\033[0m", path);
+  }
+
+  while (isLoading) {
+    setChunkDelimiter(" ");
+
+    std::string chunk = readNextChunk();
+
+    if (chunk.starts_with("V")) {
+      // Parse bone indexes
+      uint32 b1 = stoi(readNextChunk());
+      uint32 b2 = stoi(readNextChunk());
+      uint32 b3 = stoi(readNextChunk());
+      uint32 b4 = stoi(readNextChunk());
+
+      uint32 indexes = (b1 << 24) | (b2 << 16) | (b3 << 8) | b4;
+
+      // Parse bone weights
+      tVec4f weights;
+      weights.x = stof(readNextChunk());
+      weights.y = stof(readNextChunk());
+      weights.z = stof(readNextChunk());
+      weights.w = stof(readNextChunk());
+
+      bone_indexes_packed.push_back(indexes);
+      bone_weights.push_back(weights);
+    }
+  }
+}
+
+SkinLoader::~SkinLoader() {
+
 }
