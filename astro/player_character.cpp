@@ -341,39 +341,19 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
     {
       wand.position = state.player_position;
 
-      auto& skeleton = state.player_skeleton;
-      auto& right_hand = skeleton.bones[5];
+      auto& pose = state.player_current_pose;
+      auto& right_hand = pose.bones[5];
       tVec3f position = right_hand.translation;
       Quaternion rotation = right_hand.rotation;
       int32 parent_index = right_hand.parent_bone_index;
 
-      position += right_hand.rotation.toMatrix4f() * (right_hand.translation * 0.8f);
-
-      // @todo @optimize once the bone offsets/rotations are precomputed,
-      // just use the precomputed values
-      while (parent_index != -1) {
-        auto& parent_bone = skeleton.bones[parent_index];
-        Quaternion rotation = parent_bone.rotation;
-
-        position = parent_bone.translation + parent_bone.rotation.toMatrix4f() * position;
-        rotation = parent_bone.rotation * rotation;
-        parent_index = parent_bone.parent_bone_index;
-      }
-
-      // For some reason, the wand pitches opposite to the hand bone
-      // even when using its transformed rotation. To correct this,
-      // we apply a 180-degree yaw rotation at both ends of the chain.
-      // The initial yaw flip (at the end of the multiplication) ensures
-      // that the final corrective flip only serves to correct its
-      // pitch orientation, and does not change its facing direction.
-      // This is obviously not ideal but it does mitigate the issue.
-      Quaternion yaw_flip = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI);
+      position += right_hand.rotation.toMatrix4f() * tVec3f(0, 0.25f, 0);
 
       wand.rotation =
-        yaw_flip *
         player_rotation * rotation *
-        Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -1.f) *
-        yaw_flip;
+        Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), 0.2f) *
+        Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 1.8f) *
+        Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI);
 
       wand.position = state.player_position + player_rotation_matrix * (position * 1500.f);
       wand.position -= wand.rotation.toMatrix4f() * tVec3f(0, 200.f, 0);
