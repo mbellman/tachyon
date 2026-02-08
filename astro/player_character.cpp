@@ -135,10 +135,13 @@ static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
   // Precompute bones in object space so the data can be used for skinned vertices
   // @todo factor
   {
-    auto& pose = state.player_current_pose;
+    auto& rest_pose = state.player_rest_pose;
+    auto& current_pose = state.player_current_pose;
+
+    current_pose.bone_matrices.clear();
 
     for (auto& base_bone : state.player_skeleton.bones) {
-      auto& pose_bone = pose.bones[base_bone.index];
+      auto& pose_bone = current_pose.bones[base_bone.index];
 
       pose_bone.translation = base_bone.translation;
       pose_bone.rotation = base_bone.rotation;
@@ -152,6 +155,16 @@ static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
         pose_bone.rotation = parent_bone.rotation * pose_bone.rotation;
         next_parent_index = parent_bone.parent_bone_index;
       }
+
+      auto& rest_bone = rest_pose.bones[base_bone.index];
+
+      tMat4f inverse_bind_matrix = rest_pose.bone_matrices[base_bone.index];
+      tMat4f pose_matrix = tMat4f::transformation(pose_bone.translation, tVec3f(1.f), pose_bone.rotation);
+
+      // @BROKEN (???)
+      tMat4f bone_matrix = pose_matrix * inverse_bind_matrix;
+
+      current_pose.bone_matrices.push_back(bone_matrix);
     }
   }
 }
@@ -269,6 +282,8 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& rotati
 
   commit(player);
 
+  UpdatePlayerSkeleton(tachyon, state);
+
   // Clothing
   {
     auto& hood = skinned_mesh(meshes.player_hood);
@@ -307,14 +322,17 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& rotati
     boots.color = tVec3f(0.1f, 0.1f, 0.1f);
     boots.material = tVec4f(1.f, 0, 0, 0);
 
+    hood.current_pose = &state.player_current_pose;
+    robes.current_pose = &state.player_current_pose;
+    pants.current_pose = &state.player_current_pose;
+    boots.current_pose = &state.player_current_pose;
+
     commit(hood);
     commit(robes);
     commit(shirt);
     commit(pants);
     commit(boots);
   }
-
-  UpdatePlayerSkeleton(tachyon, state);
 
   if (state.show_game_stats) {
     ShowDebugPlayerSkeleton(tachyon, state, rotation, rotation_matrix);

@@ -821,20 +821,36 @@ static void RenderSkinnedMeshes(Tachyon* tachyon) {
     SetShaderMat4f(locations.model_matrix, base_mesh.matrix);
     SetShaderUint(locations.model_surface, base_mesh.surface);
 
-    if (base_mesh.skinned) {
-      // @todo buffer skeleton pose data
-    }
+    if (base_mesh.skinned && base_mesh.current_pose != nullptr) {
+      auto& skeleton = *base_mesh.current_pose;
 
-    glBindVertexArray(gl_mesh.vao);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gl_mesh.ebo);
+      for (auto& bone : skeleton.bones) {
+        // @temporary
+        // @allocation
+        std::string bone_uniform = "bones[" + std::to_string(bone.index) + "]";
 
-    glDrawElements(GL_TRIANGLES, base_mesh.face_elements.size(), GL_UNSIGNED_INT, 0);
+        // @todo @optimize cache uniform locations
+        // @todo use a UBO (?)
+        GLint location = glGetUniformLocation(shader.program, bone_uniform.c_str());
 
-    // @todo dev mode only
-    {
-      renderer.total_draw_calls += 1;
-      renderer.total_triangles += base_mesh.face_elements.size() / 3;
-      renderer.total_vertices += base_mesh.vertices.size();
+        // @todo @optimize precalculate this!!!!
+        // tMat4f bone_matrix = tMat4f::transformation(bone.translation, tVec3f(1.f), bone.rotation);
+        tMat4f bone_matrix = skeleton.bone_matrices[bone.index];
+
+        SetShaderMat4f(location, bone_matrix);
+      }
+
+      glBindVertexArray(gl_mesh.vao);
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gl_mesh.ebo);
+
+      glDrawElements(GL_TRIANGLES, base_mesh.face_elements.size(), GL_UNSIGNED_INT, 0);
+
+      // @todo dev mode only
+      {
+        renderer.total_draw_calls += 1;
+        renderer.total_triangles += base_mesh.face_elements.size() / 3;
+        renderer.total_vertices += base_mesh.vertices.size();
+      }
     }
   }
 }
@@ -971,6 +987,7 @@ static void RenderGlobalLighting(Tachyon* tachyon) {
       auto& volume = fog_volumes[i];
 
       // @temporary
+      // @allocation
       std::string position_uniform = "fog_volumes[" + std::to_string(i) + "].position";
       std::string radius_uniform = "fog_volumes[" + std::to_string(i) + "].radius";
       std::string color_uniform = "fog_volumes[" + std::to_string(i) + "].color";

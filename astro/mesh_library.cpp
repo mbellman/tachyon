@@ -157,20 +157,29 @@ static void AddProceduralMeshes(Tachyon* tachyon, State& state) {
 static void AddSkinnedMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
-  tSkeleton player_skeleton = GltfLoader("./astro/3d_skeleton_animations/player_skeleton.gltf").skeleton;
+  state.player_rest_pose = GltfLoader("./astro/3d_skeleton_animations/player_skeleton.gltf").skeleton;
 
-  // @todo factor
-  auto& skeleton = player_skeleton;
-
-  for (auto& bone : skeleton.bones) {
+  for (auto& bone : state.player_rest_pose.bones) {
     int32 parent_index = bone.parent_bone_index;
 
-    while (parent_index != -1) {
-      auto& parent_bone = skeleton.bones[parent_index];
+    tVec3f translation = bone.translation;
+    Quaternion rotation = bone.rotation;
 
-      bone.translation = parent_bone.translation + parent_bone.rotation.toMatrix4f() * bone.translation;
-      parent_index = parent_bone.parent_bone_index;
+    while (parent_index != -1) {
+      auto& parent = state.player_rest_pose.bones[parent_index];
+
+      translation = parent.translation + parent.rotation.toMatrix4f() * translation;
+      rotation = parent.rotation * rotation;
+
+      parent_index = parent.parent_bone_index;
     }
+
+    tMat4f inverse_bind_matrix = tMat4f::transformation(translation, tVec3f(1.f), rotation).inverse();
+
+    bone.translation = translation;
+    bone.rotation = rotation;
+
+    state.player_rest_pose.bone_matrices.push_back(inverse_bind_matrix);
   }
 
   tSkinnedMesh player_hood = Tachyon_LoadSkinnedMesh(

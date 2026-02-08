@@ -127,6 +127,8 @@ struct tBone {
 
 struct tSkeleton {
   std::vector<tBone> bones;
+
+  std::vector<tMat4f> bone_matrices;
 };
 
 struct tMesh {

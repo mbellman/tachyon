@@ -5,6 +5,8 @@ uniform vec3 transform_origin;
 uniform mat4 model_matrix;
 uniform uint model_surface;
 
+uniform mat4 bones[32];
+
 layout (location = 0) in vec3 vertexPosition;
 layout (location = 1) in vec3 vertexNormal;
 layout (location = 2) in vec3 vertexTangent;
@@ -43,8 +45,28 @@ uvec4 SurfaceToUVec4(uint surface) {
 void main() {
   mat3 normal_matrix = transpose(inverse(mat3(model_matrix)));
 
+  // Apply bone transforms
+  vec3 position = vec3(0.0);
+
+  uint bone_1_index = (bone_indexes_packed & 0xFF000000) >> 24;
+  uint bone_2_index = (bone_indexes_packed & 0x00FF0000) >> 16;
+  uint bone_3_index = (bone_indexes_packed & 0x0000FF00) >> 8;
+  uint bone_4_index = (bone_indexes_packed & 0x000000FF);
+
+  mat4 bone_1 = bones[bone_1_index];
+  mat4 bone_2 = bones[bone_2_index];
+  mat4 bone_3 = bones[bone_3_index];
+  mat4 bone_4 = bones[bone_4_index];
+
+  // @BROKEN!!!!
+  position += (bone_weights.x * (bone_1 * vec4(vertexPosition, 1.0))).xyz;
+  position += (bone_weights.y * (bone_2 * vec4(vertexPosition, 1.0))).xyz;
+  position += (bone_weights.z * (bone_3 * vec4(vertexPosition, 1.0))).xyz;
+  position += (bone_weights.w * (bone_4 * vec4(vertexPosition, 1.0))).xyz;
+
   // For the vertex transform, start by just applying rotation + scale
   vec3 model_space_position = mat3(model_matrix) * vertexPosition;
+  // vec3 model_space_position = mat3(model_matrix) * position;
 
   // Then apply translation, offset by the transform origin
   vec3 translation = vec3(model_matrix[3][0], model_matrix[3][1], model_matrix[3][2]);
