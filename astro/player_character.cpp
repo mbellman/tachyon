@@ -333,14 +333,9 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
   wand.material = tVec4f(1.f, 0, 0, 0.4f);
 
   if (state.player_hp > 0.f) {
-    wand.position = state.player_position + offset * 900.f;
-    wand.rotation = player_rotation;
-
     // Sync the wand to the player's right hand
     // @todo factor
     {
-      wand.position = state.player_position;
-
       auto& pose = state.player_current_pose;
       auto& right_hand = pose.bones[5];
       tVec3f position = right_hand.translation;
@@ -385,7 +380,14 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
       AnimationStep s1;
       s1.duration = 0.2f;
       s1.offset = tVec3f(0.f);
-      s1.rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.f);
+      s1.rotation = (
+        // @hack
+        // @todo predefine this
+        state.player_current_pose.bones[5].rotation *
+        Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), 0.2f) *
+        Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 1.8f) *
+        Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI)
+      );
 
       AnimationStep s2;
       s2.duration = 0.15f;
@@ -404,6 +406,14 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
       );
 
       AnimationStep s4 = s1;
+      s4.rotation = (
+        // @hack
+        // @todo predefine this
+        state.player_current_pose.bones[5].rotation *
+        Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), 0.2f) *
+        Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 1.8f) *
+        Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI)
+      );
 
       AnimationSequence swing_animation;
       swing_animation.steps = { s1, s2, s3, s4 };
@@ -422,7 +432,7 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
 
       // Allow the wand to revert to its original position after the swing completes
       // @temporary
-      if (time_since_last_swing > s1.duration + s2.duration + s3.duration) {
+      if (time_since_last_swing >= s1.duration + s2.duration + s3.duration) {
         state.last_wand_swing_time = 0.f;
       }
     }

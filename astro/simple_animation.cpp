@@ -6,6 +6,10 @@ TransformState SimpleAnimation::Sample(const AnimationSequence& sequence, float 
   TransformState transform;
   float running_time = 0.f;
 
+  // Set the default offset/rotation if we end up past the animation time range
+  transform.offset = sequence.steps[0].offset;
+  transform.rotation = sequence.steps[0].rotation;
+
   for (size_t i = 0; i < sequence.steps.size() - 1; i++) {
     auto& current_step = sequence.steps[i];
     auto& next_step = sequence.steps[i + 1];
