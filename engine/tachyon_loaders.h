@@ -125,9 +125,16 @@ private:
  */
 class SkinLoader : public AbstractLoader {
 public:
-  std::vector<uint32> bone_indexes_packed;
-  std::vector<tVec4f> bone_weights;
+  struct BoneAttachments {
+    std::string names[4];
+  };
+
+  std::vector<BoneAttachments> vertex_bone_attachments;
+  std::vector<tVec4f> vertex_bone_weights;
 
   SkinLoader(const char* path);
   ~SkinLoader();
+
+private:
+  std::string parseBoneName();
 };

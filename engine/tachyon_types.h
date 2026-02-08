@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 #include <SDL.h>
 #include <SDL_ttf.h>
@@ -115,6 +116,7 @@ struct tObjectGroup {
 };
 
 struct tBone {
+  std::string name = "";
   int32 index = -1;
 
   Quaternion rotation;
@@ -127,6 +129,7 @@ struct tBone {
 
 struct tSkeleton {
   std::vector<tBone> bones;
+  std::unordered_map<std::string, uint32> name_to_index_map;
 
   std::vector<tMat4f> bone_matrices;
 };

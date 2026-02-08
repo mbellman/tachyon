@@ -250,9 +250,8 @@ void GltfLoader::parseNodes() {
     }
 
     if (line.ends_with("},")) {
-      // auto name = readStringProperty(node_json, "name");
-
       tBone bone;
+      bone.name = readStringProperty(node_json, "name");
       bone.index = node_index;
 
       // Parse rotation
@@ -318,6 +317,14 @@ void GltfLoader::parseNodes() {
       child_bone.parent_bone_index = bone.index;
     }
   }
+
+  // Create bone name -> index map
+  for (auto& bone : skeleton.bones) {
+    skeleton.name_to_index_map[bone.name] = bone.index;
+  }
+
+  // Fallback case for unspecified bone names
+  skeleton.name_to_index_map["-"] = 0;
 }
 
 // @todo refactor
@@ -416,8 +423,8 @@ std::string GltfLoader::readStringProperty(const std::string& json_string, const
   if (index == std::string::npos) {
     return "-";
   } else {
-    auto start_index = json_string.find(" : ", index) + 3;
-    auto end_index = json_string.find(",\n", index);
+    auto start_index = json_string.find(" : ", index) + 4;
+    auto end_index = json_string.find("\",\n", index);
     auto length = end_index - start_index;
 
     return json_string.substr(start_index, length);
@@ -442,13 +449,12 @@ SkinLoader::SkinLoader(const char* path) {
     std::string chunk = readNextChunk();
 
     if (chunk.starts_with("V")) {
-      // Parse bone indexes
-      uint32 b1 = stoi(readNextChunk());
-      uint32 b2 = stoi(readNextChunk());
-      uint32 b3 = stoi(readNextChunk());
-      uint32 b4 = stoi(readNextChunk());
-
-      uint32 indexes = (b1 << 24) | (b2 << 16) | (b3 << 8) | b4;
+      // Parse bone attachments by name
+      BoneAttachments attachments;
+      attachments.names[0] = parseBoneName();
+      attachments.names[1] = parseBoneName();
+      attachments.names[2] = parseBoneName();
+      attachments.names[3] = parseBoneName();
 
       // Parse bone weights
       tVec4f weights;
@@ -457,12 +463,26 @@ SkinLoader::SkinLoader(const char* path) {
       weights.z = stof(readNextChunk());
       weights.w = stof(readNextChunk());
 
-      bone_indexes_packed.push_back(indexes);
-      bone_weights.push_back(weights);
+      vertex_bone_attachments.push_back(attachments);
+      vertex_bone_weights.push_back(weights);
+    }
+
+    if (chunk.starts_with("F")) {
+      // Parse face elements
     }
   }
 }
 
 SkinLoader::~SkinLoader() {
 
+}
+
+std::string SkinLoader::parseBoneName() {
+  auto name = readNextChunk();
+
+  if (name.ends_with("\n")) {
+    name.pop_back();
+  }
+
+  return name;
 }

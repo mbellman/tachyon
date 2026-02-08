@@ -188,7 +188,7 @@ tMesh Tachyon_LoadMesh(const char* path, const tVec3f& axis_factors) {
   return mesh;
 }
 
-tSkinnedMesh Tachyon_LoadSkinnedMesh(const char* obj_path, const char* skin_path) {
+tSkinnedMesh Tachyon_LoadSkinnedMesh(const char* obj_path, const char* skin_path, const tSkeleton& skeleton) {
   tMesh base_mesh = Tachyon_LoadMesh(obj_path);
 
   tSkinnedMesh skinned_mesh;
@@ -213,15 +213,26 @@ tSkinnedMesh Tachyon_LoadSkinnedMesh(const char* obj_path, const char* skin_path
   {
     SkinLoader skin(skin_path);
 
-    for (size_t i = 0; i < skin.bone_indexes_packed.size(); i++) {
+    for (size_t i = 0; i < skin.vertex_bone_attachments.size(); i++) {
       auto& skinned_vertex = skinned_mesh.vertices[i];
+      auto& attachments = skin.vertex_bone_attachments[i];
+      auto& weights = skin.vertex_bone_weights[i];
 
-      skinned_vertex.bone_indexes_packed = skin.bone_indexes_packed[i];
-      skinned_vertex.bone_weights = skin.bone_weights[i];
+      uint32 i1 = skeleton.name_to_index_map.at(attachments.names[0]);
+      uint32 i2 = skeleton.name_to_index_map.at(attachments.names[1]);
+      uint32 i3 = skeleton.name_to_index_map.at(attachments.names[2]);
+      uint32 i4 = skeleton.name_to_index_map.at(attachments.names[3]);
+
+      uint32 indexes_packed = (i1 << 24) | (i2 << 16) | (i3 << 8) | i4;
+
+      skinned_vertex.position.debug();
+
+      skinned_vertex.bone_indexes_packed = indexes_packed;
+      skinned_vertex.bone_weights = weights;
     }
 
     // Mark the mesh as successfully skinned if we were able to load bone data
-    skinned_mesh.skinned = skin.bone_indexes_packed.size() > 0;
+    skinned_mesh.skinned = skin.vertex_bone_attachments.size() > 0;
   }
 
   return skinned_mesh;

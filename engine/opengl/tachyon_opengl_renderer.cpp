@@ -833,8 +833,6 @@ static void RenderSkinnedMeshes(Tachyon* tachyon) {
         // @todo use a UBO (?)
         GLint location = glGetUniformLocation(shader.program, bone_uniform.c_str());
 
-        // @todo @optimize precalculate this!!!!
-        // tMat4f bone_matrix = tMat4f::transformation(bone.translation, tVec3f(1.f), bone.rotation);
         tMat4f bone_matrix = skeleton.bone_matrices[bone.index];
 
         SetShaderMat4f(location, bone_matrix);
