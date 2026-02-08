@@ -1902,7 +1902,10 @@ void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   tachyon->use_high_visibility_mode = false;
-  tachyon->scene.use_close_camera_disocclusion = true;
+
+  if (!state.show_game_stats) {
+    tachyon->scene.use_close_camera_disocclusion = true;
+  }
 
   state.is_level_editor_open = false;
 
