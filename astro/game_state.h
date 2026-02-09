@@ -284,6 +284,7 @@ namespace astro {
 
     float fall_velocity = 0.f;
     float current_ground_y = 0.f;
+    float run_oscillation = 0.f;
 
     // Animations
     struct SkeletonAnimation {

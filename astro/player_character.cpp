@@ -223,6 +223,22 @@ static void HandleAutoHop(State& state) {
   state.player_position.y = Tachyon_Lerpf(state.player_position.y, jump_height, alpha);
 }
 
+static void HandleRunOscillation(State& state, tObject& player, const float player_speed, const float scene_time) {
+  if (player_speed > 600.f) {
+    state.run_oscillation += 5.f * state.dt;
+  } else {
+    state.run_oscillation -= 4.f * state.dt;
+  }
+
+  if (state.run_oscillation < 0.f) state.run_oscillation = 0.f;
+  if (state.run_oscillation > 1.f) state.run_oscillation = 1.f;
+
+  float run_bounce_height = 200.f * state.run_oscillation;
+  float run_bounce_cycle = 0.5f + 0.5f * sinf(scene_time * t_TAU * 3.f);
+
+  player.position.y += run_bounce_height * run_bounce_cycle;
+}
+
 static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& rotation, tMat4f& rotation_matrix) {
   auto& meshes = state.meshes;
 
@@ -264,17 +280,13 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& rotati
     player.position.y = Tachyon_Lerpf(player.position.y, -1100.f, 4.f * state.dt);
     player.position += state.player_velocity * (1.f - death_alpha) * state.dt;
   } else {
-    float player_speed = state.player_velocity.magnitude();
-
     player.rotation = rotation;
     player.position = state.player_position;
 
-    if (player_speed > 600.f) {
-      float run_bounce_height = 200.f * Tachyon_InverseLerp(600.f, 1300.f, player_speed);
-      float run_bounce_cycle = 0.5f + 0.5f * sinf(get_scene_time() * t_TAU * 3.f);
+    float player_speed = state.player_velocity.magnitude();
+    float scene_time = get_scene_time();
 
-      player.position.y += run_bounce_height * run_bounce_cycle;
-    }
+    HandleRunOscillation(state, player, player_speed, scene_time);
   }
 
   commit(player);
@@ -353,24 +365,22 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
   if (state.player_hp > 0.f) {
     // Sync the wand to the player's right hand
     // @todo factor
-    {
-      auto& pose = state.player_current_pose;
-      auto& right_hand = pose.bones[5];
-      tVec3f position = right_hand.translation;
-      Quaternion rotation = right_hand.rotation;
-      int32 parent_index = right_hand.parent_bone_index;
+    auto& pose = state.player_current_pose;
+    auto& right_hand = pose.bones[5];
+    tVec3f position = right_hand.translation;
+    Quaternion rotation = right_hand.rotation;
+    int32 parent_index = right_hand.parent_bone_index;
 
-      position += right_hand.rotation.toMatrix4f() * tVec3f(0, 0.25f, 0);
+    position += right_hand.rotation.toMatrix4f() * tVec3f(-0.05f, 0.32f, 0);
 
-      wand.rotation =
-        player_rotation * rotation *
-        Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), 0.2f) *
-        Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 1.8f) *
-        Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI);
+    wand.rotation =
+      player_rotation * rotation *
+      Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), 0.2f) *
+      Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 1.8f) *
+      Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI);
 
-      wand.position = state.player_position + player_rotation_matrix * (position * 1500.f);
-      wand.position -= wand.rotation.toMatrix4f() * tVec3f(0, 200.f, 0);
-    }
+    wand.position = state.player_position + player_rotation_matrix * (position * 1500.f);
+    wand.position -= wand.rotation.toMatrix4f() * tVec3f(0, 200.f, 0);
   }
 
   // Stun spell actions
