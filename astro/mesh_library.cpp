@@ -174,10 +174,10 @@ static void AddSkinnedMeshes(Tachyon* tachyon, State& state) {
       parent_index = parent.parent_bone_index;
     }
 
-    tMat4f inverse_bind_matrix = tMat4f::transformation(translation, tVec3f(1.f), rotation).inverse();
-
     bone.translation = translation;
     bone.rotation = rotation;
+
+    tMat4f inverse_bind_matrix = tMat4f::transformation(translation, tVec3f(1.f), rotation).inverse();
 
     state.player_rest_pose.bone_matrices.push_back(inverse_bind_matrix);
   }

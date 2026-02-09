@@ -160,11 +160,9 @@ static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
 
       tMat4f inverse_bind_matrix = rest_pose.bone_matrices[base_bone.index];
       tMat4f pose_matrix = tMat4f::transformation(pose_bone.translation, tVec3f(1.f), pose_bone.rotation);
-
-      // @BROKEN (???)
       tMat4f bone_matrix = pose_matrix * inverse_bind_matrix;
 
-      current_pose.bone_matrices.push_back(bone_matrix);
+      current_pose.bone_matrices.push_back(bone_matrix.transpose());
     }
   }
 }
