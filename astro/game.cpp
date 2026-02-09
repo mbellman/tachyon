@@ -21,8 +21,6 @@
 #include "astro/time_evolution.h"
 #include "astro/ui_system.h"
 
-#include "engine/tachyon_loaders.h"
-
 #define MUSIC_ENABLED 0
 
 using namespace astro;

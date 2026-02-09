@@ -1,5 +1,3 @@
-#include "engine/tachyon_loaders.h"
-
 #include "astro/mesh_library.h"
 #include "astro/entity_dispatcher.h"
 
@@ -154,32 +152,36 @@ static void AddProceduralMeshes(Tachyon* tachyon, State& state) {
   }
 }
 
+// @todo move to engine
+static void TransformBonesIntoMeshSpace(tSkeleton& skeleton) {
+  for (auto& bone : skeleton.bones) {
+    int32 parent_index = bone.parent_bone_index;
+
+    while (parent_index != -1) {
+      auto& parent = skeleton.bones[parent_index];
+
+      bone.translation = parent.translation + parent.rotation.toMatrix4f() * bone.translation;
+      bone.rotation = parent.rotation * bone.rotation;
+
+      parent_index = parent.parent_bone_index;
+    }
+  }
+}
+
 static void AddSkinnedMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   state.player_rest_pose = GltfLoader("./astro/3d_skeleton_animations/player_skeleton.gltf").skeleton;
 
-  for (auto& bone : state.player_rest_pose.bones) {
-    int32 parent_index = bone.parent_bone_index;
+  TransformBonesIntoMeshSpace(state.player_rest_pose);
 
-    tVec3f translation = bone.translation;
-    Quaternion rotation = bone.rotation;
+  // Compute inverse bind matrices
+  {
+    for (auto& bone : state.player_rest_pose.bones) {
+      tMat4f inverse_bind_matrix = tMat4f::transformation(bone.translation, tVec3f(1.f), bone.rotation).inverse();
 
-    while (parent_index != -1) {
-      auto& parent = state.player_rest_pose.bones[parent_index];
-
-      translation = parent.translation + parent.rotation.toMatrix4f() * translation;
-      rotation = parent.rotation * rotation;
-
-      parent_index = parent.parent_bone_index;
+      state.player_rest_pose.bone_matrices.push_back(inverse_bind_matrix);
     }
-
-    bone.translation = translation;
-    bone.rotation = rotation;
-
-    tMat4f inverse_bind_matrix = tMat4f::transformation(translation, tVec3f(1.f), rotation).inverse();
-
-    state.player_rest_pose.bone_matrices.push_back(inverse_bind_matrix);
   }
 
   tSkinnedMesh player_hood = Tachyon_LoadSkinnedMesh(

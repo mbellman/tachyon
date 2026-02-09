@@ -132,7 +132,7 @@ static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
     }
   }
 
-  // Precompute bones in object space so the data can be used for skinned vertices
+  // Compute bone matrices for use in the renderer
   // @todo factor
   {
     auto& rest_pose = state.player_rest_pose;
@@ -155,8 +155,6 @@ static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
         pose_bone.rotation = parent_bone.rotation * pose_bone.rotation;
         next_parent_index = parent_bone.parent_bone_index;
       }
-
-      auto& rest_bone = rest_pose.bones[base_bone.index];
 
       tMat4f inverse_bind_matrix = rest_pose.bone_matrices[base_bone.index];
       tMat4f pose_matrix = tMat4f::transformation(pose_bone.translation, tVec3f(1.f), pose_bone.rotation);
@@ -295,7 +293,7 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& rotati
     hood.position = player.position;
     hood.rotation = player.rotation;
     hood.scale = PLAYER_SCALE;
-    hood.color = tVec3f(0, 0.2f, 0.6f);
+    hood.color = tVec3f(0.1f, 0.3f, 0.6f);
     hood.material = tVec4f(1.f, 0, 0, 0.5f);
 
     robes.position = player.position;
