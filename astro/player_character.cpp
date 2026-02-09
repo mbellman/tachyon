@@ -306,7 +306,7 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& rotati
     shirt.position = player.position;
     shirt.rotation = player.rotation;
     shirt.scale = PLAYER_SCALE;
-    shirt.color = tVec3f(0.1f, 0.1f, 0.3f);
+    shirt.color = tVec3f(0.3f, 0.1f, 0.3f);
     shirt.material = tVec4f(1.f, 0, 0, 0.2f);
 
     pants.position = player.position;

@@ -64,10 +64,10 @@ void main() {
   position += (bone_weights.z * (bone_3 * vec4(vertexPosition, 1.0))).xyz;
   position += (bone_weights.w * (bone_4 * vec4(vertexPosition, 1.0))).xyz;
 
-  normal += (bone_weights.x * (mat3(bone_1) * vertexNormal)).xyz;
-  normal += (bone_weights.y * (mat3(bone_2) * vertexNormal)).xyz;
-  normal += (bone_weights.z * (mat3(bone_3) * vertexNormal)).xyz;
-  normal += (bone_weights.w * (mat3(bone_4) * vertexNormal)).xyz;
+  normal += bone_weights.x * (mat3(bone_1) * vertexNormal);
+  normal += bone_weights.y * (mat3(bone_2) * vertexNormal);
+  normal += bone_weights.z * (mat3(bone_3) * vertexNormal);
+  normal += bone_weights.w * (mat3(bone_4) * vertexNormal);
 
   // For the vertex transform, start by just applying rotation + scale
   vec3 model_space_position = mat3(model_matrix) * position;
