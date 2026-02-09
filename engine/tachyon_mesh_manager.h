@@ -26,7 +26,7 @@
 #define remove_point_light(__light) Tachyon_RemovePointLight(tachyon, __light)
 
 tMesh Tachyon_LoadMesh(const char* path, const tVec3f& axis_factors = tVec3f(1.f));
-tSkinnedMesh Tachyon_LoadSkinnedMesh(const char* obj_path, const char* skin_path, const tSkeleton& skeleton);
+tSkinnedMesh Tachyon_LoadSkinnedMesh(const char* skin_path, const tSkeleton& skeleton);
 tMesh Tachyon_CreatePlaneMesh();
 tMesh Tachyon_CreateCubeMesh();
 tMesh Tachyon_CreateSphereMesh(uint8 divisions);

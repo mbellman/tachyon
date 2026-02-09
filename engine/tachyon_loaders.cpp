@@ -440,7 +440,7 @@ SkinLoader::SkinLoader(const char* path) {
   load(path);
 
   if (!isLoading) {
-    printf("\033[33m" "[SkinLoader] Mesh skin failed to load: %s\n" "\033[0m", path);
+    printf("\033[33m" "[SkinLoader] Skinned mesh file failed to load: %s\n" "\033[0m", path);
   }
 
   while (isLoading) {

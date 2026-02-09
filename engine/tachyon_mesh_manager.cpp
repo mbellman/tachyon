@@ -188,56 +188,41 @@ tMesh Tachyon_LoadMesh(const char* path, const tVec3f& axis_factors) {
   return mesh;
 }
 
-tSkinnedMesh Tachyon_LoadSkinnedMesh(const char* obj_path, const char* skin_path, const tSkeleton& skeleton) {
-  tMesh base_mesh = Tachyon_LoadMesh(obj_path);
-
+tSkinnedMesh Tachyon_LoadSkinnedMesh(const char* skin_path, const tSkeleton& skeleton) {
   tSkinnedMesh skinned_mesh;
 
-  // Copy vertices
-  for (auto& vertex : base_mesh.vertices) {
-    tSkinnedVertex skinned_vertex;
-    skinned_vertex.position = vertex.position;
-    skinned_vertex.normal = vertex.normal;
-    skinned_vertex.tangent = vertex.tangent;
-    skinned_vertex.uv = vertex.uv;
+  SkinLoader skin(skin_path);
 
-    skinned_mesh.vertices.push_back(skinned_vertex);
+  for (size_t i = 0; i < skin.vertex_bone_attachments.size(); i++) {
+    auto& attachments = skin.vertex_bone_attachments[i];
+    auto& weights = skin.vertex_bone_weights[i];
+
+    uint32 i1 = skeleton.name_to_index_map.at(attachments.names[0]);
+    uint32 i2 = skeleton.name_to_index_map.at(attachments.names[1]);
+    uint32 i3 = skeleton.name_to_index_map.at(attachments.names[2]);
+    uint32 i4 = skeleton.name_to_index_map.at(attachments.names[3]);
+
+    uint32 indexes_packed = (i1 << 24) | (i2 << 16) | (i3 << 8) | i4;
+
+    tSkinnedVertex vertex;
+    vertex.position = skin.vertex_positions[i];
+    vertex.normal = skin.vertex_normals[i];
+    vertex.uv = skin.vertex_uvs[i];
+    vertex.bone_indexes_packed = indexes_packed;
+    vertex.bone_weights = weights;
+
+    skinned_mesh.vertices.push_back(vertex);
   }
 
-  // Copy face elements
-  for (auto element : base_mesh.face_elements) {
+  for (uint32 element : skin.face_elements) {
     skinned_mesh.face_elements.push_back(element);
   }
 
-  // Assign vertex bones + weights
-  {
-    SkinLoader skin(skin_path);
+  // Mark the mesh as successfully skinned if we were able to load bone data
+  skinned_mesh.skinned = skin.vertex_bone_attachments.size() > 0;
 
-    for (size_t i = 0; i < skin.vertex_bone_attachments.size(); i++) {
-      auto& skinned_vertex = skinned_mesh.vertices[i];
-      auto& attachments = skin.vertex_bone_attachments[i];
-      auto& weights = skin.vertex_bone_weights[i];
-
-      uint32 i1 = skeleton.name_to_index_map.at(attachments.names[0]);
-      uint32 i2 = skeleton.name_to_index_map.at(attachments.names[1]);
-      uint32 i3 = skeleton.name_to_index_map.at(attachments.names[2]);
-      uint32 i4 = skeleton.name_to_index_map.at(attachments.names[3]);
-
-      uint32 indexes_packed = (i1 << 24) | (i2 << 16) | (i3 << 8) | i4;
-
-      skinned_vertex.position = skin.vertex_positions[i];
-      skinned_vertex.normal = skin.vertex_normals[i];
-      skinned_vertex.uv = skin.vertex_uvs[i];
-      skinned_vertex.bone_indexes_packed = indexes_packed;
-      skinned_vertex.bone_weights = weights;
-    }
-
-    for (size_t i = 0; i < skin.face_elements.size(); i++) {
-      skinned_mesh.face_elements[i] = skin.face_elements[i];
-    }
-
-    // Mark the mesh as successfully skinned if we were able to load bone data
-    skinned_mesh.skinned = skin.vertex_bone_attachments.size() > 0;
+  if (skinned_mesh.skinned) {
+    printf("[Tachyon_LoadSkinnedMesh] Loaded skinned mesh: %s\n", skin_path);
   }
 
   return skinned_mesh;

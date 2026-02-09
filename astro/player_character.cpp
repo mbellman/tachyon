@@ -229,7 +229,7 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& rotati
 
   auto& player = objects(meshes.player)[0];
 
-  player.scale = tVec3f(1500.f);
+  player.scale = tVec3f(0.f);
   player.color = tVec3f(0, 0, 0.1f);
   player.material = tVec4f(1.f, 0, 0, 0);
 
@@ -284,6 +284,8 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& rotati
 
   // Clothing
   {
+    const tVec3f PLAYER_SCALE = tVec3f(1500.f);
+
     auto& hood = skinned_mesh(meshes.player_hood);
     auto& robes = skinned_mesh(meshes.player_robes);
     auto& shirt = skinned_mesh(meshes.player_shirt);
@@ -292,36 +294,37 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& rotati
 
     hood.position = player.position;
     hood.rotation = player.rotation;
-    hood.scale = player.scale;
+    hood.scale = PLAYER_SCALE;
     hood.color = tVec3f(0, 0.2f, 0.6f);
     hood.material = tVec4f(1.f, 0, 0, 0.5f);
 
     robes.position = player.position;
     robes.rotation = player.rotation;
-    robes.scale = player.scale;
+    robes.scale = PLAYER_SCALE;
     robes.color = tVec3f(0.3f, 0.4f, 0.6f);
     robes.material = tVec4f(1.f, 0, 0, 0.5f);
 
     shirt.position = player.position;
     shirt.rotation = player.rotation;
-    shirt.scale = player.scale;
+    shirt.scale = PLAYER_SCALE;
     shirt.color = tVec3f(0.1f, 0.1f, 0.3f);
     shirt.material = tVec4f(1.f, 0, 0, 0.2f);
 
     pants.position = player.position;
     pants.rotation = player.rotation;
-    pants.scale = player.scale;
+    pants.scale = PLAYER_SCALE;
     pants.color = tVec3f(0.4f, 0.2f, 0.1f);
     pants.material = tVec4f(1.f, 0, 0, 0.2f);
 
     boots.position = player.position;
     boots.rotation = player.rotation;
-    boots.scale = player.scale;
+    boots.scale = PLAYER_SCALE;
     boots.color = tVec3f(0.1f, 0.1f, 0.1f);
     boots.material = tVec4f(1.f, 0, 0, 0);
 
     hood.current_pose = &state.player_current_pose;
     robes.current_pose = &state.player_current_pose;
+    shirt.current_pose = &state.player_current_pose;
     pants.current_pose = &state.player_current_pose;
     boots.current_pose = &state.player_current_pose;
 
