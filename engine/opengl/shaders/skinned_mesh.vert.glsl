@@ -45,9 +45,6 @@ uvec4 SurfaceToUVec4(uint surface) {
 void main() {
   mat3 normal_matrix = transpose(inverse(mat3(model_matrix)));
 
-  // Apply bone transforms
-  vec3 position = vec3(0.0);
-
   uint bone_1_index = (bone_indexes_packed & 0xFF000000) >> 24;
   uint bone_2_index = (bone_indexes_packed & 0x00FF0000) >> 16;
   uint bone_3_index = (bone_indexes_packed & 0x0000FF00) >> 8;
@@ -58,14 +55,21 @@ void main() {
   mat4 bone_3 = bones[bone_3_index];
   mat4 bone_4 = bones[bone_4_index];
 
-  // @BROKEN!!!!
+  // Apply bone transforms
+  vec3 position = vec3(0.0);
+  vec3 normal = vec3(0.0);
+
   position += (bone_weights.x * (bone_1 * vec4(vertexPosition, 1.0))).xyz;
   position += (bone_weights.y * (bone_2 * vec4(vertexPosition, 1.0))).xyz;
   position += (bone_weights.z * (bone_3 * vec4(vertexPosition, 1.0))).xyz;
   position += (bone_weights.w * (bone_4 * vec4(vertexPosition, 1.0))).xyz;
 
+  normal += (bone_weights.x * (mat3(bone_1) * vertexNormal)).xyz;
+  normal += (bone_weights.y * (mat3(bone_2) * vertexNormal)).xyz;
+  normal += (bone_weights.z * (mat3(bone_3) * vertexNormal)).xyz;
+  normal += (bone_weights.w * (mat3(bone_4) * vertexNormal)).xyz;
+
   // For the vertex transform, start by just applying rotation + scale
-  // vec3 model_space_position = mat3(model_matrix) * vertexPosition;
   vec3 model_space_position = mat3(model_matrix) * position;
 
   // Then apply translation, offset by the transform origin
@@ -75,7 +79,7 @@ void main() {
   gl_Position = view_projection_matrix * vec4(world_space_position, 1.0);
 
   fragSurface = SurfaceToUVec4(model_surface);
-  fragNormal = normal_matrix * vertexNormal;
+  fragNormal = normal_matrix * normal;
   fragTangent = normal_matrix * vertexTangent;
   fragBitangent = getFragBitangent(fragNormal, fragTangent);
   fragUv = vertexUv;

@@ -294,7 +294,7 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& rotati
     hood.position = player.position;
     hood.rotation = player.rotation;
     hood.scale = PLAYER_SCALE;
-    hood.color = tVec3f(0.1f, 0.3f, 0.6f);
+    hood.color = tVec3f(0, 0.2f, 0.6f);
     hood.material = tVec4f(1.f, 0, 0, 0.5f);
 
     robes.position = player.position;
