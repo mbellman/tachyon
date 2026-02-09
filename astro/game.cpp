@@ -388,10 +388,6 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
     };
 
     for (auto& bone : state.animations.player_idle.frames[0].bones) {
-      state.player_skeleton.bones.push_back(bone);
-    }
-
-    for (auto& bone : state.animations.player_idle.frames[0].bones) {
       state.player_current_pose.bones.push_back(bone);
     }
   }

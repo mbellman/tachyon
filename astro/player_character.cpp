@@ -117,18 +117,22 @@ static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
   EvaluateAnimation(*state.current_animation, state.animation_seek_time);
   EvaluateAnimation(*state.next_animation, state.animation_seek_time);
 
-  // Update the player skeleton based on the blended result of the current/next animations
+  // Update the current pose based on the blended result of the current/next animations
   {
+    auto& current_pose = state.player_current_pose;
     float blend_alpha = state.time_since_last_animation_change;
 
     for (int32 i = 0; i < state.current_animation->current_pose.bones.size(); i++) {
-      auto& current_bone = state.current_animation->current_pose.bones[i];
+      auto& previous_bone = state.current_animation->current_pose.bones[i];
       auto& next_bone = state.next_animation->current_pose.bones[i];
-      Quaternion blended_rotation = Quaternion::nlerp(current_bone.rotation, next_bone.rotation, blend_alpha);
+      auto& current_pose_bone = current_pose.bones[i];
+      Quaternion blended_rotation = Quaternion::nlerp(previous_bone.rotation, next_bone.rotation, blend_alpha);
 
-      state.player_skeleton.bones[i].rotation = blended_rotation;
+      // Reset current pose bone translation back to bone space
+      current_pose_bone.translation = previous_bone.translation;
 
-      // @todo blend translations (+ scale??)
+      // Set blended rotation
+      current_pose_bone.rotation = blended_rotation;
     }
   }
 
@@ -140,24 +144,21 @@ static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
 
     current_pose.bone_matrices.clear();
 
-    for (auto& base_bone : state.player_skeleton.bones) {
-      auto& pose_bone = current_pose.bones[base_bone.index];
+    for (auto& bone : state.player_current_pose.bones) {
+      int32 next_parent_index = bone.parent_bone_index;
 
-      pose_bone.translation = base_bone.translation;
-      pose_bone.rotation = base_bone.rotation;
-
-      int32 next_parent_index = pose_bone.parent_bone_index;
-
+      // @todo refactor to use TransformBonesIntoMeshSpace()
       while (next_parent_index != -1) {
-        auto& parent_bone = state.player_skeleton.bones[next_parent_index];
+        auto& parent_bone = current_pose.bones[next_parent_index];
 
-        pose_bone.translation = parent_bone.translation + parent_bone.rotation.toMatrix4f() * pose_bone.translation;
-        pose_bone.rotation = parent_bone.rotation * pose_bone.rotation;
+        bone.translation = parent_bone.translation + parent_bone.rotation.toMatrix4f() * bone.translation;
+        bone.rotation = parent_bone.rotation * bone.rotation;
+
         next_parent_index = parent_bone.parent_bone_index;
       }
 
-      tMat4f inverse_bind_matrix = rest_pose.bone_matrices[base_bone.index];
-      tMat4f pose_matrix = tMat4f::transformation(pose_bone.translation, tVec3f(1.f), pose_bone.rotation);
+      tMat4f inverse_bind_matrix = rest_pose.bone_matrices[bone.index];
+      tMat4f pose_matrix = tMat4f::transformation(bone.translation, tVec3f(1.f), bone.rotation);
       tMat4f bone_matrix = pose_matrix * inverse_bind_matrix;
 
       current_pose.bone_matrices.push_back(bone_matrix.transpose());
