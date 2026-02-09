@@ -449,6 +449,20 @@ SkinLoader::SkinLoader(const char* path) {
     std::string chunk = readNextChunk();
 
     if (chunk.starts_with("V")) {
+      tVec3f position;
+      position.x = stof(readNextChunk());
+      position.y = stof(readNextChunk());
+      position.z = stof(readNextChunk());
+
+      tVec3f normal;
+      normal.x = stof(readNextChunk());
+      normal.y = stof(readNextChunk());
+      normal.z = stof(readNextChunk());
+
+      tVec2f uv;
+      uv.x = stof(readNextChunk());
+      uv.y = stof(readNextChunk());
+
       // Parse bone attachments by name
       BoneAttachments attachments;
       attachments.names[0] = parseBoneName();
@@ -463,12 +477,18 @@ SkinLoader::SkinLoader(const char* path) {
       weights.z = stof(readNextChunk());
       weights.w = stof(readNextChunk());
 
+      vertex_positions.push_back(position);
+      vertex_normals.push_back(normal);
+      vertex_uvs.push_back(uv);
       vertex_bone_attachments.push_back(attachments);
       vertex_bone_weights.push_back(weights);
     }
 
     if (chunk.starts_with("F")) {
       // Parse face elements
+      face_elements.push_back(stoi(readNextChunk()));
+      face_elements.push_back(stoi(readNextChunk()));
+      face_elements.push_back(stoi(readNextChunk()));
     }
   }
 }

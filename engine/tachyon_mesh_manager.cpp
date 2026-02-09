@@ -225,10 +225,15 @@ tSkinnedMesh Tachyon_LoadSkinnedMesh(const char* obj_path, const char* skin_path
 
       uint32 indexes_packed = (i1 << 24) | (i2 << 16) | (i3 << 8) | i4;
 
-      skinned_vertex.position.debug();
-
+      skinned_vertex.position = skin.vertex_positions[i];
+      skinned_vertex.normal = skin.vertex_normals[i];
+      skinned_vertex.uv = skin.vertex_uvs[i];
       skinned_vertex.bone_indexes_packed = indexes_packed;
       skinned_vertex.bone_weights = weights;
+    }
+
+    for (size_t i = 0; i < skin.face_elements.size(); i++) {
+      skinned_mesh.face_elements[i] = skin.face_elements[i];
     }
 
     // Mark the mesh as successfully skinned if we were able to load bone data

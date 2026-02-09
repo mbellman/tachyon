@@ -65,8 +65,8 @@ void main() {
   position += (bone_weights.w * (bone_4 * vec4(vertexPosition, 1.0))).xyz;
 
   // For the vertex transform, start by just applying rotation + scale
-  vec3 model_space_position = mat3(model_matrix) * vertexPosition;
-  // vec3 model_space_position = mat3(model_matrix) * position;
+  // vec3 model_space_position = mat3(model_matrix) * vertexPosition;
+  vec3 model_space_position = mat3(model_matrix) * position;
 
   // Then apply translation, offset by the transform origin
   vec3 translation = vec3(model_matrix[3][0], model_matrix[3][1], model_matrix[3][2]);

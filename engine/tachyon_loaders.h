@@ -129,8 +129,12 @@ public:
     std::string names[4];
   };
 
+  std::vector<tVec3f> vertex_positions;
+  std::vector<tVec3f> vertex_normals;
+  std::vector<tVec2f> vertex_uvs;
   std::vector<BoneAttachments> vertex_bone_attachments;
   std::vector<tVec4f> vertex_bone_weights;
+  std::vector<uint32> face_elements;
 
   SkinLoader(const char* path);
   ~SkinLoader();

@@ -3,7 +3,7 @@
 #include "engine/tachyon_aliases.h"
 #include "engine/tachyon_types.h"
 
-#define MAX_DT (1.f / 60.f)
+#define MAX_DT (1.f / 30.f)
 
 #define Tachyon_RunMainLoop(code)\
   while (tachyon->is_running) {\
