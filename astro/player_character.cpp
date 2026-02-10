@@ -174,9 +174,7 @@ static void ShowDebugPlayerSkeleton(Tachyon* tachyon, State& state, Quaternion& 
   auto& camera = tachyon->scene.camera;
   auto& meshes = state.meshes;
 
-  auto& player = objects(meshes.player)[0];
-
-  tVec3f camera_to_player = player.position - camera.position;
+  tVec3f camera_to_player = state.player_position - camera.position;
   tVec3f base_position = camera.position + camera_to_player.unit() * 650.f;
 
   reset_instances(meshes.debug_skeleton_bone);
@@ -223,7 +221,7 @@ static void HandleAutoHop(State& state) {
   state.player_position.y = Tachyon_Lerpf(state.player_position.y, jump_height, alpha);
 }
 
-static void HandleRunOscillation(State& state, tObject& player, const float player_speed) {
+static void HandleRunOscillation(State& state, tVec3f& body_position, const float player_speed) {
   if (player_speed > 600.f) {
     state.run_oscillation += 5.f * state.dt;
   } else {
@@ -237,17 +235,11 @@ static void HandleRunOscillation(State& state, tObject& player, const float play
   float run_cycle_time = 2.f * t_TAU * (fmodf(state.animation_seek_time, 8.f) / 8.f) + t_HALF_PI;
   float run_bounce_cycle = 0.5f + 0.5f * sinf(run_cycle_time);
 
-  player.position.y += run_bounce_height * run_bounce_cycle;
+  body_position.y += run_bounce_height * run_bounce_cycle;
 }
 
-static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& rotation, tMat4f& rotation_matrix) {
+static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player_rotation, tMat4f& player_rotation_matrix) {
   auto& meshes = state.meshes;
-
-  auto& player = objects(meshes.player)[0];
-
-  player.scale = tVec3f(0.f);
-  player.color = tVec3f(0, 0, 0.1f);
-  player.material = tVec4f(1.f, 0, 0, 0);
 
   // Auto-hop actions
   {
@@ -259,43 +251,49 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& rotati
     }
   }
 
-  // Taking damage
-  // @temporary
-  if (
-    state.last_damage_time != 0.f &&
-    time_since(state.last_damage_time) < 1.5f
-  ) {
-    player.color = tVec3f(1.f, 0, 0);
-  }
+  tVec3f body_scale = tVec3f(1500.f);
+  Quaternion body_rotation = player_rotation;
+  tVec3f body_position = state.player_position;
 
-  if (state.player_hp <= 0.f) {
+  if (state.player_hp > 0.f) {
+    float player_speed = state.player_velocity.magnitude();
+
+    HandleRunOscillation(state, body_position, player_speed);
+  } else {
     // Player death
     float death_alpha = 2.f * time_since(state.death_time);
     if (death_alpha > 1.f) death_alpha = 1.f;
 
     // @temporary
     tVec3f death_rotation_axis = tVec3f(1.f, 0, 0);
-    Quaternion death_rotation = rotation * Quaternion::fromAxisAngle(death_rotation_axis, -t_HALF_PI);
+    Quaternion death_rotation = player_rotation * Quaternion::fromAxisAngle(death_rotation_axis, -t_HALF_PI);
 
-    player.rotation = Quaternion::slerp(player.rotation, death_rotation, 4.f * state.dt);
-    player.position.y = Tachyon_Lerpf(player.position.y, -1100.f, 4.f * state.dt);
-    player.position += state.player_velocity * (1.f - death_alpha) * state.dt;
-  } else {
-    player.rotation = rotation;
-    player.position = state.player_position;
+    state.player_position += state.player_velocity * (1.f - death_alpha) * state.dt;
+    state.player_position.y = Tachyon_Lerpf(state.player_position.y, state.current_ground_y - 1100.f, death_alpha);
 
-    float player_speed = state.player_velocity.magnitude();
-
-    HandleRunOscillation(state, player, player_speed);
+    body_position = state.player_position;
+    body_rotation = Quaternion::slerp(body_rotation, death_rotation, death_alpha);
   }
-
-  commit(player);
 
   UpdatePlayerSkeleton(tachyon, state);
 
+  // Head
+  {
+    auto& head = objects(meshes.player_head)[0];
+    auto& pose = state.player_current_pose;
+    auto& head_bone = pose.bones[0];
+
+    head.position = body_position + body_rotation.toMatrix4f() * (head_bone.translation * 1100.f);
+    head.rotation = body_rotation * head_bone.rotation;
+    head.scale = tVec3f(1500.f);
+    head.color = tVec3f(0, 0, 0.1f);
+    head.material = tVec4f(1.f, 0, 0, 0);
+
+    commit(head);
+  }
+
   // Clothing
   {
-    const tVec3f PLAYER_SCALE = tVec3f(1500.f);
 
     auto& hood = skinned_mesh(meshes.player_hood);
     auto& robes = skinned_mesh(meshes.player_robes);
@@ -303,37 +301,37 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& rotati
     auto& pants = skinned_mesh(meshes.player_pants);
     auto& boots = skinned_mesh(meshes.player_boots);
 
-    hood.position = player.position;
-    hood.rotation = player.rotation;
-    hood.scale = PLAYER_SCALE;
+    hood.position = body_position;
+    hood.rotation = body_rotation;
+    hood.scale = body_scale;
     hood.color = tVec3f(0, 0.2f, 0.6f);
     hood.material = tVec4f(1.f, 0, 0, 0.5f);
     hood.shadow_cascade_ceiling = 2;
 
-    robes.position = player.position;
-    robes.rotation = player.rotation;
-    robes.scale = PLAYER_SCALE;
+    robes.position = body_position;
+    robes.rotation = body_rotation;
+    robes.scale = body_scale;
     robes.color = tVec3f(0.3f, 0.4f, 0.6f);
     robes.material = tVec4f(1.f, 0, 0, 0.5f);
     robes.shadow_cascade_ceiling = 2;
 
-    shirt.position = player.position;
-    shirt.rotation = player.rotation;
-    shirt.scale = PLAYER_SCALE;
+    shirt.position = body_position;
+    shirt.rotation = body_rotation;
+    shirt.scale = body_scale;
     shirt.color = tVec3f(0.3f, 0.1f, 0.3f);
     shirt.material = tVec4f(1.f, 0, 0, 0.2f);
     shirt.shadow_cascade_ceiling = 2;
 
-    pants.position = player.position;
-    pants.rotation = player.rotation;
-    pants.scale = PLAYER_SCALE;
+    pants.position = body_position;
+    pants.rotation = body_rotation;
+    pants.scale = body_scale;
     pants.color = tVec3f(0.4f, 0.2f, 0.1f);
     pants.material = tVec4f(1.f, 0, 0, 0.2f);
     pants.shadow_cascade_ceiling = 2;
 
-    boots.position = player.position;
-    boots.rotation = player.rotation;
-    boots.scale = PLAYER_SCALE;
+    boots.position = body_position;
+    boots.rotation = body_rotation;
+    boots.scale = body_scale;
     boots.color = tVec3f(0.1f, 0.1f, 0.1f);
     boots.material = tVec4f(1.f, 0, 0, 0);
     boots.shadow_cascade_ceiling = 2;
@@ -352,7 +350,7 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& rotati
   }
 
   if (state.show_game_stats) {
-    ShowDebugPlayerSkeleton(tachyon, state, rotation, rotation_matrix);
+    ShowDebugPlayerSkeleton(tachyon, state, player_rotation, player_rotation_matrix);
   } else {
     reset_instances(meshes.debug_skeleton_bone);
   }
@@ -374,7 +372,6 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
     auto& right_hand = pose.bones[5];
     tVec3f position = right_hand.translation;
     Quaternion rotation = right_hand.rotation;
-    int32 parent_index = right_hand.parent_bone_index;
 
     position += right_hand.rotation.toMatrix4f() * tVec3f(-0.05f, 0.32f, 0);
 

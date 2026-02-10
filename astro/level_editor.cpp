@@ -1549,7 +1549,7 @@ static void RepositionPlayer(Tachyon* tachyon, State& state) {
   state.player_position = camera.position + camera_direction * distance;
   state.player_position.y = 0.f;
 
-  auto& player = objects(state.meshes.player)[0];
+  auto& player = objects(state.meshes.player_head)[0];
 
   player.position = state.player_position;
 

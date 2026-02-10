@@ -24,7 +24,7 @@ namespace astro {
     // Static meshes
     uint16
       // Character meshes
-      player,
+      player_head,
       wand,
 
       // Animation bone debugging

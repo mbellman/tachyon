@@ -55,32 +55,6 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
       state.last_dodge_time = get_scene_time();
     }
   }
-
-  // Speed limiting
-  // @todo move elsewhere
-  {
-    state.player_velocity *= 1.f - 6.f * state.dt;
-
-    float speed = state.player_velocity.magnitude();
-    float max_speed = is_running ? 1300.f : 550.f;
-
-    if (
-      speed > max_speed &&
-      state.player_hp >= 0.f &&
-      time_since(state.last_dodge_time) > dodge_cooldown_time &&
-      time_since(state.last_strong_attack_time) > strong_attack_cooldown_time
-    ) {
-      tVec3f unit_velocity = state.player_velocity / speed;
-
-      state.player_velocity = unit_velocity * max_speed;
-    }
-  }
-
-  // Update position
-  {
-    // @todo remove this * 5.f bit and properly manage velocity
-    state.player_position += state.player_velocity * 5.f * state.dt;
-  }
 }
 
 static void HandleAstroControls(Tachyon* tachyon, State& state) {
@@ -359,18 +333,47 @@ static void HandleTargetingControls(Tachyon* tachyon, State& state) {
   }
 }
 
+static void HandleSpeedLimiting(Tachyon* tachyon, State& state) {
+  const float dodge_cooldown_time = 0.3f;
+  const float strong_attack_cooldown_time = 0.5f;
+
+  bool is_running = is_key_held(tKey::CONTROLLER_A) || is_key_held(tKey::SHIFT);
+
+  state.player_velocity *= 1.f - 6.f * state.dt;
+
+  float speed = state.player_velocity.magnitude();
+  float max_speed = is_running ? 1300.f : 550.f;
+
+  if (
+    speed > max_speed &&
+    time_since(state.last_dodge_time) > dodge_cooldown_time &&
+    time_since(state.last_strong_attack_time) > strong_attack_cooldown_time
+  ) {
+    tVec3f unit_velocity = state.player_velocity / speed;
+
+    state.player_velocity = unit_velocity * max_speed;
+  }
+}
+
+static void HandlePositionUpdate(State& state) {
+  // @todo remove this * 5.f bit and properly manage velocity
+  state.player_position += state.player_velocity * 5.f * state.dt;
+}
+
 void ControlSystem::HandleControls(Tachyon* tachyon, State& state) {
-  if (state.has_blocking_dialogue && !state.dismissed_blocking_dialogue) {
-    // Disallow character controls until blocking dialogue is dimissed
-    return;
+  if (
+    // Only allow character controls if we do not have, or have dismissed blocking dialogue
+    (!state.has_blocking_dialogue || state.dismissed_blocking_dialogue) &&
+    // Only allow character controls if HP > 0
+    state.player_hp > 0.f
+  ) {
+    HandlePlayerMovementControls(tachyon, state);
+    HandleAstroControls(tachyon, state);
+    HandleDayNightControls(tachyon, state);
+    HandleWandControls(tachyon, state);
+    HandleTargetingControls(tachyon, state);
   }
 
-  // Disallow controls after death
-  if (state.player_hp <= 0.f) return;
-
-  HandlePlayerMovementControls(tachyon, state);
-  HandleAstroControls(tachyon, state);
-  HandleDayNightControls(tachyon, state);
-  HandleWandControls(tachyon, state);
-  HandleTargetingControls(tachyon, state);
+  HandleSpeedLimiting(tachyon, state);
+  HandlePositionUpdate(state);
 }

@@ -28,7 +28,7 @@ using namespace astro;
 static void CreateConstantObjects(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
-  create(meshes.player);
+  create(meshes.player_head);
   create(meshes.wand);
 
   create(meshes.water_plane);
