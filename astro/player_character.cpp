@@ -223,7 +223,7 @@ static void HandleAutoHop(State& state) {
   state.player_position.y = Tachyon_Lerpf(state.player_position.y, jump_height, alpha);
 }
 
-static void HandleRunOscillation(State& state, tObject& player, const float player_speed, const float scene_time) {
+static void HandleRunOscillation(State& state, tObject& player, const float player_speed) {
   if (player_speed > 600.f) {
     state.run_oscillation += 5.f * state.dt;
   } else {
@@ -234,7 +234,8 @@ static void HandleRunOscillation(State& state, tObject& player, const float play
   if (state.run_oscillation > 1.f) state.run_oscillation = 1.f;
 
   float run_bounce_height = 200.f * state.run_oscillation;
-  float run_bounce_cycle = 0.5f + 0.5f * sinf(scene_time * t_TAU * 3.f);
+  float run_cycle_time = 2.f * t_TAU * (fmodf(state.animation_seek_time, 8.f) / 8.f) + t_HALF_PI;
+  float run_bounce_cycle = 0.5f + 0.5f * sinf(run_cycle_time);
 
   player.position.y += run_bounce_height * run_bounce_cycle;
 }
@@ -284,9 +285,8 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& rotati
     player.position = state.player_position;
 
     float player_speed = state.player_velocity.magnitude();
-    float scene_time = get_scene_time();
 
-    HandleRunOscillation(state, player, player_speed, scene_time);
+    HandleRunOscillation(state, player, player_speed);
   }
 
   commit(player);

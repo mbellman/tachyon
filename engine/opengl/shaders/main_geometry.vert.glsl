@@ -90,7 +90,7 @@ void main() {
     foliage_mover_factor *= foliage_mover_factor;
     foliage_mover_factor *= foliage_mover_factor;
 
-    world_space_position += foliage_mover_velocity * foliage_mover_factor;
+    world_space_position += 1.5 * foliage_mover_velocity * foliage_mover_factor;
   }
 
   // @todo handle foliage behavior in shadow map pass
@@ -109,7 +109,7 @@ void main() {
     foliage_mover_factor *= foliage_mover_factor;
     foliage_mover_factor *= foliage_mover_factor;
 
-    world_space_position += foliage_mover_velocity * foliage_mover_factor;
+    world_space_position += 1.5 * foliage_mover_velocity * foliage_mover_factor;
   }
 
   gl_Position = view_projection_matrix * vec4(world_space_position, 1.0);
