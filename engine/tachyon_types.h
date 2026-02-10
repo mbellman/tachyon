@@ -199,6 +199,7 @@ struct tSkinnedMesh {
 
   bool skinned = false;
   tSkeleton* current_pose = nullptr;
+  uint8 shadow_cascade_ceiling = 4;
 };
 
 struct tPointLight {

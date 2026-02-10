@@ -103,6 +103,9 @@ static void StoreShaderUniforms(tOpenGLShaders& shaders) {
   store_shader_uniform(shadow_map, light_matrix);
   store_shader_uniform(shadow_map, transform_origin);
 
+  store_shader_uniform(skinned_shadow_mesh, light_matrix);
+  store_shader_uniform(skinned_shadow_mesh, transform_origin);
+
   store_shader_uniform(global_lighting, offset_and_scale);
   store_shader_uniform(global_lighting, rotation);
   store_shader_uniform(global_lighting, in_normal_and_depth);
@@ -247,6 +250,12 @@ void Tachyon_OpenGL_InitShaders(tOpenGLShaders& shaders) {
   InitVertexFragmentShader(
     shaders.shadow_map,
     "./engine/opengl/shaders/shadow_map.vert.glsl",
+    "./engine/opengl/shaders/shadow_map.frag.glsl"
+  );
+
+  InitVertexFragmentShader(
+    shaders.skinned_shadow_mesh,
+    "./engine/opengl/shaders/skinned_shadow_mesh.vert.glsl",
     "./engine/opengl/shaders/shadow_map.frag.glsl"
   );
 

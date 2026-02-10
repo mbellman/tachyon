@@ -50,6 +50,11 @@ struct tUniformLocations {
   ) shadow_map;
 
   uniform_locations(
+    light_matrix,
+    transform_origin
+  ) skinned_shadow_mesh;
+
+  uniform_locations(
     offset_and_scale,
     rotation,
     in_normal_and_depth,
@@ -182,6 +187,7 @@ struct tOpenGLShaders {
   tOpenGLShader main_geometry;
   tOpenGLShader skinned_mesh;
   tOpenGLShader shadow_map;
+  tOpenGLShader skinned_shadow_mesh;
   tOpenGLShader global_lighting;
   tOpenGLShader point_lights;
   tOpenGLShader volumetric_mesh;

@@ -853,69 +853,78 @@ static void RenderSkinnedMeshes(Tachyon* tachyon) {
   }
 }
 
-static void RenderShadowMaps(Tachyon* tachyon) {
+static void RenderPrimaryShadowMapCascades(Tachyon* tachyon) {
   auto& scene = tachyon->scene;
   auto& camera = scene.camera;
   auto& renderer = get_renderer();
-  auto& shader = renderer.shaders.shadow_map;
-  auto& locations = renderer.shaders.locations.shadow_map;
   auto& ctx = renderer.ctx;
-  auto& gl_mesh_pack = renderer.mesh_pack;
-
-  glBindVertexArray(gl_mesh_pack.vao);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gl_mesh_pack.ebo);
 
   renderer.directional_shadow_map.write();
 
-  glUseProgram(shader.program);
+  // Static geometry
+  {
+    auto& shader = renderer.shaders.shadow_map;
+    auto& locations = renderer.shaders.locations.shadow_map;
+    auto& gl_mesh_pack = renderer.mesh_pack;
 
-  // Directional shadow map
-  for (uint8 attachment = DIRECTIONAL_SHADOW_MAP_CASCADE_1; attachment <= DIRECTIONAL_SHADOW_MAP_CASCADE_4; attachment++) {
-    auto cascade_index = attachment - DIRECTIONAL_SHADOW_MAP_CASCADE_1;
-    auto light_matrix = CreateCascadedLightMatrix(cascade_index, scene.primary_light_direction, camera);
+    glUseProgram(shader.program);
 
-    renderer.directional_shadow_map.writeToAttachment(cascade_index);
+    glBindVertexArray(gl_mesh_pack.vao);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gl_mesh_pack.ebo);
 
-    glClearColor(1.f, 1.f, 1.f, 1.f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // Directional shadow map
+    for (uint8 attachment = DIRECTIONAL_SHADOW_MAP_CASCADE_1; attachment <= DIRECTIONAL_SHADOW_MAP_CASCADE_4; attachment++) {
+      auto cascade_index = attachment - DIRECTIONAL_SHADOW_MAP_CASCADE_1;
+      auto light_matrix = CreateCascadedLightMatrix(cascade_index, scene.primary_light_direction, camera);
 
-    SetShaderMat4f(locations.light_matrix, light_matrix);
-    SetShaderVec3f(locations.transform_origin, tachyon->scene.transform_origin);
+      renderer.directional_shadow_map.writeToAttachment(cascade_index);
 
-    // @allocation
-    std::vector<DrawElementsIndirectCommand> commands;
+      glClearColor(1.f, 1.f, 1.f, 1.f);
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    auto& records = tachyon->mesh_pack.mesh_records;
+      SetShaderMat4f(locations.light_matrix, light_matrix);
+      SetShaderVec3f(locations.transform_origin, tachyon->scene.transform_origin);
 
-    for (uint32 i = 0; i < records.size(); i++) {
-      auto& record = records[i];
+      // @allocation
+      std::vector<DrawElementsIndirectCommand> commands;
 
-      if (
-        record.group.disabled ||
-        record.group.total_active == 0 ||
-        // @todo render grass + foliage with animation
-        (record.type != PBR_MESH && record.type != GRASS_MESH && record.type != FOLIAGE_MESH) ||
-        record.shadow_cascade_ceiling <= cascade_index
-      ) {
-        continue;
+      auto& records = tachyon->mesh_pack.mesh_records;
+
+      for (uint32 i = 0; i < records.size(); i++) {
+        auto& record = records[i];
+
+        if (
+          record.group.disabled ||
+          record.group.total_active == 0 ||
+          // @todo render grass + foliage with animation
+          (record.type != PBR_MESH && record.type != GRASS_MESH && record.type != FOLIAGE_MESH) ||
+          record.shadow_cascade_ceiling <= cascade_index
+        ) {
+          continue;
+        }
+
+        if (record.use_lowest_lod_for_shadows) {
+          AddLowestLodDrawElementsIndirectCommands(commands, record, renderer.total_triangles_by_cascade[cascade_index], renderer.total_vertices_by_cascade[cascade_index]);
+        } else {
+          AddDrawElementsIndirectCommands(commands, record, renderer.total_triangles_by_cascade[cascade_index], renderer.total_vertices_by_cascade[cascade_index]);
+        }
       }
 
-      if (record.use_lowest_lod_for_shadows) {
-        AddLowestLodDrawElementsIndirectCommands(commands, record, renderer.total_triangles_by_cascade[cascade_index], renderer.total_vertices_by_cascade[cascade_index]);
-      } else {
-        AddDrawElementsIndirectCommands(commands, record, renderer.total_triangles_by_cascade[cascade_index], renderer.total_vertices_by_cascade[cascade_index]);
+      glBindBuffer(GL_DRAW_INDIRECT_BUFFER, renderer.indirect_buffer);
+      glBufferData(GL_DRAW_INDIRECT_BUFFER, commands.size() * sizeof(DrawElementsIndirectCommand), commands.data(), GL_DYNAMIC_DRAW);
+
+      glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, 0, commands.size(), 0);
+
+      // @todo dev mode only
+      {
+        renderer.total_draw_calls += 1;
       }
     }
+  }
 
-    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, renderer.indirect_buffer);
-    glBufferData(GL_DRAW_INDIRECT_BUFFER, commands.size() * sizeof(DrawElementsIndirectCommand), commands.data(), GL_DYNAMIC_DRAW);
-
-    glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, 0, commands.size(), 0);
-
-    // @todo dev mode only
-    {
-      renderer.total_draw_calls += 1;
-    }
+  // Skinned meshes
+  {
+    // @todo
   }
 }
 
@@ -1429,7 +1438,7 @@ void Tachyon_OpenGL_RenderScene(Tachyon* tachyon) {
   UpdateRendererContext(tachyon);
   RenderStaticMeshes(tachyon);
   RenderSkinnedMeshes(tachyon);
-  RenderShadowMaps(tachyon);
+  RenderPrimaryShadowMapCascades(tachyon);
 
   // The next steps in the pipeline render quads in screen space,
   // so we don't need to do any back-face culling or depth testing
