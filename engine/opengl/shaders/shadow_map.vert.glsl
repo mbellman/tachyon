@@ -22,8 +22,6 @@ void main() {
   // Apply translation, offset by the origin
   vec3 world_space_position = model_space_position + (translation - transform_origin);
 
-  vec4 world_transform = modelMatrix * vec4(vertexPosition, 1.0);
-  gl_Position = light_matrix * world_transform;
-  // gl_Position = light_matrix * vec4(world_space_position, 1.0);
+  gl_Position = light_matrix * vec4(world_space_position, 1.0);
   // fragUv = vertexUv;
 }

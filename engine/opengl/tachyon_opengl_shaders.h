@@ -51,7 +51,8 @@ struct tUniformLocations {
 
   uniform_locations(
     light_matrix,
-    transform_origin
+    transform_origin,
+    model_matrix
   ) skinned_shadow_mesh;
 
   uniform_locations(

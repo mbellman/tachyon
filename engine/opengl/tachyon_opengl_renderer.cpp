@@ -800,6 +800,44 @@ static void RenderStaticMeshes(Tachyon* tachyon) {
   }
 }
 
+static void RenderSingleSkinnedMesh(Tachyon* tachyon, tOpenGLSkinnedMesh& gl_skinned_mesh, tOpenGLShader& shader, uint32& triangle_count, uint32& vertex_count) {
+  auto& renderer = get_renderer();
+  auto& base_mesh = tachyon->skinned_meshes[gl_skinned_mesh.mesh_index];
+
+  if (base_mesh.skinned && base_mesh.current_pose != nullptr) {
+    // @todo @optimize buffer skeleton bone matrices once per skeleton,
+    // and render skinned meshes for a given skeleton consecutively
+    auto& skeleton = *base_mesh.current_pose;
+
+    for (auto& bone : skeleton.bones) {
+      // @temporary
+      // @allocation
+      std::string bone_uniform = "bones[" + std::to_string(bone.index) + "]";
+
+      // @todo @optimize cache uniform locations
+      // @todo use a UBO (?)
+      GLint location = glGetUniformLocation(shader.program, bone_uniform.c_str());
+
+      tMat4f bone_matrix = skeleton.bone_matrices[bone.index];
+
+      SetShaderMat4f(location, bone_matrix);
+    }
+
+    glBindVertexArray(gl_skinned_mesh.vao);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gl_skinned_mesh.ebo);
+
+    glDrawElements(GL_TRIANGLES, base_mesh.face_elements.size(), GL_UNSIGNED_INT, 0);
+
+    // @todo dev mode only
+    {
+      renderer.total_draw_calls += 1;
+
+      triangle_count += base_mesh.face_elements.size() / 3;
+      vertex_count += base_mesh.vertices.size();
+    }
+  }
+}
+
 static void RenderSkinnedMeshes(Tachyon* tachyon) {
   auto& scene = tachyon->scene;
   auto& renderer = get_renderer();
@@ -815,41 +853,13 @@ static void RenderSkinnedMeshes(Tachyon* tachyon) {
   SetShaderMat4f(locations.view_projection_matrix, ctx.view_projection_matrix);
   SetShaderVec3f(locations.transform_origin, scene.transform_origin);
 
-  for (auto& gl_mesh : renderer.skinned_meshes) {
-    auto& base_mesh = tachyon->skinned_meshes[gl_mesh.mesh_index];
+  for (auto& gl_skinned_mesh : renderer.skinned_meshes) {
+    auto& base_mesh = tachyon->skinned_meshes[gl_skinned_mesh.mesh_index];
 
     SetShaderMat4f(locations.model_matrix, base_mesh.matrix);
     SetShaderUint(locations.model_surface, base_mesh.surface);
 
-    if (base_mesh.skinned && base_mesh.current_pose != nullptr) {
-      auto& skeleton = *base_mesh.current_pose;
-
-      for (auto& bone : skeleton.bones) {
-        // @temporary
-        // @allocation
-        std::string bone_uniform = "bones[" + std::to_string(bone.index) + "]";
-
-        // @todo @optimize cache uniform locations
-        // @todo use a UBO (?)
-        GLint location = glGetUniformLocation(shader.program, bone_uniform.c_str());
-
-        tMat4f bone_matrix = skeleton.bone_matrices[bone.index];
-
-        SetShaderMat4f(location, bone_matrix);
-      }
-
-      glBindVertexArray(gl_mesh.vao);
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gl_mesh.ebo);
-
-      glDrawElements(GL_TRIANGLES, base_mesh.face_elements.size(), GL_UNSIGNED_INT, 0);
-
-      // @todo dev mode only
-      {
-        renderer.total_draw_calls += 1;
-        renderer.total_triangles += base_mesh.face_elements.size() / 3;
-        renderer.total_vertices += base_mesh.vertices.size();
-      }
-    }
+    RenderSingleSkinnedMesh(tachyon, gl_skinned_mesh, shader, renderer.total_triangles, renderer.total_vertices);
   }
 }
 
@@ -872,7 +882,6 @@ static void RenderPrimaryShadowMapCascades(Tachyon* tachyon) {
     glBindVertexArray(gl_mesh_pack.vao);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gl_mesh_pack.ebo);
 
-    // Directional shadow map
     for (uint8 attachment = DIRECTIONAL_SHADOW_MAP_CASCADE_1; attachment <= DIRECTIONAL_SHADOW_MAP_CASCADE_4; attachment++) {
       auto cascade_index = attachment - DIRECTIONAL_SHADOW_MAP_CASCADE_1;
       auto light_matrix = CreateCascadedLightMatrix(cascade_index, scene.primary_light_direction, camera);
@@ -883,7 +892,7 @@ static void RenderPrimaryShadowMapCascades(Tachyon* tachyon) {
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
       SetShaderMat4f(locations.light_matrix, light_matrix);
-      SetShaderVec3f(locations.transform_origin, tachyon->scene.transform_origin);
+      SetShaderVec3f(locations.transform_origin, scene.transform_origin);
 
       // @allocation
       std::vector<DrawElementsIndirectCommand> commands;
@@ -923,8 +932,41 @@ static void RenderPrimaryShadowMapCascades(Tachyon* tachyon) {
   }
 
   // Skinned meshes
+  // @BUG!!!!!!!!!!!!!!!!
+  // Rendering skinned meshes separately from static meshes
+  // causes depth testing to compare against stale depth values,
+  // since with the first cascade here we're comparing against
+  // the final cascade (last drawn) for static geometry. This
+  // causes skinned meshes to "overwrite" depth data for the first
+  // cascade, even if existing depths are closer to the light.
+  // This then causes shadow "holes" in closer geometry, which
+  // is unacceptable and must be fixed.
   {
-    // @todo
+    auto& shader = renderer.shaders.skinned_shadow_mesh;
+    auto& locations = renderer.shaders.locations.skinned_shadow_mesh;
+
+    glUseProgram(shader.program);
+
+    for (uint8 attachment = DIRECTIONAL_SHADOW_MAP_CASCADE_1; attachment <= DIRECTIONAL_SHADOW_MAP_CASCADE_4; attachment++) {
+      auto cascade_index = attachment - DIRECTIONAL_SHADOW_MAP_CASCADE_1;
+      // @todo @optimize don't recompute light matrices; they're used above as well
+      auto light_matrix = CreateCascadedLightMatrix(cascade_index, scene.primary_light_direction, camera);
+
+      renderer.directional_shadow_map.writeToAttachment(cascade_index);
+
+      SetShaderMat4f(locations.light_matrix, light_matrix);
+      SetShaderVec3f(locations.transform_origin, scene.transform_origin);
+
+      for (auto& gl_skinned_mesh : renderer.skinned_meshes) {
+        auto& base_mesh = tachyon->skinned_meshes[gl_skinned_mesh.mesh_index];
+
+        if (base_mesh.shadow_cascade_ceiling > cascade_index) {
+          SetShaderMat4f(locations.model_matrix, base_mesh.matrix);
+
+          RenderSingleSkinnedMesh(tachyon, gl_skinned_mesh, shader, renderer.total_triangles_by_cascade[cascade_index], renderer.total_vertices_by_cascade[cascade_index]);
+        }
+      }
+    }
   }
 }
 

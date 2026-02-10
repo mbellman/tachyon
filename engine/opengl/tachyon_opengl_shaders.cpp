@@ -105,6 +105,7 @@ static void StoreShaderUniforms(tOpenGLShaders& shaders) {
 
   store_shader_uniform(skinned_shadow_mesh, light_matrix);
   store_shader_uniform(skinned_shadow_mesh, transform_origin);
+  store_shader_uniform(skinned_shadow_mesh, model_matrix);
 
   store_shader_uniform(global_lighting, offset_and_scale);
   store_shader_uniform(global_lighting, rotation);
