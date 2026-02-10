@@ -531,6 +531,35 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
   commit(wand);
 }
 
+static void UpdateLantern(Tachyon* tachyon, State& state, const tMat4f& player_rotation_matrix) {
+  // Lantern object
+  {
+    // @todo
+  }
+
+  // Point light source
+  {
+    auto& light = *get_point_light(state.player_light_id);
+
+    tVec3f offset = player_rotation_matrix * tVec3f(710.f, 50.f, 0);
+
+    light.position = state.player_position + offset;
+    light.position.y -= 300.f;
+    light.radius = 2500.f;
+    light.color = tVec3f(0.5f, 0.3f, 0.6f);
+    light.color = get_point_light(state.astrolabe_light_id)->color;
+    light.power = 0.5f;
+    light.glow_power = 0.f;
+
+    // @todo factor (Astrolabe::)
+    if (time_since(state.game_time_at_start_of_turn) < 2.f) {
+      float alpha = time_since(state.game_time_at_start_of_turn) / 2.f;
+
+      light.power += sinf(alpha * t_PI);
+    }
+  }
+}
+
 void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
   profile("UpdatePlayer()");
 
@@ -565,28 +594,7 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
 
   UpdatePlayerModel(tachyon, state, player_rotation, player_rotation_matrix);
   UpdateWand(tachyon, state, player_rotation, player_rotation_matrix);
-
-  // Astro light
-  {
-    auto& light = *get_point_light(state.player_light_id);
-
-    tVec3f offset = player_rotation_matrix * tVec3f(1.f, 0, 0);
-
-    light.position = state.player_position + offset * 1000.f;
-    light.position.y -= 300.f;
-    light.radius = 2500.f;
-    light.color = tVec3f(0.5f, 0.3f, 0.6f);
-    light.color = get_point_light(state.astrolabe_light_id)->color;
-    light.power = 0.5f;
-    light.glow_power = 0.f;
-
-    // @todo factor (Astrolabe::)
-    if (time_since(state.game_time_at_start_of_turn) < 2.f) {
-      float alpha = time_since(state.game_time_at_start_of_turn) / 2.f;
-
-      light.power += sinf(alpha * t_PI);
-    }
-  }
+  UpdateLantern(tachyon, state, player_rotation_matrix);
 }
 
 void PlayerCharacter::AutoHop(Tachyon* tachyon, State& state) {
