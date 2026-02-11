@@ -29,7 +29,8 @@ static void CreateConstantObjects(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   create(meshes.player_head);
-  create(meshes.wand);
+  create(meshes.player_wand);
+  create(meshes.player_lantern);
 
   create(meshes.water_plane);
 

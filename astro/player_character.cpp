@@ -357,7 +357,7 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
 }
 
 static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotation, tMat4f& player_rotation_matrix) {
-  auto& wand = objects(state.meshes.wand)[0];
+  auto& wand = objects(state.meshes.player_wand)[0];
 
   tVec3f offset = player_rotation_matrix * tVec3f(-1.f, 0, 0);
 
@@ -531,10 +531,20 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
   commit(wand);
 }
 
-static void UpdateLantern(Tachyon* tachyon, State& state, const tMat4f& player_rotation_matrix) {
+static void UpdateLantern(Tachyon* tachyon, State& state, const Quaternion& player_rotation, const tMat4f& player_rotation_matrix) {
   // Lantern object
   {
-    // @todo
+    auto& lantern = objects(state.meshes.player_lantern)[0];
+
+    tVec3f offset = player_rotation_matrix * tVec3f(550.f, -200.f, 0);
+
+    lantern.position = state.player_position + offset;
+    lantern.scale = tVec3f(50.f, 100.f, 50.f);
+    lantern.rotation = player_rotation;
+    lantern.color = tVec4f(1.f, 0.8f, 0.6f, 1.f);
+    lantern.material = tVec4f(1.f, 0, 0, 1.f);
+
+    commit(lantern);
   }
 
   // Point light source
@@ -594,7 +604,7 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
 
   UpdatePlayerModel(tachyon, state, player_rotation, player_rotation_matrix);
   UpdateWand(tachyon, state, player_rotation, player_rotation_matrix);
-  UpdateLantern(tachyon, state, player_rotation_matrix);
+  UpdateLantern(tachyon, state, player_rotation, player_rotation_matrix);
 }
 
 void PlayerCharacter::AutoHop(Tachyon* tachyon, State& state) {

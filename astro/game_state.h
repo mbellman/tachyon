@@ -23,9 +23,10 @@ namespace astro {
   struct MeshIds : EntityMeshIds {
     // Static meshes
     uint16
-      // Character meshes
+      // Player meshes
       player_head,
-      wand,
+      player_wand,
+      player_lantern,
 
       // Animation bone debugging
       debug_skeleton_bone,

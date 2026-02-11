@@ -15,7 +15,7 @@ static void HandleActiveStunSpell(Tachyon* tachyon, State& state) {
     return;
   }
 
-  auto& wand = objects(state.meshes.wand)[0];
+  auto& wand = objects(state.meshes.player_wand)[0];
 
   auto& light = *get_point_light(spells.stun_light_id);
 
