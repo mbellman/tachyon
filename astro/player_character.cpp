@@ -534,13 +534,28 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
 static void UpdateLantern(Tachyon* tachyon, State& state, const Quaternion& player_rotation, const tMat4f& player_rotation_matrix) {
   // Lantern object
   {
+    // @temporary
+    static float lantern_swing = 0.f;
+
+    float player_speed = state.player_velocity.magnitude();
+    float speed_ratio = player_speed / 1300.f;
+
+    lantern_swing += state.dt * speed_ratio;
+    lantern_swing *= 1.f - state.dt;
+
+    if (lantern_swing < 0.f) lantern_swing = 0.f;
+    if (lantern_swing > 1.f) lantern_swing = 1.f;
+
+    float lantern_angle = lantern_swing * sinf(get_scene_time() * 10.f);
+    Quaternion lantern_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), lantern_angle);
+
     auto& lantern = objects(state.meshes.player_lantern)[0];
 
-    tVec3f offset = player_rotation_matrix * tVec3f(550.f, -200.f, 0);
+    tVec3f offset = player_rotation_matrix * tVec3f(550.f, -200.f + 150.f * abs(lantern_angle), 0);
 
     lantern.position = state.player_position + offset;
     lantern.scale = tVec3f(50.f, 100.f, 50.f);
-    lantern.rotation = player_rotation;
+    lantern.rotation = player_rotation * lantern_rotation;
     lantern.color = tVec4f(1.f, 0.8f, 0.6f, 1.f);
     lantern.material = tVec4f(1.f, 0, 0, 1.f);
 
