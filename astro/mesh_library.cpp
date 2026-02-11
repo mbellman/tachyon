@@ -2,6 +2,7 @@
 #include "astro/entity_dispatcher.h"
 
 #define CUBE_MESH(total) Tachyon_AddMesh(tachyon, Tachyon_CreateCubeMesh(), total)
+#define SPHERE_MESH(total, divisions) Tachyon_AddMesh(tachyon, Tachyon_CreateSphereMesh(divisions), total)
 #define PLANE_MESH(total) Tachyon_AddMesh(tachyon, Tachyon_CreatePlaneMesh(), total)
 
 #define MODEL_MESH(path, total) Tachyon_AddMesh(tachyon, Tachyon_LoadMesh(path), total)
@@ -247,7 +248,7 @@ void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
   {
     meshes.player_head = MODEL_MESH("./astro/3d_models/characters/player_head.obj", 1);
     meshes.player_wand = MODEL_MESH("./astro/3d_models/characters/player_wand.obj", 1);
-    meshes.player_lantern = CUBE_MESH(1);
+    meshes.player_lantern = SPHERE_MESH(1, 8);
 
     mesh(meshes.player_head).shadow_cascade_ceiling = 2;
     mesh(meshes.player_wand).shadow_cascade_ceiling = 2;

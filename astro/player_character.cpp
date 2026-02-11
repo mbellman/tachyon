@@ -551,12 +551,16 @@ static void UpdateLantern(Tachyon* tachyon, State& state, const Quaternion& play
 
     auto& lantern = objects(state.meshes.player_lantern)[0];
 
-    tVec3f offset = player_rotation_matrix * tVec3f(550.f, -200.f + 150.f * abs(lantern_angle), 0);
+    tVec3f offset = player_rotation_matrix * tVec3f(
+      525.f,
+      -200.f + 200.f * abs(lantern_angle),
+      -100.f * lantern_angle
+    );
 
     lantern.position = state.player_position + offset;
-    lantern.scale = tVec3f(50.f, 100.f, 50.f);
+    lantern.scale = tVec3f(80.f, 120.f, 80.f);
     lantern.rotation = player_rotation * lantern_rotation;
-    lantern.color = tVec4f(1.f, 0.8f, 0.6f, 1.f);
+    lantern.color = tVec4f(1.f, 0.7f, 0.3f, 1.f);
     lantern.material = tVec4f(1.f, 0, 0, 1.f);
 
     commit(lantern);
@@ -570,10 +574,10 @@ static void UpdateLantern(Tachyon* tachyon, State& state, const Quaternion& play
 
     light.position = state.player_position + offset;
     light.position.y -= 300.f;
-    light.radius = 2500.f;
+    light.radius = state.is_nighttime ? 4000.f : 2500.f;
     light.color = tVec3f(0.5f, 0.3f, 0.6f);
     light.color = get_point_light(state.astrolabe_light_id)->color;
-    light.power = 0.5f;
+    light.power = state.is_nighttime ? 1.f : 0.5f;
     light.glow_power = 0.f;
 
     // @todo factor (Astrolabe::)
