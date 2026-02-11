@@ -107,6 +107,7 @@ namespace astro {
         ) {
           bool has_gate_key = Items::HasItem(state, GATE_KEY);
 
+          // @temporary
           lock.color.rgba |= 0x0008;
 
           if (did_press_key(tKey::CONTROLLER_A)) {
@@ -129,7 +130,7 @@ namespace astro {
           }
         }
 
-        // Event handling
+        // Trigger events shortly after opening
         {
           if (
             !entity.did_activate &&
@@ -139,6 +140,14 @@ namespace astro {
             GameEvents::StartEvent(tachyon, state, entity.unique_name);
 
             entity.did_activate = true;
+          }
+        }
+
+        // Resetting activation state when traveling further back in time
+        {
+          if (entity.did_activate && !is_open) {
+            entity.did_activate = false;
+            entity.game_activation_time = -1.f;
           }
         }
 

@@ -553,14 +553,14 @@ static void UpdateLantern(Tachyon* tachyon, State& state, const Quaternion& play
 
     tVec3f offset = player_rotation_matrix * tVec3f(
       525.f,
-      -200.f + 200.f * abs(lantern_angle),
+      -100.f + 200.f * abs(lantern_angle),
       -100.f * lantern_angle
     );
 
     lantern.position = state.player_position + offset;
     lantern.scale = tVec3f(80.f, 120.f, 80.f);
     lantern.rotation = player_rotation * lantern_rotation;
-    lantern.color = tVec4f(1.f, 0.7f, 0.3f, 1.f);
+    lantern.color = state.is_nighttime ? tVec4f(1.f, 0.7f, 0.3f, 1.f) : tVec4f(0.8f, 0.6f, 0.4f, 1.f);
     lantern.material = tVec4f(1.f, 0, 0, 1.f);
 
     commit(lantern);

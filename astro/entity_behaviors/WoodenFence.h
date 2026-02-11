@@ -93,6 +93,7 @@ namespace astro {
             if (age == 0.f) post.scale = tVec3f(0.f);
 
             post.color = tVec3f(0.7f, 0.5f, 0.2f);
+            post.material = tVec4f(0.9f, 0, 0, 0.4f);
 
             commit(post);
           }
@@ -107,6 +108,7 @@ namespace astro {
           top_beam.scale = bottom_beam.scale = entity.scale;
           top_beam.rotation = bottom_beam.rotation = entity.orientation;
           top_beam.color = bottom_beam.color = tVec3f(0.7f, 0.5f, 0.2f);
+          top_beam.material = bottom_beam.material = tVec4f(0.9f, 0, 0, 0.4f);
 
           top_beam.position.y += 1.f * entity.scale.y;
           bottom_beam.position.y += 0.4f * entity.scale.y;

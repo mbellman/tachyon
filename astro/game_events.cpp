@@ -1,4 +1,5 @@
 #include "astro/entity_manager.h"
+#include "astro/entity_behaviors/behavior.h"
 #include "astro/game_events.h"
 #include "astro/ui_system.h"
 
@@ -20,7 +21,7 @@ struct EventSettings {
   float duration = 1.f;
 };
 
-static void AddMoveEvent(Tachyon* tachyon, State& state, GameEntity& entity, const tVec3f& end_position, const EventSettings& settings) {
+static void QueueEntityMoveEvent(Tachyon* tachyon, State& state, GameEntity& entity, const tVec3f& end_position, const EventSettings& settings) {
   EntityMoveEvent event;
   event.entity_record = GetRecord(entity);
   event.start_position = entity.visible_position;
@@ -31,7 +32,7 @@ static void AddMoveEvent(Tachyon* tachyon, State& state, GameEntity& entity, con
   state.move_events.push_back(event);
 }
 
-static void AddCameraEvent(Tachyon* tachyon, State& state, GameEntity& target, const EventSettings& settings) {
+static void QueueCameraTargetEvent(Tachyon* tachyon, State& state, GameEntity& target, const EventSettings& settings) {
   CameraEvent event;
   event.target_entity_record = GetRecord(target);
   event.start_time = get_scene_time() + settings.delay;
@@ -48,9 +49,15 @@ static void AddCameraEvent(Tachyon* tachyon, State& state, GameEntity& target, c
 static void StartVillageGateEvent(Tachyon* tachyon, State& state) {
   for (auto& entity : state.npcs) {
     if (entity.unique_name == "gate_villager") {
-      AddCameraEvent(tachyon, state, entity, {
+      if (!IsDuringActiveTime(entity, state)) {
+        // If we open the gate during a time when the gate villager
+        // is not present, stop here and do nothing.
+        return;
+      }
+
+      QueueCameraTargetEvent(tachyon, state, entity, {
         .delay = 1.f,
-        .duration = 2.f
+        .duration = 1.f
       });
     }
   }
@@ -67,13 +74,13 @@ static void StartRiverWheelEvent(Tachyon* tachyon, State& state) {
   for (auto& entity : state.npcs) {
     if (entity.unique_name == "dweller_river") {
       // @TEMPORARY!!!!
-      tVec3f end_position = tVec3f(-125000.f, 0, 75000.f);
+      tVec3f move_target_position = tVec3f(-125000.f, 0, 75000.f);
 
-      AddMoveEvent(tachyon, state, entity, end_position, {
+      QueueEntityMoveEvent(tachyon, state, entity, move_target_position, {
         .duration = 2.f
       });
 
-      AddCameraEvent(tachyon, state, entity, {
+      QueueCameraTargetEvent(tachyon, state, entity, {
         .duration = 3.f
       });
 
@@ -111,6 +118,7 @@ void GameEvents::StartEvent(Tachyon* tachyon, State& state, const std::string& e
 void GameEvents::HandleEvents(Tachyon* tachyon, State& state) {
   float scene_time = get_scene_time();
 
+  // Handle camera target events
   // @todo factor
   for (size_t i = 0; i < state.camera_events.size(); i++) {
     auto& event = state.camera_events[i];
@@ -120,6 +128,7 @@ void GameEvents::HandleEvents(Tachyon* tachyon, State& state) {
     }
   }
 
+  // Handle entity move events
   // @todo factor
   for (size_t i = 0; i < state.move_events.size(); i++) {
     auto& event = state.move_events[i];
