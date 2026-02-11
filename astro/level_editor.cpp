@@ -33,12 +33,11 @@ struct LevelEditorState {
   int32 current_decorative_mesh_index = 0;
   int32 current_entity_index = 0;
 
-  // @todo
   float copied_astro_start_time = 0.f;
   float copied_astro_end_time = 0.f;
 
   bool is_anything_selected = false;
-  bool is_in_placement_mode = false; // @todo make this standard
+  bool is_in_placement_mode = false;
   bool is_placing_entity = false;
   bool use_uniform_scaling = false;
   bool show_fog_volumes = true;
@@ -46,6 +45,9 @@ struct LevelEditorState {
   bool is_editing_entity_properties = false;
   int editing_entity_step = 0;
   std::string edited_entity_property_value = "";
+
+  tVec3f starting_selected_position = tVec3f(0.f);
+  tVec3f move_action_delta = tVec3f(0.f);
 } editor;
 
 /**
@@ -1185,6 +1187,7 @@ static void HandleCurrentSelectedPositionActions(Tachyon* tachyon, State& state)
   auto& camera = tachyon->scene.camera;
   auto& placeholder = editor.current_selectable.placeholder;
   float move_speed = (placeholder.position - camera.position).magnitude() / 4000.f;
+  tVec3f previous_position = placeholder.position;
 
   if (abs(tachyon->mouse_delta_x) > abs(tachyon->mouse_delta_y)) {
     tVec3f camera_left = camera.orientation.getLeftDirection();
@@ -1197,9 +1200,16 @@ static void HandleCurrentSelectedPositionActions(Tachyon* tachyon, State& state)
     placeholder.position -= move_axis * move_speed * (float)tachyon->mouse_delta_y;
   }
 
-  // @temporary
+  editor.move_action_delta += (placeholder.position - previous_position);
+
+  // Align flat ground planes to increments of 1500 along the y axis
+  // @todo factor
   if (placeholder.mesh_index == state.meshes.flat_ground) {
-    placeholder.position.y = -1500.f;
+    float starting_y = editor.starting_selected_position.y;
+    float delta_y = editor.move_action_delta.y;
+    float new_y = 1500.f * floorf((starting_y + delta_y) / 1500.f);
+
+    placeholder.position.y = new_y;
   }
 
   // @optimize We don't need to do this every time the object is moved!
@@ -1596,6 +1606,14 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
 
   if (editor.is_anything_selected) {
     // Selected object/entity actions
+
+    if (did_left_click_down()) {
+      // Start tracking move delta
+      // @todo factor
+      editor.starting_selected_position = editor.current_selectable.placeholder.position;
+      editor.move_action_delta = tVec3f(0.f);
+    }
+
     if (is_left_mouse_held_down()) {
       HandleCurrentSelectedActions(tachyon, state);
     }

@@ -130,7 +130,7 @@ namespace astro {
           }
         }
 
-        // Trigger events shortly after opening
+        // Trigger event (if applicable) shortly after opening
         {
           if (
             !entity.did_activate &&

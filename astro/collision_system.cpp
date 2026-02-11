@@ -209,16 +209,26 @@ static void HandleHouseCollisions(Tachyon* tachyon, State& state) {
 }
 
 static void HandleFlatGroundCollisions(Tachyon* tachyon, State& state) {
+  profile("HandleFlatGroundCollisions()");
+
+  float below_ground_y = -1500.f;
+
   for (auto& ground : objects(state.meshes.flat_ground)) {
     auto ground_plane = CollisionSystem::CreatePlane(ground.position, ground.scale, ground.rotation);
 
     if (IsPointWithRadiusOnPlane(state.player_position, 400.f, ground_plane)) {
-      // @todo use actual ground object height
-      float ground_y = 0.f;
+      if (ground.position.y > below_ground_y) {
+        below_ground_y = ground.position.y;
+      }
+
+      float ground_y = below_ground_y + 1500.f;
 
       AllowPlayerMovement(state, ground_y, ground_plane);
 
-      break;
+      // @todo pre-sort flat ground planes by descending y position
+      // so we can iterate down through them, and break early if we
+      // find ourselves on a higher plane
+      // break;
     }
   }
 }

@@ -1,6 +1,6 @@
-#include "astro/entity_manager.h"
-#include "astro/entity_behaviors/behavior.h"
 #include "astro/game_events.h"
+#include "astro/entity_behaviors/behavior.h"
+#include "astro/entity_manager.h"
 #include "astro/ui_system.h"
 
 using namespace astro;
@@ -51,7 +51,7 @@ static void StartVillageGateEvent(Tachyon* tachyon, State& state) {
     if (entity.unique_name == "gate_villager") {
       if (!IsDuringActiveTime(entity, state)) {
         // If we open the gate during a time when the gate villager
-        // is not present, stop here and do nothing.
+        // is not present, stop here and do nothing
         return;
       }
 
