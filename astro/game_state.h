@@ -314,6 +314,9 @@ namespace astro {
     std::vector<GrassChunk> grass_chunks;
     std::vector<GroundPlantCluster> ground_plant_clusters;
 
+    // Flat ground planes, sorted by descending y for world xz height queries
+    std::vector<Plane> flat_ground_planes;
+
     // Targeted entities
     EntityRecord target_entity; // @todo rename target_entity_record
     EntityRecord speaking_entity_record;

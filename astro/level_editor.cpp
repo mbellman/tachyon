@@ -1,9 +1,11 @@
+#include <algorithm>
 #include <format>
 #include <map>
 #include <string>
 #include <vector>
 
 #include "astro/level_editor.h"
+#include "astro/collision_system.h"
 #include "astro/data_loader.h"
 #include "astro/entities_and_objects.h"
 #include "astro/entity_manager.h"
@@ -1973,6 +1975,7 @@ void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
     DeselectCurrent(tachyon, state);
   }
 
+  CollisionSystem::RebuildFlatGroundPlanes(tachyon, state);
   ProceduralGeneration::RebuildAllProceduralObjects(tachyon, state);
   Items::SpawnItemObjects(tachyon, state);
   EntityManager::CreateEntityAssociations(state);

@@ -211,24 +211,13 @@ static void HandleHouseCollisions(Tachyon* tachyon, State& state) {
 static void HandleFlatGroundCollisions(Tachyon* tachyon, State& state) {
   profile("HandleFlatGroundCollisions()");
 
-  float below_ground_y = -1500.f;
+  for (auto& plane : state.flat_ground_planes) {
+    if (IsPointWithRadiusOnPlane(state.player_position, 400.f, plane)) {
+      float ground_y = plane.p1.y + 1500.f;
 
-  for (auto& ground : objects(state.meshes.flat_ground)) {
-    auto ground_plane = CollisionSystem::CreatePlane(ground.position, ground.scale, ground.rotation);
+      AllowPlayerMovement(state, ground_y, plane);
 
-    if (IsPointWithRadiusOnPlane(state.player_position, 400.f, ground_plane)) {
-      if (ground.position.y > below_ground_y) {
-        below_ground_y = ground.position.y;
-      }
-
-      float ground_y = below_ground_y + 1500.f;
-
-      AllowPlayerMovement(state, ground_y, ground_plane);
-
-      // @todo pre-sort flat ground planes by descending y position
-      // so we can iterate down through them, and break early if we
-      // find ourselves on a higher plane
-      // break;
+      break;
     }
   }
 }
@@ -437,15 +426,6 @@ static void HandleMovementOffSolidGround(State& state) {
   state.current_ground_y = state.last_solid_ground_position.y;
 }
 
-bool CollisionSystem::IsPointOnPlane(const tVec3f& point, const Plane& plane) {
-  bool d1 = IsPointInsideEdge(point, plane.p2, plane.p1);
-  bool d2 = IsPointInsideEdge(point, plane.p3, plane.p2);
-  bool d3 = IsPointInsideEdge(point, plane.p4, plane.p3);
-  bool d4 = IsPointInsideEdge(point, plane.p1, plane.p4);
-
-  return d1 && d2 && d3 && d4;
-}
-
 Plane CollisionSystem::CreatePlane(const tVec3f& position, const tVec3f& scale, const Quaternion& rotation) {
   Plane plane;
   plane.p1 = tVec3f(-1.f, 0, 1.f) * scale;
@@ -461,6 +441,43 @@ Plane CollisionSystem::CreatePlane(const tVec3f& position, const tVec3f& scale, 
   plane.p4 = position + rotation_matrix * plane.p4;
 
   return plane;
+}
+
+bool CollisionSystem::IsPointOnPlane(const tVec3f& point, const Plane& plane) {
+  bool d1 = IsPointInsideEdge(point, plane.p2, plane.p1);
+  bool d2 = IsPointInsideEdge(point, plane.p3, plane.p2);
+  bool d3 = IsPointInsideEdge(point, plane.p4, plane.p3);
+  bool d4 = IsPointInsideEdge(point, plane.p1, plane.p4);
+
+  return d1 && d2 && d3 && d4;
+}
+
+void CollisionSystem::RebuildFlatGroundPlanes(Tachyon* tachyon, State& state) {
+  auto& planes = state.flat_ground_planes;
+
+  planes.clear();
+
+  for (auto& flat_ground : objects(state.meshes.flat_ground)) {
+    auto plane = CollisionSystem::CreatePlane(flat_ground.position, flat_ground.scale, flat_ground.rotation);
+
+    planes.push_back(plane);
+  }
+
+  std::sort(planes.begin(), planes.end(), [&](Plane& a, Plane& b) {
+    return a.p1.y > b.p1.y;
+  });
+}
+
+float CollisionSystem::QueryGroundHeight(State& state, const float x, const float z) {
+  tVec3f point = tVec3f(x, 0.f, z);
+
+  for (auto& plane : state.flat_ground_planes) {
+    if (CollisionSystem::IsPointOnPlane(point, plane)) {
+      return plane.p1.y;
+    }
+  }
+
+  return -3000.f;
 }
 
 void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {

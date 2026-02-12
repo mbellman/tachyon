@@ -4,14 +4,14 @@ uniform mat4 light_matrix;
 uniform vec3 transform_origin;
 uniform mat4 model_matrix;
 
+uniform mat4 bones[32];
+
 layout (location = 0) in vec3 vertexPosition;
 layout (location = 1) in vec3 vertexNormal;
 layout (location = 2) in vec3 vertexTangent;
 layout (location = 3) in vec2 vertexUv;
 layout (location = 4) in uint bone_indexes_packed;
 layout (location = 5) in vec4 bone_weights;
-
-uniform mat4 bones[32];
 
 void main() {
   uint bone_1_index = (bone_indexes_packed & 0xFF000000) >> 24;

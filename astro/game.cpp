@@ -402,6 +402,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
   DataLoader::LoadLevelData(tachyon, state);
   DataLoader::LoadNpcDialogue(tachyon, state);
   Items::SpawnItemObjects(tachyon, state);
+  CollisionSystem::RebuildFlatGroundPlanes(tachyon, state);
   ProceduralGeneration::RebuildAllProceduralObjects(tachyon, state);
   EntityManager::CreateEntityAssociations(state);
   Particles::InitParticles(tachyon, state);
