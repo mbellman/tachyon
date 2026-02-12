@@ -321,7 +321,6 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
   const float chunk_height = 20000.f;
 
   // @allocation
-  auto flat_ground_planes = GetObjectPlanes(tachyon, meshes.flat_ground);
   auto ground_1_planes = GetObjectPlanes(tachyon, meshes.ground_1, tVec3f(0.9f));
   auto altar_planes = GetEntityPlanes(state.altars, tVec3f(1.9f, 1.f, 0.6f));
   auto wind_chime_planes = GetEntityPlanes(state.wind_chimes, tVec3f(0.8f, 1.f, 1.4f));
@@ -347,11 +346,11 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
       tVec3f lower_right_corner = center_position + tVec3f(chunk_width * 0.5f, 0, chunk_height * 0.5f);
 
       if (
-        !IsPointOnAnyPlane(center_position, flat_ground_planes) &&
-        !IsPointOnAnyPlane(upper_left_corner, flat_ground_planes) &&
-        !IsPointOnAnyPlane(upper_right_corner, flat_ground_planes) &&
-        !IsPointOnAnyPlane(lower_left_corner, flat_ground_planes) &&
-        !IsPointOnAnyPlane(lower_right_corner, flat_ground_planes)
+        !IsPointOnAnyPlane(center_position, state.flat_ground_planes) &&
+        !IsPointOnAnyPlane(upper_left_corner, state.flat_ground_planes) &&
+        !IsPointOnAnyPlane(upper_right_corner, state.flat_ground_planes) &&
+        !IsPointOnAnyPlane(lower_left_corner, state.flat_ground_planes) &&
+        !IsPointOnAnyPlane(lower_right_corner, state.flat_ground_planes)
       ) {
         continue;
       }
@@ -408,18 +407,20 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
     chunk.grass_blades.reserve(4500);
 
     for (int32 i = 0; i < 4500; i++) {
-      GrassBlade blade;
-      blade.position.x = Tachyon_GetRandom(upper_left_corner.x, upper_right_corner.x);
-      blade.position.y = -1500.f;
-      blade.position.z = Tachyon_GetRandom(upper_left_corner.z, lower_left_corner.z);
+      tVec3f position;
+      position.x = Tachyon_GetRandom(upper_left_corner.x, upper_right_corner.x);
+      position.z = Tachyon_GetRandom(upper_left_corner.z, lower_left_corner.z);
+      position.y = CollisionSystem::QueryGroundHeight(state, position.x, position.z);
 
+      if (position.y < -1500.f) continue;
+      if (IsPointOnAnyPlane(position, local_ground_1_planes)) continue;
+      if (IsPointOnAnyPlane(position, altar_planes)) continue;
+      if (IsPointOnAnyPlane(position, wind_chime_planes)) continue;
+
+      GrassBlade blade;
+      blade.position = position;
       blade.scale = tVec3f(Tachyon_GetRandom(500.f, 1500.f));
       blade.scale.y *= 0.75f;
-
-      if (!IsPointOnAnyPlane(blade.position, flat_ground_planes)) continue;
-      if (IsPointOnAnyPlane(blade.position, local_ground_1_planes)) continue;
-      if (IsPointOnAnyPlane(blade.position, altar_planes)) continue;
-      if (IsPointOnAnyPlane(blade.position, wind_chime_planes)) continue;
 
       // @todo factor
       for (auto& segment : local_dirt_path_segments) {
@@ -591,7 +592,6 @@ static void UpdateSmallGrass(Tachyon* tachyon, State& state) {
 
       // Time-invariant grass properties
       grass.position = blade.position;
-      grass.position.y = -1500.f;
       grass.scale = blade.scale;
       grass.material = tVec4f(0.6f, 0, 0, 0.1f);
 
@@ -624,7 +624,6 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
 
   auto dirt_path_planes = GetObjectPlanes(tachyon, meshes.dirt_path);
   auto stone_path_planes = GetObjectPlanes(tachyon, meshes.stone_path);
-  auto flat_ground_planes = GetObjectPlanes(tachyon, meshes.flat_ground);
 
   // @todo factor
   remove_all(meshes.ground_flower);
@@ -645,13 +644,13 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
     for (int i = 0; i < 4; i++) {
       tVec3f position;
       position.x = center.x + rng.Random(-1500.f, 1500.f);
-      position.y = center.y;
       position.z = center.z + rng.Random(-1500.f, 1500.f);
+      position.y = CollisionSystem::QueryGroundHeight(state, position.x, position.z);
 
       if (
         IsPointOnAnyPlane(position, dirt_path_planes) ||
         IsPointOnAnyPlane(position, stone_path_planes) ||
-        !IsPointOnAnyPlane(position, flat_ground_planes)
+        position.y < -1500.f
       ) {
         continue;
       }
@@ -662,6 +661,7 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
       auto& flower = create(meshes.ground_flower);
 
       flower.position = position;
+      flower.position.y += 500.f;
       flower.scale = tVec3f(250.f);
       flower.color = tVec3f(1.f, 0.1f, 0.1f);
 
@@ -695,13 +695,13 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
     for (int i = 0; i < 6; i++) {
       tVec3f position;
       position.x = center.x + rng.Random(-1000.f, 1000.f);
-      position.y = center.y + rng.Random(-60.f, 60.f);
       position.z = center.z + rng.Random(-1000.f, 1000.f);
+      position.y = CollisionSystem::QueryGroundHeight(state, position.x, position.z) + rng.Random(-60.f, 60.f);
 
       if (
         IsPointOnAnyPlane(position, dirt_path_planes) ||
         IsPointOnAnyPlane(position, stone_path_planes) ||
-        !IsPointOnAnyPlane(position, flat_ground_planes)
+        position.y < -1500.f
       ) {
         continue;
       }
@@ -712,6 +712,7 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
       auto& flower = create(meshes.tiny_ground_flower);
 
       flower.position = position;
+      flower.position.y += 500.f;
       flower.scale = tVec3f(100.f);
       flower.color = tVec3f(1.f);
 
