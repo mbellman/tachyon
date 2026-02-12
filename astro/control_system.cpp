@@ -109,8 +109,9 @@ static void HandleAstroControls(Tachyon* tachyon, State& state) {
     state.astro_turn_speed = 0.f;
 
     if (state.astro_time_at_start_of_turn >= -1.f) {
-      // @todo fix sound not playing
       UISystem::ShowDialogue(tachyon, state, "The astrolabe's mechanism resists.");
+
+      state.game_time_at_start_of_turn = 0.f;
 
       if (started_turning) {
         Sfx::PlaySound(SFX_ASTRO_DISABLED, 0.8f);
@@ -123,8 +124,9 @@ static void HandleAstroControls(Tachyon* tachyon, State& state) {
     state.astro_turn_speed = 0.f;
 
     if (state.astro_time_at_start_of_turn <= min_astro_time + 1.f) {
-      // @todo fix sound not playing
       UISystem::ShowDialogue(tachyon, state, "The astrolabe's mechanism resists.");
+
+      state.game_time_at_start_of_turn = 0.f;
 
       if (started_turning) {
         Sfx::PlaySound(SFX_ASTRO_DISABLED, 0.8f);
