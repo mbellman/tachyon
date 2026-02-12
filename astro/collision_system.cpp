@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "astro/collision_system.h"
 #include "astro/player_character.h"
 #include "astro/entity_behaviors/behavior.h"

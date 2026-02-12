@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <format>
 #include <map>
 #include <string>
@@ -636,8 +635,9 @@ static void UpdatePlacer(Tachyon* tachyon, State& state) {
 
   auto& placer = objects(state.meshes.editor_placer)[0];
 
+  // @todo do a proper raycast from the camera to a colliding flat ground plane
   placer.position = camera.position + camera_direction * distance;
-  placer.position.y = -1500.f;
+  placer.position.y = CollisionSystem::QueryGroundHeight(state, placer.position.x, placer.position.z);
 
   placer.scale = tVec3f(2000.f);
   placer.color = tVec4f(0.7f, 0.1f, 0.1f, 0.6f);
@@ -1075,40 +1075,6 @@ static tVec3f GetSpawnPosition(Tachyon* tachyon, State& state) {
     }
 
     return placer.position;
-  }
-  // @deprecated
-  else if (editor.is_placing_entity) {
-    EntityType entity_type = entity_types[editor.current_entity_index];
-    auto& defaults = GetEntityDefaults(entity_type);
-
-    // @temporary
-    // @todo define various restrictions/defaults on how certain
-    // decorative mesh objects are spawned or can be manipulated
-    if (entity_type == DIRT_PATH) {
-      tVec3f position = camera.position + camera.orientation.getDirection() * abs(camera.position.y) * 1.5f;
-      position.y = -1450.f;
-
-      return position;
-    } else {
-      return camera.position + camera.orientation.getDirection() * 7500.f;
-    }
-  }
-  // @deprecated
-  else {
-    auto& decorative_meshes = GetDecorativeMeshes(state);
-    auto& current_decorative_mesh = decorative_meshes[editor.current_decorative_mesh_index];
-
-    // @temporary
-    // @todo define various restrictions/defaults on how certain
-    // decorative mesh objects are spawned or can be manipulated
-    if (current_decorative_mesh.mesh_index == state.meshes.flat_ground) {
-      tVec3f position = camera.position + camera.orientation.getDirection() * abs(camera.position.y) * 1.5f;
-      position.y = -1500.f;
-
-      return position;
-    } else {
-      return camera.position + camera.orientation.getDirection() * 7500.f;
-    }
   }
 }
 
@@ -1559,7 +1525,7 @@ static void RepositionPlayer(Tachyon* tachyon, State& state) {
   float distance = -camera_height / camera_direction.y;
 
   state.player_position = camera.position + camera_direction * distance;
-  state.player_position.y = 0.f;
+  state.player_position.y = CollisionSystem::QueryGroundHeight(state, state.player_position.x, state.player_position.z);
 
   auto& player = objects(state.meshes.player_head)[0];
 
