@@ -507,9 +507,7 @@ static void UpdateSmallGrass(Tachyon* tachyon, State& state) {
   Quaternion standard_camera_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.9f);
   // @hack Invert y to get the proper direction. Probably a mistake somewhere.
   tVec3f camera_direction = standard_camera_rotation.getDirection() * tVec3f(1.f, -1.f, 1.f);
-  float camera_height = camera.position.y - -1500.f;
-  float distance = -camera_height / camera_direction.y;
-  tVec3f ground_center = camera.position + camera_direction * distance;
+  tVec3f ground_center = camera.position + camera_direction * 10000.f * 1.2f;
 
   for (auto& chunk : state.grass_chunks) {
     bool is_chunk_in_view = (
