@@ -151,6 +151,18 @@ namespace astro {
           }
         }
 
+        // Re-opening the gate when traveling past its astro activation time
+        {
+          if (
+            !entity.did_activate &&
+            entity.game_activation_time == -1.f &&
+            state.astro_time > entity.astro_activation_time
+          ) {
+            entity.did_activate = true;
+            entity.game_activation_time = 0.f;
+          }
+        }
+
         // Collision
         entity.visible_position = entity.position;
         entity.visible_rotation = entity.orientation;
