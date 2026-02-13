@@ -169,7 +169,7 @@ void PathGeneration::GeneratePaths(Tachyon* tachyon, State& state, const std::ve
 
           // @temporary
           path.position = position;
-          path.position.y = -1470.f;
+          path.position.y = CollisionSystem::QueryGroundHeight(state, position.x, position.z) + 30.f;
           path.scale = scale;
           path.scale.y = 1.f;
           path.color = entity_a.tint;
