@@ -593,6 +593,7 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
   profile("UpdatePlayer()");
 
   // Update facing direction
+  // @todo factor
   {
     tVec3f desired_facing_direction = state.player_facing_direction;
     float turning_speed = 5.f;
@@ -616,6 +617,22 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
     }
 
     state.player_facing_direction = tVec3f::lerp(state.player_facing_direction, desired_facing_direction, turning_speed * state.dt).unit();
+  }
+
+  // Handle wand bounce recoil
+  // @todo factor
+  {
+    float recoil_duration = 1.f;
+    float time_since_last_bounce = time_since(state.last_wand_bounce_time);
+
+    if (state.last_wand_bounce_time != 0.f && time_since_last_bounce < recoil_duration) {
+      float alpha = 1.f - time_since_last_bounce / recoil_duration;
+      alpha *= alpha;
+
+      float speed = 5000.f * alpha;
+
+      state.player_position -= state.player_facing_direction * speed * state.dt;
+    }
   }
 
   Quaternion player_rotation = Quaternion::FromDirection(state.player_facing_direction, tVec3f(0, 1.f, 0));
