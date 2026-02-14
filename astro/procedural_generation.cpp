@@ -1120,9 +1120,9 @@ static void UpdateStonePaths(Tachyon* tachyon, State& state) {
     float astro_end_time = std::min(entity_a.astro_end_time, entity_b.astro_end_time);
     float age = state.astro_time - astro_start_time;
     float remaining_time = astro_end_time - state.astro_time;
+    float ground_y = segment.base_position.y - 30.f;
 
     path.position = segment.base_position;
-    path.position.y = -1470.f;
     path.scale = segment.base_scale * 1.2f;
     path.color = path_color;
     path.material = tVec4f(1.f, 0, 0, 0);
@@ -1136,7 +1136,7 @@ static void UpdateStonePaths(Tachyon* tachyon, State& state) {
 
       // @temporary
       path.color = tVec3f::lerp(ground_color, path_color, alpha);
-      path.position.y = Tachyon_Lerpf(-1500.f, path.position.y, alpha);
+      path.position.y = Tachyon_Lerpf(ground_y, path.position.y, alpha);
       path.scale.x *= alpha;
     }
 
@@ -1148,7 +1148,7 @@ static void UpdateStonePaths(Tachyon* tachyon, State& state) {
 
       // @temporary
       path.color = tVec3f::lerp(ground_color, path_color, alpha);
-      path.position.y = Tachyon_Lerpf(-1500.f, path.position.y, alpha);
+      path.position.y = Tachyon_Lerpf(ground_y, path.position.y, alpha);
       path.scale.x *= alpha;
     }
 
