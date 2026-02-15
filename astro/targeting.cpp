@@ -27,8 +27,6 @@ static EntityRecord GetClosestNonSelectedTarget(State& state) {
   float closest_distance = target_distance_limit;
   EntityRecord candidate;
 
-  ResetEntityRecord(candidate);
-
   for (auto& record : state.targetable_entities) {
     if (IsSameEntity(record, state.target_entity)) {
       continue;
@@ -50,8 +48,6 @@ static EntityRecord GetLeftmostNonSelectedTarget(State& state) {
   float leftmost_x = FLT_MAX;
   EntityRecord candidate;
 
-  ResetEntityRecord(candidate);
-
   for (auto& record : state.targetable_entities) {
     if (IsSameEntity(record, state.target_entity)) {
       continue;
@@ -62,6 +58,27 @@ static EntityRecord GetLeftmostNonSelectedTarget(State& state) {
 
     if (x < leftmost_x) {
       leftmost_x = x;
+      candidate = record;
+    }
+  }
+
+  return candidate;
+}
+
+static EntityRecord GetRightmostNonSelectedTarget(State& state) {
+  float rightmost_x = -FLT_MAX;
+  EntityRecord candidate;
+
+  for (auto& record : state.targetable_entities) {
+    if (IsSameEntity(record, state.target_entity)) {
+      continue;
+    }
+
+    auto& entity = *EntityManager::FindEntity(state, record);
+    float x = entity.visible_position.x;
+
+    if (x > rightmost_x) {
+      rightmost_x = x;
       candidate = record;
     }
   }
@@ -166,6 +183,11 @@ static void PickSpeakingEntity(State& state) {
 }
 
 static inline bool ShouldSelectTarget(State& state, EntityRecord& record) {
+  if (record.type == UNSPECIFIED || record.id == -1) {
+    // Don't allow selecting unspecified/uninitialized entities
+    return false;
+  }
+
   return !state.has_target || !IsSameEntity(record, state.target_entity);
 }
 
@@ -190,24 +212,32 @@ void Targeting::SetSpeakingEntity(State& state, EntityRecord& record) {
 void Targeting::SelectNextAccessibleTarget(Tachyon* tachyon, State& state) {
   EntityRecord new_target;
 
-  ResetEntityRecord(new_target);
-
   if (state.has_target) {
-    auto index = FindRecordIndex(state.targetable_entities, state.target_entity);
+    auto& current_target = *EntityManager::FindEntity(state, state.target_entity);
+    float lowest_right_distance = FLT_MAX;
 
-    if (index > -1) {
-      if (index < (int32)state.targetable_entities.size() - 1) {
-        new_target = state.targetable_entities[index + 1];
-      } else {
-        new_target = state.targetable_entities[0];
+    for (auto& target : state.targetable_entities) {
+      auto& next_target = *EntityManager::FindEntity(state, target);
+      float x_distance = next_target.visible_position.x - current_target.visible_position.x;
+
+      // Skip left-side targets and the current target
+      if (x_distance < 0.f || IsSameEntity(current_target, next_target)) {
+        continue;
+      }
+
+      if (x_distance < lowest_right_distance) {
+        lowest_right_distance = x_distance;
+        new_target = next_target;
       }
     }
   } else {
+    // If we don't have a target yet, select the closest target
     new_target = GetClosestNonSelectedTarget(state);
   }
 
   if (new_target.type == UNSPECIFIED || new_target.id == -1) {
-    return;
+    // Cycle around to the left if we don't have a valid target
+    new_target = GetLeftmostNonSelectedTarget(state);
   }
 
   if (ShouldSelectTarget(state, new_target)) {
@@ -218,24 +248,32 @@ void Targeting::SelectNextAccessibleTarget(Tachyon* tachyon, State& state) {
 void Targeting::SelectPreviousAccessibleTarget(Tachyon* tachyon, State& state) {
   EntityRecord new_target;
 
-  ResetEntityRecord(new_target);
-
   if (state.has_target) {
-    auto index = FindRecordIndex(state.targetable_entities, state.target_entity);
+    auto& current_target = *EntityManager::FindEntity(state, state.target_entity);
+    float lowest_left_distance = FLT_MAX;
 
-    if (index > -1) {
-      if (index > 0) {
-        new_target = state.targetable_entities[index - 1];
-      } else {
-        new_target = state.targetable_entities.back();
+    for (auto& target : state.targetable_entities) {
+      auto& next_target = *EntityManager::FindEntity(state, target);
+      float x_distance = current_target.visible_position.x - next_target.visible_position.x;
+
+      // Skip right-side targets and the current target
+      if (x_distance < 0.f || IsSameEntity(current_target, next_target)) {
+        continue;
+      }
+
+      if (x_distance < lowest_left_distance) {
+        lowest_left_distance = x_distance;
+        new_target = next_target;
       }
     }
   } else {
+    // If we don't have a target yet, select the leftmost target
     new_target = GetLeftmostNonSelectedTarget(state);
   }
 
   if (new_target.type == UNSPECIFIED || new_target.id == -1) {
-    return;
+    // Cycle around to the right if we don't have a valid target
+    new_target = GetRightmostNonSelectedTarget(state);
   }
 
   if (ShouldSelectTarget(state, new_target)) {
