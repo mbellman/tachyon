@@ -241,23 +241,36 @@ float GetPrimaryLightShadowFactor(vec3 world_position) {
 void main() {
   vec3 N = normalize(fragNormal);
 
-  float water_speed = -time;
-  float ripple_speed = 2.0 * water_speed;
+  // @todo make a uniform/allow location-dependent flow direction
+  // @todo improve behavior
+  const vec2 flow_direction = vec2(1, -1);
+
+  vec2 water_speed = vec2(-time * flow_direction.x, -time * flow_direction.y);
+  vec2 ripple_speed = 2.0 * water_speed;
+
   // @temporary
-  float big_wave = sin(fragPosition.z * 0.0002 + fragPosition.x * 0.0002 + ripple_speed);
-  float small_wave = sin(fragPosition.z * 0.001 + fragPosition.x * 0.001 + ripple_speed);
+  float big_wave = sin(fragPosition.z * 0.0002 + fragPosition.x * 0.0002 + ripple_speed.x + ripple_speed.y);
+  float small_wave = sin(fragPosition.z * 0.001 + fragPosition.x * 0.001 + ripple_speed.x + ripple_speed.y);
 
   // Directional waves
-  N.z += 0.2 * sin(fragPosition.z * 0.001 - fragPosition.x * 0.001 + water_speed + big_wave);
-  N.x += 0.2 * cos(fragPosition.z * 0.0025 - fragPosition.x * 0.001 + water_speed + small_wave);
+  N.z += 0.2 * sin(fragPosition.z * 0.001 - fragPosition.x * 0.001 + water_speed.x + water_speed.y + big_wave);
+  N.x += 0.2 * cos(fragPosition.z * 0.0025 - fragPosition.x * 0.001 + water_speed.x + water_speed.y + small_wave);
 
   float wx = fragPosition.x;
   float wz = fragPosition.z;
 
   // Noise/turbulence
-  N.xz += 0.2 * vec2(simplex_noise(vec2(water_speed * 0.5 + wx * 0.0005, water_speed * 0.5 + wz * 0.0005)));
-  N.xz += 0.05 * vec2(simplex_noise(vec2(water_speed * 0.5 + wx * 0.002, water_speed * 0.5 + wz * 0.002)));
-  // N.xz += 0.01 * vec2(simplex_noise(vec2(time * 0.5 + wx * 0.004, time * 0.5 + wz * 0.004)));
+  N.xz += 0.2 * vec2(simplex_noise(vec2(
+    water_speed.x * 0.5 + wx * 0.0005,
+    water_speed.y * 0.5 + wz * 0.0005
+  )));
+
+  N.xz += 0.05 * vec2(simplex_noise(vec2(
+    water_speed.x * 0.5 + wx * 0.002,
+    water_speed.y * 0.5 + wz * 0.002
+  )));
+
+  // N.xz += 0.05 * vec2(simplex_noise(vec2(time * 0.5 + wx * 0.003, time * 0.5 + wz * 0.003)));
 
   // Normal used for specular highlights; more intense than the normal
   // used for regular reflections
