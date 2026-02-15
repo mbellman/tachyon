@@ -318,11 +318,23 @@ static void HandleWandControls(Tachyon* tachyon, State& state) {
 }
 
 static void HandleTargetingControls(Tachyon* tachyon, State& state) {
-  if (did_press_key(tKey::CONTROLLER_L1)) {
+  float time_since_last_target_change = time_since(state.target_start_time);
+
+  bool did_stick_select_previous_target = (
+    time_since_last_target_change > 0.2f &&
+    tachyon->right_stick.x < -0.6f
+  );
+
+  bool did_stick_select_next_target = (
+    time_since_last_target_change > 0.2f &&
+    tachyon->right_stick.x > 0.6f
+  );
+
+  if (did_press_key(tKey::CONTROLLER_L1) || did_stick_select_previous_target) {
     Targeting::SelectPreviousAccessibleTarget(tachyon, state);
   }
 
-  if (did_press_key(tKey::CONTROLLER_R1)) {
+  if (did_press_key(tKey::CONTROLLER_R1) || did_stick_select_next_target) {
     Targeting::SelectNextAccessibleTarget(tachyon, state);
   }
 

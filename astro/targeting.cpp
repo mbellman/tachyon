@@ -193,7 +193,7 @@ static inline bool ShouldSelectTarget(State& state, EntityRecord& record) {
 
 static void SelectTarget(Tachyon* tachyon, State& state, EntityRecord& target) {
   state.has_target = true;
-  state.target_start_time = tachyon->running_time;
+  state.target_start_time = get_scene_time();
   state.target_entity = target;
 
   Targeting::SetSpeakingEntity(state, target);
