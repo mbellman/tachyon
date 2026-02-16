@@ -357,14 +357,25 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
 }
 
 static void UpdateWandLights(Tachyon* tachyon, State& state) {
-  if (state.wand_light_ids.size() == 0) {
-    int32 light_id = create_point_light();
+  // Initialization
+  {
+    if (state.wand_light_ids.size() == 0) {
+      for_range(0, 5) {
+        state.wand_light_ids.push_back(create_point_light());
+      }
 
-    state.wand_light_ids.push_back(light_id);
+      for_range(1, 5) {
+        auto& light = *get_point_light(state.wand_light_ids[i]);
+
+        light.power = 0.1f * float(i);
+      }
+    }
   }
 
-  float scene_time = get_scene_time();
   auto& wand = objects(state.meshes.player_wand)[0];
+  tVec3f wand_end_offset = tVec3f(0, 1.48f * wand.scale.y, 0.18f * wand.scale.z);
+  tVec3f wand_end_position = wand.position + wand.rotation.toMatrix4f() * wand_end_offset;
+  float time_since_last_wand_swing = time_since(state.last_wand_swing_time);
 
   // Main wand light
   {
@@ -372,11 +383,9 @@ static void UpdateWandLights(Tachyon* tachyon, State& state) {
     const float oscillating_power = 0.2f;
     const float wand_swing_power = 2.f;
 
+    float scene_time = get_scene_time();
     auto& main_light = *get_point_light(state.wand_light_ids[0]);
-    tVec3f main_light_offset = tVec3f(0, 1.48f * wand.scale.y, 0.18f * wand.scale.z);
-
     float main_light_power = base_power + oscillating_power * (0.5f + 0.5f * sinf(2.f * scene_time));
-    float time_since_last_wand_swing = time_since(state.last_wand_swing_time);
 
     if (state.last_wand_swing_time != 0.f && time_since_last_wand_swing < 1.f) {
       float alpha = time_since_last_wand_swing;
@@ -390,7 +399,7 @@ static void UpdateWandLights(Tachyon* tachyon, State& state) {
       main_light_power += wand_swing_power * alpha;
     }
 
-    main_light.position = wand.position + wand.rotation.toMatrix4f() * main_light_offset;
+    main_light.position = wand_end_position;
     main_light.color = tVec3f(1.f, 0.6f, 0.2f);
     main_light.radius = 500.f + main_light_power * 500.f;
     main_light.power = main_light_power;
@@ -398,7 +407,37 @@ static void UpdateWandLights(Tachyon* tachyon, State& state) {
 
   // Trailing wand lights
   {
-    // @todo
+    float highest_power = 0.f;
+    float glow_power;
+
+    if (state.last_wand_swing_time != 0.f && time_since_last_wand_swing < 2.f) {
+      glow_power = 1.f - Tachyon_EaseOutQuad(0.5f * time_since_last_wand_swing);
+    } else {
+      glow_power = state.player_velocity.magnitude() / 1300.f;
+    }
+
+    for_range(1, 5) {
+      auto& light = *get_point_light(state.wand_light_ids[i]);
+
+      if (light.power > highest_power) {
+        highest_power = light.power;
+      }
+    }
+
+    for_range(1, 5) {
+      auto& light = *get_point_light(state.wand_light_ids[i]);
+
+      light.color = tVec3f(1.f, 0.6f, 0.2f);
+      light.radius = 500.f;
+      light.glow_power = glow_power;
+
+      if (light.power <= 0.f) {
+        light.position = wand_end_position;
+        light.power = highest_power + 0.1f;
+      } else {
+        light.power -= state.dt;
+      }
+    }
   }
 }
 
@@ -445,11 +484,13 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
 
   // Swing actions
   {
+    float time_since_last_swing = time_since(state.last_wand_swing_time);
+
     if (
       state.last_wand_swing_time != 0.f &&
+      time_since_last_swing <= 1.f &&
       state.player_hp > 0.f
     ) {
-      float time_since_last_swing = time_since(state.last_wand_swing_time);
       tVec3f player_right = tVec3f::cross(state.player_facing_direction, tVec3f(0, 1.f, 0));
 
       // Define the animation steps
@@ -504,12 +545,6 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
         time_since_last_swing < s1.duration + s2.duration
       ) {
         Combat::HandleWandStrikeWindow(tachyon, state);
-      }
-
-      // Allow the wand to revert to its original position after the swing completes
-      // @temporary
-      if (time_since_last_swing >= s1.duration + s2.duration + s3.duration) {
-        state.last_wand_swing_time = 0.f;
       }
     }
 
