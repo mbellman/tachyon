@@ -350,6 +350,7 @@ namespace astro {
     std::vector<int32> astro_light_ids;
 
     // Particles
+    std::vector<int32> wand_light_ids;
     std::vector<AmbientParticle> ambient_particles;
 
     // Magic

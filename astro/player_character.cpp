@@ -356,6 +356,25 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
   }
 }
 
+static void UpdateWandLights(Tachyon* tachyon, State& state) {
+  if (state.wand_light_ids.size() == 0) {
+    int32 light_id = create_point_light();
+
+    state.wand_light_ids.push_back(light_id);
+  }
+
+  float scene_time = get_scene_time();
+  auto& wand = objects(state.meshes.player_wand)[0];
+
+  auto& main_light = *get_point_light(state.wand_light_ids[0]);
+  tVec3f main_light_offset = tVec3f(0, 1.48f * wand.scale.y, 0.18f * wand.scale.z);
+
+  main_light.position = wand.position + wand.rotation.toMatrix4f() * main_light_offset;
+  main_light.color = tVec3f(1.f, 0.6f, 0.2f);
+  main_light.radius = 500.f;
+  main_light.power = 0.2f + 0.8f * (0.5f + 0.5f * sinf(2.f * scene_time));
+}
+
 static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotation, tMat4f& player_rotation_matrix) {
   auto& wand = objects(state.meshes.player_wand)[0];
 
@@ -640,6 +659,7 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
 
   UpdatePlayerModel(tachyon, state, player_rotation, player_rotation_matrix);
   UpdateWand(tachyon, state, player_rotation, player_rotation_matrix);
+  UpdateWandLights(tachyon, state);
   UpdateLantern(tachyon, state, player_rotation, player_rotation_matrix);
 }
 
