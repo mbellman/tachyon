@@ -34,7 +34,7 @@ static void EvaluateAnimation(State::SkeletonAnimation& animation, const float s
   auto& start_frame = animation.frames[start_index];
   auto& end_frame = animation.frames[end_index];
 
-  for (int32 i = 0; i < start_frame.bones.size(); i++) {
+  for (size_t i = 0; i < start_frame.bones.size(); i++) {
     auto& start_bone = start_frame.bones[i];
     auto& end_bone = end_frame.bones[i];
     Quaternion blended_rotation = Quaternion::nlerp(start_bone.rotation, end_bone.rotation, blend_alpha);
@@ -122,7 +122,7 @@ static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
     auto& current_pose = state.player_current_pose;
     float blend_alpha = state.time_since_last_animation_change;
 
-    for (int32 i = 0; i < state.current_animation->current_pose.bones.size(); i++) {
+    for (size_t i = 0; i < state.current_animation->current_pose.bones.size(); i++) {
       auto& previous_bone = state.current_animation->current_pose.bones[i];
       auto& next_bone = state.next_animation->current_pose.bones[i];
       auto& current_pose_bone = current_pose.bones[i];
@@ -404,16 +404,14 @@ static void UpdateWandLights(Tachyon* tachyon, State& state) {
 
   // Trailing wand lights
   {
-    const float cycle_time = 1.f;
+    const float glow_duration = 1.f;
+    bool spawn_new_lights = false;
 
-    float glow_power;
-
-    if (state.last_wand_swing_time != 0.f && time_since_last_wand_swing < 2.f) {
-      float alpha = time_since_last_wand_swing / 2.f;
-
-      glow_power = sinf(alpha * t_PI);
-    } else {
-      glow_power = state.player_velocity.magnitude() / 1300.f;
+    if (
+      (state.last_wand_swing_time != 0.f && time_since_last_wand_swing < 0.75f) ||
+      state.player_velocity.magnitude() > 100.f
+    ) {
+      spawn_new_lights = true;
     }
 
     // Spawn in new wand lights, rotating between the preallocated set
@@ -424,8 +422,8 @@ static void UpdateWandLights(Tachyon* tachyon, State& state) {
       auto& light = *get_point_light(wand_light.light_id);
 
       if (
-        time_since(wand_light.spawn_time) > cycle_time &&
-        glow_power > 0.f &&
+        spawn_new_lights &&
+        time_since(wand_light.spawn_time) > glow_duration &&
         time_since_last_wand_light > 0.1f
       ) {
         state.last_wand_light_time = scene_time;
@@ -436,14 +434,14 @@ static void UpdateWandLights(Tachyon* tachyon, State& state) {
         break;
       }
 
-      float power_alpha = time_since(wand_light.spawn_time) / cycle_time;
+      float power_alpha = time_since(wand_light.spawn_time) / glow_duration;
       if (power_alpha > 1.f) power_alpha = 1.f;
 
       float power = sinf(power_alpha * t_PI);
 
       light.color = tVec3f(1.f, 0.6f, 0.2f);
       light.radius = 500.f;
-      light.glow_power = glow_power;
+      light.glow_power = power;
       light.power = power;
     }
   }
