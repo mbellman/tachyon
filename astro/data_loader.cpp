@@ -93,6 +93,11 @@ void DataLoader::LoadLevelData(Tachyon* tachyon, State& state) {
       entity.associated_entity_name = parts[18];
       entity.requires_astro_sync = parse_bool(parts[19]);
 
+      // @temporary
+      if (entity_type == LAMPPOST) {
+        entity.did_activate = true;
+      }
+
       // Set base visible position + rotation
       entity.visible_position = entity.position;
       entity.visible_rotation = entity.orientation;

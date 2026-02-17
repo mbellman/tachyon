@@ -1049,33 +1049,30 @@ static void SpawnEntityObjects(Tachyon* tachyon, State& state, GameEntity& entit
  */
 static tVec3f GetSpawnPosition(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
+  auto& placer = objects(state.meshes.editor_placer)[0];
 
-  if (editor.is_in_placement_mode) {
-    auto& placer = objects(state.meshes.editor_placer)[0];
+  if (editor.is_placing_entity) {
+    // @temporary
+    // @todo define entity placemen offset defaults
+    EntityType entity_type = entity_types[editor.current_entity_index];
 
-    if (editor.is_placing_entity) {
-      // @temporary
-      // @todo define entity placemen offset defaults
-      EntityType entity_type = entity_types[editor.current_entity_index];
-
-      if (entity_type == DIRT_PATH_NODE || entity_type == STONE_PATH_NODE) {
-        return placer.position + tVec3f(0, 1500.f, 0);
-      }
-
-      if (entity_type == FOG_SPAWN) {
-        return placer.position + tVec3f(0, 3000.f, 0);
-      }
-
-      // @hack Spawn above ground
-      if (entity_type == SHRUB || entity_type == OAK_TREE || entity_type == LILAC_BUSH) {
-        auto& defaults = GetEntityDefaults(entity_type);
-
-        return placer.position + tVec3f(0, defaults.scale.y, 0);
-      }
+    if (entity_type == DIRT_PATH_NODE || entity_type == STONE_PATH_NODE) {
+      return placer.position + tVec3f(0, 1500.f, 0);
     }
 
-    return placer.position;
+    if (entity_type == FOG_SPAWN) {
+      return placer.position + tVec3f(0, 3000.f, 0);
+    }
+
+    // @hack Spawn above ground
+    if (entity_type == SHRUB || entity_type == OAK_TREE || entity_type == LILAC_BUSH) {
+      auto& defaults = GetEntityDefaults(entity_type);
+
+      return placer.position + tVec3f(0, defaults.scale.y, 0);
+    }
   }
+
+  return placer.position;
 }
 
 /**
@@ -1138,6 +1135,11 @@ static void PlaceNewEntity(Tachyon* tachyon, State& state) {
   entity.visible_position = entity.position;
   entity.visible_rotation = entity.orientation;
   entity.visible_scale = entity.scale;
+
+  // @temporary
+  if (entity.type == LAMPPOST) {
+    entity.did_activate = true;
+  }
 
   EntityManager::SaveNewEntity(state, entity);
 

@@ -4,6 +4,18 @@
 
 namespace astro {
   behavior Lamppost {
+    static void TurnLampOn(Tachyon* tachyon, State& state, GameEntity& entity) {
+      entity.did_activate = true;
+      entity.astro_activation_time = state.astro_time;
+      entity.game_activation_time = get_scene_time() + 0.25f;
+    }
+
+    static void TurnLampOff(Tachyon* tachyon, State& state, GameEntity& entity) {
+      entity.did_activate = false;
+      entity.astro_activation_time = state.astro_time;
+      entity.game_activation_time = get_scene_time() + 0.25f;
+    }
+
     addMeshes() {
       meshes.lamppost_placeholder = MODEL_MESH("./astro/3d_models/lamppost/placeholder.obj", 500);
       meshes.lamppost_stand = MODEL_MESH("./astro/3d_models/lamppost/stand.obj", 500);
@@ -28,6 +40,32 @@ namespace astro {
 
       for_entities(state.lampposts) {
         auto& entity = state.lampposts[i];
+
+        bool is_light_active = entity.did_activate;
+
+        float light_alpha = time_since(entity.game_activation_time) / 0.4f;
+        if (light_alpha < 0.f) light_alpha = 0.f;
+        if (light_alpha > 1.f) light_alpha = 1.f;
+        light_alpha = Tachyon_EaseInOutf(light_alpha);
+
+        // Wand activation/deactivation
+        {
+          if (
+            did_press_key(tKey::CONTROLLER_X) &&
+            state.astro_turn_speed == 0.f &&
+            !state.has_target
+          ) {
+            float player_distance = tVec3f::distance(state.player_position, entity.position);
+
+            if (player_distance < 9000.f) {
+              if (is_light_active) {
+                TurnLampOff(tachyon, state, entity);
+              } else {
+                TurnLampOn(tachyon, state, entity);
+              }
+            }
+          }
+        }
 
         // Stand
         {
@@ -58,7 +96,11 @@ namespace astro {
 
           Sync(lamp, entity);
 
-          lamp.color = tVec4f(1.f, 0.8f, 0.6f, 1.f);
+          float emissivity = is_light_active
+            ? Tachyon_Lerpf(0.5f, 1.f, light_alpha)
+            : Tachyon_Lerpf(1.f, 0.5f, light_alpha);
+
+          lamp.color = tVec4f(1.f, 0.8f, 0.6f, emissivity);
 
           commit(lamp);
         }
@@ -74,8 +116,31 @@ namespace astro {
           light.position = UnitEntityToWorldPosition(entity, tVec3f(-0.4f, 0.45f, 0));
           light.radius = 5000.f;
           light.color = tVec3f(1.f, 0.5f, 0.2f);
-          light.power = 4.f;
-          light.glow_power = 2.5f + sinf(3.f * get_scene_time());
+
+          float on_power = 4.f;
+          float on_glow_power = 2.5f + sinf(3.f * get_scene_time());
+
+          if (is_light_active) {
+            if (light_alpha < 1.f) {
+              // Fade light in
+              light.power = Tachyon_Lerpf(0.f, on_power, light_alpha);
+              light.glow_power = Tachyon_Lerpf(0.f, on_glow_power, light_alpha);
+            } else {
+              // Stay on
+              light.power = on_power;
+              light.glow_power = on_glow_power;
+            }
+          } else {
+            if (light_alpha < 1.f) {
+              // Fade light out
+              light.power = Tachyon_Lerpf(on_power, 0.f, light_alpha);
+              light.glow_power = Tachyon_Lerpf(on_glow_power, 0.f, light_alpha);
+            } else {
+              // Stay off
+              light.power = 0.f;
+              light.glow_power = 0.f;
+            }
+          }
 
           if (state.is_nighttime) {
             light.radius = 5000.f;
