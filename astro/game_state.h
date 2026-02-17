@@ -222,6 +222,12 @@ namespace astro {
    * Particles
    * ----------------------------
    */
+  struct WandLight {
+    tVec3f position;
+    float spawn_time = 0.f;
+    int32 light_id = -1;
+  };
+
   struct AmbientParticle {
     float spawn_time = 0.f;
     float lifetime = 1.f;
@@ -351,8 +357,11 @@ namespace astro {
     int32 astrolabe_light_id = -1;
     std::vector<int32> astro_light_ids;
 
+    // Wand effects
+    std::vector<WandLight> wand_lights;
+    float last_wand_light_time = 0.f;
+
     // Particles
-    std::vector<int32> wand_light_ids;
     std::vector<AmbientParticle> ambient_particles;
 
     // Magic

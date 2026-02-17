@@ -359,19 +359,17 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
 static void UpdateWandLights(Tachyon* tachyon, State& state) {
   // Initialization
   {
-    if (state.wand_light_ids.size() == 0) {
-      for_range(0, 5) {
-        state.wand_light_ids.push_back(create_point_light());
-      }
+    if (state.wand_lights.size() == 0) {
+      for_range(0, 10) {
+        WandLight wand_light;
+        wand_light.light_id = create_point_light();
 
-      for_range(1, 5) {
-        auto& light = *get_point_light(state.wand_light_ids[i]);
-
-        light.power = 0.1f * float(i);
+        state.wand_lights.push_back(wand_light);
       }
     }
   }
 
+  float scene_time = get_scene_time();
   auto& wand = objects(state.meshes.player_wand)[0];
   tVec3f wand_end_offset = tVec3f(0, 1.48f * wand.scale.y, 0.18f * wand.scale.z);
   tVec3f wand_end_position = wand.position + wand.rotation.toMatrix4f() * wand_end_offset;
@@ -383,8 +381,7 @@ static void UpdateWandLights(Tachyon* tachyon, State& state) {
     const float oscillating_power = 0.2f;
     const float wand_swing_power = 2.f;
 
-    float scene_time = get_scene_time();
-    auto& main_light = *get_point_light(state.wand_light_ids[0]);
+    auto& main_light = *get_point_light(state.wand_lights[0].light_id);
     float main_light_power = base_power + oscillating_power * (0.5f + 0.5f * sinf(2.f * scene_time));
 
     if (state.last_wand_swing_time != 0.f && time_since_last_wand_swing < 1.f) {
@@ -407,36 +404,47 @@ static void UpdateWandLights(Tachyon* tachyon, State& state) {
 
   // Trailing wand lights
   {
-    float highest_power = 0.f;
+    const float cycle_time = 1.f;
+
     float glow_power;
 
     if (state.last_wand_swing_time != 0.f && time_since_last_wand_swing < 2.f) {
-      glow_power = 1.f - Tachyon_EaseOutQuad(0.5f * time_since_last_wand_swing);
+      float alpha = time_since_last_wand_swing / 2.f;
+
+      glow_power = sinf(alpha * t_PI);
     } else {
       glow_power = state.player_velocity.magnitude() / 1300.f;
     }
 
-    for_range(1, 5) {
-      auto& light = *get_point_light(state.wand_light_ids[i]);
+    // Spawn in new wand lights, rotating between the preallocated set
+    float time_since_last_wand_light = time_since(state.last_wand_light_time);
 
-      if (light.power > highest_power) {
-        highest_power = light.power;
+    for_range(1, 10) {
+      auto& wand_light = state.wand_lights[i];
+      auto& light = *get_point_light(wand_light.light_id);
+
+      if (
+        time_since(wand_light.spawn_time) > cycle_time &&
+        glow_power > 0.f &&
+        time_since_last_wand_light > 0.1f
+      ) {
+        state.last_wand_light_time = scene_time;
+
+        wand_light.spawn_time = scene_time;
+        light.position = wand_end_position;
+
+        break;
       }
-    }
 
-    for_range(1, 5) {
-      auto& light = *get_point_light(state.wand_light_ids[i]);
+      float power_alpha = time_since(wand_light.spawn_time) / cycle_time;
+      if (power_alpha > 1.f) power_alpha = 1.f;
+
+      float power = sinf(power_alpha * t_PI);
 
       light.color = tVec3f(1.f, 0.6f, 0.2f);
       light.radius = 500.f;
       light.glow_power = glow_power;
-
-      if (light.power <= 0.f) {
-        light.position = wand_end_position;
-        light.power = highest_power + 0.1f;
-      } else {
-        light.power -= state.dt;
-      }
+      light.power = power;
     }
   }
 }
