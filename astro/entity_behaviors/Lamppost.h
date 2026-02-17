@@ -51,13 +51,16 @@ namespace astro {
         // Wand activation/deactivation
         {
           if (
-            did_press_key(tKey::CONTROLLER_X) &&
+            did_release_key(tKey::CONTROLLER_X) &&
             state.astro_turn_speed == 0.f &&
             !state.has_target
           ) {
-            float player_distance = tVec3f::distance(state.player_position, entity.position);
+            tVec3f player_to_light = entity.position - state.player_position;
+            float light_distance = player_to_light.magnitude();
+            tVec3f unit_player_to_light = player_to_light / light_distance;
+            float facing_dot = tVec3f::dot(unit_player_to_light, state.player_facing_direction);
 
-            if (player_distance < 9000.f) {
+            if (light_distance < 9000.f && facing_dot > 0.1f) {
               if (is_light_active) {
                 TurnLampOff(tachyon, state, entity);
               } else {
