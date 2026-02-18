@@ -5,6 +5,7 @@
 #include "astro/game_events.h"
 #include "astro/game_state.h"
 #include "astro/player_character.h"
+#include "astro/sfx.h"
 #include "astro/simple_animation.h"
 #include "astro/ui_system.h"
 
@@ -186,6 +187,24 @@ namespace astro {
   static tVec3f GetFacingDirection(GameEntity& entity) {
     // @todo why do we have to invert this?
     return entity.visible_rotation.getDirection().invert();
+  }
+
+  struct EntityProximity {
+    float distance;
+    float facing_dot;
+  };
+
+  static EntityProximity GetEntityProximity(GameEntity& entity, const State& state) {
+    tVec3f player_to_entity = entity.position - state.player_position;
+    float entity_distance = player_to_entity.magnitude();
+    tVec3f unit_player_to_entity = player_to_entity / entity_distance;
+    float facing_dot = tVec3f::dot(unit_player_to_entity, state.player_facing_direction);
+
+    EntityProximity proximity;
+    proximity.distance = entity_distance;
+    proximity.facing_dot = facing_dot;
+
+    return proximity;
   }
 
   static inline bool IsDuringActiveTime(const GameEntity& entity, const State& state) {

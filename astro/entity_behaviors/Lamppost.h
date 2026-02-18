@@ -55,12 +55,9 @@ namespace astro {
             state.astro_turn_speed == 0.f &&
             !state.has_target
           ) {
-            tVec3f player_to_light = entity.position - state.player_position;
-            float light_distance = player_to_light.magnitude();
-            tVec3f unit_player_to_light = player_to_light / light_distance;
-            float facing_dot = tVec3f::dot(unit_player_to_light, state.player_facing_direction);
+            auto proximity = GetEntityProximity(entity, state);
 
-            if (light_distance < 9000.f && facing_dot > 0.1f) {
+            if (proximity.distance < 9000.f && proximity.facing_dot > 0.1f) {
               if (is_light_active) {
                 TurnLampOff(tachyon, state, entity);
               } else {
