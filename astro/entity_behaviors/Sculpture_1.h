@@ -42,7 +42,7 @@ namespace astro {
         tVec3f color = tVec3f::lerp(start_color, end_color, alpha);
         float roughness = Tachyon_Lerpf(0.f, 1.f, alpha);
 
-        // Wand activation/deactivation
+        // Wand interaction
         {
           if (
             did_release_key(tKey::CONTROLLER_X) &&
@@ -76,7 +76,7 @@ namespace astro {
           // Constant rotation
           entity.accumulation_value += state.dt;
 
-          // Wand activation
+          // Wand effects
           {
             const float speed_up_duration = 3.f;
 
