@@ -43,6 +43,9 @@ struct LevelEditorState {
   bool use_uniform_scaling = false;
   bool show_fog_volumes = true;
 
+  bool is_fast_camera_movement_enabled = false;
+  float last_space_press_time = 0.f;
+
   bool is_editing_entity_properties = false;
   int editing_entity_step = 0;
   std::string edited_entity_property_value = "";
@@ -294,7 +297,25 @@ static void HandleCameraActions(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
 
   const float camera_panning_speed = 0.2f;
-  const float camera_movement_speed = is_key_held(tKey::SPACE) ? 30000.f : 5000.f;
+
+  const float camera_movement_speed = (
+    is_key_held(tKey::SPACE)
+      ? editor.is_fast_camera_movement_enabled ? 100000.f : 30000.f
+      : 5000.f
+  );
+
+  // Double-tapping SPACE for faster movement
+  {
+    if (did_press_key(tKey::SPACE)) {
+      if (tachyon->running_time - editor.last_space_press_time < 0.25f) {
+        editor.is_fast_camera_movement_enabled = true;
+      } else {
+        editor.is_fast_camera_movement_enabled = false;
+      }
+
+      editor.last_space_press_time = tachyon->running_time;
+    }
+  }
 
   // Object swiveling or mouse panning
   {
