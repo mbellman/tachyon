@@ -74,7 +74,7 @@ static void StartRiverWheelEvent(Tachyon* tachyon, State& state) {
   for (auto& entity : state.npcs) {
     if (entity.unique_name == "dweller_river") {
       // @TEMPORARY!!!!
-      tVec3f move_target_position = tVec3f(-125000.f, 0, 75000.f);
+      tVec3f move_target_position = tVec3f(-50000.f, 0, 225000.f);
 
       QueueEntityMoveEvent(tachyon, state, entity, move_target_position, {
         .duration = 2.f

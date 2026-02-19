@@ -283,7 +283,7 @@ static void HandleCurrentAreaMusic(Tachyon* tachyon, State& state) {
     if (state.bgm_start_time == -1.f) return;
 
     // @temporary
-    tVec3f village_position = tVec3f(157000.f, 0, -44000.f);
+    tVec3f village_position = tVec3f(232000.f, 0, 106000.f);
 
     if (tVec3f::distance(state.player_position, village_position) < 40000.f) {
       BGM::LoopMusic(VILLAGE_1, 0.4f);
@@ -323,7 +323,7 @@ static void RespawnPlayer(Tachyon* tachyon, State& state) {
   // Reset player
   // @todo default/load from save
   // @todo spawn at wind chimes
-  state.player_position = tVec3f(-13800.f, 0, -5900.f);
+  state.player_position = tVec3f(61200.f, 0, 144100.f);
   state.player_facing_direction = tVec3f(0, 0, 1.f);
   state.player_velocity = tVec3f(0.f);
   state.player_hp = 100.f;
@@ -331,7 +331,7 @@ static void RespawnPlayer(Tachyon* tachyon, State& state) {
   // Reset camera
   state.camera_shift = tVec3f(0, 0, 1875.f);
 
-  tachyon->scene.camera.position = tVec3f(-13800.f, 10000.f, 2975.f);
+  tachyon->scene.camera.position = tVec3f(61200.f, 10000.f, 152975.f);
 
   // @temporary
   state.dismissed_blocking_dialogue = true;
