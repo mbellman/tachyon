@@ -627,13 +627,13 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
   remove_all(meshes.ground_flower);
 
   // Clusters
-  parallel_for_range(0, 7000, {
+  parallel_for_range(0, 12000, {
     tRNG rng(1234.f + float(__index));
 
     tVec3f center;
-    center.x = rng.Random(-300000.f, 300000.f);
+    center.x = rng.Random(-400000.f, 400000.f);
     center.y = -1000.f;
-    center.z = rng.Random(-300000.f, 300000.f);
+    center.z = rng.Random(-400000.f, 400000.f);
 
     // 4 flowers per cluster
     // @todo avoid crashing at the limit! right now we only avoid
@@ -678,13 +678,13 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
   remove_all(meshes.tiny_ground_flower);
 
   // Clusters
-  parallel_for_range(0, 7000, {
+  parallel_for_range(0, 12000, {
     tRNG rng(5678.f + float(__index));
 
     tVec3f center;
-    center.x = rng.Random(-300000.f, 300000.f);
+    center.x = rng.Random(-400000.f, 400000.f);
     center.y = -875.f;
-    center.z = rng.Random(-300000.f, 300000.f);
+    center.z = rng.Random(-400000.f, 400000.f);
 
     // 6 flowers per cluster
     // @todo avoid crashing at the limit! right now we only avoid
