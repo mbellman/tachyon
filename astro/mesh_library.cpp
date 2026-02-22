@@ -96,7 +96,7 @@ static void AddProceduralMeshes(Tachyon* tachyon, State& state) {
 
   // ground_flower
   {
-    meshes.ground_flower = MODEL_MESH("./astro/3d_models/flower.obj", 20000);
+    meshes.ground_flower = MODEL_MESH("./astro/3d_models/flower.obj", 30000);
 
     mesh(meshes.ground_flower).type = GRASS_MESH;
     mesh(meshes.ground_flower).shadow_cascade_ceiling = 2;
@@ -104,7 +104,7 @@ static void AddProceduralMeshes(Tachyon* tachyon, State& state) {
 
   // tiny_ground_flowers
   {
-    meshes.tiny_ground_flower = MODEL_MESH("./astro/3d_models/tiny_flower.obj", 20000);
+    meshes.tiny_ground_flower = MODEL_MESH("./astro/3d_models/tiny_flower.obj", 30000);
 
     mesh(meshes.tiny_ground_flower).type = GRASS_MESH;
     mesh(meshes.tiny_ground_flower).shadow_cascade_ceiling = 0;
