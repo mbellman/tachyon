@@ -10,50 +10,71 @@
 
 using namespace astro;
 
+static float GetTurnDot(Tachyon* tachyon, State& state) {
+  tVec2f stick_direction = tVec2f(tachyon->left_stick.x, tachyon->left_stick.y);
+
+  if (stick_direction.x == 0.f && stick_direction.y == 0.f) {
+    return 0.f;
+  }
+
+  stick_direction = stick_direction.unit();
+  tVec3f facing_direction = state.player_facing_direction.xz().unit();
+
+  return stick_direction.x * facing_direction.x + stick_direction.y * facing_direction.z;
+}
+
 static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
   const float dodge_cooldown_time = 0.3f;
   const float strong_attack_cooldown_time = 0.5f;
 
   bool is_running = is_key_held(tKey::CONTROLLER_A) || is_key_held(tKey::SHIFT);
 
-  if (state.is_astrolabe_stopped && time_since(state.last_dodge_time) > dodge_cooldown_time) {
-    // Directional movement
-    float movement_speed = is_running ? 14000.f : 4000.f;
+  if (!state.is_astrolabe_stopped || time_since(state.last_dodge_time) < dodge_cooldown_time) {
+    // Disallow movement while astro traveling or dodging
+    return;
+  }
 
-    if (is_key_held(tKey::W)) {
-      state.player_velocity += tVec3f(0, 0, -1.f) * movement_speed * state.dt;
-    }
+  // Directional movement
+  float movement_speed = is_running ? 14000.f : 4000.f;
 
-    if (is_key_held(tKey::A)) {
-      state.player_velocity += tVec3f(-1.f, 0, 0) * movement_speed * state.dt;
-    }
+  if (is_key_held(tKey::W)) {
+    state.player_velocity += tVec3f(0, 0, -1.f) * movement_speed * state.dt;
+  }
 
-    if (is_key_held(tKey::D)) {
-      state.player_velocity += tVec3f(1.f, 0, 0) * movement_speed * state.dt;
-    }
+  if (is_key_held(tKey::A)) {
+    state.player_velocity += tVec3f(-1.f, 0, 0) * movement_speed * state.dt;
+  }
 
-    if (is_key_held(tKey::S)) {
-      state.player_velocity += tVec3f(0, 0, 1.f) * movement_speed * state.dt;
-    }
+  if (is_key_held(tKey::D)) {
+    state.player_velocity += tVec3f(1.f, 0, 0) * movement_speed * state.dt;
+  }
 
-    state.player_velocity.x += tachyon->left_stick.x * movement_speed * state.dt;
-    state.player_velocity.z += tachyon->left_stick.y * movement_speed * state.dt;
+  if (is_key_held(tKey::S)) {
+    state.player_velocity += tVec3f(0, 0, 1.f) * movement_speed * state.dt;
+  }
 
-    // Track run input timings to use for dodges
-    if (did_press_key(tKey::CONTROLLER_A)) {
-      state.last_run_input_time = get_scene_time();
-    }
+  state.player_velocity.x += tachyon->left_stick.x * movement_speed * state.dt;
+  state.player_velocity.z += tachyon->left_stick.y * movement_speed * state.dt;
 
-    // Tapping A/X quickly to dodge
-    if (
-      state.targetable_entities.size() > 0 &&
-      did_release_key(tKey::CONTROLLER_A) &&
-      time_since(state.last_run_input_time) < 0.3f &&
-      time_since(state.last_damage_time) > 0.5f
-    ) {
-      state.player_velocity *= 3.5f;
-      state.last_dodge_time = get_scene_time();
-    }
+  // Track run input timings to use for dodges
+  if (did_press_key(tKey::CONTROLLER_A)) {
+    state.last_run_input_time = get_scene_time();
+  }
+
+  // Tapping A/X quickly to dodge
+  if (
+    state.targetable_entities.size() > 0 &&
+    did_release_key(tKey::CONTROLLER_A) &&
+    time_since(state.last_run_input_time) < 0.3f &&
+    time_since(state.last_damage_time) > 0.5f
+  ) {
+    state.player_velocity *= 3.5f;
+    state.last_dodge_time = get_scene_time();
+  }
+
+  // Quick turning
+  if (GetTurnDot(tachyon, state) < -0.5f) {
+    state.last_quick_turn_time = get_scene_time();
   }
 }
 

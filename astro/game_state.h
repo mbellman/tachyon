@@ -278,6 +278,7 @@ namespace astro {
     Plane last_plane_walked_on;
     float player_hp = 100.f;
     float last_damage_time = 0.f;
+    float last_quick_turn_time = 0.f;
     float last_wand_swing_time = 0.f;
     float last_wand_bounce_time = 0.f;
     float last_strong_attack_time = 0.f;

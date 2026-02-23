@@ -75,7 +75,10 @@ static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
   // @todo set the active animation based on player actions
   if (state.player_velocity.magnitude() > 600.f) {
     SetNextAnimation(state, &state.animations.player_run);
-  } else if (state.player_velocity.magnitude() > 50.f) {
+  } else if (
+    state.player_velocity.magnitude() > 50.f ||
+    (state.last_quick_turn_time != 0.f && time_since(state.last_quick_turn_time) < 0.3f)
+  ) {
     SetNextAnimation(state, &state.animations.player_walk);
   } else {
     SetNextAnimation(state, &state.animations.player_idle);
@@ -683,10 +686,10 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
   // @todo factor
   {
     tVec3f desired_facing_direction = state.player_facing_direction;
-    float turning_speed = 5.f;
+    float turn_speed = 5.f;
 
     if (state.has_target) {
-      // When we're focused on a target, face it and turn much more quickly
+      // When we're focused on a target, continue to face toward it
       auto& target = *EntityManager::FindEntity(state, state.target_entity);
 
       desired_facing_direction = (target.visible_position - state.player_position).xz().unit();
@@ -696,17 +699,27 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
       desired_facing_direction = state.player_velocity.unit();
     }
 
+    // Speed up turning during quick turns
+    float time_since_last_quick_turn = time_since(state.last_quick_turn_time);
+
+    if (time_since_last_quick_turn < 1.f) {
+      float alpha = 1.f - time_since_last_quick_turn;
+      float additional_turn_speed = 7.5f * alpha;
+
+      turn_speed += additional_turn_speed;
+    }
+
     // When astro turning, don't change our facing direction at all,
     // since targeted entities may jitter and jump about rapidly,
     // and we don't want the facing direction being thrown off
     if (abs(state.astro_turn_speed) > 0.05f) {
-      turning_speed = 0.f;
+      turn_speed = 0.f;
     }
 
-    state.player_facing_direction = tVec3f::lerp(state.player_facing_direction, desired_facing_direction, turning_speed * state.dt).unit();
+    state.player_facing_direction = tVec3f::lerp(state.player_facing_direction, desired_facing_direction, turn_speed * state.dt).unit();
   }
 
-  // Handle wand bounce recoil
+  // Handle wand bounce knockback
   // @todo factor
   {
     float recoil_duration = 1.f;

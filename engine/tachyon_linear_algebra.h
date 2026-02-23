@@ -7,6 +7,8 @@ struct Quaternion;
 struct tVec2f {
   float x = 0.f;
   float y = 0.f;
+
+  tVec2f unit() const;
 };
 
 struct tVec3f {
