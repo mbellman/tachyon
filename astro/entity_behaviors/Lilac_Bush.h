@@ -45,8 +45,12 @@ namespace astro {
       auto& meshes = state.meshes;
 
       const float lifetime = 100.f;
+
       const tVec3f leaves_color = tVec3f(0.07f, 0.14f, 0.07f);
       const tVec3f leaves_wilting_color = tVec3f(0.4f, 0.2f, 0.1f);
+
+      const tVec3f flowers_color = tVec3f(1.f, 0.4f, 1.f);
+      const tVec3f flowers_wilting_color = tVec3f(0.4f, 0.2f, 0.1f);
 
       reset_instances(meshes.lilac_leaves);
       reset_instances(meshes.lilac_flower);
@@ -100,11 +104,15 @@ namespace astro {
 
         // Flowers
         {
+          float wilting_alpha = life_progress < 0.5f ? 0.f : sqrtf(2.f * (life_progress - 0.5f));
+          tVec3f petals_color = tVec3f::lerp(flowers_color, flowers_wilting_color, wilting_alpha);
+
           for (int j = 0; j < 6; j++) {
             auto& flower = use_instance(meshes.lilac_flower);
             float alpha = float(j) / 5.f;
 
-            float flower_growth = powf(sinf(life_progress * t_PI + alpha * 0.5f), 3.f);
+            float flower_life_progress = life_progress * t_PI * 0.75f + alpha * 0.5f;
+            float flower_growth = powf(sinf(flower_life_progress), 3.f);
             tVec3f flower_scale = entity.scale * 2.f * flower_growth;
             float flower_scale_y = entity.scale.y * 2.f * sqrtf(flower_growth);
 
@@ -123,7 +131,7 @@ namespace astro {
             flower.position = entity.position + random_offset;
             flower.scale = flower_scale;
             flower.scale.y = flower_scale_y;
-            flower.color = tVec3f(1.f, 0.4f, 1.f);
+            flower.color = petals_color;
             flower.material = tVec4f(0.8f, 0, 0, 0.6f);
 
             // @todo optimize
