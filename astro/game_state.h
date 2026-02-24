@@ -203,6 +203,9 @@ namespace astro {
     tVec3f position;
     std::vector<tVec3f> grass_positions;
     std::vector<tVec3f> flower_positions;
+    std::vector<uint16> grass_object_ids;
+    std::vector<uint16> flower_object_ids;
+    bool is_currently_in_view = false;
   };
 
   /**

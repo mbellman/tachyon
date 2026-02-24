@@ -129,14 +129,6 @@ static void GenerateGround1Plants(Tachyon* tachyon, State& state) {
   {
     remove_all(state.meshes.grass);
     remove_all(state.meshes.ground_1_flower);
-
-    for (uint16 i = 0; i < 10000; i++) {
-      create(state.meshes.grass);
-    }
-
-    for (uint16 i = 0; i < 1000; i++) {
-      create(state.meshes.ground_1_flower);
-    }
   }
 
   // Reset clusters
@@ -221,6 +213,8 @@ static void GenerateGround1Plants(Tachyon* tachyon, State& state) {
 static void UpdateGround1Plants(Tachyon* tachyon, State& state) {
   profile("UpdateGround1Plants()");
 
+  auto& meshes = state.meshes;
+
   static const tVec3f offsets[] = {
     tVec3f(0, 0, 0),
     tVec3f(-200.f, 0, 150.f),
@@ -240,69 +234,116 @@ static void UpdateGround1Plants(Tachyon* tachyon, State& state) {
 
   auto& player_position = state.player_position;
 
-  uint16 total_grass = 0;
-  uint16 total_flowers = 0;
-
   for (auto& cluster : state.ground_plant_clusters) {
     // @todo factor
-    if (abs(cluster.position.x - player_position.x) > 20000.f) continue;
-    if (abs(cluster.position.z - player_position.z) > 20000.f) continue;
+    if (
+      abs(cluster.position.x - player_position.x) > 20000.f ||
+      abs(cluster.position.z - player_position.z) > 20000.f
+    ) {
+      if (cluster.is_currently_in_view) {
+        // Purge objects as clusters exit the view
+        // @todo factor
+        for (uint16 id : cluster.grass_object_ids) {
+          auto& grass = objects(meshes.grass).getByIdFast(id);
 
-    for (auto& position : cluster.grass_positions) {
-      // @todo factor
-      float alpha = state.astro_time + position.x + position.z;
-      int iteration = (int)abs(growth_rate * alpha / t_TAU - 0.8f);
-      float rotation_angle = position.x + float(iteration) * 1.3f;
+          remove_object(grass);
+        }
 
-      float scale_factor = 0.5f + (position.y - -1500.f) * 0.001f;
-      if (scale_factor > 1.5f) scale_factor = 1.5f;
+        for (uint16 id : cluster.flower_object_ids) {
+          auto& flower = objects(meshes.ground_1_flower).getByIdFast(id);
 
-      auto& grass = objects(state.meshes.grass)[total_grass++];
+          remove_object(flower);
+        }
 
-      grass.position = position + offsets[iteration % 4];
-      grass.scale = tVec3f(scales[iteration % 5]) * sqrtf(0.5f + 0.5f * sinf(growth_rate * alpha));
-      grass.scale *= scale_factor;
+        cluster.grass_object_ids.clear();
+        cluster.flower_object_ids.clear();
+      }
 
-      grass.color = tVec4f(0.2f, 0.3f, 0.1f, 0.3f);
-      grass.material = tVec4f(0.8f, 0, 0, 1.f);
+      cluster.is_currently_in_view = false;
 
-      grass.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), rotation_angle);
-
-      commit(grass);
+      continue;
     }
 
-    float emissivity = state.is_nighttime ? 0.6f : 0.f;
+    bool should_update = !cluster.is_currently_in_view || state.astro_turn_speed != 0.f;
 
-    for (auto& position : cluster.flower_positions) {
+    if (!cluster.is_currently_in_view) {
+      // Create objects when the cluster comes into view
       // @todo factor
-      float alpha = state.astro_time + position.x + position.z;
-      int iteration = (int)abs(growth_rate * alpha / t_TAU - 0.8f);
-      float rotation_angle = position.x + float(iteration) * 1.3f;
+      for (auto& position : cluster.grass_positions) {
+        auto& grass = create(meshes.grass);
 
-      float scale_factor = 0.5f + (position.y - -1500.f) * 0.001f;
-      if (scale_factor > 1.5f) scale_factor = 1.5f;
-      scale_factor *= 0.2f;
+        cluster.grass_object_ids.push_back(grass.object_id);
+      }
 
-      auto& flower = objects(state.meshes.ground_1_flower)[total_flowers++];
+      for (auto& position : cluster.flower_positions) {
+        auto& flower = create(meshes.ground_1_flower);
 
-      flower.position = position + offsets[iteration % 4];
-      flower.scale = tVec3f(scales[iteration % 5]) * sqrtf(0.5f + 0.5f * sinf(growth_rate * alpha));
-      flower.scale *= scale_factor;
+        cluster.flower_object_ids.push_back(flower.object_id);
+      }
+    }
 
-      flower.color = tVec4f(0.8f, 0.3f, 0.3f, emissivity);
-      flower.material = tVec4f(0.8f, 0, 0, 0.7f);
+    cluster.is_currently_in_view = true;
 
-      flower.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), rotation_angle);
+    if (should_update) {
+      float emissivity = state.is_nighttime ? 0.6f : 0.f;
 
-      commit(flower);
+      // @todo factor
+      for (size_t i = 0; i < cluster.grass_object_ids.size(); i++) {
+        uint16 id = cluster.grass_object_ids[i];
+        auto& grass = objects(meshes.grass).getByIdFast(id);
+        auto& position = cluster.grass_positions[i];
+
+        float alpha = state.astro_time + position.x + position.z;
+        int iteration = (int)abs(growth_rate * alpha / t_TAU - 0.8f);
+        float rotation_angle = position.x + float(iteration) * 1.3f;
+
+        float scale_factor = 0.5f + (position.y - -1500.f) * 0.001f;
+        if (scale_factor > 1.5f) scale_factor = 1.5f;
+
+        grass.position = position + offsets[iteration % 4];
+        grass.scale = tVec3f(scales[iteration % 5]) * sqrtf(0.5f + 0.5f * sinf(growth_rate * alpha));
+        grass.scale *= scale_factor;
+
+        grass.color = tVec4f(0.2f, 0.3f, 0.1f, 0.3f);
+        grass.material = tVec4f(0.8f, 0, 0, 1.f);
+
+        grass.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), rotation_angle);
+
+        commit(grass);
+      }
+
+      // @todo factor
+      for (size_t i = 0; i < cluster.flower_object_ids.size(); i++) {
+        uint16 id = cluster.flower_object_ids[i];
+        auto& flower = objects(meshes.ground_1_flower).getByIdFast(id);
+        auto& position = cluster.flower_positions[i];
+
+        float alpha = state.astro_time + position.x + position.z;
+        int iteration = (int)abs(growth_rate * alpha / t_TAU - 0.8f);
+        float rotation_angle = position.x + float(iteration) * 1.3f;
+
+        float scale_factor = 0.5f + (position.y - -1500.f) * 0.001f;
+        if (scale_factor > 1.5f) scale_factor = 1.5f;
+        scale_factor *= 0.2f;
+
+        flower.position = position + offsets[iteration % 4];
+        flower.scale = tVec3f(scales[iteration % 5]) * sqrtf(0.5f + 0.5f * sinf(growth_rate * alpha));
+        flower.scale *= scale_factor;
+
+        flower.color = tVec4f(0.8f, 0.3f, 0.3f, emissivity);
+        flower.material = tVec4f(0.8f, 0, 0, 0.7f);
+
+        flower.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), rotation_angle);
+
+        commit(flower);
+      }
     }
   }
 
-  mesh(state.meshes.grass).lod_1.instance_count = total_grass;
-  mesh(state.meshes.ground_1_flower).lod_1.instance_count = total_flowers;
-
   // @todo dev mode only
   {
+    auto total_grass = objects(meshes.grass).total_active;
+
     add_dev_label("  Total grass: ", std::to_string(total_grass));
   }
 }
@@ -729,6 +770,8 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
 static void UpdateGroundFlowers(Tachyon* tachyon, State& state) {
   profile("UpdateGroundFlowers()");
 
+  auto& meshes = state.meshes;
+
   static const tVec3f offsets[] = {
     tVec3f(0, 0, 0),
     tVec3f(-500.f, 0, 450.f),
@@ -746,9 +789,8 @@ static void UpdateGroundFlowers(Tachyon* tachyon, State& state) {
   // @todo factor
   const float lifetime = t_PI + t_HALF_PI;
 
-  for (auto& flower : objects(state.meshes.ground_flower)) {
-    if (abs(flower.position.x - player_position.x) > 15000.f) continue;
-    if (abs(flower.position.z - player_position.z) > 15000.f) continue;
+  for (uint16 i = 0; i < mesh(meshes.ground_flower).lod_1.instance_count; i++) {
+    auto& flower = objects(meshes.ground_flower)[i];
 
     float alpha_variation = fmodf(abs(flower.position.x + flower.position.z) * 0.1f, 10.f);
     float alpha = base_time_progress + alpha_variation;
@@ -770,9 +812,8 @@ static void UpdateGroundFlowers(Tachyon* tachyon, State& state) {
   // @todo factor
   const float tiny_lifetime = t_TAU;
 
-  for (auto& flower : objects(state.meshes.tiny_ground_flower)) {
-    if (abs(flower.position.x - player_position.x) > 15000.f) continue;
-    if (abs(flower.position.z - player_position.z) > 15000.f) continue;
+  for (uint16 i = 0; i < mesh(meshes.tiny_ground_flower).lod_1.instance_count; i++) {
+    auto& flower = objects(meshes.tiny_ground_flower)[i];
 
     float alpha_variation = fmodf(abs(flower.position.x + flower.position.z) * 0.1f, 10.f);
     float alpha = base_time_progress + alpha_variation;
