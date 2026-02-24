@@ -5,24 +5,39 @@
 namespace astro {
   behavior Shrub {
     static void ApplyDefaultProperties(GameEntity& entity, tObject& leaves) {
-      const tVec3f leaves_color = tVec3f(0.07f, 0.14f, 0.07f);
-
       leaves.position = entity.position;
       leaves.position.y -= (entity.scale.y - leaves.scale.y);
 
       leaves.rotation = entity.orientation;
-      leaves.color = leaves_color;
       leaves.material = tVec4f(0.7f, 0, 0, 0.2f);
     }
 
     static float GetGrowthFactor(const float life_progress, const float offset) {
-      float growth_factor = sinf((life_progress + offset) * t_PI);
-
       if (life_progress == 0.f || life_progress == 1.f) {
-        growth_factor = 0.f;
+        return 0.f;
       }
 
-      return growth_factor;
+      float growth_factor = sinf((life_progress + offset) * t_PI);
+
+      return growth_factor < 0.f ? 0.f : growth_factor;
+    }
+
+    static float GetWidthFactor(const float life_progress, const float offset) {
+      if (life_progress == 0.f || life_progress == 1.f) {
+        return 0.f;
+      }
+
+      float progress = life_progress + offset;
+
+      if (progress < 0.f) return 0.f;
+
+      if (progress < 0.5f) {
+        float p = 2.f * progress;
+
+        return p * p;
+      }
+
+      return sqrtf(1.f - (progress - 0.5f));
     }
 
     addMeshes() {
@@ -63,6 +78,7 @@ namespace astro {
 
       const float lifetime = 100.f;
       const tVec3f leaves_color = tVec3f(0.07f, 0.14f, 0.07f);
+      const tVec3f leaves_wilting_color = tVec3f(0.4f, 0.2f, 0.1f);
 
       reset_instances(meshes.shrub_bottom);
       reset_instances(meshes.shrub_middle);
@@ -75,18 +91,18 @@ namespace astro {
         if (abs(state.player_position.z - entity.position.z) > 25000.f) continue;
 
         float life_progress = GetLivingEntityProgress(state, entity, lifetime);
+        tVec3f plant_color = tVec3f::lerp(leaves_color, leaves_wilting_color, powf(life_progress, 6.f));
 
         // Bottom
         {
           auto& bottom = use_instance(meshes.shrub_bottom);
+          float growth_factor = GetGrowthFactor(life_progress, 0.f);
+          float width_factor = GetWidthFactor(life_progress, 0.f);
 
-          bottom.scale = entity.scale * GetGrowthFactor(life_progress, 0.f);
-
-          // @todo factor
-          if (life_progress > 0.5f && life_progress != 1.f) {
-            bottom.scale.x = entity.scale.x;
-            bottom.scale.z = entity.scale.z;
-          }
+          bottom.scale.y = entity.scale.y * growth_factor;
+          bottom.scale.x = entity.scale.x * width_factor;
+          bottom.scale.z = entity.scale.z * width_factor;
+          bottom.color = plant_color;
 
           ApplyDefaultProperties(entity, bottom);
 
@@ -96,14 +112,13 @@ namespace astro {
         // Middle
         {
           auto& middle = use_instance(meshes.shrub_middle);
+          float growth_factor = GetGrowthFactor(life_progress, -0.15f);
+          float width_factor = GetWidthFactor(life_progress, -0.15f);
 
-          middle.scale = entity.scale * GetGrowthFactor(life_progress, -0.15f);
-
-          // @todo factor
-          if (life_progress > 0.5f && life_progress != 1.f) {
-            middle.scale.x = entity.scale.x;
-            middle.scale.z = entity.scale.z;
-          }
+          middle.scale.y = entity.scale.y * growth_factor;
+          middle.scale.x = entity.scale.x * width_factor;
+          middle.scale.z = entity.scale.z * width_factor;
+          middle.color = plant_color;
 
           ApplyDefaultProperties(entity, middle);
 
@@ -113,14 +128,13 @@ namespace astro {
         // Top
         {
           auto& top = use_instance(meshes.shrub_top);
+          float growth_factor = GetGrowthFactor(life_progress, -0.3f);
+          float width_factor = GetWidthFactor(life_progress, -0.3f);
 
-          top.scale = entity.scale * GetGrowthFactor(life_progress, -0.3f);
-
-          // @todo factor
-          if (life_progress > 0.5f && life_progress != 1.f) {
-            top.scale.x = entity.scale.x;
-            top.scale.z = entity.scale.z;
-          }
+          top.scale.y = entity.scale.y * growth_factor;
+          top.scale.x = entity.scale.x * width_factor;
+          top.scale.z = entity.scale.z * width_factor;
+          top.color = plant_color;
 
           ApplyDefaultProperties(entity, top);
 

@@ -4,6 +4,14 @@
 
 namespace astro {
   behavior OakTree {
+    static float GetSubsurfaceScattering(const float entity_age) {
+      float alpha = (entity_age - 150.f) / 150.f;
+      if (alpha < 0.f) alpha = 0.f;
+      if (alpha > 1.f) alpha = 1.f;
+
+      return Tachyon_Lerpf(0.5f, 0.1f, alpha);
+    }
+
     addMeshes() {
       meshes.oak_tree_placeholder = MODEL_MESH("./astro/3d_models/oak_tree/placeholder.obj", 500);
       meshes.oak_tree_roots = MODEL_MESH("./astro/3d_models/oak_tree/roots.obj", 500);
@@ -38,10 +46,9 @@ namespace astro {
 
       auto& meshes = state.meshes;
 
-      const tVec3f wood_color = tVec3f(1.f, 0.4f, 0.2f);
-      const tVec4f wood_material = tVec4f(1.f, 0, 0, 0.1f);
-      const tVec3f leaves_color = tVec3f(0.15f, 0.3f, 0.1f);
       const float lifetime = 200.f;
+      const tVec3f wood_color = tVec3f(1.f, 0.4f, 0.2f);
+      const tVec3f leaves_color = tVec3f(0.15f, 0.3f, 0.1f);
 
       reset_instances(meshes.oak_tree_roots);
       reset_instances(meshes.oak_tree_trunk);
@@ -64,6 +71,10 @@ namespace astro {
           growth_factor = sqrtf(1.f - expf(-0.01f * entity_age));
         }
 
+        float entity_age = state.astro_time - entity.astro_start_time;
+        float subsurface = GetSubsurfaceScattering(entity_age);
+        tVec4f wood_material = tVec4f(1.f, 0, 0, subsurface);
+
         float tree_height = 1.f - powf(1.f - growth_factor, 4.f);
         float tree_thickness = -(cosf(t_PI * growth_factor) - 1.f) / 2.f;
 
@@ -71,7 +82,7 @@ namespace astro {
           tree_thickness,
           tree_height,
           tree_thickness
-        );
+        ) + tVec3f(entity_age);
 
         // Roots
         {
@@ -81,7 +92,7 @@ namespace astro {
           roots.scale.y *= 2.5f;
 
           roots.position = entity.position;
-          roots.position.y = entity.position.y + entity.scale.y * 1.2f * tree_thickness;// - entity.scale.y * (1.f - tree_thickness);
+          roots.position.y = entity.position.y + entity.scale.y * 1.3f * tree_thickness;
 
           roots.rotation = entity.orientation;
           roots.color = wood_color;

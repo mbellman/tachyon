@@ -164,8 +164,10 @@ vec3 GetDirectionalLightRadiance(
   float sD = DistributionGGX(NdotH, roughness);
   float sG = GeometryGGX(NdotH, roughness, metalness);
 
-  float D = (1.0 - metalness) * (1.0 - roughness * 0.5) * light_factor;
-  float Sp = (sD + sG) * light_factor;
+  // @todo Wtf is this D term? It doesn't seem to be PBR-related
+  // so it should probably be removed.
+  float D = 0.0; //(1.0 - metalness) * (1.0 - roughness * 0.5) * light_factor;
+  float Sp = (sD + sG) * 1.5 * light_factor;
   float C = Clearcoat(NdotH, NdotV, clearcoat) * light_factor;
   // @todo pass the additional terms into Subsurface()
   float Sc = Subsurface(NdotV, subsurface) * (light_factor + 0.05) * (1.0 - metalness * 0.5);
