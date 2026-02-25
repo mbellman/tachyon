@@ -28,7 +28,7 @@ static void HandleCurrentDialogueSet(Tachyon* tachyon, State& state) {
   }
 
   // Handle dialogue ending
-  if (state.current_dialogue_step > dialogue_set.lines.size() - 1) {
+  if (state.current_dialogue_step > int32(dialogue_set.lines.size() - 1)) {
     CompleteCurrentDialogueSet(state);
 
     return;

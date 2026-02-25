@@ -87,7 +87,7 @@ static void UpdateAstroTravelCamera(Tachyon* tachyon, State& state, tVec3f& new_
 static void UpdateStandardCamera(Tachyon* tachyon, State& state, tVec3f& new_camera_position) {
   new_camera_position = state.player_position;
 
-  float shift_amount = std::max(state.movement_delta * 20.f, 1500.f);
+  float shift_amount = std::max(state.previous_move_delta * 20.f, 1500.f);
   tVec3f shift_direction = state.player_facing_direction + tVec3f(0, 0, 0.4f);
   tVec3f desired_camera_shift = shift_direction * tVec3f(0.75f, 0, 1.f) * shift_amount;
 

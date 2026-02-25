@@ -9,7 +9,7 @@ namespace astro {
   };
 
   struct AnimationStep : TransformState {
-    float duration;
+    float duration = 0.f;
   };
 
   struct AnimationSequence {

@@ -51,14 +51,19 @@ static void SetNextAnimation(State& state, State::SkeletonAnimation* animation) 
     return;
   }
 
-  if (state.next_animation != nullptr && state.time_since_last_animation_change < 1.f) {
-    return;
-  }
-
   ReserveAnimationPoseData(*animation);
 
   state.next_animation = animation;
   state.time_since_last_animation_change = 0.f;
+}
+
+// @todo move to Animation::
+static void TransitionToNextAnimation(State& state, State::SkeletonAnimation* animation) {
+  if (state.next_animation != nullptr && state.time_since_last_animation_change < 1.f) {
+    return;
+  }
+
+  SetNextAnimation(state, animation);
 }
 
 static float GetMaxSeekTime(State::SkeletonAnimation& animation) {
@@ -77,15 +82,15 @@ static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
 
   // @temporary
   // @todo set the active animation based on player actions
-  if (state.movement_delta > 50.f) {
+  if (state.previous_move_delta > 50.f) {
     SetNextAnimation(state, &state.animations.player_run);
   } else if (
-    state.movement_delta > 5.f ||
+    state.previous_move_delta > 5.f ||
     (state.last_quick_turn_time != 0.f && time_since(state.last_quick_turn_time) < 0.3f)
   ) {
-    SetNextAnimation(state, &state.animations.player_walk);
+    TransitionToNextAnimation(state, &state.animations.player_walk);
   } else {
-    SetNextAnimation(state, &state.animations.player_idle);
+    TransitionToNextAnimation(state, &state.animations.player_idle);
   }
 
   // Accumulate animation time
@@ -229,7 +234,7 @@ static void HandleAutoHop(State& state) {
 }
 
 static void HandleRunOscillation(State& state, tVec3f& body_position) {
-  if (state.movement_delta > 50.f) {
+  if (state.previous_move_delta > 50.f) {
     state.run_oscillation += 5.f * state.dt;
   } else {
     state.run_oscillation -= 4.f * state.dt;

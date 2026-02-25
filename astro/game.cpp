@@ -330,7 +330,7 @@ static void RecordPreviousPlayerPosition(State& state) {
 }
 
 // @todo PlayerCharacter::
-static tVec3f GetNetMovement(State& state) {
+static float GetNetMovementDistance(State& state) {
   tVec3f movement = tVec3f(0.f);
 
   for (size_t i = state.previous_player_positions.size() - 1; i > 0; i--) {
@@ -342,7 +342,7 @@ static tVec3f GetNetMovement(State& state) {
     movement += delta;
   }
 
-  return movement;
+  return movement.magnitude();
 }
 
 // @todo PlayerCharacter::RespawnPlayer()
@@ -600,16 +600,16 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
 
     // Tracking net movement, updating the last player position
     {
-      if (GetNetMovement(state).magnitude() > 50.f) {
+      if (GetNetMovementDistance(state) > 50.f) {
         tVec3f last_move = state.player_position - state.previous_player_positions.back();
-        float last_move_distance = last_move.magnitude();
+        float previous_move_delta = last_move.magnitude();
 
-        state.movement_delta = last_move_distance;
+        state.previous_move_delta = previous_move_delta;
       } else {
-        state.movement_delta = 0.f;
+        state.previous_move_delta = 0.f;
       }
 
-      state.movement_distance += state.movement_delta;
+      state.movement_distance += state.previous_move_delta;
 
       RecordPreviousPlayerPosition(state);
     }

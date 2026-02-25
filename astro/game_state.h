@@ -291,7 +291,7 @@ namespace astro {
     bool is_on_solid_platform = false;
     bool did_resolve_radius_collision = false;
 
-    float movement_delta = 0.f;
+    float previous_move_delta = 0.f;
     float movement_distance = 0.f;
     float last_walk_sound_movement_distance = 0.f;
     uint8 walk_cycle = 0;
