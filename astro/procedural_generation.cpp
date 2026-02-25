@@ -210,6 +210,41 @@ static void GenerateGround1Plants(Tachyon* tachyon, State& state) {
   }
 }
 
+static void RemoveGroundPlantClusterObjects(Tachyon* tachyon, State& state, GroundPlantCluster& cluster) {
+  auto& meshes = state.meshes;
+
+  for (uint16 id : cluster.grass_object_ids) {
+    auto& grass = objects(meshes.grass).getByIdFast(id);
+
+    remove_object(grass);
+  }
+
+  for (uint16 id : cluster.flower_object_ids) {
+    auto& flower = objects(meshes.ground_1_flower).getByIdFast(id);
+
+    remove_object(flower);
+  }
+
+  cluster.grass_object_ids.clear();
+  cluster.flower_object_ids.clear();
+}
+
+static void CreateGroundPlantClusterObjects(Tachyon* tachyon, State& state, GroundPlantCluster& cluster) {
+  auto& meshes = state.meshes;
+
+  for (auto& position : cluster.grass_positions) {
+    auto& grass = create(meshes.grass);
+
+    cluster.grass_object_ids.push_back(grass.object_id);
+  }
+
+  for (auto& position : cluster.flower_positions) {
+    auto& flower = create(meshes.ground_1_flower);
+
+    cluster.flower_object_ids.push_back(flower.object_id);
+  }
+}
+
 static void UpdateGround1Plants(Tachyon* tachyon, State& state) {
   profile("UpdateGround1Plants()");
 
@@ -235,28 +270,12 @@ static void UpdateGround1Plants(Tachyon* tachyon, State& state) {
   auto& player_position = state.player_position;
 
   for (auto& cluster : state.ground_plant_clusters) {
-    // @todo factor
     if (
       abs(cluster.position.x - player_position.x) > 20000.f ||
       abs(cluster.position.z - player_position.z) > 20000.f
     ) {
       if (cluster.is_currently_in_view) {
-        // Purge objects as clusters exit the view
-        // @todo factor
-        for (uint16 id : cluster.grass_object_ids) {
-          auto& grass = objects(meshes.grass).getByIdFast(id);
-
-          remove_object(grass);
-        }
-
-        for (uint16 id : cluster.flower_object_ids) {
-          auto& flower = objects(meshes.ground_1_flower).getByIdFast(id);
-
-          remove_object(flower);
-        }
-
-        cluster.grass_object_ids.clear();
-        cluster.flower_object_ids.clear();
+        RemoveGroundPlantClusterObjects(tachyon, state, cluster);
       }
 
       cluster.is_currently_in_view = false;
@@ -267,19 +286,7 @@ static void UpdateGround1Plants(Tachyon* tachyon, State& state) {
     bool should_update = !cluster.is_currently_in_view || state.astro_turn_speed != 0.f;
 
     if (!cluster.is_currently_in_view) {
-      // Create objects when the cluster comes into view
-      // @todo factor
-      for (auto& position : cluster.grass_positions) {
-        auto& grass = create(meshes.grass);
-
-        cluster.grass_object_ids.push_back(grass.object_id);
-      }
-
-      for (auto& position : cluster.flower_positions) {
-        auto& flower = create(meshes.ground_1_flower);
-
-        cluster.flower_object_ids.push_back(flower.object_id);
-      }
+      CreateGroundPlantClusterObjects(tachyon, state, cluster);
     }
 
     cluster.is_currently_in_view = true;
