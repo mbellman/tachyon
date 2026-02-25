@@ -419,7 +419,7 @@ static void UpdateWandLights(Tachyon* tachyon, State& state) {
 
     if (
       (state.last_wand_swing_time != 0.f && time_since_last_wand_swing < 0.75f) ||
-      state.player_velocity.magnitude() > 100.f
+      state.previous_move_delta > 5.f
     ) {
       spawn_new_lights = true;
     }
@@ -634,8 +634,7 @@ static void UpdateLantern(Tachyon* tachyon, State& state, const Quaternion& play
     // @temporary
     static float lantern_swing = 0.f;
 
-    float player_speed = state.player_velocity.magnitude();
-    float speed_ratio = player_speed / 1300.f;
+    float speed_ratio = state.previous_move_delta / 90.f;
 
     lantern_swing += state.dt * speed_ratio;
     lantern_swing *= 1.f - state.dt;
