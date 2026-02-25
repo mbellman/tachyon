@@ -385,7 +385,7 @@ static void HandleWaterWheelCollisions(Tachyon* tachyon, State& state) {
         float player_y = target_y;// Tachyon_Lerpf(base_y, target_y, height_alpha);
 
         // @temporary
-        if (abs(state.last_player_position.y) < 0.01f) {
+        if (abs(state.previous_player_positions[0].y) < 0.01f) {
           PlayerCharacter::AutoHop(tachyon, state);
         }
 

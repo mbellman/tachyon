@@ -273,7 +273,7 @@ namespace astro {
 
     // Player attributes
     tVec3f player_position;
-    tVec3f last_player_position;
+    std::vector<tVec3f> previous_player_positions;
     tVec3f last_solid_ground_position;
     tVec3f player_velocity;
     tVec3f player_facing_direction;
@@ -291,6 +291,7 @@ namespace astro {
     bool is_on_solid_platform = false;
     bool did_resolve_radius_collision = false;
 
+    float movement_delta = 0.f;
     float movement_distance = 0.f;
     float last_walk_sound_movement_distance = 0.f;
     uint8 walk_cycle = 0;

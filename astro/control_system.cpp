@@ -390,7 +390,7 @@ static void HandleSpeedLimiting(Tachyon* tachyon, State& state) {
   }
 }
 
-static void HandlePositionUpdate(State& state) {
+static void UpdatePlayerPosition(State& state) {
   // @todo remove this * 5.f bit and properly manage velocity
   state.player_position += state.player_velocity * 5.f * state.dt;
 }
@@ -410,5 +410,5 @@ void ControlSystem::HandleControls(Tachyon* tachyon, State& state) {
   }
 
   HandleSpeedLimiting(tachyon, state);
-  HandlePositionUpdate(state);
+  UpdatePlayerPosition(state);
 }

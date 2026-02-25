@@ -51,6 +51,10 @@ static void SetNextAnimation(State& state, State::SkeletonAnimation* animation) 
     return;
   }
 
+  if (state.next_animation != nullptr && state.time_since_last_animation_change < 1.f) {
+    return;
+  }
+
   ReserveAnimationPoseData(*animation);
 
   state.next_animation = animation;
@@ -73,10 +77,10 @@ static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
 
   // @temporary
   // @todo set the active animation based on player actions
-  if (state.player_velocity.magnitude() > 600.f) {
+  if (state.movement_delta > 50.f) {
     SetNextAnimation(state, &state.animations.player_run);
   } else if (
-    state.player_velocity.magnitude() > 50.f ||
+    state.movement_delta > 5.f ||
     (state.last_quick_turn_time != 0.f && time_since(state.last_quick_turn_time) < 0.3f)
   ) {
     SetNextAnimation(state, &state.animations.player_walk);
@@ -224,8 +228,8 @@ static void HandleAutoHop(State& state) {
   state.player_position.y = Tachyon_Lerpf(state.player_position.y, jump_height, alpha);
 }
 
-static void HandleRunOscillation(State& state, tVec3f& body_position, const float player_speed) {
-  if (player_speed > 600.f) {
+static void HandleRunOscillation(State& state, tVec3f& body_position) {
+  if (state.movement_delta > 50.f) {
     state.run_oscillation += 5.f * state.dt;
   } else {
     state.run_oscillation -= 4.f * state.dt;
@@ -259,9 +263,7 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
   tVec3f body_position = state.player_position;
 
   if (state.player_hp > 0.f) {
-    float player_speed = state.player_velocity.magnitude();
-
-    HandleRunOscillation(state, body_position, player_speed);
+    HandleRunOscillation(state, body_position);
   } else {
     // Player death
     float death_alpha = 2.f * time_since(state.death_time);

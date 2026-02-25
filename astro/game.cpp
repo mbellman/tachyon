@@ -318,6 +318,33 @@ static void ShowGameStats(Tachyon* tachyon, State& state) {
   }
 }
 
+// @todo PlayerCharacter::
+static void RecordPreviousPlayerPosition(State& state) {
+  auto& positions = state.previous_player_positions;
+
+  if (positions.size() == 10) {
+    positions.erase(positions.begin());
+  }
+
+  positions.push_back(state.player_position);
+}
+
+// @todo PlayerCharacter::
+static tVec3f GetNetMovement(State& state) {
+  tVec3f movement = tVec3f(0.f);
+
+  for (size_t i = state.previous_player_positions.size() - 1; i > 0; i--) {
+    auto& current = state.previous_player_positions[i];
+    auto& previous = state.previous_player_positions[i - 1];
+
+    tVec3f delta = previous - current;
+
+    movement += delta;
+  }
+
+  return movement;
+}
+
 // @todo PlayerCharacter::RespawnPlayer()
 static void RespawnPlayer(Tachyon* tachyon, State& state) {
   // Reset player
@@ -328,9 +355,14 @@ static void RespawnPlayer(Tachyon* tachyon, State& state) {
   state.player_velocity = tVec3f(0.f);
   state.player_hp = 100.f;
 
+  state.previous_player_positions.clear();
+
+  RecordPreviousPlayerPosition(state);
+
   // Reset camera
   state.camera_shift = tVec3f(0, 0, 1875.f);
 
+  // @todo base on player position
   tachyon->scene.camera.position = tVec3f(61200.f, 10000.f, 152975.f);
 
   // @temporary
@@ -566,8 +598,21 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   {
     auto& fx = tachyon->fx;
 
-    state.movement_distance += tVec3f::distance(state.player_position, state.last_player_position);
-    state.last_player_position = state.player_position;
+    // Tracking net movement, updating the last player position
+    {
+      if (GetNetMovement(state).magnitude() > 50.f) {
+        tVec3f last_move = state.player_position - state.previous_player_positions.back();
+        float last_move_distance = last_move.magnitude();
+
+        state.movement_delta = last_move_distance;
+      } else {
+        state.movement_delta = 0.f;
+      }
+
+      state.movement_distance += state.movement_delta;
+
+      RecordPreviousPlayerPosition(state);
+    }
 
     // Accumulation blur
     {
