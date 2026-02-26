@@ -57,8 +57,20 @@ void Combat::HandleWandSwing(Tachyon* tachyon, State& state) {
 
       if (distance_from_player < 4000.f && enemy.health > 0.f) {
         if (time_since(enemy.last_attack_start_time) > attack_without_blocking_duration) {
-          // Block
-          enemy.last_block_time = get_scene_time();
+          // @todo factor by enemy type
+          if (entity.type == LOW_GUARD) {
+            // Armor blocking
+            // @todo magic weapons which can pierce armor
+            enemy.last_block_time = get_scene_time();
+          }
+          else if (entity.type == LESSER_GUARD) {
+            // Block when facing the player
+            float facing_dot = tVec3f::dot(state.player_facing_direction, GetFacingDirection(entity));
+
+            if (facing_dot < 0.f) {
+              enemy.last_block_time = get_scene_time();
+            }
+          }
         } else if (entity.type == LOW_GUARD) {
           // Armor block
           // @todo allow magical piercing attacks
@@ -89,6 +101,8 @@ void Combat::HandleWandStrikeWindow(Tachyon* tachyon, State& state) {
     float enemy_distance = tVec3f::distance(entity.visible_position, state.player_position);
 
     if (enemy_distance < 3000.f) {
+      SetMood(entity, ENEMY_AGITATED, scene_time);
+
       if (time_since(enemy.last_block_time) < 1.f) {
         // Wand recoil when the enemy is blocking
         state.last_wand_swing_time = 0.f;

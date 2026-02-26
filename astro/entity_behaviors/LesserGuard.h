@@ -113,7 +113,7 @@ namespace astro {
 
           if (enemy.mood == ENEMY_AGITATED) {
             // Gain speed toward the player
-            enemy.speed += 2000.f * state.dt;
+            enemy.speed += 5000.f * state.dt;
             if (enemy.speed > 3000.f) enemy.speed = 3000.f;
 
             // Slow down when attacking
@@ -121,6 +121,8 @@ namespace astro {
 
             if (is_attacking) {
               enemy.speed *= 1.f - 5.f * state.dt;
+            } else {
+              enemy.speed *= 1.f - state.dt;
             }
 
             if (player_distance > 3500.f || enemy.speed < 0.f) {
