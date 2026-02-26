@@ -6,10 +6,13 @@
 using namespace astro;
 
 static bool TestForStrongAttack(Tachyon* tachyon, State& state) {
+  float scene_time = get_scene_time();
+
   if (state.has_target) {
     auto& target = *EntityManager::FindEntity(state, state.target_entity);
+    auto& enemy = target.enemy_state;
     float time_since_dodging = time_since(state.last_dodge_time);
-    float time_since_enemy_attack_action = time_since(target.enemy_state.last_attack_action_time);
+    float time_since_enemy_attack_action = time_since(enemy.last_attack_action_time);
     float time_since_taking_damage = time_since(state.last_damage_time);
 
     if (
@@ -21,23 +24,17 @@ static bool TestForStrongAttack(Tachyon* tachyon, State& state) {
       tVec3f direction_to_target = (target.visible_position - state.player_position) / target_distance;
 
       state.player_velocity = direction_to_target * target_distance;
-      state.last_strong_attack_time = get_scene_time();
+      state.last_strong_attack_time = scene_time;
       state.last_dodge_time = 0.f;
 
-      auto& enemy = target.enemy_state;
-
-      // @temporary
-      if (target.type == LESSER_GUARD) {
-        enemy.health -= 50.f;
-      }
-      else if (target.type == LOW_GUARD) {
+      if (target.type == LOW_GUARD) {
         // Armor block
         // @todo allow magical piercing attacks
-        enemy.last_block_time = get_scene_time();
+        enemy.last_block_time = scene_time;
       }
 
       if (enemy.health <= 0.f) {
-        KillEnemy(target, get_scene_time());
+        KillEnemy(target, scene_time);
       }
 
       return true;
@@ -66,18 +63,6 @@ void Combat::HandleWandSwing(Tachyon* tachyon, State& state) {
           // Armor block
           // @todo allow magical piercing attacks
           enemy.last_block_time = get_scene_time();
-        } else if (distance_from_player < 3500.f) {
-          // @temporary
-          if (entity.type == LESSER_GUARD) {
-            enemy.health -= 30.f;
-          }
-
-          // @temporary
-          Sfx::PlaySound(SFX_WAND_ATTACK, 0.5f);
-
-          if (enemy.health <= 0.f) {
-            KillEnemy(entity, get_scene_time());
-          }
         }
       }
     }
@@ -95,23 +80,42 @@ void Combat::HandleWandSwing(Tachyon* tachyon, State& state) {
 
 // @todo handle recoil against solid objects
 void Combat::HandleWandStrikeWindow(Tachyon* tachyon, State& state) {
+  float scene_time = get_scene_time();
+  float time_since_last_strong_attack = time_since(state.last_strong_attack_time);
+
   for (auto& target : state.targetable_entities) {
     auto& entity = *EntityManager::FindEntity(state, target);
+    auto& enemy = entity.enemy_state;
     float enemy_distance = tVec3f::distance(entity.visible_position, state.player_position);
-    float time_since_enemy_blocked = time_since(entity.enemy_state.last_block_time);
 
     if (enemy_distance < 3000.f) {
-      if (time_since_enemy_blocked < 1.f) {
+      if (time_since(enemy.last_block_time) < 1.f) {
         // Wand recoil when the enemy is blocking
         state.last_wand_swing_time = 0.f;
-        state.last_wand_bounce_time = get_scene_time();
+        state.last_wand_bounce_time = scene_time;
 
         Sfx::PlaySound(SFX_WAND_RECOIL, 0.5f);
-      } else {
-        // Enemy knockback on contact
-        entity.enemy_state.speed = -7000.f;
+      } else if (time_since(enemy.last_damage_time) > 0.5f) {
+        enemy.last_damage_time = scene_time;
 
-        // @todo take damage here instead of in above functions?
+        // @todo factor by enemy type
+        if (entity.type == LESSER_GUARD) {
+          if (time_since_last_strong_attack < 1.f) {
+            // Strong attack damage + knockback
+            enemy.health -= 50.f;
+            enemy.speed = -10000.f;
+          } else {
+            // Normal attack damage + knockback
+            enemy.health -= 30.f;
+            enemy.speed = -7000.f;
+          }
+
+          Sfx::PlaySound(SFX_WAND_ATTACK, 0.5f);
+
+          if (enemy.health <= 0.f) {
+            KillEnemy(entity, scene_time);
+          }
+        }
       }
     }
   }
