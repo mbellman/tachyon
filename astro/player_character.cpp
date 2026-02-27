@@ -584,14 +584,14 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
       AnimationSequence bounce_animation;
       bounce_animation.steps = { s1, s2, s3 };
 
-      // Sample the animation
-      TransformState sample = SimpleAnimation::Sample(bounce_animation, time_since_bounce);
-      wand.position += sample.offset;
-      wand.rotation = player_rotation * sample.rotation;
-
       if (time_since_bounce > s1.duration + s2.duration) {
         // Animation complete
         state.last_wand_bounce_time = 0.f;
+      } else {
+        // Sample and apply the animation
+        TransformState sample = SimpleAnimation::Sample(bounce_animation, time_since_bounce);
+        wand.position += sample.offset;
+        wand.rotation = player_rotation * sample.rotation;
       }
     }
   }
