@@ -502,6 +502,13 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
   {
     float time_since_last_swing = time_since(state.last_wand_swing_time);
 
+    Quaternion base_wand_rotation = (
+      state.player_current_pose.bones[5].rotation *
+      Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), 0.2f) *
+      Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 1.8f) *
+      Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI)
+    );
+
     if (
       state.last_wand_swing_time != 0.f &&
       time_since_last_swing <= 1.f &&
@@ -513,14 +520,7 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
       AnimationStep s1;
       s1.duration = 0.2f;
       s1.offset = tVec3f(0.f);
-      s1.rotation = (
-        // @hack
-        // @todo predefine this
-        state.player_current_pose.bones[5].rotation *
-        Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), 0.2f) *
-        Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 1.8f) *
-        Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI)
-      );
+      s1.rotation = base_wand_rotation;
 
       AnimationStep s2;
       s2.duration = 0.15f;
@@ -539,14 +539,7 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
       );
 
       AnimationStep s4 = s1;
-      s4.rotation = (
-        // @hack
-        // @todo predefine this
-        state.player_current_pose.bones[5].rotation *
-        Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), 0.2f) *
-        Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 1.8f) *
-        Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI)
-      );
+      s4.rotation = base_wand_rotation;
 
       AnimationSequence swing_animation;
       swing_animation.steps = { s1, s2, s3, s4 };
@@ -574,10 +567,7 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
       AnimationStep s1;
       s1.duration = 0.3f;
       s1.offset = state.player_facing_direction * 1000.f - player_right * 1000.f;
-      s1.rotation = (
-        Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), 2.f) *
-        Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 2.1f)
-      );
+      s1.rotation = base_wand_rotation;
 
       AnimationStep s2;
       s2.duration = 0.5f;
@@ -589,7 +579,7 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
 
       AnimationStep s3;
       s3.offset = tVec3f(0.f);
-      s3.rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.f);
+      s3.rotation = base_wand_rotation;
 
       AnimationSequence bounce_animation;
       bounce_animation.steps = { s1, s2, s3 };
