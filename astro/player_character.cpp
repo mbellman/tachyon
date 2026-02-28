@@ -678,11 +678,13 @@ static void UpdateLantern(Tachyon* tachyon, State& state, const Quaternion& play
 void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
   profile("UpdatePlayer()");
 
-  // Update facing direction
+  // Update facing direction and tilt
   // @todo factor
   {
+    float player_speed = state.player_velocity.magnitude();
     tVec3f desired_facing_direction = state.player_facing_direction;
     float turn_speed = 5.f;
+    float tilt = 0.f;
 
     if (state.has_target) {
       // When we're focused on a target, continue to face toward it
@@ -690,7 +692,7 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
 
       desired_facing_direction = (target.visible_position - state.player_position).xz().unit();
     }
-    else if (state.player_velocity.magnitude() > 0.01f) {
+    else if (player_speed > 0.01f) {
       // Without a target, use our velocity vector to influence facing direction
       desired_facing_direction = state.player_velocity.unit();
     }
@@ -712,7 +714,22 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
       turn_speed = 0.f;
     }
 
+    // Calculate tilt before applying the new facing direction
+    if (time_since_last_quick_turn > 0.5f) {
+      float facing_angle = atan2f(state.player_facing_direction.z, state.player_facing_direction.x);
+      float desired_facing_angle = atan2f(desired_facing_direction.z, desired_facing_direction.x);
+
+      tilt = desired_facing_angle - facing_angle;
+
+      if (tilt < -t_PI) tilt += t_TAU;
+      if (tilt > t_PI) tilt -= t_TAU;
+
+      tilt *= 0.2f;
+      tilt *= player_speed / 1300.f;
+    }
+
     state.player_facing_direction = tVec3f::lerp(state.player_facing_direction, desired_facing_direction, turn_speed * state.dt).unit();
+    state.tilt_angle = Tachyon_Lerpf(state.tilt_angle, tilt, 5.f * state.dt);
   }
 
   // Handle wand bounce knockback
@@ -731,7 +748,13 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
     }
   }
 
-  Quaternion player_rotation = Quaternion::FromDirection(state.player_facing_direction, tVec3f(0, 1.f, 0));
+  Quaternion player_rotation = (
+    // Rotate according to facing direction
+    Quaternion::FromDirection(state.player_facing_direction, tVec3f(0, 1.f, 0)) *
+    // Apply tilt
+    Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), state.tilt_angle)
+  );
+
   tMat4f player_rotation_matrix = player_rotation.toMatrix4f();
 
   UpdatePlayerModel(tachyon, state, player_rotation, player_rotation_matrix);

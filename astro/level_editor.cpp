@@ -1919,8 +1919,8 @@ void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
   tachyon->use_high_visibility_mode = false;
 
   // @temporary
-  fx.enable_shadows = false;
-  fx.enable_ssao = false;
+  fx.enable_shadows = true;
+  fx.enable_ssao = true;
 
   if (!state.show_game_stats) {
     tachyon->scene.use_close_camera_disocclusion = true;
