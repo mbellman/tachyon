@@ -209,7 +209,7 @@ float GetAverageShadowFactor(sampler2D shadow_map, vec3 light_space_position, in
     }
   }
 
-  return 1.0 - shadow_factor / 5.0;
+  return 1.0 - (shadow_factor / 5.0);
 }
 
 float GetPrimaryLightShadowFactor(vec3 world_position) {
@@ -305,7 +305,7 @@ void main() {
   const vec3 base_underwater_color = vec3(0.3, 0.5, 0.8);
 
   // Shadow term
-  float shadow_factor = GetPrimaryLightShadowFactor(fragPosition - N * 200.0);
+  float shadow = GetPrimaryLightShadowFactor(fragPosition - N * 200.0);
 
   // Sample objects beneath the surface of the water.
   // For now we just sample depth and fade to a light
@@ -351,7 +351,7 @@ void main() {
     out_color = mix(out_color, reflection_color, fresnel_factor);
     out_color = mix(out_color, vec3(0.4), 0.2);
 
-    if (shadow_factor < 1.0) {
+    if (shadow < 1.0) {
       // Highlights
       out_color += 4.0 * vec3(1.0, 0.9, 0.6) * pow(hRdotL, 100.0) * smoothstep(0.2, 0.4, 1.0 - RdotU);
     }
@@ -359,7 +359,7 @@ void main() {
 
   // Shadows
   {
-    out_color = mix(out_color, base_water_color, shadow_factor * 0.8);
+    out_color = mix(out_color, base_water_color, shadow * 0.8);
   }
 
   // @todo fog

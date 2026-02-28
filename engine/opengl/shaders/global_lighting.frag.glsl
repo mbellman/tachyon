@@ -163,7 +163,7 @@ vec3 GetDirectionalLightRadiance(
 
   float NdotH = max(dot(N, H), 0.0);
   float NdotL = max(dot(N, L), 0.0);
-  float light_factor = NdotL * shadow_factor;
+  float light_factor = NdotL * (1.0 - shadow_factor);
 
   float sD = DistributionGGX(NdotH, roughness);
   float sG = GeometryGGX(NdotH, roughness, metalness);
@@ -201,7 +201,7 @@ int GetCascadeIndex(vec3 world_position) {
   }
 }
 
-float GetAverageShadowFactor(sampler2D shadow_map, vec3 light_space_position, int cascade_index) {
+float GetCascadeShadowFactor(sampler2D shadow_map, vec3 light_space_position, int cascade_index) {
   const vec2 texel_size = 1.0 / vec2(2048.0);
   float t = fract(running_time);
 
@@ -240,7 +240,7 @@ float GetAverageShadowFactor(sampler2D shadow_map, vec3 light_space_position, in
     }
   }
 
-  return shadow_factor / 5.0;
+  return 1.0 - (shadow_factor / 5.0);
 }
 
 float GetPrimaryLightShadowFactor(vec3 world_position) {
@@ -259,7 +259,7 @@ float GetPrimaryLightShadowFactor(vec3 world_position) {
     return 1.0;
   }
 
-  return GetAverageShadowFactor(
+  return GetCascadeShadowFactor(
     cascade_index == 0 ? in_shadow_map_cascade_1 :
     cascade_index == 1 ? in_shadow_map_cascade_2 :
     cascade_index == 2 ? in_shadow_map_cascade_3 :
@@ -685,7 +685,7 @@ void main() {
   }
 
   // Shadow
-  float shadow = 1.0;
+  float shadow = 0.0;
 
   if (enable_shadows) {
     shadow = GetPrimaryLightShadowFactor(position);
@@ -704,7 +704,7 @@ void main() {
   // We primarily want this to affect "HUD" objects floating just in front
   // of the camera, which would be considered independent of the game scene.
   if (frag_distance_from_camera < 2600.0) {
-    shadow = 1.0;
+    shadow = 0.0;
   }
 
   vec3 out_color = vec3(0.0);
@@ -732,7 +732,7 @@ void main() {
 
   // Ambient sky light
   {
-    out_color += GetDirectionalLightRadiance(sky_light_direction, sky_light_color, albedo, position, N, V, NdotV, mix(roughness, 1.0, 0.5), metalness, 0.0, 0.0, 1.0);
+    out_color += GetDirectionalLightRadiance(sky_light_direction, sky_light_color, albedo, position, N, V, NdotV, mix(roughness, 1.0, 0.5), metalness, 0.0, 0.0, 0.0);
   }
 
   // Ambient bounce light (based on ambient sky light color)
@@ -744,7 +744,7 @@ void main() {
   {
     vec3 R = reflect(-V, N);
     vec3 reflection = GetReflectionColor(R);
-    float factor = 0.4 * shadow * (NdotL > 0.0 ? pow(1.0 - NdotL, 8.0) : 1.0);
+    float factor = 0.4 * (1.0 - shadow) * (NdotL > 0.0 ? pow(1.0 - NdotL, 8.0) : 1.0);
 
     out_color += albedo * reflection * metalness * (1.0 - roughness) * factor;
   }
@@ -774,7 +774,7 @@ void main() {
     // Fade to a dim blue in shadowed/darkened areas.
     // Reduce the effect as the camera approaches.
     {
-      float haze_factor = pow(1.0 - NdotL, 3.0) * shadow;
+      float haze_factor = pow(1.0 - NdotL, 3.0) * (1.0 - shadow);
       haze_factor = mix(haze_factor, 1.0, 1.0 - pow(frag_normal_and_depth.w, 100.0));
 
       out_color = mix(vec3(0.02, 0.04, 0.2), out_color, haze_factor);
