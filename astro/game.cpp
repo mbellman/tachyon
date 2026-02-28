@@ -598,6 +598,9 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   {
     auto& fx = tachyon->fx;
 
+    fx.enable_shadows = true;
+    fx.enable_ssao = true;
+
     // Tracking net movement, updating the last player position
     {
       if (GetNetMovementDistance(state) > 50.f) {

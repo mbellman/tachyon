@@ -319,6 +319,9 @@ struct Tachyon {
   } scene;
 
   struct Fx {
+    bool enable_shadows = true;
+    bool enable_ssao = true;
+
     float fog_visibility = 10000.f;
     float water_time = 0.f;
 

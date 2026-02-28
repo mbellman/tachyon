@@ -1023,6 +1023,8 @@ static void RenderGlobalLighting(Tachyon* tachyon) {
   SetShaderVec3f(locations.sky_light_color, scene.sky_light_color);
   SetShaderVec3f(locations.player_position, fx.player_position);
   SetShaderFloat(locations.accumulation_blur_factor, tachyon->fx.accumulation_blur_factor);
+  SetShaderBool(locations.enable_shadows, fx.enable_shadows);
+  SetShaderBool(locations.enable_ssao, fx.enable_ssao);
   SetShaderBool(locations.use_high_visibility_mode, tachyon->use_high_visibility_mode);
 
   // Fog volumes

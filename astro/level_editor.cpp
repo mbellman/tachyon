@@ -1899,6 +1899,14 @@ void LevelEditor::HandleLevelEditor(Tachyon* tachyon, State& state) {
   }
 
   HandleUI(tachyon, state);
+
+  // Graphics effects
+  {
+    auto& fx = tachyon->fx;
+
+    fx.enable_shadows = false;
+    fx.enable_ssao = false;
+  }
 }
 
 void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {

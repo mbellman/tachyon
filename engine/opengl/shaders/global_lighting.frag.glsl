@@ -47,6 +47,10 @@ uniform float fog_visibility;
 // Frame blur
 uniform float accumulation_blur_factor;
 
+// Graphics features
+uniform bool enable_shadows;
+uniform bool enable_ssao;
+
 // @todo dev mode only
 uniform bool use_high_visibility_mode;
 
@@ -657,26 +661,37 @@ void main() {
   vec3 previous_view_position = (previous_view_matrix * vec4(position, 1.0)).xyz;
   vec2 temporal_uv = GetScreenCoordinates(previous_view_position, projection_matrix);
 
-  // Denoised SSAO/shadow
-  #if USE_FAST_SSAO == 1
-    float ssao = 0.0;
-    float depth = frag_normal_and_depth.w;
-    float seed = fract(running_time);
+  // SSAO
+  float ssao = 0.0;
 
-    ssao += GetSSAO(1, depth, position, N, seed, 250.0);
-    ssao += GetSSAO(1, depth, position, N, seed, 2000.0);
-    ssao += GetSSAO(1, depth, position, N, seed, 4000.0);
-    ssao += GetSSAO(1, depth, position, N, seed, 8000.0);
-    ssao += GetSSAO(1, depth, position, N, seed, 10000.0);
-    ssao += GetSSAO(1, depth, position, N, seed, 12000.0);
-    ssao *= 0.15;
-  #else
-    float linear_depth = GetLinearDepth(frag_normal_and_depth.w, Z_NEAR, Z_FAR);
-    float radius = mix(5.0, 10000000.0, linear_depth);
-    float ssao = GetSSAO(12, frag_normal_and_depth.w, position, N, fract(running_time), radius);
-  #endif
+  if (enable_ssao) {
+    #if USE_FAST_SSAO == 1
+      float depth = frag_normal_and_depth.w;
+      float seed = fract(running_time);
 
-  float shadow = GetPrimaryLightShadowFactor(position);
+      ssao += GetSSAO(1, depth, position, N, seed, 250.0);
+      ssao += GetSSAO(1, depth, position, N, seed, 2000.0);
+      ssao += GetSSAO(1, depth, position, N, seed, 4000.0);
+      ssao += GetSSAO(1, depth, position, N, seed, 8000.0);
+      ssao += GetSSAO(1, depth, position, N, seed, 10000.0);
+      ssao += GetSSAO(1, depth, position, N, seed, 12000.0);
+      ssao *= 0.15;
+    #else
+      float linear_depth = GetLinearDepth(frag_normal_and_depth.w, Z_NEAR, Z_FAR);
+      float radius = mix(5.0, 10000000.0, linear_depth);
+
+      ssao = GetSSAO(12, frag_normal_and_depth.w, position, N, fract(running_time), radius);
+    #endif
+  }
+
+  // Shadow
+  float shadow = 1.0;
+
+  if (enable_shadows) {
+    shadow = GetPrimaryLightShadowFactor(position);
+  }
+
+  // Denoising
   vec2 denoised_temporal_data = GetDenoisedTemporalData(ssao, shadow, frag_normal_and_depth.w, temporal_uv);
 
   ssao = denoised_temporal_data.x;

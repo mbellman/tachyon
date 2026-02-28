@@ -86,6 +86,8 @@ struct tUniformLocations {
     fog_volumes,
     total_fog_volumes,
     fog_visibility,
+    enable_shadows,
+    enable_ssao,
     use_high_visibility_mode,
     accumulation_blur_factor
   ) global_lighting;
