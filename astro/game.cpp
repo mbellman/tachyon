@@ -190,13 +190,27 @@ static void HandleInGameDevHotkeys(Tachyon* tachyon, State& state) {
     }
   }
 
-  // Toggling graphics effects
+  // Graphics toggling
   {
     if (did_press_key(tKey::G)) {
       auto& fx = tachyon->fx;
 
-      fx.enable_shadows = !fx.enable_shadows;
-      fx.enable_ssao = !fx.enable_ssao;
+      if (fx.enable_shadows && fx.enable_ssao) {
+        fx.enable_shadows = false;
+
+        show_overlay_message("Shadows disabled");
+      }
+      else if (!fx.enable_shadows && fx.enable_ssao) {
+        fx.enable_ssao = false;
+
+        show_overlay_message("SSAO disabled");
+      }
+      else {
+        fx.enable_shadows = true;
+        fx.enable_ssao = true;
+
+        show_overlay_message("Shadows and SSAO enabled");
+      }
     }
   }
 }
@@ -645,11 +659,8 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
     return;
   }
 
-  // Dev hotkeys
   // @todo dev mode only
-  {
-    HandleInGameDevHotkeys(tachyon, state);
-  }
+  HandleInGameDevHotkeys(tachyon, state);
 
   #if MUSIC_ENABLED == 1
 
