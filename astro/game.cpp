@@ -119,6 +119,88 @@ static void HandleFog(Tachyon* tachyon, State& state) {
   fx.fog_visibility = state.is_nighttime ? 15000.f : 4000.f;
 }
 
+static void HandleInGameDevHotkeys(Tachyon* tachyon, State& state) {
+  // Toggling game stats
+  {
+    if (did_press_key(tKey::SPACE)) {
+      state.show_game_stats = !state.show_game_stats;
+      tachyon->scene.use_close_camera_disocclusion = !state.show_game_stats;
+    }
+  }
+
+  // Toggling camera zoom
+  {
+    if (did_press_key(tKey::ARROW_DOWN)) {
+      state.use_zoomed_out_camera = !state.use_zoomed_out_camera;
+    }
+  }
+
+  // Resetting entities
+  {
+    if (did_press_key(tKey::R)) {
+      for_entities(state.light_posts) {
+        auto& entity = state.light_posts[i];
+
+        entity.did_activate = false;
+        entity.astro_activation_time = 0.f;
+        entity.game_activation_time = -1.f;
+        entity.is_astro_synced = false;
+      }
+
+      for_entities(state.gates) {
+        auto& entity = state.gates[i];
+
+        entity.did_activate = false;
+        entity.astro_activation_time = 0.f;
+        entity.game_activation_time = -1.f;
+      }
+
+      for_entities(state.water_wheels) {
+        auto& entity = state.water_wheels[i];
+
+        entity.did_activate = false;
+        entity.astro_activation_time = 0.f;
+        entity.game_activation_time = -1.f;
+      }
+
+      for_entities(state.npcs) {
+        auto& entity = state.npcs[i];
+
+        entity.visible_position = entity.position;
+        entity.visible_rotation = entity.orientation;
+      }
+
+      show_overlay_message("Reset activated entities");
+    }
+  }
+
+  // Acquiring/unacquiring all items
+  {
+    if (did_press_key(tKey::I)) {
+      if (Items::HasItem(state, ASTROLABE_LOWER_LEFT)) {
+        show_overlay_message("Reset items");
+
+        state.inventory.clear();
+      } else {
+        Items::CollectItem(tachyon, state, ITEM_STUN_SPELL);
+        Items::CollectItem(tachyon, state, ITEM_HOMING_SPELL);
+        Items::CollectItem(tachyon, state, ASTROLABE_LOWER_LEFT);
+        Items::CollectItem(tachyon, state, GATE_KEY);
+      }
+    }
+  }
+
+  // Toggling graphics effects
+  {
+    if (did_press_key(tKey::G)) {
+      auto& fx = tachyon->fx;
+
+      fx.enable_shadows = !fx.enable_shadows;
+      fx.enable_ssao = !fx.enable_ssao;
+    }
+  }
+}
+
 // @todo Weather::
 static uint16 Hash(uint16 x) {
   x ^= x >> 8;
@@ -385,6 +467,86 @@ static void RespawnPlayer(Tachyon* tachyon, State& state) {
   }
 }
 
+static void HandleFrameEnd(Tachyon* tachyon, State& state) {
+  auto& scene = tachyon->scene;
+  auto& fx = tachyon->fx;
+
+  // Tracking net movement, updating the last player position
+  {
+    if (GetNetMovementDistance(state) > 50.f) {
+      tVec3f last_move = state.player_position - state.previous_player_positions.back();
+      float previous_move_delta = last_move.magnitude();
+
+      state.previous_move_delta = previous_move_delta;
+    } else {
+      state.previous_move_delta = 0.f;
+    }
+
+    state.movement_distance += state.previous_move_delta;
+
+    RecordPreviousPlayerPosition(state);
+  }
+
+  // Accumulation blur
+  {
+    float max_blur_factor = 0.98f - 5.f * state.dt;
+
+    fx.accumulation_blur_factor = sqrtf(abs(state.astro_turn_speed)) * 4.1f;
+
+    if (fx.accumulation_blur_factor > max_blur_factor) {
+      fx.accumulation_blur_factor = max_blur_factor;
+    }
+  }
+
+  // Time warp effects
+  {
+    state.time_warp_start_radius = Tachyon_Lerpf(state.time_warp_start_radius, 30000.f, state.dt);
+    state.time_warp_end_radius = Tachyon_Lerpf(state.time_warp_end_radius, 30000.f, state.dt);
+
+    fx.player_position = state.player_position;
+    fx.astro_time_warp = state.astro_turn_speed / Astrolabe::GetMaxTurnSpeed();
+
+    fx.astro_time_warp_start_radius = state.time_warp_start_radius;
+    fx.astro_time_warp_end_radius = state.time_warp_end_radius;
+  }
+
+  // Vignette effects in stealth mode
+  {
+    float desired_vignette_intensity = IsInStealthMode(state) ? 1.f : 0.f;
+
+    fx.vignette_intensity = Tachyon_Lerpf(fx.vignette_intensity, desired_vignette_intensity, 2.f * state.dt);
+  }
+
+  // Foliage collision
+  {
+    auto& velocity = state.player_velocity;
+    float speed = velocity.magnitude();
+    tVec3f foliage_movement_offset = (speed > 0.f ? velocity.invert().unit() * 500.f : 0.f);
+
+    scene.foliage_mover_position = state.player_position + foliage_movement_offset;
+    scene.foliage_mover_velocity = velocity;
+
+    if (speed > 300.f) {
+      scene.foliage_mover_velocity = velocity.unit() * 300.f;
+    }
+  }
+
+  // Astro turn direction tracking
+  {
+    if (state.astro_turn_speed != 0.f) {
+      state.last_astro_turn_direction = state.astro_turn_speed > 0.f ? 1.f : -1.f;
+    }
+  }
+
+  // @todo ui.cpp
+  // @todo debug mode only
+  if (state.show_game_stats) {
+    ShowGameStats(tachyon, state);
+  } else {
+    tachyon->dev_labels.clear();
+  }
+}
+
 void astro::InitGame(Tachyon* tachyon, State& state) {
   MeshLibrary::AddMeshes(tachyon, state);
 
@@ -451,24 +613,15 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
 void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   profile("UpdateGame()");
 
-  auto& scene = tachyon->scene;
-
-  // @temporary
-  scene.scene_time += dt;
-
   // @todo HandleFrameStart()
   {
+    auto& scene = tachyon->scene;
+
+    // @temporary
+    scene.scene_time += dt;
+
     state.spells.did_cast_stun_this_frame = false;
     state.dt = dt;
-  }
-
-  // Reset fx
-  // @todo move to editor
-  {
-    auto& fx = tachyon->fx;
-
-    fx.astro_time_warp_start_radius = 0.f;
-    fx.astro_time_warp_end_radius = 0.f;
   }
 
   // Toggle level editor with E
@@ -495,63 +648,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   // Dev hotkeys
   // @todo dev mode only
   {
-    if (did_press_key(tKey::SPACE)) {
-      state.show_game_stats = !state.show_game_stats;
-      tachyon->scene.use_close_camera_disocclusion = !state.show_game_stats;
-    }
-
-    if (did_press_key(tKey::ARROW_DOWN)) {
-      state.use_zoomed_out_camera = !state.use_zoomed_out_camera;
-    }
-
-    if (did_press_key(tKey::R)) {
-      for_entities(state.light_posts) {
-        auto& entity = state.light_posts[i];
-
-        entity.did_activate = false;
-        entity.astro_activation_time = 0.f;
-        entity.game_activation_time = -1.f;
-        entity.is_astro_synced = false;
-      }
-
-      for_entities(state.gates) {
-        auto& entity = state.gates[i];
-
-        entity.did_activate = false;
-        entity.astro_activation_time = 0.f;
-        entity.game_activation_time = -1.f;
-      }
-
-      for_entities(state.water_wheels) {
-        auto& entity = state.water_wheels[i];
-
-        entity.did_activate = false;
-        entity.astro_activation_time = 0.f;
-        entity.game_activation_time = -1.f;
-      }
-
-      for_entities(state.npcs) {
-        auto& entity = state.npcs[i];
-
-        entity.visible_position = entity.position;
-        entity.visible_rotation = entity.orientation;
-      }
-
-      show_overlay_message("Reset activated entities");
-    }
-
-    if (did_press_key(tKey::I)) {
-      if (Items::HasItem(state, ASTROLABE_LOWER_LEFT)) {
-        show_overlay_message("Reset items");
-
-        state.inventory.clear();
-      } else {
-        Items::CollectItem(tachyon, state, ITEM_STUN_SPELL);
-        Items::CollectItem(tachyon, state, ITEM_HOMING_SPELL);
-        Items::CollectItem(tachyon, state, ASTROLABE_LOWER_LEFT);
-        Items::CollectItem(tachyon, state, GATE_KEY);
-      }
-    }
+    HandleInGameDevHotkeys(tachyon, state);
   }
 
   #if MUSIC_ENABLED == 1
@@ -594,86 +691,5 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
     RespawnPlayer(tachyon, state);
   }
 
-  // @todo HandleFrameEnd()
-  {
-    auto& fx = tachyon->fx;
-
-    fx.enable_shadows = true;
-    fx.enable_ssao = true;
-
-    // Tracking net movement, updating the last player position
-    {
-      if (GetNetMovementDistance(state) > 50.f) {
-        tVec3f last_move = state.player_position - state.previous_player_positions.back();
-        float previous_move_delta = last_move.magnitude();
-
-        state.previous_move_delta = previous_move_delta;
-      } else {
-        state.previous_move_delta = 0.f;
-      }
-
-      state.movement_distance += state.previous_move_delta;
-
-      RecordPreviousPlayerPosition(state);
-    }
-
-    // Accumulation blur
-    {
-      float max_blur_factor = 0.98f - 5.f * state.dt;
-
-      fx.accumulation_blur_factor = sqrtf(abs(state.astro_turn_speed)) * 4.1f;
-
-      if (fx.accumulation_blur_factor > max_blur_factor) {
-        fx.accumulation_blur_factor = max_blur_factor;
-      }
-    }
-
-    // Time warp effects
-    {
-      state.time_warp_start_radius = Tachyon_Lerpf(state.time_warp_start_radius, 30000.f, state.dt);
-      state.time_warp_end_radius = Tachyon_Lerpf(state.time_warp_end_radius, 30000.f, state.dt);
-
-      fx.player_position = state.player_position;
-      fx.astro_time_warp = state.astro_turn_speed / Astrolabe::GetMaxTurnSpeed();
-
-      fx.astro_time_warp_start_radius = state.time_warp_start_radius;
-      fx.astro_time_warp_end_radius = state.time_warp_end_radius;
-    }
-
-    // Vignette effects in stealth mode
-    {
-      float desired_vignette_intensity = IsInStealthMode(state) ? 1.f : 0.f;
-
-      fx.vignette_intensity = Tachyon_Lerpf(fx.vignette_intensity, desired_vignette_intensity, 2.f * state.dt);
-    }
-
-    // Foliage collision
-    {
-      auto& velocity = state.player_velocity;
-      float speed = velocity.magnitude();
-      tVec3f foliage_movement_offset = (speed > 0.f ? velocity.invert().unit() * 500.f : 0.f);
-
-      scene.foliage_mover_position = state.player_position + foliage_movement_offset;
-      scene.foliage_mover_velocity = velocity;
-
-      if (speed > 300.f) {
-        scene.foliage_mover_velocity = velocity.unit() * 300.f;
-      }
-    }
-
-    // Astro turn direction tracking
-    {
-      if (state.astro_turn_speed != 0.f) {
-        state.last_astro_turn_direction = state.astro_turn_speed > 0.f ? 1.f : -1.f;
-      }
-    }
-
-    // @todo ui.cpp
-    // @todo debug mode only
-    if (state.show_game_stats) {
-      ShowGameStats(tachyon, state);
-    } else {
-      tachyon->dev_labels.clear();
-    }
-  }
+  HandleFrameEnd(tachyon, state);
 }

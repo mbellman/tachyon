@@ -1875,6 +1875,11 @@ void LevelEditor::OpenLevelEditor(Tachyon* tachyon, State& state) {
   ProceduralGeneration::RebuildSimpleProceduralObjects(tachyon, state);
 
   fx.accumulation_blur_factor = 0.f;
+  fx.astro_time_warp_start_radius = 0.f;
+  fx.astro_time_warp_end_radius = 0.f;
+  // @temporary
+  fx.enable_shadows = false;
+  fx.enable_ssao = false;
 }
 
 void LevelEditor::HandleLevelEditor(Tachyon* tachyon, State& state) {
@@ -1899,14 +1904,6 @@ void LevelEditor::HandleLevelEditor(Tachyon* tachyon, State& state) {
   }
 
   HandleUI(tachyon, state);
-
-  // Graphics effects
-  {
-    auto& fx = tachyon->fx;
-
-    fx.enable_shadows = false;
-    fx.enable_ssao = false;
-  }
 }
 
 void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
@@ -1916,9 +1913,14 @@ void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
     return;
   }
 
+  auto& fx = tachyon->fx;
   auto& meshes = state.meshes;
 
   tachyon->use_high_visibility_mode = false;
+
+  // @temporary
+  fx.enable_shadows = false;
+  fx.enable_ssao = false;
 
   if (!state.show_game_stats) {
     tachyon->scene.use_close_camera_disocclusion = true;
