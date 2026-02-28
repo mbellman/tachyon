@@ -182,10 +182,10 @@ float GetAverageShadowFactor(sampler2D shadow_map, vec3 light_space_position, in
   };
 
   const float[] spatial_spread_per_cascade = {
-    4.0,
-    2.0,
     3.0,
-    1.5
+    1.5,
+    1.0,
+    1.0
   };
 
   const vec2[] offsets = {
@@ -305,7 +305,7 @@ void main() {
   const vec3 base_underwater_color = vec3(0.3, 0.5, 0.8);
 
   // Shadow term
-  float shadow = GetPrimaryLightShadowFactor(fragPosition - N * 200.0);
+  float shadow = GetPrimaryLightShadowFactor(fragPosition - N * 500.0 * vec3(1, 0.2, 1));
 
   // Sample objects beneath the surface of the water.
   // For now we just sample depth and fade to a light
