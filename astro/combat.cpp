@@ -2,6 +2,7 @@
 #include "astro/entity_behaviors/behavior.h"
 #include "astro/entity_manager.h"
 #include "astro/sfx.h"
+#include "astro/targeting.h"
 
 using namespace astro;
 
@@ -35,6 +36,8 @@ static bool TestForStrongAttack(Tachyon* tachyon, State& state) {
 
       if (enemy.health <= 0.f) {
         KillEnemy(target, scene_time);
+
+        Targeting::SelectNextAccessibleTarget(tachyon, state);
       }
 
       return true;
@@ -128,6 +131,8 @@ void Combat::HandleWandStrikeWindow(Tachyon* tachyon, State& state) {
 
           if (enemy.health <= 0.f) {
             KillEnemy(entity, scene_time);
+
+            Targeting::SelectNextAccessibleTarget(tachyon, state);
           }
         }
       }
