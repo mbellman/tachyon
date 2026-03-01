@@ -507,7 +507,7 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
   }
 }
 
-static void UpdateSmallGrassObjectByTime(tObject& grass, float astro_time) {
+static void UpdateSmallGrassObjectByTime(tObject& grass, tMaterial& material, float astro_time) {
   const static float growth_rate = 0.7f;
 
   const static tColor colors[] = {
@@ -532,6 +532,7 @@ static void UpdateSmallGrassObjectByTime(tObject& grass, float astro_time) {
   // @todo cache this
   grass.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), rotation_angle);
   grass.color = colors[variation_index];
+  grass.material = material;
 }
 
 static void UpdateSmallGrass(Tachyon* tachyon, State& state) {
@@ -556,6 +557,13 @@ static void UpdateSmallGrass(Tachyon* tachyon, State& state) {
   // @hack Invert y to get the proper direction. Probably a mistake somewhere.
   tVec3f camera_direction = standard_camera_rotation.getDirection() * tVec3f(1.f, -1.f, 1.f);
   tVec3f ground_center = camera.position + camera_direction * 10000.f * 1.2f;
+
+  float subsurface_alpha = Tachyon_InverseLerp(-75.f, 0.f, state.astro_time);
+  if (subsurface_alpha < 0.f) subsurface_alpha = 0.f;
+  if (subsurface_alpha > 1.f) subsurface_alpha = 1.f;
+
+  float subsurface = Tachyon_Lerpf(0.5f, 0.1f, subsurface_alpha);
+  tMaterial grass_material = tMaterial(tVec4f(0.6f, 0, 0, subsurface));
 
   for (auto& chunk : state.grass_chunks) {
     bool is_chunk_in_view = (
@@ -625,7 +633,7 @@ static void UpdateSmallGrass(Tachyon* tachyon, State& state) {
           auto& grass = small_grass.getByIdFast(blade.active_object_id);
 
           // Time evolution
-          UpdateSmallGrassObjectByTime(grass, state.astro_time);
+          UpdateSmallGrassObjectByTime(grass, grass_material, state.astro_time);
 
           commit(grass);
         }
@@ -639,10 +647,10 @@ static void UpdateSmallGrass(Tachyon* tachyon, State& state) {
       // Time-invariant grass properties
       grass.position = blade.position;
       grass.scale = blade.scale;
-      grass.material = tVec4f(0.6f, 0, 0, 0.1f);
+      grass.material = grass_material;
 
       // Time evolution
-      UpdateSmallGrassObjectByTime(grass, state.astro_time);
+      UpdateSmallGrassObjectByTime(grass, grass_material, state.astro_time);
 
       commit(grass);
 

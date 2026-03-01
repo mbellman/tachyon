@@ -93,17 +93,20 @@ namespace astro {
           FacePlayer(entity, state);
 
           if (enemy.mood == ENEMY_AGITATED) {
-            // Chase the player
-            enemy.speed += 2000.f * state.dt;
+            // Move in relation to the player direction
+            // @todo factor
+            enemy.speed += 5000.f * state.dt;
             if (enemy.speed > 3000.f) enemy.speed = 3000.f;
 
             bool is_attacking = time_since(enemy.last_attack_start_time) < attack_duration;
 
             if (is_attacking) {
               enemy.speed *= 1.f - 5.f * state.dt;
+            } else {
+              enemy.speed *= 1.f - state.dt;
             }
 
-            if (player_distance > 3500.f) {
+            if (player_distance > 3500.f || enemy.speed < 0.f) {
               FollowPlayer(entity, player_direction, state.dt);
             }
             else if (player_distance < 2000.f) {

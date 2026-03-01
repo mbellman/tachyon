@@ -112,7 +112,8 @@ namespace astro {
           FacePlayer(entity, state);
 
           if (enemy.mood == ENEMY_AGITATED) {
-            // Gain speed toward the player
+            // Move in relation to the player direction
+            // @todo factor
             enemy.speed += 5000.f * state.dt;
             if (enemy.speed > 3000.f) enemy.speed = 3000.f;
 

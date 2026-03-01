@@ -111,6 +111,13 @@ void Combat::HandleWandStrikeWindow(Tachyon* tachyon, State& state) {
         state.last_wand_swing_time = 0.f;
         state.last_wand_bounce_time = scene_time;
 
+        // Enemy knockback
+        if (time_since_last_strong_attack < 1.f) {
+          enemy.speed = -6000.f;
+        } else {
+          enemy.speed = -3000.f;
+        }
+
         Sfx::PlaySound(SFX_WAND_RECOIL, 0.5f);
       } else if (time_since(enemy.last_damage_time) > 0.5f) {
         enemy.last_damage_time = scene_time;
