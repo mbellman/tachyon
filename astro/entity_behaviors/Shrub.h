@@ -12,6 +12,26 @@ namespace astro {
       leaves.material = tVec4f(0.7f, 0, 0, 0.2f);
     }
 
+    static tVec3f GetPlantColor(const float life_progress) {
+      const tVec3f sprouting_color = tVec3f(0.5f, 1.f, 0.5f);
+      const tVec3f leaves_color = tVec3f(0.07f, 0.14f, 0.07f);
+      const tVec3f wilting_color = tVec3f(0.4f, 0.2f, 0.1f);
+
+      if (life_progress < 0.5f) {
+        float alpha = life_progress / 0.5f;
+
+        return tVec3f::lerp(sprouting_color, leaves_color, alpha);
+      }
+      else if (life_progress > 0.8f) {
+        float alpha = (life_progress - 0.8f) / 0.2f;
+
+        return tVec3f::lerp(leaves_color, wilting_color, alpha);
+      }
+      else {
+        return leaves_color;
+      }
+    }
+
     static float GetGrowthFactor(const float life_progress, const float offset) {
       if (life_progress == 0.f || life_progress == 1.f) {
         return 0.f;
@@ -77,8 +97,6 @@ namespace astro {
       auto& meshes = state.meshes;
 
       const float lifetime = 100.f;
-      const tVec3f leaves_color = tVec3f(0.07f, 0.14f, 0.07f);
-      const tVec3f leaves_wilting_color = tVec3f(0.4f, 0.2f, 0.1f);
 
       reset_instances(meshes.shrub_bottom);
       reset_instances(meshes.shrub_middle);
@@ -91,7 +109,7 @@ namespace astro {
         if (abs(state.player_position.z - entity.position.z) > 25000.f) continue;
 
         float life_progress = GetLivingEntityProgress(state, entity, lifetime);
-        tVec3f plant_color = tVec3f::lerp(leaves_color, leaves_wilting_color, powf(life_progress, 6.f));
+        tVec3f plant_color = GetPlantColor(life_progress);
 
         // Bottom
         {
