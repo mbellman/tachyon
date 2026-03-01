@@ -250,6 +250,23 @@ static void HandleRunOscillation(State& state, tVec3f& body_position) {
   body_position.y += run_bounce_height * run_bounce_cycle;
 }
 
+static void HandleCombatJumpMotions(Tachyon* tachyon, State& state, tVec3f& body_position) {
+  float time_since_last_dodge = time_since(state.last_dodge_time);
+  float time_since_last_strong_attack = time_since(state.last_strong_attack_time);
+
+  if (state.last_dodge_time != 0.f && time_since_last_dodge < 0.2f) {
+    float alpha = time_since_last_dodge / 0.2f;
+
+    body_position.y += 200.f * sinf(alpha * t_PI);
+  }
+
+  if (state.last_strong_attack_time != 0.f && time_since_last_strong_attack < 0.3f) {
+    float alpha = time_since_last_strong_attack / 0.3f;
+
+    body_position.y += 500.f * sinf(alpha * t_PI);
+  }
+}
+
 static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player_rotation, tMat4f& player_rotation_matrix) {
   auto& meshes = state.meshes;
 
@@ -269,6 +286,7 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
 
   if (state.player_hp > 0.f) {
     HandleRunOscillation(state, body_position);
+    HandleCombatJumpMotions(tachyon, state, body_position);
   } else {
     // Player death
     float death_alpha = 2.f * time_since(state.death_time);
