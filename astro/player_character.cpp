@@ -289,7 +289,7 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
     HandleCombatJumpMotions(tachyon, state, body_position);
   } else {
     // Player death
-    float death_alpha = 2.f * time_since(state.death_time);
+    float death_alpha = 2.f * time_since(state.last_death_time);
     if (death_alpha > 1.f) death_alpha = 1.f;
 
     // @temporary
@@ -626,7 +626,7 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
       wand.rotation = Quaternion::slerp(wand.rotation, death_rotation, 5.f * state.dt);
       wand.position.y = Tachyon_Lerpf(wand.position.y, -1400.f, 5.f * state.dt);
 
-      float death_alpha = 2.f * time_since(state.death_time);
+      float death_alpha = 2.f * time_since(state.last_death_time);
       if (death_alpha > 1.f) death_alpha = 1.f;
 
       wand.position += state.player_velocity * (1.f - death_alpha) * state.dt;
@@ -805,7 +805,7 @@ void PlayerCharacter::TakeDamage(Tachyon* tachyon, State& state, const float dam
     // @temporary
     UISystem::ShowBlockingDialogue(tachyon, state, "YOU DIED");
 
-    state.death_time = get_scene_time();
+    state.last_death_time = get_scene_time();
     state.last_wand_swing_time = 0.f;
     state.last_wand_bounce_time = 0.f;
   }

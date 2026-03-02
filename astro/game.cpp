@@ -450,6 +450,7 @@ static void RespawnPlayer(Tachyon* tachyon, State& state) {
   state.player_facing_direction = tVec3f(0, 0, 1.f);
   state.player_velocity = tVec3f(0.f);
   state.player_hp = 100.f;
+  state.last_spawn_time = get_scene_time();
 
   state.previous_player_positions.clear();
 
@@ -697,7 +698,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   // @todo move to PlayerCharacter::UpdatePlayer()
   if (
     state.player_hp <= 0.f &&
-    time_since(state.death_time) > 5.f
+    time_since(state.last_death_time) > 5.f
   ) {
     RespawnPlayer(tachyon, state);
   }

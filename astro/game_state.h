@@ -286,7 +286,8 @@ namespace astro {
     float last_wand_bounce_time = 0.f;
     float last_strong_attack_time = 0.f;
     float last_auto_hop_time = 0.f;
-    float death_time = 0.f;
+    float last_death_time = 0.f;
+    float last_spawn_time = 0.f;
     bool is_on_solid_ground = false;
     bool is_on_solid_platform = false;
     bool did_resolve_radius_collision = false;
