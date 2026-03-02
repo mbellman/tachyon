@@ -47,6 +47,7 @@ namespace astro {
       auto& meshes = state.meshes;
 
       const float lifetime = 200.f;
+      const tVec3f roots_color = tVec3f(0.7f, 0.3f, 0.1f);
       const tVec3f wood_color = tVec3f(1.f, 0.4f, 0.2f);
       const tVec3f leaves_color = tVec3f(0.15f, 0.3f, 0.1f);
 
@@ -95,7 +96,7 @@ namespace astro {
           roots.position.y = entity.position.y + entity.scale.y * 1.3f * tree_thickness;
 
           roots.rotation = entity.orientation;
-          roots.color = wood_color;
+          roots.color = roots_color;
           roots.material = wood_material;
 
           commit(roots);
