@@ -161,11 +161,17 @@ mat4 dither_kernels[] = {
 };
 
 void main() {
-  if (use_close_camera_disocclusion) {
+  // @hack @temporary
+  // @todo DON'T DO THIS!!!!!!!!!!! Figure out a way to mark meshes
+  // as non-disoccluding. Dissocluded meshes may just have to be rendered
+  // in a separate draw call.
+  float metalness = (fragSurface.z & 0x0F);
+
+  if (use_close_camera_disocclusion && metalness < 0.5) {
     bool is_close_to_camera = GetWorldDepth(gl_FragCoord.z, Z_NEAR, Z_FAR) < 9000.0;
     float screen_center_distance = length(gl_FragCoord.xy - RESOLUTION / 2.0);
     bool is_center_frame = screen_center_distance < 900.0;
-    int dither_level = clamp(int(screen_center_distance / 50.0) - 1, 0, 15);
+    int dither_level = clamp(int(screen_center_distance / 30.0) - 12, 0, 15);
     mat4 dither_kernel = dither_kernels[dither_level];
     float dither_value = dither_kernel[int(gl_FragCoord.x) % 4][int(gl_FragCoord.y) % 4];
 
