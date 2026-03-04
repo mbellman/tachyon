@@ -48,25 +48,6 @@ namespace astro {
         if (light_alpha > 1.f) light_alpha = 1.f;
         light_alpha = Tachyon_EaseInOutf(light_alpha);
 
-        // Wand interaction
-        {
-          if (
-            did_release_key(tKey::CONTROLLER_X) &&
-            state.astro_turn_speed == 0.f &&
-            !state.has_target
-          ) {
-            auto proximity = GetEntityProximity(entity, state);
-
-            if (proximity.distance < 9000.f && proximity.facing_dot > 0.1f) {
-              if (is_light_active) {
-                TurnLampOff(tachyon, state, entity);
-              } else {
-                TurnLampOn(tachyon, state, entity);
-              }
-            }
-          }
-        }
-
         // Stand
         {
           auto& stand = objects(meshes.lamppost_stand)[i];

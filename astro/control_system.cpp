@@ -1,6 +1,8 @@
 #include "astro/control_system.h"
 #include "astro/combat.h"
 #include "astro/astrolabe.h"
+#include "astro/entity_behaviors/behavior.h"
+#include "astro/entity_dispatcher.h"
 #include "astro/entity_manager.h"
 #include "astro/items.h"
 #include "astro/sfx.h"
@@ -304,6 +306,43 @@ static void HandleDayNightControls(Tachyon* tachyon, State& state) {
   }
 }
 
+#include "astro/entity_behaviors/Lamppost.h"
+#include "astro/entity_behaviors/Sculpture_1.h"
+
+// @todo Magic::
+static void HandleWandAction(Tachyon* tachyon, State& state) {
+  // @todo
+  EntityRecord target;
+
+  // Lampposts
+  {
+    for_entities_of_type(LAMPPOST) {
+      auto& entity = entities[i];
+      auto proximity = GetEntityProximity(entity, state);
+
+      if (proximity.distance < 9000.f && proximity.facing_dot > 0.1f) {
+        if (entity.did_activate) {
+          Lamppost::TurnLampOff(tachyon, state, entity);
+        } else {
+          Lamppost::TurnLampOn(tachyon, state, entity);
+        }
+      }
+    }
+  }
+
+  // Sculptures
+  {
+    for_entities_of_type(SCULPTURE_1) {
+      auto& entity = entities[i];
+      auto proximity = GetEntityProximity(entity, state);
+
+      if (proximity.distance < 9000.f && proximity.facing_dot > 0.1f) {
+        Sculpture_1::ActivateSculpture1(tachyon, entity);
+      }
+    }
+  }
+}
+
 static void HandleWandControls(Tachyon* tachyon, State& state) {
   if (abs(state.astro_turn_speed) > 0.18f) {
     return;
@@ -330,6 +369,10 @@ static void HandleWandControls(Tachyon* tachyon, State& state) {
       state.last_strong_attack_time = 0.f;
 
       Combat::HandleWandSwing(tachyon, state);
+
+      if (!state.has_target) {
+        HandleWandAction(tachyon, state);
+      }
     }
   }
 

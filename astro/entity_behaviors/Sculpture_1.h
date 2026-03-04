@@ -4,6 +4,10 @@
 
 namespace astro {
   behavior Sculpture_1 {
+    static void ActivateSculpture1(Tachyon* tachyon, GameEntity& entity) {
+      entity.game_activation_time = get_scene_time();
+    }
+
     addMeshes() {
       meshes.sculpture_1_placeholder = MODEL_MESH("./astro/3d_models/sculpture_1/placeholder.obj", 100);
       meshes.sculpture_1_stand = MODEL_MESH("./astro/3d_models/sculpture_1/stand.obj", 100);
@@ -42,21 +46,6 @@ namespace astro {
         float alpha = powf(life_progress, 3.f);
         tVec3f color = tVec3f::lerp(start_color, end_color, alpha);
         float roughness = Tachyon_Lerpf(0.f, 1.f, alpha);
-
-        // Wand interaction
-        {
-          if (
-            did_release_key(tKey::CONTROLLER_X) &&
-            state.astro_turn_speed == 0.f &&
-            !state.has_target
-          ) {
-            auto proximity = GetEntityProximity(entity, state);
-
-            if (proximity.distance < 9000.f && proximity.facing_dot > 0.1f) {
-              entity.game_activation_time = get_scene_time();
-            }
-          }
-        }
 
         // Stand
         {

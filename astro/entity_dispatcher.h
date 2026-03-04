@@ -3,11 +3,11 @@
 #include "astro/entities.h"
 #include "astro/game_state.h"
 
-#define for_all_entity_types() for (auto type : entity_types)
-
 #define for_entities_of_type(__type)\
   auto& entities = EntityDispatcher::GetEntityContainer(state, __type);\
   for_entities(entities)\
+
+#define for_all_entity_types() for (auto type : entity_types)
 
 namespace astro {
   namespace EntityDispatcher {
