@@ -395,6 +395,7 @@ namespace astro {
     std::vector<EntityMoveEvent> move_events;
 
     // Music
+    bool music_enabled = true;
     float bgm_start_time = -1.f;
 
     // @todo dev mode only

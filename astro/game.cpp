@@ -21,8 +21,6 @@
 #include "astro/time_evolution.h"
 #include "astro/ui_system.h"
 
-#define MUSIC_ENABLED 0
-
 using namespace astro;
 
 static void CreateConstantObjects(Tachyon* tachyon, State& state) {
@@ -132,6 +130,13 @@ static void HandleInGameDevHotkeys(Tachyon* tachyon, State& state) {
   {
     if (did_press_key(tKey::ARROW_DOWN)) {
       state.use_zoomed_out_camera = !state.use_zoomed_out_camera;
+    }
+  }
+
+  // Toggling music
+  {
+    if (did_press_key(tKey::M)) {
+      state.music_enabled = !state.music_enabled;
     }
   }
 
@@ -340,54 +345,51 @@ static Sound GetCurrentAmbientSound(State& state) {
 }
 
 static void HandleMusicLevels(Tachyon* tachyon, State& state) {
-  #if MUSIC_ENABLED == 1
+  // Ambient sounds
+  {
+    Sound current_ambient_sound = GetCurrentAmbientSound(state);
 
-    // Ambient sounds
-    {
-      Sound current_ambient_sound = GetCurrentAmbientSound(state);
+    Sfx::LoopSound(current_ambient_sound, 0.5f);
 
-      Sfx::LoopSound(current_ambient_sound, 0.5f);
-
-      if (state.astro_turn_speed != 0.f) {
-        Sfx::FadeSoundVolumeTo(current_ambient_sound, 0.f, 500);
-      } else {
-        Sfx::FadeSoundVolumeTo(current_ambient_sound, 0.5f, 500);
-      }
+    if (state.astro_turn_speed != 0.f || !state.music_enabled) {
+      Sfx::FadeSoundVolumeTo(current_ambient_sound, 0.f, 500);
+    } else {
+      Sfx::FadeSoundVolumeTo(current_ambient_sound, 0.5f, 500);
     }
+  }
 
-    if (state.bgm_start_time == -1.f) return;
-
-    // Background music
-    {
-      if (state.astro_turn_speed != 0.f) {
-        BGM::FadeCurrentMusicVolumeTo(0.f, 500);
-      }
-      else if (IsInStealthMode(state) || Targeting::IsInCombatMode(state)) {
-        BGM::FadeCurrentMusicVolumeTo(0.3f, 500);
-      }
-      else {
-        BGM::FadeCurrentMusicVolumeTo(0.4f, 2000);
-      }
+  // Background music
+  {
+    if (state.astro_turn_speed != 0.f || !state.music_enabled) {
+      BGM::FadeCurrentMusicVolumeTo(0.f, 500);
     }
-
-  #endif
+    else if (IsInStealthMode(state) || Targeting::IsInCombatMode(state)) {
+      BGM::FadeCurrentMusicVolumeTo(0.4f, 500);
+    }
+    else {
+      BGM::FadeCurrentMusicVolumeTo(0.5f, 2000);
+    }
+  }
 }
 
 static void HandleCurrentAreaMusic(Tachyon* tachyon, State& state) {
-  #if MUSIC_ENABLED == 1
+  if (state.bgm_start_time == -1.f && state.astro_time < 0.f && state.astro_turn_speed == 0.f) {
+    // Start music after astro traveling back the first time
+    state.bgm_start_time = get_scene_time();
+  }
 
-    if (state.bgm_start_time == -1.f) return;
+  if (state.bgm_start_time == -1.f) {
+    return;
+  }
 
-    // @temporary
-    tVec3f village_position = tVec3f(232000.f, 0, 106000.f);
+  // @temporary
+  tVec3f village_position = tVec3f(232000.f, 0, 106000.f);
 
-    if (tVec3f::distance(state.player_position, village_position) < 40000.f) {
-      BGM::LoopMusic(VILLAGE_1, 0.4f);
-    } else {
-      BGM::LoopMusic(DIVINATION_WOODREALM, 0.4f);
-    }
-
-  #endif
+  if (tVec3f::distance(state.player_position, village_position) < 40000.f) {
+    BGM::LoopMusic(VILLAGE_1, 0.5f);
+  } else {
+    BGM::LoopMusic(DIVINATION_WOODREALM, 0.5f);
+  }
 }
 
 static void ShowGameStats(Tachyon* tachyon, State& state) {
@@ -662,16 +664,6 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
 
   // @todo dev mode only
   HandleInGameDevHotkeys(tachyon, state);
-
-  #if MUSIC_ENABLED == 1
-
-    if (state.astro_time < 0.f && state.astro_turn_speed == 0.f && state.bgm_start_time == -1.f) {
-      BGM::LoopMusic(DIVINATION_WOODREALM, 0.4f);
-
-      state.bgm_start_time = get_scene_time();
-    }
-
-  #endif
 
   GameEvents::HandleEvents(tachyon, state);
   Targeting::HandleTargets(tachyon, state);
