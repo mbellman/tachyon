@@ -48,7 +48,7 @@ namespace astro {
         if (light_alpha > 1.f) light_alpha = 1.f;
         light_alpha = Tachyon_EaseInOutf(light_alpha);
 
-        // Wand activation/deactivation
+        // Wand interaction
         {
           if (
             did_release_key(tKey::CONTROLLER_X) &&

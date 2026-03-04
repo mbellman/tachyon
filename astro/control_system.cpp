@@ -66,7 +66,8 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
     state.targetable_entities.size() > 0 &&
     did_release_key(tKey::CONTROLLER_A) &&
     time_since(state.last_run_input_time) < 0.3f &&
-    time_since(state.last_damage_time) > 0.5f
+    time_since(state.last_damage_time) > 0.5f &&
+    state.player_velocity.magnitude() > 300.f
   ) {
     state.player_velocity *= 3.5f;
     state.last_dodge_time = get_scene_time();
