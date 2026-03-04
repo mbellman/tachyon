@@ -4,7 +4,7 @@
 
 namespace astro {
   behavior Sculpture_1 {
-    static void ActivateSculpture1(Tachyon* tachyon, GameEntity& entity) {
+    static void HandleWandAction(Tachyon* tachyon, GameEntity& entity) {
       entity.game_activation_time = get_scene_time();
     }
 

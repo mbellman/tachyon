@@ -16,6 +16,14 @@ namespace astro {
       entity.game_activation_time = get_scene_time() + 0.25f;
     }
 
+    static void HandleWandAction(Tachyon* tachyon, State& state, GameEntity& entity) {
+      if (entity.did_activate) {
+        TurnLampOff(tachyon, state, entity);
+      } else {
+        TurnLampOn(tachyon, state, entity);
+      }
+    }
+
     addMeshes() {
       meshes.lamppost_placeholder = MODEL_MESH("./astro/3d_models/lamppost/placeholder.obj", 500);
       meshes.lamppost_stand = MODEL_MESH("./astro/3d_models/lamppost/stand.obj", 500);

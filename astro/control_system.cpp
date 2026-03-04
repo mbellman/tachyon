@@ -310,9 +310,9 @@ static void HandleDayNightControls(Tachyon* tachyon, State& state) {
 #include "astro/entity_behaviors/Sculpture_1.h"
 
 // @todo Magic::
-static void HandleWandAction(Tachyon* tachyon, State& state) {
-  // @todo
+static EntityRecord FindWandActionTarget(State& state) {
   EntityRecord target;
+  float closest_distance = FLT_MAX;
 
   // Lampposts
   {
@@ -320,12 +320,13 @@ static void HandleWandAction(Tachyon* tachyon, State& state) {
       auto& entity = entities[i];
       auto proximity = GetEntityProximity(entity, state);
 
-      if (proximity.distance < 9000.f && proximity.facing_dot > 0.1f) {
-        if (entity.did_activate) {
-          Lamppost::TurnLampOff(tachyon, state, entity);
-        } else {
-          Lamppost::TurnLampOn(tachyon, state, entity);
-        }
+      if (
+        proximity.distance < 9000.f &&
+        proximity.facing_dot > 0.1f &&
+        proximity.distance < closest_distance
+      ) {
+        target = GetRecord(entity);
+        closest_distance = proximity.distance;
       }
     }
   }
@@ -336,10 +337,37 @@ static void HandleWandAction(Tachyon* tachyon, State& state) {
       auto& entity = entities[i];
       auto proximity = GetEntityProximity(entity, state);
 
-      if (proximity.distance < 9000.f && proximity.facing_dot > 0.1f) {
-        Sculpture_1::ActivateSculpture1(tachyon, entity);
+      if (
+        proximity.distance < 9000.f &&
+        proximity.facing_dot > 0.1f &&
+        proximity.distance < closest_distance
+      ) {
+        target = GetRecord(entity);
+        closest_distance = proximity.distance;
       }
     }
+  }
+
+  return target;
+}
+
+// @todo Magic::
+static void HandleWandAction(Tachyon* tachyon, State& state) {
+  auto target = FindWandActionTarget(state);
+
+  if (target.type == UNSPECIFIED) {
+    return;
+  }
+
+  auto& entity = *EntityManager::FindEntity(state, target);
+
+  switch (entity.type) {
+    case LAMPPOST:
+      Lamppost::HandleWandAction(tachyon, state, entity);
+      break;
+    case SCULPTURE_1:
+      Sculpture_1::HandleWandAction(tachyon, entity);
+      break;
   }
 }
 
