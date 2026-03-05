@@ -810,3 +810,18 @@ void PlayerCharacter::TakeDamage(Tachyon* tachyon, State& state, const float dam
     state.last_wand_bounce_time = 0.f;
   }
 }
+
+void PlayerCharacter::PerformStandardDodgeAction(Tachyon* tachyon, State& state) {
+  state.player_velocity *= 3.5f;
+  state.last_dodge_time = get_scene_time();
+}
+
+void PlayerCharacter::PerformTargetJumpAction(Tachyon* tachyon, State& state) {
+  auto& target = *EntityManager::FindEntity(state, state.target_entity);
+  float target_distance = tVec3f::distance(target.visible_position, state.player_position);
+  tVec3f target_direction = (target.visible_position - state.player_position) / target_distance;
+
+  state.player_velocity = target_direction * target_distance;
+  state.last_dodge_time = get_scene_time();
+  state.last_strong_attack_time = 0.f;
+}

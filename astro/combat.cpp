@@ -1,11 +1,13 @@
 #include "astro/combat.h"
 #include "astro/entity_behaviors/behavior.h"
 #include "astro/entity_manager.h"
+#include "astro/player_character.h"
 #include "astro/sfx.h"
 #include "astro/targeting.h"
 
 using namespace astro;
 
+// @todo remove
 static bool TestForStrongAttack(Tachyon* tachyon, State& state) {
   float scene_time = get_scene_time();
 
@@ -21,12 +23,10 @@ static bool TestForStrongAttack(Tachyon* tachyon, State& state) {
       time_since_enemy_attack_action < 0.3f &&
       time_since_taking_damage > 1.f
     ) {
-      float target_distance = tVec3f::distance(target.visible_position, state.player_position);
-      tVec3f direction_to_target = (target.visible_position - state.player_position) / target_distance;
+      PlayerCharacter::PerformTargetJumpAction(tachyon, state);
 
-      state.player_velocity = direction_to_target * target_distance;
-      state.last_strong_attack_time = scene_time;
-      state.last_dodge_time = 0.f;
+      // state.last_strong_attack_time = scene_time;
+      // state.last_dodge_time = 0.f;
 
       if (target.type == LOW_GUARD) {
         // Armor block
@@ -85,11 +85,11 @@ void Combat::HandleWandSwing(Tachyon* tachyon, State& state) {
 
   // Distinguishing between strong and regular attacks
   {
-    if (TestForStrongAttack(tachyon, state)) {
-      Sfx::PlaySound(SFX_WAND_STRONG_ATTACK, 0.3f);
-    } else {
-      Sfx::PlaySound(SFX_WAND_SWING, 0.3f);
-    }
+    // if (TestForStrongAttack(tachyon, state)) {
+    //   Sfx::PlaySound(SFX_WAND_STRONG_ATTACK, 0.3f);
+    // } else {
+    //   Sfx::PlaySound(SFX_WAND_SWING, 0.3f);
+    // }
   }
 }
 

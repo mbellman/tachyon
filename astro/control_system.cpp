@@ -5,6 +5,7 @@
 #include "astro/entity_dispatcher.h"
 #include "astro/entity_manager.h"
 #include "astro/items.h"
+#include "astro/player_character.h"
 #include "astro/sfx.h"
 #include "astro/spell_system.h"
 #include "astro/targeting.h"
@@ -23,6 +24,24 @@ static float GetTurnDot(Tachyon* tachyon, State& state) {
   tVec3f facing_direction = state.player_facing_direction.xz().unit();
 
   return stick_direction.x * facing_direction.x + stick_direction.y * facing_direction.z;
+}
+
+// @todo PlayerCharacter::
+static void HandleQuickManeuverAction(Tachyon* tachyon, State& state) {
+  if (state.has_target) {
+    auto& target = *EntityManager::FindEntity(state, state.target_entity);
+    tVec3f target_direction = (target.visible_position - state.player_position).unit();
+    tVec3f move_direction = state.player_velocity.unit();
+    float target_dot = tVec3f::dot(move_direction, target_direction);
+
+    if (target_dot > 0.98f) {
+      PlayerCharacter::PerformTargetJumpAction(tachyon, state);
+
+      return;
+    }
+  }
+
+  PlayerCharacter::PerformStandardDodgeAction(tachyon, state);
 }
 
 static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
@@ -66,7 +85,7 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
     state.last_run_input_time = get_scene_time();
   }
 
-  // Tapping A/X quickly to dodge
+  // Tapping A/X while moving to perform quick maneuvers
   if (
     state.targetable_entities.size() > 0 &&
     did_release_key(tKey::CONTROLLER_A) &&
@@ -74,8 +93,7 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
     time_since(state.last_damage_time) > 0.5f &&
     state.player_velocity.magnitude() > 300.f
   ) {
-    state.player_velocity *= 3.5f;
-    state.last_dodge_time = get_scene_time();
+    HandleQuickManeuverAction(tachyon, state);
   }
 
   // Quick turning
