@@ -13,6 +13,10 @@
 
 using namespace astro;
 
+const static float dodge_cooldown_time = 0.3f;
+const static float target_jump_cooldown_time = 0.5f;
+const static float strong_attack_cooldown_time = 0.5f;
+
 static float GetTurnDot(Tachyon* tachyon, State& state) {
   tVec2f stick_direction = tVec2f(tachyon->left_stick.x, tachyon->left_stick.y);
 
@@ -45,13 +49,14 @@ static void HandleQuickManeuverAction(Tachyon* tachyon, State& state) {
 }
 
 static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
-  const float dodge_cooldown_time = 0.3f;
-  const float strong_attack_cooldown_time = 0.5f;
-
   bool is_running = is_key_held(tKey::CONTROLLER_A) || is_key_held(tKey::SHIFT);
 
-  if (!state.is_astrolabe_stopped || time_since(state.last_dodge_time) < dodge_cooldown_time) {
-    // Disallow movement while astro traveling or dodging
+  if (
+    !state.is_astrolabe_stopped ||
+    time_since(state.last_dodge_time) < dodge_cooldown_time ||
+    time_since(state.last_target_jump_time) < target_jump_cooldown_time
+  ) {
+    // Disallow movement while astro traveling or quick maneuvering
     return;
   }
 
@@ -467,12 +472,20 @@ static void HandleTargetingControls(Tachyon* tachyon, State& state) {
 }
 
 static void HandleSpeedLimiting(Tachyon* tachyon, State& state) {
-  const float dodge_cooldown_time = 0.3f;
-  const float strong_attack_cooldown_time = 0.5f;
-
   bool is_running = is_key_held(tKey::CONTROLLER_A) || is_key_held(tKey::SHIFT);
+  bool is_dodging = time_since(state.last_dodge_time) < dodge_cooldown_time;
+  bool is_target_jumping = time_since(state.last_target_jump_time) < target_jump_cooldown_time;
+  bool is_quick_maneuvering = is_dodging || is_target_jumping;
 
-  state.player_velocity *= 1.f - 6.f * state.dt;
+  if (is_target_jumping) {
+    state.player_velocity *= 1.f - 3.f * state.dt;
+  }
+  else if (is_dodging) {
+    state.player_velocity *= 1.f - 4.f * state.dt;
+  }
+  else {
+    state.player_velocity *= 1.f - 6.f * state.dt;
+  }
 
   float speed = state.player_velocity.magnitude();
 
@@ -483,7 +496,7 @@ static void HandleSpeedLimiting(Tachyon* tachyon, State& state) {
 
   if (
     speed > max_speed &&
-    time_since(state.last_dodge_time) > dodge_cooldown_time &&
+    !is_quick_maneuvering &&
     time_since(state.last_strong_attack_time) > strong_attack_cooldown_time
   ) {
     tVec3f unit_velocity = state.player_velocity / speed;

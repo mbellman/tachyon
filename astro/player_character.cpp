@@ -252,12 +252,19 @@ static void HandleRunOscillation(State& state, tVec3f& body_position) {
 
 static void HandleCombatJumpMotions(Tachyon* tachyon, State& state, tVec3f& body_position) {
   float time_since_last_dodge = time_since(state.last_dodge_time);
+  float time_since_last_target_jump = time_since(state.last_target_jump_time);
   float time_since_last_strong_attack = time_since(state.last_strong_attack_time);
 
-  if (state.last_dodge_time != 0.f && time_since_last_dodge < 0.2f) {
-    float alpha = time_since_last_dodge / 0.2f;
+  if (state.last_dodge_time != 0.f && time_since_last_dodge < 0.25f) {
+    float alpha = time_since_last_dodge / 0.25f;
 
-    body_position.y += 300.f * sinf(alpha * t_PI);
+    body_position.y += 400.f * sinf(alpha * t_PI);
+  }
+
+  if (state.last_target_jump_time != 0.f && time_since_last_target_jump < 0.3f) {
+    float alpha = time_since_last_target_jump / 0.3f;
+
+    body_position.y += 500.f * sinf(alpha * t_PI);
   }
 
   if (state.last_strong_attack_time != 0.f && time_since_last_strong_attack < 0.3f) {
@@ -800,6 +807,7 @@ void PlayerCharacter::TakeDamage(Tachyon* tachyon, State& state, const float dam
 
   // Cancel any dodge motions
   state.last_dodge_time = 0.f;
+  state.last_target_jump_time = 0.f;
 
   if (state.player_hp <= 0.f) {
     // @temporary
@@ -812,8 +820,10 @@ void PlayerCharacter::TakeDamage(Tachyon* tachyon, State& state, const float dam
 }
 
 void PlayerCharacter::PerformStandardDodgeAction(Tachyon* tachyon, State& state) {
-  state.player_velocity *= 3.5f;
+  state.player_velocity *= 2.f;
   state.last_dodge_time = get_scene_time();
+  state.last_strong_attack_time = 0.f;
+  state.last_target_jump_time = 0.f;
 }
 
 void PlayerCharacter::PerformTargetJumpAction(Tachyon* tachyon, State& state) {
@@ -821,7 +831,8 @@ void PlayerCharacter::PerformTargetJumpAction(Tachyon* tachyon, State& state) {
   float target_distance = tVec3f::distance(target.visible_position, state.player_position);
   tVec3f target_direction = (target.visible_position - state.player_position) / target_distance;
 
-  state.player_velocity = target_direction * target_distance;
-  state.last_dodge_time = get_scene_time();
+  state.player_velocity = target_direction * target_distance * 0.5f;
+  state.last_target_jump_time = get_scene_time();
+  state.last_dodge_time = 0.f;
   state.last_strong_attack_time = 0.f;
 }

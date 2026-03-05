@@ -288,6 +288,9 @@ namespace astro {
     float last_auto_hop_time = 0.f;
     float last_death_time = 0.f;
     float last_spawn_time = 0.f;
+    float last_dodge_time = 0.f;
+    float last_target_jump_time = 0.f;
+    float last_run_input_time = 0.f;
     bool is_on_solid_ground = false;
     bool is_on_solid_platform = false;
     bool did_resolve_radius_collision = false;
@@ -336,8 +339,6 @@ namespace astro {
     EntityRecord target_entity; // @todo rename target_entity_record
     EntityRecord speaking_entity_record;
     float target_start_time = 0.f;
-    float last_run_input_time = 0.f;
-    float last_dodge_time = 0.f;
     bool has_target = false;
     std::vector<EntityRecord> targetable_entities;
 
