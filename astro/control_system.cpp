@@ -37,7 +37,10 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
   }
 
   // Directional movement
-  float movement_speed = is_running ? 14000.f : 4000.f;
+  float movement_speed =
+    is_running ? 14000.f :
+    state.has_target ? 8000.f :
+    4000.f;
 
   if (is_key_held(tKey::W)) {
     state.player_velocity += tVec3f(0, 0, -1.f) * movement_speed * state.dt;
@@ -454,7 +457,11 @@ static void HandleSpeedLimiting(Tachyon* tachyon, State& state) {
   state.player_velocity *= 1.f - 6.f * state.dt;
 
   float speed = state.player_velocity.magnitude();
-  float max_speed = is_running ? 1300.f : 550.f;
+
+  float max_speed =
+    is_running ? 1300.f :
+    state.has_target ? 800.f :
+    550.f;
 
   if (
     speed > max_speed &&

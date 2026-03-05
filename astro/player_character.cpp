@@ -257,7 +257,7 @@ static void HandleCombatJumpMotions(Tachyon* tachyon, State& state, tVec3f& body
   if (state.last_dodge_time != 0.f && time_since_last_dodge < 0.2f) {
     float alpha = time_since_last_dodge / 0.2f;
 
-    body_position.y += 200.f * sinf(alpha * t_PI);
+    body_position.y += 300.f * sinf(alpha * t_PI);
   }
 
   if (state.last_strong_attack_time != 0.f && time_since_last_strong_attack < 0.3f) {
