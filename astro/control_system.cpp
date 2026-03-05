@@ -361,6 +361,11 @@ static void HandleWandAction(Tachyon* tachyon, State& state) {
 
   auto& entity = *EntityManager::FindEntity(state, target);
 
+  if (state.astro_time > entity.astro_end_time) {
+    // Disallow wand actions on expired entities
+    return;
+  }
+
   switch (entity.type) {
     case LAMPPOST:
       Lamppost::HandleWandAction(tachyon, state, entity);

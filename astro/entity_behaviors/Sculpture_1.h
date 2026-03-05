@@ -5,7 +5,18 @@
 namespace astro {
   behavior Sculpture_1 {
     static void HandleWandAction(Tachyon* tachyon, GameEntity& entity) {
+      entity.did_activate = true;
       entity.game_activation_time = get_scene_time();
+
+      if (entity.light_id == -1) {
+        entity.light_id = create_point_light();
+
+        auto& light = *get_point_light(entity.light_id);
+
+        // Allow the light's power to be ramped up upon first interaction,
+        // and remain at normal power even upon repeat interactions
+        light.power = -0.25f;
+      }
     }
 
     addMeshes() {
@@ -66,17 +77,6 @@ namespace astro {
           // Constant rotation
           entity.accumulation_value += state.dt + astro_rotation_speed;
 
-          // Wand effects
-          {
-            const float speed_up_duration = 3.f;
-
-            float interaction_alpha = time_since(entity.game_activation_time) / speed_up_duration;
-            if (interaction_alpha > 1.f) interaction_alpha = 1.f;
-            interaction_alpha = 1.f - interaction_alpha;
-
-            entity.accumulation_value += state.dt * 3.f * interaction_alpha;
-          }
-
           auto& wheel1 = objects(meshes.sculpture_1_wheel)[i * 2];
           auto& wheel2 = objects(meshes.sculpture_1_wheel)[i * 2 + 1];
 
@@ -126,6 +126,40 @@ namespace astro {
 
           commit(wheel1);
           commit(wheel2);
+        }
+
+        // Wand effects
+        {
+          const float speed_up_duration = 3.f;
+
+          // Spinning faster immediately after interaction
+          float spin_alpha = time_since(entity.game_activation_time) / speed_up_duration;
+          if (spin_alpha < 0.f) spin_alpha = 0.f;
+          if (spin_alpha > 1.f) spin_alpha = 1.f;
+
+          if (spin_alpha < 0.2f) {
+            spin_alpha = 5.f * spin_alpha;
+          } else {
+            spin_alpha = 1.f - (spin_alpha - 0.2f) / 0.8f;
+          }
+
+          entity.accumulation_value += state.dt * 3.f * spin_alpha;
+
+          // Glowing after interaction
+          if (entity.light_id != -1) {
+            auto& light = *get_point_light(entity.light_id);
+
+            if (state.astro_time > entity.astro_end_time) {
+              light.power = 0.f;
+            } else {
+              if (light.power < 1.f) light.power += state.dt;
+              if (light.power > 1.f) light.power = 1.f;
+            }
+
+            light.position = UnitEntityToWorldPosition(entity, tVec3f(0, 1.5f, 0.25f));
+            light.color = tVec3f(1.f, 0.6f, 0.3f);
+            light.radius = light.power * 3000.f;
+          }
         }
 
         // Collision
