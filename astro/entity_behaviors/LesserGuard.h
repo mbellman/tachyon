@@ -16,10 +16,24 @@ namespace astro {
     const static float BLOCK_DURATION = 1.f;
     const static float BREAK_DURATION = 2.f;
 
+    static void HandleDeathAnimation(GameEntity& entity, tObject& body, const float scene_time) {
+      Quaternion death_rotation = entity.visible_rotation * (
+        Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -t_HALF_PI)
+      );
+
+      float collapse_alpha = (scene_time - entity.enemy_state.last_death_time) / 0.6f;
+      if (collapse_alpha < 0.f) collapse_alpha = 0.f;
+      if (collapse_alpha > 1.f) collapse_alpha = 1.f;
+      collapse_alpha *= collapse_alpha;
+
+      body.rotation = Quaternion::slerp(body.rotation, death_rotation, collapse_alpha);
+      body.position.y = Tachyon_Lerpf(body.position.y, -1100.f, collapse_alpha);
+    }
+
     static void HandleShieldBlockAction(Tachyon* tachyon, State& state, GameEntity& entity, tObject& shield) {
       float time_since_blocking = time_since(entity.enemy_state.last_block_time);
 
-      if (time_since_blocking < BLOCK_DURATION && entity.enemy_state.health > 0.f) {
+      if (time_since_blocking < BLOCK_DURATION) {
         float alpha = time_since_blocking / BLOCK_DURATION;
         if (alpha > 1.f) alpha = 1.f;
 
@@ -33,19 +47,58 @@ namespace astro {
       }
     }
 
+    static void HandleSwordBreakAction(Tachyon* tachyon, State& state, GameEntity& entity, tObject& sword) {
+      float time_since_broken = time_since(entity.enemy_state.last_break_time);
+
+      if (time_since_broken < BREAK_DURATION) {
+        float alpha = time_since_broken / BREAK_DURATION;
+        if (alpha > 1.f) alpha = 1.f;
+
+        tVec3f enemy_direction = GetFacingDirection(entity);
+        tVec3f enemy_right = tVec3f::cross(tVec3f(0, 1.f, 0), enemy_direction).invert();
+        float offset_factor = sqrtf(sinf(alpha * t_PI));
+
+        // Leftward motion
+        sword.position += enemy_right * 200.f * offset_factor;
+      }
+    }
+
     static void HandleShieldBreakAction(Tachyon* tachyon, State& state, GameEntity& entity, tObject& shield) {
       float time_since_broken = time_since(entity.enemy_state.last_break_time);
 
-      if (time_since_broken < BREAK_DURATION && entity.enemy_state.health > 0.f) {
+      if (time_since_broken < BREAK_DURATION) {
         float alpha = time_since_broken / BREAK_DURATION;
         if (alpha > 1.f) alpha = 1.f;
 
         tVec3f enemy_direction = GetFacingDirection(entity);
         tVec3f enemy_left = tVec3f::cross(tVec3f(0, 1.f, 0), enemy_direction);
-        float offset_factor = sinf(alpha * t_PI);
+        float offset_factor = sqrtf(sinf(alpha * t_PI));
 
         // Leftward motion
-        shield.position += enemy_left * 700.f * offset_factor;
+        shield.position += enemy_left * 600.f * offset_factor;
+      }
+    }
+
+    static void HandleSwordFallAction(Tachyon* tachyon, State& state, GameEntity& entity, tObject& sword) {
+      float time_since_death = time_since(entity.enemy_state.last_death_time);
+
+      if (
+        entity.enemy_state.last_death_time != 0.f &&
+        time_since_death > 0.f
+      ) {
+        float death_alpha = 2.f * time_since_death;
+        if (death_alpha > 1.f) death_alpha = 1.f;
+
+        float z_angle = fmodf(abs(entity.visible_position.x), 2.f) - 1.f;
+
+        Quaternion final_rotation = (
+          entity.visible_rotation *
+          Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -t_HALF_PI) *
+          Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), z_angle)
+        );
+
+        sword.position.y = Tachyon_Lerpf(sword.position.y, -1400.f, death_alpha);
+        sword.rotation = Quaternion::slerp(sword.rotation, final_rotation, death_alpha);
       }
     }
 
@@ -107,7 +160,6 @@ namespace astro {
       if (player_distance < 10000.f) {
         tVec3f player_direction = entity_to_player / player_distance;
         float time_since_last_stun = time_since(state.spells.stun_start_time);
-        bool is_broken = time_since(enemy.last_break_time) < BREAK_DURATION;
 
         bool can_notice_player = (
           tVec3f::dot(GetFacingDirection(entity), player_direction) > 0.2f ||
@@ -126,28 +178,28 @@ namespace astro {
         }
 
         if (time_since_last_stun >= 4.f && enemy.mood != ENEMY_IDLE) {
-          if (!is_broken) {
-            FacePlayer(entity, state);
-          }
+          FacePlayer(entity, state);
 
+          // @todo factor
           if (enemy.mood == ENEMY_AGITATED) {
-            if (!is_broken) {
-              // Speed up toward the player
-              // @todo factor
+            if (time_since(enemy.last_break_time) > BREAK_DURATION) {
+              // Speed up toward the player when not broken
               enemy.speed += 5000.f * state.dt;
               if (enemy.speed > 3000.f) enemy.speed = 3000.f;
             }
 
-            // Slow down when attacking
             bool is_attacking = time_since(enemy.last_attack_start_time) < ATTACK_DURATION;
 
             if (is_attacking) {
+              // Slow down when attacking
               enemy.speed *= 1.f - 5.f * state.dt;
             }
             else if (enemy.speed < 0.f) {
+              // Slow down when recovering from knockback
               enemy.speed *= 1.f - 4.f * state.dt;
             }
             else {
+              // Slow down during normal movement
               enemy.speed *= 1.f - state.dt;
             }
 
@@ -274,12 +326,7 @@ namespace astro {
           body.material = tVec4f(0.6f, 0, 0, 0.4f);
 
           if (death_alpha > 0.f) {
-            Quaternion death_rotation = entity.visible_rotation * (
-              Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -t_HALF_PI)
-            );
-
-            body.rotation = Quaternion::slerp(body.rotation, death_rotation, death_alpha);
-            body.position.y = Tachyon_Lerpf(body.position.y, -1100.f, death_alpha);
+            HandleDeathAnimation(entity, body, get_scene_time());
           }
 
           commit(body);
@@ -396,30 +443,8 @@ namespace astro {
             }
           }
 
-          // Death
-          // @todo factor
-          {
-            float time_since_death = time_since(entity.enemy_state.last_death_time);
-
-            if (
-              entity.enemy_state.last_death_time != 0.f &&
-              time_since_death > 0.f
-            ) {
-              float death_alpha = 2.f * time_since_death;
-              if (death_alpha > 1.f) death_alpha = 1.f;
-
-              float z_angle = fmodf(abs(entity.visible_position.x), 2.f) - 1.f;
-
-              Quaternion final_rotation = (
-                entity.visible_rotation *
-                Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -t_HALF_PI) *
-                Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), z_angle)
-              );
-
-              sword.position.y = Tachyon_Lerpf(sword.position.y, -1400.f, death_alpha);
-              sword.rotation = Quaternion::slerp(sword.rotation, final_rotation, death_alpha);
-            }
-          }
+          HandleSwordBreakAction(tachyon, state, entity, sword);
+          HandleSwordFallAction(tachyon, state, entity, sword);
 
           commit(sword);
         }

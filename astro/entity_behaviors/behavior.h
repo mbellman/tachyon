@@ -156,6 +156,8 @@ namespace astro {
     enemy.last_attack_action_time = 0.f;
     enemy.last_block_time = 0.f;
     enemy.last_death_time = 0.f;
+    enemy.last_break_time = 0.f;
+    enemy.last_damage_time = 0.f;
   }
 
   static void SoftResetEntity(GameEntity& entity, const float scene_time) {
@@ -178,10 +180,10 @@ namespace astro {
     auto& enemy = entity.enemy_state;
 
     enemy.health = 0.f;
-
     enemy.last_death_time = scene_time;
     enemy.last_attack_start_time = 0.f;
     enemy.last_block_time = 0.f;
+    enemy.last_break_time = 0.f;
   }
 
   static tVec3f GetFacingDirection(GameEntity& entity) {
