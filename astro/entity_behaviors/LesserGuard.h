@@ -107,6 +107,7 @@ namespace astro {
       if (player_distance < 10000.f) {
         tVec3f player_direction = entity_to_player / player_distance;
         float time_since_last_stun = time_since(state.spells.stun_start_time);
+        bool is_broken = time_since(enemy.last_break_time) < BREAK_DURATION;
 
         bool can_notice_player = (
           tVec3f::dot(GetFacingDirection(entity), player_direction) > 0.2f ||
@@ -125,11 +126,13 @@ namespace astro {
         }
 
         if (time_since_last_stun >= 4.f && enemy.mood != ENEMY_IDLE) {
-          FacePlayer(entity, state);
+          if (!is_broken) {
+            FacePlayer(entity, state);
+          }
 
           if (enemy.mood == ENEMY_AGITATED) {
-            if (time_since(enemy.last_break_time) > BREAK_DURATION) {
-              // Move in relation to the player direction
+            if (!is_broken) {
+              // Speed up toward the player
               // @todo factor
               enemy.speed += 5000.f * state.dt;
               if (enemy.speed > 3000.f) enemy.speed = 3000.f;

@@ -32,8 +32,9 @@ static void StunNearbyEnemies(State& state, const float scene_time) {
     auto& entity = *EntityManager::FindEntity(state, target);
     auto& enemy = entity.enemy_state;
     float enemy_distance = tVec3f::distance(entity.visible_position, state.player_position);
+    bool is_active_target = state.has_target && IsSameEntity(entity, state.target_entity);
 
-    if (enemy_distance < 4000.f) {
+    if (enemy_distance < 4000.f && !is_active_target) {
       StunEnemy(entity, scene_time);
     }
   }
@@ -99,6 +100,7 @@ void Combat::HandleWandStrikeWindow(Tachyon* tachyon, State& state) {
     auto& entity = *EntityManager::FindEntity(state, target);
     auto& enemy = entity.enemy_state;
     float enemy_distance = tVec3f::distance(entity.visible_position, state.player_position);
+    bool is_active_target = IsSameEntity(entity, state.target_entity);
 
     if (enemy_distance < 3000.f) {
       SetMood(entity, ENEMY_AGITATED, scene_time);
@@ -119,18 +121,20 @@ void Combat::HandleWandStrikeWindow(Tachyon* tachyon, State& state) {
         Sfx::PlaySound(SFX_WAND_RECOIL, 0.5f);
       }
       else if (time_since(enemy.last_block_time) < 1.f) {
-        // Wand recoil when the enemy is blocking
+        // Striking a blocking enemy
         state.last_wand_swing_time = 0.f;
         state.last_wand_bounce_time = scene_time;
 
-        // Enemy knockback
         if (time_since_last_strong_attack < 1.f) {
-          StunNearbyEnemies(state, scene_time);
-          BreakEnemy(entity, scene_time);
+          // Breaking enemy defenses with a strong attack
+          if (is_active_target) {
+            BreakEnemy(entity, scene_time);
+            Sfx::PlaySound(SFX_SHIELD_BREAK, 0.5f);
+          }
 
-          // @todo update
-          Sfx::PlaySound(SFX_WAND_ATTACK, 0.5f);
+          StunNearbyEnemies(state, scene_time);
         } else {
+          // Enemy knockback
           enemy.speed = -3000.f;
 
           Sfx::PlaySound(SFX_WAND_RECOIL, 0.5f);
@@ -144,18 +148,22 @@ void Combat::HandleWandStrikeWindow(Tachyon* tachyon, State& state) {
           enemy.last_attack_action_time = 0.f;
 
           if (time_since_last_strong_attack < 1.f) {
-            // Strong attack damage + knockback
-            enemy.health -= 50.f;
+            // Breaking enemy defenses with a strong attack
+            if (is_active_target) {
+              BreakEnemy(entity, scene_time);
+              Sfx::PlaySound(SFX_SHIELD_BREAK, 0.5f);
+            }
 
             StunNearbyEnemies(state, scene_time);
-            BreakEnemy(entity, scene_time);
           } else {
             // Normal attack damage + knockback
-            enemy.health -= 30.f;
-            enemy.speed = -7000.f;
-          }
+            float damage = time_since(enemy.last_break_time) < 1.f ? 50.f : 30.f;
 
-          Sfx::PlaySound(SFX_WAND_ATTACK, 0.5f);
+            enemy.health -= damage;
+            enemy.speed = -7000.f;
+
+            Sfx::PlaySound(SFX_WAND_ATTACK, 0.5f);
+          }
 
           if (enemy.health <= 0.f) {
             KillEnemy(entity, scene_time);

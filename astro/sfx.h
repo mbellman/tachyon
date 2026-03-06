@@ -18,6 +18,7 @@ namespace astro {
     SFX_WAND_ATTACK,
     SFX_WAND_STRONG_ATTACK,
     SFX_WAND_RECOIL,
+    SFX_SHIELD_BREAK,
 
     SFX_SPELL_STUN,
 
