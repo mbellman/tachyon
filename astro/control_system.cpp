@@ -475,10 +475,9 @@ static void HandleSpeedLimiting(Tachyon* tachyon, State& state) {
   bool is_running = is_key_held(tKey::CONTROLLER_A) || is_key_held(tKey::SHIFT);
   bool is_dodging = time_since(state.last_dodge_time) < dodge_cooldown_time;
   bool is_target_jumping = time_since(state.last_target_jump_time) < target_jump_cooldown_time;
-  bool is_quick_maneuvering = is_dodging || is_target_jumping;
 
   if (is_target_jumping) {
-    state.player_velocity *= 1.f - 3.f * state.dt;
+    state.player_velocity *= 1.f - 2.f * state.dt;
   }
   else if (is_dodging) {
     state.player_velocity *= 1.f - 4.f * state.dt;
@@ -494,11 +493,7 @@ static void HandleSpeedLimiting(Tachyon* tachyon, State& state) {
     state.has_target ? 800.f :
     550.f;
 
-  if (
-    speed > max_speed &&
-    !is_quick_maneuvering &&
-    time_since(state.last_strong_attack_time) > strong_attack_cooldown_time
-  ) {
+  if (speed > max_speed && !is_dodging && !is_target_jumping) {
     tVec3f unit_velocity = state.player_velocity / speed;
 
     state.player_velocity = unit_velocity * max_speed;

@@ -169,7 +169,8 @@ namespace astro {
             player_distance < 4000.f &&
             time_since(enemy.last_attack_start_time) > 1.2f * attack_duration &&
             time_since(enemy.last_block_time) > 2.f &&
-            time_since(enemy.last_mood_change_time) > 0.5f
+            time_since(enemy.last_mood_change_time) > 0.5f &&
+            time_since(enemy.last_damage_time) > 1.5f
           ) {
             // Start an attack
             enemy.last_attack_start_time = get_scene_time();
