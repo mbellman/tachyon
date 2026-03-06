@@ -9,17 +9,17 @@
 
 namespace astro {
   behavior LesserGuard {
-    const static float wind_up_duration = 1.f;
-    const static float stab_duration = 0.1f;
-    const static float wind_down_duration = 0.8f;
-    const static float attack_duration = wind_up_duration + stab_duration + wind_down_duration;
+    const static float WIND_UP_DURATION = 1.f;
+    const static float STAB_DURATION = 0.1f;
+    const static float WIND_DOWN_DURATION = 0.8f;
+    const static float ATTACK_DURATION = WIND_UP_DURATION + STAB_DURATION + WIND_DOWN_DURATION;
+    const static float BLOCK_DURATION = 1.f;
+    const static float BREAK_DURATION = 2.f;
 
-    static void HandleShieldBlockActions(Tachyon* tachyon, State& state, GameEntity& entity, tObject& shield) {
-      const float BLOCK_DURATION = 1.f;
-
+    static void HandleShieldBlockAction(Tachyon* tachyon, State& state, GameEntity& entity, tObject& shield) {
       float time_since_blocking = time_since(entity.enemy_state.last_block_time);
 
-      if (time_since_blocking < BLOCK_DURATION) {
+      if (time_since_blocking < BLOCK_DURATION && entity.enemy_state.health > 0.f) {
         float alpha = time_since_blocking / BLOCK_DURATION;
         if (alpha > 1.f) alpha = 1.f;
 
@@ -33,7 +33,23 @@ namespace astro {
       }
     }
 
-    static void HandleShieldFallActions(Tachyon* tachyon, State& state, GameEntity& entity, tObject& shield) {
+    static void HandleShieldBreakAction(Tachyon* tachyon, State& state, GameEntity& entity, tObject& shield) {
+      float time_since_broken = time_since(entity.enemy_state.last_break_time);
+
+      if (time_since_broken < BREAK_DURATION && entity.enemy_state.health > 0.f) {
+        float alpha = time_since_broken / BREAK_DURATION;
+        if (alpha > 1.f) alpha = 1.f;
+
+        tVec3f enemy_direction = GetFacingDirection(entity);
+        tVec3f enemy_left = tVec3f::cross(tVec3f(0, 1.f, 0), enemy_direction);
+        float offset_factor = sinf(alpha * t_PI);
+
+        // Leftward motion
+        shield.position += enemy_left * 700.f * offset_factor;
+      }
+    }
+
+    static void HandleShieldFallAction(Tachyon* tachyon, State& state, GameEntity& entity, tObject& shield) {
       float time_since_death = time_since(entity.enemy_state.last_death_time);
 
       if (
@@ -112,17 +128,23 @@ namespace astro {
           FacePlayer(entity, state);
 
           if (enemy.mood == ENEMY_AGITATED) {
-            // Move in relation to the player direction
-            // @todo factor
-            enemy.speed += 5000.f * state.dt;
-            if (enemy.speed > 3000.f) enemy.speed = 3000.f;
+            if (time_since(enemy.last_break_time) > BREAK_DURATION) {
+              // Move in relation to the player direction
+              // @todo factor
+              enemy.speed += 5000.f * state.dt;
+              if (enemy.speed > 3000.f) enemy.speed = 3000.f;
+            }
 
             // Slow down when attacking
-            bool is_attacking = time_since(enemy.last_attack_start_time) < attack_duration;
+            bool is_attacking = time_since(enemy.last_attack_start_time) < ATTACK_DURATION;
 
             if (is_attacking) {
               enemy.speed *= 1.f - 5.f * state.dt;
-            } else {
+            }
+            else if (enemy.speed < 0.f) {
+              enemy.speed *= 1.f - 4.f * state.dt;
+            }
+            else {
               enemy.speed *= 1.f - state.dt;
             }
 
@@ -167,10 +189,11 @@ namespace astro {
 
           if (
             player_distance < 4000.f &&
-            time_since(enemy.last_attack_start_time) > 1.2f * attack_duration &&
+            time_since(enemy.last_attack_start_time) > 1.5f * ATTACK_DURATION &&
             time_since(enemy.last_block_time) > 2.f &&
             time_since(enemy.last_mood_change_time) > 0.5f &&
-            time_since(enemy.last_damage_time) > 1.5f
+            time_since(enemy.last_damage_time) > 1.f &&
+            time_since(enemy.last_break_time) > BREAK_DURATION
           ) {
             // Start an attack
             enemy.last_attack_start_time = get_scene_time();
@@ -276,8 +299,9 @@ namespace astro {
             }
           }
 
-          HandleShieldBlockActions(tachyon, state, entity, shield);
-          HandleShieldFallActions(tachyon, state, entity, shield);
+          HandleShieldBlockAction(tachyon, state, entity, shield);
+          HandleShieldBreakAction(tachyon, state, entity, shield);
+          HandleShieldFallAction(tachyon, state, entity, shield);
 
           commit(shield);
         }
@@ -306,21 +330,21 @@ namespace astro {
 
             if (
               entity.enemy_state.mood == ENEMY_AGITATED &&
-              time_since_starting_attack < attack_duration
+              time_since_starting_attack < ATTACK_DURATION
             ) {
-              float alpha = time_since_starting_attack / attack_duration;
+              float alpha = time_since_starting_attack / ATTACK_DURATION;
 
               tVec3f enemy_direction = GetFacingDirection(entity);
               tVec3f enemy_right = tVec3f::cross(enemy_direction, tVec3f(0, 1.f, 0));
 
               // Animation steps
               AnimationStep s1;
-              s1.duration = wind_up_duration;
+              s1.duration = WIND_UP_DURATION;
               s1.offset = tVec3f(0.f);
               s1.rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.f);
 
               AnimationStep s2;
-              s2.duration = stab_duration;
+              s2.duration = STAB_DURATION;
               s2.offset = enemy_right * 500.f - enemy_direction * 500.f;
               s2.rotation = (
                 Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -0.7f) *
@@ -328,7 +352,7 @@ namespace astro {
               );
 
               AnimationStep s3;
-              s3.duration = wind_down_duration;
+              s3.duration = WIND_DOWN_DURATION;
               s3.offset = tVec3f(0, -1000.f, 0) + enemy_direction * 1000.f - enemy_right * 1000.f;
               s3.rotation = (
                 Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), 2.f) *
@@ -345,8 +369,8 @@ namespace astro {
 
               // Player hit detection
               if (
-                time_since_starting_attack > wind_up_duration &&
-                time_since_starting_attack < (wind_up_duration + stab_duration)
+                time_since_starting_attack > WIND_UP_DURATION &&
+                time_since_starting_attack < (WIND_UP_DURATION + STAB_DURATION)
               ) {
                 tVec3f sword_tip_position = UnitObjectToWorldPosition(sword, tVec3f(0, 2.5f, 0));
                 float sword_tip_distance = tVec3f::distance(state.player_position, sword_tip_position);

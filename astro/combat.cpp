@@ -7,6 +7,26 @@
 
 using namespace astro;
 
+static void BreakEnemy(GameEntity& entity, const float scene_time) {
+  auto& enemy = entity.enemy_state;
+
+  enemy.speed = -4000.f;
+  enemy.last_break_time = scene_time;
+  enemy.last_attack_start_time = 0.f;
+  enemy.last_attack_action_time = 0.f;
+  enemy.last_block_time = 0.f;
+}
+
+static void StunEnemy(GameEntity& entity, const float scene_time) {
+  auto& enemy = entity.enemy_state;
+
+  enemy.speed = -3000.f;
+  enemy.last_damage_time = scene_time;
+  enemy.last_attack_start_time = 0.f;
+  enemy.last_attack_action_time = 0.f;
+  enemy.last_block_time = 0.f;
+}
+
 static void StunNearbyEnemies(State& state, const float scene_time) {
   for (auto& target : state.targetable_entities) {
     auto& entity = *EntityManager::FindEntity(state, target);
@@ -14,11 +34,7 @@ static void StunNearbyEnemies(State& state, const float scene_time) {
     float enemy_distance = tVec3f::distance(entity.visible_position, state.player_position);
 
     if (enemy_distance < 4000.f) {
-      enemy.speed = -5000.f;
-
-      enemy.last_damage_time = scene_time;
-      enemy.last_attack_start_time = 0.f;
-      enemy.last_attack_action_time = 0.f;
+      StunEnemy(entity, scene_time);
     }
   }
 }
@@ -32,11 +48,12 @@ void Combat::HandleWandSwing(Tachyon* tachyon, State& state) {
       auto& entity = *EntityManager::FindEntity(state, target);
       auto& enemy = entity.enemy_state;
       float enemy_distance = tVec3f::distance(entity.visible_position, state.player_position);
+      bool is_broken = time_since(enemy.last_break_time) < 1.5f;
 
       // @todo handle per enemy type (target.type)
       float attack_without_blocking_duration = 1.2f;
 
-      if (enemy_distance < 4000.f && enemy.health > 0.f) {
+      if (enemy_distance < 4000.f && enemy.health > 0.f && !is_broken) {
         if (time_since(enemy.last_attack_start_time) > attack_without_blocking_duration) {
           // @todo factor by enemy type
           if (entity.type == LOW_GUARD) {
@@ -108,9 +125,10 @@ void Combat::HandleWandStrikeWindow(Tachyon* tachyon, State& state) {
 
         // Enemy knockback
         if (time_since_last_strong_attack < 1.f) {
-          // enemy.speed = -2000.f;
           StunNearbyEnemies(state, scene_time);
+          BreakEnemy(entity, scene_time);
 
+          // @todo update
           Sfx::PlaySound(SFX_WAND_ATTACK, 0.5f);
         } else {
           enemy.speed = -3000.f;
@@ -130,7 +148,7 @@ void Combat::HandleWandStrikeWindow(Tachyon* tachyon, State& state) {
             enemy.health -= 50.f;
 
             StunNearbyEnemies(state, scene_time);
-            // enemy.speed = -5000.f;
+            BreakEnemy(entity, scene_time);
           } else {
             // Normal attack damage + knockback
             enemy.health -= 30.f;
