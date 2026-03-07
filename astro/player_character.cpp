@@ -285,8 +285,6 @@ static void HandleCombatJumpMotions(Tachyon* tachyon, State& state, tVec3f& body
 
 // @todo refactor to allow NPCs/enemies to turn their own heads
 static void TurnPlayerHeadToward(State& state, const std::vector<GameEntity>& entities, const float facing_angle) {
-  float turn = 0.f;
-
   for (auto& entity : entities) {
     if (state.astro_time > entity.astro_end_time) continue;
 
@@ -295,12 +293,12 @@ static void TurnPlayerHeadToward(State& state, const std::vector<GameEntity>& en
     if (entity_distance < 5000.f) {
       tVec3f player_to_entity = entity.position - state.player_position;
       float entity_direction_angle = atan2f(player_to_entity.z, player_to_entity.x);
-      turn = GetAngleBetween(entity_direction_angle, facing_angle);
+      float turn = GetAngleBetween(entity_direction_angle, facing_angle);
 
-      if (turn < -1.2f) turn = -1.2f;
-      if (turn > 1.2f) turn = 1.2f;
+      if (turn < -1.5f) turn = -1.5f;
+      if (turn > 1.5f) turn = 1.5f;
 
-      state.player_head_turn_angle = Tachyon_Lerpf(state.player_head_turn_angle, -turn, 6.f * state.dt);
+      state.player_head_turn_angle = Tachyon_Lerpf(state.player_head_turn_angle, -turn, 5.f * state.dt);
 
       break;
     }
@@ -313,6 +311,7 @@ static void UpdatePlayerHeadTurnAngle(State& state) {
   TurnPlayerHeadToward(state, state.sculpture_1s, player_facing_angle);
   TurnPlayerHeadToward(state, state.npcs, player_facing_angle);
 
+  // Continually drift back toward 0
   state.player_head_turn_angle = Tachyon_Lerpf(state.player_head_turn_angle, 0.f, 4.f * state.dt);
 }
 
