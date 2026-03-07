@@ -203,7 +203,7 @@ namespace astro {
               enemy.speed *= 1.f - state.dt;
             }
 
-            if (player_distance > 3500.f || enemy.speed < 0.f) {
+            if (player_distance > 2500.f || enemy.speed < 0.f) {
               FollowPlayer(entity, player_direction, state.dt);
             }
             else if (player_distance < 2000.f) {
@@ -428,7 +428,7 @@ namespace astro {
                 entity.enemy_state.last_attack_action_time = get_scene_time();
 
                 if (
-                  sword_tip_distance < 2000.f &&
+                  sword_tip_distance < 2500.f &&
                   PlayerCharacter::CanTakeDamage(tachyon, state)
                 ) {
                   Sfx::PlaySound(SFX_SWORD_DAMAGE, 0.5f);

@@ -291,6 +291,7 @@ namespace astro {
     float last_dodge_time = 0.f;
     float last_target_jump_time = 0.f;
     float last_run_input_time = 0.f;
+    float last_wand_action_time = 0.f;
     bool is_on_solid_ground = false;
     bool is_on_solid_platform = false;
     bool did_resolve_radius_collision = false;
@@ -371,6 +372,7 @@ namespace astro {
 
     // Particles
     std::vector<AmbientParticle> ambient_particles;
+    std::vector<int32> sculpture_particles;
 
     // Magic
     Spells spells;

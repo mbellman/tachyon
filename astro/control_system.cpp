@@ -327,78 +327,9 @@ static void HandleAstroControls(Tachyon* tachyon, State& state) {
 
 // @temporary
 static void HandleDayNightControls(Tachyon* tachyon, State& state) {
+  // Triangle
   if (did_press_key(tKey::CONTROLLER_Y)) {
     state.is_nighttime = !state.is_nighttime;
-  }
-}
-
-#include "astro/entity_behaviors/Lamppost.h"
-#include "astro/entity_behaviors/Sculpture_1.h"
-
-// @todo Magic::
-static EntityRecord FindWandActionTarget(State& state) {
-  EntityRecord target;
-  float closest_distance = FLT_MAX;
-
-  // Lampposts
-  {
-    for_entities_of_type(LAMPPOST) {
-      auto& entity = entities[i];
-      auto proximity = GetEntityProximity(entity, state);
-
-      if (
-        proximity.distance < 9000.f &&
-        proximity.facing_dot > 0.1f &&
-        proximity.distance < closest_distance
-      ) {
-        target = GetRecord(entity);
-        closest_distance = proximity.distance;
-      }
-    }
-  }
-
-  // Sculptures
-  {
-    for_entities_of_type(SCULPTURE_1) {
-      auto& entity = entities[i];
-      auto proximity = GetEntityProximity(entity, state);
-
-      if (
-        proximity.distance < 9000.f &&
-        proximity.facing_dot > 0.1f &&
-        proximity.distance < closest_distance
-      ) {
-        target = GetRecord(entity);
-        closest_distance = proximity.distance;
-      }
-    }
-  }
-
-  return target;
-}
-
-// @todo Magic::
-static void HandleWandAction(Tachyon* tachyon, State& state) {
-  auto target = FindWandActionTarget(state);
-
-  if (target.type == UNSPECIFIED) {
-    return;
-  }
-
-  auto& entity = *EntityManager::FindEntity(state, target);
-
-  if (state.astro_time > entity.astro_end_time) {
-    // Disallow wand actions on expired entities
-    return;
-  }
-
-  switch (entity.type) {
-    case LAMPPOST:
-      Lamppost::HandleWandAction(tachyon, state, entity);
-      break;
-    case SCULPTURE_1:
-      Sculpture_1::HandleWandAction(tachyon, entity);
-      break;
   }
 }
 
@@ -428,10 +359,6 @@ static void HandleWandControls(Tachyon* tachyon, State& state) {
       state.last_strong_attack_time = 0.f;
 
       Combat::HandleWandSwing(tachyon, state);
-
-      if (!state.has_target) {
-        HandleWandAction(tachyon, state);
-      }
     }
   }
 

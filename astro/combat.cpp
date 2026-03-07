@@ -10,7 +10,7 @@ using namespace astro;
 static void BreakEnemy(GameEntity& entity, const float scene_time) {
   auto& enemy = entity.enemy_state;
 
-  enemy.speed = -5000.f;
+  enemy.speed = -4000.f;
   enemy.last_break_time = scene_time;
   enemy.last_attack_start_time = 0.f;
   enemy.last_attack_action_time = 0.f;
@@ -95,6 +95,9 @@ static void HandleLesserGuardWandStrike(Tachyon* tachyon, State& state, GameEnti
     if (is_strong_attack) {
       // Breaking enemy defenses with a strong attack
       if (is_active_target) {
+        state.last_wand_swing_time = 0.f;
+        state.last_wand_bounce_time = scene_time;
+
         BreakEnemy(entity, scene_time);
         StunNearbyEnemies(state, scene_time);
 
@@ -102,11 +105,13 @@ static void HandleLesserGuardWandStrike(Tachyon* tachyon, State& state, GameEnti
       }
     } else {
       // Normal attack damage + knockback
-      float damage = time_since(enemy.last_break_time) < 1.f ? 50.f : 30.f;
+      bool is_break_attack = time_since(enemy.last_break_time) < 1.f;
+      float damage = is_break_attack ? 50.f : 30.f;
+      float knockback = is_break_attack ? -9000.f : -7000.f;
 
       enemy.health -= damage;
       enemy.last_damage_time = scene_time;
-      enemy.speed = -7000.f;
+      enemy.speed = knockback;
 
       Sfx::PlaySound(SFX_WAND_ATTACK, 0.5f);
     }

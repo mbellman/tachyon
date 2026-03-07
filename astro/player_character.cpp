@@ -1,6 +1,7 @@
 #include "astro/player_character.h"
 #include "astro/combat.h"
 #include "astro/entity_manager.h"
+#include "astro/magic.h"
 #include "astro/sfx.h"
 #include "astro/simple_animation.h"
 #include "astro/ui_system.h"
@@ -257,7 +258,7 @@ static void HandleCombatJumpMotions(Tachyon* tachyon, State& state, tVec3f& body
   if (state.last_dodge_time != 0.f && time_since_last_dodge < 0.25f) {
     float alpha = time_since_last_dodge / 0.25f;
 
-    body_position.y += 500.f * sinf(alpha * t_PI);
+    body_position.y += 200.f * sinf(alpha * t_PI);
   }
 
   if (state.last_target_jump_time != 0.f && time_since_last_target_jump < 0.3f) {
@@ -571,6 +572,7 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
         time_since_last_swing > s1.duration &&
         time_since_last_swing < s1.duration + s2.duration
       ) {
+        Magic::HandleWandAction(tachyon, state);
         Combat::HandleWandStrikeWindow(tachyon, state);
       }
     }
@@ -791,6 +793,7 @@ bool PlayerCharacter::CanTakeDamage(Tachyon* tachyon, const State& state) {
   return (
     time_since(state.last_damage_time) > 1.5f &&
     time_since(state.last_target_jump_time) > 1.f &&
+    time_since(state.last_dodge_time) > 0.3f &&
     time_since(state.last_strong_attack_time) > 1.f
   );
 }

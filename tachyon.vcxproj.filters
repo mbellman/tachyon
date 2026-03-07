@@ -621,6 +621,9 @@
     <ClInclude Include="astro\entity_behaviors\RoseBush.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="astro\magic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -816,6 +819,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="astro\combat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="astro\magic.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
