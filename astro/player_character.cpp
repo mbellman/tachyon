@@ -290,10 +290,12 @@ static void TurnPlayerHeadToward(State& state, const std::vector<GameEntity>& en
 
     float entity_distance = tVec3f::distance(state.player_position, entity.position);
 
-    if (entity_distance < 5000.f) {
+    if (entity_distance < 7500.f) {
       tVec3f player_to_entity = entity.position - state.player_position;
       float entity_direction_angle = atan2f(player_to_entity.z, player_to_entity.x);
       float turn = GetAngleBetween(entity_direction_angle, facing_angle);
+
+      if (abs(turn) > 1.8f) continue;
 
       if (turn < -1.5f) turn = -1.5f;
       if (turn > 1.5f) turn = 1.5f;

@@ -882,7 +882,13 @@ static void RenderPrimaryShadowMapCascades(Tachyon* tachyon) {
     glBindVertexArray(gl_mesh_pack.vao);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gl_mesh_pack.ebo);
 
-    for (uint8 attachment = DIRECTIONAL_SHADOW_MAP_CASCADE_1; attachment <= DIRECTIONAL_SHADOW_MAP_CASCADE_4; attachment++) {
+    // for (uint8 attachment = DIRECTIONAL_SHADOW_MAP_CASCADE_1; attachment <= DIRECTIONAL_SHADOW_MAP_CASCADE_4; attachment++) {
+
+    // @temporary Render the cascades in reverse order so that we can render
+    // skinned meshes in the first cascade using the correct depth information.
+    // This will still have to be corrected, and any skinned meshes drawn in
+    // cascades beyond 1 will be compared against incorrect depth information.
+    for (uint8 attachment = DIRECTIONAL_SHADOW_MAP_CASCADE_4; attachment >= DIRECTIONAL_SHADOW_MAP_CASCADE_1; attachment--) {
       auto cascade_index = attachment - DIRECTIONAL_SHADOW_MAP_CASCADE_1;
       auto light_matrix = CreateCascadedLightMatrix(cascade_index, scene.primary_light_direction, camera);
 
