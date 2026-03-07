@@ -96,6 +96,52 @@ static void HandleAstroParticles(Tachyon* tachyon, State& state) {
   }
 }
 
+static void HandleSculptureParticles(Tachyon* tachyon, State& state) {
+  profile("  HandleSculptureParticles()");
+
+  float scene_time = get_scene_time();
+  float alpha_offset = fmodf(scene_time, 1.f) * 0.1f;
+
+  for (auto light_id : state.sculpture_particles) {
+    auto& light = *get_point_light(light_id);
+
+    light.power = 0.f;
+  }
+
+  int total_particles = 0;
+
+  for (auto& entity : state.sculpture_1s) {
+    if (abs(entity.position.x - state.player_position.x) > 12000.f) continue;
+    if (abs(entity.position.z - state.player_position.z) > 12000.f) continue;
+    if (!entity.did_activate) continue;
+
+    for (auto& next_entity : state.sculpture_1s) {
+      if (IsSameEntity(entity, next_entity)) continue;
+      if (!next_entity.did_activate) continue;
+
+      float distance = tVec3f::distance(entity.position, next_entity.position);
+
+      if (distance < 15000.f && total_particles <= 40) {
+        auto start = total_particles;
+        auto end = total_particles + 4;
+
+        for_range(start, end) {
+          int32 light_id = state.sculpture_particles[i];
+          auto& light = *get_point_light(light_id);
+          float alpha = Tachyon_InverseLerp(float(start), float(end), float(i)) + alpha_offset;
+
+          light.position = tVec3f::lerp(entity.position, next_entity.position, alpha);
+          light.position.y = 2000.f;
+          light.radius = 500.f;
+          light.power = 1.f;
+        }
+
+        total_particles += 5;
+      }
+    }
+  }
+}
+
 // @todo move to engine
 template<class T>
 static inline void RemoveFromArray(std::vector<T>& array, uint32 index) {
@@ -171,25 +217,31 @@ static void RemoveExpiredAmbientParticles(Tachyon* tachyon, State& state) {
 }
 
 static void SpawnNewAmbientParticles(Tachyon* tachyon, State& state) {
-  for_entities(state.bellflowers) {
-    auto& entity = state.bellflowers[i];
+  // Bellflower particles
+  {
+    for_entities(state.bellflowers) {
+      auto& entity = state.bellflowers[i];
 
-    if (abs(entity.position.x - state.player_position.x) > 20000.f) continue;
-    if (abs(entity.position.z - state.player_position.z) > 20000.f) continue;
+      if (abs(entity.position.x - state.player_position.x) > 20000.f) continue;
+      if (abs(entity.position.z - state.player_position.z) > 20000.f) continue;
 
-    if (!EntityHasAmbientParticle(state, entity)) {
-      SpawnAmbientParticle(tachyon, state, entity);
+      if (!EntityHasAmbientParticle(state, entity)) {
+        SpawnAmbientParticle(tachyon, state, entity);
+      }
     }
   }
 
-  for_entities(state.starflowers) {
-    auto& entity = state.starflowers[i];
+  // Starflower particles
+  {
+    for_entities(state.starflowers) {
+      auto& entity = state.starflowers[i];
 
-    if (abs(entity.position.x - state.player_position.x) > 20000.f) continue;
-    if (abs(entity.position.z - state.player_position.z) > 20000.f) continue;
+      if (abs(entity.position.x - state.player_position.x) > 20000.f) continue;
+      if (abs(entity.position.z - state.player_position.z) > 20000.f) continue;
 
-    if (!EntityHasAmbientParticle(state, entity)) {
-      SpawnAmbientParticle(tachyon, state, entity);
+      if (!EntityHasAmbientParticle(state, entity)) {
+        SpawnAmbientParticle(tachyon, state, entity);
+      }
     }
   }
 }
@@ -201,8 +253,12 @@ static void UpdateAllAmbientParticles(Tachyon* tachyon, State& state) {
 }
 
 void Particles::InitParticles(Tachyon* tachyon, State& state) {
-  for (int i = 0; i < 70; i++) {
+  for_range(1, 70) {
     state.astro_light_ids.push_back(create_point_light());
+  }
+
+  for_range(1, 50) {
+    state.sculpture_particles.push_back(create_point_light());
   }
 }
 
@@ -210,6 +266,7 @@ void Particles::HandleParticles(Tachyon* tachyon, State& state) {
   profile("HandleParticles()");
 
   HandleAstroParticles(tachyon, state);
+  HandleSculptureParticles(tachyon, state);
 
   SpawnNewAmbientParticles(tachyon, state);
   UpdateAllAmbientParticles(tachyon, state);
