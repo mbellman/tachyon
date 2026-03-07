@@ -35,7 +35,7 @@ static EntityRecord FindWandActionTarget(State& state) {
 
       if (
         proximity.distance < 9000.f &&
-        proximity.facing_dot > 0.1f &&
+        proximity.facing_dot > -0.5f &&
         proximity.distance < closest_distance
       ) {
         target = GetRecord(entity);

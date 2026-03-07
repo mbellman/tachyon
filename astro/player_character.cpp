@@ -67,6 +67,7 @@ static void TransitionToNextAnimation(State& state, State::SkeletonAnimation* an
   SetNextAnimation(state, animation);
 }
 
+// @todo move to Animation::
 static float GetMaxSeekTime(State::SkeletonAnimation& animation) {
   return (float)animation.frames.size();
 }
@@ -168,6 +169,33 @@ static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
         bone.rotation = parent_bone.rotation * bone.rotation;
 
         next_parent_index = parent_bone.parent_bone_index;
+      }
+
+      if (bone.name == "Head") {
+        float player_facing_angle = atan2f(state.player_facing_direction.z, state.player_facing_direction.x);
+
+        // @temporary
+        // @todo compute head turn elsewhere and just apply it here
+        for_entities(state.sculpture_1s) {
+          auto& entity = state.sculpture_1s[i];
+          float entity_distance = tVec3f::distance(state.player_position, entity.position);
+
+          if (entity_distance < 5000.f) {
+            tVec3f player_to_entity = entity.position - state.player_position;
+            float direction_angle = atan2f(player_to_entity.z, player_to_entity.x);
+            float turn = direction_angle - player_facing_angle;
+
+            if (turn < -t_PI) turn += t_TAU;
+            if (turn > t_PI) turn -= t_TAU;
+
+            if (turn < -0.7f) turn = -0.7f;
+            if (turn > 0.7f) turn = 0.7f;
+
+            bone.rotation *= Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -turn);
+
+            break;
+          }
+        }
       }
 
       tMat4f inverse_bind_matrix = rest_pose.bone_matrices[bone.index];
