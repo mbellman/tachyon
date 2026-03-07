@@ -326,6 +326,7 @@ namespace astro {
     SkeletonAnimation* next_animation = nullptr;
     float animation_seek_time = 0.f;
     float time_since_last_animation_change = 0.f;
+    float player_head_turn_angle = 0.f;
 
     // Large-scale generated elements
     std::vector<PathSegment> dirt_path_segments;

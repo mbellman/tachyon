@@ -10,6 +10,15 @@ using namespace astro;
 
 const static float AUTO_HOP_DURATION = 0.3f;
 
+static inline float GetAngleBetween(const float a1, const float a2) {
+  float angle = a1 - a2;
+
+  if (angle < -t_PI) angle += t_TAU;
+  if (angle > t_PI) angle -= t_TAU;
+
+  return angle;
+}
+
 // @todo move to Animation::
 static void ReserveAnimationPoseData(State::SkeletonAnimation& animation) {
   if (animation.current_pose.bones.size() == 0) {
@@ -74,7 +83,7 @@ static float GetMaxSeekTime(State::SkeletonAnimation& animation) {
 
 // @todo move to Animation::
 // @todo refactor to allow for generic skeleton animation blending etc.
-static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
+static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state, const float head_turn_angle) {
   profile("UpdatePlayerSkeleton()");
 
   // Set the default current animation if not initialized
@@ -171,31 +180,9 @@ static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
         next_parent_index = parent_bone.parent_bone_index;
       }
 
+      // @todo allow the head bone name to be specified
       if (bone.name == "Head") {
-        float player_facing_angle = atan2f(state.player_facing_direction.z, state.player_facing_direction.x);
-
-        // @temporary
-        // @todo compute head turn elsewhere and just apply it here
-        for_entities(state.sculpture_1s) {
-          auto& entity = state.sculpture_1s[i];
-          float entity_distance = tVec3f::distance(state.player_position, entity.position);
-
-          if (entity_distance < 5000.f) {
-            tVec3f player_to_entity = entity.position - state.player_position;
-            float direction_angle = atan2f(player_to_entity.z, player_to_entity.x);
-            float turn = direction_angle - player_facing_angle;
-
-            if (turn < -t_PI) turn += t_TAU;
-            if (turn > t_PI) turn -= t_TAU;
-
-            if (turn < -0.7f) turn = -0.7f;
-            if (turn > 0.7f) turn = 0.7f;
-
-            bone.rotation *= Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -turn);
-
-            break;
-          }
-        }
+        bone.rotation *= Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), head_turn_angle);
       }
 
       tMat4f inverse_bind_matrix = rest_pose.bone_matrices[bone.index];
@@ -296,6 +283,39 @@ static void HandleCombatJumpMotions(Tachyon* tachyon, State& state, tVec3f& body
   }
 }
 
+// @todo refactor to allow NPCs/enemies to turn their own heads
+static void TurnPlayerHeadToward(State& state, const std::vector<GameEntity>& entities, const float facing_angle) {
+  float turn = 0.f;
+
+  for (auto& entity : entities) {
+    if (state.astro_time > entity.astro_end_time) continue;
+
+    float entity_distance = tVec3f::distance(state.player_position, entity.position);
+
+    if (entity_distance < 5000.f) {
+      tVec3f player_to_entity = entity.position - state.player_position;
+      float entity_direction_angle = atan2f(player_to_entity.z, player_to_entity.x);
+      turn = GetAngleBetween(entity_direction_angle, facing_angle);
+
+      if (turn < -1.2f) turn = -1.2f;
+      if (turn > 1.2f) turn = 1.2f;
+
+      state.player_head_turn_angle = Tachyon_Lerpf(state.player_head_turn_angle, -turn, 6.f * state.dt);
+
+      break;
+    }
+  }
+}
+
+static void UpdatePlayerHeadTurnAngle(State& state) {
+  float player_facing_angle = atan2f(state.player_facing_direction.z, state.player_facing_direction.x);
+
+  TurnPlayerHeadToward(state, state.sculpture_1s, player_facing_angle);
+  TurnPlayerHeadToward(state, state.npcs, player_facing_angle);
+
+  state.player_head_turn_angle = Tachyon_Lerpf(state.player_head_turn_angle, 0.f, 4.f * state.dt);
+}
+
 static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player_rotation, tMat4f& player_rotation_matrix) {
   auto& meshes = state.meshes;
 
@@ -332,7 +352,7 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
     body_rotation = Quaternion::slerp(body_rotation, death_rotation, death_alpha);
   }
 
-  UpdatePlayerSkeleton(tachyon, state);
+  UpdatePlayerSkeleton(tachyon, state, state.player_head_turn_angle);
 
   // Head
   {
@@ -767,11 +787,7 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
       float facing_angle = atan2f(state.player_facing_direction.z, state.player_facing_direction.x);
       float desired_facing_angle = atan2f(desired_facing_direction.z, desired_facing_direction.x);
 
-      tilt = desired_facing_angle - facing_angle;
-
-      if (tilt < -t_PI) tilt += t_TAU;
-      if (tilt > t_PI) tilt -= t_TAU;
-
+      tilt = GetAngleBetween(desired_facing_angle, facing_angle);
       tilt *= 0.2f;
       tilt *= player_speed / 1300.f;
     }
@@ -805,6 +821,7 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
 
   tMat4f player_rotation_matrix = player_rotation.toMatrix4f();
 
+  UpdatePlayerHeadTurnAngle(state);
   UpdatePlayerModel(tachyon, state, player_rotation, player_rotation_matrix);
   UpdateWand(tachyon, state, player_rotation, player_rotation_matrix);
   UpdateWandLights(tachyon, state);
