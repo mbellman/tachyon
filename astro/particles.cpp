@@ -100,7 +100,7 @@ static void HandleSculptureParticles(Tachyon* tachyon, State& state) {
   profile("  HandleSculptureParticles()");
 
   float scene_time = get_scene_time();
-  float alpha_offset = fmodf(scene_time, 1.f) * 0.1f;
+  float alpha_offset = fmodf(scene_time, 1.f) * 0.25f;
 
   for (auto light_id : state.sculpture_particles) {
     auto& light = *get_point_light(light_id);

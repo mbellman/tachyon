@@ -23,7 +23,7 @@
 
 #define create_point_light() Tachyon_CreatePointLight(tachyon)
 #define get_point_light(__light_id) Tachyon_GetPointLight(tachyon, __light_id)
-#define remove_point_light(__light) Tachyon_RemovePointLight(tachyon, __light)
+#define remove_point_light(__light_or_light_id) Tachyon_RemovePointLight(tachyon, __light_or_light_id)
 
 tMesh Tachyon_LoadMesh(const char* path, const tVec3f& axis_factors = tVec3f(1.f));
 tSkinnedMesh Tachyon_LoadSkinnedMesh(const char* skin_path, const tSkeleton& skeleton);

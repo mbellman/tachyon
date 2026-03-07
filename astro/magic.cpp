@@ -72,7 +72,7 @@ void Magic::HandleWandAction(Tachyon* tachyon, State& state) {
       Lamppost::HandleWandAction(tachyon, state, entity);
       break;
     case SCULPTURE_1:
-      Sculpture_1::HandleWandAction(tachyon, entity);
+      Sculpture_1::HandleWandAction(tachyon, state, entity);
       break;
   }
 }

@@ -175,6 +175,22 @@ static void HandleInGameDevHotkeys(Tachyon* tachyon, State& state) {
         entity.visible_rotation = entity.orientation;
       }
 
+      for_entities(state.sculpture_1s) {
+        auto& entity = state.sculpture_1s[i];
+
+        if (entity.did_activate) {
+          entity.did_activate = false;
+          entity.game_activation_time = -1.;
+          entity.astro_activation_time = 0.f;
+        }
+
+        if (entity.light_id != -1) {
+          remove_point_light(entity.light_id);
+
+          entity.light_id = -1;
+        }
+      }
+
       show_overlay_message("Reset activated entities");
     }
   }

@@ -22,6 +22,11 @@ static std::map<Sound, const char*> sound_file_map = {
   { SFX_WAND_RECOIL, "./astro/audio/sfx_wand_recoil.wav" },
   { SFX_SHIELD_BREAK, "./astro/audio/sfx_shield_break.wav" },
 
+  { SFX_SCULPTURE_ACTIVATE_1, "./astro/audio/sfx_sculpture_activate_1.wav" },
+  { SFX_SCULPTURE_ACTIVATE_2, "./astro/audio/sfx_sculpture_activate_2.wav" },
+  { SFX_SCULPTURE_ACTIVATE_3, "./astro/audio/sfx_sculpture_activate_3.wav" },
+  { SFX_SCULPTURE_ACTIVATE_4, "./astro/audio/sfx_sculpture_activate_4.wav" },
+
   { SFX_SPELL_STUN, "./astro/audio/sfx_spell_stun.wav" },
 
   { SFX_LIGHT_POST_ACTIVATE, "./astro/audio/light_post.wav" },

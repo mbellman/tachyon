@@ -283,6 +283,7 @@ namespace astro {
     float last_damage_time = 0.f;
     float last_quick_turn_time = 0.f;
     float last_wand_swing_time = 0.f;
+    float last_wand_action_time = 0.f;
     float last_wand_bounce_time = 0.f;
     float last_strong_attack_time = 0.f;
     float last_auto_hop_time = 0.f;
@@ -291,7 +292,6 @@ namespace astro {
     float last_dodge_time = 0.f;
     float last_target_jump_time = 0.f;
     float last_run_input_time = 0.f;
-    float last_wand_action_time = 0.f;
     bool is_on_solid_ground = false;
     bool is_on_solid_platform = false;
     bool did_resolve_radius_collision = false;

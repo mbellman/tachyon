@@ -4,11 +4,19 @@
 
 namespace astro {
   behavior Sculpture_1 {
-    static void HandleWandAction(Tachyon* tachyon, GameEntity& entity) {
+    static auto activation_sounds = {
+      SFX_SCULPTURE_ACTIVATE_1,
+      SFX_SCULPTURE_ACTIVATE_2,
+      SFX_SCULPTURE_ACTIVATE_3,
+      SFX_SCULPTURE_ACTIVATE_4
+    };
+
+    static void HandleWandAction(Tachyon* tachyon, State& state, GameEntity& entity) {
       entity.did_activate = true;
       entity.game_activation_time = get_scene_time();
 
       if (entity.light_id == -1) {
+        // Initialize the activation light
         entity.light_id = create_point_light();
 
         auto& light = *get_point_light(entity.light_id);
@@ -16,6 +24,12 @@ namespace astro {
         // Allow the light's power to be ramped up upon first interaction,
         // and remain at normal power even upon repeat interactions
         light.power = -0.25f;
+
+        // Activation sound effect
+        int sound_index = Tachyon_GetRandom(0, 3);
+        Sound sound_effect = *(activation_sounds.begin() + sound_index);
+
+        Sfx::PlaySound(sound_effect, 0.4f);
       }
     }
 
