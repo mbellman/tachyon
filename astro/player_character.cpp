@@ -92,9 +92,8 @@ static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state, const float hea
     state.current_animation = &state.animations.player_idle;
   }
 
-  // @temporary
-  // @todo set the active animation based on player actions
-  if (state.previous_move_delta > 50.f) {
+  // @todo add more animations and refactor how to determine the active animation
+  if (is_key_held(tKey::CONTROLLER_A) && state.previous_move_delta > 0.f) {
     SetNextAnimation(state, &state.animations.player_run);
   } else if (
     state.previous_move_delta > 5.f ||
@@ -105,8 +104,15 @@ static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state, const float hea
     TransitionToNextAnimation(state, &state.animations.player_idle);
   }
 
+  // @todo make this a method parameter
+  bool forward = tVec3f::dot(state.player_velocity, state.player_facing_direction) >= 0.f;
+
   // Accumulate animation time
-  state.animation_seek_time += state.next_animation->speed * state.dt;
+  if (forward) {
+    state.animation_seek_time += state.next_animation->speed * state.dt;
+  } else {
+    state.animation_seek_time -= state.next_animation->speed * state.dt;
+  }
 
   // Limit and wrap the animation time to a common multiple of the
   // current/next animation times so that we don't eventually encounter
@@ -116,6 +122,8 @@ static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state, const float hea
 
     if (state.animation_seek_time > max_seek_time) {
       state.animation_seek_time -= max_seek_time;
+    } else if (state.animation_seek_time < 0.f) {
+      state.animation_seek_time = max_seek_time;
     }
   }
 
@@ -250,8 +258,11 @@ static void HandleAutoHop(State& state) {
   state.player_position.y = Tachyon_Lerpf(state.player_position.y, jump_height, alpha);
 }
 
-static void HandleRunOscillation(State& state, tVec3f& body_position) {
-  if (state.previous_move_delta > 50.f) {
+static void HandleRunOscillation(Tachyon* tachyon, State& state, tVec3f& body_position) {
+  if (
+    is_key_held(tKey::CONTROLLER_A) &&
+    state.previous_move_delta > 0.f
+  ) {
     state.run_oscillation += 5.f * state.dt;
   } else {
     state.run_oscillation -= 4.f * state.dt;
@@ -289,10 +300,10 @@ static void TurnPlayerHeadToward(State& state, const std::vector<GameEntity>& en
   for (auto& entity : entities) {
     if (!IsDuringActiveTime(entity, state)) continue;
 
-    float entity_distance = tVec3f::distance(state.player_position, entity.position);
+    float entity_distance = tVec3f::distance(state.player_position, entity.visible_position);
 
     if (entity_distance < 7500.f) {
-      tVec3f player_to_entity = entity.position - state.player_position;
+      tVec3f player_to_entity = entity.visible_position - state.player_position;
       float entity_direction_angle = atan2f(player_to_entity.z, player_to_entity.x);
       float turn = GetAngleBetween(entity_direction_angle, facing_angle);
 
@@ -338,7 +349,7 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
   tVec3f body_position = state.player_position;
 
   if (state.player_hp > 0.f) {
-    HandleRunOscillation(state, body_position);
+    HandleRunOscillation(tachyon, state, body_position);
     HandleCombatJumpMotions(tachyon, state, body_position);
   } else {
     // Player death
