@@ -48,7 +48,8 @@ namespace astro {
     BELLFLOWER,
     STARFLOWER,
     FLAG,
-    ROSE_BUSH
+    ROSE_BUSH,
+    TALL_GRASS
   };
 
   /**
@@ -91,7 +92,8 @@ namespace astro {
     WATER_WHEEL,
     CHESTNUT_TREE,
     NPC,
-    LESSER_GUARD
+    LESSER_GUARD,
+    TALL_GRASS
   };
 
   /**
@@ -212,6 +214,10 @@ namespace astro {
       shrub_bottom,
       shrub_middle,
       shrub_top,
+
+      // TALL_GRASS
+      tall_grass_placeholder,
+      tall_grass,
 
       // OAK_TREE
       oak_tree_placeholder,
@@ -401,6 +407,7 @@ namespace astro {
     std::vector<GameEntity> stone_path_nodes;
 
     std::vector<GameEntity> shrubs;
+    std::vector<GameEntity> tall_grasses;
     std::vector<GameEntity> flower_bushes;
     std::vector<GameEntity> bellflowers;
     std::vector<GameEntity> starflowers;
@@ -497,6 +504,12 @@ namespace astro {
     { SHRUB, {
       .name = "Shrub",
       .scale = tVec3f(800.f),
+      .tint = tVec3f(0.1f, 0.3f, 0.1f)
+    } },
+
+    { TALL_GRASS, {
+      .name = "Tall Grass",
+      .scale = tVec3f(2000.f),
       .tint = tVec3f(0.1f, 0.3f, 0.1f)
     } },
 

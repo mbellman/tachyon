@@ -54,6 +54,12 @@ struct LevelEditorState {
   tVec3f move_action_delta = tVec3f(0.f);
 } editor;
 
+const static EntityDefaults missing_entity_defaults = {
+  .name = "(MISSING ENTITY DEFAULTS)",
+  .scale = tVec3f(1000.f),
+  .tint = tVec3f(1.f)
+};
+
 /**
  * ----------------------------
  * Exception-safe string to type conversion helpers.
@@ -185,11 +191,15 @@ void SaveLevelData(Tachyon* tachyon, State& state) {
 
 /**
  * ----------------------------
- * Gets default spawn parameters for an entity.
+ * Gets default parameters for an entity.
  * ----------------------------
  */
-static EntityDefaults& GetEntityDefaults(EntityType entity_type) {
-  return entity_defaults_map.at(entity_type);
+static const EntityDefaults& GetEntityDefaults(EntityType entity_type) {
+  if (entity_defaults_map.find(entity_type) != entity_defaults_map.end()) {
+    return entity_defaults_map.at(entity_type);
+  }
+
+  return missing_entity_defaults;
 }
 
 /**
@@ -775,9 +785,9 @@ static void CycleEntities(Tachyon* tachyon, State& state, int8 direction) {
   }
 
   auto entity_type = entity_types[editor.current_entity_index];
-  std::string& entity_name = GetEntityDefaults(entity_type).name;
+  auto& defaults = GetEntityDefaults(entity_type);
 
-  show_overlay_message("Active entity: " + entity_name);
+  show_overlay_message("Active entity: " + defaults.name);
 }
 
 /**
