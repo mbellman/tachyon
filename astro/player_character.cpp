@@ -1,5 +1,6 @@
 #include "astro/player_character.h"
 #include "astro/combat.h"
+#include "astro/entity_behaviors/behavior.h"
 #include "astro/entity_manager.h"
 #include "astro/magic.h"
 #include "astro/sfx.h"
@@ -286,7 +287,7 @@ static void HandleCombatJumpMotions(Tachyon* tachyon, State& state, tVec3f& body
 // @todo refactor to allow NPCs/enemies to turn their own heads
 static void TurnPlayerHeadToward(State& state, const std::vector<GameEntity>& entities, const float facing_angle) {
   for (auto& entity : entities) {
-    if (state.astro_time > entity.astro_end_time) continue;
+    if (!IsDuringActiveTime(entity, state)) continue;
 
     float entity_distance = tVec3f::distance(state.player_position, entity.position);
 
@@ -312,6 +313,8 @@ static void UpdatePlayerHeadTurnAngle(State& state) {
 
   TurnPlayerHeadToward(state, state.sculpture_1s, player_facing_angle);
   TurnPlayerHeadToward(state, state.npcs, player_facing_angle);
+  TurnPlayerHeadToward(state, state.low_guards, player_facing_angle);
+  TurnPlayerHeadToward(state, state.lesser_guards, player_facing_angle);
 
   // Continually drift back toward 0
   state.player_head_turn_angle = Tachyon_Lerpf(state.player_head_turn_angle, 0.f, 4.f * state.dt);

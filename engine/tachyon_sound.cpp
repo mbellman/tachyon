@@ -10,6 +10,9 @@ ma_engine engine;
 
 void Tachyon_InitSoundEngine() {
   ma_engine_init(NULL, &engine);
+
+  // @todo is this necessary?
+  ma_engine_set_volume(&engine, 1.f);
 }
 
 tSoundResource Tachyon_CreateSound(const char* file_path) {
