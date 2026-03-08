@@ -310,7 +310,6 @@ namespace astro {
     struct SkeletonAnimation {
       std::vector<tSkeleton> frames;
       tSkeleton current_pose;
-      float speed = 1.f;
     };
 
     struct SkeletonAnimations {

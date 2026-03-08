@@ -416,9 +416,9 @@ static void HandleSpeedLimiting(Tachyon* tachyon, State& state) {
   float speed = state.player_velocity.magnitude();
 
   float max_speed =
-    is_running ? 1300.f :
-    state.has_target ? 800.f :
-    550.f;
+    is_running ? PlayerCharacter::MAX_RUN_SPEED :
+    state.has_target ? PlayerCharacter::MAX_COMBAT_WALK_SPEED :
+    PlayerCharacter::MAX_WALK_SPEED;
 
   if (speed > max_speed && !is_dodging && !is_target_jumping) {
     tVec3f unit_velocity = state.player_velocity / speed;

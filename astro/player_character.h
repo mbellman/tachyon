@@ -4,6 +4,10 @@
 
 namespace astro {
   namespace PlayerCharacter {
+    const static float MAX_RUN_SPEED = 1300.f;
+    const static float MAX_COMBAT_WALK_SPEED = 800.f;
+    const static float MAX_WALK_SPEED = 550.f;
+
     void UpdatePlayer(Tachyon* tachyon, State& state);
     void AutoHop(Tachyon* tachyon, State& state);
     bool CanTakeDamage(Tachyon* tachyon, const State& state);

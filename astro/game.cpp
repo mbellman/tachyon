@@ -585,13 +585,11 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
 
   // @todo factor
   {
-    state.animations.player_idle.speed = 0.8f;
     state.animations.player_idle.frames = {
       GltfLoader("./astro/3d_skeleton_animations/player_idle/idle_1.gltf").skeleton,
       GltfLoader("./astro/3d_skeleton_animations/player_idle/idle_2.gltf").skeleton
     };
 
-    state.animations.player_walk.speed = 8.f;
     state.animations.player_walk.frames = {
       GltfLoader("./astro/3d_skeleton_animations/player_walk/walk_1.gltf").skeleton,
       GltfLoader("./astro/3d_skeleton_animations/player_walk/walk_2.gltf").skeleton,
@@ -603,7 +601,6 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
       GltfLoader("./astro/3d_skeleton_animations/player_walk/walk_8.gltf").skeleton
     };
 
-    state.animations.player_run.speed = 12.f;
     state.animations.player_run.frames = {
       GltfLoader("./astro/3d_skeleton_animations/player_run/run_1.gltf").skeleton,
       GltfLoader("./astro/3d_skeleton_animations/player_run/run_2.gltf").skeleton,

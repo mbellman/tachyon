@@ -107,11 +107,17 @@ static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state, const float hea
   // @todo make this a method parameter
   bool forward = tVec3f::dot(state.player_velocity, state.player_facing_direction) >= 0.f;
 
+  // @temporary
+  // @todo factor
+  float animation_speed =
+    state.next_animation == &state.animations.player_idle ? 0.8f :
+    12.f * sqrtf(state.player_velocity.magnitude() / PlayerCharacter::MAX_RUN_SPEED);
+
   // Accumulate animation time
   if (forward) {
-    state.animation_seek_time += state.next_animation->speed * state.dt;
+    state.animation_seek_time += animation_speed * state.dt;
   } else {
-    state.animation_seek_time -= state.next_animation->speed * state.dt;
+    state.animation_seek_time -= animation_speed * state.dt;
   }
 
   // Limit and wrap the animation time to a common multiple of the
@@ -804,7 +810,7 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
 
       tilt = GetAngleBetween(desired_facing_angle, facing_angle);
       tilt *= 0.2f;
-      tilt *= player_speed / 1300.f;
+      tilt *= player_speed / PlayerCharacter::MAX_RUN_SPEED;
     }
 
     state.player_facing_direction = tVec3f::lerp(state.player_facing_direction, desired_facing_direction, turn_speed * state.dt).unit();
