@@ -49,7 +49,8 @@ namespace astro {
     STARFLOWER,
     FLAG,
     ROSE_BUSH,
-    TALL_GRASS
+    TALL_GRASS,
+    TULIP_PLANT
   };
 
   /**
@@ -93,7 +94,8 @@ namespace astro {
     CHESTNUT_TREE,
     NPC,
     LESSER_GUARD,
-    TALL_GRASS
+    TALL_GRASS,
+    TULIP_PLANT
   };
 
   /**
@@ -135,6 +137,7 @@ namespace astro {
    * ----------------------------
    * The primary game entity data structure.
    * @todo use a bitfield for flags
+   * @todo check size in bytes and optimize for space where possible
    * ----------------------------
    */
   struct GameEntity : EntityRecord {
@@ -279,6 +282,12 @@ namespace astro {
       flower_bush_placeholder,
       flower_bush_leaves,
 
+      // TULIP_PLANT
+      tulip_plant_placeholder,
+      tulip_plant_leaves,
+      tulip_plant_stalk,
+      tulip_plant_bulb,
+
       // LILY_PAD
       lily_pad_placeholder,
       lily_pad,
@@ -409,6 +418,7 @@ namespace astro {
     std::vector<GameEntity> shrubs;
     std::vector<GameEntity> tall_grasses;
     std::vector<GameEntity> flower_bushes;
+    std::vector<GameEntity> tulip_plants;
     std::vector<GameEntity> bellflowers;
     std::vector<GameEntity> starflowers;
     std::vector<GameEntity> lilac_bushes;
@@ -516,6 +526,12 @@ namespace astro {
     { FLOWER_BUSH, {
       .name = "Flower Bush",
       .scale = tVec3f(2000.f),
+      .tint = tVec3f(0.2f, 0.6f, 0.3f)
+    } },
+
+    { TULIP_PLANT, {
+      .name = "Tulip Plant",
+      .scale = tVec3f(1000.f),
       .tint = tVec3f(0.2f, 0.6f, 0.3f)
     } },
 

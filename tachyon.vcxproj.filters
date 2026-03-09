@@ -624,6 +624,12 @@
     <ClInclude Include="astro\magic.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="astro\entity_behaviors\TulipPlant.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\entity_behaviors\TallGrass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

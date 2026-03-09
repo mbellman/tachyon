@@ -156,6 +156,8 @@
     <ClInclude Include="astro\entity_behaviors\StarFlower.h" />
     <ClInclude Include="astro\entity_behaviors\StonePathNode.h" />
     <ClInclude Include="astro\entity_behaviors\StoneWall.h" />
+    <ClInclude Include="astro\entity_behaviors\TallGrass.h" />
+    <ClInclude Include="astro\entity_behaviors\TulipPlant.h" />
     <ClInclude Include="astro\entity_behaviors\WaterWheel.h" />
     <ClInclude Include="astro\entity_behaviors\WillowTree.h" />
     <ClInclude Include="astro\entity_behaviors\WindChimes.h" />
