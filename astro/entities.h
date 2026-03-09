@@ -141,7 +141,7 @@ namespace astro {
     // Customizable properties
     tVec3f position;
     tVec3f scale;
-    tVec3f tint; // @todo
+    tVec3f tint; // @todo make editable
     Quaternion orientation = Quaternion(1.f, 0, 0, 0); // @todo rename rotation
     float astro_start_time = 0.f;
     float astro_end_time = 0.f;
