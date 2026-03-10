@@ -428,7 +428,7 @@ namespace astro {
                 entity.enemy_state.last_attack_action_time = get_scene_time();
 
                 if (
-                  sword_tip_distance < 2500.f &&
+                  sword_tip_distance < 2000.f &&
                   PlayerCharacter::CanTakeDamage(tachyon, state)
                 ) {
                   Sfx::PlaySound(SFX_SWORD_DAMAGE, 0.5f);
