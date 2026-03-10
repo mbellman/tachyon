@@ -42,6 +42,7 @@ struct LevelEditorState {
   bool is_placing_entity = false;
   bool use_uniform_scaling = false;
   bool show_fog_volumes = true;
+  bool hide_non_selected_plants = false;
 
   bool is_fast_camera_movement_enabled = false;
   float last_space_press_time = 0.f;
@@ -1548,6 +1549,46 @@ static void PasteCopiedEntityProperties(State& state) {
 
 /**
  * ----------------------------
+ * Enables or disables visibility for non-selected plant types.
+ * ----------------------------
+ */
+static void ToggleNonSelectedPlants(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
+  editor.hide_non_selected_plants = !editor.hide_non_selected_plants;
+
+  const static std::vector<EntityType> plant_entities = {
+    SHRUB,
+    TALL_GRASS,
+    FLOWER_BUSH,
+    TULIP_PLANT,
+    LILAC_BUSH,
+    GLOW_FLOWER,
+    ROSE_BUSH,
+    BELLFLOWER,
+    STARFLOWER,
+    MUSHROOM
+  };
+
+  for (auto entity_type : plant_entities) {
+    auto current_entity_type = entity_types[editor.current_entity_index];
+    uint16 placeholder_mesh_type = EntityDispatcher::GetPlaceholderMesh(state, entity_type);
+
+    objects(placeholder_mesh_type).disabled = (
+      editor.hide_non_selected_plants &&
+      entity_type != current_entity_type
+    );
+  }
+
+  if (editor.hide_non_selected_plants) {
+    show_overlay_message("Non-selected plants disabled");
+  } else {
+    show_overlay_message("All plants enabled");
+  }
+}
+
+/**
+ * ----------------------------
  * Respawns the player near the camera.
  * ----------------------------
  */
@@ -1575,16 +1616,20 @@ static void RepositionPlayer(Tachyon* tachyon, State& state) {
 static void HandleEditorActions(Tachyon* tachyon, State& state) {
   if (did_left_click_down() && !editor.is_anything_selected) {
     if (editor.is_in_placement_mode) {
+      // Clicking to place entities or objects
       if (editor.is_placing_entity) {
         PlaceNewEntity(tachyon, state);
       } else {
         PlaceNewDecorativeObject(tachyon, state);
       }
     } else {
+      // Clicking to make a selection
       MaybeMakeSelection(tachyon, state);
     }
   }
 
+  // Toggling higher contrast lighting
+  // @todo improve or remove this feature
   if (did_press_key(tKey::CONTROL)) {
     tachyon->use_high_visibility_mode = !tachyon->use_high_visibility_mode;
 
@@ -1595,6 +1640,7 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
     }
   }
 
+  // Toggling fog volumes
   if (did_press_key(tKey::F) && tachyon->hotkeys_enabled) {
     editor.show_fog_volumes = !editor.show_fog_volumes;
 
@@ -1603,6 +1649,14 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
     } else {
       show_overlay_message("Fog volumes disabled");
     }
+  }
+
+  // Toggling non-selected plant visibility
+  if (
+    did_press_key(tKey::H) &&
+    !editor.is_editing_entity_properties
+  ) {
+    ToggleNonSelectedPlants(tachyon, state);
   }
 
   if (editor.is_anything_selected) {
