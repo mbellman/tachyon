@@ -1264,8 +1264,8 @@ void ProceduralGeneration::RebuildAllProceduralObjects(Tachyon* tachyon, State& 
 
   GenerateTreeMushrooms(tachyon, state);
   GenerateGround1Plants(tachyon, state);
-  GenerateSmallGrass(tachyon, state);
 
+  GenerateSmallGrass(tachyon, state);
   GenerateGroundFlowers(tachyon, state);
 }
 

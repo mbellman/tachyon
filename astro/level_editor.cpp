@@ -53,6 +53,8 @@ struct LevelEditorState {
 
   tVec3f starting_selected_position = tVec3f(0.f);
   tVec3f move_action_delta = tVec3f(0.f);
+
+  bool should_rebuild_all_procedural_objects = false;
 } editor;
 
 const static EntityDefaults missing_entity_defaults = {
@@ -949,6 +951,7 @@ static void MakeSelection(Tachyon* tachyon, State& state, Selectable& selectable
  * ----------------------------
  */
 static void DeselectCurrent(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
   auto& placeholder = editor.current_selectable.placeholder;
   auto& live_placeholder = *get_live_object(placeholder);
 
@@ -975,6 +978,21 @@ static void DeselectCurrent(Tachyon* tachyon, State& state) {
     // We disable engine hotkeys when starting the entity editor flow.
     // On deselection, restore hotkey behavior.
     tachyon->hotkeys_enabled = true;
+  }
+
+  if (
+    placeholder.mesh_index == meshes.flat_ground ||
+    placeholder.mesh_index == meshes.ground_1 ||
+    placeholder.mesh_index == meshes.dirt_path_node_placeholder ||
+    placeholder.mesh_index == meshes.stone_path_node_placeholder ||
+    placeholder.mesh_index == meshes.altar_placeholder ||
+    placeholder.mesh_index == meshes.wind_chimes_placeholder
+  ) {
+    // After manipulating ground or path-related objects,
+    // or any objects which affect procedural ground foliage,
+    // ensure that we do a full procedural rebuild upon
+    // closing the editor.
+    editor.should_rebuild_all_procedural_objects = true;
   }
 }
 
@@ -1902,6 +1920,7 @@ void LevelEditor::OpenLevelEditor(Tachyon* tachyon, State& state) {
   state.is_level_editor_open = true;
 
   editor.show_fog_volumes = true;
+  editor.should_rebuild_all_procedural_objects = false;
 
   // @todo factor
   objects(meshes.astrolabe_rear).disabled = true;
@@ -2041,7 +2060,11 @@ void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
   }
 
   CollisionSystem::RebuildFlatGroundPlanes(tachyon, state);
-  ProceduralGeneration::RebuildAllProceduralObjects(tachyon, state);
+
+  if (editor.should_rebuild_all_procedural_objects) {
+    ProceduralGeneration::RebuildAllProceduralObjects(tachyon, state);
+  }
+
   Items::SpawnItemObjects(tachyon, state);
   EntityManager::CreateEntityAssociations(state);
 
