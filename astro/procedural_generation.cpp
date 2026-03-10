@@ -639,7 +639,7 @@ static void UpdateSmallGrass(Tachyon* tachyon, State& state) {
       // Time-invariant grass properties
       grass.position = blade.position;
       grass.scale = blade.scale;
-      grass.material = tVec4f(0.6f, 0, 0, 0.2f);
+      grass.material = tVec4f(0.6f, 0, 0, 0.3f);
 
       // Time evolution
       UpdateSmallGrassObjectByTime(grass, state.astro_time);

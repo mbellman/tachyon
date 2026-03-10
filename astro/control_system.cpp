@@ -38,7 +38,7 @@ static void HandleQuickManeuverAction(Tachyon* tachyon, State& state) {
     tVec3f move_direction = state.player_velocity.unit();
     float target_dot = tVec3f::dot(move_direction, target_direction);
 
-    if (target_dot > 0.98f) {
+    if (target_dot > 0.96f) {
       PlayerCharacter::PerformTargetJumpAction(tachyon, state);
 
       return;
