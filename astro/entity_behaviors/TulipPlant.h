@@ -32,7 +32,6 @@ namespace astro {
       return meshes.tulip_plant_placeholder;
     }
 
-    // @todo optimize rendering
     // @todo one or two flower stalks
     // @todo alternate bulb coloration
     timeEvolve() {
@@ -40,19 +39,19 @@ namespace astro {
 
       auto& meshes = state.meshes;
 
-      // reset_instances(meshes.tall_grass);
+      reset_instances(meshes.tulip_plant_leaves);
+      reset_instances(meshes.tulip_plant_stalk);
+      reset_instances(meshes.tulip_plant_bulb);
 
       for_entities(state.tulip_plants) {
         auto& entity = state.tulip_plants[i];
 
-        // if (abs(state.player_position.x - entity.position.x) > 20000.f) continue;
-        // if (abs(state.player_position.z - entity.position.z) > 20000.f) continue;
-
-        // auto& grass = use_instance(meshes.tall_grass);
+        if (abs(state.player_position.x - entity.position.x) > 20000.f) continue;
+        if (abs(state.player_position.z - entity.position.z) > 20000.f) continue;
 
         // Leaves
         {
-          auto& leaves = objects(meshes.tulip_plant_leaves)[i];
+          auto& leaves = use_instance(meshes.tulip_plant_leaves);
 
           Sync(leaves, entity);
 
@@ -64,7 +63,7 @@ namespace astro {
 
         // Stalk
         {
-          auto& stalk = objects(meshes.tulip_plant_stalk)[i];
+          auto& stalk = use_instance(meshes.tulip_plant_stalk);
 
           Sync(stalk, entity);
 
@@ -75,7 +74,7 @@ namespace astro {
 
         // Bulb
         {
-          auto& bulb = objects(meshes.tulip_plant_bulb)[i];
+          auto& bulb = use_instance(meshes.tulip_plant_bulb);
 
           Sync(bulb, entity);
 

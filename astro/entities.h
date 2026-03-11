@@ -50,7 +50,8 @@ namespace astro {
     FLAG,
     ROSE_BUSH,
     TALL_GRASS,
-    TULIP_PLANT
+    TULIP_PLANT,
+    TALL_WEEDS,
   };
 
   /**
@@ -95,7 +96,8 @@ namespace astro {
     NPC,
     LESSER_GUARD,
     TALL_GRASS,
-    TULIP_PLANT
+    TULIP_PLANT,
+    TALL_WEEDS
   };
 
   /**
@@ -221,6 +223,10 @@ namespace astro {
       // TALL_GRASS
       tall_grass_placeholder,
       tall_grass,
+
+      // TALL_WEEDS
+      tall_weeds_placeholder,
+      tall_weeds,
 
       // OAK_TREE
       oak_tree_placeholder,
@@ -417,6 +423,7 @@ namespace astro {
 
     std::vector<GameEntity> shrubs;
     std::vector<GameEntity> tall_grasses;
+    std::vector<GameEntity> tall_weeds;
     std::vector<GameEntity> flower_bushes;
     std::vector<GameEntity> tulip_plants;
     std::vector<GameEntity> bellflowers;
@@ -520,6 +527,12 @@ namespace astro {
     { TALL_GRASS, {
       .name = "Tall Grass",
       .scale = tVec3f(2000.f),
+      .tint = tVec3f(0.1f, 0.3f, 0.1f)
+    } },
+
+    { TALL_WEEDS, {
+      .name = "Tall Weeds",
+      .scale = tVec3f(2500.f),
       .tint = tVec3f(0.1f, 0.3f, 0.1f)
     } },
 

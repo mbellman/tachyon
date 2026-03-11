@@ -1578,6 +1578,7 @@ static void ToggleNonSelectedPlants(Tachyon* tachyon, State& state) {
   const static std::vector<EntityType> plant_entities = {
     SHRUB,
     TALL_GRASS,
+    TALL_WEEDS,
     FLOWER_BUSH,
     TULIP_PLANT,
     LILAC_BUSH,

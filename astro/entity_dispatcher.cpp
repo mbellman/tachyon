@@ -30,6 +30,7 @@
 #include "astro/entity_behaviors/StonePathNode.h"
 #include "astro/entity_behaviors/StoneWall.h"
 #include "astro/entity_behaviors/TallGrass.h"
+#include "astro/entity_behaviors/TallWeeds.h"
 #include "astro/entity_behaviors/TulipPlant.h"
 #include "astro/entity_behaviors/WaterWheel.h"
 #include "astro/entity_behaviors/WillowTree.h"
@@ -75,6 +76,7 @@ using namespace astro;
   dispatch_macro(RIVER_LOG, RiverLog);\
   dispatch_macro(SHRUB, Shrub);\
   dispatch_macro(TALL_GRASS, TallGrass);\
+  dispatch_macro(TALL_WEEDS, TallWeeds);\
   dispatch_macro(FLOWER_BUSH, FlowerBush);\
   dispatch_macro(TULIP_PLANT, TulipPlant);\
   dispatch_macro(LILAC_BUSH, LilacBush);\
@@ -115,6 +117,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
     dispatch_GetEntityContainer(RIVER_LOG, state.river_logs);
     dispatch_GetEntityContainer(SHRUB, state.shrubs);
     dispatch_GetEntityContainer(TALL_GRASS, state.tall_grasses);
+    dispatch_GetEntityContainer(TALL_WEEDS, state.tall_weeds);
     dispatch_GetEntityContainer(FLOWER_BUSH, state.flower_bushes);
     dispatch_GetEntityContainer(TULIP_PLANT, state.tulip_plants);
     dispatch_GetEntityContainer(LILAC_BUSH, state.lilac_bushes);
