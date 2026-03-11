@@ -12,8 +12,8 @@ static tVec3f GetLightColor(const float astro_time, bool is_nighttime) {
 
   auto& periods = astro_time_periods;
 
-  tVec3f present_color = tVec3f(0.5f, 0.1f, 0.4f);
-  tVec3f past_color = tVec3f(0.6f, 0.3f, 0.1f);
+  tVec3f present_color = tVec3f(0.5f, 0.1f, 0.5f);
+  tVec3f past_color = tVec3f(0.6f, 0.2f, 0.1f);
   tVec3f distant_past_color = tVec3f(0.6f, 0.5f, 2.f);
 
   if (astro_time < periods.present && astro_time >= periods.past) {

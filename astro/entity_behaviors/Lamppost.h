@@ -62,7 +62,7 @@ namespace astro {
 
           Sync(stand, entity);
 
-          stand.material = tVec4f(0.9f, 0, 0, 0);
+          stand.material = tVec4f(0.9f, 0, 0, 0.2f);
 
           commit(stand);
         }
@@ -104,7 +104,7 @@ namespace astro {
 
           light.position = UnitEntityToWorldPosition(entity, tVec3f(-0.4f, 0.45f, 0));
           light.radius = 5000.f;
-          light.color = tVec3f(1.f, 0.5f, 0.2f);
+          light.color = tVec3f(1.f, 0.5f, 0.1f);
 
           float on_power = 4.f;
           float on_glow_power = 2.5f + sinf(3.f * get_scene_time());
@@ -134,7 +134,7 @@ namespace astro {
           if (state.is_nighttime) {
             light.radius = 5000.f;
           } else {
-            light.radius = 3000.f;
+            light.radius = 5000.f;
           }
         }
 

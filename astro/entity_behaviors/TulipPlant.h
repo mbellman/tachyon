@@ -56,7 +56,7 @@ namespace astro {
           Sync(leaves, entity);
 
           leaves.color = tVec3f(0.4f, 0.8f, 0.2f);
-          leaves.material = tVec4f(0.8f, 0, 0, 0.2f);
+          leaves.material = tVec4f(0.8f, 0, 0, 0.5f);
 
           commit(leaves);
         }
@@ -67,7 +67,7 @@ namespace astro {
 
           Sync(stalk, entity);
 
-          stalk.material = tVec4f(0.8f, 0, 0, 0.2f);
+          stalk.material = tVec4f(0.8f, 0, 0, 0.5f);
 
           commit(stalk);
         }
@@ -80,8 +80,8 @@ namespace astro {
 
           bulb.position.y += entity.scale.y * 1.4f;
           bulb.scale *= 0.35f;
-          bulb.color = tVec4f(1.f, 0.4f, 0.7f, 0.2f);
-          bulb.material = tVec4f(0.9f, 0, 0, 1.f);
+          bulb.color = tVec4f(1.f, 0.4f, 0.7f, 0.3f);
+          bulb.material = tVec4f(0.5f, 0, 0.1f, 1.f);
 
           commit(bulb);
         }

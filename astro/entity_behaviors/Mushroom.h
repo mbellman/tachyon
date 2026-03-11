@@ -57,8 +57,8 @@ namespace astro {
 
           // @temporary
           if (state.is_nighttime) {
-            body.color = tVec4f(entity.tint, 0.4f);
-            body.material = tVec4f(0.6f, 0, 0, 1.f);
+            body.color = tVec4f(entity.tint, 0.2f);
+            body.material = tVec4f(0.6f, 0, 0, 0.2f);
           } else {
             body.color = tVec4f(entity.tint, 0.2f);
             body.material = tVec4f(0.6f, 0, 0, 0.8f);
@@ -74,7 +74,7 @@ namespace astro {
           Sync(spots, entity);
 
           spots.color = tVec4f(1.f, 1.f, 1.f, 0.8f);
-          spots.material = tVec4f(1.f, 0, 0, 1.f);
+          spots.material = tVec4f(1.f, 0, 0, 0.6f);
 
           commit(spots);
         }
@@ -97,12 +97,12 @@ namespace astro {
 
           light.position = UnitEntityToWorldPosition(entity, tVec3f(-0.025f, 0.15f, 0));
           light.radius = 1500.f;
-          light.color = tVec3f(0.2f, 0.8f, 0.4f);
+          light.color = tVec3f(0.4f, 0.8f, 0.6f);
           light.glow_power = 0.f;
 
           // @temporary
           if (state.is_nighttime) {
-            light.power = 4.f + sinf(4.f * get_scene_time() + entity.position.x * 0.01f);
+            light.power = 4.f + 0.5f * sinf(3.f * get_scene_time() + entity.position.x * 0.01f);
           } else {
             light.power = 0.01f;
           }

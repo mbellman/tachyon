@@ -545,7 +545,7 @@ static void HandleFrameEnd(Tachyon* tachyon, State& state) {
 
   // Vignette effects in stealth mode
   {
-    float desired_vignette_intensity = IsInStealthMode(state) ? 1.f : 0.f;
+    float desired_vignette_intensity = IsInStealthMode(state) ? 1.f : 0.25f;
 
     fx.vignette_intensity = Tachyon_Lerpf(fx.vignette_intensity, desired_vignette_intensity, 2.f * state.dt);
   }

@@ -97,16 +97,10 @@ float GetGlowFactor(vec3 world_position) {
   glow_factor += 0.1 * pow(1.0 - distance_from_light_disc_center, 5.0);
   glow_factor *= 1.5;
 
-  #if USE_GAMMA_CORRECTION == 1
-    const float disc_exponent = 6.0;
-  #else
-    const float disc_exponent = 4.0;
-  #endif
-
   // Diffraction spikes
   float diffraction_factor =
     mix(1.0, 5.0, light_distance_from_camera / 500000.0) *
-    pow(1.0 - distance_from_light_disc_center, disc_exponent);
+    pow(1.0 - distance_from_light_disc_center, 6.0);
 
   glow_factor += diffraction_factor * pow(1.0 - abs(dy), 2048.0);
   glow_factor += diffraction_factor * pow(1.0 - abs(dx), 2048.0);
@@ -136,8 +130,10 @@ vec3 GetPointLightRadiance(vec3 world_position, float light_distance, vec3 N, ve
     distance_factor *= distance_factor;
   #endif
 
-  // @todo PBR
-  vec3 D = albedo * radiant_flux * distance_factor * NdotL;
+
+  // @todo PBR (?)
+  float incidence = (material.subsurface * 0.5 + NdotL);
+  vec3 D = albedo * radiant_flux * distance_factor * incidence;
   vec3 S = radiant_flux * pow(NdotH, 50.0) * distance_factor;
 
   // return D + 2.0 * S;
@@ -176,7 +172,7 @@ void main() {
   }
 
   #if USE_GAMMA_CORRECTION == 1
-    out_color *= light.color;
+    out_color *= light.color * max(1.0, light.power * 0.5);
     out_color = pow(out_color, vec3(1.0 / 2.2));
   #endif
 

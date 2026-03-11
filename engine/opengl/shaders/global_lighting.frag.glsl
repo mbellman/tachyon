@@ -137,7 +137,7 @@ float GeometryGGX(float NdotH, float roughness, float metalness) {
 }
 
 float Clearcoat(float NdotH, float NdotV, float clearcoat) {
-  return clearcoat * (DistributionGGX(NdotH, 0.1) + pow(1.0 - NdotV, 8));
+  return clearcoat * 0.1 * (DistributionGGX(NdotH, 0.1) + pow(1.0 - NdotV, 8));
 }
 
 float Subsurface(float NdotV, float subsurface) {
@@ -270,7 +270,7 @@ float GetPrimaryLightShadowFactor(vec3 world_position) {
 }
 
 vec3 GetAmbientFresnel(float NdotV) {
-  return vec3(pow(1.0 - NdotV, 5.0)) * sky_light_color * 0.2;
+  return vec3(pow(1.0 - NdotV, 5.0)) * sky_light_color * 0.4;
 }
 
 vec4 UnpackColor(uvec4 surface) {
@@ -717,17 +717,6 @@ void main() {
   // Primary directional light
   {
     out_color += GetDirectionalLightRadiance(L, primary_light_color, albedo, position, N, V, NdotV, roughness, metalness, clearcoat, subsurface, shadow);
-  }
-
-  // Anti-light (for improved visibility in dark areas)
-  // @todo remove (?)
-  {
-    // const vec3 light_color = vec3(0.1, 0.2, 1.0);
-    // float depth_input = max(0.99, frag_normal_and_depth.w);
-    // vec3 direction = -L;
-    // float intensity = 0.1 * (pow(depth_input, 200.0));
-
-    // out_color += GetDirectionalLightRadiance(direction, light_color * intensity, albedo, position, N, V, NdotV, 1.0, metalness, 0.0, subsurface, 1.0);
   }
 
   // Ambient sky light
