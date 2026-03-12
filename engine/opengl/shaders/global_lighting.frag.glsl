@@ -814,7 +814,7 @@ void main() {
     // Subtly brighten the scene near the player for visibility
     // @todo make optional/customizable
     {
-      const vec3 highlight = vec3(1.6, 1.5, 1.4);
+      const vec3 highlight = vec3(1.6, 1.4, 1.0);
 
       float alpha = frag_distance_from_player / 6000.0;
       if (alpha > 1.0) alpha = 1.0;

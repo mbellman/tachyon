@@ -468,6 +468,8 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
       GrassBlade blade;
       blade.position = position;
       blade.scale = tVec3f(Tachyon_GetRandom(500.f, 1500.f));
+      blade.scale.x *= 1.2f;
+      blade.scale.z *= 1.2f;
       blade.scale.y *= 0.75f;
 
       // @todo factor
@@ -997,7 +999,7 @@ static void UpdateDirtPaths(Tachyon* tachyon, State& state) {
 
   const tVec3f solid_ground_color = tVec3f(0.3f, 0.5f, 0.1f);
   // @todo change by area/world position
-  tVec3f path_color = tVec3f(1.f, 0.4f, 0.1f);
+  tVec3f path_color = tVec3f(1.f, 0.8f, 0.4f);
   const float distance_limit = 17000.f;
 
   uint16 total_rocks = 0;
@@ -1034,7 +1036,7 @@ static void UpdateDirtPaths(Tachyon* tachyon, State& state) {
       const tVec3f ground_color = solid_ground_color;
       float alpha = age / 40.f;
 
-      path.color = tVec3f::lerp(ground_color, path_color, alpha);
+      // path.color = tVec3f::lerp(ground_color, path_color, alpha);
       path.position.y = Tachyon_Lerpf(ground_y, path.position.y, alpha);
       path.scale.x *= alpha;
     }
@@ -1044,7 +1046,7 @@ static void UpdateDirtPaths(Tachyon* tachyon, State& state) {
       const tVec3f ground_color = solid_ground_color;
       float alpha = remaining_time / 40.f;
 
-      path.color = tVec3f::lerp(ground_color, path_color, alpha);
+      // path.color = tVec3f::lerp(ground_color, path_color, alpha);
       path.position.y = Tachyon_Lerpf(ground_y, path.position.y, alpha);
       path.scale.x *= alpha;
     }

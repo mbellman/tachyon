@@ -160,6 +160,15 @@ mat4 dither_kernels[] = {
   )
 };
 
+vec4 UnpackColor(uvec4 surface) {
+  float r = float((surface.x & 0xF0) >> 4) / 15.0;
+  float g = float(surface.x & 0x0F) / 15.0;
+  float b = float((surface.y & 0xF0) >> 4) / 15.0;
+  float a = float(surface.y & 0x0F) / 15.0;
+
+  return vec4(r, g, b, a);
+}
+
 void main() {
   // @hack @temporary
   // @todo DON'T DO THIS!!!!!!!!!!! Figure out a way to mark meshes
@@ -188,7 +197,9 @@ void main() {
   out_color_and_material = fragSurface;
 
   if (has_texture) {
-    vec4 albedo = texture(albedo_texture, fragUv);
+    vec3 base_color = UnpackColor(fragSurface).rgb;
+    vec3 texture_color = texture(albedo_texture, fragUv).rgb;
+    vec3 albedo = base_color * texture_color;
 
     // @todo factor
     uint r = uint(albedo.r * 15);

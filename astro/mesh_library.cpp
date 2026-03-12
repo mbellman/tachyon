@@ -140,6 +140,8 @@ static void AddProceduralMeshes(Tachyon* tachyon, State& state) {
 
     mesh(meshes.dirt_path).shadow_cascade_ceiling = 0;
     mesh(meshes.rock_dirt).shadow_cascade_ceiling = 0;
+
+    mesh(meshes.dirt_path).texture = "./astro/textures/dirt.png";
   }
 
   // stone_path
