@@ -29,6 +29,10 @@ namespace astro {
       meshes.lamppost_stand = MODEL_MESH("./astro/3d_models/lamppost/stand.obj", 500);
       meshes.lamppost_frame = MODEL_MESH("./astro/3d_models/lamppost/frame.obj", 500);
       meshes.lamppost_lamp = MODEL_MESH("./astro/3d_models/lamppost/lamp.obj", 500);
+
+      mesh(meshes.lamppost_stand).shadow_cascade_ceiling = 2;
+      mesh(meshes.lamppost_frame).shadow_cascade_ceiling = 2;
+      mesh(meshes.lamppost_lamp).shadow_cascade_ceiling = 2;
     }
 
     getMeshes() {
@@ -46,8 +50,15 @@ namespace astro {
     timeEvolve() {
       auto& meshes = state.meshes;
 
+      reset_instances(meshes.lamppost_stand);
+      reset_instances(meshes.lamppost_frame);
+      reset_instances(meshes.lamppost_lamp);
+
       for_entities(state.lampposts) {
         auto& entity = state.lampposts[i];
+
+        if (abs(state.player_position.x - entity.position.x) > 20000.f) continue;
+        if (abs(state.player_position.z - entity.position.z) > 20000.f) continue;
 
         bool is_light_active = entity.did_activate;
 
@@ -58,7 +69,7 @@ namespace astro {
 
         // Stand
         {
-          auto& stand = objects(meshes.lamppost_stand)[i];
+          auto& stand = use_instance(meshes.lamppost_stand);
 
           Sync(stand, entity);
 
@@ -69,7 +80,7 @@ namespace astro {
 
         // Frame
         {
-          auto& frame = objects(meshes.lamppost_frame)[i];
+          auto& frame = use_instance(meshes.lamppost_frame);
 
           Sync(frame, entity);
 
@@ -81,7 +92,7 @@ namespace astro {
 
         // Lamp
         {
-          auto& lamp = objects(meshes.lamppost_lamp)[i];
+          auto& lamp = use_instance(meshes.lamppost_lamp);
 
           Sync(lamp, entity);
 
