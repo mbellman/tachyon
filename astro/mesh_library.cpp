@@ -44,7 +44,9 @@ static void AddDecorativeMeshes(Tachyon* tachyon, State& state) {
 
   mesh(meshes.flat_ground).shadow_cascade_ceiling = 0;
   mesh(meshes.rock_1).shadow_cascade_ceiling = 2;
+  mesh(meshes.rock_1).texture = "./astro/textures/rock_1.png";
   mesh(meshes.rock_2).shadow_cascade_ceiling = 2;
+  mesh(meshes.rock_2).texture = "./astro/textures/rock_2.png";
   mesh(meshes.river_edge).shadow_cascade_ceiling = 2;
   mesh(meshes.ground_1).shadow_cascade_ceiling = 2;
 }

@@ -32,13 +32,13 @@ namespace astro {
         .mesh_index = meshes.rock_1,
         .mesh_name = "rock_1",
         .default_scale = tVec3f(500.f),
-        .default_color = tVec3f(0.3f)
+        .default_color = tVec3f(0.5f)
       },
       {
         .mesh_index = meshes.rock_2,
         .mesh_name = "rock_2",
         .default_scale = tVec3f(500.f),
-        .default_color = tVec3f(0.5f)
+        .default_color = tVec3f(0.8f)
       },
       {
         .mesh_index = meshes.river_edge,
