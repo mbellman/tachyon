@@ -389,12 +389,15 @@ static void HandleMusicLevels(Tachyon* tachyon, State& state) {
 }
 
 static void HandleCurrentAreaMusic(Tachyon* tachyon, State& state) {
-  if (state.bgm_start_time == -1.f && state.astro_time < 0.f && state.astro_turn_speed == 0.f) {
+  if (
+    state.bgm_start_time == -1.f &&
+    state.astro_time < 0.f && state.astro_turn_speed == 0.f
+  ) {
     // Start music after astro traveling back the first time
     state.bgm_start_time = get_scene_time();
   }
 
-  if (state.bgm_start_time == -1.f) {
+  if (state.bgm_start_time == -1.f || !state.music_enabled) {
     return;
   }
 

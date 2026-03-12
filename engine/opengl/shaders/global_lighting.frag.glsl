@@ -777,6 +777,8 @@ void main() {
     // Apply SSAO
     out_color -= ssao;
 
+    float frag_distance_from_player = length(position - player_position);
+
     // Apply fog
     {
       vec3 fog_color = vec3(0.0);
@@ -793,8 +795,6 @@ void main() {
 
       if (fog_thickness > 1.0) fog_thickness = 1.0;
 
-      float frag_distance_from_player = length(position - player_position);
-
       float local_thickness = clamp(frag_distance_from_player / fog_visibility, 0.0, 1.0);
       local_thickness = pow(local_thickness, 0.5);
 
@@ -809,6 +809,17 @@ void main() {
 
         out_color = mix(out_color, high_contrast_color, fog_thickness * fog_thickness);
       }
+    }
+
+    // Subtly brighten the scene near the player for visibility
+    // @todo make optional/customizable
+    {
+      const vec3 highlight = vec3(1.6, 1.5, 1.4);
+
+      float alpha = frag_distance_from_player / 6000.0;
+      if (alpha > 1.0) alpha = 1.0;
+
+      out_color = mix(out_color * highlight, out_color, alpha);
     }
   } else {
     out_color -= ssao;
