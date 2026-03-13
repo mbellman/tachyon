@@ -161,7 +161,7 @@ static void AddFaunaMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   meshes.butterfly_left_wing = MODEL_MESH("./astro/3d_models/fauna/butterfly_left_wing.obj", 10);
-  meshes.butterfly_right_wing = MODEL_MESH("./astro/3d_models/fauna/butterfly_left_wing.obj", 10);
+  meshes.butterfly_right_wing = MODEL_MESH("./astro/3d_models/fauna/butterfly_right_wing.obj", 10);
 
   mesh(meshes.butterfly_left_wing).shadow_cascade_ceiling = 1;
   mesh(meshes.butterfly_right_wing).shadow_cascade_ceiling = 1;

@@ -272,6 +272,8 @@ namespace astro {
    */
   struct Butterfly {
     tVec3f position;
+    uint16 left_wing;
+    uint16 right_wing;
   };
 
   /**
