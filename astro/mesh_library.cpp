@@ -157,6 +157,16 @@ static void AddProceduralMeshes(Tachyon* tachyon, State& state) {
   }
 }
 
+static void AddFaunaMeshes(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
+  meshes.butterfly_left_wing = MODEL_MESH("./astro/3d_models/fauna/butterfly_left_wing.obj", 10);
+  meshes.butterfly_right_wing = MODEL_MESH("./astro/3d_models/fauna/butterfly_left_wing.obj", 10);
+
+  mesh(meshes.butterfly_left_wing).shadow_cascade_ceiling = 1;
+  mesh(meshes.butterfly_right_wing).shadow_cascade_ceiling = 1;
+}
+
 // @todo move to engine
 static void TransformBonesIntoMeshSpace(tSkeleton& skeleton) {
   for (auto& bone : skeleton.bones) {
@@ -272,6 +282,7 @@ void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
   AddEntityMeshes(tachyon, state);
   AddItemMeshes(tachyon, state);
   AddProceduralMeshes(tachyon, state);
+  AddFaunaMeshes(tachyon, state);
   AddSkinnedMeshes(tachyon, state);
 
   // @todo dev mode only

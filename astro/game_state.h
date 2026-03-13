@@ -37,6 +37,10 @@ namespace astro {
       water_plane,
       snow_particle,
 
+      // Dynamic fauna meshes
+      butterfly_left_wing,
+      butterfly_right_wing,
+
       // Procedural meshes
       grass, // @todo rename ground_1_grass
       small_grass,
@@ -263,6 +267,15 @@ namespace astro {
 
   /**
    * ----------------------------
+   * Dynamic fauna
+   * ----------------------------
+   */
+  struct Butterfly {
+    tVec3f position;
+  };
+
+  /**
+   * ----------------------------
    * Game state
    * ----------------------------
    */
@@ -369,6 +382,9 @@ namespace astro {
     // Wand effects
     std::vector<WandLight> wand_lights;
     float last_wand_light_time = 0.f;
+
+    // Dynamic fauna
+    std::vector<Butterfly> butterflies;
 
     // Particles
     std::vector<AmbientParticle> ambient_particles;
