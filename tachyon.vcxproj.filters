@@ -636,6 +636,9 @@
     <ClInclude Include="astro\dynamic_fauna.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="astro\procedural_growth.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -837,6 +840,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="astro\dynamic_fauna.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="astro\procedural_growth.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

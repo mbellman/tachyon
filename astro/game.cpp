@@ -16,6 +16,7 @@
 #include "astro/particles.h"
 #include "astro/player_character.h"
 #include "astro/procedural_generation.h"
+#include "astro/procedural_growth.h"
 #include "astro/sfx.h"
 #include "astro/spell_system.h"
 #include "astro/targeting.h"
@@ -60,16 +61,10 @@ static void CreateConstantObjects(Tachyon* tachyon, State& state) {
 static void UpdateWaterPlane(Tachyon* tachyon, State& state) {
   auto& water_plane = objects(state.meshes.water_plane)[0];
 
-  // @temporary
   water_plane.position = tVec3f(0, -3000.f, 0);
   water_plane.scale = tVec3f(400000.f, 1.f, 400000.f);
   water_plane.color = tVec3f(0, 0.1f, 0.3f);
   water_plane.material = tVec4f(0.1f, 1.f, 0, 0.5f);
-
-  // water_plane.position.y = -1800.f + 22.f * state.astro_time;
-
-  // if (water_plane.position.y > -1800.f) water_plane.position.y = -1800.f;
-  // if (water_plane.position.y < -3500.f) water_plane.position.y = -3500.f;
 
   commit(water_plane);
 
@@ -699,6 +694,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
 
   TimeEvolution::UpdateAstroTime(tachyon, state);
   ProceduralGeneration::UpdateProceduralObjects(tachyon, state);
+  ProceduralBehavior::Growth::UpdateWhiteVines(tachyon, state);
   CameraSystem::UpdateCamera(tachyon, state);
   Astrolabe::Update(tachyon, state);
   PlayerCharacter::UpdatePlayer(tachyon, state);
