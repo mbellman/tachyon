@@ -4,6 +4,7 @@
 using namespace astro;
 
 /**
+ * -----------
  * Butterflies
  * -----------
  */
@@ -33,7 +34,7 @@ static void DestroyButterfly(Tachyon* tachyon, State& state, int32 index) {
 static void HandleButterflySpawningBehavior(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
-  while (state.butterflies.size() < 10) {
+  while (state.butterflies.size() < 5) {
     tVec3f offset;
     offset.x = Tachyon_GetRandom() > 0.5f ? -15000.f : 15000.f;
     offset.y = 1000.f;
@@ -69,6 +70,11 @@ static void HandleButterfly(Tachyon* tachyon, State& state, Butterfly& butterfly
 
       butterfly.last_state_change_time = scene_time;
     }
+  }
+
+  // Avoiding collision with the player + taller objects
+  {
+    // @todo
   }
 
   // Handling state
@@ -116,6 +122,9 @@ static void HandleButterfly(Tachyon* tachyon, State& state, Butterfly& butterfly
   // Updating position
   {
     butterfly.position += butterfly.direction * 1000.f * state.dt;
+
+    // Oscillation
+    butterfly.position += 400.f * sinf(2.f * scene_time) * state.dt;
   }
 
   // Updating properties
