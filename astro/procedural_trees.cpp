@@ -2,15 +2,7 @@
 
 using namespace astro;
 
-void ProceduralGeneration::GenerateTreeMushrooms(Tachyon* tachyon, State& state) {
-  remove_all(state.meshes.tree_mushroom);
-
-  for (uint16 i = 0; i < 200; i++) {
-    create(state.meshes.tree_mushroom);
-  }
-}
-
-void ProceduralGeneration::UpdateTreeMushrooms(Tachyon* tachyon, State& state) {
+void ProceduralBehavior::Trees::UpdateTreeMushrooms(Tachyon* tachyon, State& state) {
   profile("UpdateTreeMushrooms()");
 
   uint16 total_mushrooms = 0;
@@ -50,6 +42,8 @@ void ProceduralGeneration::UpdateTreeMushrooms(Tachyon* tachyon, State& state) {
     350.f
   };
 
+  reset_instances(state.meshes.tree_mushroom);
+
   for_entities(state.oak_trees) {
     auto& entity = state.oak_trees[i];
 
@@ -66,7 +60,7 @@ void ProceduralGeneration::UpdateTreeMushrooms(Tachyon* tachyon, State& state) {
         // Don't spawn mushrooms before they've started growing
         if (mushroom_growth_duration < 0.f) continue;
 
-        auto& mushroom = objects(state.meshes.tree_mushroom)[total_mushrooms++];
+        auto& mushroom = use_instance(state.meshes.tree_mushroom);
 
         float scale_alpha = mushroom_growth_duration / 10.f;
         if (scale_alpha > 1.f) scale_alpha = 1.f;
@@ -90,6 +84,4 @@ void ProceduralGeneration::UpdateTreeMushrooms(Tachyon* tachyon, State& state) {
       }
     }
   }
-
-  mesh(state.meshes.tree_mushroom).lod_1.instance_count = total_mushrooms;
 }

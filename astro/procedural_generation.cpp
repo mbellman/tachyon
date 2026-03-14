@@ -8,7 +8,6 @@
 #include "astro/collision_system.h"
 #include "astro/entity_behaviors/behavior.h"
 #include "astro/path_generation.h"
-#include "astro/procedural_trees.h"
 
 using namespace astro;
 
@@ -1255,29 +1254,26 @@ static void UpdateStonePaths(Tachyon* tachyon, State& state) {
 
 /* ---------------------------- */
 
-void ProceduralGeneration::RebuildSimpleProceduralObjects(Tachyon* tachyon, State& state) {
+void ProceduralBehavior::Generation::RebuildSimpleProceduralObjects(Tachyon* tachyon, State& state) {
   GenerateDirtPaths(tachyon, state);
   GenerateStonePaths(tachyon, state);
   GenerateBushFlowers(tachyon, state);
 }
 
-void ProceduralGeneration::RebuildAllProceduralObjects(Tachyon* tachyon, State& state) {
+void ProceduralBehavior::Generation::RebuildAllProceduralObjects(Tachyon* tachyon, State& state) {
   RebuildSimpleProceduralObjects(tachyon, state);
 
-  GenerateTreeMushrooms(tachyon, state);
   GenerateGround1Plants(tachyon, state);
-
   GenerateSmallGrass(tachyon, state);
   GenerateGroundFlowers(tachyon, state);
 }
 
-void ProceduralGeneration::UpdateProceduralObjects(Tachyon* tachyon, State& state) {
+void ProceduralBehavior::Generation::UpdateProceduralObjects(Tachyon* tachyon, State& state) {
   profile("UpdateProceduralObjects()");
 
   UpdateDirtPaths(tachyon, state);
   UpdateStonePaths(tachyon, state);
 
-  UpdateTreeMushrooms(tachyon, state);
   UpdateGround1Plants(tachyon, state);
   UpdateSmallGrass(tachyon, state);
 

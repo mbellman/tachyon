@@ -972,7 +972,7 @@ static void DeselectCurrent(Tachyon* tachyon, State& state) {
   SyncSelectables(tachyon);
   SaveLevelData(tachyon, state);
 
-  ProceduralGeneration::RebuildSimpleProceduralObjects(tachyon, state);
+  ProceduralBehavior::Generation::RebuildSimpleProceduralObjects(tachyon, state);
 
   if (!tachyon->hotkeys_enabled) {
     // We disable engine hotkeys when starting the entity editor flow.
@@ -1161,7 +1161,7 @@ static void PlaceNewDecorativeObject(Tachyon* tachyon, State& state) {
 
   TrackDecorativeObject(object);
 
-  ProceduralGeneration::RebuildSimpleProceduralObjects(tachyon, state);
+  ProceduralBehavior::Generation::RebuildSimpleProceduralObjects(tachyon, state);
 }
 
 /**
@@ -1195,7 +1195,7 @@ static void PlaceNewEntity(Tachyon* tachyon, State& state) {
 
   SpawnEntityObjects(tachyon, state, entity);
 
-  ProceduralGeneration::RebuildSimpleProceduralObjects(tachyon, state);
+  ProceduralBehavior::Generation::RebuildSimpleProceduralObjects(tachyon, state);
 }
 
 /**
@@ -1534,7 +1534,7 @@ static void DeleteSelected(Tachyon* tachyon, State& state) {
 
   DestroyGizmo(tachyon, state);
 
-  ProceduralGeneration::RebuildSimpleProceduralObjects(tachyon, state);
+  ProceduralBehavior::Generation::RebuildSimpleProceduralObjects(tachyon, state);
 
   editor.is_anything_selected = false;
 }
@@ -1957,7 +1957,7 @@ void LevelEditor::OpenLevelEditor(Tachyon* tachyon, State& state) {
   TrackDecorativeObjects(tachyon, state);
   InitEditorCamera(tachyon, state);
 
-  ProceduralGeneration::RebuildSimpleProceduralObjects(tachyon, state);
+  ProceduralBehavior::Generation::RebuildSimpleProceduralObjects(tachyon, state);
 
   fx.accumulation_blur_factor = 0.f;
   fx.astro_time_warp_start_radius = 0.f;
@@ -2063,7 +2063,7 @@ void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
   CollisionSystem::RebuildFlatGroundPlanes(tachyon, state);
 
   if (editor.should_rebuild_all_procedural_objects) {
-    ProceduralGeneration::RebuildAllProceduralObjects(tachyon, state);
+    ProceduralBehavior::Generation::RebuildAllProceduralObjects(tachyon, state);
   }
 
   Items::SpawnItemObjects(tachyon, state);

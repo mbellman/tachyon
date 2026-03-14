@@ -17,6 +17,7 @@
 #include "astro/player_character.h"
 #include "astro/procedural_generation.h"
 #include "astro/procedural_growth.h"
+#include "astro/procedural_trees.h"
 #include "astro/sfx.h"
 #include "astro/spell_system.h"
 #include "astro/targeting.h"
@@ -36,6 +37,10 @@ static void CreateConstantObjects(Tachyon* tachyon, State& state) {
 
   for (uint16 i = 0; i < 100; i++) {
     create(meshes.snow_particle);
+  }
+
+  for (uint16 i = 0; i < 200; i++) {
+    create(state.meshes.tree_mushroom);
   }
 
   create(meshes.astrolabe_rear);
@@ -626,7 +631,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
   DataLoader::LoadNpcDialogue(tachyon, state);
   Items::SpawnItemObjects(tachyon, state);
   CollisionSystem::RebuildFlatGroundPlanes(tachyon, state);
-  ProceduralGeneration::RebuildAllProceduralObjects(tachyon, state);
+  ProceduralBehavior::Generation::RebuildAllProceduralObjects(tachyon, state);
   EntityManager::CreateEntityAssociations(state);
   Particles::InitParticles(tachyon, state);
 
@@ -693,7 +698,8 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   HandleMusicLevels(tachyon, state);
 
   TimeEvolution::UpdateAstroTime(tachyon, state);
-  ProceduralGeneration::UpdateProceduralObjects(tachyon, state);
+  ProceduralBehavior::Generation::UpdateProceduralObjects(tachyon, state);
+  ProceduralBehavior::Trees::UpdateTreeMushrooms(tachyon, state);
   ProceduralBehavior::Growth::UpdateWhiteVines(tachyon, state);
   CameraSystem::UpdateCamera(tachyon, state);
   Astrolabe::Update(tachyon, state);
