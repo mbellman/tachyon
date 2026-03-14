@@ -135,6 +135,14 @@ static void AddProceduralMeshes(Tachyon* tachyon, State& state) {
     mesh(meshes.tree_mushroom).shadow_cascade_ceiling = 2;
   }
 
+  // vine_leaf
+  {
+    meshes.vine_leaf = MODEL_MESH("./astro/3d_models/vine_leaf.obj", 1000);
+
+    mesh(meshes.vine_leaf).shadow_cascade_ceiling = 1;
+    mesh(meshes.vine_leaf).type = FOLIAGE_MESH;
+  }
+
   // Dirt paths
   {
     meshes.dirt_path = MODEL_MESH("./astro/3d_models/dirt_path.obj", 10000);

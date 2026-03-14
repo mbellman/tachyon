@@ -40,7 +40,11 @@ static void CreateConstantObjects(Tachyon* tachyon, State& state) {
   }
 
   for (uint16 i = 0; i < 200; i++) {
-    create(state.meshes.tree_mushroom);
+    create(meshes.tree_mushroom);
+  }
+
+  for (uint16 i = 0; i < 1000; i++) {
+    create(meshes.vine_leaf);
   }
 
   create(meshes.astrolabe_rear);
