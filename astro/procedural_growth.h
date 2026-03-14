@@ -5,7 +5,7 @@
 namespace astro {
   namespace ProceduralBehavior {
     namespace Growth {
-      void UpdateWhiteVines(Tachyon* tachyon, State& state);
+      void Update(Tachyon* tachyon, State& state);
     }
   }
 }

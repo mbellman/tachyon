@@ -600,9 +600,6 @@
     <ClInclude Include="astro\particles.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="astro\procedural_trees.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="astro\entity_behaviors\BellFlower.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -825,9 +822,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="astro\particles.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="astro\procedural_trees.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="astro\game_events.cpp">

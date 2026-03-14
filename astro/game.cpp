@@ -17,7 +17,6 @@
 #include "astro/player_character.h"
 #include "astro/procedural_generation.h"
 #include "astro/procedural_growth.h"
-#include "astro/procedural_trees.h"
 #include "astro/sfx.h"
 #include "astro/spell_system.h"
 #include "astro/targeting.h"
@@ -703,8 +702,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
 
   TimeEvolution::UpdateAstroTime(tachyon, state);
   ProceduralBehavior::Generation::UpdateProceduralObjects(tachyon, state);
-  ProceduralBehavior::Trees::UpdateTreeMushrooms(tachyon, state);
-  ProceduralBehavior::Growth::UpdateWhiteVines(tachyon, state);
+  ProceduralBehavior::Growth::Update(tachyon, state);
   CameraSystem::UpdateCamera(tachyon, state);
   Astrolabe::Update(tachyon, state);
   PlayerCharacter::UpdatePlayer(tachyon, state);
