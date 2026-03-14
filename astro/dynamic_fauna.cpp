@@ -34,7 +34,12 @@ static void HandleButterflySpawningBehavior(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   while (state.butterflies.size() < 10) {
-    tVec3f spawn = state.player_position + tVec3f(3000.f, 1000.f, 2000.f);
+    tVec3f offset;
+    offset.x = Tachyon_GetRandom() > 0.5f ? -15000.f : 15000.f;
+    offset.y = 1000.f;
+    offset.z = Tachyon_GetRandom() > 0.5f ? -3000.f : 3000.f;
+
+    tVec3f spawn = state.player_position + offset;
 
     SpawnButterfly(tachyon, state, spawn);
   }
@@ -143,8 +148,8 @@ static void HandleButterflies(Tachyon* tachyon, State& state) {
     auto& butterfly = state.butterflies[i];
 
     if (
-      abs(state.player_position.x - butterfly.position.x) > 15000.f ||
-      abs(state.player_position.z - butterfly.position.z) > 15000.f
+      abs(state.player_position.x - butterfly.position.x) > 20000.f ||
+      abs(state.player_position.z - butterfly.position.z) > 20000.f
     ) {
       DestroyButterfly(tachyon, state, i);
     }
