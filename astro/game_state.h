@@ -275,6 +275,14 @@ namespace astro {
     tVec3f direction;
     uint16 left_wing;
     uint16 right_wing;
+
+    enum State {
+      FLYING_STRAIGHT,
+      TURNING_LEFT,
+      TURNING_RIGHT
+    } state;
+
+    float last_state_change_time = 0.f;
   };
 
   /**
