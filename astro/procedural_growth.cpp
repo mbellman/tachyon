@@ -156,7 +156,36 @@ static void UpdateWhiteVines(Tachyon* tachyon, State& state) {
   }
 }
 
+static void UpdateTreeFlowers(Tachyon* tachyon, State& state) {
+  profile("UpdateTreeFlowers()");
+
+  auto& meshes = state.meshes;
+
+  reset_instances(meshes.oak_flowers);
+
+  uint16 total_visible_oak_leaves = mesh(meshes.oak_tree_leaves).lod_1.instance_count;
+
+  for (uint16 i = 0; i < total_visible_oak_leaves; i++) {
+    auto& leaves = objects(meshes.oak_tree_leaves)[i];
+
+    if (abs(state.player_position.x - leaves.position.x) > 20000.f) continue;
+    if (abs(state.player_position.z - leaves.position.z) > 15000.f) continue;
+
+    // @temporary
+    auto& flowers = use_instance(meshes.oak_flowers);
+
+    flowers.position = leaves.position;
+    flowers.scale = leaves.scale;
+    flowers.rotation = leaves.rotation;
+    flowers.color = tVec4f(1.f, 1.f, 1.f, 0.4f);
+    flowers.material = tVec4f(0.5f, 0, 0, 1.f);
+
+    commit(flowers);
+  }
+}
+
 void ProceduralBehavior::Growth::Update(Tachyon* tachyon, State& state) {
   UpdateTreeMushrooms(tachyon, state);
   UpdateWhiteVines(tachyon, state);
+  UpdateTreeFlowers(tachyon, state);
 }

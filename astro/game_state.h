@@ -51,6 +51,7 @@ namespace astro {
       tree_mushroom,
       vine_leaf,
       vine_flower,
+      oak_flowers,
 
       // Procedural path meshes
       dirt_path,
