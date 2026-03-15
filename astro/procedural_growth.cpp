@@ -164,8 +164,8 @@ static void UpdateTreeFlowers(Tachyon* tachyon, State& state) {
 
   // Parameters for each of the four flower groups
   const static int flower_counts[] = {
+    30,
     25,
-    20,
     15,
     8
   };
@@ -208,6 +208,7 @@ static void UpdateTreeFlowers(Tachyon* tachyon, State& state) {
   // Varying scales
   const static float scales[] = {
     400.f,
+    200.f,
     275.f
   };
 
@@ -228,7 +229,7 @@ static void UpdateTreeFlowers(Tachyon* tachyon, State& state) {
     auto& leaves = objects(meshes.oak_tree_leaves)[i];
 
     if (abs(state.player_position.x - leaves.position.x) > 15000.f) continue;
-    if (abs(state.player_position.z - leaves.position.z) > 10000.f) continue;
+    if (abs(state.player_position.z - leaves.position.z) > 12000.f) continue;
 
     tVec3f base_position = leaves.position + tVec3f(0, leaves.scale.y * 2.f, 0);
 
@@ -263,7 +264,7 @@ static void UpdateTreeFlowers(Tachyon* tachyon, State& state) {
         float growth_factor = (state.astro_time - growth_time) / 20.f;
         if (growth_factor < 0.f) growth_factor = 0.f;
 
-        float max_scale = scales[j % 2];
+        float max_scale = scales[j % 3];
         float scale = max_scale * (1.f - 1.f / expf(3.5f * growth_factor));
 
         flower.scale = tVec3f(
