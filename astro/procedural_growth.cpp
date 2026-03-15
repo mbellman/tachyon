@@ -156,25 +156,43 @@ static void UpdateWhiteVines(Tachyon* tachyon, State& state) {
   }
 }
 
-// @todo @optimize precompute flower positions and use different presets
+// @todo @optimize precompute flower positions/rotations/etc. and use different presets
 static void UpdateTreeFlowers(Tachyon* tachyon, State& state) {
   profile("UpdateTreeFlowers()");
 
   auto& meshes = state.meshes;
 
+  // Parameters for each of the four flower groups
   const static int flower_counts[] = {
-    10,
-    9,
-    6
+    25,
+    20,
+    15,
+    8
   };
 
   const static float angle_offsets[] = {
     0.f,
     t_HALF_PI,
-    t_PI
+    t_PI,
+    t_PI + t_HALF_PI
   };
 
-  const static float radii[] = {
+  const static float radius_factors[] = {
+    1.4f,
+    1.2f,
+    1.f,
+    0.5f
+  };
+
+  const static float y_offsets[] = {
+    -250.f,
+    250.f,
+    750.f,
+    1250.f
+  };
+
+  // Varying offset radii
+  const static float offset_radii[] = {
     1.f,
     0.7f,
     0.5f,
@@ -187,16 +205,18 @@ static void UpdateTreeFlowers(Tachyon* tachyon, State& state) {
     0.9f
   };
 
-  const static float radius_factors[] = {
-    1.2f,
-    1.f,
-    0.5f
+  // Varying scales
+  const static float scales[] = {
+    400.f,
+    275.f
   };
 
-  const static float y_offsets[] = {
-    -300.f,
-    700.f,
-    1700.f
+  // Varying growth start times
+  const static float growth_start_times[] = {
+    -36.f,
+    -32.f,
+    -25.f,
+    -18.f
   };
 
   uint16 max_flower_count = objects(meshes.tree_flower).total;
@@ -207,12 +227,12 @@ static void UpdateTreeFlowers(Tachyon* tachyon, State& state) {
   for (uint16 i = 0; i < total_visible_oak_leaves; i++) {
     auto& leaves = objects(meshes.oak_tree_leaves)[i];
 
-    if (abs(state.player_position.x - leaves.position.x) > 20000.f) continue;
-    if (abs(state.player_position.z - leaves.position.z) > 15000.f) continue;
+    if (abs(state.player_position.x - leaves.position.x) > 15000.f) continue;
+    if (abs(state.player_position.z - leaves.position.z) > 10000.f) continue;
 
     tVec3f base_position = leaves.position + tVec3f(0, leaves.scale.y * 2.f, 0);
 
-    for_range(0, 2) {
+    for_range(0, 3) {
       int flower_count = flower_counts[i];
       float angle_offset = angle_offsets[i];
       float y_offset = y_offsets[i];
@@ -226,8 +246,8 @@ static void UpdateTreeFlowers(Tachyon* tachyon, State& state) {
         auto& flower = use_instance(meshes.tree_flower);
 
         float angle = t_TAU * (float(j) / float(flower_count)) + angle_offset;
-        float radius = leaves.scale.x * radii[j] * radius_factor;
-        float tilt = radius / leaves.scale.x;
+        float radius = leaves.scale.x * offset_radii[j % 10] * radius_factor;
+        float tilt = 0.8f * (radius / leaves.scale.x);
 
         tVec3f offset;
         offset.x = radius * sinf(angle);
@@ -239,11 +259,20 @@ static void UpdateTreeFlowers(Tachyon* tachyon, State& state) {
           Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), tilt)
         );
 
-        // @todo
-        float growth_factor = 1.f;
+        float growth_time = growth_start_times[j % 4];
+        float growth_factor = (state.astro_time - growth_time) / 20.f;
+        if (growth_factor < 0.f) growth_factor = 0.f;
+
+        float max_scale = scales[j % 2];
+        float scale = max_scale * (1.f - 1.f / expf(3.5f * growth_factor));
+
+        flower.scale = tVec3f(
+          scale,
+          3.f * scale,
+          scale
+        );
 
         flower.position = base_position + offset;
-        flower.scale = tVec3f(320.f * growth_factor);
         flower.rotation = rotation;
         flower.color = tVec4f(1.f, 1.f, 1.f, 0.4f);
         flower.material = tVec4f(0.5f, 0, 0, 1.f);

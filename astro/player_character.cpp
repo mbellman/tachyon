@@ -866,8 +866,8 @@ void PlayerCharacter::TakeDamage(Tachyon* tachyon, State& state, const float dam
   }
 }
 
-void PlayerCharacter::GetKnockedBack(State& state) {
-  state.player_velocity = state.player_facing_direction.invert() * 2000.f;
+void PlayerCharacter::GetKnockedBack(State& state, float speed) {
+  state.player_velocity = state.player_facing_direction.invert() * speed;
 }
 
 void PlayerCharacter::PerformStandardDodgeAction(Tachyon* tachyon, State& state) {

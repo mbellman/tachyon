@@ -149,7 +149,7 @@ static void AddProceduralMeshes(Tachyon* tachyon, State& state) {
 
   // tree_flower
   {
-    meshes.tree_flower = MODEL_MESH("./astro/3d_models/tree_flower.obj", 1000);
+    meshes.tree_flower = MODEL_MESH("./astro/3d_models/tree_flower.obj", 5000);
 
     mesh(meshes.tree_flower).shadow_cascade_ceiling = 1;
     mesh(meshes.tree_flower).type = FOLIAGE_MESH;

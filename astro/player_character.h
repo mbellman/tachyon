@@ -12,7 +12,7 @@ namespace astro {
     void AutoHop(Tachyon* tachyon, State& state);
     bool CanTakeDamage(Tachyon* tachyon, const State& state);
     void TakeDamage(Tachyon* tachyon, State& state, const float damage);
-    void GetKnockedBack(State& state);
+    void GetKnockedBack(State& state, float speed);
     void PerformStandardDodgeAction(Tachyon* tachyon, State& state);
     void PerformTargetJumpAction(Tachyon* tachyon, State& state);
   }

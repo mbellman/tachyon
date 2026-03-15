@@ -56,7 +56,7 @@ static void HandleLowGuardWandStrike(Tachyon* tachyon, State& state, GameEntity&
     enemy.speed = -3000.f;
   }
 
-  PlayerCharacter::GetKnockedBack(state);
+  PlayerCharacter::GetKnockedBack(state, 2000.f);
 
   Sfx::PlaySound(SFX_WAND_RECOIL, 0.5f);
 }
@@ -81,7 +81,7 @@ static void HandleLesserGuardWandStrike(Tachyon* tachyon, State& state, GameEnti
           BreakEnemy(entity, scene_time);
           StunNearbyEnemies(state, scene_time);
 
-          state.player_velocity = tVec3f(0.f);
+          PlayerCharacter::GetKnockedBack(state, 750.f);
 
           Sfx::PlaySound(SFX_SHIELD_BREAK, 0.5f);
         }
@@ -89,7 +89,7 @@ static void HandleLesserGuardWandStrike(Tachyon* tachyon, State& state, GameEnti
         // Enemy knockback from wand bounce
         enemy.speed = -3000.f;
 
-        PlayerCharacter::GetKnockedBack(state);
+        PlayerCharacter::GetKnockedBack(state, 2000.f);
 
         Sfx::PlaySound(SFX_WAND_RECOIL, 0.5f);
       }
