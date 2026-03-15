@@ -111,15 +111,15 @@ static void UpdateWhiteVines(Tachyon* tachyon, State& state) {
 
     int total_leaves = int((state.astro_time - astro_time_periods.past) / 2.5f);
 
-    for (int i = 0; i < total_leaves; i++) {
+    for (int j = 0; j < total_leaves; j++) {
       auto& leaf = use_instance(meshes.vine_leaf);
 
-      float leaf_age = (total_leaves - i) * 2.5f;
+      float leaf_age = (total_leaves - j) * 2.5f;
       float growth_factor = leaf_age / 10.f;
       if (growth_factor > 1.f) growth_factor = 1.f;
 
-      float angle = sinf(float(i) * 0.5f);
-      float tilt = 0.5f * cosf(float(i));
+      float angle = sinf(float(j) * 0.5f);
+      float tilt = 0.5f * cosf(float(j));
 
       Quaternion rotation = (
         Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI + angle) *
@@ -132,7 +132,7 @@ static void UpdateWhiteVines(Tachyon* tachyon, State& state) {
       offset.z = trunk.scale.z * 0.38f * cosf(angle);
 
       leaf.position = trunk.position + offset;
-      leaf.position.y += float(i) * 250.f;
+      leaf.position.y += float(j) * 250.f;
       leaf.scale = tVec3f(250.f * growth_factor);
       leaf.rotation = rotation;
       leaf.color = tVec3f(0.1f, 0.3f, 0.2f);
@@ -141,7 +141,7 @@ static void UpdateWhiteVines(Tachyon* tachyon, State& state) {
       commit(leaf);
 
       // Add flowers on some leaves
-      if (i % 3 == 0) {
+      if (j % 3 == 0) {
         auto& flower = use_instance(meshes.vine_flower);
 
         flower.position = leaf.position;
@@ -156,14 +156,53 @@ static void UpdateWhiteVines(Tachyon* tachyon, State& state) {
   }
 }
 
+// @todo @optimize precompute flower positions and use different presets
 static void UpdateTreeFlowers(Tachyon* tachyon, State& state) {
   profile("UpdateTreeFlowers()");
 
   auto& meshes = state.meshes;
 
-  reset_instances(meshes.oak_flowers);
+  const static int flower_counts[] = {
+    10,
+    9,
+    6
+  };
 
+  const static float angle_offsets[] = {
+    0.f,
+    t_HALF_PI,
+    t_PI
+  };
+
+  const static float radii[] = {
+    1.f,
+    0.7f,
+    0.5f,
+    0.8f,
+    0.7f,
+    1.f,
+    0.8f,
+    0.6f,
+    0.5f,
+    0.9f
+  };
+
+  const static float radius_factors[] = {
+    1.2f,
+    1.f,
+    0.5f
+  };
+
+  const static float y_offsets[] = {
+    -300.f,
+    700.f,
+    1700.f
+  };
+
+  uint16 max_flower_count = objects(meshes.tree_flower).total;
   uint16 total_visible_oak_leaves = mesh(meshes.oak_tree_leaves).lod_1.instance_count;
+
+  reset_instances(meshes.tree_flower);
 
   for (uint16 i = 0; i < total_visible_oak_leaves; i++) {
     auto& leaves = objects(meshes.oak_tree_leaves)[i];
@@ -171,16 +210,47 @@ static void UpdateTreeFlowers(Tachyon* tachyon, State& state) {
     if (abs(state.player_position.x - leaves.position.x) > 20000.f) continue;
     if (abs(state.player_position.z - leaves.position.z) > 15000.f) continue;
 
-    // @temporary
-    auto& flowers = use_instance(meshes.oak_flowers);
+    tVec3f base_position = leaves.position + tVec3f(0, leaves.scale.y * 2.f, 0);
 
-    flowers.position = leaves.position;
-    flowers.scale = leaves.scale;
-    flowers.rotation = leaves.rotation;
-    flowers.color = tVec4f(1.f, 1.f, 1.f, 0.4f);
-    flowers.material = tVec4f(0.5f, 0, 0, 1.f);
+    for_range(0, 2) {
+      int flower_count = flower_counts[i];
+      float angle_offset = angle_offsets[i];
+      float y_offset = y_offsets[i];
+      float radius_factor = radius_factors[i];
 
-    commit(flowers);
+      for (uint16 j = 0; j < flower_count; j++) {
+        if (count_used_instances(meshes.tree_flower) >= max_flower_count) {
+          break;
+        }
+
+        auto& flower = use_instance(meshes.tree_flower);
+
+        float angle = t_TAU * (float(j) / float(flower_count)) + angle_offset;
+        float radius = leaves.scale.x * radii[j] * radius_factor;
+        float tilt = radius / leaves.scale.x;
+
+        tVec3f offset;
+        offset.x = radius * sinf(angle);
+        offset.y = y_offset;
+        offset.z = radius * cosf(angle);
+
+        Quaternion rotation = (
+          Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), angle) *
+          Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), tilt)
+        );
+
+        // @todo
+        float growth_factor = 1.f;
+
+        flower.position = base_position + offset;
+        flower.scale = tVec3f(320.f * growth_factor);
+        flower.rotation = rotation;
+        flower.color = tVec4f(1.f, 1.f, 1.f, 0.4f);
+        flower.material = tVec4f(0.5f, 0, 0, 1.f);
+
+        commit(flower);
+      }
+    }
   }
 }
 

@@ -50,8 +50,8 @@ static void CreateConstantObjects(Tachyon* tachyon, State& state) {
     create(meshes.vine_flower);
   }
 
-  for_range(1, 50) {
-    create(meshes.oak_flowers);
+  for_range(1, 1000) {
+    create(meshes.tree_flower);
   }
 
   create(meshes.astrolabe_rear);

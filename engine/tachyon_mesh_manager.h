@@ -21,6 +21,9 @@
 #define use_instance(__mesh_index)\
   objects(__mesh_index)[mesh(__mesh_index).lod_1.instance_count++]
 
+#define count_used_instances(__mesh_index)\
+  mesh(__mesh_index).lod_1.instance_count
+
 #define create_point_light() Tachyon_CreatePointLight(tachyon)
 #define get_point_light(__light_id) Tachyon_GetPointLight(tachyon, __light_id)
 #define remove_point_light(__light_or_light_id) Tachyon_RemovePointLight(tachyon, __light_or_light_id)
