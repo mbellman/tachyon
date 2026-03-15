@@ -817,22 +817,6 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
     state.tilt_angle = Tachyon_Lerpf(state.tilt_angle, tilt, 5.f * state.dt);
   }
 
-  // Handle wand bounce knockback
-  // @todo factor
-  {
-    float recoil_duration = 1.f;
-    float time_since_last_bounce = time_since(state.last_wand_bounce_time);
-
-    if (state.last_wand_bounce_time != 0.f && time_since_last_bounce < recoil_duration) {
-      float alpha = 1.f - time_since_last_bounce / recoil_duration;
-      alpha *= alpha;
-
-      float speed = 5000.f * alpha;
-
-      state.player_position -= state.player_facing_direction * speed * state.dt;
-    }
-  }
-
   Quaternion player_rotation = (
     // Rotate according to facing direction
     Quaternion::FromDirection(state.player_facing_direction, tVec3f(0, 1.f, 0)) *
@@ -880,6 +864,10 @@ void PlayerCharacter::TakeDamage(Tachyon* tachyon, State& state, const float dam
     state.last_wand_swing_time = 0.f;
     state.last_wand_bounce_time = 0.f;
   }
+}
+
+void PlayerCharacter::GetKnockedBack(State& state) {
+  state.player_velocity = state.player_facing_direction.invert() * 2000.f;
 }
 
 void PlayerCharacter::PerformStandardDodgeAction(Tachyon* tachyon, State& state) {
