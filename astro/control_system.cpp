@@ -137,8 +137,16 @@ static void HandleAstroControls(Tachyon* tachyon, State& state) {
     state.player_position_at_start_of_turn = state.player_position;
     state.is_astrolabe_stopped = false;
 
-    // Force deselection of the current target, if any
-    Targeting::DeselectCurrentTarget(tachyon, state);
+    if (state.has_target) {
+      // Force deselection of the current target
+      Targeting::DeselectCurrentTarget(tachyon, state);
+
+      // Zero out player velocity to prevent changing the facing direction,
+      // e.g. if we were backwalking away from the enemy when we started
+      // the astro turn, and our velocity vector would otherwise swing us
+      // around awkwardly
+      state.player_velocity = tVec3f(0.f);
+    }
   }
 
   float astro_acceleration = 0.f;
