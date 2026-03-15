@@ -1,4 +1,5 @@
 #include "astro/procedural_growth.h"
+#include "astro/astrolabe.h"
 
 using namespace astro;
 
@@ -101,7 +102,9 @@ static void UpdateWhiteVines(Tachyon* tachyon, State& state) {
     if (abs(state.player_position.x - trunk.position.x) > 20000.f) continue;
     if (abs(state.player_position.z - trunk.position.z) > 15000.f) continue;
 
-    for (int i = 0; i < 30; i++) {
+    int total_leaves = int((state.astro_time - astro_time_periods.past) / 2.5f);
+
+    for (int i = 0; i < total_leaves; i++) {
       auto& leaf = use_instance(meshes.vine_leaf);
 
       float angle = sinf(float(i) * 0.5f);

@@ -11,10 +11,10 @@ namespace astro {
     // Age of Auspice
     float present = 0.f;
 
-    // Age of Consortium
+    // Age of ???
     float past = -76.f;
 
-    // Age of Machination
+    // Age of ???
     float distant_past = -157.f;
 
     // Age of Yore
