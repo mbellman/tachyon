@@ -46,6 +46,10 @@ static void CreateConstantObjects(Tachyon* tachyon, State& state) {
     create(meshes.vine_leaf);
   }
 
+  for (uint16 i = 0; i < 300; i++) {
+    create(meshes.vine_flower);
+  }
+
   create(meshes.astrolabe_rear);
   create(meshes.astrolabe_base);
   create(meshes.astrolabe_plate);

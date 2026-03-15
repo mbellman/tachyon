@@ -87,18 +87,25 @@ static void UpdateTreeMushrooms(Tachyon* tachyon, State& state) {
   }
 }
 
+// @todo @optimize precompute leaf + flower positions
+// and use one of several preset vine patterns
 static void UpdateWhiteVines(Tachyon* tachyon, State& state) {
   profile("UpdateWhiteVines()");
 
   auto& meshes = state.meshes;
 
   reset_instances(meshes.vine_leaf);
+  reset_instances(meshes.vine_flower);
 
-  uint16 total_oak_trunks = mesh(meshes.oak_tree_trunk).lod_1.instance_count;
+  uint16 total_visible_oak_trunks = mesh(meshes.oak_tree_trunk).lod_1.instance_count;
 
-  for (uint16 i = 0; i < total_oak_trunks; i++) {
+  for (uint16 i = 0; i < total_visible_oak_trunks; i++) {
     auto& trunk = objects(meshes.oak_tree_trunk)[i];
 
+    // Skip generating vines on trunks out of screen range.
+    // We don't do separate culling for the shadow pass, so some
+    // trunks may be "visible" offscreen but not close enough
+    // to the player for extra visual effects to matter.
     if (abs(state.player_position.x - trunk.position.x) > 20000.f) continue;
     if (abs(state.player_position.z - trunk.position.z) > 15000.f) continue;
 
@@ -106,6 +113,10 @@ static void UpdateWhiteVines(Tachyon* tachyon, State& state) {
 
     for (int i = 0; i < total_leaves; i++) {
       auto& leaf = use_instance(meshes.vine_leaf);
+
+      float leaf_age = (total_leaves - i) * 2.5f;
+      float growth_factor = leaf_age / 10.f;
+      if (growth_factor > 1.f) growth_factor = 1.f;
 
       float angle = sinf(float(i) * 0.5f);
       float tilt = 0.5f * cosf(float(i));
@@ -122,12 +133,25 @@ static void UpdateWhiteVines(Tachyon* tachyon, State& state) {
 
       leaf.position = trunk.position + offset;
       leaf.position.y += float(i) * 250.f;
-      leaf.scale = tVec3f(250.f);
+      leaf.scale = tVec3f(250.f * growth_factor);
       leaf.rotation = rotation;
       leaf.color = tVec3f(0.1f, 0.3f, 0.2f);
       leaf.material = tVec4f(0.4f, 0, 0, 1.f);
 
       commit(leaf);
+
+      // Add flowers on some leaves
+      if (i % 3 == 0) {
+        auto& flower = use_instance(meshes.vine_flower);
+
+        flower.position = leaf.position;
+        flower.scale = tVec3f(250.f * growth_factor);
+        flower.rotation = rotation;
+        flower.color = tVec4f(1.f, 1.f, 1.f, 0.4f);
+        flower.material = tVec4f(0.5f, 0, 0, 1.f);
+
+        commit(flower);
+      }
     }
   }
 }
