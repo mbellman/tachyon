@@ -102,12 +102,24 @@ static void TrackTargetableEntities(State& state, const std::vector<GameEntity>&
   }
 }
 
-static void TrackAllTargetableEntities(State& state) {
+static void TrackAllTargetableEntities(Tachyon* tachyon, State& state) {
   state.targetable_entities.clear();
 
   TrackTargetableEntities(state, state.lesser_guards);
   TrackTargetableEntities(state, state.low_guards);
   TrackTargetableEntities(state, state.bandits);
+
+  // If the current target entity is not found
+  // in the list of targetable entities, deselect it
+  {
+    for (auto& target : state.targetable_entities) {
+      if (IsSameEntity(target, state.target_entity)) {
+        return;
+      }
+    }
+
+    Targeting::DeselectCurrentTarget(tachyon, state);
+  }
 }
 
 static void HandleActiveTargetReticle(Tachyon* tachyon, State& state) {
@@ -200,7 +212,7 @@ static void SelectTarget(Tachyon* tachyon, State& state, EntityRecord& target) {
 }
 
 void Targeting::HandleTargets(Tachyon* tachyon, State& state) {
-  TrackAllTargetableEntities(state);
+  TrackAllTargetableEntities(tachyon, state);
   UpdateTargetReticle(tachyon, state);
   PickSpeakingEntity(state);
 }
