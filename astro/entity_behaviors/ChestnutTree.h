@@ -12,7 +12,7 @@ namespace astro {
       mesh(meshes.chestnut_tree_trunk).shadow_cascade_ceiling = 3;
       mesh(meshes.chestnut_tree_leaves).shadow_cascade_ceiling = 3;
 
-      // mesh(meshes.chestnut_tree_leaves).type = GRASS_MESH;
+      mesh(meshes.chestnut_tree_leaves).type = FOLIAGE_MESH;
     }
 
     getMeshes() {
@@ -33,7 +33,7 @@ namespace astro {
 
       const tVec3f wood_color = tVec3f(1.f, 0.4f, 0.2f);
       const tVec4f wood_material = tVec4f(1.f, 0, 0, 0.1f);
-      const tVec3f leaves_color = tVec3f(0.3f, 0.15f, 0.1f);
+      const tVec4f leaves_color = tVec4f(0.4f, 0.15f, 0.1f, 0.1f);
       const float lifetime = 200.f;
 
       reset_instances(meshes.chestnut_tree_trunk);
@@ -67,11 +67,10 @@ namespace astro {
         {
           auto& trunk = use_instance(meshes.chestnut_tree_trunk);
 
-          trunk.scale = tree_scale;
 
           trunk.position = entity.position;
-          trunk.position.y = entity.position.y - entity.scale.y * (1.f - tree_thickness);
-
+          // trunk.position.y = entity.position.y - entity.scale.y * (1.f - tree_thickness);
+          trunk.scale = tree_scale;
           trunk.rotation = entity.orientation;
           trunk.color = wood_color;
           trunk.material = wood_material;
@@ -84,11 +83,11 @@ namespace astro {
           auto& leaves = use_instance(meshes.chestnut_tree_leaves);
 
           leaves.position = entity.position;
-          leaves.position.y += entity.scale.y * 0.8f;
+          leaves.position.y += entity.scale.y * 0.25f;
           leaves.scale = tree_scale;
           leaves.rotation = entity.orientation;
           leaves.color = leaves_color;
-          leaves.material = tVec4f(0.8f, 0, 0, 1.f);
+          leaves.material = tVec4f(0.6f, 0, 0, 1.f);
 
           commit(leaves);
         }

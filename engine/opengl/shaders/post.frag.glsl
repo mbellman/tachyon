@@ -314,13 +314,15 @@ void main() {
     // These effects are not accumulated for blurring, so some
     // of the blur effects don't look correct.
     {
+      const float haze_radius = 20000.0;
+
       vec3 player_to_fragment = world_position - player_position;
       float frag_distance_from_player = length(player_to_fragment);
       float start_bubble_radius = astro_time_warp_start_radius;
       float end_bubble_radius = astro_time_warp_end_radius;
-      float haze_factor = frag_distance_from_player / 30000.0;
+      float haze_factor = frag_distance_from_player / haze_radius;
 
-      float ring_rotation = -2.0 * (start_bubble_radius / 30000.0) * sign(astro_time_warp);
+      float ring_rotation = -2.0 * (start_bubble_radius / haze_radius) * sign(astro_time_warp);
       float ring_thickness = 5000.0 * (0.5 + 0.5 * sin(12.0 * (atan(player_to_fragment.z, player_to_fragment.x) + ring_rotation)));
       float frag_distance_from_ring = distance(frag_distance_from_player, start_bubble_radius);
       float ring_intensity = max(0.0, 1.0 - frag_distance_from_ring / ring_thickness);
@@ -336,9 +338,9 @@ void main() {
       }
 
       if (end_bubble_radius < start_bubble_radius || astro_time_warp == 0.0) {
-        float falloff = 1.0 - min(1.0, end_bubble_radius / 30000.0);
+        float falloff = 1.0 - min(1.0, end_bubble_radius / haze_radius);
 
-        haze_factor = falloff * frag_distance_from_player / 30000.0;
+        haze_factor = falloff * frag_distance_from_player / haze_radius;
         ring_factor = 0.0;
       }
 
