@@ -148,10 +148,12 @@ static void HandleActiveTargetReticle(Tachyon* tachyon, State& state) {
 
 static void HandlePreviewTargetReticle(Tachyon* tachyon, State& state) {
   auto& reticle = objects(state.meshes.target_reticle)[0];
-  auto closest_target = GetClosestNonSelectedTarget(state);
+  auto preview_target = GetClosestNonSelectedTarget(state);
 
-  if (closest_target.type != UNSPECIFIED) {
-    auto& entity = *EntityManager::FindEntity(state, closest_target);
+  state.preview_target_entity_record = preview_target;
+
+  if (preview_target.type != UNSPECIFIED) {
+    auto& entity = *EntityManager::FindEntity(state, preview_target);
 
     reticle.position = entity.visible_position;
     reticle.position.y += entity.visible_scale.y + 1200.f;
@@ -212,6 +214,14 @@ static void SelectTarget(Tachyon* tachyon, State& state, EntityRecord& target) {
 }
 
 void Targeting::HandleTargets(Tachyon* tachyon, State& state) {
+  // Reset the preview target entity on each frame. We assume
+  // there isn't a preview target until one is explicitly
+  // found in HandlePreviewTargetReticle(), which is also
+  // contingent upon there not being a selected target.
+  // If found, the preview target will also serve as the
+  // player's head turn target.
+  ResetEntityRecord(state.preview_target_entity_record);
+
   TrackAllTargetableEntities(tachyon, state);
   UpdateTargetReticle(tachyon, state);
   PickSpeakingEntity(state);

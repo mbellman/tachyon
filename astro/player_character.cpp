@@ -302,24 +302,32 @@ static void HandleCombatJumpMotions(Tachyon* tachyon, State& state, tVec3f& body
 }
 
 // @todo refactor to allow NPCs/enemies to turn their own heads
+static bool TurnPlayerHeadTowardEntity(State& state, const GameEntity& entity, const float facing_angle) {
+  tVec3f player_to_entity = entity.visible_position - state.player_position;
+  float entity_direction_angle = atan2f(player_to_entity.z, player_to_entity.x);
+  float turn = GetAngleBetween(entity_direction_angle, facing_angle);
+
+  if (abs(turn) > 1.8f) {
+    return false;
+  }
+
+  if (turn < -1.5f) turn = -1.5f;
+  if (turn > 1.5f) turn = 1.5f;
+
+  state.player_head_turn_angle = Tachyon_Lerpf(state.player_head_turn_angle, -turn, 5.f * state.dt);
+
+  return true;
+}
+
 static void TurnPlayerHeadToward(State& state, const std::vector<GameEntity>& entities, const float facing_angle) {
   for (auto& entity : entities) {
     if (!IsDuringActiveTime(entity, state)) continue;
 
     float entity_distance = tVec3f::distance(state.player_position, entity.visible_position);
 
-    if (entity_distance < 7500.f) {
-      tVec3f player_to_entity = entity.visible_position - state.player_position;
-      float entity_direction_angle = atan2f(player_to_entity.z, player_to_entity.x);
-      float turn = GetAngleBetween(entity_direction_angle, facing_angle);
+    if (entity_distance > 7500.f) continue;
 
-      if (abs(turn) > 1.8f) continue;
-
-      if (turn < -1.5f) turn = -1.5f;
-      if (turn > 1.5f) turn = 1.5f;
-
-      state.player_head_turn_angle = Tachyon_Lerpf(state.player_head_turn_angle, -turn, 5.f * state.dt);
-
+    if (TurnPlayerHeadTowardEntity(state, entity, facing_angle)) {
       break;
     }
   }
@@ -328,10 +336,22 @@ static void TurnPlayerHeadToward(State& state, const std::vector<GameEntity>& en
 static void UpdatePlayerHeadTurnAngle(State& state) {
   float player_facing_angle = atan2f(state.player_facing_direction.z, state.player_facing_direction.x);
 
-  TurnPlayerHeadToward(state, state.sculpture_1s, player_facing_angle);
-  TurnPlayerHeadToward(state, state.npcs, player_facing_angle);
-  TurnPlayerHeadToward(state, state.low_guards, player_facing_angle);
-  TurnPlayerHeadToward(state, state.lesser_guards, player_facing_angle);
+  if (state.has_target) {
+    auto& entity = *EntityManager::FindEntity(state, state.target_entity);
+
+    TurnPlayerHeadTowardEntity(state, entity, player_facing_angle);
+  }
+  else if (state.preview_target_entity_record.type != UNSPECIFIED) {
+    auto& entity = *EntityManager::FindEntity(state, state.preview_target_entity_record);
+
+    TurnPlayerHeadTowardEntity(state, entity, player_facing_angle);
+  }
+  else {
+    TurnPlayerHeadToward(state, state.sculpture_1s, player_facing_angle);
+    TurnPlayerHeadToward(state, state.npcs, player_facing_angle);
+    TurnPlayerHeadToward(state, state.low_guards, player_facing_angle);
+    TurnPlayerHeadToward(state, state.lesser_guards, player_facing_angle);
+  }
 
   // Continually drift back toward 0
   state.player_head_turn_angle = Tachyon_Lerpf(state.player_head_turn_angle, 0.f, 4.f * state.dt);

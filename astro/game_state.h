@@ -365,6 +365,7 @@ namespace astro {
 
     // Targeted entities
     EntityRecord target_entity; // @todo rename target_entity_record
+    EntityRecord preview_target_entity_record;
     EntityRecord speaking_entity_record;
     float target_start_time = 0.f;
     bool has_target = false;
