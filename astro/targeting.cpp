@@ -23,8 +23,10 @@ static inline void ResetEntityRecord(EntityRecord& record) {
   record.id = -1;
 }
 
-static EntityRecord GetClosestNonSelectedTarget(State& state) {
-  float closest_distance = target_distance_limit;
+// @todo pick much closer entities even if the dot is further off (?)
+static EntityRecord GetIdealNonSelectedTarget(State& state) {
+  // float closest_distance = target_distance_limit;
+  float closest_dot = -1.f;
   EntityRecord candidate;
 
   for (auto& record : state.targetable_entities) {
@@ -33,10 +35,12 @@ static EntityRecord GetClosestNonSelectedTarget(State& state) {
     }
 
     auto& entity = *EntityManager::FindEntity(state, record);
-    float distance = tVec3f::distance(state.player_position, entity.visible_position);
+    tVec3f entity_direction = (entity.visible_position - state.player_position).unit();
+    float dot = tVec3f::dot(state.player_facing_direction, entity_direction);
+    // float distance = tVec3f::distance(state.player_position, entity.visible_position);
 
-    if (distance < closest_distance && entity.visible_scale.x != 0.f) {
-      closest_distance = distance;
+    if (dot > closest_dot) {
+      closest_dot = dot;
       candidate = record;
     }
   }
@@ -148,7 +152,7 @@ static void HandleActiveTargetReticle(Tachyon* tachyon, State& state) {
 
 static void HandlePreviewTargetReticle(Tachyon* tachyon, State& state) {
   auto& reticle = objects(state.meshes.target_reticle)[0];
-  auto preview_target = GetClosestNonSelectedTarget(state);
+  auto preview_target = GetIdealNonSelectedTarget(state);
 
   state.preview_target_entity_record = preview_target;
 
@@ -181,7 +185,7 @@ static void UpdateTargetReticle(Tachyon* tachyon, State& state) {
 static void PickSpeakingEntity(State& state) {
   if (state.speaking_entity_record.type == UNSPECIFIED) {
     // Try to select a speaking entity among those within range
-    auto closest_target = GetClosestNonSelectedTarget(state);
+    auto closest_target = GetIdealNonSelectedTarget(state);
 
     Targeting::SetSpeakingEntity(state, closest_target);
   }
@@ -253,8 +257,8 @@ void Targeting::SelectNextAccessibleTarget(Tachyon* tachyon, State& state) {
       }
     }
   } else {
-    // If we don't have a target yet, select the closest target
-    new_target = GetClosestNonSelectedTarget(state);
+    // If we don't have a target yet, select the most ideal target
+    new_target = GetIdealNonSelectedTarget(state);
   }
 
   if (new_target.type == UNSPECIFIED || new_target.id == -1) {
