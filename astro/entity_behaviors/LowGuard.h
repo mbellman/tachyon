@@ -3,6 +3,7 @@
 #include "astro/entity_behaviors/behavior.h"
 #include "astro/character_dialogue.h"
 #include "astro/items.h"
+#include "astro/player_character.h"
 #include "astro/sfx.h"
 #include "astro/targeting.h"
 #include "astro/ui_system.h"
@@ -46,10 +47,11 @@ namespace astro {
       if (player_distance < 10000.f) {
         tVec3f player_direction = entity_to_player / player_distance;
         float time_since_last_stun = time_since(state.spells.stun_start_time);
+        float alerted_speed = PlayerCharacter::GetHumanEnemyAlertedSpeed(state);
 
         bool can_notice_player = (
           tVec3f::dot(GetFacingDirection(entity), player_direction) > 0.2f ||
-          (player_distance < 4000.f && state.player_velocity.magnitude() > 549.f)
+          (player_distance < 4000.f && state.player_velocity.magnitude() > alerted_speed)
         );
 
         // Collision handling

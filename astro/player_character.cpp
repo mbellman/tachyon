@@ -868,6 +868,15 @@ bool PlayerCharacter::CanTakeDamage(Tachyon* tachyon, const State& state) {
   );
 }
 
+float PlayerCharacter::GetHumanEnemyAlertedSpeed(const State& state) {
+  float max_walking_speed =
+    state.has_target
+      ? PlayerCharacter::MAX_COMBAT_WALK_SPEED
+      : PlayerCharacter::MAX_WALK_SPEED;
+
+  return max_walking_speed - 1.f;
+}
+
 void PlayerCharacter::TakeDamage(Tachyon* tachyon, State& state, const float damage) {
   state.player_hp -= damage;
   state.last_damage_time = get_scene_time();

@@ -11,6 +11,7 @@ namespace astro {
     void UpdatePlayer(Tachyon* tachyon, State& state);
     void AutoHop(Tachyon* tachyon, State& state);
     bool CanTakeDamage(Tachyon* tachyon, const State& state);
+    float GetHumanEnemyAlertedSpeed(const State& state);
     void TakeDamage(Tachyon* tachyon, State& state, const float damage);
     void GetKnockedBack(State& state, float speed);
     void PerformStandardDodgeAction(Tachyon* tachyon, State& state);
