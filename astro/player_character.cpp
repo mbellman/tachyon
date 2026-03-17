@@ -864,7 +864,7 @@ bool PlayerCharacter::CanTakeDamage(Tachyon* tachyon, const State& state) {
     time_since(state.last_damage_time) > 1.5f &&
     time_since(state.last_target_jump_time) > 1.f &&
     time_since(state.last_dodge_time) > 0.3f &&
-    time_since(state.last_strong_attack_time) > 1.f
+    time_since(state.last_break_attack_time) > 1.f
   );
 }
 
@@ -902,7 +902,7 @@ void PlayerCharacter::GetKnockedBack(State& state, float speed) {
 void PlayerCharacter::PerformStandardDodgeAction(Tachyon* tachyon, State& state) {
   state.player_velocity *= 2.f;
   state.last_dodge_time = get_scene_time();
-  state.last_strong_attack_time = 0.f;
+  state.last_break_attack_time = 0.f;
   state.last_target_jump_time = 0.f;
 }
 
@@ -914,5 +914,5 @@ void PlayerCharacter::PerformTargetJumpAction(Tachyon* tachyon, State& state) {
   state.player_velocity = target_direction * target_distance * 0.4f;
   state.last_target_jump_time = get_scene_time();
   state.last_dodge_time = 0.f;
-  state.last_strong_attack_time = 0.f;
+  state.last_break_attack_time = 0.f;
 }

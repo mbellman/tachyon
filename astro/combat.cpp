@@ -42,7 +42,7 @@ static void StunNearbyEnemies(State& state, const float scene_time) {
 
 static void HandleLowGuardWandStrike(Tachyon* tachyon, State& state, GameEntity& entity) {
   auto& enemy = entity.enemy_state;
-  bool is_strong_attack = time_since(state.last_strong_attack_time) < 1.f;
+  bool is_player_doing_break_attack = time_since(state.last_break_attack_time) < 0.5f;
 
   // Wand recoil against low guards
   // @todo magic piercing weapons
@@ -50,7 +50,7 @@ static void HandleLowGuardWandStrike(Tachyon* tachyon, State& state, GameEntity&
   state.last_wand_bounce_time = get_scene_time();
 
   // Knockback
-  if (is_strong_attack) {
+  if (is_player_doing_break_attack) {
     enemy.speed = -5000.f;
   } else {
     enemy.speed = -3000.f;
@@ -64,19 +64,19 @@ static void HandleLowGuardWandStrike(Tachyon* tachyon, State& state, GameEntity&
 static void HandleLesserGuardWandStrike(Tachyon* tachyon, State& state, GameEntity& entity) {
   auto& enemy = entity.enemy_state;
   float scene_time = get_scene_time();
-  bool is_blocking = time_since(enemy.last_block_time) < 1.f;
-  bool is_invincible = time_since(enemy.last_damage_time) < 0.5f;
-  bool is_strong_attack = time_since(state.last_strong_attack_time) < 1.f;
+  bool is_enemy_blocking = time_since(enemy.last_block_time) < 1.f;
+  bool is_enemy_invincible = time_since(enemy.last_damage_time) < 0.5f;
+  bool is_player_doing_break_attack = time_since(state.last_break_attack_time) < 0.5f;
   bool is_active_target = state.has_target && IsSameEntity(entity, state.target_entity);
 
-  if (is_blocking) {
+  if (is_enemy_blocking) {
     if (is_active_target || !state.has_target) {
       // Striking a blocking enemy
       state.last_wand_swing_time = 0.f;
       state.last_wand_bounce_time = scene_time;
 
-      if (is_strong_attack) {
-        // Breaking enemy defenses with a strong attack
+      if (is_player_doing_break_attack) {
+        // Breaking enemy defenses
         if (IsSameEntity(entity, state.target_entity)) {
           BreakEnemy(entity, scene_time);
           StunNearbyEnemies(state, scene_time);
@@ -94,12 +94,11 @@ static void HandleLesserGuardWandStrike(Tachyon* tachyon, State& state, GameEnti
         Sfx::PlaySound(SFX_WAND_RECOIL, 0.5f);
       }
     }
-  } else if (!is_invincible) {
+  } else if (!is_enemy_invincible) {
     enemy.last_attack_start_time = 0.f;
     enemy.last_attack_action_time = 0.f;
 
-    if (is_strong_attack) {
-      // Breaking enemy defenses with a strong attack
+    if (is_player_doing_break_attack) {
       if (is_active_target) {
         state.last_wand_swing_time = 0.f;
         state.last_wand_bounce_time = scene_time;
@@ -113,9 +112,9 @@ static void HandleLesserGuardWandStrike(Tachyon* tachyon, State& state, GameEnti
       }
     } else {
       // Normal attack damage + knockback
-      bool is_break_attack = time_since(enemy.last_break_time) < 1.f;
-      float damage = is_break_attack ? 50.f : 30.f;
-      float knockback = is_break_attack ? -9000.f : -7000.f;
+      bool is_enemy_broken = time_since(enemy.last_break_time) < 1.f;
+      float damage = is_enemy_broken ? 50.f : 30.f;
+      float knockback = is_enemy_broken ? -9000.f : -7000.f;
 
       enemy.health -= damage;
       enemy.last_damage_time = scene_time;
@@ -138,47 +137,49 @@ static void HandleLesserGuardWandStrike(Tachyon* tachyon, State& state, GameEnti
 
 void Combat::HandleWandSwing(Tachyon* tachyon, State& state) {
   float scene_time = get_scene_time();
+  bool did_player_recently_break_attack = time_since(state.last_break_attack_time) < 3.f;
 
-  // Check against nearby targets
+  // Triggering nearby targets into blocking
   {
     for (auto& target : state.targetable_entities) {
       auto& entity = *EntityManager::FindEntity(state, target);
       auto& enemy = entity.enemy_state;
       float enemy_distance = tVec3f::distance(entity.visible_position, state.player_position);
-      bool is_broken = time_since(enemy.last_break_time) < 1.5f;
+      bool is_enemy_broken = time_since(enemy.last_break_time) < 2.f;
 
       // @todo handle per enemy type (target.type)
       float attack_without_blocking_duration = 1.2f;
+      bool is_enemy_attacking = time_since(enemy.last_attack_start_time) < attack_without_blocking_duration;
 
-      if (enemy_distance < 4000.f && enemy.health > 0.f && !is_broken) {
-        if (time_since(enemy.last_attack_start_time) > attack_without_blocking_duration) {
-          // @todo factor by enemy type
-          if (entity.type == LOW_GUARD) {
-            // Armor blocking
-            // @todo magic weapons which can pierce armor
+      if (
+        enemy_distance < 4000.f &&
+        enemy.health > 0.f &&
+        !is_enemy_broken &&
+        !is_enemy_attacking &&
+        !did_player_recently_break_attack
+      ) {
+        // @todo factor by enemy type
+        if (entity.type == LOW_GUARD) {
+          // Armor blocking
+          // @todo magic weapons which can pierce armor
+          enemy.last_block_time = scene_time;
+        }
+        else if (entity.type == LESSER_GUARD) {
+          // Block when facing the player
+          float facing_dot = tVec3f::dot(state.player_facing_direction, GetFacingDirection(entity));
+
+          if (facing_dot < 0.f) {
             enemy.last_block_time = scene_time;
           }
-          else if (entity.type == LESSER_GUARD) {
-            // Block when facing the player
-            float facing_dot = tVec3f::dot(state.player_facing_direction, GetFacingDirection(entity));
-
-            if (facing_dot < 0.f) {
-              enemy.last_block_time = scene_time;
-            }
-          }
-        } else if (entity.type == LOW_GUARD) {
-          // Armor block
-          // @todo allow magical piercing attacks
-          enemy.last_block_time = scene_time;
         }
       }
     }
   }
 
-  // Distinguishing between strong and regular attacks
+  // Distinguishing between break and regular attacks
   {
     if (time_since(state.last_target_jump_time) < 0.5f) {
-      state.last_strong_attack_time = scene_time;
+      state.last_break_attack_time = scene_time;
 
       Sfx::PlaySound(SFX_WAND_STRONG_ATTACK, 0.3f);
     } else {
@@ -190,7 +191,6 @@ void Combat::HandleWandSwing(Tachyon* tachyon, State& state) {
 // @todo handle recoil against solid objects
 void Combat::HandleWandStrikeWindow(Tachyon* tachyon, State& state) {
   float scene_time = get_scene_time();
-  float time_since_last_strong_attack = time_since(state.last_strong_attack_time);
 
   for (auto& target : state.targetable_entities) {
     auto& entity = *EntityManager::FindEntity(state, target);
