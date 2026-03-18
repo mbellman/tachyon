@@ -116,6 +116,7 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="astro\animation.h" />
     <ClInclude Include="astro\astrolabe.h" />
     <ClInclude Include="astro\bgm.h" />
     <ClInclude Include="astro\camera_system.h" />
@@ -325,6 +326,7 @@
     <ClInclude Include="external\SDL_ttf\include\SDL_ttf.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="astro\animation.cpp" />
     <ClCompile Include="astro\astrolabe.cpp" />
     <ClCompile Include="astro\bgm.cpp" />
     <ClCompile Include="astro\camera_system.cpp" />

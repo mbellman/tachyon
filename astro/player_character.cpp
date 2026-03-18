@@ -1,4 +1,5 @@
 #include "astro/player_character.h"
+#include "astro/animation.h"
 #include "astro/combat.h"
 #include "astro/entity_behaviors/behavior.h"
 #include "astro/entity_manager.h"
