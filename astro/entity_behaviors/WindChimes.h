@@ -9,13 +9,20 @@ namespace astro {
       meshes.wind_chimes_stand = MODEL_MESH("./astro/3d_models/wind_chimes/stand.obj", 500);
       meshes.wind_chimes_pivot = MODEL_MESH("./astro/3d_models/wind_chimes/pivot.obj", 500);
       meshes.wind_chimes_hook = MODEL_MESH("./astro/3d_models/wind_chimes/hook.obj", 500);
+      meshes.wind_chimes_hook_2 = MODEL_MESH("./astro/3d_models/wind_chimes/hook_2.obj", 500);
+
+      mesh(meshes.wind_chimes_stand).shadow_cascade_ceiling = 2;
+      mesh(meshes.wind_chimes_pivot).shadow_cascade_ceiling = 2;
+      mesh(meshes.wind_chimes_hook).shadow_cascade_ceiling = 2;
+      mesh(meshes.wind_chimes_hook_2).shadow_cascade_ceiling = 2;
     }
 
     getMeshes() {
       return_meshes({
         meshes.wind_chimes_stand,
         meshes.wind_chimes_pivot,
-        meshes.wind_chimes_hook
+        meshes.wind_chimes_hook,
+        meshes.wind_chimes_hook_2
       });
     }
 
@@ -42,8 +49,8 @@ namespace astro {
 
           Sync(stand, entity);
 
-          stand.color = tVec3f(1.f, 0.9f, 0.4f);
-          stand.material = tVec4f(0.4f, 1.f, 0, 0);
+          stand.color = tVec3f(1.f, 0.7f, 0.2f);
+          stand.material = tVec4f(0.4f, 1.f, 0, 0.2f);
 
           commit(stand);
         }
@@ -55,27 +62,35 @@ namespace astro {
           Sync(pivot, entity);
 
           pivot.position = UnitEntityToWorldPosition(entity, tVec3f(0, 0, 0.55f));
-          pivot.color = tVec3f(1.f, 0.9f, 0.4f);
-          pivot.material = tVec4f(0.4f, 1.f, 0, 0);
+          pivot.color = tVec4f(1.f, 0.7f, 0.2f, 0.1f);
+          pivot.material = tVec4f(0.4f, 1.f, 0, 1.f);
 
           pivot.rotation *= Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 0.5f * sinf(scene_time));
 
           commit(pivot);
         }
 
-        // Hook
+        // Hooks
         {
           auto& hook = objects(meshes.wind_chimes_hook)[i];
+          auto& hook2 = objects(meshes.wind_chimes_hook_2)[i];
 
           Sync(hook, entity);
+          Sync(hook2, entity);
 
           hook.position = UnitEntityToWorldPosition(entity, tVec3f(0, 0, 0.55f));
-          hook.color = tVec3f(1.f, 0.9f, 0.4f);
-          hook.material = tVec4f(0.4f, 1.f, 0, 0);
+          hook.color = tVec4f(1.f, 0.7f, 0.2f, 0.1f);
+          hook.material = tVec4f(0.4f, 1.f, 0, 1.f);
 
-          hook.rotation *= Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -0.5f * sinf(scene_time + 0.5f));
+          hook2.position = UnitEntityToWorldPosition(entity, tVec3f(0, 0, 0.55f));
+          hook2.color = tVec4f(1.f, 0.7f, 0.2f, 0.1f);
+          hook2.material = tVec4f(0.4f, 1.f, 0, 1.f);
+
+          hook.rotation *= Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 0.5f * sinf(scene_time - 0.8f));
+          hook2.rotation *= Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 0.5f * sinf(scene_time - 1.6f));
 
           commit(hook);
+          commit(hook2);
         }
       }
     }
