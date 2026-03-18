@@ -384,6 +384,8 @@ namespace astro {
       // WIND_CHIMES
       wind_chimes_placeholder,
       wind_chimes_stand,
+      wind_chimes_pivot,
+      wind_chimes_hook,
 
       // SCULPTURE_1,
       sculpture_1_placeholder,
