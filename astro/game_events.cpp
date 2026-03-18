@@ -42,11 +42,28 @@ static void QueueCameraTargetEvent(Tachyon* tachyon, State& state, GameEntity& t
 }
 
 /**
+ * -------------------------
+ * Event: Village Gate Guard
+ * -------------------------
+ */
+// @todo test this event
+static void StartVillageGateGuardEvent(Tachyon* tachyon, State& state) {
+  for (auto& entity : state.low_guards) {
+    if (entity.unique_name == "gate_guard") {
+      QueueCameraTargetEvent(tachyon, state, entity, {
+        .delay = 0.,
+        .duration = 1.5f
+      });
+    }
+  }
+}
+
+/**
  * ------------------------
  * Event: Village Gate Open
  * ------------------------
  */
-static void StartVillageGateEvent(Tachyon* tachyon, State& state) {
+static void StartVillageGateOpenEvent(Tachyon* tachyon, State& state) {
   for (auto& entity : state.npcs) {
     if (entity.unique_name == "gate_villager") {
       if (!IsDuringActiveTime(entity, state)) {
@@ -105,7 +122,8 @@ static void StartBridgeOpenEvent(Tachyon* tachyon, State& state) {
  */
 
 void GameEvents::StartEvent(Tachyon* tachyon, State& state, const std::string& event_trigger) {
-  check_event_trigger("village_gate", StartVillageGateEvent);
+  check_event_trigger("village_gate_guard", StartVillageGateGuardEvent);
+  check_event_trigger("village_gate", StartVillageGateOpenEvent);
   check_event_trigger("river_wheel", StartRiverWheelEvent);
   check_event_trigger("bridge_open", StartBridgeOpenEvent);
 
