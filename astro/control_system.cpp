@@ -303,19 +303,21 @@ static void HandleAstroControls(Tachyon* tachyon, State& state) {
   // Sound effects
   {
     if (stopped_turning && !state.is_astrolabe_stopped) {
-      Sfx::FadeOutSound(SFX_ASTRO_TRAVEL, 500);
+      // Sfx::FadeOutSound(SFX_ASTRO_TRAVEL, 500);
 
-      if (state.is_astro_traveling) {
-        Sfx::PlaySound(SFX_ASTRO_END, 1.f);
-      }
+      // if (state.is_astro_traveling) {
+      //   Sfx::PlaySound(SFX_ASTRO_END, 1.f);
+      // }
 
       state.is_astrolabe_stopped = true;
       state.is_astro_traveling = false;
       state.time_warp_end_radius = 0.f;
     }
     else if (started_turning) {
-      Sfx::FadeOutSound(SFX_ASTRO_END, 500);
-      Sfx::PlaySound(SFX_ASTRO_BEGIN, 0.8f);
+      // Sfx::FadeOutSound(SFX_ASTRO_TRAVEL, 500);
+      // Sfx::PlaySound(SFX_ASTRO_BEGIN, 0.8f);
+
+      Sfx::PlaySound(SFX_ASTRO_TRAVEL, 0.8f);
 
       state.is_astrolabe_stopped = false;
       state.is_astro_traveling = false;
@@ -325,7 +327,7 @@ static void HandleAstroControls(Tachyon* tachyon, State& state) {
       !state.is_astro_traveling &&
       !state.is_astrolabe_stopped
     ) {
-      Sfx::PlaySound(SFX_ASTRO_TRAVEL, 0.8f);
+      // Sfx::PlaySound(SFX_ASTRO_TRAVEL, 0.8f);
 
       state.is_astro_traveling = true;
       state.time_warp_start_radius = 0.f;
