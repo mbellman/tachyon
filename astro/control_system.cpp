@@ -108,7 +108,6 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
 }
 
 static void HandleAstroControls(Tachyon* tachyon, State& state) {
-  const float astro_start_rate = 0.1f;
   const float astro_travel_rate = 0.8f;
   const float astro_slowdown_rate = 3.f;
 
@@ -149,18 +148,9 @@ static void HandleAstroControls(Tachyon* tachyon, State& state) {
     }
   }
 
-  float astro_acceleration = 0.f;
-
-  if (time_since(state.game_time_at_start_of_turn) < 0.4f) {
-    astro_acceleration = astro_start_rate;
-  }
-  else if (abs(state.astro_turn_speed) != 0.f) {
-    astro_acceleration = astro_travel_rate;
-  }
-
   // Handle reverse/forward turn actions
-  state.astro_turn_speed -= tachyon->left_trigger * astro_acceleration * state.dt;
-  state.astro_turn_speed += tachyon->right_trigger * astro_acceleration * state.dt;
+  state.astro_turn_speed -= tachyon->left_trigger * astro_travel_rate * state.dt;
+  state.astro_turn_speed += tachyon->right_trigger * astro_travel_rate * state.dt;
 
   // Prevent time changes past max time
   if (state.astro_time >= max_astro_time && state.astro_turn_speed > 0.f) {
@@ -303,32 +293,21 @@ static void HandleAstroControls(Tachyon* tachyon, State& state) {
   // Sound effects
   {
     if (stopped_turning && !state.is_astrolabe_stopped) {
-      // Sfx::FadeOutSound(SFX_ASTRO_TRAVEL, 500);
+      Sfx::FadeOutSound(SFX_ASTRO_TRAVEL, 2000);
 
-      // if (state.is_astro_traveling) {
-      //   Sfx::PlaySound(SFX_ASTRO_END, 1.f);
-      // }
+      if (state.is_astro_traveling) {
+        Sfx::PlaySound(SFX_ASTRO_END, 1.f);
+      }
 
       state.is_astrolabe_stopped = true;
       state.is_astro_traveling = false;
       state.time_warp_end_radius = 0.f;
     }
     else if (started_turning) {
-      // Sfx::FadeOutSound(SFX_ASTRO_TRAVEL, 500);
-      // Sfx::PlaySound(SFX_ASTRO_BEGIN, 0.8f);
-
+      Sfx::FadeOutSound(SFX_ASTRO_END, 500);
       Sfx::PlaySound(SFX_ASTRO_TRAVEL, 0.8f);
 
       state.is_astrolabe_stopped = false;
-      state.is_astro_traveling = false;
-    }
-    else if (
-      astro_acceleration == astro_travel_rate &&
-      !state.is_astro_traveling &&
-      !state.is_astrolabe_stopped
-    ) {
-      // Sfx::PlaySound(SFX_ASTRO_TRAVEL, 0.8f);
-
       state.is_astro_traveling = true;
       state.time_warp_start_radius = 0.f;
     }

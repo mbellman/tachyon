@@ -395,7 +395,7 @@ static void HandleMusicLevels(Tachyon* tachyon, State& state) {
       BGM::FadeCurrentMusicVolumeTo(0.4f, 500);
     }
     else {
-      BGM::FadeCurrentMusicVolumeTo(0.5f, 2000);
+      BGM::FadeCurrentMusicVolumeTo(0.5f, 4000);
     }
   }
 }
