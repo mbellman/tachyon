@@ -21,193 +21,45 @@ static inline float GetAngleBetween(const float a1, const float a2) {
   return angle;
 }
 
-// @todo move to Animation::
-static void ReserveAnimationPoseData(State::SkeletonAnimation& animation) {
-  if (animation.current_pose.bones.size() == 0) {
-    for (auto& bone : animation.frames[0].bones) {
-      animation.current_pose.bones.push_back(bone);
-    }
-  }
+static float GetPlayerAnimationSpeed(State& state) {
+  bool is_idle = state.player_mesh_animation.next_animation == &state.animations.player_idle;
+
+  return is_idle ? 0.8f : 12.f * sqrtf(state.player_velocity.magnitude() / PlayerCharacter::MAX_RUN_SPEED);
 }
 
-// @todo move to Animation::
-static void EvaluateAnimation(State::SkeletonAnimation& animation, const float seek_time) {
-  float blend_alpha = fmodf(seek_time, 1.f);
-
-  if (animation.frames.size() == 2) {
-    // Special treatment for 2-frame animations: alternate between
-    // both frames using an ease-in-out transition
-    blend_alpha = Tachyon_EaseInOutf(blend_alpha);
-  }
-
-  int32 start_index = int(seek_time) % animation.frames.size();
-  int32 end_index = (start_index + 1) % animation.frames.size();
-
-  auto& start_frame = animation.frames[start_index];
-  auto& end_frame = animation.frames[end_index];
-
-  for (size_t i = 0; i < start_frame.bones.size(); i++) {
-    auto& start_bone = start_frame.bones[i];
-    auto& end_bone = end_frame.bones[i];
-    Quaternion blended_rotation = Quaternion::nlerp(start_bone.rotation, end_bone.rotation, blend_alpha);
-
-    animation.current_pose.bones[i].rotation = blended_rotation;
-
-    // @todo blend translations (+ scale??)
-  }
-}
-
-// @todo move to Animation::
-static void SetNextAnimation(State& state, State::SkeletonAnimation* animation) {
-  if (state.next_animation == animation) {
-    return;
-  }
-
-  ReserveAnimationPoseData(*animation);
-
-  state.next_animation = animation;
-  state.time_since_last_animation_change = 0.f;
-}
-
-// @todo move to Animation::
-static void TransitionToNextAnimation(State& state, State::SkeletonAnimation* animation) {
-  if (state.next_animation != nullptr && state.time_since_last_animation_change < 1.f) {
-    return;
-  }
-
-  SetNextAnimation(state, animation);
-}
-
-// @todo move to Animation::
-static float GetMaxSeekTime(State::SkeletonAnimation& animation) {
-  return (float)animation.frames.size();
-}
-
-// @todo move to Animation::
-// @todo refactor to allow for generic skeleton animation blending etc.
-static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state, const float head_turn_angle) {
+static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
   profile("UpdatePlayerSkeleton()");
 
+  auto& player_animation = state.player_mesh_animation;
+  auto& animations = state.animations;
+
   // Set the default current animation if not initialized
-  if (state.current_animation == nullptr) {
-    state.current_animation = &state.animations.player_idle;
+  if (player_animation.current_animation == nullptr) {
+    player_animation.current_animation = &animations.player_idle;
   }
 
   // @todo add more animations and refactor how to determine the active animation
   if (is_key_held(tKey::CONTROLLER_A) && state.previous_move_delta > 0.f) {
-    SetNextAnimation(state, &state.animations.player_run);
+    Animation::SetNextAnimation(player_animation, &animations.player_run);
   } else if (
     state.previous_move_delta > 5.f ||
     (state.last_quick_turn_time != 0.f && time_since(state.last_quick_turn_time) < 0.3f)
   ) {
-    TransitionToNextAnimation(state, &state.animations.player_walk);
+    Animation::AwaitNextAnimation(player_animation, &animations.player_walk);
   } else {
-    TransitionToNextAnimation(state, &state.animations.player_idle);
+    Animation::AwaitNextAnimation(player_animation, &animations.player_idle);
   }
 
-  // @todo make this a method parameter
-  bool forward = tVec3f::dot(state.player_velocity, state.player_facing_direction) >= 0.f;
+  bool moving_forward = tVec3f::dot(state.player_velocity, state.player_facing_direction) >= 0.f;
+  float animation_speed = GetPlayerAnimationSpeed(state);
 
-  // @temporary
-  // @todo factor
-  float animation_speed =
-    state.next_animation == &state.animations.player_idle ? 0.8f :
-    12.f * sqrtf(state.player_velocity.magnitude() / PlayerCharacter::MAX_RUN_SPEED);
-
-  // Accumulate animation time
-  if (forward) {
-    state.animation_seek_time += animation_speed * state.dt;
-  } else {
-    state.animation_seek_time -= animation_speed * state.dt;
+  if (!moving_forward) {
+    animation_speed *= -1.f;
   }
 
-  // Limit and wrap the animation time to a common multiple of the
-  // current/next animation times so that we don't eventually encounter
-  // accumulation precision errors
-  {
-    float max_seek_time = GetMaxSeekTime(*state.current_animation) * GetMaxSeekTime(*state.next_animation);
-
-    if (state.animation_seek_time > max_seek_time) {
-      state.animation_seek_time -= max_seek_time;
-    } else if (state.animation_seek_time < 0.f) {
-      state.animation_seek_time = max_seek_time;
-    }
-  }
-
-  // Track time between changing animations so they can be blended
-  {
-    state.time_since_last_animation_change += 3.f * state.dt;
-
-    if (state.time_since_last_animation_change > 1.f) {
-      state.time_since_last_animation_change = 1.f;
-    }
-  }
-
-  // Update the current animation when a full blend from current -> next is complete
-  if (
-    state.current_animation != state.next_animation &&
-    state.time_since_last_animation_change == 1.f
-  ) {
-    state.current_animation = state.next_animation;
-  }
-
-  // Evaluate the current and next animations simultaneously so they can be blended
-  // @optimize this only has to be done when transitioning between animations
-  EvaluateAnimation(*state.current_animation, state.animation_seek_time);
-  EvaluateAnimation(*state.next_animation, state.animation_seek_time);
-
-  // Update the current pose based on the blended result of the current/next animations
-  {
-    auto& current_pose = state.player_current_pose;
-    float blend_alpha = state.time_since_last_animation_change;
-
-    for (size_t i = 0; i < state.current_animation->current_pose.bones.size(); i++) {
-      auto& previous_bone = state.current_animation->current_pose.bones[i];
-      auto& next_bone = state.next_animation->current_pose.bones[i];
-      auto& current_pose_bone = current_pose.bones[i];
-      Quaternion blended_rotation = Quaternion::nlerp(previous_bone.rotation, next_bone.rotation, blend_alpha);
-
-      // Reset current pose bone translation back to bone space
-      current_pose_bone.translation = previous_bone.translation;
-
-      // Set blended rotation
-      current_pose_bone.rotation = blended_rotation;
-    }
-  }
-
-  // Compute bone matrices for use in the renderer
-  // @todo factor
-  {
-    auto& rest_pose = state.player_rest_pose;
-    auto& current_pose = state.player_current_pose;
-
-    current_pose.bone_matrices.clear();
-
-    for (auto& bone : state.player_current_pose.bones) {
-      int32 next_parent_index = bone.parent_bone_index;
-
-      // @todo refactor to use TransformBonesIntoMeshSpace()
-      while (next_parent_index != -1) {
-        auto& parent_bone = current_pose.bones[next_parent_index];
-
-        bone.translation = parent_bone.translation + parent_bone.rotation.toMatrix4f() * bone.translation;
-        bone.rotation = parent_bone.rotation * bone.rotation;
-
-        next_parent_index = parent_bone.parent_bone_index;
-      }
-
-      // @todo allow the head bone name to be specified
-      if (bone.name == "Head") {
-        bone.rotation *= Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), head_turn_angle);
-      }
-
-      tMat4f inverse_bind_matrix = rest_pose.bone_matrices[bone.index];
-      tMat4f pose_matrix = tMat4f::transformation(bone.translation, tVec3f(1.f), bone.rotation);
-      tMat4f bone_matrix = pose_matrix * inverse_bind_matrix;
-
-      current_pose.bone_matrices.push_back(bone_matrix.transpose());
-    }
-  }
+  Animation::AccumulateTime(state.player_mesh_animation, animation_speed, state.dt);
+  Animation::UpdatePose(state.player_mesh_animation);
+  Animation::UpdateBoneMatrices(state.player_mesh_animation);
 }
 
 // @todo debug mode only
@@ -223,7 +75,7 @@ static void ShowDebugPlayerSkeleton(Tachyon* tachyon, State& state, Quaternion& 
 
   reset_instances(meshes.debug_skeleton_bone);
 
-  auto& skeleton = state.player_current_pose;
+  auto& skeleton = state.player_mesh_animation.active_pose;
 
   for (auto& bone : skeleton.bones) {
     // End on the root bone, since it does not need to be visualized
@@ -279,7 +131,7 @@ static void HandleRunOscillation(Tachyon* tachyon, State& state, tVec3f& body_po
   if (state.run_oscillation > 1.f) state.run_oscillation = 1.f;
 
   float run_bounce_height = 200.f * state.run_oscillation;
-  float run_cycle_time = 2.f * t_TAU * (fmodf(state.animation_seek_time, 8.f) / 8.f) + t_HALF_PI;
+  float run_cycle_time = 2.f * t_TAU * (fmodf(state.player_mesh_animation.seek_time, 8.f) / 8.f) + t_HALF_PI;
   float run_bounce_cycle = 0.5f + 0.5f * sinf(run_cycle_time);
 
   body_position.y += run_bounce_height * run_bounce_cycle;
@@ -315,7 +167,9 @@ static bool TurnPlayerHeadTowardEntity(State& state, const GameEntity& entity, c
   if (turn < -1.5f) turn = -1.5f;
   if (turn > 1.5f) turn = 1.5f;
 
-  state.player_head_turn_angle = Tachyon_Lerpf(state.player_head_turn_angle, -turn, 5.f * state.dt);
+  float& turn_angle = state.player_mesh_animation.head_turn_angle;
+
+  turn_angle = Tachyon_Lerpf(turn_angle, -turn, 5.f * state.dt);
 
   return true;
 }
@@ -355,7 +209,9 @@ static void UpdatePlayerHeadTurnAngle(State& state) {
   }
 
   // Continually drift back toward 0
-  state.player_head_turn_angle = Tachyon_Lerpf(state.player_head_turn_angle, 0.f, 4.f * state.dt);
+  float& turn_angle = state.player_mesh_animation.head_turn_angle;
+
+  turn_angle = Tachyon_Lerpf(turn_angle, 0.f, 4.f * state.dt);
 }
 
 static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player_rotation, tMat4f& player_rotation_matrix) {
@@ -394,13 +250,14 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
     body_rotation = Quaternion::slerp(body_rotation, death_rotation, death_alpha);
   }
 
-  UpdatePlayerSkeleton(tachyon, state, state.player_head_turn_angle);
+  UpdatePlayerSkeleton(tachyon, state);
+
+  auto& active_pose = state.player_mesh_animation.active_pose;
 
   // Head
   {
     auto& head = objects(meshes.player_head)[0];
-    auto& pose = state.player_current_pose;
-    auto& head_bone = pose.bones[0];
+    auto& head_bone = active_pose.bones[0];
 
     head.position = body_position + body_rotation.toMatrix4f() * (head_bone.translation * 1100.f);
     head.rotation = body_rotation * head_bone.rotation;
@@ -455,11 +312,11 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
     boots.material = tVec4f(1.f, 0, 0, 0);
     boots.shadow_cascade_ceiling = 2;
 
-    hood.current_pose = &state.player_current_pose;
-    robes.current_pose = &state.player_current_pose;
-    shirt.current_pose = &state.player_current_pose;
-    pants.current_pose = &state.player_current_pose;
-    boots.current_pose = &state.player_current_pose;
+    hood.current_pose = &active_pose;
+    robes.current_pose = &active_pose;
+    shirt.current_pose = &active_pose;
+    pants.current_pose = &active_pose;
+    boots.current_pose = &active_pose;
 
     commit(hood);
     commit(robes);
@@ -567,6 +424,7 @@ static void UpdateWandLights(Tachyon* tachyon, State& state) {
 }
 
 static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotation, tMat4f& player_rotation_matrix) {
+  auto& active_pose = state.player_mesh_animation.active_pose;
   auto& wand = objects(state.meshes.player_wand)[0];
 
   tVec3f offset = player_rotation_matrix * tVec3f(-1.f, 0, 0);
@@ -578,8 +436,7 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
   if (state.player_hp > 0.f) {
     // Sync the wand to the player's right hand
     // @todo factor
-    auto& pose = state.player_current_pose;
-    auto& right_hand = pose.bones[5];
+    auto& right_hand = active_pose.bones[5];
     tVec3f position = right_hand.translation;
     Quaternion rotation = right_hand.rotation;
 
@@ -612,7 +469,7 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
     float time_since_last_swing = time_since(state.last_wand_swing_time);
 
     Quaternion base_wand_rotation = (
-      state.player_current_pose.bones[5].rotation *
+      active_pose.bones[5].rotation *
       Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), 0.2f) *
       Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 1.8f) *
       Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI)

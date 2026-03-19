@@ -434,7 +434,7 @@ static void ShowGameStats(Tachyon* tachyon, State& state) {
     "Astro time: " + std::to_string(state.astro_time),
     "Astro turn speed: " + std::to_string(state.astro_turn_speed),
     "Ground Y: " + std::to_string(state.current_ground_y),
-    "Animation time: " + std::to_string(state.animation_seek_time)
+    "Animation time: " + std::to_string(state.player_mesh_animation.seek_time)
   };
 
   for (uint8 i = 0; i < std::size(stat_messages); i++) {
@@ -628,7 +628,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
     };
 
     for (auto& bone : state.animations.player_idle.frames[0].bones) {
-      state.player_current_pose.bones.push_back(bone);
+      state.player_mesh_animation.active_pose.bones.push_back(bone);
     }
   }
 

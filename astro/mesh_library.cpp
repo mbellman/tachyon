@@ -203,45 +203,46 @@ static void TransformBonesIntoMeshSpace(tSkeleton& skeleton) {
   }
 }
 
-static void AddSkinnedMeshes(Tachyon* tachyon, State& state) {
+static void AddSkinnedPlayerMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
+  auto& rest_pose = state.player_mesh_animation.rest_pose;
 
-  state.player_rest_pose = GltfLoader("./astro/3d_skeleton_animations/player_skeleton.gltf").skeleton;
+  state.player_mesh_animation.rest_pose = GltfLoader("./astro/3d_skeleton_animations/player_skeleton.gltf").skeleton;
 
-  TransformBonesIntoMeshSpace(state.player_rest_pose);
+  TransformBonesIntoMeshSpace(state.player_mesh_animation.rest_pose);
 
   // Compute inverse bind matrices
   {
-    for (auto& bone : state.player_rest_pose.bones) {
+    for (auto& bone : rest_pose.bones) {
       tMat4f inverse_bind_matrix = tMat4f::transformation(bone.translation, tVec3f(1.f), bone.rotation).inverse();
 
-      state.player_rest_pose.bone_matrices.push_back(inverse_bind_matrix);
+      rest_pose.bone_matrices.push_back(inverse_bind_matrix);
     }
   }
 
   tSkinnedMesh player_hood = Tachyon_LoadSkinnedMesh(
     "./astro/3d_models/characters/player_hood.skin",
-    state.player_rest_pose
+    rest_pose
   );
 
   tSkinnedMesh player_robes = Tachyon_LoadSkinnedMesh(
     "./astro/3d_models/characters/player_robes.skin",
-    state.player_rest_pose
+    rest_pose
   );
 
   tSkinnedMesh player_shirt = Tachyon_LoadSkinnedMesh(
     "./astro/3d_models/characters/player_shirt.skin",
-    state.player_rest_pose
+    rest_pose
   );
 
   tSkinnedMesh player_pants = Tachyon_LoadSkinnedMesh(
     "./astro/3d_models/characters/player_pants.skin",
-    state.player_rest_pose
+    rest_pose
   );
 
   tSkinnedMesh player_boots = Tachyon_LoadSkinnedMesh(
     "./astro/3d_models/characters/player_boots.skin",
-    state.player_rest_pose
+    rest_pose
   );
 
   meshes.player_hood = Tachyon_AddSkinnedMesh(tachyon, player_hood);
@@ -303,7 +304,7 @@ void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
   AddItemMeshes(tachyon, state);
   AddProceduralMeshes(tachyon, state);
   AddFaunaMeshes(tachyon, state);
-  AddSkinnedMeshes(tachyon, state);
+  AddSkinnedPlayerMeshes(tachyon, state);
 
   // @todo dev mode only
   {

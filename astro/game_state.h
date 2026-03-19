@@ -290,6 +290,27 @@ namespace astro {
 
   /**
    * ----------------------------
+   * Animation
+   * @todo move to engine
+   * ----------------------------
+   */
+  struct tSkeletonAnimation {
+    std::vector<tSkeleton> frames;
+    tSkeleton evaluated_pose;
+  };
+
+  struct tSkinnedMeshAnimation {
+    tSkeleton rest_pose;
+    tSkeleton active_pose;
+    tSkeletonAnimation* current_animation = nullptr;
+    tSkeletonAnimation* next_animation = nullptr;
+    float seek_time = 0.f;
+    float time_since_last_animation_change = 0.f;
+    float head_turn_angle = 0.f;
+  };
+
+  /**
+   * ----------------------------
    * Game state
    * ----------------------------
    */
@@ -334,25 +355,13 @@ namespace astro {
     float tilt_angle = 0.f;
 
     // Animations
-    struct SkeletonAnimation {
-      std::vector<tSkeleton> frames;
-      tSkeleton current_pose;
-    };
-
     struct SkeletonAnimations {
-      SkeletonAnimation player_idle;
-      SkeletonAnimation player_walk;
-      SkeletonAnimation player_run;
+      tSkeletonAnimation player_idle;
+      tSkeletonAnimation player_walk;
+      tSkeletonAnimation player_run;
     } animations;
 
-    // @todo factor to make blended animations reusable
-    tSkeleton player_rest_pose;
-    tSkeleton player_current_pose;
-    SkeletonAnimation* current_animation = nullptr;
-    SkeletonAnimation* next_animation = nullptr;
-    float animation_seek_time = 0.f;
-    float time_since_last_animation_change = 0.f;
-    float player_head_turn_angle = 0.f;
+    tSkinnedMeshAnimation player_mesh_animation;
 
     // Large-scale generated elements
     std::vector<PathSegment> dirt_path_segments;
