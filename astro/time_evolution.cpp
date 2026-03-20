@@ -39,9 +39,21 @@ static tVec3f GetLightColor(const float astro_time, bool is_nighttime) {
   return present_color;
 }
 
-void TimeEvolution::StartAstroTraveling(State& state, const float target_time) {
-  state.target_astro_time = target_time;
+static void StopAstroTraveling(State& state) {
+  state.astro_time = state.target_astro_time;
+  state.astro_turn_speed = 0.f;
+  state.time_warp_end_radius = 0.f;
 
+  Sfx::FadeOutSound(SFX_ASTRO_TRAVEL, 2000);
+  Sfx::PlaySound(SFX_ASTRO_END, 1.f);
+}
+
+void TimeEvolution::StartAstroTraveling(Tachyon* tachyon, State& state, const float target_time) {
+  state.target_astro_time = target_time;
+  state.game_time_at_start_of_turn = get_scene_time();
+  state.time_warp_start_radius = 0.f;
+
+  Sfx::FadeOutSound(SFX_ASTRO_END, 500);
   Sfx::PlaySound(SFX_ASTRO_TRAVEL, 0.8f);
 }
 
@@ -50,9 +62,58 @@ void TimeEvolution::HandleAstroTravel(State& state) {
 
   const float max_astro_time = Astrolabe::GetMaxAstroTime(state);
   const float min_astro_time = Astrolabe::GetMinAstroTime(state);
-  const float max_turn_speed = Astrolabe::GetMaxTurnSpeed();
+  const float max_astro_turn_speed = Astrolabe::GetMaxTurnSpeed();
 
-  // @todo
+  if (state.astro_time > state.target_astro_time) {
+    // Travel backward
+    state.astro_turn_speed -= astro_travel_rate * state.dt;
+
+    // Start slowing down travel speed as we approach the target time (backward)
+    float slowdown_threshold = state.target_astro_time + 8.f;
+
+    if (state.astro_time < slowdown_threshold) {
+      float threshold_distance = abs(slowdown_threshold - state.astro_time);
+      float threshold_to_limit = abs(min_astro_time - slowdown_threshold);
+      float slowdown_factor = 20.f * powf(threshold_distance / threshold_to_limit, 2.f);
+
+      state.astro_turn_speed *= 1.f - slowdown_factor * state.dt;
+    }
+  }
+  else if (state.astro_time < state.target_astro_time) {
+    // Travel forward
+    state.astro_turn_speed += astro_travel_rate * state.dt;
+
+    // Start slowing down travel speed as we approach the target time (forward)
+    float slowdown_threshold = state.target_astro_time - 8.f;
+
+    if (state.astro_time > slowdown_threshold) {
+      float threshold_distance = abs(slowdown_threshold - state.astro_time);
+      float threshold_to_limit = max_astro_time - slowdown_threshold;
+      float slowdown_factor = 20.f * powf(threshold_distance / threshold_to_limit, 2.f);
+
+      state.astro_turn_speed *= 1.f - slowdown_factor * state.dt;
+    }
+  }
+
+  // Limit astro turn speed
+  if (state.astro_turn_speed > max_astro_turn_speed) {
+    state.astro_turn_speed = max_astro_turn_speed;
+  } else if (state.astro_turn_speed < -max_astro_turn_speed) {
+    state.astro_turn_speed = -max_astro_turn_speed;
+  }
+
+  if (state.astro_turn_speed != 0.f) {
+    // Update astro time
+    state.astro_time += state.astro_turn_speed * 100.f * state.dt;
+  }
+
+  if (state.astro_turn_speed > 0.f && state.astro_time > state.target_astro_time) {
+    StopAstroTraveling(state);
+  }
+
+  if (state.astro_turn_speed < 0.f && state.astro_time < state.target_astro_time) {
+    StopAstroTraveling(state);
+  }
 }
 
 void TimeEvolution::UpdateAstroTime(Tachyon* tachyon, State& state) {

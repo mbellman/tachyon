@@ -428,7 +428,7 @@ void ControlSystem::HandleControls(Tachyon* tachyon, State& state) {
     state.player_hp > 0.f
   ) {
     HandlePlayerMovementControls(tachyon, state);
-    HandleAstroControls(tachyon, state);
+    // HandleAstroControls(tachyon, state);
     HandleDayNightControls(tachyon, state);
     HandleWandControls(tachyon, state);
     HandleTargetingControls(tachyon, state);

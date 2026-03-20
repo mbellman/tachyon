@@ -439,19 +439,19 @@ static bool TestWandCollision(Tachyon* tachyon, State& state) {
         distance < 1000.f &&
         time_since(chimes.game_activation_time) > 1.f
       ) {
+        // @todo factor
         chimes.game_activation_time = scene_time;
+
+        state.astro_particle_spawn_position = chimes.position;
 
         // @todo have different wind chimes for different time ranges
         if (state.target_astro_time == astro_time_periods.present) {
           // Present -> Past
-          TimeEvolution::StartAstroTraveling(state, astro_time_periods.past);
+          TimeEvolution::StartAstroTraveling(tachyon, state, astro_time_periods.past);
         } else {
           // Past -> Present
-          TimeEvolution::StartAstroTraveling(state, astro_time_periods.present);
+          TimeEvolution::StartAstroTraveling(tachyon, state, astro_time_periods.present);
         }
-
-        // @temporary
-        Sfx::PlaySound(SFX_ASTRO_TRAVEL, 0.5f);
 
         return true;
       }
