@@ -194,20 +194,24 @@ static void UpdatePlayerHeadTurnAngle(State& state) {
   float player_facing_angle = atan2f(state.player_facing_direction.z, state.player_facing_direction.x);
 
   if (state.has_target) {
+    // Turn head toward active target
     auto& entity = *EntityManager::FindEntity(state, state.target_entity);
 
     TurnPlayerHeadTowardEntity(state, entity, player_facing_angle);
   }
   else if (state.preview_target_entity_record.type != UNSPECIFIED) {
+    // Turn head toward preview target
     auto& entity = *EntityManager::FindEntity(state, state.preview_target_entity_record);
 
     TurnPlayerHeadTowardEntity(state, entity, player_facing_angle);
   }
   else {
+    // Turn head toward key entities when not targeting anything
     TurnPlayerHeadToward(state, state.sculpture_1s, player_facing_angle);
     TurnPlayerHeadToward(state, state.npcs, player_facing_angle);
     TurnPlayerHeadToward(state, state.low_guards, player_facing_angle);
     TurnPlayerHeadToward(state, state.lesser_guards, player_facing_angle);
+    TurnPlayerHeadToward(state, state.wind_chimes, player_facing_angle);
   }
 
   // Continually drift back toward 0

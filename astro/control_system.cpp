@@ -52,7 +52,8 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
   bool is_running = is_key_held(tKey::CONTROLLER_A) || is_key_held(tKey::SHIFT);
 
   if (
-    !state.is_astrolabe_stopped ||
+    // !state.is_astrolabe_stopped ||
+    abs(state.astro_turn_speed) > 0.1f ||
     time_since(state.last_dodge_time) < dodge_cooldown_time ||
     time_since(state.last_target_jump_time) < target_jump_cooldown_time
   ) {

@@ -92,6 +92,19 @@ namespace astro {
           commit(hook);
           commit(hook2);
         }
+
+        // Light
+        {
+          if (entity.light_id == -1) {
+            entity.light_id = create_point_light();
+          }
+
+          auto& light = *get_point_light(entity.light_id);
+
+          light.position = UnitEntityToWorldPosition(entity, tVec3f(0, 1.45f, 0.55f));
+          light.radius = 2000.f;
+          light.color = tVec3f(1.f, 0.6f, 0.3f);
+        }
       }
     }
   };

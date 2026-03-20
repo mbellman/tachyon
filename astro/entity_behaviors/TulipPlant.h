@@ -39,6 +39,12 @@ namespace astro {
 
       auto& meshes = state.meshes;
 
+      tVec4f colors[] = {
+        tVec4f(1.f, 0.4f, 0.7f, 0.3f),
+        tVec4f(1.f, 0.6f, 0.9f, 0.3f),
+        tVec4f(1.f, 0.3f, 0.5f, 0.3f)
+      };
+
       reset_instances(meshes.tulip_plant_leaves);
       reset_instances(meshes.tulip_plant_stalk);
       reset_instances(meshes.tulip_plant_bulb);
@@ -48,6 +54,10 @@ namespace astro {
 
         if (abs(state.player_position.x - entity.position.x) > 20000.f) continue;
         if (abs(state.player_position.z - entity.position.z) > 20000.f) continue;
+
+        entity.visible_position = entity.position;
+        entity.visible_rotation = entity.orientation;
+        entity.visible_scale = entity.scale;
 
         // Leaves
         {
@@ -75,12 +85,14 @@ namespace astro {
         // Bulb
         {
           auto& bulb = use_instance(meshes.tulip_plant_bulb);
+          int color_index = (int)abs(entity.position.x) % 3;
 
           Sync(bulb, entity);
 
-          bulb.position.y += entity.scale.y * 1.4f;
+          bulb.position = UnitEntityToWorldPosition(entity, tVec3f(0, 1.65f, -0.25f));
+          bulb.rotation = entity.orientation * Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -0.4f);
           bulb.scale *= 0.35f;
-          bulb.color = tVec4f(1.f, 0.4f, 0.7f, 0.3f);
+          bulb.color = colors[color_index];
           bulb.material = tVec4f(0.5f, 0, 0.1f, 1.f);
 
           commit(bulb);

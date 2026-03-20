@@ -743,7 +743,7 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
       tVec3f position;
       position.x = center.x + rng.Random(-1000.f, 1000.f);
       position.z = center.z + rng.Random(-1000.f, 1000.f);
-      position.y = CollisionSystem::QueryGroundHeight(state, position.x, position.z) + rng.Random(-60.f, 60.f);
+      position.y = CollisionSystem::QueryGroundHeight(state, position.x, position.z) + rng.Random(-20.f, 80.f);
 
       if (
         IsPointOnAnyPlane(position, dirt_path_planes) ||
