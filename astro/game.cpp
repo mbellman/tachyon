@@ -432,6 +432,7 @@ static void ShowGameStats(Tachyon* tachyon, State& state) {
     "Speed " + std::to_string(player_speed),
     "Camera " + tachyon->scene.camera.position.toString(),
     "Astro time: " + std::to_string(state.astro_time),
+    "Target time: " + std::to_string(state.target_astro_time),
     "Astro turn speed: " + std::to_string(state.astro_turn_speed),
     "Ground Y: " + std::to_string(state.current_ground_y),
     "Animation time: " + std::to_string(state.player_mesh_animation.seek_time)
@@ -693,6 +694,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   // @todo dev mode only
   HandleInGameDevHotkeys(tachyon, state);
 
+  TimeEvolution::HandleAstroTravel(state);
   GameEvents::HandleEvents(tachyon, state);
   Targeting::HandleTargets(tachyon, state);
   ControlSystem::HandleControls(tachyon, state);

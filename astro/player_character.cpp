@@ -1,11 +1,13 @@
 #include "astro/player_character.h"
 #include "astro/animation.h"
+#include "astro/astrolabe.h"
 #include "astro/combat.h"
 #include "astro/entity_behaviors/behavior.h"
 #include "astro/entity_manager.h"
 #include "astro/magic.h"
 #include "astro/sfx.h"
 #include "astro/simple_animation.h"
+#include "astro/time_evolution.h"
 #include "astro/ui_system.h"
 
 using namespace astro;
@@ -438,6 +440,15 @@ static bool TestWandCollision(Tachyon* tachyon, State& state) {
         time_since(chimes.game_activation_time) > 1.f
       ) {
         chimes.game_activation_time = scene_time;
+
+        // @todo have different wind chimes for different time ranges
+        if (state.target_astro_time == astro_time_periods.present) {
+          // Present -> Past
+          TimeEvolution::StartAstroTraveling(state, astro_time_periods.past);
+        } else {
+          // Past -> Present
+          TimeEvolution::StartAstroTraveling(state, astro_time_periods.present);
+        }
 
         // @temporary
         Sfx::PlaySound(SFX_ASTRO_TRAVEL, 0.5f);

@@ -1,6 +1,7 @@
 #include "astro/time_evolution.h"
 #include "astro/astrolabe.h"
 #include "astro/entity_dispatcher.h"
+#include "astro/sfx.h"
 
 using namespace astro;
 
@@ -36,6 +37,22 @@ static tVec3f GetLightColor(const float astro_time, bool is_nighttime) {
   }
 
   return present_color;
+}
+
+void TimeEvolution::StartAstroTraveling(State& state, const float target_time) {
+  state.target_astro_time = target_time;
+
+  Sfx::PlaySound(SFX_ASTRO_TRAVEL, 0.8f);
+}
+
+void TimeEvolution::HandleAstroTravel(State& state) {
+  const float astro_travel_rate = 0.8f;
+
+  const float max_astro_time = Astrolabe::GetMaxAstroTime(state);
+  const float min_astro_time = Astrolabe::GetMinAstroTime(state);
+  const float max_turn_speed = Astrolabe::GetMaxTurnSpeed();
+
+  // @todo
 }
 
 void TimeEvolution::UpdateAstroTime(Tachyon* tachyon, State& state) {
