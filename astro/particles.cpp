@@ -89,7 +89,7 @@ static void HandleAstroParticles(Tachyon* tachyon, State& state) {
     light.glow_power = 2.f * spread_progress * max_particle_intensity;
     light.color = tVec3f(1.f, 0.7f, 0.2f);
 
-    light.position = state.player_position_at_start_of_turn;
+    light.position = state.astro_particle_spawn_position;
     light.position.y -= 1500.f - heights[i_mod_4] * pow10(spread_progress);
     light.position.x += spread * sinf(angle);
     light.position.z += spread * cosf(angle);

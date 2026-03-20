@@ -423,6 +423,42 @@ static void UpdateWandLights(Tachyon* tachyon, State& state) {
   }
 }
 
+static bool TestWandCollision(Tachyon* tachyon, State& state) {
+  float scene_time = get_scene_time();
+  auto& wand = objects(state.meshes.player_wand)[0];
+  tVec3f wand_tip_position = UnitObjectToWorldPosition(wand, tVec3f(0, 1.5f, 0));
+
+  // Wind chimes
+  {
+    for (auto& chimes : state.wind_chimes) {
+      float distance = tVec3f::distance(chimes.position, wand_tip_position);
+
+      if (
+        distance < 1000.f &&
+        time_since(chimes.game_activation_time) > 1.f
+      ) {
+        chimes.game_activation_time = scene_time;
+
+        // @temporary
+        Sfx::PlaySound(SFX_ASTRO_TRAVEL, 0.5f);
+
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+static void HandleWandStrike(Tachyon* tachyon, State& state) {
+  if (TestWandCollision(tachyon, state)) {
+    return;
+  }
+
+  Magic::HandleWandAction(tachyon, state);
+  Combat::HandleWandStrikeWindow(tachyon, state);
+}
+
 static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotation, tMat4f& player_rotation_matrix) {
   auto& active_pose = state.player_mesh_animation.active_pose;
   auto& wand = objects(state.meshes.player_wand)[0];
@@ -519,8 +555,7 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
         time_since_last_swing > s1.duration &&
         time_since_last_swing < s1.duration + s2.duration
       ) {
-        Magic::HandleWandAction(tachyon, state);
-        Combat::HandleWandStrikeWindow(tachyon, state);
+        HandleWandStrike(tachyon, state);
       }
     }
 
