@@ -62,7 +62,7 @@ namespace astro {
       tVec3f end_color = tVec3f(1.f, 0.5f, 0.2f);
 
       float scene_time = get_scene_time();
-      float astro_rotation_speed = state.astro_turn_speed * 200.f * state.dt;
+      float astro_rotation_speed = state.astro_turn_speed * 50.f * state.dt;
 
       for_entities(state.sculpture_1s) {
         auto& entity = state.sculpture_1s[i];

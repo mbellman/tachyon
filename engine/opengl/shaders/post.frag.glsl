@@ -155,6 +155,10 @@ float Saturate(float value) {
   return clamp(value, 0.0, 1.0);
 }
 
+float Compare(vec3 c1, vec3 c2) {
+  return min(1.0, dot(c1, c2));
+}
+
 vec3 GetToonShadedColor(vec3 current_out_color, vec2 uv, float depth, float linear_frag_depth) {
   const float OUTLINE_THICKNESS = 4.0;
 
@@ -175,6 +179,16 @@ vec3 GetToonShadedColor(vec3 current_out_color, vec2 uv, float depth, float line
   float depth3 = GetWorldDepth(t3.w, Z_NEAR, Z_FAR);
   float depth4 = GetWorldDepth(t4.w, Z_NEAR, Z_FAR);
 
+  float d1 = depth1 - linear_frag_depth;
+  float d2 = depth2 - linear_frag_depth;
+  float d3 = depth3 - linear_frag_depth;
+  float d4 = depth4 - linear_frag_depth;
+
+  vec3 c1 = t1.rgb;
+  vec3 c2 = t2.rgb;
+  vec3 c3 = t3.rgb;
+  vec3 c4 = t4.rgb;
+
   // Determine how sharp of an angle the surface is being viewed at
   vec3 world_position = GetWorldPosition(depth, uv, inverse_projection_matrix, inverse_view_matrix);
   vec3 normalized_frag_to_camera = normalize(camera_position - world_position);
@@ -186,21 +200,19 @@ vec3 GetToonShadedColor(vec3 current_out_color, vec2 uv, float depth, float line
   float threshold_factor = 1000.0 + (Z_FAR / 2.0) * grazing_factor;
   float distance_threshold = threshold_factor * depth_ratio;
 
-  if (
-    depth1 - linear_frag_depth > distance_threshold ||
-    depth2 - linear_frag_depth > distance_threshold ||
-    depth3 - linear_frag_depth > distance_threshold ||
-    depth4 - linear_frag_depth > distance_threshold
-  ) {
+  bool dt1 = d1 > distance_threshold;
+  bool dt2 = d2 > distance_threshold;
+  bool dt3 = d3 > distance_threshold;
+  bool dt4 = d4 > distance_threshold;
+
+  if (dt1 || dt2 || dt3 || dt4) {
     float alpha = Saturate(0.5 + linear_frag_depth / Z_FAR);
-    vec3 outline_color = current_out_color * 0.15;
+    vec3 compared_color = dt1 ? c1 : dt2 ? c2 : dt3 ? c3 : c4;
+    float color_similarity = Compare(current_out_color, compared_color);
+    float brightness = mix(0.0, 0.9, color_similarity);
+    vec3 outline_color = current_out_color * brightness;
 
     current_out_color = mix(outline_color, current_out_color, alpha);
-  } else if (depth_ratio < 1.0) {
-    float fade_factor = 0.05 + pow(Saturate(linear_frag_depth / 10000.0), 3) * 0.3;
-
-    // current_out_color = mix(current_out_color, vec3(0.25), fade_factor);
-    // current_out_color = mix(current_out_color, pow(current_out_color, vec3(1 / 0.5)) * 2.0, fade_factor);
   }
 
   return current_out_color;
