@@ -270,7 +270,7 @@ float GetPrimaryLightShadowFactor(vec3 world_position) {
 }
 
 vec3 GetAmbientFresnel(float NdotV) {
-  return vec3(pow(1.0 - NdotV, 5.0)) * sky_light_color * 0.4;
+  return vec3(pow(1.0 - NdotV, 5.0)) * sky_light_color * 0.2;
 }
 
 vec4 UnpackColor(uvec4 surface) {

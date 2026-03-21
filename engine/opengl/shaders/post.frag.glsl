@@ -151,6 +151,61 @@ BilinearSample GetBilinearTextureSample( sampler2D sam, vec2 uv ) {
   return s;
 }
 
+float Saturate(float value) {
+  return clamp(value, 0.0, 1.0);
+}
+
+vec3 GetToonShadedColor(vec3 current_out_color, vec2 uv, float depth, float linear_frag_depth) {
+  const float OUTLINE_THICKNESS = 4.0;
+
+  // Get the depth values for the top/left/right/bottom pixels
+  vec2 texel_size = 1.0 / textureSize(in_color_and_depth, 0);
+  vec2 uv1 = uv + texel_size * vec2(-1.0, 0) * OUTLINE_THICKNESS;
+  vec2 uv2 = uv + texel_size * vec2(1.0, 0) * OUTLINE_THICKNESS;
+  vec2 uv3 = uv + texel_size * vec2(0, -1.0) * OUTLINE_THICKNESS;
+  vec2 uv4 = uv + texel_size * vec2(0, 1.0) * OUTLINE_THICKNESS;
+
+  vec4 t1 = texture(in_color_and_depth, uv1);
+  vec4 t2 = texture(in_color_and_depth, uv2);
+  vec4 t3 = texture(in_color_and_depth, uv3);
+  vec4 t4 = texture(in_color_and_depth, uv4);
+
+  float depth1 = GetWorldDepth(t1.w, Z_NEAR, Z_FAR);
+  float depth2 = GetWorldDepth(t2.w, Z_NEAR, Z_FAR);
+  float depth3 = GetWorldDepth(t3.w, Z_NEAR, Z_FAR);
+  float depth4 = GetWorldDepth(t4.w, Z_NEAR, Z_FAR);
+
+  // Determine how sharp of an angle the surface is being viewed at
+  vec3 world_position = GetWorldPosition(depth, uv, inverse_projection_matrix, inverse_view_matrix);
+  vec3 normalized_frag_to_camera = normalize(camera_position - world_position);
+  float grazing_factor = 0.17;
+
+  // Calculate a distance threshold representing how far away a neighboring
+  // pixel must be to consider this a silhouette edge
+  float depth_ratio = linear_frag_depth / Z_FAR;
+  float threshold_factor = 1000.0 + (Z_FAR / 2.0) * grazing_factor;
+  float distance_threshold = threshold_factor * depth_ratio;
+
+  if (
+    depth1 - linear_frag_depth > distance_threshold ||
+    depth2 - linear_frag_depth > distance_threshold ||
+    depth3 - linear_frag_depth > distance_threshold ||
+    depth4 - linear_frag_depth > distance_threshold
+  ) {
+    float alpha = Saturate(0.5 + linear_frag_depth / Z_FAR);
+    vec3 outline_color = current_out_color * 0.15;
+
+    current_out_color = mix(outline_color, current_out_color, alpha);
+  } else if (depth_ratio < 1.0) {
+    float fade_factor = 0.05 + pow(Saturate(linear_frag_depth / 10000.0), 3) * 0.3;
+
+    // current_out_color = mix(current_out_color, vec3(0.25), fade_factor);
+    // current_out_color = mix(current_out_color, pow(current_out_color, vec3(1 / 0.5)) * 2.0, fade_factor);
+  }
+
+  return current_out_color;
+}
+
 void main() {
   #if ENABLE_IMAGE_SMOOTHING
     BilinearSample color_and_depth_sample = GetBilinearTextureSample(in_color_and_depth, fragUv);
@@ -309,6 +364,11 @@ void main() {
   // Alchemist's Astrolabe
   // ---------------------
   #if ENABLE_ASTRO_FX
+    // Artstyle
+    {
+      post_color = GetToonShadedColor(post_color, fragUv, color_and_depth.w, world_depth);
+    }
+
     // Time warping
     // @todo we may have to relocate this into global_lighting!
     // These effects are not accumulated for blurring, so some

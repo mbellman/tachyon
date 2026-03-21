@@ -316,7 +316,7 @@ static void HandleSnow(Tachyon* tachyon, State& state) {
 
 // @todo 3d positioned sfx
 static void HandleWalkSounds(Tachyon* tachyon, State& state) {
-  float distance_threshold = is_key_held(tKey::CONTROLLER_A) ? 2200.f : 1400.f;
+  float distance_threshold = is_key_held(tKey::CONTROLLER_A) ? 2500.f : 1400.f;
   float last_sound_distance = state.movement_distance - state.last_walk_sound_movement_distance;
 
   if (last_sound_distance > distance_threshold) {

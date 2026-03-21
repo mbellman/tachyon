@@ -26,7 +26,16 @@ static inline float GetAngleBetween(const float a1, const float a2) {
 static float GetPlayerAnimationSpeed(State& state) {
   bool is_idle = state.player_mesh_animation.next_animation == &state.animations.player_idle;
 
-  return is_idle ? 0.8f : 12.f * sqrtf(state.player_velocity.magnitude() / PlayerCharacter::MAX_RUN_SPEED);
+  if (is_idle) {
+    return 0.8f;
+  }
+
+  float player_speed = state.player_velocity.magnitude();
+  float max_walk_speed = state.has_target ? PlayerCharacter::MAX_COMBAT_WALK_SPEED : PlayerCharacter::MAX_WALK_SPEED;
+  float speed_ratio = player_speed / PlayerCharacter::MAX_RUN_SPEED;
+  bool is_running = player_speed > max_walk_speed;
+
+  return (is_running ? 11.f : 12.f) * sqrtf(speed_ratio);
 }
 
 static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
@@ -166,8 +175,8 @@ static bool TurnPlayerHeadTowardEntity(State& state, const GameEntity& entity, c
     return false;
   }
 
-  if (turn < -1.5f) turn = -1.5f;
-  if (turn > 1.5f) turn = 1.5f;
+  if (turn < -1.6f) turn = -1.6f;
+  if (turn > 1.6f) turn = 1.6f;
 
   float& turn_angle = state.player_mesh_animation.head_turn_angle;
 
