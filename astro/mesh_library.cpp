@@ -245,11 +245,17 @@ static void AddSkinnedPlayerMeshes(Tachyon* tachyon, State& state) {
     rest_pose
   );
 
+  tSkinnedMesh player_belt = Tachyon_LoadSkinnedMesh(
+    "./astro/3d_models/characters/player_belt.skin",
+    rest_pose
+  );
+
   meshes.player_hood = Tachyon_AddSkinnedMesh(tachyon, player_hood);
   meshes.player_robes = Tachyon_AddSkinnedMesh(tachyon, player_robes);
   meshes.player_shirt = Tachyon_AddSkinnedMesh(tachyon, player_shirt);
   meshes.player_pants = Tachyon_AddSkinnedMesh(tachyon, player_pants);
   meshes.player_boots = Tachyon_AddSkinnedMesh(tachyon, player_boots);
+  meshes.player_belt = Tachyon_AddSkinnedMesh(tachyon, player_belt);
 }
 
 static void AddEditorMeshes(Tachyon* tachyon, State& state) {

@@ -49,13 +49,20 @@ static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
     player_animation.current_animation = &animations.player_idle;
   }
 
+  bool is_doing_quick_turn = (
+    state.last_quick_turn_time != 0.f &&
+    time_since(state.last_quick_turn_time) < 0.3f
+  );
+
+  bool is_moving_with_target = (
+    state.has_target &&
+    (tachyon->left_stick.x != 0.f || tachyon->left_stick.y != 0.f)
+  );
+
   // @todo add more animations and refactor how to determine the active animation
   if (is_key_held(tKey::CONTROLLER_A) && state.previous_move_delta > 0.f) {
     Animation::SetNextAnimation(player_animation, &animations.player_run);
-  } else if (
-    state.previous_move_delta > 5.f ||
-    (state.last_quick_turn_time != 0.f && time_since(state.last_quick_turn_time) < 0.3f)
-  ) {
+  } else if (state.previous_move_delta > 5.f || is_doing_quick_turn || is_moving_with_target) {
     Animation::AwaitNextAnimation(player_animation, &animations.player_walk);
   } else {
     Animation::AwaitNextAnimation(player_animation, &animations.player_idle);
@@ -291,6 +298,7 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
     auto& shirt = skinned_mesh(meshes.player_shirt);
     auto& pants = skinned_mesh(meshes.player_pants);
     auto& boots = skinned_mesh(meshes.player_boots);
+    auto& belt = skinned_mesh(meshes.player_belt);
 
     hood.position = body_position;
     hood.rotation = body_rotation;
@@ -327,17 +335,26 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
     boots.material = tVec4f(1.f, 0, 0, 0);
     boots.shadow_cascade_ceiling = 2;
 
+    belt.position = body_position;
+    belt.rotation = body_rotation;
+    belt.scale = body_scale;
+    belt.color = tVec3f(0.4f, 0.2f, 0.1f);
+    belt.material = tVec4f(0.6f, 0, 0, 0.2f);
+    belt.shadow_cascade_ceiling = 0;
+
     hood.current_pose = &active_pose;
     robes.current_pose = &active_pose;
     shirt.current_pose = &active_pose;
     pants.current_pose = &active_pose;
     boots.current_pose = &active_pose;
+    belt.current_pose = &active_pose;
 
     commit(hood);
     commit(robes);
     commit(shirt);
     commit(pants);
     commit(boots);
+    commit(belt);
   }
 
   if (state.show_game_stats) {
@@ -449,7 +466,7 @@ static bool TestWandCollision(Tachyon* tachyon, State& state) {
       float distance = tVec3f::distance(chimes.position, wand_tip_position);
 
       if (
-        distance < 1000.f &&
+        distance < 1500.f &&
         time_since(chimes.game_activation_time) > 1.f
       ) {
         // @todo factor

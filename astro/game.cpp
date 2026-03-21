@@ -316,20 +316,23 @@ static void HandleSnow(Tachyon* tachyon, State& state) {
 
 // @todo 3d positioned sfx
 static void HandleWalkSounds(Tachyon* tachyon, State& state) {
-  float distance_threshold = is_key_held(tKey::CONTROLLER_A) ? 2500.f : 1400.f;
+  // @todo use velocity
+  bool is_running = is_key_held(tKey::CONTROLLER_A);
+  float distance_threshold = is_running ? 2500.f : 1400.f;
   float last_sound_distance = state.movement_distance - state.last_walk_sound_movement_distance;
 
   if (last_sound_distance > distance_threshold) {
     auto cycle = state.walk_cycle++;
+    float volume = is_running ? 0.1f : 0.05f;
 
     if (cycle == 0) {
-      Sfx::PlaySound(SFX_GROUND_WALK_1, 0.1f);
+      Sfx::PlaySound(SFX_GROUND_WALK_1, volume);
     }
     else if (cycle == 1) {
-      Sfx::PlaySound(SFX_GROUND_WALK_2, 0.1f);
+      Sfx::PlaySound(SFX_GROUND_WALK_2, volume);
     }
     else if (cycle == 2) {
-      Sfx::PlaySound(SFX_GROUND_WALK_3, 0.1f);
+      Sfx::PlaySound(SFX_GROUND_WALK_3, volume);
 
       state.walk_cycle = 0;
     }

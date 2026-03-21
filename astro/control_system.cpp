@@ -103,7 +103,7 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
   }
 
   // Quick turning
-  if (GetTurnDot(tachyon, state) < -0.5f) {
+  if (GetTurnDot(tachyon, state) < -0.5f && !state.has_target) {
     state.last_quick_turn_time = get_scene_time();
   }
 }

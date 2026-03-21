@@ -94,7 +94,8 @@ namespace astro {
       player_robes,
       player_shirt,
       player_pants,
-      player_boots;
+      player_boots,
+      player_belt;
   };
 
   // @todo move to engine?
