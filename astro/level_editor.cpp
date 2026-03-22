@@ -1061,7 +1061,7 @@ static void SpawnEntityPlaceholder(Tachyon* tachyon, State& state, GameEntity& e
       placeholder.material = tVec4f(0.2f, 0, 0.5f, 0.5f);
     }
 
-    if (entity.type == FOG_SPAWN) {
+    if (entity.type == FOG_SPAWN || entity.type == EVENT_TRIGGER) {
       placeholder.material = tVec4f(1.f, 0, 0, 1.f);
     }
 

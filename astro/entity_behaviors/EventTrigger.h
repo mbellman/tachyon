@@ -25,10 +25,13 @@ namespace astro {
         auto& entity = state.event_triggers[i];
 
         // Do nothing if we've already triggered the event
-        if (entity.did_activate) return;
+        if (entity.did_activate) continue;
 
         // Do nothing if the trigger is unidentified
-        if (entity.unique_name.empty()) return;
+        if (entity.unique_name.empty()) continue;
+
+        // Do nothing if the trigger is in a different time period
+        if (!IsDuringActiveTime(entity, state)) continue;
 
         float player_distance = tVec3f::distance(state.player_position, entity.position);
 
