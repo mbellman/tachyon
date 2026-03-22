@@ -210,12 +210,34 @@ static void HandleHouseCollisions(Tachyon* tachyon, State& state) {
   }
 }
 
+static void HandleSlopeCollisions(Tachyon* tachyon, State& state) {
+  tVec3f player_xz = state.player_position.xz();
+
+  for (auto& slope : objects(state.meshes.stairs_floor)) {
+    auto slope_plane = CollisionSystem::CreatePlane(slope.position, slope.scale, slope.rotation);
+
+    if (CollisionSystem::IsPointOnPlane(player_xz, slope_plane)) {
+      // Figure out how far along the slope the player is,
+      // and set their height accordingly
+      tVec3f slope_to_player = state.player_position - slope.position;
+      tVec3f player_position_in_slope_space = slope.rotation.toMatrix4f().inverse() * slope_to_player;
+      float progress_along_slope = 0.5f * (1.f - player_position_in_slope_space.x / slope.scale.x);
+      float slope_bottom_y = slope_plane.p1.y + PLAYER_HEIGHT;
+      float player_y = slope_bottom_y + progress_along_slope * slope.scale.y;
+
+      AllowPlayerMovement(state, player_y, slope_plane);
+
+      state.is_on_solid_platform = true;
+    }
+  }
+}
+
 static void HandleFlatGroundCollisions(Tachyon* tachyon, State& state) {
   profile("HandleFlatGroundCollisions()");
 
   for (auto& plane : state.flat_ground_planes) {
     if (IsPointWithRadiusOnPlane(state.player_position, 400.f, plane)) {
-      float ground_y = plane.p1.y + 1500.f;
+      float ground_y = plane.p1.y + PLAYER_HEIGHT;
 
       AllowPlayerMovement(state, ground_y, plane);
 
@@ -592,6 +614,7 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   HandleAltarCollisions(tachyon, state);
   // HandleRiverLogCollisions(tachyon, state); // @todo remove (?)
   HandleWaterWheelCollisions(tachyon, state);
+  HandleSlopeCollisions(tachyon, state);
 
   // Handle walking on flat ground
   if (!state.is_on_solid_platform) {
