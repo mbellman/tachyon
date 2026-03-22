@@ -203,6 +203,12 @@ static void HandleInGameDevHotkeys(Tachyon* tachyon, State& state) {
         }
       }
 
+      for_entities(state.event_triggers) {
+        auto& entity = state.event_triggers[i];
+
+        entity.did_activate = false;
+      }
+
       show_overlay_message("Reset activated entities");
     }
   }

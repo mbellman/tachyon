@@ -239,11 +239,14 @@ void main() {
   #if ENABLE_DEPTH_OF_FIELD_BLUR
     // Depth-of-field blur
     {
+      float depth = color_and_depth.w;
+
       // const float max_blur = 1.5;
+
+      // float blur = mix(0.0, max_blur, pow(depth, 100.0));
+
       const float max_blur = 8.0;
 
-      float depth = color_and_depth.w;
-      // float blur = mix(0.0, max_blur, pow(depth, 100.0));
       float blur = mix(0.0, max_blur, pow(depth, 70.0));
 
       const vec2[] offsets = {

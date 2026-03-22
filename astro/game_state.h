@@ -261,6 +261,7 @@ namespace astro {
 
   struct CameraEvent : BaseEvent {
     EntityRecord target_entity_record;
+    float blend_factor = 1.f;
   };
 
   struct EntityMoveEvent : BaseEvent {

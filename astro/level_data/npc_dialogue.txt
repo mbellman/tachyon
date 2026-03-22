@@ -6,16 +6,16 @@ Well, I shall continue as I was.
 // ----------------------
 // Gate villager dialogue
 // ----------------------
+// @todo yes/no prompts
 
 @gate_villager
-+Ah, sod it all...the damn thing's locked...
-+Why, good heavens! You gave me a right start.
-I say, you wouldn't happen to have a key to the gate on hand?
-Ah, bugger it...I fear we're in this pickle together, then.
++Ah, a fellow traveler! A sight for weary eyes indeed.
+Might I ask, you haven't a key to this gate handy, by chance?
+Oh, sod it...I fear we're in this pickle together, then.
 I don't suppose we should ask the next fellow who trods along! Ha.
 
 @gate_villager_cutscene
-Oh, thank goodness! You're a gentleman and a scholar.
+Oh, wonderful! I am in your debt. May fortune favor you!
 
 // ----------------
 // Dweller dialogue

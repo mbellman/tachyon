@@ -5,6 +5,7 @@
 #include "astro/entity_behaviors/BellFlower.h"
 #include "astro/entity_behaviors/ChestnutTree.h"
 #include "astro/entity_behaviors/DirtPathNode.h"
+#include "astro/entity_behaviors/EventTrigger.h"
 #include "astro/entity_behaviors/Flag.h"
 #include "astro/entity_behaviors/FlowerBush.h"
 #include "astro/entity_behaviors/FogSpawn.h"
@@ -69,6 +70,7 @@ using namespace astro;
   dispatch_macro(STONE_PATH_NODE, StonePathNode);\
   dispatch_macro(DIRT_PATH_NODE, DirtPathNode);\
   dispatch_macro(FOG_SPAWN, FogSpawn);\
+  dispatch_macro(EVENT_TRIGGER, EventTrigger);\
   dispatch_macro(ITEM_PICKUP, ItemPickup);\
   dispatch_macro(LESSER_GUARD, LesserGuard);\
   dispatch_macro(LOW_GUARD, LowGuard);\
@@ -111,6 +113,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
     dispatch_GetEntityContainer(DIRT_PATH_NODE, state.dirt_path_nodes);
     dispatch_GetEntityContainer(ITEM_PICKUP, state.item_pickups);
     dispatch_GetEntityContainer(FOG_SPAWN, state.fog_spawns);
+    dispatch_GetEntityContainer(EVENT_TRIGGER, state.event_triggers);
     dispatch_GetEntityContainer(LESSER_GUARD, state.lesser_guards);
     dispatch_GetEntityContainer(LOW_GUARD, state.low_guards);
     dispatch_GetEntityContainer(OAK_TREE, state.oak_trees);

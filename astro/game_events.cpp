@@ -19,6 +19,7 @@ static inline void RemoveFromArray(std::vector<T>& array, uint32 index) {
 struct EventSettings {
   float delay = 0.f;
   float duration = 1.f;
+  float blend_factor = 1.f;
 };
 
 static void QueueEntityMoveEvent(Tachyon* tachyon, State& state, GameEntity& entity, const tVec3f& end_position, const EventSettings& settings) {
@@ -37,6 +38,7 @@ static void QueueCameraTargetEvent(Tachyon* tachyon, State& state, GameEntity& t
   event.target_entity_record = GetRecord(target);
   event.start_time = get_scene_time() + settings.delay;
   event.end_time = event.start_time + settings.duration;
+  event.blend_factor = settings.blend_factor;
 
   state.camera_events.push_back(event);
 }
@@ -51,8 +53,9 @@ static void StartVillageGateGuardEvent(Tachyon* tachyon, State& state) {
   for (auto& entity : state.low_guards) {
     if (entity.unique_name == "gate_guard") {
       QueueCameraTargetEvent(tachyon, state, entity, {
-        .delay = 0.,
-        .duration = 1.5f
+        .delay = 0.f,
+        .duration = 2.f,
+        .blend_factor = 0.5f
       });
     }
   }
@@ -136,7 +139,8 @@ void GameEvents::StartEvent(Tachyon* tachyon, State& state, const std::string& e
 void GameEvents::HandleEvents(Tachyon* tachyon, State& state) {
   float scene_time = get_scene_time();
 
-  // Handle camera target events
+  // Manage camera events. Actual handling is in
+  // CameraSystem::UpdateCamera() -> UpdateEventCamera().
   // @todo factor
   for (size_t i = 0; i < state.camera_events.size(); i++) {
     auto& event = state.camera_events[i];

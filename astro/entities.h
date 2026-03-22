@@ -52,6 +52,7 @@ namespace astro {
     TALL_GRASS,
     TULIP_PLANT,
     TALL_WEEDS,
+    EVENT_TRIGGER
   };
 
   /**
@@ -97,7 +98,8 @@ namespace astro {
     LESSER_GUARD,
     TALL_GRASS,
     TULIP_PLANT,
-    TALL_WEEDS
+    TALL_WEEDS,
+    EVENT_TRIGGER
   };
 
   /**
@@ -381,6 +383,9 @@ namespace astro {
       // FOG_SPAWN
       fog_spawn_placeholder,
 
+      // EVENT_TRIGGER,
+      event_trigger_placeholder,
+
       // WIND_CHIMES
       wind_chimes_placeholder,
       wind_chimes_stand,
@@ -421,6 +426,7 @@ namespace astro {
     std::vector<GameEntity> altars;
     std::vector<GameEntity> item_pickups;
     std::vector<GameEntity> fog_spawns;
+    std::vector<GameEntity> event_triggers;
     std::vector<GameEntity> dirt_path_nodes;
     std::vector<GameEntity> stone_path_nodes;
 
@@ -500,6 +506,12 @@ namespace astro {
       .name = "Fog Spawn",
       .scale = tVec3f(1500.f),
       .tint = tVec3f(0.8f)
+    } },
+
+    { EVENT_TRIGGER, {
+      .name = "Event Trigger",
+      .scale = tVec3f(1500.f),
+      .tint = tVec3f(0.2f, 0.3f, 1.f)
     } },
 
     // @unused
