@@ -9,8 +9,9 @@ Well, I shall continue as I was.
 // @todo yes/no prompts
 
 @gate_villager
-+Ah, a fellow traveler! A sight for weary eyes indeed.
-Might I ask, you haven't a key to this gate handy, by chance?
++Ah, a fellow vagabond! You're a sight for weary eyes indeed.
++You see, I've been held up at this gate for quite some time now.
+Might I ask, you haven't a key in your possession, by chance?
 Oh, sod it...I fear we're in this pickle together, then.
 I don't suppose we should ask the next fellow who trods along! Ha.
 

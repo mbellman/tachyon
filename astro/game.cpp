@@ -387,7 +387,7 @@ static bool IsPlayerNearWindChimes(State& state) {
     auto& entity = state.wind_chimes[i];
     float player_distance = tVec3f::distance(state.player_position, entity.position);
 
-    if (player_distance < 5000.f) {
+    if (player_distance < 7500.f) {
       return true;
     }
   }

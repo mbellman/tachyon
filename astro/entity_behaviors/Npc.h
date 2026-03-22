@@ -58,7 +58,7 @@ namespace astro {
           // Initiating dialogue
           if (
             is_active &&
-            player_distance < 3500.f &&
+            player_distance < 4000.f &&
             player_speed < 200.f &&
             facing_dot > 0.5f
           ) {
