@@ -6,7 +6,7 @@
 #include "astro/level_editor.h"
 #include "astro/collision_system.h"
 #include "astro/data_loader.h"
-#include "astro/entities_and_objects.h"
+#include "astro/decorative_meshes.h"
 #include "astro/entity_manager.h"
 #include "astro/entity_dispatcher.h"
 #include "astro/items.h"

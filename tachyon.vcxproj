@@ -125,15 +125,16 @@
     <ClInclude Include="astro\combat.h" />
     <ClInclude Include="astro\control_system.h" />
     <ClInclude Include="astro\data_loader.h" />
+    <ClInclude Include="astro\decorative_meshes.h" />
     <ClInclude Include="astro\dynamic_fauna.h" />
     <ClInclude Include="astro\entities.h" />
-    <ClInclude Include="astro\entities_and_objects.h" />
     <ClInclude Include="astro\entity_behaviors\Altar.h" />
     <ClInclude Include="astro\entity_behaviors\Bandit.h" />
     <ClInclude Include="astro\entity_behaviors\behavior.h" />
     <ClInclude Include="astro\entity_behaviors\BellFlower.h" />
     <ClInclude Include="astro\entity_behaviors\ChestnutTree.h" />
     <ClInclude Include="astro\entity_behaviors\DirtPathNode.h" />
+    <ClInclude Include="astro\entity_behaviors\EventTrigger.h" />
     <ClInclude Include="astro\entity_behaviors\Flag.h" />
     <ClInclude Include="astro\entity_behaviors\FlowerBush.h" />
     <ClInclude Include="astro\entity_behaviors\FogSpawn.h" />

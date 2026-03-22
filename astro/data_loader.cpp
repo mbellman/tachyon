@@ -37,7 +37,8 @@ uint16 DataLoader::MeshIndexToId(State& state, uint16 mesh_index) {
     { meshes.flat_ground, 3 },
     { meshes.lookout_tower, 4 },
     { meshes.river_edge, 5 },
-    { meshes.rock_2, 6 }
+    { meshes.rock_2, 6 },
+    { meshes.stairs_floor, 7 }
   };
 
   return mesh_map.at(mesh_index);
@@ -52,7 +53,8 @@ uint16 DataLoader::MeshIdToIndex(State& state, uint16 mesh_id) {
     { 3, meshes.flat_ground },
     { 4, meshes.lookout_tower },
     { 5, meshes.river_edge },
-    { 6, meshes.rock_2 }
+    { 6, meshes.rock_2 },
+    { 7, meshes.stairs_floor }
   };
 
   return mesh_map.at(mesh_id);

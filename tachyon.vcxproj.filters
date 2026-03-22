@@ -438,9 +438,6 @@
     <ClInclude Include="astro\data_loader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="astro\entities_and_objects.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="astro\entity_descriptions\description.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -637,6 +634,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="astro\animation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\entity_behaviors\EventTrigger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\decorative_meshes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

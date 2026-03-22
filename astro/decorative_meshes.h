@@ -7,8 +7,6 @@
 #include "astro/game_state.h"
 #include "astro/entities.h"
 
-// @todo rename object_lookup or similar
-
 namespace astro {
   struct DecorativeMesh {
     uint16 mesh_index;
@@ -20,9 +18,9 @@ namespace astro {
   static std::string unknown_name = "Unknown";
 
   /**
-   * ----------------------------
+   * ----------------------------------------
    * Returns a list of all decorative meshes.
-   * ----------------------------
+   * ----------------------------------------
    */
   static std::vector<DecorativeMesh>& GetDecorativeMeshes(State& state) {
     auto& meshes = state.meshes;
@@ -59,10 +57,17 @@ namespace astro {
         .default_color = tVec3f(0.3f, 0.5f, 0.1f)
       },
       {
+        // @temporary
         .mesh_index = meshes.lookout_tower,
         .mesh_name = "lookout_tower",
         .default_scale = tVec3f(4000.f),
         .default_color = tVec3f(0.8f)
+      },
+      {
+        .mesh_index = meshes.stairs_floor,
+        .mesh_name = "stairs_floor",
+        .default_scale = tVec3f(2000.f, 1500.f, 2000.f),
+        .default_color = tVec3f(0.3f, 0.5f, 0.1f)
       },
     };
 

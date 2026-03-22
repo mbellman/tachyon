@@ -80,6 +80,7 @@ namespace astro {
       river_edge,
       ground_1,
       lookout_tower,
+      stairs_floor,
 
       // Editor meshes
       // @todo dev mode only
