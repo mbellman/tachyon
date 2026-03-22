@@ -97,6 +97,18 @@ void Tachyon_StopSoundAfterDuration(tSoundResource& resource, uint64 duration) {
   ma_sound_set_stop_time_in_milliseconds(sound, ma_engine_get_time_in_milliseconds(&engine) + duration);
 }
 
+void Tachyon_CancelStoppingSound(tSoundResource& resource) {
+  auto* sound = get_sound(resource);
+
+  ma_sound_set_stop_time_in_milliseconds(sound, ~(ma_uint64)0);
+}
+
+bool Tachyon_IsSoundPlaying(tSoundResource& resource) {
+  auto* sound = get_sound(resource);
+
+  return ma_sound_is_playing(sound);
+}
+
 void Tachyon_ExitSoundEngine() {
   ma_engine_uninit(&engine);
 }

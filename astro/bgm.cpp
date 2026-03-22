@@ -41,12 +41,21 @@ void BGM::LoopMusic(Music music, const float volume) {
 
   auto& resource = FindSoundResource(music);
 
-  Tachyon_LoopSound(resource, volume);
+  if (Tachyon_IsSoundPlaying(resource)) {
+    // Getting here means we changed the current BGM to something else,
+    // and then changed it back to first thing again while it was still
+    // fading out. Instead of restarting it, cancel the stop and fade it
+    // back to the specified volume.
+    Tachyon_CancelStoppingSound(resource);
+    Tachyon_FadeSoundTo(resource, volume, 2000);
+  } else {
+    Tachyon_LoopSound(resource, volume);
 
-  // @hack Reset the stored volume so we can fade the sound in
-  resource.volume = 0.f;
+    // @hack Reset the stored volume so we can fade the sound in
+    resource.volume = 0.f;
 
-  Tachyon_FadeInSound(resource, volume, 5000);
+    Tachyon_FadeInSound(resource, volume, 5000);
+  }
 
   current_music = music;
 }

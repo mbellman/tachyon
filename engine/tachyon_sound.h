@@ -17,4 +17,6 @@ void Tachyon_FadeInSound(tSoundResource& resource, const float volume = 1.f, uin
 void Tachyon_FadeSoundTo(tSoundResource& resource, const float volume, uint64 duration);
 void Tachyon_StopSound(tSoundResource& resource);
 void Tachyon_StopSoundAfterDuration(tSoundResource& resource, uint64 duration);
+void Tachyon_CancelStoppingSound(tSoundResource& resource);
+bool Tachyon_IsSoundPlaying(tSoundResource& resource);
 void Tachyon_ExitSoundEngine();
