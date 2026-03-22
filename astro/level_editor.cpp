@@ -135,7 +135,7 @@ std::string SerializeEntity(const GameEntity& entity) {
     entity.item_pickup_name + "," +
     entity.unique_name + "," +
     entity.associated_entity_name + "," +
-    Serialize(entity.requires_astro_sync)
+    Serialize(entity.requires_action)
   );
 }
 
@@ -857,9 +857,9 @@ static void HandleEntityPropertiesEditor(Tachyon* tachyon, State& state) {
     else if (editor.editing_entity_step == 4) {
       entity->associated_entity_name = property_value;
     }
-    // 6. requires_astro_sync
+    // 6. requires_action
     else if (editor.editing_entity_step == 5) {
-      entity->requires_astro_sync = ToBool(property_value);
+      entity->requires_action = ToBool(property_value);
 
       StopEditingEntityProperties(tachyon);
 
@@ -868,7 +868,7 @@ static void HandleEntityPropertiesEditor(Tachyon* tachyon, State& state) {
 
     editor.editing_entity_step++;
 
-    // @todo make this fix for requires_astro_sync as well
+    // @todo make this fix for requires_action as well
     if (editor.editing_entity_step == 2) {
       editor.edited_entity_property_value = entity->item_pickup_name;
     }
@@ -1451,9 +1451,9 @@ static void DisplaySelectedEntityProperties(Tachyon* tachyon, State& state) {
   }
 
   if (is_on_editing_step(5)) {
-    labels.push_back(".requires_astro_sync: " + editor.edited_entity_property_value + text_cursor);
+    labels.push_back(".requires_action: " + editor.edited_entity_property_value + text_cursor);
   } else {
-    labels.push_back(".requires_astro_sync: " + std::string(entity.requires_astro_sync ? "true" : "false"));
+    labels.push_back(".requires_action: " + std::string(entity.requires_action ? "true" : "false"));
   }
 
   RenderInfoLabels(tachyon, state, labels);

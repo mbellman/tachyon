@@ -201,12 +201,17 @@ namespace astro {
     bool did_activate = false;
     bool can_activate = true;
 
+    // A special flag for entities which are inert or reduced in capability by default.
+    // The particular meaning of this varies between entities:
+    //
+    // Lampposts: requires a wand action to turn on
+    //
+    // Light pillars: requires that their associated light pillar is astro-synced
+    // before responding to them
+    bool requires_action = false;
+
     // For responder light pillars which have become "synced" with their associated entity
     bool is_astro_synced = false;
-
-    // For responder light pillars which require that their associated entity become synced
-    // before responding to them
-    bool requires_astro_sync = false;
   };
 
   /**

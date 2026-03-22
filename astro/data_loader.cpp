@@ -91,10 +91,11 @@ void DataLoader::LoadLevelData(Tachyon* tachyon, State& state) {
       entity.item_pickup_name = parts[16];
       entity.unique_name = parts[17];
       entity.associated_entity_name = parts[18];
-      entity.requires_astro_sync = parse_bool(parts[19]);
+      entity.requires_action = parse_bool(parts[19]);
 
       // @temporary
-      if (entity_type == LAMPPOST) {
+      // @todo move this elsewhere
+      if (entity_type == LAMPPOST && !entity.requires_action) {
         entity.did_activate = true;
       }
 

@@ -30,18 +30,22 @@ namespace astro {
       bool is_responder = entity.associated_entity_record.id != -1;
 
       if (is_responder) {
+        // Check to see if the light pillar's associated pillar is illuminated,
+        // either in the future (before astro syncing) or now (after astro syncing)
         auto& associated_entity = *EntityManager::FindEntity(state, entity.associated_entity_record);
-        float checked_time;
+        float astro_time_to_check;
 
         if (entity.is_astro_synced) {
-          checked_time = astro_time;
-        } else if (entity.requires_astro_sync && !associated_entity.is_astro_synced) {
+          astro_time_to_check = astro_time;
+        } else if (entity.requires_action && !associated_entity.is_astro_synced) {
+          // If the pillar requires an action in that its associated pillar
+          // must be astro synced, do not illuminate yet
           return false;
         } else {
-          checked_time = astro_time + astro_future_sight_duration;
+          astro_time_to_check = astro_time + astro_future_sight_duration;
         }
 
-        return IsIlluminatedAtTime(state, associated_entity, checked_time);
+        return IsIlluminatedAtTime(state, associated_entity, astro_time_to_check);
       } else {
         return (
           entity.game_activation_time != -1.f &&
@@ -130,7 +134,7 @@ namespace astro {
           if (
             is_illuminated &&
             !entity.is_astro_synced &&
-            entity.requires_astro_sync &&
+            entity.requires_action &&
             associated_entity.is_astro_synced &&
             IsResponder(associated_entity) &&
             final_associated_entity.can_activate &&
