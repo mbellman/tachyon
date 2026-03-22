@@ -381,6 +381,20 @@ static Sound GetCurrentAmbientSound(State& state) {
   }
 }
 
+// @todo WindChimes::
+static bool IsPlayerNearWindChimes(State& state) {
+  for_entities(state.wind_chimes) {
+    auto& entity = state.wind_chimes[i];
+    float player_distance = tVec3f::distance(state.player_position, entity.position);
+
+    if (player_distance < 5000.f) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 static void HandleMusicLevels(Tachyon* tachyon, State& state) {
   // Ambient sounds
   {
@@ -404,7 +418,7 @@ static void HandleMusicLevels(Tachyon* tachyon, State& state) {
       BGM::FadeCurrentMusicVolumeTo(0.4f, 500);
     }
     else {
-      BGM::FadeCurrentMusicVolumeTo(0.5f, 4000);
+      BGM::FadeCurrentMusicVolumeTo(0.5f, 3000);
     }
   }
 }
@@ -418,16 +432,21 @@ static void HandleCurrentAreaMusic(Tachyon* tachyon, State& state) {
     state.bgm_start_time = get_scene_time();
   }
 
-  if (state.bgm_start_time == -1.f || !state.music_enabled) {
+  if (!state.music_enabled) {
     return;
   }
 
   // @temporary
+  // @todo BGM entities
   tVec3f village_position = tVec3f(232000.f, 0, 106000.f);
 
-  if (tVec3f::distance(state.player_position, village_position) < 40000.f) {
+  if (IsPlayerNearWindChimes(state)) {
+    BGM::LoopMusic(BGM_WIND_CHIMES, 0.3f);
+  }
+  else if (tVec3f::distance(state.player_position, village_position) < 40000.f) {
     BGM::LoopMusic(VILLAGE_1, 0.5f);
-  } else {
+  }
+  else if (state.bgm_start_time != -1.f) {
     BGM::LoopMusic(DIVINATION_WOODREALM, 0.5f);
   }
 }

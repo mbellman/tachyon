@@ -708,7 +708,7 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
       auto& flower = create(meshes.ground_flower);
 
       flower.position = position;
-      flower.position.y += 500.f;
+      flower.position.y += 600.f;
       flower.scale = tVec3f(250.f);
       flower.color = tVec3f(1.f, 0.1f, 0.1f);
 
@@ -743,7 +743,7 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
       tVec3f position;
       position.x = center.x + rng.Random(-1000.f, 1000.f);
       position.z = center.z + rng.Random(-1000.f, 1000.f);
-      position.y = CollisionSystem::QueryGroundHeight(state, position.x, position.z) + rng.Random(-20.f, 80.f);
+      position.y = CollisionSystem::QueryGroundHeight(state, position.x, position.z) + rng.Random(0.f, 100.f);
 
       if (
         IsPointOnAnyPlane(position, dirt_path_planes) ||
@@ -759,7 +759,7 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
       auto& flower = create(meshes.tiny_ground_flower);
 
       flower.position = position;
-      flower.position.y += 500.f;
+      flower.position.y += 600.f;
       flower.scale = tVec3f(100.f);
       flower.color = tVec3f(1.f);
 

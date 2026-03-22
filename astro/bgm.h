@@ -3,6 +3,7 @@
 namespace astro {
   enum Music {
     MUSIC_NONE = -1,
+    BGM_WIND_CHIMES,
     DIVINATION_WOODREALM,
     // @todo rename
     VILLAGE_1

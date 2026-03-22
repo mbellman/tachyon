@@ -6,6 +6,7 @@
 using namespace astro;
 
 static std::map<Music, const char*> music_file_map = {
+  { BGM_WIND_CHIMES, "./astro/audio/bgm_wind_chimes.wav" },
   { DIVINATION_WOODREALM, "./astro/audio/bgm_divination_woodrealm.wav" },
   { VILLAGE_1, "./astro/audio/bgm_village.wav" }
 };
@@ -34,8 +35,8 @@ void BGM::LoopMusic(Music music, const float volume) {
     // Fade out and stop the previous music
     auto& current_sound = FindSoundResource(current_music);
 
-    Tachyon_FadeOutSound(current_sound, 2000);
-    Tachyon_StopSoundAfterDuration(current_sound, 2000);
+    Tachyon_FadeOutSound(current_sound, 3000);
+    Tachyon_StopSoundAfterDuration(current_sound, 3000);
   }
 
   auto& resource = FindSoundResource(music);

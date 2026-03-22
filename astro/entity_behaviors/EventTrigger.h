@@ -35,8 +35,6 @@ namespace astro {
         if (player_distance < 2000.f) {
           entity.did_activate = true;
 
-          console_log(entity.unique_name);
-
           GameEvents::StartEvent(tachyon, state, entity.unique_name);
         }
       }

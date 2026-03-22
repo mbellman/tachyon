@@ -366,6 +366,7 @@ namespace astro {
 
         // Item holding
         {
+          // @todo generalize this
           bool is_gate_key_guard = entity.item_pickup_name == "gate_key";
           bool player_has_gate_key = Items::HasItem(state, GATE_KEY);
 
