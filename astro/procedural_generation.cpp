@@ -1003,12 +1003,6 @@ static void UpdateDirtPaths(Tachyon* tachyon, State& state) {
 
   uint16 total_rocks = 0;
 
-  // @todo @optimize We can store an array of path segment "connections" based on entity index,
-  // and just iterate over nearby nodes and then update their segments, rather than iterating
-  // over all segments and doing player distance checks. In its current form this is still
-  // quite fast, however.
-  //
-  // @todo move all this to DirtPathNode -> timeEvolve()
   for (auto& segment : state.dirt_path_segments) {
     auto& position = segment.base_position;
 
@@ -1023,11 +1017,12 @@ static void UpdateDirtPaths(Tachyon* tachyon, State& state) {
     float age = state.astro_time - astro_start_time;
     float remaining_time = astro_end_time - state.astro_time;
     float ground_y = segment.base_position.y - 30.f;
+    float subsurface = state.is_nighttime ? 0.8f : 0.f;
 
     path.position = segment.base_position;
     path.scale = segment.base_scale;
     path.color = path_color;
-    path.material = tVec4f(1.f, 0, 0, 0);
+    path.material = tVec4f(1.f, 0, 0, subsurface);
 
     // Reduce the size/conspicuousness of the path
     // as we approach its starting time
