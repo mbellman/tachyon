@@ -52,7 +52,8 @@ namespace astro {
     TALL_GRASS,
     TULIP_PLANT,
     TALL_WEEDS,
-    EVENT_TRIGGER
+    EVENT_TRIGGER,
+    FAERIE
   };
 
   /**
@@ -99,7 +100,8 @@ namespace astro {
     TALL_GRASS,
     TULIP_PLANT,
     TALL_WEEDS,
-    EVENT_TRIGGER
+    EVENT_TRIGGER,
+    FAERIE
   };
 
   /**
@@ -280,6 +282,11 @@ namespace astro {
       // BANDIT
       bandit_placeholder,
       bandit,
+
+      // FAERIE
+      faerie_placeholder,
+      faerie_left_wing,
+      faerie_right_wing,
 
       // STONE_WALL
       stone_wall_placeholder,
@@ -468,6 +475,7 @@ namespace astro {
     std::vector<GameEntity> lesser_guards;
     std::vector<GameEntity> low_guards;
     std::vector<GameEntity> bandits;
+    std::vector<GameEntity> faeries;
   };
 
   /**
@@ -728,6 +736,12 @@ namespace astro {
       .name = "Bandit",
       .scale = tVec3f(600.f, 1500.f, 600.f),
       .tint = tVec3f(0.2f)
+    } },
+
+    { FAERIE, {
+      .name = "Faerie",
+      .scale = tVec3f(750.f),
+      .tint = tVec3f(1.f)
     } }
   };
 

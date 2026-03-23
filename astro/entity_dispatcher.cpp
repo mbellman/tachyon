@@ -6,6 +6,7 @@
 #include "astro/entity_behaviors/ChestnutTree.h"
 #include "astro/entity_behaviors/DirtPathNode.h"
 #include "astro/entity_behaviors/EventTrigger.h"
+#include "astro/entity_behaviors/Faerie.h"
 #include "astro/entity_behaviors/Flag.h"
 #include "astro/entity_behaviors/FlowerBush.h"
 #include "astro/entity_behaviors/FogSpawn.h"
@@ -74,6 +75,7 @@ using namespace astro;
   dispatch_macro(ITEM_PICKUP, ItemPickup);\
   dispatch_macro(LESSER_GUARD, LesserGuard);\
   dispatch_macro(LOW_GUARD, LowGuard);\
+  dispatch_macro(FAERIE, Faerie);\
   dispatch_macro(OAK_TREE, OakTree);\
   dispatch_macro(RIVER_LOG, RiverLog);\
   dispatch_macro(SHRUB, Shrub);\
@@ -116,6 +118,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
     dispatch_GetEntityContainer(EVENT_TRIGGER, state.event_triggers);
     dispatch_GetEntityContainer(LESSER_GUARD, state.lesser_guards);
     dispatch_GetEntityContainer(LOW_GUARD, state.low_guards);
+    dispatch_GetEntityContainer(FAERIE, state.faeries);
     dispatch_GetEntityContainer(OAK_TREE, state.oak_trees);
     dispatch_GetEntityContainer(RIVER_LOG, state.river_logs);
     dispatch_GetEntityContainer(SHRUB, state.shrubs);
