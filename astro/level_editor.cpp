@@ -1396,6 +1396,24 @@ static void RenderInfoLabels(Tachyon* tachyon, State& state, const std::vector<s
 
 /**
  * ----------------------------
+ * Counts the total vertices among all the meshes for an entity.
+ * ----------------------------
+ */
+static int32 CountEntityVertices(Tachyon* tachyon, State& state, EntityType entity_type) {
+  auto& entity_meshes = EntityDispatcher::GetMeshes(state, entity_type);
+  int32 total_verts = 0;
+
+  for (uint16 mesh_index : entity_meshes) {
+    auto& mesh = mesh(mesh_index);
+
+    total_verts += mesh.lod_1.vertex_end - mesh.lod_1.vertex_start;
+  }
+
+  return total_verts;
+}
+
+/**
+ * ----------------------------
  * Displays information for the current-selected entity.
  * ----------------------------
  */
@@ -1404,9 +1422,7 @@ static void DisplaySelectedEntityProperties(Tachyon* tachyon, State& state) {
   auto& entity_name = GetEntityDefaults(selected.entity_record.type).name;
   auto& entity = *EntityManager::FindEntity(state, selected.entity_record);
   int32 total_active = EntityDispatcher::GetEntityContainer(state, entity.type).size();
-  auto& mesh = mesh(selected.placeholder.mesh_index);
-  // @todo count total verts based on verts in each mesh via EnterDispatcher::GetMeshes()
-  int32 total_verts = mesh.lod_1.vertex_end - mesh.lod_1.vertex_start;
+  int32 total_verts = CountEntityVertices(tachyon, state, entity.type);
   int32 summed_verts = total_active * total_verts;
 
   static std::vector<std::string> labels;
@@ -1856,10 +1872,8 @@ static void DisplayEntityPlacementLabels(Tachyon* tachyon, State& state) {
   EntityType entity_type = entity_types[editor.current_entity_index];
   auto& defaults = GetEntityDefaults(entity_type);
   auto& entity_name = defaults.name;
-  uint16 mesh_index = EntityDispatcher::GetPlaceholderMesh(state, entity_type);
   int32 total_active = EntityDispatcher::GetEntityContainer(state, entity_type).size();
-  auto& mesh = mesh(mesh_index);
-  int32 total_verts = mesh.lod_1.vertex_end - mesh.lod_1.vertex_start;
+  int32 total_verts = CountEntityVertices(tachyon, state, entity_type);
   int32 summed_verts = total_active * total_verts;
 
   static std::vector<std::string> labels;
