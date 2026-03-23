@@ -51,13 +51,17 @@ static void HandleQuickManeuverAction(Tachyon* tachyon, State& state) {
 static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
   bool is_running = is_key_held(tKey::CONTROLLER_A) || is_key_held(tKey::SHIFT);
 
+  // Disable movement during:
   if (
-    // !state.is_astrolabe_stopped ||
+    // Astro travel
     abs(state.astro_turn_speed) > 0.1f ||
+    // Camera events
+    state.camera_events.size() > 0 ||
+    // Dodge actions
     time_since(state.last_dodge_time) < dodge_cooldown_time ||
+    // Target jump actions
     time_since(state.last_target_jump_time) < target_jump_cooldown_time
   ) {
-    // Disallow movement while astro traveling or quick maneuvering
     return;
   }
 
@@ -108,6 +112,8 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
   }
 }
 
+// @disabled
+// @todo remove
 static void HandleAstroControls(Tachyon* tachyon, State& state) {
   const float astro_travel_rate = 0.8f;
   const float astro_slowdown_rate = 3.f;

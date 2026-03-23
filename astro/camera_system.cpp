@@ -27,7 +27,10 @@ static void UpdateCameraNearEntities(State& state, tVec3f& new_camera_position) 
 static void UpdateEventCamera(Tachyon* tachyon, State& state, tVec3f& new_camera_position) {
   auto& event = state.camera_events[0];
   auto& target_entity = *EntityManager::FindEntity(state, event.target_entity_record);
-  tVec3f base_position = tVec3f::lerp(state.player_position, target_entity.visible_position, event.blend_factor);
+  // Only apply the camera blend once the event has started,
+  // e.g. if the event is intentionally delayed
+  float blend_factor = get_scene_time() > event.start_time ? event.blend_factor : 0.f;
+  tVec3f base_position = tVec3f::lerp(state.player_position, target_entity.visible_position, blend_factor);
 
   new_camera_position = base_position;
   new_camera_position.y += 1000.f;
@@ -129,6 +132,7 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state) {
   }
 
   // @temporary
+  // @todo formalize special camera modes
   {
     state.camera_angle = 0.9f;
 

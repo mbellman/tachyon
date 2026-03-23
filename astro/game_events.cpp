@@ -48,12 +48,11 @@ static void QueueCameraTargetEvent(Tachyon* tachyon, State& state, GameEntity& t
  * Event: Village Gate Guard
  * -------------------------
  */
-// @todo test this event
 static void StartVillageGateGuardEvent(Tachyon* tachyon, State& state) {
   for (auto& entity : state.low_guards) {
     if (entity.unique_name == "gate_guard") {
       QueueCameraTargetEvent(tachyon, state, entity, {
-        .delay = 0.f,
+        .delay = 0.65f,
         .duration = 2.f,
         .blend_factor = 0.5f
       });

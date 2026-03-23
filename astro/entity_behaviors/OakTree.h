@@ -49,7 +49,7 @@ namespace astro {
       const float lifetime = 200.f;
       const tVec3f roots_color = tVec3f(0.7f, 0.3f, 0.1f);
       const tVec3f wood_color = tVec3f(1.f, 0.4f, 0.2f);
-      const tVec3f leaves_color = tVec3f(0.15f, 0.3f, 0.1f);
+      const tVec3f leaves_color = tVec3f(0.1f, 0.3f, 0.1f);
 
       reset_instances(meshes.oak_tree_roots);
       reset_instances(meshes.oak_tree_trunk);

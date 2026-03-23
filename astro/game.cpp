@@ -209,7 +209,7 @@ static void HandleInGameDevHotkeys(Tachyon* tachyon, State& state) {
         entity.did_activate = false;
       }
 
-      show_overlay_message("Reset activated entities");
+      show_overlay_message("Reset interactible entities");
     }
   }
 
