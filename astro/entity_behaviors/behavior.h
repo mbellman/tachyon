@@ -80,6 +80,14 @@ namespace astro {
     entity.visible_rotation = Quaternion::slerp(entity.visible_rotation, facing_direction, 2.f * state.dt);
   }
 
+  static void FaceTarget(GameEntity& entity, const tVec3f& target, const float dt) {
+    tVec3f entity_to_target = target - entity.visible_position;
+    Quaternion facing_direction = Quaternion::FromDirection(entity_to_target.unit(), tVec3f(0, 1.f, 0));
+
+    // @todo use nlerp
+    entity.visible_rotation = Quaternion::slerp(entity.visible_rotation, facing_direction, 2.f * dt);
+  }
+
   static void FollowPlayer(GameEntity& entity, const tVec3f& player_direction, const float dt) {
     entity.visible_position += player_direction * entity.enemy_state.speed * dt;
   }

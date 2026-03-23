@@ -112,6 +112,7 @@ static void TrackAllTargetableEntities(Tachyon* tachyon, State& state) {
   TrackTargetableEntities(state, state.lesser_guards);
   TrackTargetableEntities(state, state.low_guards);
   TrackTargetableEntities(state, state.bandits);
+  TrackTargetableEntities(state, state.faeries);
 
   // If the current target entity is not found
   // in the list of targetable entities, deselect it
@@ -141,8 +142,8 @@ static void HandleActiveTargetReticle(Tachyon* tachyon, State& state) {
 
   if (
     entity_distance > 10000.f ||
-    entity.visible_scale.x == 0.f ||
-    entity.enemy_state.health <= 0.f
+    entity.enemy_state.health <= 0.f ||
+    state.astro_turn_speed != 0.f
   ) {
     Targeting::DeselectCurrentTarget(tachyon, state);
   }
