@@ -40,6 +40,7 @@ namespace astro {
         Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), -0.07f),
       };
 
+      // @todo use reset_instances()
       uint16 post_index = 0;
       uint16 beam_index = 0;
 

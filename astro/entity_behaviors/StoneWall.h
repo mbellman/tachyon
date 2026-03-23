@@ -22,9 +22,15 @@ namespace astro {
     timeEvolve() {
       auto& meshes = state.meshes;
 
+      reset_instances(meshes.stone_wall);
+
       for_entities(state.stone_walls) {
         auto& entity = state.stone_walls[i];
-        auto& wall = objects(meshes.stone_wall)[i];
+
+        if (abs(state.player_position.x - entity.position.x) > 30000.f) continue;
+        if (abs(state.player_position.z - entity.position.z) > 30000.f) continue;
+
+        auto& wall = use_instance(meshes.stone_wall);
 
         bool is_active = (
           state.astro_time >= entity.astro_start_time &&

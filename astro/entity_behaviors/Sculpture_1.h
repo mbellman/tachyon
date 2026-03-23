@@ -64,8 +64,14 @@ namespace astro {
       float scene_time = get_scene_time();
       float astro_rotation_speed = state.astro_turn_speed * 50.f * state.dt;
 
+      reset_instances(meshes.sculpture_1_stand);
+      reset_instances(meshes.sculpture_1_wheel);
+
       for_entities(state.sculpture_1s) {
         auto& entity = state.sculpture_1s[i];
+
+        if (abs(state.player_position.x - entity.position.x) > 20000.f) continue;
+        if (abs(state.player_position.z - entity.position.z) > 20000.f) continue;
 
         float life_progress = Tachyon_InverseLerp(entity.astro_start_time, entity.astro_end_time, state.astro_time);
         float alpha = powf(life_progress, 3.f);
@@ -74,7 +80,7 @@ namespace astro {
 
         // Stand
         {
-          auto& stand = objects(meshes.sculpture_1_stand)[i];
+          auto& stand = use_instance(meshes.sculpture_1_stand);
 
           Sync(stand, entity);
 
@@ -91,8 +97,8 @@ namespace astro {
           // Constant rotation
           entity.accumulation_value += state.dt + astro_rotation_speed;
 
-          auto& wheel1 = objects(meshes.sculpture_1_wheel)[i * 2];
-          auto& wheel2 = objects(meshes.sculpture_1_wheel)[i * 2 + 1];
+          auto& wheel1 = use_instance(meshes.sculpture_1_wheel);
+          auto& wheel2 = use_instance(meshes.sculpture_1_wheel);
 
           Sync(wheel1, entity);
           Sync(wheel2, entity);

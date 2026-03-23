@@ -29,14 +29,14 @@ namespace astro {
 
       auto& meshes = state.meshes;
 
-      reset_instances(meshes.tall_weeds);
-
       Quaternion rotation_cycle[4] = {
         Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 0.f),
         Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_HALF_PI),
         Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI),
         Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI + t_HALF_PI),
       };
+
+      reset_instances(meshes.tall_weeds);
 
       for_entities(state.tall_weeds) {
         auto& entity = state.tall_weeds[i];

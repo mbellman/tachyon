@@ -35,15 +35,25 @@ namespace astro {
 
       float player_speed = state.player_velocity.magnitude();
 
+      reset_instances(meshes.house_body);
+      reset_instances(meshes.house_frame);
+      reset_instances(meshes.house_door);
+      reset_instances(meshes.house_window_panes);
+      reset_instances(meshes.house_roof);
+      reset_instances(meshes.house_chimney);
+
       for_entities(state.houses) {
         auto& entity = state.houses[i];
 
-        auto& body = objects(meshes.house_body)[i];
-        auto& frame = objects(meshes.house_frame)[i];
-        auto& door = objects(meshes.house_door)[i];
-        auto& window_panes = objects(meshes.house_window_panes)[i];
-        auto& roof = objects(meshes.house_roof)[i];
-        auto& chimney = objects(meshes.house_chimney)[i];
+        if (abs(state.player_position.x - entity.position.x) > 30000.f) continue;
+        if (abs(state.player_position.z - entity.position.z) > 30000.f) continue;
+
+        auto& body = use_instance(meshes.house_body);
+        auto& frame = use_instance(meshes.house_frame);
+        auto& door = use_instance(meshes.house_door);
+        auto& window_panes = use_instance(meshes.house_window_panes);
+        auto& roof = use_instance(meshes.house_roof);
+        auto& chimney = use_instance(meshes.house_chimney);
 
         Sync(body, entity);
         Sync(frame, entity);

@@ -27,21 +27,28 @@ namespace astro {
     timeEvolve() {
       auto& meshes = state.meshes;
 
-      for_entities(state.small_stone_bridges) {
-        auto& bridge = state.small_stone_bridges[i];
-        auto& base = objects(meshes.small_stone_bridge_base)[i];
-        auto& columns = objects(meshes.small_stone_bridge_columns)[i];
-        const float age = state.astro_time - bridge.astro_start_time;
+      reset_instances(meshes.small_stone_bridge_base);
+      reset_instances(meshes.small_stone_bridge_columns);
 
-        base.position = bridge.position;
-        base.scale = bridge.scale;
-        base.rotation = bridge.orientation;
+      for_entities(state.small_stone_bridges) {
+        auto& entity = state.small_stone_bridges[i];
+
+        if (abs(state.player_position.x - entity.position.x) > 25000.f) continue;
+        if (abs(state.player_position.z - entity.position.z) > 25000.f) continue;
+
+        auto& base = use_instance(meshes.small_stone_bridge_base);
+        auto& columns = use_instance(meshes.small_stone_bridge_columns);
+        const float age = state.astro_time - entity.astro_start_time;
+
+        base.position = entity.position;
+        base.scale = entity.scale;
+        base.rotation = entity.orientation;
         base.color = tVec3f(0.6f, 0.5f, 0.4f);
         base.material = tVec4f(1.f, 0, 0, 0);
 
-        columns.position = bridge.position;
-        columns.scale = bridge.scale;
-        columns.rotation = bridge.orientation;
+        columns.position = entity.position;
+        columns.scale = entity.scale;
+        columns.rotation = entity.orientation;
         columns.color = tVec3f(0.6f, 0.5f, 0.4f);
         columns.material = tVec4f(1.f, 0, 0, 0);
 
@@ -51,7 +58,7 @@ namespace astro {
         if (age <= 0.f) columns.scale = tVec3f(0.f);
 
         // Collision
-        bridge.visible_scale = base.scale;
+        entity.visible_scale = base.scale;
 
         commit(base);
         commit(columns);

@@ -38,18 +38,26 @@ namespace astro {
 
       float player_speed = state.player_velocity.magnitude();
 
+      reset_instances(meshes.gate_body);
+      reset_instances(meshes.gate_left_door);
+      reset_instances(meshes.gate_right_door);
+      reset_instances(meshes.gate_lock);
+
       for_entities(state.gates) {
         auto& entity = state.gates[i];
+
+        if (abs(state.player_position.x - entity.position.x) > 25000.f) continue;
+        if (abs(state.player_position.z - entity.position.z) > 25000.f) continue;
 
         tVec3f interaction_position = UnitEntityToWorldPosition(entity, tVec3f(0.4f, -0.2f, 0));
         tVec3f player_to_interaction_position = interaction_position.xz() - state.player_position.xz();
         float distance_from_interaction_position = player_to_interaction_position.magnitude();
         tVec3f interaction_direction = player_to_interaction_position / distance_from_interaction_position;
 
-        auto& body = objects(meshes.gate_body)[i];
-        auto& door_left = objects(meshes.gate_left_door)[i];
-        auto& door_right = objects(meshes.gate_right_door)[i];
-        auto& lock = objects(meshes.gate_lock)[i];
+        auto& body = use_instance(meshes.gate_body);
+        auto& door_left = use_instance(meshes.gate_left_door);
+        auto& door_right = use_instance(meshes.gate_right_door);
+        auto& lock = use_instance(meshes.gate_lock);
 
         Sync(body, entity);
         Sync(door_left, entity);
