@@ -261,8 +261,8 @@ static void AddSkinnedPlayerMeshes(Tachyon* tachyon, State& state) {
 }
 
 static void AddSkinnedPersonMeshes(Tachyon* tachyon, State& state) {
-  // for_range(0, 4) {
-    auto& skin = state.person_skinned_meshes[0];
+  for_range(0, 4) {
+    auto& skin = state.person_skinned_meshes[i];
 
     // Initialize the mesh skeleton
     {
@@ -289,7 +289,9 @@ static void AddSkinnedPersonMeshes(Tachyon* tachyon, State& state) {
 
       skin.mesh_index = Tachyon_AddSkinnedMesh(tachyon, person);
     }
-  // }
+
+    state.total_animated_people++;
+  }
 }
 
 static void AddEditorMeshes(Tachyon* tachyon, State& state) {

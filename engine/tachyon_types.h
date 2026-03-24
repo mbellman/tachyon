@@ -198,6 +198,7 @@ struct tSkinnedMesh {
   uint32 surface = 0;
 
   bool skinned = false;
+  bool disabled = false;
   tSkeleton* current_pose = nullptr;
   uint8 shadow_cascade_ceiling = 4;
 };

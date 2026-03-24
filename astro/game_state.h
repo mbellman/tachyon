@@ -375,7 +375,9 @@ namespace astro {
     } animations;
 
     tSkinnedMeshAnimation player_mesh_animation;
+    int32 max_animated_people = 5; // @todo #define
     ReservedSkinnedMesh person_skinned_meshes[5];
+    int32 total_animated_people = 0;
 
     // Large-scale generated elements
     std::vector<PathSegment> dirt_path_segments;

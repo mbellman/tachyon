@@ -804,6 +804,10 @@ static void RenderSingleSkinnedMesh(Tachyon* tachyon, tOpenGLSkinnedMesh& gl_ski
   auto& renderer = get_renderer();
   auto& base_mesh = tachyon->skinned_meshes[gl_skinned_mesh.mesh_index];
 
+  if (base_mesh.disabled) {
+    return;
+  }
+
   if (base_mesh.skinned && base_mesh.current_pose != nullptr) {
     // @todo @optimize buffer skeleton bone matrices once per skeleton,
     // and render skinned meshes for a given skeleton consecutively
@@ -965,6 +969,8 @@ static void RenderPrimaryShadowMapCascades(Tachyon* tachyon) {
 
       for (auto& gl_skinned_mesh : renderer.skinned_meshes) {
         auto& base_mesh = tachyon->skinned_meshes[gl_skinned_mesh.mesh_index];
+
+        if (base_mesh.disabled) continue;
 
         if (base_mesh.shadow_cascade_ceiling > cascade_index) {
           SetShaderMat4f(locations.model_matrix, base_mesh.matrix);
