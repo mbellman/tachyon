@@ -8,6 +8,8 @@
 #include "engine/tachyon_types.h"
 #include "astro/entities.h"
 
+#define MAX_ANIMATED_PEOPLE 5
+
 // @todo pass entity variable name
 #define for_entities(array) for (uint16 i = 0; i < (uint16)array.size(); i++)
 
@@ -375,8 +377,7 @@ namespace astro {
     } animations;
 
     tSkinnedMeshAnimation player_mesh_animation;
-    int32 max_animated_people = 5; // @todo #define
-    ReservedSkinnedMesh person_skinned_meshes[5];
+    ReservedSkinnedMesh person_skinned_meshes[MAX_ANIMATED_PEOPLE];
     int32 total_animated_people = 0;
 
     // Large-scale generated elements

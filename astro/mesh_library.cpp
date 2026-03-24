@@ -261,24 +261,22 @@ static void AddSkinnedPlayerMeshes(Tachyon* tachyon, State& state) {
 }
 
 static void AddSkinnedPersonMeshes(Tachyon* tachyon, State& state) {
-  for_range(0, 4) {
+  // Share the rest pose skeleton among the meshes
+  tSkeleton rest_pose_skeleton = GltfLoader("./astro/3d_skeleton_animations/player_skeleton.gltf").skeleton;
+
+  TransformBonesIntoMeshSpace(rest_pose_skeleton);
+
+  // Compute inverse bind matrices
+  for (auto& bone : rest_pose_skeleton.bones) {
+    tMat4f inverse_bind_matrix = tMat4f::transformation(bone.translation, tVec3f(1.f), bone.rotation).inverse();
+
+    rest_pose_skeleton.bone_matrices.push_back(inverse_bind_matrix);
+  }
+
+  for_range(0, MAX_ANIMATED_PEOPLE - 1) {
     auto& skin = state.person_skinned_meshes[i];
 
-    // Initialize the mesh skeleton
-    {
-      skin.animation.rest_pose = GltfLoader("./astro/3d_skeleton_animations/player_skeleton.gltf").skeleton;
-
-      TransformBonesIntoMeshSpace(skin.animation.rest_pose);
-    }
-
-    // Compute inverse bind matrices
-    {
-      for (auto& bone : skin.animation.rest_pose.bones) {
-        tMat4f inverse_bind_matrix = tMat4f::transformation(bone.translation, tVec3f(1.f), bone.rotation).inverse();
-
-        skin.animation.rest_pose.bone_matrices.push_back(inverse_bind_matrix);
-      }
-    }
+    skin.animation.rest_pose = rest_pose_skeleton;
 
     // Load and add the mesh
     {
@@ -289,8 +287,6 @@ static void AddSkinnedPersonMeshes(Tachyon* tachyon, State& state) {
 
       skin.mesh_index = Tachyon_AddSkinnedMesh(tachyon, person);
     }
-
-    state.total_animated_people++;
   }
 }
 

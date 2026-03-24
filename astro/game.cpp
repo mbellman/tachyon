@@ -89,7 +89,7 @@ static void UpdateWaterPlane(Tachyon* tachyon, State& state) {
 
 static void UpdateAnimatedEntities(Tachyon* tachyon, State& state) {
   // @temporary
-  for_range(0, state.total_animated_people - 1) {
+  for_range(0, MAX_ANIMATED_PEOPLE - 1) {
     auto& skin = state.person_skinned_meshes[i];
     auto& person = skinned_mesh(skin.mesh_index);
 
