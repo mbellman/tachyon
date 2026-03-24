@@ -87,6 +87,23 @@ static void UpdateWaterPlane(Tachyon* tachyon, State& state) {
   state.water_level = water_plane.position.y;
 }
 
+static void UpdateAnimatedEntities(Tachyon* tachyon, State& state) {
+  // @temporary
+  auto& skin = state.person_skinned_meshes[0];
+  auto& person = skinned_mesh(skin.mesh_index);
+
+  person.position = state.player_position + tVec3f(5000.f, 0, 0);
+  person.scale = tVec3f(1500.f);
+  person.shadow_cascade_ceiling = 1;
+
+  // @TEMPORARY!!!!!!!!!!!!!!!!!1
+  person.rotation = skinned_mesh(state.meshes.player_robes).rotation;
+  person.current_pose = &state.player_mesh_animation.active_pose;
+  // person.current_pose = &skin.animation.rest_pose;// active_pose;
+
+  commit(person);
+}
+
 static void UpdateLevelsOfDetail(Tachyon* tachyon, State& state) {
   profile("UpdateLevelsOfDetail()");
 
@@ -744,6 +761,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   CameraSystem::UpdateCamera(tachyon, state);
   Astrolabe::Update(tachyon, state);
   PlayerCharacter::UpdatePlayer(tachyon, state);
+  UpdateAnimatedEntities(tachyon, state);
   UpdateWaterPlane(tachyon, state);
   UpdateLevelsOfDetail(tachyon, state);
 

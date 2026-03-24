@@ -260,6 +260,38 @@ static void AddSkinnedPlayerMeshes(Tachyon* tachyon, State& state) {
   meshes.player_belt = Tachyon_AddSkinnedMesh(tachyon, player_belt);
 }
 
+static void AddSkinnedPersonMeshes(Tachyon* tachyon, State& state) {
+  // for_range(0, 4) {
+    auto& skin = state.person_skinned_meshes[0];
+
+    // Initialize the mesh skeleton
+    {
+      skin.animation.rest_pose = GltfLoader("./astro/3d_skeleton_animations/player_skeleton.gltf").skeleton;
+
+      TransformBonesIntoMeshSpace(skin.animation.rest_pose);
+    }
+
+    // Compute inverse bind matrices
+    {
+      for (auto& bone : skin.animation.rest_pose.bones) {
+        tMat4f inverse_bind_matrix = tMat4f::transformation(bone.translation, tVec3f(1.f), bone.rotation).inverse();
+
+        skin.animation.rest_pose.bone_matrices.push_back(inverse_bind_matrix);
+      }
+    }
+
+    // Load and add the mesh
+    {
+      tSkinnedMesh person = Tachyon_LoadSkinnedMesh(
+        "./astro/3d_models/characters/person.skin",
+        skin.animation.rest_pose
+      );
+
+      skin.mesh_index = Tachyon_AddSkinnedMesh(tachyon, person);
+    }
+  // }
+}
+
 static void AddEditorMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
@@ -313,6 +345,7 @@ void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
   AddProceduralMeshes(tachyon, state);
   AddFaunaMeshes(tachyon, state);
   AddSkinnedPlayerMeshes(tachyon, state);
+  AddSkinnedPersonMeshes(tachyon, state);
 
   // @todo dev mode only
   {

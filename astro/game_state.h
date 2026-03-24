@@ -314,6 +314,16 @@ namespace astro {
 
   /**
    * ----------------------------
+   * NPC/enemy skinned meshes
+   * ----------------------------
+   */
+  struct ReservedSkinnedMesh {
+    int32 mesh_index = -1;
+    tSkinnedMeshAnimation animation;
+  };
+
+  /**
+   * ----------------------------
    * Game state
    * ----------------------------
    */
@@ -365,6 +375,7 @@ namespace astro {
     } animations;
 
     tSkinnedMeshAnimation player_mesh_animation;
+    ReservedSkinnedMesh person_skinned_meshes[5];
 
     // Large-scale generated elements
     std::vector<PathSegment> dirt_path_segments;
