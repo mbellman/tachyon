@@ -3,7 +3,7 @@
 using namespace astro;
 
 template<class T>
-static bool HasKey(const std::unordered_map<std::string, T>& map, const std::string& key) {
+static bool MapHasKey(const std::unordered_map<std::string, T>& map, const std::string& key) {
   return map.find(key) != map.end();
 }
 
@@ -58,31 +58,33 @@ static void InitiateDialogueSet(State& state, DialogueSet& dialogue_set) {
 }
 
 void UISystem::StartDialogueSet(State& state, const std::string& set_name) {
-  if (HasKey(state.npc_dialogue, set_name)) {
-    auto& dialogue_set = state.npc_dialogue[set_name];
-
-    state.current_dialogue_set = set_name;
-
-    if (dialogue_set.invoked) {
-      // Check to see if secondary dialogue is defined for the subject;
-      // if so, use that dialogue instead. Dialogue sets can be chained
-      // using additional "+" qualifiers for the secondary set names.
-      std::string secondary_set_name = set_name + "+";
-
-      if (HasKey(state.npc_dialogue, secondary_set_name)) {
-        // If there is a follow-up dialogue set available after having
-        // invoked the dialogue first, use that instead
-        UISystem::StartDialogueSet(state, secondary_set_name);
-
-        return;
-      }
-    }
-
-    InitiateDialogueSet(state, state.npc_dialogue[set_name]);
-  } else if (set_name != "") {
+  if (!MapHasKey(state.npc_dialogue, set_name)) {
     // @todo dev mode only
     console_log("Dialogue set '" + set_name + "' not found.");
+
+    return;
   }
+
+  auto& dialogue_set = state.npc_dialogue[set_name];
+
+  state.current_dialogue_set = set_name;
+
+  if (dialogue_set.invoked) {
+    // Check to see if secondary dialogue is defined for the subject;
+    // if so, use that dialogue instead. Dialogue sets can be chained
+    // using additional "+" qualifiers for the secondary set names.
+    std::string secondary_set_name = set_name + "+";
+
+    if (MapHasKey(state.npc_dialogue, secondary_set_name)) {
+      // If there is a follow-up dialogue set available after having
+      // invoked the dialogue first, use that instead
+      UISystem::StartDialogueSet(state, secondary_set_name);
+
+      return;
+    }
+  }
+
+  InitiateDialogueSet(state, state.npc_dialogue[set_name]);
 }
 
 void UISystem::ShowDialogue(Tachyon* tachyon, State& state, const std::string& message) {

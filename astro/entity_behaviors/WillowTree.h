@@ -35,8 +35,15 @@ namespace astro {
       const tVec3f trunk_color = tVec3f(0.1f, 0.f, 0.f);
       const float lifetime = 200.f;
 
+      reset_instances(meshes.willow_tree_trunk);
+      reset_instances(meshes.willow_tree_branches);
+      reset_instances(meshes.willow_tree_leaves);
+
       for_entities(state.willow_trees) {
         auto& entity = state.willow_trees[i];
+
+        if (abs(state.player_position.x - entity.position.x) > 25000.f) continue;
+        if (abs(state.player_position.z - entity.position.z) > 25000.f) continue;
 
         float life_progress = GetLivingEntityProgress(state, entity, lifetime);
         float growth_factor = 0.f;
@@ -49,7 +56,7 @@ namespace astro {
 
         // Trunk
         {
-          auto& trunk = objects(meshes.willow_tree_trunk)[i];
+          auto& trunk = use_instance(meshes.willow_tree_trunk);
           float trunk_height = 1.f - powf(1.f - life_progress, 4.f);
           float trunk_thickness = 0.1f + 0.9f * -(cosf(t_PI * life_progress) - 1.f) / 2.f;
 
@@ -71,7 +78,7 @@ namespace astro {
 
         // Branches
         {
-          auto& branches = objects(meshes.willow_tree_branches)[i];
+          auto& branches = use_instance(meshes.willow_tree_branches);
 
           Sync(branches, entity);
 
@@ -84,7 +91,7 @@ namespace astro {
 
         // Leaves
         {
-          auto& leaves = objects(meshes.willow_tree_leaves)[i];
+          auto& leaves = use_instance(meshes.willow_tree_leaves);
 
           Sync(leaves, entity);
 

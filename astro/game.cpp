@@ -106,6 +106,30 @@ static void UpdateAnimatedEntities(Tachyon* tachyon, State& state) {
 
     if (abs(state.player_position.x - entity.visible_position.x) > 15000.f) continue;
     if (abs(state.player_position.z - entity.visible_position.z) > 15000.f) continue;
+    if (!IsDuringActiveTime(entity, state)) continue;
+
+    auto& skin = state.person_skinned_meshes[next_index++];
+    auto& person = skinned_mesh(skin.mesh_index);
+
+    person.position = entity.visible_position;
+    person.rotation = entity.visible_rotation;
+    person.scale = tVec3f(1500.f);
+    person.shadow_cascade_ceiling = 1;
+    person.disabled = false;
+
+    // @TEMPORARY!!!!!!!!!!!!!!
+    person.current_pose = &state.player_mesh_animation.active_pose;
+
+    commit(person);
+  }
+
+  // @todo factor
+  for_entities(state.npcs) {
+    auto& entity = state.npcs[i];
+
+    if (abs(state.player_position.x - entity.visible_position.x) > 15000.f) continue;
+    if (abs(state.player_position.z - entity.visible_position.z) > 15000.f) continue;
+    if (!IsDuringActiveTime(entity, state)) continue;
 
     auto& skin = state.person_skinned_meshes[next_index++];
     auto& person = skinned_mesh(skin.mesh_index);
@@ -137,11 +161,6 @@ static void UpdateLevelsOfDetail(Tachyon* tachyon, State& state) {
   // Procedural objects
   Tachyon_UseLodByDistance(tachyon, meshes.ground_flower, 35000.f);
   Tachyon_UseLodByDistance(tachyon, meshes.tiny_ground_flower, 35000.f);
-
-  // Entity parts
-  // @todo handle distance LoD stuff in entity behavior files;
-  // it's annoying to manage them here
-  Tachyon_UseLodByDistance(tachyon, meshes.willow_tree_leaves, 35000.f);
 }
 
 static void ShowHighestLevelsOfDetail(Tachyon* tachyon, State& state) {

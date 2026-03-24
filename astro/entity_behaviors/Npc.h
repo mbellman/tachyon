@@ -6,15 +6,11 @@ namespace astro {
   behavior Npc {
     addMeshes() {
       meshes.npc_placeholder = MODEL_MESH("./astro/3d_models/guy.obj", 500);
-      meshes.npc = MODEL_MESH("./astro/3d_models/guy.obj", 500);
+      // meshes.npc = MODEL_MESH("./astro/3d_models/guy.obj", 500);
     }
 
     getMeshes() {
-      // Path nodes don't have a specific in-game object;
-      // path segments are generated between them.
-      return_meshes({
-        meshes.npc
-      });
+      return_meshes({});
     }
 
     getPlaceholderMesh() {
@@ -31,22 +27,24 @@ namespace astro {
 
         bool is_active = IsDuringActiveTime(entity, state);
 
+        if (!is_active) continue;
+
         // Body
-        {
-          auto& body = objects(meshes.npc)[i];
+        // {
+        //   auto& body = objects(meshes.npc)[i];
 
-          Sync(body, entity);
+        //   Sync(body, entity);
 
-          body.position = entity.visible_position;
-          body.rotation = entity.visible_rotation;
+        //   body.position = entity.visible_position;
+        //   body.rotation = entity.visible_rotation;
 
-          if (!is_active) {
-            // Make invisible during inactive times
-            body.scale = tVec3f(0.f);
-          }
+        //   if (!is_active) {
+        //     // Make invisible during inactive times
+        //     body.scale = tVec3f(0.f);
+        //   }
 
-          commit(body);
-        }
+        //   commit(body);
+        // }
 
         // Interaction
         {
@@ -57,7 +55,6 @@ namespace astro {
 
           // Initiating dialogue
           if (
-            is_active &&
             player_distance < 4000.f &&
             player_speed < 200.f &&
             facing_dot > 0.5f
@@ -71,8 +68,23 @@ namespace astro {
               // Reset player speed
               state.player_velocity = tVec3f(0.f);
 
+              entity.did_activate = true;
+              entity.game_activation_time = get_scene_time();
+
               UISystem::StartDialogueSet(state, entity.unique_name);
             }
+          }
+        }
+
+        // Turn to face the player upon interaction
+        {
+          bool did_just_interact = (
+            entity.did_activate &&
+            time_since(entity.game_activation_time) < 1.f
+          );
+
+          if (did_just_interact) {
+            FacePlayer(entity, state);
           }
         }
       }
