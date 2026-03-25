@@ -117,7 +117,7 @@ float GetGlowFactor(vec3 world_position) {
   if (distance_from_light_disc_center > 1.0) distance_from_light_disc_center = 1.0;
 
   float radius = distance_from_light_disc_center * light_distance_from_camera * 0.0001;
-  float glow_factor = clamp(pow(1.0 - radius, 15.0), 0.0, 1.0);
+  float glow_factor = clamp(pow(1.0 - radius, 10.0), 0.0, 1.0);
 
   if (light_distance_from_camera < light.radius * 3.0) {
     glow_factor *= pow(light_distance_from_camera / (light.radius * 3.0), 3);

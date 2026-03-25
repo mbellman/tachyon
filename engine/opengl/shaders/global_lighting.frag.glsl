@@ -141,7 +141,7 @@ float Clearcoat(float NdotH, float NdotV, float clearcoat) {
 }
 
 float Subsurface(float NdotV, float subsurface) {
-  return subsurface * (4 * NdotV + 16 * pow(1.0 - NdotV, 4));
+  return subsurface * (4.0 * NdotV + 16.0 * pow(1.0 - NdotV, 4.0));
 }
 
 vec3 GetDirectionalLightRadiance(
@@ -163,20 +163,18 @@ vec3 GetDirectionalLightRadiance(
 
   float NdotH = max(dot(N, H), 0.0);
   float NdotL = max(dot(N, L), 0.0);
-  float light_factor = NdotL * (1.0 - shadow_factor);
+  // float light_factor = NdotL * (1.0 - shadow_factor);
+  float light_factor = NdotL * ((1.0 - shadow_factor) + 4.0 * pow(1.0 - NdotV, 6.0));
 
   float sD = DistributionGGX(NdotH, roughness);
   float sG = GeometryGGX(NdotH, roughness, metalness);
 
-  // @todo Wtf is this D term? It doesn't seem to be PBR-related
-  // so it should probably be removed.
-  float D = 0.0; //(1.0 - metalness) * (1.0 - roughness * 0.5) * light_factor;
   float Sp = (sD + sG) * 1.5 * light_factor;
   float C = Clearcoat(NdotH, NdotV, clearcoat) * light_factor;
   // @todo pass the additional terms into Subsurface()
   float Sc = Subsurface(NdotV, subsurface) * (light_factor + 0.05) * (1.0 - metalness * 0.5);
 
-  return light_color * (albedo * D + albedo * Sp + C + albedo * albedo * Sc) / PI;
+  return light_color * (albedo * Sp + C + albedo * albedo * Sc) / PI;
 }
 
 const mat4[] light_matrices = {
@@ -670,13 +668,16 @@ void main() {
       float depth = frag_normal_and_depth.w;
       float seed = fract(running_time);
 
-      ssao += GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 250.0);
-      ssao += GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 2000.0);
-      ssao += GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 4000.0);
-      ssao += GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 8000.0);
-      ssao += GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 10000.0);
-      ssao += GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 12000.0);
-      ssao *= 0.1;
+      ssao += 1.0 * GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 250.0);
+      ssao += 1.1 * GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 2000.0);
+      ssao += 1.2 * GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 4000.0);
+      ssao += 1.3 * GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 8000.0);
+      ssao += 1.4 * GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 10000.0);
+      ssao += 1.5 * GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 12000.0);
+      // ssao += 2.0 * GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 24000.0);
+      // ssao += GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 48000.0);
+      // ssao += GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 96000.0);
+      ssao *= 0.075;
     #else
       float linear_depth = GetLinearDepth(frag_normal_and_depth.w, Z_NEAR, Z_FAR);
       float radius = mix(5.0, 10000000.0, linear_depth);

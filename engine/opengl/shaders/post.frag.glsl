@@ -1,7 +1,7 @@
 #version 460 core
 
 #define ENABLE_IMAGE_SMOOTHING 1
-#define ENABLE_DEPTH_OF_FIELD_BLUR 0
+#define ENABLE_DEPTH_OF_FIELD_BLUR 1
 #define ENABLE_CHROMATIC_ABERRATION 0
 
 #define ENABLE_COSMODRONE_FX 0
@@ -156,11 +156,13 @@ float Saturate(float value) {
 }
 
 float Compare(vec3 c1, vec3 c2) {
-  return min(1.0, dot(c1, c2));
+  vec3 delta = vec3(c1.r - c2.r, c1.g - c2.g, c1.b - c2.b);
+
+  return Saturate(1.0 - length(delta));
 }
 
 vec3 GetToonShadedColor(vec3 current_out_color, vec2 uv, float depth, float linear_frag_depth) {
-  #define USE_INSET_OUTLINE 1
+  #define USE_INSET_OUTLINE 0
 
   const float OUTLINE_THICKNESS = 4.0;
 
@@ -215,19 +217,20 @@ vec3 GetToonShadedColor(vec3 current_out_color, vec2 uv, float depth, float line
   bool dt4 = d4 > distance_threshold;
 
   if (dt1 || dt2 || dt3 || dt4) {
-    float alpha = Saturate(0.5 + linear_frag_depth / Z_FAR);
+    float falloff_alpha = pow(Saturate(linear_frag_depth / 30000.0), 2.0);
     vec3 compared_color = dt1 ? c1 : dt2 ? c2 : dt3 ? c3 : c4;
     float color_similarity = Compare(current_out_color, compared_color);
-    float brightness = mix(0.0, 0.9, color_similarity);
 
     #if USE_INSET_OUTLINE == 1
+      float brightness = mix(0.0, 0.9, color_similarity);
       vec3 outline_color = current_out_color * brightness;
 
-      current_out_color = mix(outline_color, current_out_color, alpha);
+      current_out_color = mix(outline_color, current_out_color, falloff_alpha);
     #else
-      vec3 outline_color = compared_color * sqrt(brightness);
+      float brightness = mix(0.0, 0.95, color_similarity);
+      vec3 outline_color = compared_color * brightness;
 
-      current_out_color = outline_color;// mix(outline_color, current_out_color, alpha);
+      current_out_color = mix(outline_color, current_out_color, falloff_alpha);
     #endif
   }
 
@@ -261,9 +264,9 @@ void main() {
 
       // float blur = mix(0.0, max_blur, pow(depth, 100.0));
 
-      const float max_blur = 8.0;
+      const float max_blur = 4.0;
 
-      float blur = mix(0.0, max_blur, pow(depth, 70.0));
+      float blur = mix(0.0, max_blur, pow(depth, 50.0));
 
       const vec2[] offsets = {
         vec2(0.0, -1.0),
@@ -315,7 +318,7 @@ void main() {
 
     // Depth fog
     #if ENABLE_ASTRO_FX
-      float depth_factor = 0.5 * pow(color_and_depth.w, 20.0);
+      float depth_factor = 0.2 * pow(color_and_depth.w, 20.0);
       vec3 fog_color = vec3(0.2, 0.4, 0.5);
 
       post_color = mix(post_color, fog_color, depth_factor);

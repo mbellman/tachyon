@@ -270,7 +270,7 @@ void main() {
     water_speed.y * 0.5 + wz * 0.002
   )));
 
-  // N.xz += 0.05 * vec2(simplex_noise(vec2(time * 0.5 + wx * 0.003, time * 0.5 + wz * 0.003)));
+  N.xz += 0.05 * vec2(simplex_noise(vec2(time * 0.5 + wx * 0.002, time * 0.5 + wz * 0.002)));
 
   // Normal used for specular highlights; more intense than the normal
   // used for regular reflections
@@ -344,16 +344,16 @@ void main() {
 
     // Light reflection
     reflection_color += 5.0 * vec3(1.0, 1.0, 0.6) * pow(RdotL, 5.0);
+    // reflection_color += 5.0 * vec3(0.7, 0.4, 1.0) * pow(RdotL, 5.0);
 
     // Apply ambient reflections
     float fresnel_factor = pow(max(0.0, dot(R, -V)), 2.0);
 
     out_color = mix(out_color, reflection_color, fresnel_factor);
-    out_color = mix(out_color, vec3(0.4), 0.2);
 
     if (shadow < 1.0) {
       // Highlights
-      out_color += 4.0 * vec3(1.0, 0.9, 0.6) * pow(hRdotL, 100.0) * smoothstep(0.2, 0.4, 1.0 - RdotU);
+      out_color += 20.0 * vec3(1.0, 0.9, 0.6) * pow(hRdotL, 100.0) * smoothstep(0.2, 0.4, 1.0 - RdotU);
     }
   }
 

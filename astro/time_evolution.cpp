@@ -145,7 +145,7 @@ void TimeEvolution::UpdateAstroTime(Tachyon* tachyon, State& state) {
     if (state.is_nighttime) {
       scene.sky_light_color = tVec3f(0, 0, 0.4f);
     } else {
-      scene.sky_light_color = tVec3f(0.4f, 0.5f, 1.f) * 0.2f;
+      scene.sky_light_color = tVec3f(0.1f, 0.1f, 0.4f);
     }
   }
 }
