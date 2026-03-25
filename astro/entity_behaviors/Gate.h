@@ -12,8 +12,6 @@ namespace astro {
       meshes.gate_left_door = MODEL_MESH("./astro/3d_models/gate/left_door.obj", 500);
       meshes.gate_right_door = MODEL_MESH("./astro/3d_models/gate/right_door.obj", 500);
       meshes.gate_lock = MODEL_MESH("./astro/3d_models/gate/lock.obj", 500);
-      // meshes.gate_switch = MODEL_MESH("./astro/3d_models/gate/switch.obj", 500);
-      // meshes.gate_switch_handle = MODEL_MESH("./astro/3d_models/gate/switch_handle.obj", 500);
     }
 
     getMeshes() {
@@ -22,8 +20,6 @@ namespace astro {
         meshes.gate_left_door,
         meshes.gate_right_door,
         meshes.gate_lock
-        // meshes.gate_switch,
-        // meshes.gate_switch_handle
       });
     }
 
@@ -49,8 +45,7 @@ namespace astro {
         if (abs(state.player_position.x - entity.position.x) > 25000.f) continue;
         if (abs(state.player_position.z - entity.position.z) > 25000.f) continue;
 
-        tVec3f interaction_position = UnitEntityToWorldPosition(entity, tVec3f(0.4f, -0.2f, 0));
-        tVec3f player_to_interaction_position = interaction_position.xz() - state.player_position.xz();
+        tVec3f player_to_interaction_position = entity.position.xz() - state.player_position.xz();
         float distance_from_interaction_position = player_to_interaction_position.magnitude();
         tVec3f interaction_direction = player_to_interaction_position / distance_from_interaction_position;
 
@@ -109,8 +104,7 @@ namespace astro {
           }
         } else if (
           abs(state.astro_turn_speed) < 0.1f &&
-          distance_from_interaction_position < 2000.f &&
-          player_speed < 200.f &&
+          distance_from_interaction_position < 3000.f &&
           tVec3f::dot(state.player_facing_direction, interaction_direction) > 0.5f
         ) {
           bool has_gate_key = Items::HasItem(state, GATE_KEY);
@@ -118,7 +112,7 @@ namespace astro {
           // @temporary
           lock.color.rgba |= 0x0008;
 
-          if (did_press_key(tKey::CONTROLLER_A)) {
+          if (did_press_key(tKey::CONTROLLER_A) && player_speed < 200.f) {
             if (has_gate_key) {
               // Open the gate
               entity.game_activation_time = get_scene_time();

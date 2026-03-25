@@ -75,8 +75,8 @@ static void StartVillageGateOpenEvent(Tachyon* tachyon, State& state) {
       }
 
       QueueCameraTargetEvent(tachyon, state, entity, {
-        .delay = 1.f,
-        .duration = 1.f
+        .delay = 0.f,
+        .duration = 2.f
       });
     }
   }
