@@ -102,7 +102,7 @@ float GetLinearDepth(float depth, float near, float far) {
 /**
  * Returns a value clamped between 0 and 1.
  */
-float saturate(float value) {
+float Saturate(float value) {
   return clamp(value, 0.0, 1.0);
 }
 
@@ -550,7 +550,7 @@ float GetSSAO(int total_samples, float depth, vec3 position, vec3 normal, float 
 
     if (world_depth < -view_sample_position.z) {
       float occluder_distance = -view_sample_position.z - world_depth;
-      float occlusion_factor = mix(1.0, 0.0, saturate(occluder_distance / (0.5 * radius)));
+      float occlusion_factor = mix(1.0, 0.0, Saturate(occluder_distance / (0.5 * radius)));
 
       ssao += occlusion_factor;
     }
@@ -694,7 +694,24 @@ void main() {
   // Denoising
   vec2 denoised_temporal_data = GetDenoisedTemporalData(ssao, shadow, frag_normal_and_depth.w, temporal_uv);
 
-  ssao = denoised_temporal_data.x;
+  // @HACK!!!!!!!!!!!!
+  // This is truly heinous, but allows us to eliminate temporal smearing
+  // near the player's hood. Since we don't use motion vectors and can't
+  // accurately reproject moving objects, ghosting can technically occur
+  // anywhere, but it is distinctly noticeable there. Checking proximity
+  // is a ridiculous way around it, but it's better than doing nothing,
+  // and until there's a pressing need for the additional memory overhead
+  // of a motion vector buffer, that won't be happening either.
+  vec3 player_hood_position = player_position + vec3(0, 2000.0, 0);
+  float player_cap_xz_distance = distance(position.xz, player_hood_position.xz);
+  float player_cap_y_distance = abs(position.y - player_hood_position.y);
+  float player_cap_proximity = 0.0;
+
+  if (player_cap_xz_distance < 1500.0 && player_cap_y_distance < 500.0) {
+    player_cap_proximity = 1.0;
+  }
+
+  ssao = mix(denoised_temporal_data.x, ssao, player_cap_proximity);
   shadow = denoised_temporal_data.y;
 
   ssao = clamp(ssao, 0.0, 1.0);

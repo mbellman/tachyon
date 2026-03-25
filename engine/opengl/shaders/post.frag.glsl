@@ -217,7 +217,7 @@ vec3 GetToonShadedColor(vec3 current_out_color, vec2 uv, float depth, float line
   bool dt4 = d4 > distance_threshold;
 
   if (dt1 || dt2 || dt3 || dt4) {
-    float falloff_alpha = pow(Saturate(linear_frag_depth / 30000.0), 2.0);
+    float falloff_alpha = smoothstep(0.8, 0.9, Saturate(linear_frag_depth / 30000.0));
     vec3 compared_color = dt1 ? c1 : dt2 ? c2 : dt3 ? c3 : c4;
     float color_similarity = Compare(current_out_color, compared_color);
 
@@ -227,8 +227,8 @@ vec3 GetToonShadedColor(vec3 current_out_color, vec2 uv, float depth, float line
 
       current_out_color = mix(outline_color, current_out_color, falloff_alpha);
     #else
-      float brightness = mix(0.0, 0.95, color_similarity);
-      vec3 outline_color = compared_color * brightness;
+      float brightness = mix(0.0, 1.0, color_similarity);
+      vec3 outline_color = compared_color * pow(brightness, 2.0);
 
       current_out_color = mix(outline_color, current_out_color, falloff_alpha);
     #endif
