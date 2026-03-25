@@ -571,7 +571,7 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   for (auto& entity : state.npcs) {
     if (!IsDuringActiveTime(entity, state)) continue;
 
-    ResolveSingleRadiusCollision(state, entity.visible_position, entity.scale, 1.5f);
+    ResolveSingleRadiusCollision(state, entity.visible_position, entity.scale, 1.f);
   }
 
   for (auto& ground : objects(state.meshes.ground_1)) {

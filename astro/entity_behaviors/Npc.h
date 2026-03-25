@@ -5,8 +5,7 @@
 namespace astro {
   behavior Npc {
     addMeshes() {
-      meshes.npc_placeholder = MODEL_MESH("./astro/3d_models/guy.obj", 500);
-      // meshes.npc = MODEL_MESH("./astro/3d_models/guy.obj", 500);
+      meshes.npc_placeholder = MODEL_MESH("./astro/3d_models/npc/placeholder.obj", 500);
     }
 
     getMeshes() {
@@ -28,23 +27,6 @@ namespace astro {
         bool is_active = IsDuringActiveTime(entity, state);
 
         if (!is_active) continue;
-
-        // Body
-        // {
-        //   auto& body = objects(meshes.npc)[i];
-
-        //   Sync(body, entity);
-
-        //   body.position = entity.visible_position;
-        //   body.rotation = entity.visible_rotation;
-
-        //   if (!is_active) {
-        //     // Make invisible during inactive times
-        //     body.scale = tVec3f(0.f);
-        //   }
-
-        //   commit(body);
-        // }
 
         // Interaction
         {

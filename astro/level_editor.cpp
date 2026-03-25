@@ -1969,6 +1969,14 @@ void LevelEditor::OpenLevelEditor(Tachyon* tachyon, State& state) {
     }
   }
 
+  // Disable all animated entity meshes
+  for_range(0, MAX_ANIMATED_PEOPLE - 1) {
+    auto& skin = state.person_skinned_meshes[i];
+    auto& person = skinned_mesh(skin.mesh_index);
+
+    person.disabled = true;
+  }
+
   editor.selectables.clear();
 
   SpawnEntityPlaceholders(tachyon, state);
