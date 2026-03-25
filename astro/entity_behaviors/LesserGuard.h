@@ -17,19 +17,19 @@ namespace astro {
     const static float BLOCK_DURATION = 1.f;
     const static float BREAK_DURATION = 2.f;
 
-    static void HandleDeathAnimation(GameEntity& entity, tObject& body, const float scene_time) {
-      Quaternion death_rotation = entity.visible_rotation * (
-        Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -t_HALF_PI)
-      );
+    // static void HandleDeathAnimation(GameEntity& entity, tObject& body, const float scene_time) {
+    //   Quaternion death_rotation = entity.visible_rotation * (
+    //     Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -t_HALF_PI)
+    //   );
 
-      float collapse_alpha = (scene_time - entity.enemy_state.last_death_time) / 0.6f;
-      if (collapse_alpha < 0.f) collapse_alpha = 0.f;
-      if (collapse_alpha > 1.f) collapse_alpha = 1.f;
-      collapse_alpha *= collapse_alpha;
+    //   float collapse_alpha = (scene_time - entity.enemy_state.last_death_time) / 0.6f;
+    //   if (collapse_alpha < 0.f) collapse_alpha = 0.f;
+    //   if (collapse_alpha > 1.f) collapse_alpha = 1.f;
+    //   collapse_alpha *= collapse_alpha;
 
-      body.rotation = Quaternion::slerp(body.rotation, death_rotation, collapse_alpha);
-      body.position.y = Tachyon_Lerpf(body.position.y, -1100.f, collapse_alpha);
-    }
+    //   body.rotation = Quaternion::slerp(body.rotation, death_rotation, collapse_alpha);
+    //   body.position.y = Tachyon_Lerpf(body.position.y, -1100.f, collapse_alpha);
+    // }
 
     static void HandleShieldBlockAction(Tachyon* tachyon, State& state, GameEntity& entity, tObject& shield) {
       float time_since_blocking = time_since(entity.enemy_state.last_block_time);
@@ -122,14 +122,14 @@ namespace astro {
 
     addMeshes() {
       meshes.lesser_guard_placeholder = MODEL_MESH("./astro/3d_models/guy.obj", 500);
-      meshes.lesser_guard_body = MODEL_MESH("./astro/3d_models/low_guard/body.obj", 500);
+      // meshes.lesser_guard_body = MODEL_MESH("./astro/3d_models/low_guard/body.obj", 500);
       meshes.lesser_guard_shield = MODEL_MESH("./astro/3d_models/low_guard/shield.obj", 500);
       meshes.lesser_guard_sword = MODEL_MESH("./astro/3d_models/lesser_guard/sword.obj", 500);
     }
 
     getMeshes() {
       return_meshes({
-        meshes.lesser_guard_body,
+        // meshes.lesser_guard_body,
         meshes.lesser_guard_shield,
         meshes.lesser_guard_sword
       });
@@ -317,22 +317,22 @@ namespace astro {
         }
 
         // Body
-        {
-          auto& body = objects(meshes.lesser_guard_body)[i];
+        // {
+        //   auto& body = objects(meshes.lesser_guard_body)[i];
 
-          body.position = entity.visible_position;
-          body.scale = entity.visible_scale;
-          body.rotation = entity.visible_rotation;
-          // body.color = entity.tint;
-          body.color = tVec3f(0.8f, 0.4f, 0.2f);
-          body.material = tVec4f(0.6f, 0, 0, 0.4f);
+        //   body.position = entity.visible_position;
+        //   body.scale = entity.visible_scale;
+        //   body.rotation = entity.visible_rotation;
+        //   // body.color = entity.tint;
+        //   body.color = tVec3f(0.8f, 0.4f, 0.2f);
+        //   body.material = tVec4f(0.6f, 0, 0, 0.4f);
 
-          if (death_alpha > 0.f) {
-            HandleDeathAnimation(entity, body, get_scene_time());
-          }
+        //   if (death_alpha > 0.f) {
+        //     HandleDeathAnimation(entity, body, get_scene_time());
+        //   }
 
-          commit(body);
-        }
+        //   commit(body);
+        // }
 
         // Shield
         {

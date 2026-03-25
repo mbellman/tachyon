@@ -269,7 +269,7 @@ namespace astro {
 
       // LESSER_GUARD
       lesser_guard_placeholder,
-      lesser_guard_body,
+      // lesser_guard_body,
       lesser_guard_shield,
       lesser_guard_sword,
 

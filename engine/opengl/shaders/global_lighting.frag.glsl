@@ -674,9 +674,6 @@ void main() {
       ssao += 1.3 * GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 8000.0);
       ssao += 1.4 * GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 10000.0);
       ssao += 1.5 * GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 12000.0);
-      // ssao += 2.0 * GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 24000.0);
-      // ssao += GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 48000.0);
-      // ssao += GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 96000.0);
       ssao *= 0.075;
     #else
       float linear_depth = GetLinearDepth(frag_normal_and_depth.w, Z_NEAR, Z_FAR);
@@ -807,8 +804,8 @@ void main() {
         out_color = mix(out_color, fog_color, fog_thickness);
 
         // Increase contrast with fog thickness for artistic effect
-        // @todo continue adjusting this
-        vec3 high_contrast_color = ((out_color.rgb - 0.5) * 2.0) + 0.5;
+        const float contrast = 1.5;
+        const vec3 high_contrast_color = contrast * (out_color.rgb - 0.5) + 0.5;
 
         out_color = mix(out_color, high_contrast_color, fog_thickness * fog_thickness);
       }
