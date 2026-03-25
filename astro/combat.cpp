@@ -65,13 +65,15 @@ static void HandleLesserGuardWandStrike(Tachyon* tachyon, State& state, GameEnti
   auto& enemy = entity.enemy_state;
   float scene_time = get_scene_time();
   bool is_enemy_blocking = time_since(enemy.last_block_time) < 1.f;
-  bool is_enemy_invincible = time_since(enemy.last_damage_time) < 0.5f;
+  bool is_enemy_on_damage_cooldown = time_since(enemy.last_damage_time) < 0.5f;
   bool is_player_doing_break_attack = time_since(state.last_break_attack_time) < 0.5f;
   bool is_active_target = state.has_target && IsSameEntity(entity, state.target_entity);
 
+  // Striking a blocking enemy
   if (is_enemy_blocking) {
+    // Only count damage against active targets
+    // or in non-targeting scenarios
     if (is_active_target || !state.has_target) {
-      // Striking a blocking enemy
       state.last_wand_swing_time = 0.f;
       state.last_wand_bounce_time = scene_time;
 
@@ -94,12 +96,15 @@ static void HandleLesserGuardWandStrike(Tachyon* tachyon, State& state, GameEnti
         Sfx::PlaySound(SFX_WAND_RECOIL, 0.5f);
       }
     }
-  } else if (!is_enemy_invincible) {
+
+  // Striking a non-blocking enemy
+  } else if (!is_enemy_on_damage_cooldown) {
     enemy.last_attack_start_time = 0.f;
     enemy.last_attack_action_time = 0.f;
 
     if (is_player_doing_break_attack) {
       if (is_active_target) {
+        // Break attack against a non-blocking enemy
         state.last_wand_swing_time = 0.f;
         state.last_wand_bounce_time = scene_time;
 
@@ -111,15 +116,16 @@ static void HandleLesserGuardWandStrike(Tachyon* tachyon, State& state, GameEnti
         Sfx::PlaySound(SFX_SHIELD_BREAK, 0.5f);
       }
     } else {
-      // Normal attack damage + knockback
-      bool is_enemy_broken = time_since(enemy.last_break_time) < 1.f;
+      // Attack damage + knockback
+      bool is_enemy_broken = time_since(enemy.last_break_time) < 2.f;
       float damage = is_enemy_broken ? 50.f : 30.f;
-      float knockback = is_enemy_broken ? -9000.f : -7000.f;
+      float knockback = is_enemy_broken ? -10000.f : -7000.f;
 
       enemy.health -= damage;
       enemy.last_damage_time = scene_time;
       enemy.speed = knockback;
 
+      // @todo harder sound against broken enemies
       Sfx::PlaySound(SFX_WAND_ATTACK, 0.5f);
     }
 

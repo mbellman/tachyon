@@ -804,7 +804,8 @@ void main() {
         out_color = mix(out_color, fog_color, fog_thickness);
 
         // Increase contrast with fog thickness for artistic effect
-        const float contrast = 1.5;
+        // @todo pass contrast as a uniform
+        const float contrast = 2.0;
         const vec3 high_contrast_color = contrast * (out_color.rgb - 0.5) + 0.5;
 
         out_color = mix(out_color, high_contrast_color, fog_thickness * fog_thickness);
