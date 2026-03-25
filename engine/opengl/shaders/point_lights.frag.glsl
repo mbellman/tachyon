@@ -20,6 +20,7 @@ uniform float accumulation_blur_factor;
 noperspective in vec2 fragUv;
 flat in Light light;
 flat in vec2 center;
+flat in float disc_radius;
 in float intensity;
 
 layout (location = 0) out vec4 out_color_and_depth;
@@ -75,6 +76,38 @@ float GetGlowDistanceFactor(float light_distance) {
   return max(0.0, mix(1.0, 0.2, light_distance / 2000000.0));
 }
 
+float GetDiscRadiusFactor(vec3 world_position) {
+  float dx = (1920.0 / 1080.0) * (fragUv.x - center.x);
+  float dy = (fragUv.y - center.y);
+  float distance_from_light_disc_center = sqrt(dx*dx + dy*dy);
+  float radius_factor = clamp(1.0 - distance_from_light_disc_center / disc_radius, 0.0, 1.0);
+
+  return radius_factor * radius_factor;
+}
+
+vec3 GetPointLightRadiance(vec3 world_position, float light_distance, vec3 N, vec3 L, vec3 V, vec3 albedo, Material material) {
+  vec3 H = normalize(V + L);
+  float NdotL = max(0.0, dot(N, L));
+  float NdotH = max(dot(N, H), 0.0);
+
+  vec3 radiant_flux = light.color * light.power;
+  float distance_factor = 1.0 - min(1.0, light_distance / light.radius);
+
+  #if USE_GAMMA_CORRECTION == 1
+    distance_factor *= distance_factor;
+    // distance_factor *= distance_factor;
+  #endif
+
+  // @todo PBR (?)
+  float incidence = (material.subsurface * 0.5 + NdotL);
+  vec3 D = albedo * radiant_flux * distance_factor * incidence;
+  vec3 S = radiant_flux * pow(NdotH, 50.0) * distance_factor;
+
+  // return D + 2.0 * S;
+
+  return D + 3.0 * (material.metalness + 2.0 * material.clearcoat + 2.0 * (1.0 - material.roughness)) * S;
+}
+
 float GetGlowFactor(vec3 world_position) {
   float dx = (1920.0 / 1080.0) * (fragUv.x - center.x);
   float dy = (fragUv.y - center.y);
@@ -84,7 +117,7 @@ float GetGlowFactor(vec3 world_position) {
   if (distance_from_light_disc_center > 1.0) distance_from_light_disc_center = 1.0;
 
   float radius = distance_from_light_disc_center * light_distance_from_camera * 0.0001;
-  float glow_factor = clamp(pow(1.0 - radius, 40.0), 0.0, 1.0);
+  float glow_factor = clamp(pow(1.0 - radius, 15.0), 0.0, 1.0);
 
   if (light_distance_from_camera < light.radius * 3.0) {
     glow_factor *= pow(light_distance_from_camera / (light.radius * 3.0), 3);
@@ -117,30 +150,6 @@ float GetGlowFactor(vec3 world_position) {
   return glow_factor;
 }
 
-vec3 GetPointLightRadiance(vec3 world_position, float light_distance, vec3 N, vec3 L, vec3 V, vec3 albedo, Material material) {
-  vec3 H = normalize(V + L);
-  float NdotL = max(0.0, dot(N, L));
-  float NdotH = max(dot(N, H), 0.0);
-
-  vec3 radiant_flux = light.color * light.power;
-  float distance_factor = 1.0 - min(1.0, light_distance / light.radius);
-
-  #if USE_GAMMA_CORRECTION == 1
-    distance_factor *= distance_factor;
-    distance_factor *= distance_factor;
-  #endif
-
-
-  // @todo PBR (?)
-  float incidence = (material.subsurface * 0.5 + NdotL);
-  vec3 D = albedo * radiant_flux * distance_factor * incidence;
-  vec3 S = radiant_flux * pow(NdotH, 50.0) * distance_factor;
-
-  // return D + 2.0 * S;
-
-  return D + 3.0 * (material.metalness + 2.0 * material.clearcoat + 2.0 * (1.0 - material.roughness)) * S;
-}
-
 void main() {
   vec4 frag_normal_and_depth = texture(in_normal_and_depth, fragUv);
   uvec4 frag_color_and_material = texture(in_color_and_material, fragUv);
@@ -160,6 +169,8 @@ void main() {
 
   out_color += GetPointLightRadiance(position, light_distance, N, L, V, albedo, material);
   out_color += light.color * GetGlowFactor(position) * min(1.0, light.power) * light.glow_power;
+  out_color *= GetDiscRadiusFactor(position);
+
   // out_color += light.color * 0.1;
 
   // Reduce the light contribution in proportion to the accumulation blur effect,

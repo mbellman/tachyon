@@ -160,6 +160,8 @@ float Compare(vec3 c1, vec3 c2) {
 }
 
 vec3 GetToonShadedColor(vec3 current_out_color, vec2 uv, float depth, float linear_frag_depth) {
+  #define USE_INSET_OUTLINE 1
+
   const float OUTLINE_THICKNESS = 4.0;
 
   // Get the depth values for the top/left/right/bottom pixels
@@ -179,10 +181,17 @@ vec3 GetToonShadedColor(vec3 current_out_color, vec2 uv, float depth, float line
   float depth3 = GetWorldDepth(t3.w, Z_NEAR, Z_FAR);
   float depth4 = GetWorldDepth(t4.w, Z_NEAR, Z_FAR);
 
-  float d1 = depth1 - linear_frag_depth;
-  float d2 = depth2 - linear_frag_depth;
-  float d3 = depth3 - linear_frag_depth;
-  float d4 = depth4 - linear_frag_depth;
+  #if USE_INSET_OUTLINE == 1
+    float d1 = depth1 - linear_frag_depth;
+    float d2 = depth2 - linear_frag_depth;
+    float d3 = depth3 - linear_frag_depth;
+    float d4 = depth4 - linear_frag_depth;
+  #else
+    float d1 = linear_frag_depth - depth1;
+    float d2 = linear_frag_depth - depth2;
+    float d3 = linear_frag_depth - depth3;
+    float d4 = linear_frag_depth - depth4;
+  #endif
 
   vec3 c1 = t1.rgb;
   vec3 c2 = t2.rgb;
@@ -210,9 +219,16 @@ vec3 GetToonShadedColor(vec3 current_out_color, vec2 uv, float depth, float line
     vec3 compared_color = dt1 ? c1 : dt2 ? c2 : dt3 ? c3 : c4;
     float color_similarity = Compare(current_out_color, compared_color);
     float brightness = mix(0.0, 0.9, color_similarity);
-    vec3 outline_color = current_out_color * brightness;
 
-    current_out_color = mix(outline_color, current_out_color, alpha);
+    #if USE_INSET_OUTLINE == 1
+      vec3 outline_color = current_out_color * brightness;
+
+      current_out_color = mix(outline_color, current_out_color, alpha);
+    #else
+      vec3 outline_color = compared_color * sqrt(brightness);
+
+      current_out_color = outline_color;// mix(outline_color, current_out_color, alpha);
+    #endif
   }
 
   return current_out_color;

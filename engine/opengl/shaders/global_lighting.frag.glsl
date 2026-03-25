@@ -213,8 +213,8 @@ float GetCascadeShadowFactor(sampler2D shadow_map, vec3 light_space_position, in
   };
 
   const float[] spatial_spread_per_cascade = {
+    4.0,
     2.0,
-    1.0,
     1.5,
     0.75
   };
@@ -508,8 +508,6 @@ vec3 GetReflectionColor(vec3 R) {
   return GetSkyColor(R, 0.0);
 }
 
-#define USE_FAST_SSAO 1
-
 const vec3[] ssao_sample_points = {
   vec3(0.021429, 0.059112, 0.07776),
   vec3(0.042287, -0.020052, 0.092332),
@@ -560,7 +558,7 @@ float GetSSAO(int total_samples, float depth, vec3 position, vec3 normal, float 
     }
   }
 
-  return ssao / float(total_samples) * 0.5;
+  return ssao / float(total_samples);
 }
 
 vec2 GetDenoisedTemporalData(float ssao, float shadow, float depth, vec2 temporal_uv) {
@@ -665,22 +663,26 @@ void main() {
   float ssao = 0.0;
 
   if (enable_ssao) {
+    #define USE_FAST_SSAO 1
+    #define SSAO_SAMPLES 1
+
     #if USE_FAST_SSAO == 1
       float depth = frag_normal_and_depth.w;
       float seed = fract(running_time);
 
-      ssao += GetSSAO(1, depth, position, N, seed, 250.0);
-      ssao += GetSSAO(1, depth, position, N, seed, 2000.0);
-      ssao += GetSSAO(1, depth, position, N, seed, 4000.0);
-      ssao += GetSSAO(1, depth, position, N, seed, 8000.0);
-      ssao += GetSSAO(1, depth, position, N, seed, 10000.0);
-      ssao += GetSSAO(1, depth, position, N, seed, 12000.0);
-      ssao *= 0.15;
+      ssao += GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 250.0);
+      ssao += GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 2000.0);
+      ssao += GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 4000.0);
+      ssao += GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 8000.0);
+      ssao += GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 10000.0);
+      ssao += GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 12000.0);
+      ssao *= 0.1;
     #else
       float linear_depth = GetLinearDepth(frag_normal_and_depth.w, Z_NEAR, Z_FAR);
       float radius = mix(5.0, 10000000.0, linear_depth);
 
       ssao = GetSSAO(12, frag_normal_and_depth.w, position, N, fract(running_time), radius);
+      ssao *= 0.5;
     #endif
   }
 
