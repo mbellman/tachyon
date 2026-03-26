@@ -652,8 +652,18 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
       GltfLoader("./astro/3d_skeleton_animations/player_run/run_8.gltf").skeleton
     };
 
+    // @todo factor
     for (auto& bone : state.animations.player_idle.frames[0].bones) {
       state.player_mesh_animation.active_pose.bones.push_back(bone);
+    }
+
+    for_range(0, MAX_ANIMATED_PEOPLE - 1) {
+      auto& skin = state.person_skinned_meshes[i];
+
+      // @todo factor
+      for (auto& bone : state.animations.player_idle.frames[0].bones) {
+        skin.animation.active_pose.bones.push_back(bone);
+      }
     }
   }
 

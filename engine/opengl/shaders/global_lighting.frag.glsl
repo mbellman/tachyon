@@ -705,13 +705,13 @@ void main() {
   vec3 player_hood_position = player_position + vec3(0, 2000.0, 0);
   float player_cap_xz_distance = distance(position.xz, player_hood_position.xz);
   float player_cap_y_distance = abs(position.y - player_hood_position.y);
-  float player_cap_proximity = 0.0;
+  bool disable_ssao_temporal_denoising = false;
 
   if (player_cap_xz_distance < 1500.0 && player_cap_y_distance < 500.0) {
-    player_cap_proximity = 1.0;
+    disable_ssao_temporal_denoising = true;
   }
 
-  ssao = mix(denoised_temporal_data.x, ssao, player_cap_proximity);
+  ssao = disable_ssao_temporal_denoising ? ssao : denoised_temporal_data.x;
   shadow = denoised_temporal_data.y;
 
   ssao = clamp(ssao, 0.0, 1.0);

@@ -3,6 +3,7 @@
 #include "astro/game_state.h"
 
 namespace astro {
+  // @todo move to engine (?)
   namespace Animation {
     void AccumulateTime(tSkinnedMeshAnimation& mesh_animation, const float speed, const float dt);
     void UpdatePose(tSkinnedMeshAnimation& mesh_animation);

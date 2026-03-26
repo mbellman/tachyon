@@ -1,9 +1,14 @@
 #include "astro/animated_entities.h"
+#include "astro/animation.h"
 #include "astro/entity_behaviors/behavior.h"
 
 using namespace astro;
 
 void AnimatedEntities::UpdateAnimatedEntities(Tachyon* tachyon, State& state) {
+  profile("UpdateAnimatedEntities()");
+
+  auto& animations = state.animations;
+
   // Disable all animated entity meshes upfront
   for_range(0, MAX_ANIMATED_PEOPLE - 1) {
     auto& skin = state.person_skinned_meshes[i];
@@ -26,14 +31,21 @@ void AnimatedEntities::UpdateAnimatedEntities(Tachyon* tachyon, State& state) {
     auto& skin = state.person_skinned_meshes[next_index++];
     auto& person = skinned_mesh(skin.mesh_index);
 
+    if (skin.animation.current_animation == nullptr) {
+      skin.animation.current_animation = &animations.player_run;
+    }
+
+    Animation::SetNextAnimation(skin.animation, &animations.player_run);
+    Animation::AccumulateTime(skin.animation, 10.f, state.dt);
+    Animation::UpdatePose(skin.animation);
+    Animation::UpdateBoneMatrices(skin.animation);
+
     person.position = entity.visible_position;
     person.rotation = entity.visible_rotation;
     person.scale = tVec3f(1500.f);
     person.shadow_cascade_ceiling = 1;
     person.disabled = false;
-
-    // @TEMPORARY!!!!!!!!!!!!!!
-    person.current_pose = &state.player_mesh_animation.active_pose;
+    person.current_pose = &skin.animation.active_pose;
 
     commit(person);
   }
@@ -49,14 +61,21 @@ void AnimatedEntities::UpdateAnimatedEntities(Tachyon* tachyon, State& state) {
     auto& skin = state.person_skinned_meshes[next_index++];
     auto& person = skinned_mesh(skin.mesh_index);
 
+    if (skin.animation.current_animation == nullptr) {
+      skin.animation.current_animation = &animations.player_idle;
+    }
+
+    Animation::SetNextAnimation(skin.animation, &animations.player_idle);
+    Animation::AccumulateTime(skin.animation, 1.f, state.dt);
+    Animation::UpdatePose(skin.animation);
+    Animation::UpdateBoneMatrices(skin.animation);
+
     person.position = entity.visible_position;
     person.rotation = entity.visible_rotation;
     person.scale = tVec3f(1500.f);
     person.shadow_cascade_ceiling = 1;
     person.disabled = false;
-
-    // @TEMPORARY!!!!!!!!!!!!!!
-    person.current_pose = &state.player_mesh_animation.active_pose;
+    person.current_pose = &skin.animation.active_pose;
 
     commit(person);
   }
