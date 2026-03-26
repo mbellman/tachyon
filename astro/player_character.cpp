@@ -60,7 +60,10 @@ static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
   );
 
   // @todo add more animations and refactor how to determine the active animation
-  if (is_key_held(tKey::CONTROLLER_A) && state.previous_move_delta > 0.f) {
+  if (
+    is_key_held(tKey::CONTROLLER_A) &&
+    (abs(tachyon->left_stick.x) > 0.1f || abs(tachyon->left_stick.y) > 0.1f)
+  ) {
     Animation::SetNextAnimation(player_animation, &animations.player_run);
   } else if (state.previous_move_delta > 5.f || is_doing_quick_turn || is_moving_with_target) {
     Animation::AwaitNextAnimation(player_animation, &animations.player_walk);

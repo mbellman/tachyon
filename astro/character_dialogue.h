@@ -82,7 +82,7 @@ namespace astro {
   static DialogueList bandit_dialogue_stunned_engaged = {
     {
       .text = "Argh! The bastard blinded me!",
-      .sound = "./astro/audio/bandit/blinded.mp3"
+      .sound = ""
     }
   };
 
@@ -100,11 +100,11 @@ namespace astro {
   static DialogueList bandit_dialogue_noticed = {
     {
       .text = "Look, we've got one!",
-      .sound = "./astro/audio/bandit/got_one.mp3"
+      .sound = ""
     },
     {
       .text = "All by our lonesome, are we?",
-      .sound = "./astro/audio/bandit/lonesome.mp3"
+      .sound = ""
     }
   };
 
@@ -124,10 +124,6 @@ namespace astro {
   };
 
   static DialogueList bandit_dialogue_agitated = {
-    {
-      .text = "Dirty rat! You're in for it now!",
-      .sound = ""
-    },
     {
       .text = "Dirty rat! You're in for it now!",
       .sound = ""
@@ -157,8 +153,8 @@ namespace astro {
 
   static DialogueList low_guard_dialogue_engaged = {
     {
-      .text = "You there! Retreat, at once!",
-      .sound = "./astro/audio/low_guard/retreat_at_once.mp3"
+      .text = "You there! Retreat, or there shall be consequences!",
+      .sound = ""
     },
     {
       .text = "You've no business here! Be on your way!",
@@ -172,15 +168,15 @@ namespace astro {
 
   static DialogueList low_guard_dialogue_agitated = {
     {
-      .text = "Cease your trespass! Or I shall strike!",
-      .sound = "./astro/audio/low_guard/trespass.mp3"
-    },
-    {
-      .text = "Stay back, or I shall arrest you!",
+      .text = "Cease thy trespass this instant!",
       .sound = ""
     },
     {
-      .text = "I shall not warn you again!",
+      .text = "Surrender yourself at once!",
+      .sound = ""
+    },
+    {
+      .text = "I command thee, halt!",
       .sound = ""
     }
   };

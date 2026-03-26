@@ -104,6 +104,15 @@ namespace astro {
           light.position = UnitEntityToWorldPosition(entity, tVec3f(0, 1.45f, 0.55f));
           light.radius = 2000.f;
           light.color = tVec3f(1.f, 0.6f, 0.3f);
+
+          float time_since_activating = time_since(entity.game_activation_time);
+
+          if (entity.game_activation_time > 0.f && time_since_activating < 3.f) {
+            float alpha = time_since_activating / 3.f;
+
+            light.radius += 2000.f * sinf(alpha * t_PI);
+            light.color = tVec3f::lerp(light.color, tVec3f(1.f), alpha);
+          }
         }
       }
     }
