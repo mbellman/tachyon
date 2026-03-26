@@ -10,9 +10,9 @@
 
 namespace astro {
   behavior LowGuard {
-    const static float wind_up_duration = 0.8f;
+    const static float wind_up_duration = 0.5f;
     const static float stab_duration = 0.1f;
-    const static float wind_down_duration = 0.8f;
+    const static float wind_down_duration = 0.6f;
     const static float attack_duration = wind_up_duration + stab_duration + wind_down_duration;
 
     addMeshes() {
@@ -337,7 +337,8 @@ namespace astro {
                   PlayerCharacter::CanTakeDamage(tachyon, state)
                 ) {
                   Sfx::PlaySound(SFX_SWORD_DAMAGE, 0.5f);
-                  PlayerCharacter::TakeDamage(tachyon, state, 40.f);
+
+                  PlayerCharacter::TakeDamage(tachyon, state, 60.f);
 
                   // Knockback
                   tVec3f knockback_direction = (state.player_position - spear.position).xz().unit();
