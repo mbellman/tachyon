@@ -165,6 +165,7 @@ struct tUniformLocations {
     astro_time_warp,
     astro_time_warp_start_radius,
     astro_time_warp_end_radius,
+    haze_intensity,
     vignette_intensity
   ) post;
 

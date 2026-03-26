@@ -21,6 +21,7 @@ uniform vec3 player_position;
 uniform float astro_time_warp;
 uniform float astro_time_warp_start_radius;
 uniform float astro_time_warp_end_radius;
+uniform float haze_intensity;
 uniform float vignette_intensity;
 
 in vec2 fragUv;
@@ -316,9 +317,9 @@ void main() {
       post_color = mix(post_color, volumetric_fog.rgb, volumetric_fog.w);
     #endif
 
-    // Depth fog
+    // Depth haze
     #if ENABLE_ASTRO_FX
-      float depth_factor = 0.2 * pow(color_and_depth.w, 20.0);
+      float depth_factor = haze_intensity * pow(color_and_depth.w, 20.0);
       vec3 fog_color = vec3(0.2, 0.4, 0.5);
 
       post_color = mix(post_color, fog_color, depth_factor);
