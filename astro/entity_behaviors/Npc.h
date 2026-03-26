@@ -62,7 +62,7 @@ namespace astro {
         {
           bool did_just_interact = (
             entity.did_activate &&
-            time_since(entity.game_activation_time) < 1.f
+            time_since(entity.game_activation_time) < 1.5f
           );
 
           if (did_just_interact) {

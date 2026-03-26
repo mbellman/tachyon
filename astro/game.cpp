@@ -583,6 +583,13 @@ static void HandleFrameEnd(Tachyon* tachyon, State& state) {
     fx.astro_time_warp_end_radius = state.time_warp_end_radius;
   }
 
+  // Haze intensity
+  {
+    float haze_alpha = Tachyon_InverseLerp(astro_time_periods.past, astro_time_periods.present, state.astro_time);
+
+    fx.haze_intensity = Tachyon_Lerpf(0.2f, 0.3f, haze_alpha);
+  }
+
   // Vignette effects in stealth mode
   {
     float desired_vignette_intensity = IsInStealthMode(state) ? 1.f : 0.25f;
@@ -656,12 +663,31 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
     for (auto& bone : state.animations.player_idle.frames[0].bones) {
       state.player_mesh_animation.active_pose.bones.push_back(bone);
     }
+  }
+
+  // @todo factor
+  {
+    state.animations.person_idle.frames = {
+      GltfLoader("./astro/3d_skeleton_animations/person_idle/idle_1.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/person_idle/idle_2.gltf").skeleton
+    };
+
+    state.animations.person_talking.frames = {
+      GltfLoader("./astro/3d_skeleton_animations/person_talking/talk_1.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/person_talking/talk_2.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/person_talking/talk_3.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/person_talking/talk_4.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/person_talking/talk_5.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/person_talking/talk_6.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/person_talking/talk_7.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/person_talking/talk_8.gltf").skeleton,
+    };
 
     for_range(0, MAX_ANIMATED_PEOPLE - 1) {
       auto& skin = state.person_skinned_meshes[i];
 
       // @todo factor
-      for (auto& bone : state.animations.player_idle.frames[0].bones) {
+      for (auto& bone : state.animations.person_idle.frames[0].bones) {
         skin.animation.active_pose.bones.push_back(bone);
       }
     }

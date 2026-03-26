@@ -35,8 +35,10 @@ void AnimatedEntities::UpdateAnimatedEntities(Tachyon* tachyon, State& state) {
       skin.animation.current_animation = &animations.player_run;
     }
 
+    float animation_speed = 10.f;
+
     Animation::SetNextAnimation(skin.animation, &animations.player_run);
-    Animation::AccumulateTime(skin.animation, 10.f, state.dt);
+    Animation::AccumulateTime(skin.animation, animation_speed, state.dt);
     Animation::UpdatePose(skin.animation);
     Animation::UpdateBoneMatrices(skin.animation);
 
@@ -62,11 +64,23 @@ void AnimatedEntities::UpdateAnimatedEntities(Tachyon* tachyon, State& state) {
     auto& person = skinned_mesh(skin.mesh_index);
 
     if (skin.animation.current_animation == nullptr) {
-      skin.animation.current_animation = &animations.player_idle;
+      skin.animation.current_animation = &animations.person_idle;
     }
 
-    Animation::SetNextAnimation(skin.animation, &animations.player_idle);
-    Animation::AccumulateTime(skin.animation, 1.f, state.dt);
+    float animation_speed;
+
+    // @todo improve determinant for current talking npc
+    if (state.current_dialogue_set == entity.unique_name) {
+      Animation::SetNextAnimation(skin.animation, &animations.person_talking);
+
+      animation_speed = 1.75f;
+    } else {
+      Animation::SetNextAnimation(skin.animation, &animations.person_idle);
+
+      animation_speed = 0.75f;
+    }
+
+    Animation::AccumulateTime(skin.animation, animation_speed, state.dt);
     Animation::UpdatePose(skin.animation);
     Animation::UpdateBoneMatrices(skin.animation);
 

@@ -374,6 +374,9 @@ namespace astro {
       tSkeletonAnimation player_idle;
       tSkeletonAnimation player_walk;
       tSkeletonAnimation player_run;
+
+      tSkeletonAnimation person_idle;
+      tSkeletonAnimation person_talking;
     } animations;
 
     tSkinnedMeshAnimation player_mesh_animation;
