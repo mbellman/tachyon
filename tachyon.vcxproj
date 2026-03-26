@@ -116,6 +116,7 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="astro\animated_entities.h" />
     <ClInclude Include="astro\animation.h" />
     <ClInclude Include="astro\astrolabe.h" />
     <ClInclude Include="astro\bgm.h" />
@@ -135,6 +136,7 @@
     <ClInclude Include="astro\entity_behaviors\ChestnutTree.h" />
     <ClInclude Include="astro\entity_behaviors\DirtPathNode.h" />
     <ClInclude Include="astro\entity_behaviors\EventTrigger.h" />
+    <ClInclude Include="astro\entity_behaviors\Faerie.h" />
     <ClInclude Include="astro\entity_behaviors\Flag.h" />
     <ClInclude Include="astro\entity_behaviors\FlowerBush.h" />
     <ClInclude Include="astro\entity_behaviors\FogSpawn.h" />
@@ -327,6 +329,7 @@
     <ClInclude Include="external\SDL_ttf\include\SDL_ttf.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="astro\animated_entities.cpp" />
     <ClCompile Include="astro\animation.cpp" />
     <ClCompile Include="astro\astrolabe.cpp" />
     <ClCompile Include="astro\bgm.cpp" />

@@ -568,6 +568,10 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
     ResolveSingleRadiusCollision(state, entity.position, entity.visible_scale, 0.5f);
   }
 
+  for (auto& entity : state.wind_chimes) {
+    ResolveSingleRadiusCollision(state, entity.position, entity.visible_scale, 1.2f);
+  }
+
   for (auto& entity : state.npcs) {
     if (!IsDuringActiveTime(entity, state)) continue;
 

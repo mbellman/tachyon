@@ -642,6 +642,12 @@
     <ClInclude Include="astro\decorative_meshes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="astro\entity_behaviors\Faerie.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\animated_entities.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -846,6 +852,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="astro\animation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="astro\animated_entities.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
