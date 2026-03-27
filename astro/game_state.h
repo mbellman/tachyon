@@ -403,9 +403,17 @@ namespace astro {
     // Camera attributes
     tVec3f camera_shift;
     bool use_zoomed_out_camera = false;
-    bool use_vantage_camera = false;
     float camera_angle = 0.9f;
-    float vantage_camera_start_time = 0.f;
+
+    // Vantage camera mode
+    bool use_vantage_camera = false;
+    float recorded_camera_angle = 0.9f;
+    // Ensure that the time since the vantage camera change time
+    // is 1.0 at game start, treating the camera as fully blended-out
+    // from a vantage camera view (the transition-out duration is
+    // 1 second). As soon as we trigger the vantage camera again,
+    // this will be updated accordingly.
+    float vantage_camera_change_time = -1.f;
 
     float water_level = -1800.f;
 

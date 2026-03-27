@@ -35,11 +35,17 @@ namespace astro {
 
       if (close_to_any_vantage_spots) {
         if (!state.use_vantage_camera) {
-          state.vantage_camera_start_time = get_scene_time();
+          state.recorded_camera_angle = state.camera_angle;
+          state.vantage_camera_change_time = get_scene_time();
         }
 
         state.use_vantage_camera = true;
       } else {
+        if (state.use_vantage_camera) {
+          state.recorded_camera_angle = state.camera_angle;
+          state.vantage_camera_change_time = get_scene_time();
+        }
+
         state.use_vantage_camera = false;
       }
     }

@@ -131,18 +131,26 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state) {
     new_camera_position.z += 10000.f;
   }
 
-  if (state.use_vantage_camera) {
-    float alpha = time_since(state.vantage_camera_start_time) / 1.5f;
+  // Vantage camera
+  {
+    float transition_duration = state.use_vantage_camera ? 2.f : 1.f;
+
+    float alpha = time_since(state.vantage_camera_change_time) / transition_duration;
     if (alpha < 0.f) alpha = 0.f;
     if (alpha > 1.f) alpha = 1.f;
     alpha = Tachyon_EaseInOutf(alpha);
 
-    state.camera_angle = Tachyon_Lerpf(0.9f, 0.2f, alpha);
+    if (state.use_vantage_camera) {
+      state.camera_angle = Tachyon_Lerpf(state.recorded_camera_angle, 0.2f, alpha);
 
-    new_camera_position.y -= 5000.f * alpha;
-    new_camera_position.z += 5000.f * alpha;
-  } else {
-    state.camera_angle = Tachyon_Lerpf(state.camera_angle, 0.9f, state.dt);
+      new_camera_position.y -= 4000.f * alpha;
+      new_camera_position.z += 5000.f * alpha;
+    } else {
+      state.camera_angle = Tachyon_Lerpf(state.recorded_camera_angle, 0.9f, alpha);
+
+      new_camera_position.y -= 4000.f * (1.f - alpha);
+      new_camera_position.z += 5000.f * (1.f - alpha);
+    }
   }
 
   // @temporary
