@@ -4,6 +4,47 @@
 
 using namespace astro;
 
+struct ActiveAnimation {
+  tSkeletonAnimation* animation;
+  float speed;
+};
+
+// @todo update to proper animations
+static ActiveAnimation GetLesserGuardActiveAnimation(Tachyon* tachyon, State& state, GameEntity& entity) {
+  auto& enemy = entity.enemy_state;
+
+  if (time_since(enemy.last_break_time) < 2.f) {
+    return { &state.animations.person_idle, 1.f };
+  }
+  else if (time_since(enemy.last_attack_start_time) < 2.f) {
+    return { &state.animations.player_run, 10.f };
+  }
+  else if (enemy.speed > 2500.f) {
+    return { &state.animations.player_run, 10.f };
+  }
+  else if (enemy.speed > 500.f) {
+    return { &state.animations.player_walk, 10.f };
+  }
+  else {
+    return { &state.animations.person_idle, 1.f };
+  }
+}
+
+static void UpdateAnimation(tSkinnedMeshAnimation& animation, const float speed, const float dt) {
+  Animation::AccumulateTime(animation, speed, dt);
+  Animation::UpdatePose(animation);
+  Animation::UpdateBoneMatrices(animation);
+}
+
+static void UpdateSkinnedMesh(tSkinnedMesh& mesh, GameEntity& entity, tSkinnedMeshAnimation& animation) {
+  mesh.position = entity.visible_position;
+  mesh.rotation = entity.visible_rotation;
+  mesh.scale = tVec3f(1500.f);
+  mesh.shadow_cascade_ceiling = 1;
+  mesh.disabled = false;
+  mesh.current_pose = &animation.active_pose;
+}
+
 void AnimatedEntities::UpdateAnimatedEntities(Tachyon* tachyon, State& state) {
   profile("UpdateAnimatedEntities()");
 
@@ -35,19 +76,12 @@ void AnimatedEntities::UpdateAnimatedEntities(Tachyon* tachyon, State& state) {
       skin.animation.current_animation = &animations.player_run;
     }
 
-    float animation_speed = 10.f;
+    auto active_animation = GetLesserGuardActiveAnimation(tachyon, state, entity);
 
-    Animation::SetNextAnimation(skin.animation, &animations.player_run);
-    Animation::AccumulateTime(skin.animation, animation_speed, state.dt);
-    Animation::UpdatePose(skin.animation);
-    Animation::UpdateBoneMatrices(skin.animation);
+    Animation::SetNextAnimation(skin.animation, active_animation.animation);
 
-    person.position = entity.visible_position;
-    person.rotation = entity.visible_rotation;
-    person.scale = tVec3f(1500.f);
-    person.shadow_cascade_ceiling = 1;
-    person.disabled = false;
-    person.current_pose = &skin.animation.active_pose;
+    UpdateAnimation(skin.animation, active_animation.speed, state.dt);
+    UpdateSkinnedMesh(person, entity, skin.animation);
 
     commit(person);
   }
@@ -80,16 +114,8 @@ void AnimatedEntities::UpdateAnimatedEntities(Tachyon* tachyon, State& state) {
       animation_speed = 0.75f;
     }
 
-    Animation::AccumulateTime(skin.animation, animation_speed, state.dt);
-    Animation::UpdatePose(skin.animation);
-    Animation::UpdateBoneMatrices(skin.animation);
-
-    person.position = entity.visible_position;
-    person.rotation = entity.visible_rotation;
-    person.scale = tVec3f(1500.f);
-    person.shadow_cascade_ceiling = 1;
-    person.disabled = false;
-    person.current_pose = &skin.animation.active_pose;
+    UpdateAnimation(skin.animation, animation_speed, state.dt);
+    UpdateSkinnedMesh(person, entity, skin.animation);
 
     commit(person);
   }

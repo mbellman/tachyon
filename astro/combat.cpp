@@ -40,6 +40,16 @@ static void StunNearbyEnemies(State& state, const float scene_time) {
   }
 }
 
+static void PlayMetalHitSound() {
+  // @todo refactor
+  float r = Tachyon_GetRandom();
+
+  if (r < 0.25f) Sfx::PlaySound(SFX_METAL_HIT_1, 0.5f);
+  else if (r < 0.5f) Sfx::PlaySound(SFX_METAL_HIT_2, 0.5f);
+  else if (r < 0.75f) Sfx::PlaySound(SFX_METAL_HIT_3, 0.5f);
+  else Sfx::PlaySound(SFX_METAL_HIT_4, 0.5f);
+}
+
 static void HandleLowGuardWandStrike(Tachyon* tachyon, State& state, GameEntity& entity) {
   auto& enemy = entity.enemy_state;
   bool is_player_doing_break_attack = time_since(state.last_break_attack_time) < 0.5f;
@@ -58,7 +68,7 @@ static void HandleLowGuardWandStrike(Tachyon* tachyon, State& state, GameEntity&
 
   PlayerCharacter::GetKnockedBack(state, 2000.f);
 
-  Sfx::PlaySound(SFX_WAND_RECOIL, 0.5f);
+  PlayMetalHitSound();
 }
 
 static void HandleLesserGuardWandStrike(Tachyon* tachyon, State& state, GameEntity& entity) {
@@ -93,7 +103,7 @@ static void HandleLesserGuardWandStrike(Tachyon* tachyon, State& state, GameEnti
 
         PlayerCharacter::GetKnockedBack(state, 2000.f);
 
-        Sfx::PlaySound(SFX_WAND_RECOIL, 0.5f);
+        PlayMetalHitSound();
       }
     }
 
@@ -143,7 +153,7 @@ static void HandleLesserGuardWandStrike(Tachyon* tachyon, State& state, GameEnti
 
 void Combat::HandleWandSwing(Tachyon* tachyon, State& state) {
   float scene_time = get_scene_time();
-  bool did_player_recently_break_attack = time_since(state.last_break_attack_time) < 3.f;
+  bool did_player_recently_break_attack = time_since(state.last_break_attack_time) < 2.f;
 
   // Triggering nearby targets into blocking
   {
@@ -154,15 +164,16 @@ void Combat::HandleWandSwing(Tachyon* tachyon, State& state) {
       bool is_enemy_broken = time_since(enemy.last_break_time) < 2.f;
 
       // @todo handle per enemy type (target.type)
-      float attack_without_blocking_duration = 1.2f;
-      bool is_enemy_attacking = time_since(enemy.last_attack_start_time) < attack_without_blocking_duration;
+      float attack_without_blocking_duration = 1.f;
+      bool is_enemy_attacking = time_since(enemy.last_attack_action_time) < attack_without_blocking_duration;
 
       if (
-        enemy_distance < 4000.f &&
+        enemy_distance < 5000.f &&
         enemy.health > 0.f &&
         !is_enemy_broken &&
-        !is_enemy_attacking &&
-        !did_player_recently_break_attack
+        // Allow the player to do post-break attacks without other enemies blocking
+        !did_player_recently_break_attack &&
+        !is_enemy_attacking
       ) {
         // @todo factor by enemy type
         if (entity.type == LOW_GUARD) {
@@ -176,6 +187,8 @@ void Combat::HandleWandSwing(Tachyon* tachyon, State& state) {
 
           if (facing_dot < 0.f) {
             enemy.last_block_time = scene_time;
+            enemy.last_attack_start_time = 0.f;
+            enemy.last_attack_action_time = 0.f;
           }
         }
       }
