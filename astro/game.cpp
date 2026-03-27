@@ -10,6 +10,7 @@
 #include "astro/entity_behaviors/behavior.h"
 #include "astro/entity_dispatcher.h"
 #include "astro/entity_manager.h"
+#include "astro/facade_geometry.h"
 #include "astro/game_events.h"
 #include "astro/items.h"
 #include "astro/level_editor.h"
@@ -764,6 +765,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   UISystem::HandleDialogue(tachyon, state);
   Particles::HandleParticles(tachyon, state);
   DynamicFauna::HandleBehavior(tachyon, state);
+  FacadeGeometry::HandleFacades(tachyon, state);
   HandleFog(tachyon, state);
   HandleSnow(tachyon, state);
   HandleWalkSounds(tachyon, state);

@@ -175,6 +175,7 @@
     <ClInclude Include="astro\entity_descriptions\Shrub.h" />
     <ClInclude Include="astro\entity_dispatcher.h" />
     <ClInclude Include="astro\entity_manager.h" />
+    <ClInclude Include="astro\facade_geometry.h" />
     <ClInclude Include="astro\game.h" />
     <ClInclude Include="astro\game_events.h" />
     <ClInclude Include="astro\game_state.h" />
@@ -341,6 +342,7 @@
     <ClCompile Include="astro\dynamic_fauna.cpp" />
     <ClCompile Include="astro\entity_dispatcher.cpp" />
     <ClCompile Include="astro\entity_manager.cpp" />
+    <ClCompile Include="astro\facade_geometry.cpp" />
     <ClCompile Include="astro\game.cpp" />
     <ClCompile Include="astro\game_events.cpp" />
     <ClCompile Include="astro\items.cpp" />
