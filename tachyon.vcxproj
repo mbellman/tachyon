@@ -164,6 +164,7 @@
     <ClInclude Include="astro\entity_behaviors\TallGrass.h" />
     <ClInclude Include="astro\entity_behaviors\TallWeeds.h" />
     <ClInclude Include="astro\entity_behaviors\TulipPlant.h" />
+    <ClInclude Include="astro\entity_behaviors\VantageSpot.h" />
     <ClInclude Include="astro\entity_behaviors\WaterWheel.h" />
     <ClInclude Include="astro\entity_behaviors\WillowTree.h" />
     <ClInclude Include="astro\entity_behaviors\WindChimes.h" />

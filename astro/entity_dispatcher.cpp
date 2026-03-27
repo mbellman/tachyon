@@ -34,6 +34,7 @@
 #include "astro/entity_behaviors/TallGrass.h"
 #include "astro/entity_behaviors/TallWeeds.h"
 #include "astro/entity_behaviors/TulipPlant.h"
+#include "astro/entity_behaviors/VantageSpot.h"
 #include "astro/entity_behaviors/WaterWheel.h"
 #include "astro/entity_behaviors/WillowTree.h"
 #include "astro/entity_behaviors/WindChimes.h"
@@ -72,6 +73,7 @@ using namespace astro;
   dispatch_macro(DIRT_PATH_NODE, DirtPathNode);\
   dispatch_macro(FOG_SPAWN, FogSpawn);\
   dispatch_macro(EVENT_TRIGGER, EventTrigger);\
+  dispatch_macro(VANTAGE_SPOT, VantageSpot);\
   dispatch_macro(ITEM_PICKUP, ItemPickup);\
   dispatch_macro(LESSER_GUARD, LesserGuard);\
   dispatch_macro(LOW_GUARD, LowGuard);\
@@ -116,6 +118,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
     dispatch_GetEntityContainer(ITEM_PICKUP, state.item_pickups);
     dispatch_GetEntityContainer(FOG_SPAWN, state.fog_spawns);
     dispatch_GetEntityContainer(EVENT_TRIGGER, state.event_triggers);
+    dispatch_GetEntityContainer(VANTAGE_SPOT, state.vantage_spots);
     dispatch_GetEntityContainer(LESSER_GUARD, state.lesser_guards);
     dispatch_GetEntityContainer(LOW_GUARD, state.low_guards);
     dispatch_GetEntityContainer(FAERIE, state.faeries);

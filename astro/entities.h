@@ -53,7 +53,8 @@ namespace astro {
     TULIP_PLANT,
     TALL_WEEDS,
     EVENT_TRIGGER,
-    FAERIE
+    FAERIE,
+    VANTAGE_SPOT
   };
 
   /**
@@ -101,7 +102,8 @@ namespace astro {
     TULIP_PLANT,
     TALL_WEEDS,
     EVENT_TRIGGER,
-    FAERIE
+    FAERIE,
+    VANTAGE_SPOT
   };
 
   /**
@@ -398,6 +400,9 @@ namespace astro {
       // EVENT_TRIGGER,
       event_trigger_placeholder,
 
+      // VANTAGE_SPOT
+      vantage_spot_placeholder,
+
       // WIND_CHIMES
       wind_chimes_placeholder,
       wind_chimes_stand,
@@ -439,6 +444,7 @@ namespace astro {
     std::vector<GameEntity> item_pickups;
     std::vector<GameEntity> fog_spawns;
     std::vector<GameEntity> event_triggers;
+    std::vector<GameEntity> vantage_spots;
     std::vector<GameEntity> dirt_path_nodes;
     std::vector<GameEntity> stone_path_nodes;
 
@@ -525,6 +531,12 @@ namespace astro {
       .name = "Event Trigger",
       .scale = tVec3f(1500.f),
       .tint = tVec3f(0.2f, 0.3f, 1.f)
+    } },
+
+    { VANTAGE_SPOT, {
+      .name = "Vantage Spot",
+      .scale = tVec3f(1500.f),
+      .tint = tVec3f(1., 0.8f, 0.2f)
     } },
 
     // @unused

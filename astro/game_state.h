@@ -405,6 +405,7 @@ namespace astro {
     bool use_zoomed_out_camera = false;
     bool use_vantage_camera = false;
     float camera_angle = 0.9f;
+    float vantage_camera_start_time = 0.f;
 
     float water_level = -1800.f;
 

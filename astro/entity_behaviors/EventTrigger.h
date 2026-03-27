@@ -6,7 +6,7 @@
 namespace astro {
   behavior EventTrigger {
     addMeshes() {
-      meshes.event_trigger_placeholder = SPHERE_MESH(500);
+      meshes.event_trigger_placeholder = SPHERE_MESH(100);
 
       mesh(meshes.event_trigger_placeholder).shadow_cascade_ceiling = 0;
     }

@@ -131,11 +131,23 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state) {
     new_camera_position.z += 10000.f;
   }
 
+  if (state.use_vantage_camera) {
+    float alpha = time_since(state.vantage_camera_start_time) / 1.5f;
+    if (alpha < 0.f) alpha = 0.f;
+    if (alpha > 1.f) alpha = 1.f;
+    alpha = Tachyon_EaseInOutf(alpha);
+
+    state.camera_angle = Tachyon_Lerpf(0.9f, 0.2f, alpha);
+
+    new_camera_position.y -= 5000.f * alpha;
+    new_camera_position.z += 5000.f * alpha;
+  } else {
+    state.camera_angle = Tachyon_Lerpf(state.camera_angle, 0.9f, state.dt);
+  }
+
   // @temporary
   // @todo formalize special camera modes
   {
-    state.camera_angle = 0.9f;
-
     for (auto& entity : state.npcs) {
       if (entity.unique_name == "lake_girl") {
         float distance = tVec3f::distance(state.player_position, entity.position);
@@ -146,26 +158,6 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state) {
         state.camera_angle = Tachyon_Lerpf(state.camera_angle, 0.7f, alpha);
 
         new_camera_position.z += 5000.f * alpha;
-      }
-    }
-
-    for (auto& entity : state.wind_chimes) {
-      if (
-        entity.unique_name == "village_chimes" &&
-        (state.player_position.y + 1500.f) > entity.position.y
-      ) {
-        float distance = tVec3f::distance(state.player_position, entity.position);
-
-        float alpha = Tachyon_InverseLerp(5000.f, 10000.f, distance);
-        alpha = Tachyon_EaseInOutf(1.f - alpha);
-
-        // @TEMPORARY!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        // state.use_vantage_camera = alpha > 0.f;
-
-        // state.camera_angle = Tachyon_Lerpf(state.camera_angle, 0.2f, alpha);
-
-        // new_camera_position.z += 5000.f * alpha;
-        // new_camera_position.y -= 5000.f * alpha;
       }
     }
   }
