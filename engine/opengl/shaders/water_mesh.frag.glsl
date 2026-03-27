@@ -253,8 +253,8 @@ void main() {
   float small_wave = sin(fragPosition.z * 0.001 + fragPosition.x * 0.001 + ripple_speed.x + ripple_speed.y);
 
   // Directional waves
-  N.z += 0.2 * sin(fragPosition.z * 0.001 - fragPosition.x * 0.001 + water_speed.x + water_speed.y + big_wave);
-  N.x += 0.2 * cos(fragPosition.z * 0.0025 - fragPosition.x * 0.001 + water_speed.x + water_speed.y + small_wave);
+  N.z += 0.25 * sin(fragPosition.z * 0.001 - fragPosition.x * 0.001 + water_speed.x + water_speed.y + big_wave);
+  N.x += 0.25 * cos(fragPosition.z * 0.0025 - fragPosition.x * 0.001 + water_speed.x + water_speed.y + small_wave);
 
   float wx = fragPosition.x;
   float wz = fragPosition.z;
@@ -265,12 +265,10 @@ void main() {
     water_speed.y * 0.5 + wz * 0.0005
   )));
 
-  N.xz += 0.05 * vec2(simplex_noise(vec2(
-    water_speed.x * 0.5 + wx * 0.002,
-    water_speed.y * 0.5 + wz * 0.002
+  N.xz += 0.08 * vec2(simplex_noise(vec2(
+    water_speed.x * 0.75 + wx * 0.002,
+    water_speed.y * 0.75 + wz * 0.002
   )));
-
-  N.xz += 0.05 * vec2(simplex_noise(vec2(time * 0.5 + wx * 0.002, time * 0.5 + wz * 0.002)));
 
   // Normal used for specular highlights; more intense than the normal
   // used for regular reflections
