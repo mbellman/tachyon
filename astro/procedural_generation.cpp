@@ -511,6 +511,7 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
 static void UpdateSmallGrassObjectByTime(tObject& grass, float astro_time) {
   const static float growth_rate = 0.7f;
 
+  // @todo past
   const static tColor colors[] = {
     tVec4f(0.2f, 0.5f, 0.1f, 0.1f),
     tVec4f(0.3f, 0.6f, 0.1f, 0.1f),
@@ -518,6 +519,15 @@ static void UpdateSmallGrassObjectByTime(tObject& grass, float astro_time) {
     tVec4f(0.1f, 0.5f, 0.1f, 0.1f)
   };
 
+  // @todo present
+  // const static tColor colors[] = {
+  //   tVec4f(0.1f, 0.4f, 0.1f, 0.1f),
+  //   tVec4f(0.2f, 0.5f, 0.1f, 0.1f),
+  //   tVec4f(0.1f, 0.3f, 0.1f, 0.1f),
+  //   tVec4f(0.2f, 0.4f, 0.1f, 0.1f)
+  // };
+
+  // Autumn-ish?
   // const static tColor colors[] = {
   //   tVec4f(0.5f, 0.3f, 0.1f, 0.1f),
   //   tVec4f(0.6f, 0.4f, 0.1f, 0.1f),
@@ -858,7 +868,7 @@ static void GenerateBushFlowers(Tachyon* tachyon, State& state) {
 static tVec3f GetBushFlowerBlossomColor(const float astro_time) {
   auto& periods = astro_time_periods;
 
-  tVec3f present_color = tVec3f(1.f, 0.1f, 0.7f);
+  tVec3f present_color = tVec3f(1.f, 0.3f, 0.8f);
   tVec3f past_color = tVec3f(1.f, 0.8f, 0.2f);
   tVec3f distant_past_color = tVec3f(1.f, 0.8f, 1.f);
 

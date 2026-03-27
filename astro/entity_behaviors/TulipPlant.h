@@ -1,6 +1,7 @@
 #pragma once
 
 #include "astro/entity_behaviors/behavior.h"
+#include "astro/astrolabe.h"
 
 namespace astro {
   behavior TulipPlant {
@@ -32,12 +33,12 @@ namespace astro {
       return meshes.tulip_plant_placeholder;
     }
 
-    // @todo one or two flower stalks
-    // @todo alternate bulb coloration
     timeEvolve() {
       profile("  TulipPlant::timeEvolve()");
 
       auto& meshes = state.meshes;
+
+      float lifetime = 100.f;
 
       tVec4f colors[] = {
         tVec4f(1.f, 0.4f, 0.7f, 0.3f),
@@ -55,6 +56,10 @@ namespace astro {
         if (abs(state.player_position.x - entity.position.x) > 20000.f) continue;
         if (abs(state.player_position.z - entity.position.z) > 20000.f) continue;
 
+        float life_progress = GetLivingEntityProgress(state, entity, lifetime);
+
+        if (life_progress == 0.f || life_progress == 1.f) continue;
+
         entity.visible_position = entity.position;
         entity.visible_rotation = entity.orientation;
         entity.visible_scale = entity.scale;
@@ -68,6 +73,12 @@ namespace astro {
           leaves.color = tVec3f(0.4f, 0.8f, 0.2f);
           leaves.material = tVec4f(0.8f, 0, 0, 0.5f);
 
+          leaves.scale *= Grow(20.f * life_progress);
+
+          if (life_progress > 0.8f) {
+            leaves.scale.y *= 1.f - Grow(10.f * (life_progress - 0.8f));
+          }
+
           commit(leaves);
         }
 
@@ -78,6 +89,12 @@ namespace astro {
           Sync(stalk, entity);
 
           stalk.material = tVec4f(0.8f, 0, 0, 0.5f);
+
+          stalk.scale *= Grow(20.f * (life_progress - 0.1f));
+
+          if (life_progress > 0.7f) {
+            stalk.scale.y *= 1.f - Grow(10.f * (life_progress - 0.7f));
+          }
 
           commit(stalk);
         }
@@ -94,6 +111,20 @@ namespace astro {
           bulb.scale *= 0.35f;
           bulb.color = colors[color_index];
           bulb.material = tVec4f(0.5f, 0, 0.1f, 1.f);
+
+          if (entity.astro_start_time > astro_time_periods.past) {
+            bulb.color = tVec4f(1.f, 1.f, 1.f, 0.3f);
+          }
+
+          bulb.scale *= Grow(20.f * (life_progress - 0.2f));
+
+          if (life_progress > 0.6f) {
+            // Wilting
+            bulb.scale.y *= 1.f - Grow(10.f * (life_progress - 0.6f));
+
+            // Dead
+            if (life_progress > 0.7f) bulb.scale = tVec3f(0.f);
+          }
 
           commit(bulb);
         }

@@ -62,6 +62,12 @@ namespace astro {
     return translation + rotation.toMatrix4f() * (position * scale);
   }
 
+  static float Grow(float alpha) {
+    if (alpha < 0.f) alpha = 0.f;
+
+    return 1.f - (1.f / expf(alpha));
+  }
+
   static void Jitter(GameEntity& entity, const float amount) {
     entity.visible_position.x += Tachyon_GetRandom(-amount, amount);
     entity.visible_position.z += Tachyon_GetRandom(-amount, amount);
