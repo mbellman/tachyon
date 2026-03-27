@@ -403,6 +403,7 @@ namespace astro {
     // Camera attributes
     tVec3f camera_shift;
     bool use_zoomed_out_camera = false;
+    bool use_vantage_camera = false;
     float camera_angle = 0.9f;
 
     float water_level = -1800.f;

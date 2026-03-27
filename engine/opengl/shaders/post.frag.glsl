@@ -218,7 +218,8 @@ vec3 GetToonShadedColor(vec3 current_out_color, vec2 uv, float depth, float line
   bool dt4 = d4 > distance_threshold;
 
   if (dt1 || dt2 || dt3 || dt4) {
-    float falloff_alpha = smoothstep(0.8, 0.9, Saturate(linear_frag_depth / 30000.0));
+    float compared_depth = min(depth1, min(depth2, min(depth3, depth4)));
+    float falloff_alpha = smoothstep(0.8, 0.9, Saturate(compared_depth / 20000.0));
     vec3 compared_color = dt1 ? c1 : dt2 ? c2 : dt3 ? c3 : c4;
     float color_similarity = Compare(current_out_color, compared_color);
 
@@ -259,15 +260,11 @@ void main() {
   #if ENABLE_DEPTH_OF_FIELD_BLUR
     // Depth-of-field blur
     {
+      const float max_blur = 2.0;
+
       float depth = color_and_depth.w;
-
-      // const float max_blur = 1.5;
-
-      // float blur = mix(0.0, max_blur, pow(depth, 100.0));
-
-      const float max_blur = 4.0;
-
-      float blur = mix(0.0, max_blur, pow(depth, 50.0));
+      float adjusted_depth = pow(depth, 50.0);
+      float blur = max_blur * smoothstep(0.2, 0.3, adjusted_depth);
 
       const vec2[] offsets = {
         vec2(0.0, -1.0),

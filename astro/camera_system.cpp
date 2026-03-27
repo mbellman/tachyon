@@ -148,6 +148,26 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state) {
         new_camera_position.z += 5000.f * alpha;
       }
     }
+
+    for (auto& entity : state.wind_chimes) {
+      if (
+        entity.unique_name == "village_chimes" &&
+        (state.player_position.y + 1500.f) > entity.position.y
+      ) {
+        float distance = tVec3f::distance(state.player_position, entity.position);
+
+        float alpha = Tachyon_InverseLerp(5000.f, 10000.f, distance);
+        alpha = Tachyon_EaseInOutf(1.f - alpha);
+
+        // @TEMPORARY!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        state.use_vantage_camera = alpha > 0.f;
+
+        state.camera_angle = Tachyon_Lerpf(state.camera_angle, 0.2f, alpha);
+
+        new_camera_position.z += 5000.f * alpha;
+        new_camera_position.y -= 5000.f * alpha;
+      }
+    }
   }
 
   auto& camera = tachyon->scene.camera;

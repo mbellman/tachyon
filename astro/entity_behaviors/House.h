@@ -45,8 +45,10 @@ namespace astro {
       for_entities(state.houses) {
         auto& entity = state.houses[i];
 
-        if (abs(state.player_position.x - entity.position.x) > 30000.f) continue;
-        if (abs(state.player_position.z - entity.position.z) > 30000.f) continue;
+        if (!state.use_vantage_camera) {
+          if (abs(state.player_position.x - entity.position.x) > 30000.f) continue;
+          if (abs(state.player_position.z - entity.position.z) > 30000.f) continue;
+        }
 
         auto& body = use_instance(meshes.house_body);
         auto& frame = use_instance(meshes.house_frame);

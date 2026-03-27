@@ -59,9 +59,13 @@ namespace astro {
       for_entities(state.oak_trees) {
         auto& entity = state.oak_trees[i];
 
-        if (abs(state.player_position.x - entity.position.x) > 30000.f) continue;
-        if (entity.position.z - state.player_position.z > 12000.f) continue;
-        if (state.player_position.z - entity.position.z > 30000.f) continue;
+        bool is_in_range = (
+          abs(state.player_position.x - entity.position.x) < 30000.f &&
+          entity.position.z - state.player_position.z < 12000.f &&
+          state.player_position.z - entity.position.z < 30000.f
+        );
+
+        if (!state.use_vantage_camera && !is_in_range) continue;
 
         float life_progress = GetLivingEntityProgress(state, entity, lifetime);
         float growth_factor = 0.f;
@@ -135,7 +139,7 @@ namespace astro {
         }
 
         // Leaves
-        {
+        if (is_in_range) {
           auto& leaves = use_instance(meshes.oak_tree_leaves);
 
           leaves.position = entity.position;
