@@ -99,6 +99,7 @@ static void UpdateLevelsOfDetail(Tachyon* tachyon, State& state) {
   Tachyon_UseLodByDistance(tachyon, meshes.rock_2, 40000.f);
   Tachyon_UseLodByDistance(tachyon, meshes.river_edge, 40000.f);
   Tachyon_UseLodByDistance(tachyon, meshes.ground_1, 40000.f);
+  Tachyon_UseLodByDistance(tachyon, meshes.lookout_tower, 60000.f);
 
   // Procedural objects
   Tachyon_UseLodByDistance(tachyon, meshes.ground_flower, 35000.f);

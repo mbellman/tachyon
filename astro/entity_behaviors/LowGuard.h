@@ -160,7 +160,7 @@ namespace astro {
     }
 
     timeEvolve() {
-      profile("  LowGuard::timeEvolve()");
+      // profile("  LowGuard::timeEvolve()");
 
       auto& meshes = state.meshes;
 

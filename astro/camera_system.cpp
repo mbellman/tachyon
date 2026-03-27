@@ -160,12 +160,12 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state) {
         alpha = Tachyon_EaseInOutf(1.f - alpha);
 
         // @TEMPORARY!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        state.use_vantage_camera = alpha > 0.f;
+        // state.use_vantage_camera = alpha > 0.f;
 
-        state.camera_angle = Tachyon_Lerpf(state.camera_angle, 0.2f, alpha);
+        // state.camera_angle = Tachyon_Lerpf(state.camera_angle, 0.2f, alpha);
 
-        new_camera_position.z += 5000.f * alpha;
-        new_camera_position.y -= 5000.f * alpha;
+        // new_camera_position.z += 5000.f * alpha;
+        // new_camera_position.y -= 5000.f * alpha;
       }
     }
   }

@@ -27,7 +27,7 @@ namespace astro {
     }
 
     timeEvolve() {
-      profile("  ChestnutTree::timeEvolve()");
+      // profile("  ChestnutTree::timeEvolve()");
 
       auto& meshes = state.meshes;
 

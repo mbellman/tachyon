@@ -262,7 +262,7 @@ namespace astro {
     }
 
     timeEvolve() {
-      profile("  LesserGuard::timeEvolve()");
+      // profile("  LesserGuard::timeEvolve()");
 
       auto& meshes = state.meshes;
 
