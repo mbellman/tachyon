@@ -18,13 +18,16 @@ static std::map<Sound, const char*> sound_file_map = {
   { SFX_SWORD_DAMAGE, "./astro/audio/sfx_sword_damage.wav" },
   { SFX_WAND_SWING, "./astro/audio/sfx_wand_swing.wav" },
   { SFX_WAND_ATTACK, "./astro/audio/sfx_wand_attack.wav" },
-  { SFX_WAND_STRONG_ATTACK, "./astro/audio/sfx_strong_attack.wav" },
+  { SFX_BREAK_ATTACK, "./astro/audio/sfx_break_attack.wav" },
   { SFX_SHIELD_BREAK, "./astro/audio/sfx_shield_break.wav" },
+  { SFX_STRONG_ATTACK, "./astro/audio/sfx_strong_attack.wav" },
 
   { SFX_METAL_HIT_1, "./astro/audio/sfx_metal_hit_1.wav" },
   { SFX_METAL_HIT_2, "./astro/audio/sfx_metal_hit_2.wav" },
   { SFX_METAL_HIT_3, "./astro/audio/sfx_metal_hit_3.wav" },
   { SFX_METAL_HIT_4, "./astro/audio/sfx_metal_hit_4.wav" },
+
+  { SFX_SWORD_DROP, "./astro/audio/sfx_sword_drop.wav" },
 
   { SFX_SCULPTURE_ACTIVATE_1, "./astro/audio/sfx_sculpture_activate_1.wav" },
   { SFX_SCULPTURE_ACTIVATE_2, "./astro/audio/sfx_sculpture_activate_2.wav" },

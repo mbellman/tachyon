@@ -81,7 +81,7 @@ static void HandleLesserGuardWandStrike(Tachyon* tachyon, State& state, GameEnti
 
   // Striking a blocking enemy
   if (is_enemy_blocking) {
-    // Only count damage against active targets
+    // Only count hits against active targets
     // or in non-targeting scenarios
     if (is_active_target || !state.has_target) {
       state.last_wand_swing_time = 0.f;
@@ -135,14 +135,21 @@ static void HandleLesserGuardWandStrike(Tachyon* tachyon, State& state, GameEnti
       enemy.last_damage_time = scene_time;
       enemy.speed = knockback;
 
-      // @todo harder sound against broken enemies
-      Sfx::PlaySound(SFX_WAND_ATTACK, 0.5f);
+      if (is_enemy_broken) {
+        Sfx::PlaySound(SFX_STRONG_ATTACK, 0.5f);
+      } else {
+        Sfx::PlaySound(SFX_WAND_ATTACK, 0.5f);
+      }
     }
 
     if (enemy.health <= 0.f) {
       KillEnemy(entity, scene_time);
 
+      Sfx::PlaySound(SFX_SWORD_DROP, 0.5f);
+
       if (IsSameEntity(entity, state.target_entity)) {
+        // Allow the targeting system to fall back to its non-targeted
+        // selection scheme, ensuring that we skip over the just-killed enemy
         state.has_target = false;
 
         Targeting::SelectNextAccessibleTarget(tachyon, state);
@@ -200,7 +207,7 @@ void Combat::HandleWandSwing(Tachyon* tachyon, State& state) {
     if (time_since(state.last_target_jump_time) < 0.5f) {
       state.last_break_attack_time = scene_time;
 
-      Sfx::PlaySound(SFX_WAND_STRONG_ATTACK, 0.3f);
+      Sfx::PlaySound(SFX_BREAK_ATTACK, 0.3f);
     } else {
       Sfx::PlaySound(SFX_WAND_SWING, 0.3f);
     }
