@@ -9,6 +9,7 @@
 #include "astro/sfx.h"
 #include "astro/spell_system.h"
 #include "astro/targeting.h"
+#include "astro/time_evolution.h"
 #include "astro/ui_system.h"
 
 using namespace astro;
@@ -329,6 +330,33 @@ static void HandleDayNightControls(Tachyon* tachyon, State& state) {
   }
 }
 
+// @todo Magic:: (???) (or elsewhere???)
+static bool TestWindChimesAction(Tachyon* tachyon, State& state) {
+  float scene_time = get_scene_time();
+
+  // Wind chimes
+  {
+    for (auto& chimes : state.wind_chimes) {
+      float distance = tVec3f::distance(chimes.position, state.player_position);
+
+      if (
+        distance < 4000.f &&
+        time_since(chimes.game_activation_time) > 1.f
+      ) {
+        // @todo factor
+        chimes.game_activation_time = scene_time;
+
+        state.astro_particle_spawn_position = chimes.position;
+        state.last_wind_chimes_action_time = scene_time;
+
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
 static void HandleWandControls(Tachyon* tachyon, State& state) {
   if (abs(state.astro_turn_speed) > 0.18f) {
     return;
@@ -345,6 +373,9 @@ static void HandleWandControls(Tachyon* tachyon, State& state) {
 
   // Square
   if (did_press_key(tKey::CONTROLLER_X)) {
+    // If we're performing a wind chimes action, stop here
+    if (TestWindChimesAction(tachyon, state)) return;
+
     if (Items::HasItem(state, ITEM_HOMING_SPELL)) {
       // @todo magic weapons
       SpellSystem::CastHoming(tachyon, state);

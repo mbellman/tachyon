@@ -74,7 +74,7 @@ static void StopAstroTraveling(State& state) {
   state.astro_turn_speed = 0.f;
   state.time_warp_end_radius = 0.f;
 
-  Sfx::FadeOutSound(SFX_ASTRO_TRAVEL, 2000);
+  Sfx::FadeOutSound(SFX_ASTRO_TRAVEL, 5000);
   Sfx::PlaySound(SFX_ASTRO_END, 1.f);
 }
 

@@ -40,6 +40,7 @@ static float GetMaxSeekTime(tSkeletonAnimation& animation) {
   return (float)animation.frames.size();
 }
 
+// @todo blend time as a parameter
 void Animation::AccumulateTime(tSkinnedMeshAnimation& mesh_animation, const float accumulation, const float dt) {
   mesh_animation.seek_time += accumulation * dt;
 

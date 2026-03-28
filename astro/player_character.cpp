@@ -23,10 +23,59 @@ static inline float GetAngleBetween(const float a1, const float a2) {
   return angle;
 }
 
+static void SetActivePlayerAnimation(Tachyon* tachyon, State& state) {
+  auto& player_animation = state.player_mesh_animation;
+  auto& animations = state.animations;
+
+  bool is_doing_quick_turn = (
+    state.last_quick_turn_time != 0.f &&
+    time_since(state.last_quick_turn_time) < 0.3f
+  );
+
+  bool is_moving_with_target = (
+    state.has_target &&
+    (tachyon->left_stick.x != 0.f || tachyon->left_stick.y != 0.f)
+  );
+
+  // Set the default current animation if not initialized
+  if (player_animation.current_animation == nullptr) {
+    player_animation.current_animation = &animations.player_idle;
+  }
+
+  // Astro traveling
+  if (
+    state.last_wind_chimes_action_time != 0.f &&
+    time_since(state.last_wind_chimes_action_time) < 1.5f ||
+    state.astro_turn_speed != 0.f
+  ) {
+    Animation::SetNextAnimation(player_animation, &animations.player_arms_out);
+  }
+
+  // Running
+  else if (
+    is_key_held(tKey::CONTROLLER_A) &&
+    state.previous_move_delta > 0.f &&
+    (abs(tachyon->left_stick.x) > 0.1f || abs(tachyon->left_stick.y) > 0.1f)
+  ) {
+    Animation::SetNextAnimation(player_animation, &animations.player_run);
+  }
+
+  // Walking
+  else if (state.previous_move_delta > 5.f || is_doing_quick_turn || is_moving_with_target) {
+    Animation::AwaitNextAnimation(player_animation, &animations.player_walk);
+  }
+
+  // Idling
+  else {
+    Animation::AwaitNextAnimation(player_animation, &animations.player_idle);
+  }
+}
+
 static float GetPlayerAnimationSpeed(State& state) {
   bool is_idle = state.player_mesh_animation.next_animation == &state.animations.player_idle;
+  bool is_astro_traveling = state.astro_turn_speed != 0.f;
 
-  if (is_idle) {
+  if (is_idle || is_astro_traveling) {
     return 0.8f;
   }
 
@@ -44,32 +93,7 @@ static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
   auto& player_animation = state.player_mesh_animation;
   auto& animations = state.animations;
 
-  // Set the default current animation if not initialized
-  if (player_animation.current_animation == nullptr) {
-    player_animation.current_animation = &animations.player_idle;
-  }
-
-  bool is_doing_quick_turn = (
-    state.last_quick_turn_time != 0.f &&
-    time_since(state.last_quick_turn_time) < 0.3f
-  );
-
-  bool is_moving_with_target = (
-    state.has_target &&
-    (tachyon->left_stick.x != 0.f || tachyon->left_stick.y != 0.f)
-  );
-
-  // @todo add more animations and refactor how to determine the active animation
-  if (
-    is_key_held(tKey::CONTROLLER_A) &&
-    (abs(tachyon->left_stick.x) > 0.1f || abs(tachyon->left_stick.y) > 0.1f)
-  ) {
-    Animation::SetNextAnimation(player_animation, &animations.player_run);
-  } else if (state.previous_move_delta > 5.f || is_doing_quick_turn || is_moving_with_target) {
-    Animation::AwaitNextAnimation(player_animation, &animations.player_walk);
-  } else {
-    Animation::AwaitNextAnimation(player_animation, &animations.player_idle);
-  }
+  SetActivePlayerAnimation(tachyon, state);
 
   bool moving_forward = tVec3f::dot(state.player_velocity, state.player_facing_direction) >= 0.f;
   float animation_speed = GetPlayerAnimationSpeed(state);
@@ -458,47 +482,7 @@ static void UpdateWandLights(Tachyon* tachyon, State& state) {
   }
 }
 
-static bool TestWandCollision(Tachyon* tachyon, State& state) {
-  float scene_time = get_scene_time();
-  auto& wand = objects(state.meshes.player_wand)[0];
-  tVec3f wand_tip_position = UnitObjectToWorldPosition(wand, tVec3f(0, 1.5f, 0));
-
-  // Wind chimes
-  {
-    for (auto& chimes : state.wind_chimes) {
-      float distance = tVec3f::distance(chimes.position, wand_tip_position);
-
-      if (
-        distance < 1500.f &&
-        time_since(chimes.game_activation_time) > 1.f
-      ) {
-        // @todo factor
-        chimes.game_activation_time = scene_time;
-
-        state.astro_particle_spawn_position = chimes.position;
-
-        // @todo have different wind chimes for different time ranges
-        if (state.target_astro_time == astro_time_periods.present) {
-          // Present -> Past
-          TimeEvolution::StartAstroTraveling(tachyon, state, astro_time_periods.past);
-        } else {
-          // Past -> Present
-          TimeEvolution::StartAstroTraveling(tachyon, state, astro_time_periods.present);
-        }
-
-        return true;
-      }
-    }
-  }
-
-  return false;
-}
-
 static void HandleWandStrike(Tachyon* tachyon, State& state) {
-  if (TestWandCollision(tachyon, state)) {
-    return;
-  }
-
   Magic::HandleWandAction(tachyon, state);
   Combat::HandleWandStrikeWindow(tachyon, state);
 }
@@ -787,6 +771,27 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
   UpdateWand(tachyon, state, player_rotation, player_rotation_matrix);
   UpdateWandLights(tachyon, state);
   UpdateLantern(tachyon, state, player_rotation, player_rotation_matrix);
+
+  // @todo factor
+  {
+    float time_since_last_wind_chimes_action = time_since(state.last_wind_chimes_action_time);
+
+    if (
+      state.last_wind_chimes_action_time != 0.f &&
+      time_since_last_wind_chimes_action > 0.5f &&
+      time_since_last_wind_chimes_action < 1.5f &&
+      state.astro_turn_speed == 0.f
+    ) {
+      // @todo have different wind chimes for different time ranges
+      if (state.target_astro_time == astro_time_periods.present) {
+        // Present -> Past
+        TimeEvolution::StartAstroTraveling(tachyon, state, astro_time_periods.past);
+      } else {
+        // Past -> Present
+        TimeEvolution::StartAstroTraveling(tachyon, state, astro_time_periods.present);
+      }
+    }
+  }
 }
 
 void PlayerCharacter::AutoHop(Tachyon* tachyon, State& state) {

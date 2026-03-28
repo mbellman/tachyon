@@ -107,10 +107,10 @@ namespace astro {
 
           float time_since_activating = time_since(entity.game_activation_time);
 
-          if (entity.game_activation_time > 0.f && time_since_activating < 3.f) {
-            float alpha = time_since_activating / 3.f;
+          if (entity.game_activation_time > 0.f && time_since_activating < 4.f) {
+            float alpha = sinf(t_PI * (time_since_activating / 4.f));
 
-            light.radius += 2000.f * sinf(alpha * t_PI);
+            light.radius += 2000.f * alpha;
             light.color = tVec3f::lerp(light.color, tVec3f(1.f), alpha);
           }
         }

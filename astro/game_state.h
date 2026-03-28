@@ -355,6 +355,7 @@ namespace astro {
     float last_dodge_time = 0.f;
     float last_target_jump_time = 0.f;
     float last_run_input_time = 0.f;
+    float last_wind_chimes_action_time = 0.f;
     bool is_on_solid_ground = false;
     bool is_on_solid_platform = false;
     bool did_resolve_radius_collision = false;
@@ -374,6 +375,7 @@ namespace astro {
       tSkeletonAnimation player_idle;
       tSkeletonAnimation player_walk;
       tSkeletonAnimation player_run;
+      tSkeletonAnimation player_arms_out;
 
       tSkeletonAnimation person_idle;
       tSkeletonAnimation person_talking;
