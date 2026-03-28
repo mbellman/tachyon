@@ -40,11 +40,14 @@ namespace astro {
 
       float lifetime = 100.f;
 
-      tVec4f colors[] = {
-        tVec4f(1.f, 0.4f, 0.7f, 0.3f),
-        tVec4f(1.f, 0.6f, 0.9f, 0.3f),
-        tVec4f(1.f, 0.3f, 0.5f, 0.3f)
+      tVec3f unique_colors[] = {
+        tVec3f(1.f, 0.4f, 0.7f),
+        tVec3f(1.f, 0.6f, 0.9f),
+        tVec3f(1.f, 0.3f, 0.5f)
       };
+
+      const tVec3f leaves_color = tVec3f(0.4f, 0.8f, 0.2f);
+      const tVec3f wilted_color = tVec3f(0.1f, 0, 0);
 
       reset_instances(meshes.tulip_plant_leaves);
       reset_instances(meshes.tulip_plant_stalk);
@@ -70,13 +73,19 @@ namespace astro {
 
           Sync(leaves, entity);
 
-          leaves.color = tVec3f(0.4f, 0.8f, 0.2f);
           leaves.material = tVec4f(0.8f, 0, 0, 0.5f);
 
-          leaves.scale *= Grow(20.f * life_progress);
+          if (life_progress < 0.7f) {
+            leaves.scale *= Grow(20.f * life_progress);
+            leaves.color = leaves_color;
+          } else {
+            float death = Die((life_progress - 0.7f) / 0.3f);
 
-          if (life_progress > 0.8f) {
-            leaves.scale.y *= 1.f - Grow(10.f * (life_progress - 0.8f));
+            // leaves.scale.y *= Die((life_progress - 0.8f) / 0.2f);
+            leaves.scale.x *= 0.5f + 0.5f * death;
+            leaves.scale.y *= 0.2f + 0.8f * death;
+            leaves.scale.z *= 0.5f + 0.5f * death;
+            leaves.color = tVec3f::lerp(wilted_color, leaves_color, death * death);
           }
 
           commit(leaves);
@@ -88,12 +97,13 @@ namespace astro {
 
           Sync(stalk, entity);
 
+          stalk.color = leaves_color;
           stalk.material = tVec4f(0.8f, 0, 0, 0.5f);
 
-          stalk.scale *= Grow(20.f * (life_progress - 0.1f));
-
-          if (life_progress > 0.7f) {
-            stalk.scale.y *= 1.f - Grow(10.f * (life_progress - 0.7f));
+          if (life_progress < 0.6f) {
+            stalk.scale *= Grow(40.f * (life_progress - 0.1f));
+          } else {
+            stalk.scale.y *= Die((life_progress - 0.6f) / 0.4f);
           }
 
           commit(stalk);
@@ -103,27 +113,35 @@ namespace astro {
         {
           auto& bulb = use_instance(meshes.tulip_plant_bulb);
           int color_index = (int)abs(entity.position.x) % 3;
+          tVec3f unique_color = unique_colors[color_index];
+
+          if (entity.astro_start_time > astro_time_periods.past) {
+            // Use an off white color for tulips in the present age
+            unique_color = tVec3f(1.f, 0.8f, 1.f);
+          }
 
           Sync(bulb, entity);
 
           bulb.position = UnitEntityToWorldPosition(entity, tVec3f(0, 1.65f, -0.25f));
           bulb.rotation = entity.orientation * Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -0.4f);
           bulb.scale *= 0.35f;
-          bulb.color = colors[color_index];
           bulb.material = tVec4f(0.5f, 0, 0.1f, 1.f);
 
-          if (entity.astro_start_time > astro_time_periods.past) {
-            bulb.color = tVec4f(1.f, 1.f, 1.f, 0.3f);
-          }
-
-          bulb.scale *= Grow(20.f * (life_progress - 0.2f));
-
-          if (life_progress > 0.6f) {
+          if (life_progress < 0.6f) {
+            bulb.scale *= Grow(20.f * (life_progress - 0.2f));
+            bulb.color = tVec4f(unique_color, 0.3f);
+          } else {
             // Wilting
-            bulb.scale.y *= 1.f - Grow(10.f * (life_progress - 0.6f));
+            float death = Die((life_progress - 0.6f) / 0.2f);
+
+            bulb.scale.x *= death;
+            bulb.scale.y *= 0.6f + 0.4f * death;
+            bulb.scale.z *= death;
+            bulb.position.y -= (1.f - death) * entity.scale.y;
+            bulb.color = tVec3f::lerp(wilted_color, unique_color, death * death);
 
             // Dead
-            if (life_progress > 0.7f) bulb.scale = tVec3f(0.f);
+            if (life_progress > 0.8f) bulb.scale = tVec3f(0.f);
           }
 
           commit(bulb);

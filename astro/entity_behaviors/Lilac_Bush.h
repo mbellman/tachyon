@@ -80,6 +80,9 @@ namespace astro {
         leaves.scale.z = entity.scale.z * (life_progress > 0.5f ? 1.f : plant_growth);
 
         leaves.position = entity.position;
+        // Grow up from the visual low point, since the leaves model
+        // has its midpoint at y = 0
+        leaves.position.y -= (1.f - plant_growth) * entity.scale.y;
         leaves.rotation = entity.orientation;
         leaves.material = tVec4f(0.8f, 0, 0, 0.4f);
 

@@ -68,6 +68,12 @@ namespace astro {
     return 1.f - (1.f / expf(alpha));
   }
 
+  static float Die(float alpha) {
+    if (alpha > 1.f) alpha = 1.f;
+
+    return Tachyon_EaseOutQuad(1.f - alpha);
+  }
+
   static void Jitter(GameEntity& entity, const float amount) {
     entity.visible_position.x += Tachyon_GetRandom(-amount, amount);
     entity.visible_position.z += Tachyon_GetRandom(-amount, amount);

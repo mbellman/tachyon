@@ -49,7 +49,13 @@ namespace astro {
       const float lifetime = 200.f;
       const tVec3f roots_color = tVec3f(0.7f, 0.3f, 0.1f);
       const tVec3f wood_color = tVec3f(1.f, 0.4f, 0.2f);
+      const tVec3f aged_wood_color = tVec3f(0.9f, 0.8f, 0.6f);
       const tVec3f leaves_color = tVec3f(0.1f, 0.3f, 0.1f);
+      const tVec3f aged_leaves_color = tVec3f(0.1f, 0.2f, 0.1f);
+
+      float alpha = Tachyon_InverseLerp(astro_time_periods.past, astro_time_periods.present, state.astro_time);
+      tVec3f current_wood_color = tVec3f::lerp(wood_color, aged_wood_color, alpha);
+      tVec3f current_leaves_color = tVec3f::lerp(leaves_color, aged_leaves_color, alpha);
 
       reset_instances(meshes.oak_tree_roots);
       reset_instances(meshes.oak_tree_trunk);
@@ -116,7 +122,7 @@ namespace astro {
           trunk.position.y = entity.position.y - entity.scale.y * (1.f - tree_thickness);
 
           trunk.rotation = entity.orientation;
-          trunk.color = wood_color;
+          trunk.color = current_wood_color;
           trunk.material = wood_material;
 
           commit(trunk);
@@ -132,7 +138,7 @@ namespace astro {
           branches.scale = tree_scale;
 
           branches.rotation = entity.orientation;
-          branches.color = wood_color;
+          branches.color = current_wood_color;
           branches.material = wood_material;
 
           commit(branches);
@@ -148,7 +154,7 @@ namespace astro {
           leaves.scale.x = tree_scale.x * 1.2f;
           leaves.scale.z = tree_scale.z * 1.2f;
           leaves.rotation = entity.orientation;
-          leaves.color = leaves_color;
+          leaves.color = current_leaves_color;
           leaves.material = tVec4f(0.8f, 0, 0, 1.f);
 
           if (state.is_nighttime) {

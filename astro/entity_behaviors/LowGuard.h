@@ -380,8 +380,8 @@ namespace astro {
                 gate_key.position = UnitEntityToWorldPosition(entity, tVec3f(1.2f, 0, 0));
                 gate_key.scale = tVec3f(700.f);
                 gate_key.rotation = entity.visible_rotation;
-                gate_key.color = tVec3f(1.f, 1.f, 0.2f);
-                gate_key.material = tVec4f(0.2f, 1.f, 0, 0.4f);
+                gate_key.color = tVec4f(1.f, 1.f, 0.2f, 0.3f);
+                gate_key.material = tVec4f(0.2f, 1.f, 1.f, 1.f);
 
                 commit(gate_key);
 

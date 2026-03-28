@@ -66,24 +66,27 @@ namespace astro {
         }
 
         float plant_growth = sqrtf(sinf(life_progress * t_PI));
+        float xz_growth = plant_growth * plant_growth;
 
         // Leaves
         auto& leaves = use_instance(meshes.rose_bush_leaves);
 
-        // leaves.scale = entity.scale * plant_growth;
-        // leaves.scale.x = entity.scale.x * (life_progress > 0.5f ? 1.f : plant_growth);
-        leaves.scale = tVec3f(0.f);
+        leaves.scale = entity.scale * plant_growth;
+        leaves.scale.x = entity.scale.x * xz_growth;
         leaves.scale.y = entity.scale.y * plant_growth;
-        // leaves.scale.z = entity.scale.z * (life_progress > 0.5f ? 1.f : plant_growth);
+        leaves.scale.z = entity.scale.z * xz_growth;
 
         leaves.position = entity.position;
+        // Grow up from the visual low point, since the leaves model
+        // has its midpoint at y = 0
+        leaves.position.y -= (1.f - plant_growth) * 2.f * entity.scale.y;
         leaves.rotation = entity.orientation;
         leaves.material = tVec4f(0.8f, 0, 0, 0.4f);
 
         if (life_progress < 0.5f) {
           // Sprouting
-          leaves.scale.x = entity.scale.x * plant_growth;
-          leaves.scale.z = entity.scale.z * plant_growth;
+          // leaves.scale.x = entity.scale.x * plant_growth;
+          // leaves.scale.z = entity.scale.z * plant_growth;
           leaves.color = leaves_color;
         }
         else if (life_progress < 1.f) {
@@ -92,18 +95,19 @@ namespace astro {
           alpha *= alpha;
           alpha *= alpha;
 
-          leaves.scale.x = entity.scale.x * Tachyon_Lerpf(1.f, 0.7f, alpha);
-          leaves.scale.z = entity.scale.x * Tachyon_Lerpf(1.f, 0.7f, alpha);
+          // leaves.scale.x = entity.scale.x * Tachyon_Lerpf(1.f, 0.7f, alpha);
+          // leaves.scale.z = entity.scale.x * Tachyon_Lerpf(1.f, 0.7f, alpha);
           leaves.color = tVec3f::lerp(leaves_color, leaves_wilting_color, alpha);
         }
 
+        // @todo come on bro, fix the model...
         leaves.scale *= 4.f;
 
         commit(leaves);
 
         // Flowers
         {
-          float life_alpha = life_progress - 0.1f;
+          float life_alpha = life_progress - 0.2f;
           if (life_alpha < 0.f) life_alpha = 0.f;
 
           for (int j = 0; j < 6; j++) {
