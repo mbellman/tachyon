@@ -45,8 +45,7 @@ static void SetActivePlayerAnimation(Tachyon* tachyon, State& state) {
   // Astro traveling
   if (
     state.last_wind_chimes_action_time != 0.f &&
-    time_since(state.last_wind_chimes_action_time) < 1.5f ||
-    state.astro_turn_speed != 0.f
+    time_since(state.last_wind_chimes_action_time) < 3.8f
   ) {
     Animation::SetNextAnimation(player_animation, &animations.player_arms_out);
   }
@@ -72,12 +71,11 @@ static void SetActivePlayerAnimation(Tachyon* tachyon, State& state) {
 }
 
 static float GetPlayerAnimationSpeed(State& state) {
-  bool is_idle = state.player_mesh_animation.next_animation == &state.animations.player_idle;
   bool is_astro_traveling = state.astro_turn_speed != 0.f;
+  bool is_idle = state.player_mesh_animation.next_animation == &state.animations.player_idle;
 
-  if (is_idle || is_astro_traveling) {
-    return 0.8f;
-  }
+  if (is_astro_traveling) return 0.65f;
+  if (is_idle) return 0.8f;
 
   float player_speed = state.player_velocity.magnitude();
   float max_walk_speed = state.has_target ? PlayerCharacter::MAX_COMBAT_WALK_SPEED : PlayerCharacter::MAX_WALK_SPEED;
@@ -431,6 +429,15 @@ static void UpdateWandLights(Tachyon* tachyon, State& state) {
       main_light_power += wand_swing_power * alpha;
     }
 
+    if (
+      state.last_wind_chimes_action_time != 0.f &&
+      time_since(state.last_wind_chimes_action_time) < 4.f
+    ) {
+      float alpha = time_since(state.last_wind_chimes_action_time) / 4.f;
+
+      main_light_power += 2.f * sinf(t_PI * alpha);
+    }
+
     main_light.position = wand_end_position;
     main_light.color = tVec3f(1.f, 0.6f, 0.2f);
     main_light.radius = 500.f + main_light_power * 500.f;
@@ -778,7 +785,7 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
 
     if (
       state.last_wind_chimes_action_time != 0.f &&
-      time_since_last_wind_chimes_action > 0.5f &&
+      time_since_last_wind_chimes_action > 0.6f &&
       time_since_last_wind_chimes_action < 1.5f &&
       state.astro_turn_speed == 0.f
     ) {

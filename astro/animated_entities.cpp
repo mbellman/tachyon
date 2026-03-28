@@ -78,7 +78,7 @@ void AnimatedEntities::UpdateAnimatedEntities(Tachyon* tachyon, State& state) {
 
     auto active_animation = GetLesserGuardActiveAnimation(tachyon, state, entity);
 
-    Animation::SetNextAnimation(skin.animation, active_animation.animation);
+    Animation::AwaitNextAnimation(skin.animation, active_animation.animation);
 
     UpdateAnimation(skin.animation, active_animation.speed, state.dt);
     UpdateSkinnedMesh(person, entity, skin.animation);

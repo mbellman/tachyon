@@ -59,7 +59,7 @@ void Animation::AccumulateTime(tSkinnedMeshAnimation& mesh_animation, const floa
 
   // Track time between changing animations so they can be blended
   {
-    mesh_animation.time_since_last_animation_change += 3.f * dt;
+    mesh_animation.time_since_last_animation_change += 2.f * dt;
 
     if (mesh_animation.time_since_last_animation_change > 1.f) {
       mesh_animation.time_since_last_animation_change = 1.f;

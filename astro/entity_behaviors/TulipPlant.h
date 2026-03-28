@@ -117,7 +117,7 @@ namespace astro {
 
           if (entity.astro_start_time > astro_time_periods.past) {
             // Use an off white color for tulips in the present age
-            unique_color = tVec3f(1.f, 0.9f, 1.f);
+            unique_color = tVec3f(1.f);
           }
 
           Sync(bulb, entity);

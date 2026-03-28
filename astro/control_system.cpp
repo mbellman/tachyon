@@ -56,6 +56,8 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
   if (
     // Astro travel
     abs(state.astro_turn_speed) > 0.1f ||
+    // Wind chime actions
+    (state.last_wind_chimes_action_time != 0.f && time_since(state.last_wind_chimes_action_time) < 4.25f) ||
     // Camera events
     state.camera_events.size() > 0 ||
     // Dodge actions
