@@ -13,7 +13,7 @@ static tVec3f GetLightColor(const float astro_time, bool is_nighttime) {
 
   auto& periods = astro_time_periods;
 
-  tVec3f present_color = tVec3f(0.8f, 0.1f, 0.5f);
+  tVec3f present_color = tVec3f(1., 0.1f, 0.2f);
   tVec3f past_color = tVec3f(0.8f, 0.2f, 0.1f);
   tVec3f distant_past_color = tVec3f(0.6f, 0.5f, 2.f);
 
@@ -37,6 +37,36 @@ static tVec3f GetLightColor(const float astro_time, bool is_nighttime) {
   }
 
   return present_color;
+}
+
+static tVec3f GetLightDirection(const float astro_time) {
+  auto& periods = astro_time_periods;
+
+  tVec3f present_direction = tVec3f(0.7f, -1.f, 0.5f);
+  tVec3f past_direction = tVec3f(-0.5f, -0.8f, 0.35f);
+  tVec3f distant_past_direction = tVec3f(0.6f, 0.5f, 2.f);
+
+  if (astro_time < periods.present && astro_time >= periods.past) {
+    float age_duration = periods.present - periods.past;
+    float alpha = (astro_time - periods.past) / age_duration;
+    alpha = Tachyon_EaseInOutf(alpha);
+
+    return tVec3f::lerp(past_direction, present_direction, alpha);
+  }
+
+  if (astro_time < periods.past && astro_time >= periods.distant_past) {
+    float age_duration = periods.past - periods.distant_past;
+    float alpha = (astro_time - periods.distant_past) / age_duration;
+
+    return tVec3f::lerp(distant_past_direction, past_direction, alpha);
+  }
+
+  if (astro_time < periods.distant_past) {
+    // @todo lerp between very distant past -> distant past
+    return distant_past_direction;
+  }
+
+  return present_direction;
 }
 
 static void StopAstroTraveling(State& state) {
@@ -126,13 +156,6 @@ void TimeEvolution::UpdateAstroTime(Tachyon* tachyon, State& state) {
   // Water
   tachyon->fx.water_time += state.dt + 2.f * state.astro_turn_speed;
 
-  // Directional light
-  // @todo factor
-  tVec3f start_direction = tVec3f(-1.f, -1.f, 0.2f);
-  tVec3f end_direction = tVec3f(0.2f, -1.f, 1.f);
-
-  float alpha = -1.f * (state.astro_time / 250.f);
-
   // Primary + ambient sky light
   {
     auto& scene = tachyon->scene;
@@ -140,7 +163,7 @@ void TimeEvolution::UpdateAstroTime(Tachyon* tachyon, State& state) {
     scene.primary_light_color = GetLightColor(state.astro_time, state.is_nighttime);
 
     // @todo unit() this in the renderer
-    scene.primary_light_direction = tVec3f::lerp(start_direction, end_direction, alpha).unit();
+    scene.primary_light_direction = GetLightDirection(state.astro_time).unit();
 
     if (state.is_nighttime) {
       scene.sky_light_color = tVec3f(0, 0, 0.4f);
