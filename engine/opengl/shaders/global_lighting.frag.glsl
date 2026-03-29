@@ -707,7 +707,7 @@ void main() {
   float player_cap_y_distance = abs(position.y - player_hood_position.y);
   bool disable_ssao_temporal_denoising = false;
 
-  if (player_cap_xz_distance < 1000.0 && player_cap_y_distance < 500.0) {
+  if (player_cap_xz_distance < 1000.0 && player_cap_y_distance < 300.0) {
     disable_ssao_temporal_denoising = true;
   }
 

@@ -40,7 +40,7 @@ static void CreateConstantObjects(Tachyon* tachyon, State& state) {
     create(meshes.snow_particle);
   }
 
-  for_range(1, 50) {
+  for_range(1, 30) {
     create(meshes.stray_leaf);
   }
 
@@ -327,6 +327,19 @@ static void HandleSnow(Tachyon* tachyon, State& state) {
 }
 
 // @todo Environment::
+static void InitStrayLeaves(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+  float player_x = state.player_position.x;
+  float player_z = state.player_position.z;
+
+  for (auto& leaf : objects(meshes.stray_leaf)) {
+    leaf.position.x = Tachyon_GetRandom(player_x - 15000.f, player_x + 15000.f);
+    leaf.position.y = state.player_position.y + Tachyon_GetRandom(3000.f, 8000.f);
+    leaf.position.z = Tachyon_GetRandom(player_z - 12000.f, player_z + 12000.f);
+  }
+}
+
+// @todo Environment::
 static void HandleStrayLeaves(Tachyon* tachyon, State& state) {
   profile("HandleStrayLeaves()");
 
@@ -355,8 +368,8 @@ static void HandleStrayLeaves(Tachyon* tachyon, State& state) {
     float t = scene_time + float(leaf.object_id);
 
     leaf.position.x += movement_speed * state.dt;
-    leaf.position.y += 500.f * sinf(t) * state.dt;
-    leaf.position.z += 300.f * cosf(t) * state.dt;
+    leaf.position.y += 1000.f * sinf(t) * state.dt;
+    leaf.position.z += 500.f * cosf(t) * state.dt;
     leaf.scale = tVec3f(150.f);
 
     leaf.rotation *= (
@@ -377,10 +390,12 @@ static void HandleStrayLeaves(Tachyon* tachyon, State& state) {
       leaf.position.z = state.player_position.z + 15000.f;
     }
 
-    if (
-      leaf.position.x - state.player_position.x > 15000.f ||
-      state.player_position.x - leaf.position.x > 20000.f
-    ) {
+    if (state.player_position.x - leaf.position.x > 16000.f) {
+      // Move leaves into view as we move east
+      leaf.position.x = state.player_position.x + 14000.f;
+    }
+
+    if (leaf.position.x - state.player_position.x > 15000.f) {
       // Respawn to the left as leaves fly off the right side
       float player_z = state.player_position.z;
 
@@ -615,6 +630,8 @@ static void RespawnPlayer(Tachyon* tachyon, State& state) {
 
     HardResetEntity(entity);
   }
+
+  InitStrayLeaves(tachyon, state);
 }
 
 static void HandleFrameEnd(Tachyon* tachyon, State& state) {
@@ -788,7 +805,6 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
   ProceduralBehavior::Generation::RebuildAllProceduralObjects(tachyon, state);
   EntityManager::CreateEntityAssociations(state);
   Particles::InitParticles(tachyon, state);
-
   RespawnPlayer(tachyon, state);
 
   state.player_light_id = create_point_light();

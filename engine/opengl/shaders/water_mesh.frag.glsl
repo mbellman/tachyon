@@ -259,15 +259,16 @@ void main() {
   float wx = fragPosition.x;
   float wz = fragPosition.z;
 
-  // Noise/turbulence
+  // Medium-turbulence
   N.xz += 0.2 * vec2(simplex_noise(vec2(
     water_speed.x * 0.5 + wx * 0.0005,
     water_speed.y * 0.5 + wz * 0.0005
   )));
 
+  // Micro-turbulence
   N.xz += 0.08 * vec2(simplex_noise(vec2(
-    water_speed.x * 0.75 + wx * 0.002,
-    water_speed.y * 0.75 + wz * 0.002
+    water_speed.x * 0.75 + wx * 0.0025,
+    water_speed.y * 0.75 + wz * 0.0025
   )));
 
   // Normal used for specular highlights; more intense than the normal
