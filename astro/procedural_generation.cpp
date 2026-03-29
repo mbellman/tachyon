@@ -898,13 +898,14 @@ static void UpdateGroundFlowers(Tachyon* tachyon, State& state) {
  */
 static void GenerateBushFlowers(Tachyon* tachyon, State& state) {
   remove_all(state.meshes.bush_flower);
+  remove_all(state.meshes.flower_middle);
 
   for (int i = 0; i < 500; i++) {
     commit(create(state.meshes.bush_flower));
+    commit(create(state.meshes.flower_middle));
   }
 }
 
-// @todo refactor with time_evolution.cpp -> GetLightColor()
 static tVec3f GetBushFlowerBlossomColor(const float astro_time) {
   auto& periods = astro_time_periods;
 
@@ -934,9 +935,11 @@ static tVec3f GetBushFlowerBlossomColor(const float astro_time) {
   return present_color;
 }
 
-// @todo just let FlowerBush.h handle this
+// @todo move to FlowerBush.h
 static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
   profile("UpdateBushFlowers()");
+
+  auto& meshes = state.meshes;
 
   const tVec3f blossom_color = GetBushFlowerBlossomColor(state.astro_time);
   const float spawn_radius = 1200.f;
@@ -947,7 +950,8 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
   auto& player_position = state.player_position;
   float base_time_progress = 0.5f * (state.astro_time - -500.f);
 
-  reset_instances(state.meshes.bush_flower);
+  reset_instances(meshes.bush_flower);
+  reset_instances(meshes.flower_middle);
 
   for_entities(state.flower_bushes) {
     auto& entity = state.flower_bushes[i];
@@ -966,7 +970,7 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
       float vz = abs(entity.visible_position.z);
 
       for (int i = 0; i < 3; i++) {
-        auto& flower = use_instance(state.meshes.bush_flower);
+        auto& flower = use_instance(meshes.bush_flower);
 
         float offset_x = fmodf(vx + vx * 0.1f + 847.f * (float)i, spawn_radius) - half_spawn_radius;
         float offset_z = fmodf(vz + vz * 0.1f + 847.f * (float)i, spawn_radius) - half_spawn_radius;
@@ -994,6 +998,17 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
         flower.material = tVec4f(0.9f, 0, 0, 0.4f);
 
         commit(flower);
+
+        // Add middle piece
+        auto& middle = use_instance(meshes.flower_middle);
+
+        middle.position = flower.position;
+        middle.scale = flower.scale;
+        middle.rotation = flower.rotation;
+        middle.color = tVec3f(0.9f, 0.5f, 0.2f);
+        middle.material = tVec4f(1.f, 0, 0, 0.5f);
+
+        commit(middle);
       }
     }
   }

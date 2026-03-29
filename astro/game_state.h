@@ -51,6 +51,7 @@ namespace astro {
       tiny_ground_flower,
       ground_1_flower,
       bush_flower,
+      flower_middle,
       tree_mushroom,
       vine_leaf,
       vine_flower,

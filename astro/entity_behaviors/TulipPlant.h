@@ -127,18 +127,23 @@ namespace astro {
           bulb.scale *= 0.35f;
           bulb.material = tVec4f(0.5f, 0, 0.1f, 1.f);
 
-          if (life_progress < 0.6f) {
+          if (life_progress < 0.55f) {
             bulb.scale *= Grow(20.f * (life_progress - 0.2f));
             bulb.color = tVec4f(unique_color, 0.3f);
           } else {
             // Wilting
-            float death = Die((life_progress - 0.6f) / 0.2f);
+            float death = Die((life_progress - 0.55f) / 0.25f);
 
             bulb.scale.x *= death;
             bulb.scale.y *= 0.6f + 0.4f * death;
             bulb.scale.z *= death;
-            bulb.position.y -= (1.f - death) * entity.scale.y;
             bulb.color = tVec3f::lerp(wilted_color, unique_color, death * death);
+
+            if (life_progress > 0.6f) {
+              float alpha = Die((life_progress - 0.6f) / 0.2f);
+
+              bulb.position.y -= (1.f - alpha) * entity.scale.y;
+            }
 
             // Dead
             if (life_progress > 0.8f) bulb.scale = tVec3f(0.f);

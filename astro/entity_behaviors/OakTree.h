@@ -54,6 +54,7 @@ namespace astro {
       const tVec3f aged_leaves_color = tVec3f(0.1f, 0.2f, 0.1f);
 
       float alpha = Tachyon_InverseLerp(astro_time_periods.past, astro_time_periods.present, state.astro_time);
+      tVec3f current_roots_color = tVec3f::lerp(roots_color, aged_wood_color, alpha);
       tVec3f current_wood_color = tVec3f::lerp(wood_color, aged_wood_color, alpha);
       tVec3f current_leaves_color = tVec3f::lerp(leaves_color, aged_leaves_color, alpha);
 
@@ -106,7 +107,7 @@ namespace astro {
           roots.position.y = entity.position.y + entity.scale.y * 1.3f * tree_thickness;
 
           roots.rotation = entity.orientation;
-          roots.color = roots_color;
+          roots.color = current_roots_color;
           roots.material = wood_material;
 
           commit(roots);
@@ -134,9 +135,7 @@ namespace astro {
           float branches_size = growth_factor > 0.5f ? 2.f * (growth_factor - 0.5f) : 0.f;
 
           branches.position = entity.position;
-
           branches.scale = tree_scale;
-
           branches.rotation = entity.orientation;
           branches.color = current_wood_color;
           branches.material = wood_material;
