@@ -423,7 +423,7 @@ void main() {
       // Adjustment: fade the ring closer to the player to avoid striping artifacts
       ring_factor *= pow(min(1.0, frag_distance_from_player / 10000.0), 2.0);
       // Adjustment: fade the ring in as the warp bubble grows
-      ring_factor *= min(1.0, pow(start_bubble_radius / 10000.0, 2.0));
+      ring_factor *= min(1.0, pow(start_bubble_radius / 10000.0, 3.0));
 
       if (frag_distance_from_player > start_bubble_radius) {
         haze_factor = 0.0;

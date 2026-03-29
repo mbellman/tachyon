@@ -153,7 +153,7 @@ namespace astro {
 
   static DialogueList low_guard_dialogue_engaged = {
     {
-      .text = "You there! Retreat, or there shall be consequences!",
+      .text = "You there! I order thee, retreat!",
       .sound = ""
     },
     {
@@ -172,11 +172,11 @@ namespace astro {
       .sound = ""
     },
     {
-      .text = "Surrender yourself at once!",
+      .text = "Surrender thyself at once!",
       .sound = ""
     },
     {
-      .text = "I command thee, halt!",
+      .text = "Halt! I command thee!",
       .sound = ""
     }
   };

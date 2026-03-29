@@ -361,6 +361,8 @@ static void HandleStrayLeaves(Tachyon* tachyon, State& state) {
 
   auto& meshes = state.meshes;
   float scene_time = get_scene_time();
+  // Scale down the leaves during astro travel
+  float scale_factor = 1.f - 4.f * abs(state.astro_turn_speed);
 
   for (auto& leaf : objects(meshes.stray_leaf)) {
     float movement_speed = speeds[leaf.object_id % 4];
@@ -370,7 +372,7 @@ static void HandleStrayLeaves(Tachyon* tachyon, State& state) {
     leaf.position.x += movement_speed * state.dt;
     leaf.position.y += 1000.f * sinf(t) * state.dt;
     leaf.position.z += 500.f * cosf(t) * state.dt;
-    leaf.scale = tVec3f(150.f);
+    leaf.scale = tVec3f(150.f * scale_factor);
 
     leaf.rotation *= (
       Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), rotation_speed * state.dt) *
@@ -493,7 +495,7 @@ static void HandleMusicLevels(Tachyon* tachyon, State& state) {
     if (state.astro_turn_speed != 0.f || !state.music_enabled) {
       Sfx::FadeSoundVolumeTo(current_ambient_sound, 0.f, 500);
     } else {
-      Sfx::FadeSoundVolumeTo(current_ambient_sound, 0.5f, 500);
+      Sfx::FadeSoundVolumeTo(current_ambient_sound, 0.6f, 500);
     }
   }
 
@@ -503,10 +505,10 @@ static void HandleMusicLevels(Tachyon* tachyon, State& state) {
       BGM::FadeCurrentMusicVolumeTo(0.f, 500);
     }
     else if (IsInStealthMode(state) || Targeting::IsInCombatMode(state)) {
-      BGM::FadeCurrentMusicVolumeTo(0.4f, 500);
+      BGM::FadeCurrentMusicVolumeTo(0.3f, 500);
     }
     else {
-      BGM::FadeCurrentMusicVolumeTo(0.5f, 3000);
+      BGM::FadeCurrentMusicVolumeTo(0.4f, 3000);
     }
   }
 }
@@ -529,13 +531,13 @@ static void HandleCurrentAreaMusic(Tachyon* tachyon, State& state) {
   tVec3f village_position = tVec3f(232000.f, 0, 106000.f);
 
   if (IsPlayerNearWindChimes(state)) {
-    BGM::LoopMusic(BGM_WIND_CHIMES, 0.3f);
+    BGM::LoopMusic(BGM_WIND_CHIMES, 0.4f);
   }
   else if (tVec3f::distance(state.player_position, village_position) < 40000.f) {
-    BGM::LoopMusic(VILLAGE_1, 0.5f);
+    BGM::LoopMusic(VILLAGE_1, 0.4f);
   }
   else if (state.bgm_start_time != -1.f) {
-    BGM::LoopMusic(DIVINATION_WOODREALM, 0.5f);
+    BGM::LoopMusic(DIVINATION_WOODREALM, 0.4f);
   }
 }
 

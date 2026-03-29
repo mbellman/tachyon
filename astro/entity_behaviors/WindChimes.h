@@ -105,6 +105,7 @@ namespace astro {
           light.radius = 2000.f;
           light.color = tVec3f(1.f, 0.6f, 0.3f);
           light.glow_power = 1.f;
+          light.power = 1.4f + 0.5f * sinf(scene_time);
 
           float time_since_activating = time_since(entity.game_activation_time);
 
