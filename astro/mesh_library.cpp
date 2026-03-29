@@ -331,10 +331,12 @@ void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
   meshes.water_plane = PLANE_MESH(1);
   // @temporary
   meshes.snow_particle = MODEL_MESH("./astro/3d_models/snow.obj", 100);
+  meshes.stray_leaf = MODEL_MESH("./astro/3d_models/stray_leaf.obj", 50);
 
   mesh(meshes.water_plane).type = WATER_MESH;
   mesh(meshes.water_plane).shadow_cascade_ceiling = 0;
   mesh(meshes.snow_particle).shadow_cascade_ceiling = 0;
+  mesh(meshes.stray_leaf).shadow_cascade_ceiling = 2;
 
   AddHUDMeshes(tachyon, state);
   AddDecorativeMeshes(tachyon, state);

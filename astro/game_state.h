@@ -38,6 +38,7 @@ namespace astro {
       // Static environment meshes
       water_plane,
       snow_particle,
+      stray_leaf,
 
       // Dynamic fauna meshes
       butterfly_left_wing,
