@@ -66,8 +66,9 @@ void main() {
   vec3 world_space_position = model_space_position + (translation - transform_origin);
 
   // @todo handle grass behavior in shadow map pass
+  // @todo rewrite this, this is borderline incomprehensible
   if (is_grass) {
-    const float wind_strength = 250.0;
+    const float wind_strength = 300.0;
     const float wind_speed = 2.0;
 
     float model_y = model_space_position.y;

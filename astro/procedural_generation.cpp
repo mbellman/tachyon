@@ -471,6 +471,44 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
       blade.scale.z *= 1.2f;
       blade.scale.y *= 0.75f;
 
+      // Clustered coloration
+      // @todo factor
+      {
+        // @todo past
+        const static tColor colors[] = {
+          tVec4f(0.2f, 0.5f, 0.1f, 0.1f),
+          tVec4f(0.3f, 0.6f, 0.1f, 0.1f),
+          tVec4f(0.2f, 0.4f, 0.1f, 0.1f),
+          tVec4f(0.1f, 0.3f, 0.1f, 0.1f)
+        };
+
+        // @todo present
+        // const static tColor colors[] = {
+        //   tVec4f(0.1f, 0.4f, 0.1f, 0.1f),
+        //   tVec4f(0.2f, 0.5f, 0.1f, 0.1f),
+        //   tVec4f(0.1f, 0.3f, 0.1f, 0.1f),
+        //   tVec4f(0.2f, 0.4f, 0.1f, 0.1f)
+        // };
+
+        // Autumn-ish?
+        // const static tColor colors[] = {
+        //   tVec4f(0.5f, 0.3f, 0.1f, 0.1f),
+        //   tVec4f(0.6f, 0.4f, 0.1f, 0.1f),
+        //   tVec4f(0.4f, 0.3f, 0.1f, 0.1f),
+        //   tVec4f(0.5f, 0.4f, 0.1f, 0.1f)
+        // };
+
+        const float variance_strength = 0.0004f;
+        const float world_oscillation = 0.0006f;
+
+        float variance = variance_strength * abs(position.x + position.z) + sinf(position.z * world_oscillation);
+        float sx = sinf(position.x * world_oscillation);
+        float cz = cosf(position.z * world_oscillation);
+        float color_variation = abs(2.f * sx * cz + variance);
+
+        blade.color = colors[int(color_variation) % 4];
+      }
+
       // @todo factor
       for (auto& segment : local_dirt_path_segments) {
         if (CollisionSystem::IsPointOnPlane(blade.position, segment.plane)) {
@@ -511,38 +549,39 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
 static void UpdateSmallGrassObjectByTime(tObject& grass, float astro_time) {
   const static float growth_rate = 0.7f;
 
-  // @todo past
-  const static tColor colors[] = {
-    tVec4f(0.2f, 0.5f, 0.1f, 0.1f),
-    tVec4f(0.3f, 0.6f, 0.1f, 0.1f),
-    tVec4f(0.1f, 0.4f, 0.1f, 0.1f),
-    tVec4f(0.1f, 0.5f, 0.1f, 0.1f)
-  };
-
-  // @todo present
+  // // @todo past
   // const static tColor colors[] = {
-  //   tVec4f(0.1f, 0.4f, 0.1f, 0.1f),
-  //   tVec4f(0.2f, 0.5f, 0.1f, 0.1f),
-  //   tVec4f(0.1f, 0.3f, 0.1f, 0.1f),
-  //   tVec4f(0.2f, 0.4f, 0.1f, 0.1f)
+  //   tVec4f(0.2f, 0.5f, 0.1f, 0.2f),
+  //   tVec4f(0.3f, 0.6f, 0.1f, 0.2f),
+  //   tVec4f(0.2f, 0.4f, 0.1f, 0.2f),
+  //   tVec4f(0.1f, 0.4f, 0.1f, 0.2f)
   // };
 
-  // Autumn-ish?
-  // const static tColor colors[] = {
-  //   tVec4f(0.5f, 0.3f, 0.1f, 0.1f),
-  //   tVec4f(0.6f, 0.4f, 0.1f, 0.1f),
-  //   tVec4f(0.4f, 0.3f, 0.1f, 0.1f),
-  //   tVec4f(0.5f, 0.4f, 0.1f, 0.1f)
-  // };
+  // // @todo present
+  // // const static tColor colors[] = {
+  // //   tVec4f(0.1f, 0.4f, 0.1f, 0.1f),
+  // //   tVec4f(0.2f, 0.5f, 0.1f, 0.1f),
+  // //   tVec4f(0.1f, 0.3f, 0.1f, 0.1f),
+  // //   tVec4f(0.2f, 0.4f, 0.1f, 0.1f)
+  // // };
+
+  // // Autumn-ish?
+  // // const static tColor colors[] = {
+  // //   tVec4f(0.5f, 0.3f, 0.1f, 0.1f),
+  // //   tVec4f(0.6f, 0.4f, 0.1f, 0.1f),
+  // //   tVec4f(0.4f, 0.3f, 0.1f, 0.1f),
+  // //   tVec4f(0.5f, 0.4f, 0.1f, 0.1f)
+  // // };
+
+  float x = grass.position.x;
+  float z = grass.position.z;
 
   float alpha = astro_time + grass.position.x + grass.position.z;
   int iteration = (int)abs(growth_rate * alpha / t_TAU - 0.8f);
   float rotation_angle = float(iteration) * 1.3f;
-  auto variation_index = iteration % 4;
 
   // @todo cache this
   grass.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), rotation_angle);
-  grass.color = colors[variation_index];
 }
 
 static void UpdateSmallGrass(Tachyon* tachyon, State& state) {
@@ -650,6 +689,7 @@ static void UpdateSmallGrass(Tachyon* tachyon, State& state) {
       // Time-invariant grass properties
       grass.position = blade.position;
       grass.scale = blade.scale;
+      grass.color = blade.color;
       grass.material = tVec4f(0.5f, 0, 0.15f, 0.8f);
 
       // Time evolution
