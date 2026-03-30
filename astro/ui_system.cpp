@@ -130,6 +130,9 @@ void UISystem::ShowBlockingDialogue(Tachyon* tachyon, State& state, const std::s
 }
 
 void UISystem::HandleDialogue(Tachyon* tachyon, State& state) {
+  const float max_overlay_opacity = 0.4f;
+
+  auto& fx = tachyon->fx;
   float dialogue_age = time_since(state.dialogue_start_time);
 
   if (state.has_blocking_dialogue && !state.dismissed_blocking_dialogue) {
@@ -144,9 +147,12 @@ void UISystem::HandleDialogue(Tachyon* tachyon, State& state) {
       // Trigger the dialogue fade-out immediately
       state.dialogue_start_time = get_scene_time() - 5.f;
     }
+
+    // Show dialogue overlay
+    fx.dialogue_overlay_opacity = Tachyon_Lerpf(fx.dialogue_overlay_opacity, max_overlay_opacity, 5.f * state.dt);
   }
 
-  if (dialogue_age < 6.f) {
+  if (state.dialogue_start_time != 0.f && dialogue_age < 6.f) {
     float alpha = 1.f;
     if (dialogue_age < 0.2f) alpha = dialogue_age * 5.f;
     if (dialogue_age > 5.f) alpha = 1.f - (dialogue_age - 5.f);
@@ -158,11 +164,17 @@ void UISystem::HandleDialogue(Tachyon* tachyon, State& state) {
       .alpha = alpha,
       .string = state.dialogue_message
     });
+
+    // Show dialogue overlay
+    fx.dialogue_overlay_opacity = Tachyon_Lerpf(fx.dialogue_overlay_opacity, max_overlay_opacity, 5.f * state.dt);
   } else {
     state.dialogue_message = "";
     state.dialogue_start_time = 0.f;
     state.has_blocking_dialogue = false;
     state.dismissed_blocking_dialogue = false;
+
+    // Hide dialogue overlay
+    fx.dialogue_overlay_opacity = Tachyon_Lerpf(fx.dialogue_overlay_opacity, 0.f, 5.f * state.dt);
   }
 
   if (state.current_dialogue_set != "") {

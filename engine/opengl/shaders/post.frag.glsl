@@ -23,6 +23,7 @@ uniform float astro_time_warp_start_radius;
 uniform float astro_time_warp_end_radius;
 uniform float haze_intensity;
 uniform float vignette_intensity;
+uniform float dialogue_overlay_opacity;
 
 in vec2 fragUv;
 
@@ -399,6 +400,21 @@ void main() {
     // Artstyle
     {
       post_color = GetToonShadedColor(post_color, fragUv, color_and_depth.w, world_depth);
+    }
+
+    // Dialogue overlay
+    {
+      if (fragUv.y < 0.3) {
+        const vec3 overlay_color = vec3(0.0, 0.0, 0.1);
+
+        float top_opacity = smoothstep(0.3, 0.18, fragUv.y);
+        float bottom_opacity = smoothstep(0.0, 0.12, fragUv.y);
+        float left_opacity = smoothstep(0.15, 0.25, fragUv.x);
+        float right_opacity = smoothstep(0.85, 0.75, fragUv.x);
+        float opacity = dialogue_overlay_opacity * top_opacity * bottom_opacity * left_opacity * right_opacity;
+
+        post_color = mix(post_color, overlay_color, opacity);
+      }
     }
 
     // Time warping

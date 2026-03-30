@@ -1282,6 +1282,7 @@ static void RenderPost(Tachyon* tachyon) {
   auto& shader = renderer.shaders.post;
   auto& locations = renderer.shaders.locations.post;
   auto& ctx = renderer.ctx;
+  auto& fx = tachyon->fx;
 
   auto& accumulation_buffer = renderer.current_frame % 2 == 0
     ? renderer.accumulation_buffer_a
@@ -1300,13 +1301,14 @@ static void RenderPost(Tachyon* tachyon) {
   SetShaderMat4f(locations.inverse_view_matrix, ctx.inverse_view_matrix);
   SetShaderVec3f(locations.camera_position, ctx.camera_position);
   SetShaderVec3f(locations.primary_light_direction, tachyon->scene.primary_light_direction);
-  SetShaderFloat(locations.scan_time, tachyon->fx.scan_time);
-  SetShaderVec3f(locations.player_position, tachyon->fx.player_position);
-  SetShaderFloat(locations.astro_time_warp, tachyon->fx.astro_time_warp);
-  SetShaderFloat(locations.astro_time_warp_start_radius, tachyon->fx.astro_time_warp_start_radius);
-  SetShaderFloat(locations.astro_time_warp_end_radius, tachyon->fx.astro_time_warp_end_radius);
-  SetShaderFloat(locations.haze_intensity, tachyon->fx.haze_intensity);
-  SetShaderFloat(locations.vignette_intensity, tachyon->fx.vignette_intensity);
+  SetShaderFloat(locations.scan_time, fx.scan_time);
+  SetShaderVec3f(locations.player_position, fx.player_position);
+  SetShaderFloat(locations.astro_time_warp, fx.astro_time_warp);
+  SetShaderFloat(locations.astro_time_warp_start_radius, fx.astro_time_warp_start_radius);
+  SetShaderFloat(locations.astro_time_warp_end_radius, fx.astro_time_warp_end_radius);
+  SetShaderFloat(locations.haze_intensity, fx.haze_intensity);
+  SetShaderFloat(locations.vignette_intensity, fx.vignette_intensity);
+  SetShaderFloat(locations.dialogue_overlay_opacity, fx.dialogue_overlay_opacity);
 
   RenderScreenQuad(tachyon);
 }
