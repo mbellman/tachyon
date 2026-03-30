@@ -56,7 +56,14 @@ static void SetActivePlayerAnimation(Tachyon* tachyon, State& state) {
     state.previous_move_delta > 0.f &&
     (abs(tachyon->left_stick.x) > 0.1f || abs(tachyon->left_stick.y) > 0.1f)
   ) {
-    Animation::SetNextAnimation(player_animation, &animations.player_run);
+    Animation::AwaitNextAnimation(player_animation, &animations.player_run);
+
+    // Speed up the transition to the next animation (running)
+    // so it can be started sooner. Otherwise the transition
+    // from idle -> walking or walking -> idle can take too long,
+    // which appears as the player "gliding" along the ground
+    // for a short moment.
+    player_animation.next_animation_blend_alpha += 5.f * state.dt;
   }
 
   // Walking

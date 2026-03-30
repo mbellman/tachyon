@@ -57,19 +57,20 @@ void Animation::AccumulateTime(tSkinnedMeshAnimation& mesh_animation, const floa
     }
   }
 
-  // Track time between changing animations so they can be blended
+  // Increment the blend factor to the next animation, in case
+  // we're transitioning between animations.
   {
-    mesh_animation.time_since_last_animation_change += 2.f * dt;
+    mesh_animation.next_animation_blend_alpha += 3.f * dt;
 
-    if (mesh_animation.time_since_last_animation_change > 1.f) {
-      mesh_animation.time_since_last_animation_change = 1.f;
+    if (mesh_animation.next_animation_blend_alpha > 1.f) {
+      mesh_animation.next_animation_blend_alpha = 1.f;
     }
   }
 
   // Update the current animation when a full blend from current -> next is complete
   if (
     mesh_animation.current_animation != mesh_animation.next_animation &&
-    mesh_animation.time_since_last_animation_change == 1.f
+    mesh_animation.next_animation_blend_alpha == 1.f
   ) {
     mesh_animation.current_animation = mesh_animation.next_animation;
   }
@@ -87,7 +88,7 @@ void Animation::UpdatePose(tSkinnedMeshAnimation& mesh_animation) {
   // Update the active pose based on the blended result of the current/next animations
   {
     auto& active_pose = mesh_animation.active_pose;
-    float blend_alpha = mesh_animation.time_since_last_animation_change;
+    float blend_alpha = mesh_animation.next_animation_blend_alpha;
 
     for (size_t i = 0; i < current_animation.evaluated_pose.bones.size(); i++) {
       auto& previous_bone = current_animation.evaluated_pose.bones[i];
@@ -144,11 +145,11 @@ void Animation::SetNextAnimation(tSkinnedMeshAnimation& mesh_animation, tSkeleto
   ReserveAnimationPoseData(*skeleton_animation);
 
   mesh_animation.next_animation = skeleton_animation;
-  mesh_animation.time_since_last_animation_change = 0.f;
+  mesh_animation.next_animation_blend_alpha = 0.f;
 }
 
 void Animation::AwaitNextAnimation(tSkinnedMeshAnimation& mesh_animation, tSkeletonAnimation* skeleton_animation) {
-  if (mesh_animation.next_animation != nullptr && mesh_animation.time_since_last_animation_change < 1.f) {
+  if (mesh_animation.next_animation != nullptr && mesh_animation.next_animation_blend_alpha < 1.f) {
     return;
   }
 

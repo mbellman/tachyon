@@ -360,7 +360,7 @@ static bool TestWindChimesAction(Tachyon* tachyon, State& state) {
 }
 
 static void HandleWandControls(Tachyon* tachyon, State& state) {
-  if (abs(state.astro_turn_speed) > 0.18f) {
+  if (abs(state.astro_turn_speed) != 0.f) {
     return;
   }
 

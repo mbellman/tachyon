@@ -10,12 +10,12 @@ Well, I shall continue as I was.
 
 @gate_villager
 +Ah, a fellow vagabond! You're a sight for weary eyes indeed.
-+As a matter of fact, I fear I'm in quite a state of desperation...
++As a matter of fact, I fear I'm in quite a desperate state...
 +You see, I've been held up at this gate for quite some time now.
 Might I ask, you haven't a key in your possession, by chance?
 Oh, sod it...I'm afraid we're in this pickle together, then.
 Well, I don't suppose we should ask the next fellow who trods along!
-Oh, dear me...
+Oh, dear me...and to think we haven't long before nightfall...
 
 @gate_villager_cutscene
 Oh, wonderful! Just wonderful. I - I am in your debt.

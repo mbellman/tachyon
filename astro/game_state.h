@@ -313,7 +313,7 @@ namespace astro {
     tSkeletonAnimation* current_animation = nullptr;
     tSkeletonAnimation* next_animation = nullptr;
     float seek_time = 0.f;
-    float time_since_last_animation_change = 0.f;
+    float next_animation_blend_alpha = 0.f;
     float head_turn_angle = 0.f;
   };
 
