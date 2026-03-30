@@ -362,6 +362,7 @@ namespace astro {
     bool is_on_solid_ground = false;
     bool is_on_solid_platform = false;
     bool did_resolve_radius_collision = false;
+    int32 last_used_wind_chimes_id = -1;
 
     float previous_move_delta = 0.f;
     float movement_distance = 0.f;

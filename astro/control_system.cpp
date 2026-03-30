@@ -336,23 +336,21 @@ static void HandleDayNightControls(Tachyon* tachyon, State& state) {
 static bool TestWindChimesAction(Tachyon* tachyon, State& state) {
   float scene_time = get_scene_time();
 
-  // Wind chimes
-  {
-    for (auto& chimes : state.wind_chimes) {
-      float distance = tVec3f::distance(chimes.position, state.player_position);
+  for (auto& entity : state.wind_chimes) {
+    float distance = tVec3f::distance(entity.position, state.player_position);
 
-      if (
-        distance < 4000.f &&
-        time_since(chimes.game_activation_time) > 1.f
-      ) {
-        // @todo factor
-        chimes.game_activation_time = scene_time;
+    if (
+      distance < 4000.f &&
+      time_since(entity.game_activation_time) > 1.f
+    ) {
+      // @todo factor
+      entity.game_activation_time = scene_time;
 
-        state.astro_particle_spawn_position = chimes.position;
-        state.last_wind_chimes_action_time = scene_time;
+      state.astro_particle_spawn_position = entity.position;
+      state.last_wind_chimes_action_time = scene_time;
+      state.last_used_wind_chimes_id = entity.id;
 
-        return true;
-      }
+      return true;
     }
   }
 

@@ -593,12 +593,34 @@ static float GetNetMovementDistance(State& state) {
   return movement.magnitude();
 }
 
+static tVec3f GetLastUsedWindChimesPosition(State& state) {
+  if (state.last_used_wind_chimes_id != -1) {
+    EntityRecord record;
+    record.type = WIND_CHIMES;
+    record.id = state.last_used_wind_chimes_id;
+
+    auto& entity = *EntityManager::FindEntity(state, record);
+
+    return entity.position;
+  }
+
+  for (auto& entity : state.wind_chimes) {
+    if (entity.unique_name == "game_start_chimes") {
+      return entity.position;
+    }
+  }
+
+  return tVec3f(0.f);
+}
+
 // @todo PlayerCharacter::RespawnPlayer()
 static void RespawnPlayer(Tachyon* tachyon, State& state) {
-  // Reset player
-  // @todo default/load from save
-  // @todo spawn at wind chimes
-  state.player_position = tVec3f(61200.f, 0, 144100.f);
+  // @todo load from save
+  tVec3f spawn_position = GetLastUsedWindChimesPosition(state);
+  spawn_position.y = 1500.f + CollisionSystem::QueryGroundHeight(state, spawn_position.x, spawn_position.z);
+  spawn_position.z += 4000.f;
+
+  state.player_position = spawn_position;
   state.player_facing_direction = tVec3f(0, 0, 1.f);
   state.player_velocity = tVec3f(0.f);
   state.player_hp = 100.f;
@@ -610,9 +632,7 @@ static void RespawnPlayer(Tachyon* tachyon, State& state) {
 
   // Reset camera
   state.camera_shift = tVec3f(0, 0, 1875.f);
-
-  // @todo base on player position
-  tachyon->scene.camera.position = tVec3f(61200.f, 10000.f, 152975.f);
+  tachyon->scene.camera.position = spawn_position + tVec3f(0.f, 10000.f, 9000.f);
 
   // @temporary
   state.dismissed_blocking_dialogue = true;
