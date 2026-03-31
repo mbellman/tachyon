@@ -423,7 +423,9 @@ static void UpdateWandLights(Tachyon* tachyon, State& state) {
 
     auto& main_light = *get_point_light(state.wand_lights[0].light_id);
     float main_light_power = base_power + oscillating_power * (0.5f + 0.5f * sinf(2.f * scene_time));
+    tVec3f main_light_color = tVec3f(1.f, 0.6f, 0.2f);
 
+    // Glow when swinging
     if (state.last_wand_swing_time != 0.f && time_since_last_wand_swing < 1.f) {
       float alpha = time_since_last_wand_swing;
 
@@ -436,17 +438,20 @@ static void UpdateWandLights(Tachyon* tachyon, State& state) {
       main_light_power += wand_swing_power * alpha;
     }
 
+    // Glow during wind chimes actions
     if (
       state.last_wind_chimes_action_time != 0.f &&
       time_since(state.last_wind_chimes_action_time) < 4.f
     ) {
       float alpha = time_since(state.last_wind_chimes_action_time) / 4.f;
+      float intensity = sinf(t_PI * alpha);
 
-      main_light_power += 2.f * sinf(t_PI * alpha);
+      main_light_power += 3.f * intensity;
+      main_light_color = tVec3f::lerp(main_light_color, tVec3f(1.f), intensity);
     }
 
     main_light.position = wand_end_position;
-    main_light.color = tVec3f(1.f, 0.6f, 0.2f);
+    main_light.color = main_light_color;
     main_light.radius = 500.f + main_light_power * 500.f;
     main_light.power = main_light_power;
   }

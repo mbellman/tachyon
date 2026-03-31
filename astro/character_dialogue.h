@@ -47,7 +47,7 @@ namespace astro {
     int index = Tachyon_GetRandom(0, total - 1);
     auto& dialogue = *(dialogues.begin() + index);
 
-    UISystem::ShowDialogue(tachyon, state, dialogue.text);
+    UISystem::ShowDialogue(tachyon, state, dialogue.text, 4.f);
 
     if (strcmp(dialogue.sound, "") != 0) {
       // @hack prevent spamming dialogue audio

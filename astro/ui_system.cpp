@@ -87,14 +87,14 @@ void UISystem::StartDialogueSet(State& state, const std::string& set_name) {
   InitiateDialogueSet(state, state.npc_dialogue[set_name]);
 }
 
-void UISystem::ShowDialogue(Tachyon* tachyon, State& state, const std::string& message) {
+void UISystem::ShowDialogue(Tachyon* tachyon, State& state, const std::string& message, const float duration) {
   if (
     // Don't show new dialogue if we currently have blocking dialogue
     state.has_blocking_dialogue ||
     // Don't re-show currently-displayed dialogue
     (
       state.dialogue_message == message &&
-      time_since(state.dialogue_start_time) < 6.f
+      time_since(state.dialogue_start_time) < state.dialogue_duration
     )
   ) {
     return;
@@ -102,6 +102,7 @@ void UISystem::ShowDialogue(Tachyon* tachyon, State& state, const std::string& m
 
   state.dialogue_message = message;
   state.dialogue_start_time = get_scene_time();
+  state.dialogue_duration = duration;
 }
 
 void UISystem::ShowTransientDialogue(Tachyon* tachyon, State& state, const std::string& message) {
@@ -111,11 +112,13 @@ void UISystem::ShowTransientDialogue(Tachyon* tachyon, State& state, const std::
   }
 
   state.dialogue_message = message;
+  state.dialogue_duration = 5.f;
 
   // Trigger the dialogue fade-out immediately.
   // The dialogue will only remain while the method
-  // is continuously invoked.
-  state.dialogue_start_time = get_scene_time() - 5.f;
+  // is continuously invoked. As soon as it stops
+  // invoking, the dialogue will fade out.
+  state.dialogue_start_time = get_scene_time() - 4.f;
 }
 
 void UISystem::ShowBlockingDialogue(Tachyon* tachyon, State& state, const std::string& message) {
@@ -125,6 +128,7 @@ void UISystem::ShowBlockingDialogue(Tachyon* tachyon, State& state, const std::s
 
   state.dialogue_message = message;
   state.dialogue_start_time = get_scene_time();
+  state.dialogue_duration = 5.f;
   state.has_blocking_dialogue = true;
   state.dismissed_blocking_dialogue = false;
 }
@@ -145,17 +149,20 @@ void UISystem::HandleDialogue(Tachyon* tachyon, State& state) {
       state.dismissed_blocking_dialogue = true;
 
       // Trigger the dialogue fade-out immediately
-      state.dialogue_start_time = get_scene_time() - 5.f;
+      state.dialogue_start_time = get_scene_time() - 4.f;
     }
 
     // Show dialogue overlay
     fx.dialogue_overlay_opacity = Tachyon_Lerpf(fx.dialogue_overlay_opacity, max_overlay_opacity, 5.f * state.dt);
   }
 
-  if (state.dialogue_start_time != 0.f && dialogue_age < 6.f) {
+  if (state.dialogue_start_time != 0.f && dialogue_age < state.dialogue_duration) {
+    float fade_out_time = state.dialogue_duration - 1.f;
     float alpha = 1.f;
-    if (dialogue_age < 0.2f) alpha = dialogue_age * 5.f;
-    if (dialogue_age > 5.f) alpha = 1.f - (dialogue_age - 5.f);
+    // Fade in over 0.2 seconds
+    if (dialogue_age < 0.2f) alpha = dialogue_age / 0.2f;
+    // Fade out over the last second of dialogue
+    if (dialogue_age > fade_out_time) alpha = 1.f - (dialogue_age - fade_out_time);
 
     Tachyon_DrawUIText(tachyon, state.debug_text_large, {
       .screen_x = tachyon->window_width / 2,

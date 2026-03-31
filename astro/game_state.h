@@ -467,6 +467,7 @@ namespace astro {
     // Dialogue
     std::string dialogue_message = "";
     float dialogue_start_time = 0.f;
+    float dialogue_duration = 5.f;
     float last_dialogue_sound_time = 0.f;
     bool has_blocking_dialogue = false;
     bool dismissed_blocking_dialogue = false;
