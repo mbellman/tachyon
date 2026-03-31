@@ -16,8 +16,9 @@ static void AddHUDMeshes(Tachyon* tachyon, State& state) {
   meshes.astrolabe_rear        = MODEL_MESH("./astro/3d_models/astrolabe_rear.obj", 1);
   meshes.astrolabe_base        = MODEL_MESH("./astro/3d_models/astrolabe_base.obj", 1);
   meshes.astrolabe_plate       = MODEL_MESH("./astro/3d_models/astrolabe_plate.obj", 1);
-  meshes.astrolabe_fragment_ul = MODEL_MESH("./astro/3d_models/astrolabe_fragment_ul.obj", 1);
-  meshes.astrolabe_fragment_ll = MODEL_MESH("./astro/3d_models/astrolabe_fragment_ll.obj", 1);
+  meshes.astrolabe_plate2       = MODEL_MESH("./astro/3d_models/astrolabe_plate2.obj", 1);
+  meshes.astrolabe_plate3       = MODEL_MESH("./astro/3d_models/astrolabe_plate3.obj", 1);
+  meshes.astrolabe_plate4       = MODEL_MESH("./astro/3d_models/astrolabe_plate4.obj", 1);
   meshes.astrolabe_ring        = MODEL_MESH("./astro/3d_models/astrolabe_ring.obj", 1);
   meshes.astrolabe_hand        = MODEL_MESH("./astro/3d_models/astrolabe_hand.obj", 1);
   meshes.target_reticle        = MODEL_MESH("./astro/3d_models/target_reticle.obj", 1);
@@ -25,8 +26,9 @@ static void AddHUDMeshes(Tachyon* tachyon, State& state) {
   mesh(meshes.astrolabe_rear).shadow_cascade_ceiling = 0;
   mesh(meshes.astrolabe_base).shadow_cascade_ceiling = 0;
   mesh(meshes.astrolabe_plate).shadow_cascade_ceiling = 0;
-  mesh(meshes.astrolabe_fragment_ul).shadow_cascade_ceiling = 0;
-  mesh(meshes.astrolabe_fragment_ll).shadow_cascade_ceiling = 0;
+  mesh(meshes.astrolabe_plate2).shadow_cascade_ceiling = 0;
+  mesh(meshes.astrolabe_plate3).shadow_cascade_ceiling = 0;
+  mesh(meshes.astrolabe_plate4).shadow_cascade_ceiling = 0;
   mesh(meshes.astrolabe_ring).shadow_cascade_ceiling = 0;
   mesh(meshes.astrolabe_hand).shadow_cascade_ceiling = 0;
   mesh(meshes.target_reticle).shadow_cascade_ceiling = 0;

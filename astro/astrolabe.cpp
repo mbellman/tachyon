@@ -16,12 +16,17 @@ void Astrolabe::Update(Tachyon* tachyon, State& state) {
   auto& rear = objects(meshes.astrolabe_rear)[0];
   auto& base = objects(meshes.astrolabe_base)[0];
   auto& plate = objects(meshes.astrolabe_plate)[0];
+  auto& plate2 = objects(meshes.astrolabe_plate2)[0];
+  auto& plate3 = objects(meshes.astrolabe_plate3)[0];
+  auto& plate4 = objects(meshes.astrolabe_plate4)[0];
   auto& ring = objects(meshes.astrolabe_ring)[0];
   auto& hand = objects(meshes.astrolabe_hand)[0];
 
-  rear.scale =
   base.scale =
   plate.scale =
+  plate2.scale =
+  plate3.scale =
+  plate4.scale =
   ring.scale =
   hand.scale =
   tVec3f(200.f);
@@ -34,18 +39,31 @@ void Astrolabe::Update(Tachyon* tachyon, State& state) {
   base.color = tVec3f(0.7f, 0.4f, 0.1f);
   base.material = tVec4f(0.2f, 1.f, 1.f, 0.1f);
 
-  plate.color = tVec3f(0.25f, 0.1f, 0.1f);
-  plate.material = tVec4f(0, 0, 0, 0);
+  // Plates
+  {
+    plate.color = 0x1130;
+    plate2.color = 0x4120;
+    plate3.color = 0x3130;
+    plate4.color = 0x1120;
+
+    plate.material =
+    plate2.material =
+    plate3.material =
+    plate4.material = tVec4f(0.1f, 0, 0, 0.4f);
+  }
 
   ring.color = tVec3f(0.9f, 0.8f, 0.1f);
   ring.material = tVec4f(0.3f, 1.f, 0, 0.1f);
 
-  hand.color = tVec3f(0.5f, 0.1f, 0.1f);
+  hand.color = tVec3f(0.7f, 0.1f, 0.1f);
   hand.material = tVec4f(0.2f, 1.f, 0, 0);
 
   rear.rotation =
   base.rotation =
   plate.rotation =
+  plate2.rotation =
+  plate3.rotation =
+  plate4.rotation =
   ring.rotation =
   (
     Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -state.camera_angle) *
@@ -84,6 +102,9 @@ void Astrolabe::Update(Tachyon* tachyon, State& state) {
   rear.position =
   base.position =
   plate.position =
+  plate2.position =
+  plate3.position =
+  plate4.position =
   ring.position =
   hand.position =
   (
@@ -100,34 +121,8 @@ void Astrolabe::Update(Tachyon* tachyon, State& state) {
   // Adjust hand position
   hand.position -= camera.rotation.getLeftDirection() * 6.f;
 
-  // Fragments
-  {
-    tVec3f fragment_color = tVec3f(0.7f, 0.5f, 0.2f);
-
-    auto& fragment_upper_left = objects(meshes.astrolabe_fragment_ul)[0];
-    auto& fragment_lower_left = objects(meshes.astrolabe_fragment_ll)[0];
-
-    fragment_upper_left.position = base.position;
-    fragment_upper_left.scale = base.scale;
-    fragment_upper_left.rotation = base.rotation;
-    fragment_upper_left.color = fragment_color;
-    fragment_upper_left.material = base.material;
-
-    if (Items::HasItem(state, ASTROLABE_LOWER_LEFT)) {
-      fragment_lower_left.position = base.position;
-      fragment_lower_left.scale = base.scale;
-      fragment_lower_left.rotation = base.rotation;
-      fragment_lower_left.color = fragment_color;
-      fragment_lower_left.material = base.material;
-    } else {
-      fragment_lower_left.scale = tVec3f(0.f);
-    }
-
-    commit(fragment_upper_left);
-    commit(fragment_lower_left);
-  }
-
   // Light
+  // @todo factor
   {
     auto* light = get_point_light(state.astrolabe_light_id);
     tVec3f default_light_color = tVec3f(1.f, 0.8f, 0.4f);
@@ -138,17 +133,22 @@ void Astrolabe::Update(Tachyon* tachyon, State& state) {
     light->power = 0.5f + 20.f * abs(state.astro_turn_speed);
     light->glow_power = 0.f;
 
-    // @todo factor
-    if (time_since(state.game_time_at_start_of_turn) < 2.f) {
+    if (
+      state.game_time_at_start_of_turn != 0.f &&
+      time_since(state.game_time_at_start_of_turn) < 2.f
+    ) {
       float alpha = time_since(state.game_time_at_start_of_turn) / 2.f;
 
-      light->power += 5.f * sinf(alpha * t_PI);
+      light->power += 3.f * sinf(alpha * t_PI);
     }
   }
 
   commit(rear);
   commit(base);
   commit(plate);
+  commit(plate2);
+  commit(plate3);
+  commit(plate4);
   commit(ring);
   commit(hand);
 }
