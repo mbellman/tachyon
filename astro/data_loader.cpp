@@ -28,6 +28,7 @@ static std::vector<std::string> SplitString(const std::string& str, const std::s
   return values;
 }
 
+// @todo move to decorative_meshes.h
 uint16 DataLoader::MeshIndexToId(State& state, uint16 mesh_index) {
   auto& meshes = state.meshes;
 
@@ -38,12 +39,16 @@ uint16 DataLoader::MeshIndexToId(State& state, uint16 mesh_index) {
     { meshes.lookout_tower, 4 },
     { meshes.river_edge, 5 },
     { meshes.rock_2, 6 },
-    { meshes.stairs_floor, 7 }
+    { meshes.stairs_floor, 7 },
+
+    // Facades
+    { meshes.facade_sg_castle, 30 }
   };
 
   return mesh_map.at(mesh_index);
 }
 
+// @todo move to decorative_meshes.h
 uint16 DataLoader::MeshIdToIndex(State& state, uint16 mesh_id) {
   auto& meshes = state.meshes;
 
@@ -54,7 +59,10 @@ uint16 DataLoader::MeshIdToIndex(State& state, uint16 mesh_id) {
     { 4, meshes.lookout_tower },
     { 5, meshes.river_edge },
     { 6, meshes.rock_2 },
-    { 7, meshes.stairs_floor }
+    { 7, meshes.stairs_floor },
+
+    // Facades
+    { 30, meshes.facade_sg_castle }
   };
 
   return mesh_map.at(mesh_id);

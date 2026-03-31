@@ -87,6 +87,9 @@ namespace astro {
       lookout_tower,
       stairs_floor,
 
+      // Facade meshes
+      facade_sg_castle,
+
       // Editor meshes
       // @todo dev mode only
       gizmo_arrow,

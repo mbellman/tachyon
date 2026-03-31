@@ -2,6 +2,15 @@
 
 using namespace astro;
 
+// @todo!!!!!!!!!!!!
 void FacadeGeometry::HandleFacades(Tachyon* tachyon, State& state) {
-  // @todo
+  auto& meshes = state.meshes;
+
+  if (!state.use_vantage_camera) {
+    // objects(meshes.facade_sg_castle).disabled = true;
+
+    return;
+  }
+
+  // objects(meshes.facade_sg_castle).disabled = false;
 }

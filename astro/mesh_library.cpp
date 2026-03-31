@@ -16,9 +16,9 @@ static void AddHUDMeshes(Tachyon* tachyon, State& state) {
   meshes.astrolabe_rear        = MODEL_MESH("./astro/3d_models/astrolabe_rear.obj", 1);
   meshes.astrolabe_base        = MODEL_MESH("./astro/3d_models/astrolabe_base.obj", 1);
   meshes.astrolabe_plate       = MODEL_MESH("./astro/3d_models/astrolabe_plate.obj", 1);
-  meshes.astrolabe_plate2       = MODEL_MESH("./astro/3d_models/astrolabe_plate2.obj", 1);
-  meshes.astrolabe_plate3       = MODEL_MESH("./astro/3d_models/astrolabe_plate3.obj", 1);
-  meshes.astrolabe_plate4       = MODEL_MESH("./astro/3d_models/astrolabe_plate4.obj", 1);
+  meshes.astrolabe_plate2      = MODEL_MESH("./astro/3d_models/astrolabe_plate2.obj", 1);
+  meshes.astrolabe_plate3      = MODEL_MESH("./astro/3d_models/astrolabe_plate3.obj", 1);
+  meshes.astrolabe_plate4      = MODEL_MESH("./astro/3d_models/astrolabe_plate4.obj", 1);
   meshes.astrolabe_ring        = MODEL_MESH("./astro/3d_models/astrolabe_ring.obj", 1);
   meshes.astrolabe_hand        = MODEL_MESH("./astro/3d_models/astrolabe_hand.obj", 1);
   meshes.target_reticle        = MODEL_MESH("./astro/3d_models/target_reticle.obj", 1);
@@ -43,7 +43,7 @@ static void AddDecorativeMeshes(Tachyon* tachyon, State& state) {
   meshes.river_edge    = MODEL_MESH("./astro/3d_models/river_edge.obj", 5000);
   meshes.ground_1      = MODEL_MESH("./astro/3d_models/ground_1.obj", 5000);
   meshes.lookout_tower = MODEL_MESH("./astro/3d_models/decoratives/lookout_tower.obj", 100);
-  meshes.stairs_floor = MODEL_MESH("./astro/3d_models/stairs_floor.obj", 1000);
+  meshes.stairs_floor  = MODEL_MESH("./astro/3d_models/stairs_floor.obj", 1000);
 
   mesh(meshes.flat_ground).shadow_cascade_ceiling = 0;
   mesh(meshes.rock_1).shadow_cascade_ceiling = 2;
@@ -53,6 +53,15 @@ static void AddDecorativeMeshes(Tachyon* tachyon, State& state) {
   mesh(meshes.river_edge).shadow_cascade_ceiling = 2;
   mesh(meshes.ground_1).shadow_cascade_ceiling = 2;
   mesh(meshes.stairs_floor).shadow_cascade_ceiling = 2;
+}
+
+static void AddFacadeMeshes(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
+  meshes.facade_sg_castle = MODEL_MESH("./astro/3d_models/facades/sg_castle.obj", 1);
+
+  // @todo shadow_cascade_floor
+  mesh(meshes.facade_sg_castle).shadow_cascade_ceiling = 3;
 }
 
 static void AddEntityMeshes(Tachyon* tachyon, State& state) {
@@ -345,6 +354,7 @@ void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
 
   AddHUDMeshes(tachyon, state);
   AddDecorativeMeshes(tachyon, state);
+  AddFacadeMeshes(tachyon, state);
   AddEntityMeshes(tachyon, state);
   AddItemMeshes(tachyon, state);
   AddProceduralMeshes(tachyon, state);

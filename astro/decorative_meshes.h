@@ -69,6 +69,14 @@ namespace astro {
         .default_scale = tVec3f(2000.f, 1500.f, 2000.f),
         .default_color = tVec3f(0.3f, 0.5f, 0.1f)
       },
+
+      // Facades
+      {
+        .mesh_index = meshes.facade_sg_castle,
+        .mesh_name = "Facade - SG Castle",
+        .default_scale = tVec3f(10000.f),
+        .default_color = tVec3f(0.6f)
+      },
     };
 
     return decorative_meshes;

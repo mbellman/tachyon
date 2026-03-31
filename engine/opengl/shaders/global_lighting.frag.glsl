@@ -736,6 +736,16 @@ void main() {
     out_color += GetDirectionalLightRadiance(L, primary_light_color, albedo, position, N, V, NdotV, roughness, metalness, clearcoat, subsurface, shadow);
   }
 
+  // Mood lighting
+  // @temporary
+  // @todo improve
+  {
+    vec3 li = normalize(vec3(1, 0.2, 0.2));
+    vec3 co = 10.0 * vec3(1.0, 0.2, 0.8);
+
+    // out_color += GetDirectionalLightRadiance(li, co, albedo, position, N, V, NdotV, roughness, metalness, clearcoat, subsurface, shadow);
+  }
+
   // Ambient sky light
   {
     out_color += GetDirectionalLightRadiance(sky_light_direction, sky_light_color, albedo, position, N, V, NdotV, mix(roughness, 1.0, 0.5), metalness, 0.0, 0.0, 0.0);
