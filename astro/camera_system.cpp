@@ -143,8 +143,8 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state) {
     if (state.use_vantage_camera) {
       state.camera_angle = Tachyon_Lerpf(state.recorded_camera_angle, 0.2f, alpha);
 
-      new_camera_position.y -= 4000.f * alpha;
-      new_camera_position.z += 5000.f * alpha;
+      new_camera_position.y -= 3000.f * alpha;
+      new_camera_position.z += 7000.f * alpha;
     } else {
       state.camera_angle = Tachyon_Lerpf(state.recorded_camera_angle, 0.9f, alpha);
 
