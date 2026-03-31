@@ -13,7 +13,7 @@ namespace astro {
     }
 
     static tVec3f GetPlantColor(const float life_progress) {
-      const tVec3f sprouting_color = tVec3f(0.5f, 1.f, 0.5f);
+      const tVec3f sprouting_color = tVec3f(0.2f, 1.f, 0.2f);
       const tVec3f leaves_color = tVec3f(0.07f, 0.14f, 0.07f);
       const tVec3f wilting_color = tVec3f(0.4f, 0.2f, 0.1f);
 
@@ -37,9 +37,11 @@ namespace astro {
         return 0.f;
       }
 
-      float growth_factor = sinf((life_progress + offset) * t_PI);
-
-      return growth_factor < 0.f ? 0.f : growth_factor;
+      if (life_progress < 0.6f) {
+        return Grow(20.f * (life_progress + offset));
+      } else {
+        return Die((life_progress - 0.6f) / 0.4f);
+      }
     }
 
     static float GetWidthFactor(const float life_progress, const float offset) {
@@ -47,17 +49,11 @@ namespace astro {
         return 0.f;
       }
 
-      float progress = life_progress + offset;
-
-      if (progress < 0.f) return 0.f;
-
-      if (progress < 0.5f) {
-        float p = 2.f * progress;
-
-        return p * p;
+      if (life_progress < 0.9f) {
+        return Grow(5.f * (life_progress + offset));
+      } else {
+        return Die((life_progress - 0.9f) / 0.1f);
       }
-
-      return sqrtf(1.f - (progress - 0.5f));
     }
 
     addMeshes() {
@@ -130,7 +126,7 @@ namespace astro {
         // Middle
         {
           auto& middle = use_instance(meshes.shrub_middle);
-          float growth_factor = GetGrowthFactor(life_progress, -0.15f);
+          float growth_factor = GetGrowthFactor(life_progress, -0.1f);
           float width_factor = GetWidthFactor(life_progress, -0.15f);
 
           middle.scale.y = entity.scale.y * growth_factor;
@@ -146,7 +142,7 @@ namespace astro {
         // Top
         {
           auto& top = use_instance(meshes.shrub_top);
-          float growth_factor = GetGrowthFactor(life_progress, -0.3f);
+          float growth_factor = GetGrowthFactor(life_progress, -0.2f);
           float width_factor = GetWidthFactor(life_progress, -0.3f);
 
           top.scale.y = entity.scale.y * growth_factor;

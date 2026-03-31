@@ -32,8 +32,16 @@ namespace astro {
     timeEvolve() {
       auto& meshes = state.meshes;
 
-      const tVec3f trunk_color = tVec3f(0.1f, 0.f, 0.f);
       const float lifetime = 200.f;
+
+      const tVec3f wood_color = tVec3f(0.1f, 0.f, 0.f);
+      const tVec3f aged_wood_color = tVec3f(0.2f, 0.2f, 0.2f);
+      const tVec3f leaves_color = tVec3f(0.3f, 0.5f, 0.1f);
+      const tVec3f aged_leaves_color = tVec3f(0.4f, 0.5f, 0.3f);
+
+      float alpha = Tachyon_InverseLerp(astro_time_periods.past, astro_time_periods.present, state.astro_time);
+      tVec3f current_wood_color = tVec3f::lerp(wood_color, aged_wood_color, alpha);
+      tVec3f current_leaves_color = tVec3f::lerp(leaves_color, aged_leaves_color, alpha);
 
       reset_instances(meshes.willow_tree_trunk);
       reset_instances(meshes.willow_tree_branches);
@@ -66,7 +74,7 @@ namespace astro {
           trunk.position.y = entity.position.y - entity.scale.y * (1.f - trunk_height);
 
           trunk.rotation = entity.orientation;
-          trunk.color = trunk_color;
+          trunk.color = current_wood_color;
           trunk.material = tVec4f(1.f, 0, 0, 0.2f);
 
           commit(trunk);
@@ -83,7 +91,7 @@ namespace astro {
           Sync(branches, entity);
 
           branches.scale = entity.scale * growth_factor;
-          branches.color = trunk_color;
+          branches.color = current_wood_color;
           branches.material = tVec4f(1.f, 0, 0, 0.2f);
 
           commit(branches);
@@ -97,7 +105,7 @@ namespace astro {
 
           leaves.position.y += entity.visible_scale.y * 0.15f;
           leaves.scale = entity.scale * growth_factor;
-          leaves.color = tVec4f(0.3f, 0.5f, 0.1f, 0.5f);
+          leaves.color = tVec4f(current_leaves_color, 0.5f);
           leaves.material = tVec4f(0.8f, 0, 0, 1.f);
 
           commit(leaves);
