@@ -256,7 +256,14 @@ static void UpdateGround1Plants(Tachyon* tachyon, State& state) {
     tVec3f(100.f, 0, -250.f)
   };
 
-  static const float scales[] = {
+  static const float grass_scale_variations[] = {
+    50.f,
+    100.f,
+    150.f,
+    200.f
+  };
+
+  static const float flower_scales[] = {
     700.f,
     800.f,
     750.f,
@@ -267,6 +274,8 @@ static void UpdateGround1Plants(Tachyon* tachyon, State& state) {
   const float growth_rate = 0.7f;
 
   auto& player_position = state.player_position;
+  float grass_height_alpha = Tachyon_InverseLerp(astro_time_periods.distant_past, astro_time_periods.present, state.astro_time);
+  float grass_height = 400.f + 400.f * powf(grass_height_alpha, 2.f);
 
   for (auto& cluster : state.ground_plant_clusters) {
     if (
@@ -301,13 +310,17 @@ static void UpdateGround1Plants(Tachyon* tachyon, State& state) {
 
         float alpha = state.astro_time + position.x + position.z;
         int iteration = (int)abs(growth_rate * alpha / t_TAU - 0.8f);
-        float rotation_angle = position.x + float(iteration) * 1.3f;
+        float rotation_angle = position.x;// + float(iteration) * 1.3f;
 
         float scale_factor = 0.5f + (position.y - -1500.f) * 0.001f;
         if (scale_factor > 1.5f) scale_factor = 1.5f;
 
-        grass.position = position + offsets[iteration % 4];
-        grass.scale = tVec3f(scales[iteration % 5]) * sqrtf(0.5f + 0.5f * sinf(growth_rate * alpha));
+        float scale_variation = grass_scale_variations[id % 4];
+
+        grass.position = position;// + offsets[iteration % 4];
+        grass.scale.x = 3.f * scale_variation;
+        grass.scale = (grass_height + scale_variation) * (0.5f + 0.5f * sinf(0.2f * alpha));
+        grass.scale.z = 3.f * scale_variation;
         grass.scale *= scale_factor;
 
         grass.color = tVec4f(0.2f, 0.3f, 0.1f, 0.3f);
@@ -333,7 +346,7 @@ static void UpdateGround1Plants(Tachyon* tachyon, State& state) {
         scale_factor *= 0.2f;
 
         flower.position = position + offsets[iteration % 4];
-        flower.scale = tVec3f(scales[iteration % 5]) * sqrtf(0.5f + 0.5f * sinf(growth_rate * alpha));
+        flower.scale = tVec3f(flower_scales[iteration % 5]) * sqrtf(0.5f + 0.5f * sinf(growth_rate * alpha));
         flower.scale *= scale_factor;
 
         flower.color = tVec4f(0.8f, 0.3f, 0.3f, emissivity);
@@ -909,7 +922,7 @@ static void GenerateBushFlowers(Tachyon* tachyon, State& state) {
 static tVec3f GetBushFlowerBlossomColor(const float astro_time) {
   auto& periods = astro_time_periods;
 
-  tVec3f present_color = tVec3f(1.f, 0.3f, 0.8f);
+  tVec3f present_color = tVec3f(1.f, 0.8f, 1.f);
   tVec3f past_color = tVec3f(1.f, 0.8f, 0.2f);
   tVec3f distant_past_color = tVec3f(1.f, 0.8f, 1.f);
 

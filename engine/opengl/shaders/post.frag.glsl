@@ -422,7 +422,7 @@ void main() {
     // These effects are not accumulated for blurring, so some
     // of the blur effects don't look correct.
     {
-      const float haze_radius = 20000.0;
+      const float haze_radius = 30000.0;
 
       vec3 player_to_fragment = world_position - player_position;
       float frag_distance_from_player = length(player_to_fragment);
@@ -456,6 +456,8 @@ void main() {
         haze_factor = 0.0;
         ring_factor = 0.0;
       }
+
+      haze_factor *= haze_factor;
 
       post_color = mix(post_color, vec3(1.0, 0.8, 0.4), haze_factor);
       post_color = mix(post_color, vec3(1.0, 1.0, 0.7), ring_factor);

@@ -14,6 +14,7 @@ namespace astro {
       // @todo use own model for placeholder
       meshes.rose_bush_placeholder = MODEL_MESH("./astro/3d_models/shrub/placeholder.obj", 500);
       meshes.rose_bush_leaves = MODEL_MESH("./astro/3d_models/rose_bush/leaves.obj", 500);
+      // @todo use proper rose flower model
       meshes.rose_bush_flower = MODEL_MESH("./astro/3d_models/lilac_bush/flower.obj", 3000);
 
       mesh(meshes.rose_bush_placeholder).type = FOLIAGE_MESH;
@@ -47,6 +48,12 @@ namespace astro {
       const float lifetime = 100.f;
       const tVec3f leaves_color = tVec3f(0.14f, 0.3f, 0.1f);
       const tVec3f leaves_wilting_color = tVec3f(0.4f, 0.2f, 0.1f);
+
+      const tVec3f flower_colors[] = {
+        tVec3f(1.f, 0.1f, 0.2f),
+        tVec3f(1.f, 0.5f, 0.6f),
+        tVec3f(1.f)
+      };
 
       reset_instances(meshes.rose_bush_leaves);
       reset_instances(meshes.rose_bush_flower);
@@ -134,7 +141,7 @@ namespace astro {
             flower.position.y -= leaves.scale.y * 0.35f;
             flower.scale = flower_scale;
             flower.scale.y = flower_scale_y;
-            flower.color = tVec3f(1.f, 0.1f, 0.2f);
+            flower.color = flower_colors[int(abs(x_seed)) % 3];
             flower.material = tVec4f(0.8f, 0, 0, 0.6f);
 
             // @todo optimize

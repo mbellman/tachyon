@@ -53,7 +53,7 @@ static void HandleButterfly(Tachyon* tachyon, State& state, Butterfly& butterfly
   auto& left_wing = objects(meshes.butterfly_left_wing).getByIdFast(butterfly.left_wing);
   auto& right_wing = objects(meshes.butterfly_right_wing).getByIdFast(butterfly.right_wing);
 
-  // Periodically changing state
+  // Periodically changing direction
   {
     if (time_since(butterfly.last_state_change_time) > 1.f) {
       float random = Tachyon_GetRandom();
@@ -77,7 +77,7 @@ static void HandleButterfly(Tachyon* tachyon, State& state, Butterfly& butterfly
     // @todo
   }
 
-  // Handling state
+  // Handling direction
   {
     switch (butterfly.state) {
       case Butterfly::State::TURNING_LEFT: {
@@ -121,7 +121,9 @@ static void HandleButterfly(Tachyon* tachyon, State& state, Butterfly& butterfly
 
   // Updating position
   {
-    butterfly.position += butterfly.direction * 1000.f * state.dt;
+    float speed = 1000.f + state.astro_turn_speed * 100000.f;
+
+    butterfly.position += butterfly.direction * speed * state.dt;
 
     // Oscillation
     butterfly.position += 400.f * sinf(2.f * scene_time) * state.dt;
