@@ -356,12 +356,13 @@ namespace astro {
     float last_wand_swing_time = 0.f;
     float last_wand_action_time = 0.f;
     float last_wand_bounce_time = 0.f;
-    float last_break_attack_time = 0.f;
     float last_auto_hop_time = 0.f;
     float last_death_time = 0.f;
     float last_spawn_time = 0.f;
     float last_dodge_time = 0.f;
     float last_target_jump_time = 0.f;
+    float last_break_attack_time = 0.f;
+    float last_strong_attack_time = 0.f;
     float last_run_input_time = 0.f;
     float last_wind_chimes_action_time = 0.f;
     bool is_on_solid_ground = false;

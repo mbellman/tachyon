@@ -145,6 +145,9 @@ namespace astro {
       auto& enemy = entity.enemy_state;
 
       if (state.player_hp <= 0.f) {
+        // Slow down if the player dies
+        enemy.speed *= 1.f - 2.f * state.dt;
+
         return;
       }
 
@@ -180,28 +183,29 @@ namespace astro {
         }
 
         if (time_since_last_stun >= 4.f && enemy.mood != ENEMY_IDLE) {
-          FacePlayer(entity, state);
+          bool is_enemy_broken = time_since(enemy.last_break_time) < BREAK_DURATION;
+
+          if (!is_enemy_broken) {
+            FacePlayer(entity, state);
+          }
 
           // @todo factor
           if (enemy.mood == ENEMY_AGITATED) {
-            if (time_since(enemy.last_break_time) > BREAK_DURATION) {
-              // Speed up toward the player when not broken
+            if (!is_enemy_broken) {
               enemy.speed += 5000.f * state.dt;
               if (enemy.speed > 3000.f) enemy.speed = 3000.f;
             }
 
-            bool is_attacking = time_since(enemy.last_attack_start_time) < ATTACK_DURATION;
-
-            if (is_attacking) {
-              // Slow down when attacking
-              enemy.speed *= 1.f - 10.f * state.dt;
-            }
-            else if (enemy.speed < 0.f) {
+            if (enemy.speed < 0.f) {
               // Slow down when recovering from knockback
               enemy.speed *= 1.f - 4.f * state.dt;
             }
+            else if (player_distance < 3000.f) {
+              // Slow down upon approaching player
+              enemy.speed *= 1.f - 10.f * state.dt;
+            }
             else {
-              // Slow down during normal movement
+              // Dampen normal movement speed
               enemy.speed *= 1.f - state.dt;
             }
 
@@ -245,7 +249,7 @@ namespace astro {
           play_random_dialogue(entity, low_guard_dialogue_agitated);
 
           if (
-            player_distance < 4000.f &&
+            player_distance < 8000.f &&
             time_since(enemy.last_attack_start_time) > 1.5f * ATTACK_DURATION &&
             time_since(enemy.last_block_time) > 2.f &&
             time_since(enemy.last_mood_change_time) > 0.5f &&

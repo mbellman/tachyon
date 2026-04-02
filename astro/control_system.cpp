@@ -379,7 +379,8 @@ static void HandleWandControls(Tachyon* tachyon, State& state) {
     if (Items::HasItem(state, ITEM_HOMING_SPELL)) {
       // @todo magic weapons
       SpellSystem::CastHoming(tachyon, state);
-    } else {
+    }
+    else if (time_since(state.last_wand_swing_time) > 0.7f) {
       // Before we have magic weapons, swing the wand as a melee weapon
       state.last_wand_swing_time = get_scene_time();
       state.last_wand_bounce_time = 0.f;
@@ -459,10 +460,13 @@ static void UpdatePlayerPosition(State& state) {
 }
 
 void ControlSystem::HandleControls(Tachyon* tachyon, State& state) {
+  // Only allow character controls if:
   if (
-    // Only allow character controls if we do not have, or have dismissed blocking dialogue
+    // We do not have, or have dismissed blocking dialogue
     (!state.has_blocking_dialogue || state.dismissed_blocking_dialogue) &&
-    // Only allow character controls if HP > 0
+    // We aren't doing a break attack
+    time_since(state.last_strong_attack_time) > 0.8f &&
+    // We aren't dead
     state.player_hp > 0.f
   ) {
     HandlePlayerMovementControls(tachyon, state);

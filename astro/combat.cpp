@@ -76,7 +76,7 @@ static void HandleLesserGuardWandStrike(Tachyon* tachyon, State& state, GameEnti
   float scene_time = get_scene_time();
   float time_since_starting_attack = time_since(enemy.last_attack_start_time);
   bool is_enemy_blocking = time_since(enemy.last_block_time) < 1.f;
-  bool is_enemy_on_damage_cooldown = time_since(enemy.last_damage_time) < 0.5f;
+  bool is_enemy_on_damage_cooldown = time_since(enemy.last_damage_time) < 0.5f || time_since(enemy.last_break_time) < 0.3f;
   bool is_enemy_preparing_attack = time_since_starting_attack < 1.5f;
   bool is_player_doing_break_attack = time_since(state.last_break_attack_time) < 0.5f;
   bool is_active_target = state.has_target && IsSameEntity(entity, state.target_entity);
@@ -91,7 +91,8 @@ static void HandleLesserGuardWandStrike(Tachyon* tachyon, State& state, GameEnti
       // @todo ParryEnemy()
       BreakEnemy(entity, scene_time);
 
-      PlayMetalHitSound();
+      // @todo SFX_PARRY, 0.5f
+      Sfx::PlaySound(SFX_METAL_HIT_1, 0.7f);
     }
   }
 
@@ -144,7 +145,7 @@ static void HandleLesserGuardWandStrike(Tachyon* tachyon, State& state, GameEnti
     } else {
       // Attack damage + knockback
       bool is_enemy_broken = time_since(enemy.last_break_time) < 2.f;
-      float damage = is_enemy_broken ? 50.f : 30.f;
+      float damage = is_enemy_broken ? 100.f : 30.f;
       float knockback = is_enemy_broken ? -10000.f : -7000.f;
 
       enemy.health -= damage;
@@ -152,7 +153,10 @@ static void HandleLesserGuardWandStrike(Tachyon* tachyon, State& state, GameEnti
       enemy.speed = knockback;
 
       if (is_enemy_broken) {
+        // Strong attack
         Sfx::PlaySound(SFX_STRONG_ATTACK, 0.5f);
+
+        state.last_strong_attack_time = scene_time;
       } else {
         Sfx::PlaySound(SFX_WAND_ATTACK, 0.5f);
       }
@@ -178,6 +182,8 @@ void Combat::HandleWandSwing(Tachyon* tachyon, State& state) {
   float scene_time = get_scene_time();
   bool did_player_recently_break_attack = time_since(state.last_break_attack_time) < 2.f;
 
+  Sfx::PlaySound(SFX_WAND_SWING, 0.3f);
+
   // Triggering nearby targets into blocking
   {
     for (auto& target : state.targetable_entities) {
@@ -185,6 +191,7 @@ void Combat::HandleWandSwing(Tachyon* tachyon, State& state) {
       auto& enemy = entity.enemy_state;
       float enemy_distance = tVec3f::distance(entity.visible_position, state.player_position);
       bool is_enemy_broken = time_since(enemy.last_break_time) < 2.f;
+      bool is_enemy_attacking = time_since(enemy.last_attack_start_time) < 2.f;
 
       // @todo handle per enemy type (target.type)
       float attack_without_blocking_duration = 0.6f;
@@ -194,9 +201,10 @@ void Combat::HandleWandSwing(Tachyon* tachyon, State& state) {
         enemy_distance < 5000.f &&
         enemy.health > 0.f &&
         !is_enemy_broken &&
+        // Block when not attacking, or if the current attack can be cancelled
+        (!is_enemy_attacking || can_enemy_cancel_attack_to_block) &&
         // Allow the player to do post-break attacks without other enemies blocking
-        !did_player_recently_break_attack &&
-        can_enemy_cancel_attack_to_block
+        !did_player_recently_break_attack
       ) {
         // @todo factor by enemy type
         if (entity.type == LOW_GUARD) {
@@ -218,15 +226,9 @@ void Combat::HandleWandSwing(Tachyon* tachyon, State& state) {
     }
   }
 
-  // Distinguishing between break and regular attacks
-  {
-    if (time_since(state.last_target_jump_time) < 0.5f) {
-      state.last_break_attack_time = scene_time;
-
-      Sfx::PlaySound(SFX_BREAK_ATTACK, 0.3f);
-    } else {
-      Sfx::PlaySound(SFX_WAND_SWING, 0.3f);
-    }
+  // Checking for break attacks
+  if (time_since(state.last_target_jump_time) < 0.5f) {
+    state.last_break_attack_time = scene_time;
   }
 }
 

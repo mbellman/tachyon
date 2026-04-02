@@ -860,7 +860,7 @@ void PlayerCharacter::GetKnockedBack(State& state, float speed) {
 }
 
 void PlayerCharacter::PerformStandardDodgeAction(Tachyon* tachyon, State& state) {
-  state.player_velocity *= 2.f;
+  state.player_velocity = state.player_velocity.unit() * 3200.f;
   state.last_dodge_time = get_scene_time();
   state.last_break_attack_time = 0.f;
   state.last_target_jump_time = 0.f;

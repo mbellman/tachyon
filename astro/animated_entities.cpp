@@ -16,9 +16,6 @@ static ActiveAnimation GetLesserGuardActiveAnimation(Tachyon* tachyon, State& st
   if (time_since(enemy.last_break_time) < 2.f) {
     return { &state.animations.person_idle, 1.f };
   }
-  else if (time_since(enemy.last_attack_start_time) < 2.f) {
-    return { &state.animations.person_idle, 1.f };
-  }
   else if (enemy.speed > 2500.f) {
     return { &state.animations.player_run, 10.f };
   }
