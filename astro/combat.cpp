@@ -74,13 +74,29 @@ static void HandleLowGuardWandStrike(Tachyon* tachyon, State& state, GameEntity&
 static void HandleLesserGuardWandStrike(Tachyon* tachyon, State& state, GameEntity& entity) {
   auto& enemy = entity.enemy_state;
   float scene_time = get_scene_time();
+  float time_since_starting_attack = time_since(enemy.last_attack_start_time);
   bool is_enemy_blocking = time_since(enemy.last_block_time) < 1.f;
   bool is_enemy_on_damage_cooldown = time_since(enemy.last_damage_time) < 0.5f;
+  bool is_enemy_preparing_attack = time_since_starting_attack < 1.5f;
   bool is_player_doing_break_attack = time_since(state.last_break_attack_time) < 0.5f;
   bool is_active_target = state.has_target && IsSameEntity(entity, state.target_entity);
 
+  // Striking an attacking enemy
+  if (is_enemy_preparing_attack) {
+    bool is_attack_parryable = time_since_starting_attack > 0.7f;
+    float facing_dot = tVec3f::dot(state.player_facing_direction, GetFacingDirection(entity));
+
+    // Parrying
+    if (is_attack_parryable && facing_dot < 0.f) {
+      // @todo ParryEnemy()
+      BreakEnemy(entity, scene_time);
+
+      PlayMetalHitSound();
+    }
+  }
+
   // Striking a blocking enemy
-  if (is_enemy_blocking) {
+  else if (is_enemy_blocking) {
     // Only count hits against active targets
     // or in non-targeting scenarios
     if (is_active_target || !state.has_target) {
@@ -171,8 +187,8 @@ void Combat::HandleWandSwing(Tachyon* tachyon, State& state) {
       bool is_enemy_broken = time_since(enemy.last_break_time) < 2.f;
 
       // @todo handle per enemy type (target.type)
-      float attack_without_blocking_duration = 1.f;
-      bool is_enemy_attacking = time_since(enemy.last_attack_action_time) < attack_without_blocking_duration;
+      float attack_without_blocking_duration = 0.6f;
+      bool can_enemy_cancel_attack_to_block = time_since(enemy.last_attack_start_time) < attack_without_blocking_duration;
 
       if (
         enemy_distance < 5000.f &&
@@ -180,7 +196,7 @@ void Combat::HandleWandSwing(Tachyon* tachyon, State& state) {
         !is_enemy_broken &&
         // Allow the player to do post-break attacks without other enemies blocking
         !did_player_recently_break_attack &&
-        !is_enemy_attacking
+        can_enemy_cancel_attack_to_block
       ) {
         // @todo factor by enemy type
         if (entity.type == LOW_GUARD) {
@@ -189,9 +205,9 @@ void Combat::HandleWandSwing(Tachyon* tachyon, State& state) {
           enemy.last_block_time = scene_time;
         }
         else if (entity.type == LESSER_GUARD) {
-          // Block when facing the player
           float facing_dot = tVec3f::dot(state.player_facing_direction, GetFacingDirection(entity));
 
+          // Block when facing the player
           if (facing_dot < 0.f) {
             enemy.last_block_time = scene_time;
             enemy.last_attack_start_time = 0.f;

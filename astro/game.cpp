@@ -181,6 +181,12 @@ static void HandleInGameDevHotkeys(Tachyon* tachyon, State& state) {
         entity.visible_rotation = entity.orientation;
       }
 
+      for_entities(state.lesser_guards) {
+        auto& entity = state.lesser_guards[i];
+
+        HardResetEntity(entity);
+      }
+
       for_entities(state.sculpture_1s) {
         auto& entity = state.sculpture_1s[i];
 
@@ -506,7 +512,7 @@ static void HandleMusicLevels(Tachyon* tachyon, State& state) {
       BGM::FadeCurrentMusicVolumeTo(0.f, 500);
     }
     else if (IsInStealthMode(state) || Targeting::IsInCombatMode(state)) {
-      BGM::FadeCurrentMusicVolumeTo(0.3f, 500);
+      BGM::FadeCurrentMusicVolumeTo(0.2f, 1000);
     }
     else {
       BGM::FadeCurrentMusicVolumeTo(0.4f, 3000);

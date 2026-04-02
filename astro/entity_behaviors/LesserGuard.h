@@ -194,7 +194,7 @@ namespace astro {
 
             if (is_attacking) {
               // Slow down when attacking
-              enemy.speed *= 1.f - 5.f * state.dt;
+              enemy.speed *= 1.f - 10.f * state.dt;
             }
             else if (enemy.speed < 0.f) {
               // Slow down when recovering from knockback
