@@ -76,7 +76,7 @@ namespace astro {
           leaves.material = tVec4f(0.8f, 0, 0, 0.5f);
 
           if (life_progress < 0.7f) {
-            leaves.scale *= Grow(20.f * life_progress);
+            leaves.scale *= Grow(5.f * life_progress);
             leaves.color = leaves_color;
           } else {
             float death = Die((life_progress - 0.7f) / 0.3f);

@@ -136,10 +136,13 @@ static void AddProceduralMeshes(Tachyon* tachyon, State& state) {
   // bush_flower
   {
     meshes.bush_flower = MODEL_MESH("./astro/3d_models/flower.obj", 500);
+    meshes.bush_flower_2 = MODEL_MESH("./astro/3d_models/flower2.obj", 500);
     meshes.flower_middle = MODEL_MESH("./astro/3d_models/flower_middle.obj", 500);
 
     mesh(meshes.bush_flower).type = GRASS_MESH;
     mesh(meshes.bush_flower).shadow_cascade_ceiling = 2;
+    mesh(meshes.bush_flower_2).type = GRASS_MESH;
+    mesh(meshes.bush_flower_2).shadow_cascade_ceiling = 2;
     mesh(meshes.flower_middle).type = GRASS_MESH;
     mesh(meshes.flower_middle).shadow_cascade_ceiling = 0;
   }

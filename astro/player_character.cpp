@@ -447,7 +447,7 @@ static void UpdateWandLights(Tachyon* tachyon, State& state) {
       float intensity = sinf(t_PI * alpha);
 
       main_light_power += 3.f * intensity;
-      main_light_color = tVec3f::lerp(main_light_color, tVec3f(1.f), intensity);
+      main_light_color = tVec3f::lerp(main_light_color, tVec3f(1.f, 0.8f, 0.6f), intensity);
     }
 
     main_light.position = wand_end_position;

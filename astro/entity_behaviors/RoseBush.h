@@ -14,8 +14,7 @@ namespace astro {
       // @todo use own model for placeholder
       meshes.rose_bush_placeholder = MODEL_MESH("./astro/3d_models/shrub/placeholder.obj", 500);
       meshes.rose_bush_leaves = MODEL_MESH("./astro/3d_models/rose_bush/leaves.obj", 500);
-      // @todo use proper rose flower model
-      meshes.rose_bush_flower = MODEL_MESH("./astro/3d_models/lilac_bush/flower.obj", 3000);
+      meshes.rose_bush_flower = MODEL_MESH("./astro/3d_models/rose_bush/flower.obj", 3000);
 
       mesh(meshes.rose_bush_placeholder).type = FOLIAGE_MESH;
       mesh(meshes.rose_bush_leaves).type = FOLIAGE_MESH;
@@ -49,10 +48,10 @@ namespace astro {
       const tVec3f leaves_color = tVec3f(0.14f, 0.3f, 0.1f);
       const tVec3f leaves_wilting_color = tVec3f(0.4f, 0.2f, 0.1f);
 
-      const tVec3f flower_colors[] = {
-        tVec3f(1.f, 0.1f, 0.2f),
-        tVec3f(1.f, 0.5f, 0.6f),
-        tVec3f(1.f)
+      const tVec4f flower_colors[] = {
+        tVec4f(0.2f, 0.1f, 0.6f, 0.1f),
+        tVec4f(0.3f, 0.2f, 0.6f, 0.1f),
+        tVec4f(0.6f, 0.5f, 0.8f, 0.1f)
       };
 
       reset_instances(meshes.rose_bush_leaves);
@@ -122,14 +121,14 @@ namespace astro {
             float alpha = float(j) / 5.f;
 
             float flower_growth = sinf(2.f * life_alpha * t_PI);
-            tVec3f flower_scale = entity.scale * 2.f * flower_growth;
-            float flower_scale_y = entity.scale.y * 2.f * sqrtf(flower_growth);
+            tVec3f flower_scale = entity.scale * 2.f * flower_growth - alpha * 200.f;
+            float flower_scale_y = entity.scale.y * 2.f * sqrtf(flower_growth) + alpha * 200.f;
 
             float x_seed = entity.position.x + 3.89f * alpha;
             float z_seed = entity.position.z + 2.67f * alpha;
 
-            float range_x = entity.scale.x * 1.2f;
-            float range_z = entity.scale.z * 1.2f;
+            float range_x = entity.scale.x * 1.f;
+            float range_z = entity.scale.z * 1.f;
 
             tVec3f random_offset = tVec3f(
               RandomWithinRange(x_seed, -range_x, range_x),
@@ -138,11 +137,12 @@ namespace astro {
             );
 
             flower.position = entity.position + random_offset;
-            flower.position.y -= leaves.scale.y * 0.35f;
+            flower.position.y = leaves.position.y + leaves.scale.y * 0.22f;
+            // flower.position.y -= (1.f - plant_growth) * entity.scale.y;
             flower.scale = flower_scale;
             flower.scale.y = flower_scale_y;
             flower.color = flower_colors[int(abs(x_seed)) % 3];
-            flower.material = tVec4f(0.8f, 0, 0, 0.6f);
+            flower.material = tVec4f(0.5f, 0, 0, 1.f);
 
             // @todo optimize
             Quaternion random_rotation =

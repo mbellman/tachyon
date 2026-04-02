@@ -911,10 +911,12 @@ static void UpdateGroundFlowers(Tachyon* tachyon, State& state) {
  */
 static void GenerateBushFlowers(Tachyon* tachyon, State& state) {
   remove_all(state.meshes.bush_flower);
+  remove_all(state.meshes.bush_flower_2);
   remove_all(state.meshes.flower_middle);
 
   for (int i = 0; i < 500; i++) {
     commit(create(state.meshes.bush_flower));
+    commit(create(state.meshes.bush_flower_2));
     commit(create(state.meshes.flower_middle));
   }
 }
@@ -922,7 +924,7 @@ static void GenerateBushFlowers(Tachyon* tachyon, State& state) {
 static tVec3f GetBushFlowerBlossomColor(const float astro_time) {
   auto& periods = astro_time_periods;
 
-  tVec3f present_color = tVec3f(1.f, 0.8f, 1.f);
+  tVec3f present_color = tVec3f(1.f);
   tVec3f past_color = tVec3f(1.f, 0.8f, 0.2f);
   tVec3f distant_past_color = tVec3f(1.f, 0.8f, 1.f);
 
@@ -964,6 +966,7 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
   float base_time_progress = 0.5f * (state.astro_time - -500.f);
 
   reset_instances(meshes.bush_flower);
+  reset_instances(meshes.bush_flower_2);
   reset_instances(meshes.flower_middle);
 
   for_entities(state.flower_bushes) {
@@ -978,12 +981,15 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
     if (distance < 25000.f) {
       float entity_life_progress = GetLivingEntityProgress(state, entity, plant_lifetime);
       float flower_size = 300.f * sqrtf(sinf(entity_life_progress * t_PI));
+      bool is_infected = entity.astro_start_time > -90.f;
+      uint16 flower_mesh = is_infected ? meshes.bush_flower_2 : meshes.bush_flower;
+      tVec4f flower_material = is_infected ? tVec4f(0.5f, 0, 0, 1.f) : tVec4f(0.9f, 0, 0, 0.6f);
 
       float vx = abs(entity.visible_position.x);
       float vz = abs(entity.visible_position.z);
 
       for (int i = 0; i < 3; i++) {
-        auto& flower = use_instance(meshes.bush_flower);
+        auto& flower = use_instance(flower_mesh);
 
         float offset_x = fmodf(vx + vx * 0.1f + 847.f * (float)i, spawn_radius) - half_spawn_radius;
         float offset_z = fmodf(vz + vz * 0.1f + 847.f * (float)i, spawn_radius) - half_spawn_radius;
@@ -1008,7 +1014,7 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
           flower.color.rgba |= 0x0002;
         }
 
-        flower.material = tVec4f(0.9f, 0, 0, 0.4f);
+        flower.material = flower_material;
 
         commit(flower);
 

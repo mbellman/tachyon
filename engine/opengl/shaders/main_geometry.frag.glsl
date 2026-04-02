@@ -180,7 +180,7 @@ void main() {
     bool is_close_to_camera = GetWorldDepth(gl_FragCoord.z, Z_NEAR, Z_FAR) < 9000.0;
     float screen_center_distance = length(gl_FragCoord.xy - RESOLUTION / 2.0);
     bool is_center_frame = screen_center_distance < 900.0;
-    int dither_level = clamp(int(screen_center_distance / 30.0) - 12, 0, 15);
+    int dither_level = clamp(int(screen_center_distance / 20.0) - 29, 0, 15);
     mat4 dither_kernel = dither_kernels[dither_level];
     float dither_value = dither_kernel[int(gl_FragCoord.x) % 4][int(gl_FragCoord.y) % 4];
 
