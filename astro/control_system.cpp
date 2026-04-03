@@ -49,6 +49,15 @@ static void HandleQuickManeuverAction(Tachyon* tachyon, State& state) {
   PlayerCharacter::PerformStandardDodgeAction(tachyon, state);
 }
 
+// @todo continue to work on this
+static void HandleExperimentalControls(Tachyon* tachyon, State& state, const float movement_speed) {
+  tVec3f forward = state.player_facing_direction;
+  tVec3f left = tVec3f::cross(state.player_facing_direction, tVec3f(0, 1.f, 0));
+
+  state.player_velocity += state.player_facing_direction * -tachyon->left_stick.y * movement_speed * state.dt;
+  state.player_velocity += left * tachyon->left_stick.x * movement_speed * state.dt;
+}
+
 static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
   bool is_running = is_key_held(tKey::CONTROLLER_A) || is_key_held(tKey::SHIFT);
 
@@ -92,6 +101,8 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
 
   state.player_velocity.x += tachyon->left_stick.x * movement_speed * state.dt;
   state.player_velocity.z += tachyon->left_stick.y * movement_speed * state.dt;
+
+  // HandleExperimentalControls(tachyon, state, movement_speed);
 
   // Track run input timings to use for dodges
   if (did_press_key(tKey::CONTROLLER_A)) {
@@ -334,13 +345,16 @@ static void HandleDayNightControls(Tachyon* tachyon, State& state) {
 
 // @todo Magic:: (???) (or elsewhere???)
 static bool TestWindChimesAction(Tachyon* tachyon, State& state) {
+  const float distance_threshold = 5000.f;
+
   float scene_time = get_scene_time();
+  float player_speed = state.player_velocity.magnitude();
 
   for (auto& entity : state.wind_chimes) {
     float distance = tVec3f::distance(entity.position, state.player_position);
 
     if (
-      distance < 4000.f &&
+      distance < distance_threshold &&
       time_since(entity.game_activation_time) > 1.f
     ) {
       // @todo factor
@@ -429,12 +443,16 @@ static void HandleSpeedLimiting(Tachyon* tachyon, State& state) {
   bool is_running = is_key_held(tKey::CONTROLLER_A) || is_key_held(tKey::SHIFT);
   bool is_dodging = time_since(state.last_dodge_time) < dodge_cooldown_time;
   bool is_target_jumping = time_since(state.last_target_jump_time) < target_jump_cooldown_time;
+  bool is_doing_wind_chimes_action = time_since(state.last_wind_chimes_action_time) < 4.f;
 
   if (is_target_jumping) {
     state.player_velocity *= 1.f - 2.f * state.dt;
   }
   else if (is_dodging) {
     state.player_velocity *= 1.f - 4.f * state.dt;
+  }
+  else if (is_doing_wind_chimes_action) {
+    state.player_velocity *= 1.f - 6.f * state.dt;
   }
   else {
     state.player_velocity *= 1.f - 3.f * state.dt;

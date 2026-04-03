@@ -102,6 +102,20 @@ static void UpdateStandardCamera(Tachyon* tachyon, State& state, tVec3f& new_cam
   state.camera_shift = tVec3f::lerp(state.camera_shift, desired_camera_shift, 5.f * state.dt);
 }
 
+// @todo continue to work on this
+static void HandleExperimentalCamera(Tachyon* tachyon, State& state) {
+  auto& camera = tachyon->scene.camera;
+  float player_angle = atan2f(state.player_facing_direction.x, state.player_facing_direction.z) + t_PI;
+
+  camera.position = state.player_position - state.player_facing_direction * 7500.f;
+  camera.position.y += 8000.f;
+
+  camera.rotation = (
+    Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.7f) *
+    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -player_angle)
+  );
+}
+
 void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state) {
   profile("UpdateCamera()");
 
@@ -171,7 +185,8 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state) {
   }
 
   auto& camera = tachyon->scene.camera;
-
   camera.position = tVec3f::lerp(camera.position, new_camera_position, 5.f * state.dt);
   camera.rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), state.camera_angle);
+
+  // HandleExperimentalCamera(tachyon, state);
 }

@@ -50,6 +50,22 @@ static void PlayMetalHitSound() {
   else Sfx::PlaySound(SFX_METAL_HIT_4, 0.5f);
 }
 
+static void PlayHumanEnemyGruntSound() {
+  // @todo refactor
+  float r = Tachyon_GetRandom();
+
+  if (r < 0.5f) Sfx::PlaySound(SFX_HUMAN_ENEMY_GRUNT_1, 0.5f);
+  else Sfx::PlaySound(SFX_HUMAN_ENEMY_GRUNT_2, 0.5f);
+}
+
+static void PlayHumanEnemyDefeatedSound() {
+  // @todo refactor
+  float r = Tachyon_GetRandom();
+
+  if (r < 0.5f) Sfx::PlaySound(SFX_HUMAN_ENEMY_DEFEATED_1, 0.5f);
+  else Sfx::PlaySound(SFX_HUMAN_ENEMY_DEFEATED_2, 0.5f);
+}
+
 static void HandleLowGuardWandStrike(Tachyon* tachyon, State& state, GameEntity& entity) {
   auto& enemy = entity.enemy_state;
   bool is_player_doing_break_attack = time_since(state.last_break_attack_time) < 0.5f;
@@ -162,9 +178,12 @@ static void HandleLesserGuardWandStrike(Tachyon* tachyon, State& state, GameEnti
       }
     }
 
-    if (enemy.health <= 0.f) {
+    if (enemy.health > 0.f) {
+      PlayHumanEnemyGruntSound();
+    } else {
       KillEnemy(entity, scene_time);
 
+      PlayHumanEnemyDefeatedSound();
       Sfx::PlaySound(SFX_SWORD_DROP, 0.5f);
 
       if (IsSameEntity(entity, state.target_entity)) {
