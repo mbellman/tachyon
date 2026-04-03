@@ -170,7 +170,7 @@ static void HandleAutoHop(State& state) {
 static void HandleRunOscillation(Tachyon* tachyon, State& state, tVec3f& body_position) {
   if (
     is_key_held(tKey::CONTROLLER_A) &&
-    state.previous_move_delta > 0.f
+    state.player_velocity.magnitude() > 500.f
   ) {
     state.run_oscillation += 5.f * state.dt;
   } else {
@@ -182,7 +182,7 @@ static void HandleRunOscillation(Tachyon* tachyon, State& state, tVec3f& body_po
 
   float run_bounce_height = 200.f * state.run_oscillation;
   float run_cycle_time = 2.f * t_TAU * (fmodf(state.player_mesh_animation.seek_time, 8.f) / 8.f) + t_HALF_PI;
-  float run_bounce_cycle = 0.5f + 0.5f * sinf(run_cycle_time);
+  float run_bounce_cycle = sqrtf(0.5f + 0.5f * sinf(run_cycle_time));
 
   body_position.y += run_bounce_height * run_bounce_cycle;
 }
