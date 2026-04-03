@@ -172,8 +172,10 @@ static void HandleRunOscillation(Tachyon* tachyon, State& state, tVec3f& body_po
     is_key_held(tKey::CONTROLLER_A) &&
     state.player_velocity.magnitude() > 500.f
   ) {
+    // Pick up run oscillation with speed
     state.run_oscillation += 5.f * state.dt;
   } else {
+    // Reduce run oscillation as we slow down
     state.run_oscillation -= 4.f * state.dt;
   }
 
@@ -313,9 +315,10 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
     auto& head = objects(meshes.player_head)[0];
     auto& head_bone = active_pose.bones[0];
 
-    head.position = body_position + body_rotation.toMatrix4f() * (head_bone.translation * 1100.f);
+    head.position = body_position + body_rotation.toMatrix4f() * (head_bone.translation * 1200.f);
     head.rotation = body_rotation * head_bone.rotation;
-    head.scale = tVec3f(1500.f);
+    // @hack @todo fix the head model size
+    head.scale = tVec3f(1300.f);
     head.color = tVec3f(0, 0, 0.1f);
     head.material = tVec4f(1.f, 0, 0, 0);
 
@@ -324,7 +327,6 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
 
   // Clothing
   {
-
     auto& hood = skinned_mesh(meshes.player_hood);
     auto& robes = skinned_mesh(meshes.player_robes);
     auto& shirt = skinned_mesh(meshes.player_shirt);
@@ -332,9 +334,13 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
     auto& boots = skinned_mesh(meshes.player_boots);
     auto& belt = skinned_mesh(meshes.player_belt);
 
-    hood.position = body_position;
+    auto& head_bone = active_pose.bones[0];
+
+    // @hack @todo fix the hood model size
+    hood.position = body_position + body_rotation.toMatrix4f() * (head_bone.translation * 220.f);
     hood.rotation = body_rotation;
-    hood.scale = body_scale;
+    // @hack @todo fix the hood model size
+    hood.scale = tVec3f(1350.f);
     hood.color = tVec3f(0.1f, 0.2f, 0.6f);
     hood.material = tVec4f(1.f, 0, 0, 0.2f);
     hood.shadow_cascade_ceiling = 2;

@@ -400,6 +400,19 @@ void main() {
     // Artstyle
     {
       post_color = GetToonShadedColor(post_color, fragUv, color_and_depth.w, world_depth);
+
+      // @todo formalize/improve
+      if (world_depth > 2600.0) {
+        float compared = Compare(post_color, vec3(0));
+
+        if (compared > 0.65) {
+          float o = gl_FragCoord.x * 0.4 + 10.0 * sin(gl_FragCoord.x * 0.02);
+
+          if (int(gl_FragCoord.y + o) % 4 == 0 || int(gl_FragCoord.y + o) % 4 == 1) {
+            post_color *= (1.0 - compared * compared);
+          }
+        }
+      }
     }
 
     // Dialogue overlay
