@@ -194,7 +194,7 @@ void Combat::HandleWandSwing(Tachyon* tachyon, State& state) {
       bool is_enemy_attacking = time_since(enemy.last_attack_start_time) < 2.f;
 
       // @todo handle per enemy type (target.type)
-      float attack_without_blocking_duration = 0.6f;
+      float attack_without_blocking_duration = 0.3f;
       bool can_enemy_cancel_attack_to_block = time_since(enemy.last_attack_start_time) < attack_without_blocking_duration;
 
       if (

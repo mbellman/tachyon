@@ -273,7 +273,7 @@ static void HandleSmallStoneBridgeCollisions(Tachyon* tachyon, State& state) {
       tVec3f player_position_in_bridge_space = entity_rotation_matrix.inverse() * bridge_to_player;
       float midpoint_ratio = 1.f - abs(player_position_in_bridge_space.x) / entity.scale.x;
       float floor_height = Tachyon_EaseOutQuad(midpoint_ratio);
-      float player_y = floor_height * entity.scale.y / 2.2f;
+      float player_y = floor_height * entity.scale.y / 2.5f;
 
       AllowPlayerMovement(state, player_y, bridge_plane);
 

@@ -185,9 +185,7 @@ namespace astro {
         if (time_since_last_stun >= 4.f && enemy.mood != ENEMY_IDLE) {
           bool is_enemy_broken = time_since(enemy.last_break_time) < BREAK_DURATION;
 
-          if (!is_enemy_broken) {
-            FacePlayer(entity, state);
-          }
+          FacePlayer(entity, state);
 
           // @todo factor
           if (enemy.mood == ENEMY_AGITATED) {

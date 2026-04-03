@@ -437,7 +437,7 @@ static void HandleSpeedLimiting(Tachyon* tachyon, State& state) {
     state.player_velocity *= 1.f - 4.f * state.dt;
   }
   else {
-    state.player_velocity *= 1.f - 6.f * state.dt;
+    state.player_velocity *= 1.f - 3.f * state.dt;
   }
 
   float speed = state.player_velocity.magnitude();
