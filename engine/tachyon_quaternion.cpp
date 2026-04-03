@@ -91,14 +91,39 @@ Quaternion Quaternion::fromEulerAngles(float x, float y, float z) {
   return roll * pitch * yaw;
 }
 
+float Quaternion::dot(const Quaternion& q1, const Quaternion& q2) {
+  float w1, x1, y1, z1, w2, x2, y2, z2;
+
+  w1 = q1.w;
+  x1 = q1.x;
+  y1 = q1.y;
+  z1 = q1.z;
+
+  w2 = q2.w;
+  x2 = q2.x;
+  y2 = q2.y;
+  z2 = q2.z;
+
+  return w1*w2 + x1*x2 + y1*y2 + z1*z2;
+}
+
 Quaternion Quaternion::nlerp(const Quaternion& q1, const Quaternion& q2, float alpha) {
   #define fast_lerp(a, b, __alpha) (a + (b - a) * __alpha)
 
   Quaternion q;
-  q.w = fast_lerp(q1.w, q2.w, alpha);
-  q.x = fast_lerp(q1.x, q2.x, alpha);
-  q.y = fast_lerp(q1.y, q2.y, alpha);
-  q.z = fast_lerp(q1.z, q2.z, alpha);
+
+  if (dot(q1, q2) < 0.f) {
+    // Ensure shortest path interpolation
+    q.w = fast_lerp(q1.w, -q2.w, alpha);
+    q.x = fast_lerp(q1.x, -q2.x, alpha);
+    q.y = fast_lerp(q1.y, -q2.y, alpha);
+    q.z = fast_lerp(q1.z, -q2.z, alpha);
+  } else {
+    q.w = fast_lerp(q1.w, q2.w, alpha);
+    q.x = fast_lerp(q1.x, q2.x, alpha);
+    q.y = fast_lerp(q1.y, q2.y, alpha);
+    q.z = fast_lerp(q1.z, q2.z, alpha);
+  }
 
   #undef fast_lerp
 
