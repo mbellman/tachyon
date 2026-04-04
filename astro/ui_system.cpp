@@ -190,26 +190,42 @@ void UISystem::HandleDialogue(Tachyon* tachyon, State& state) {
 }
 
 void UISystem::HandleHUD(Tachyon* tachyon, State& state) {
+  float player_speed = state.player_velocity.magnitude();
+
+  if (
+    player_speed > 1.f ||
+    state.astro_turn_speed != 0.f ||
+    state.targetable_entities.size() > 0
+  ) {
+    // Fade out
+    state.ui.title_alpha = Tachyon_Lerpf(state.ui.title_alpha, 0.f, 10.f * state.dt);
+  } else {
+    // Fade in
+    state.ui.title_alpha = Tachyon_Lerpf(state.ui.title_alpha, 1.f, state.dt);
+  }
+
   // Current location
   Tachyon_DrawUIElement(tachyon, state.ui.divination_woodrealm_title, {
     .screen_x = int32(float(tachyon->window_width) * 0.155f),
     .screen_y = tachyon->window_height - 110,
-    .centered = false
+    .centered = false,
+    .alpha = state.ui.title_alpha
   });
 
   // Current astro age
-  // @todo cross-fade
   if (state.astro_time > -35.f) {
     Tachyon_DrawUIElement(tachyon, state.ui.present_age_title, {
       .screen_x = int32(float(tachyon->window_width) * 0.165f),
       .screen_y = tachyon->window_height - 185,
-      .centered = false
+      .centered = false,
+      .alpha = sqrtf(state.ui.title_alpha)
     });
   } else {
     Tachyon_DrawUIElement(tachyon, state.ui.past_age_title, {
       .screen_x = int32(float(tachyon->window_width) * 0.165f),
       .screen_y = tachyon->window_height - 185,
-      .centered = false
+      .centered = false,
+      .alpha = sqrtf(state.ui.title_alpha)
     });
   }
 }

@@ -23,6 +23,7 @@ namespace astro {
     SFX_METAL_HIT_2,
     SFX_METAL_HIT_3,
     SFX_METAL_HIT_4,
+    SFX_PARRY,
 
     SFX_HUMAN_ENEMY_GRUNT_1,
     SFX_HUMAN_ENEMY_GRUNT_2,

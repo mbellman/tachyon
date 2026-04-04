@@ -107,8 +107,7 @@ static void HandleLesserGuardWandStrike(Tachyon* tachyon, State& state, GameEnti
       // @todo ParryEnemy()
       BreakEnemy(entity, scene_time);
 
-      // @todo SFX_PARRY, 0.5f
-      Sfx::PlaySound(SFX_METAL_HIT_1, 0.7f);
+      Sfx::PlaySound(SFX_PARRY, 0.5f);
     }
   }
 

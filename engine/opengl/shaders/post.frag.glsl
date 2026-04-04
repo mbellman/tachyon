@@ -403,9 +403,8 @@ void main() {
 
       // @todo formalize/improve
       float compared = Compare(post_color, vec3(0));
-      float threshold = world_depth < 2600.0 ? 0.5 : 0.65;
 
-      if (compared > threshold) {
+      if (world_depth > 2600.0 && compared > 0.65) {
         float offset = gl_FragCoord.x * 0.4 + 10.0 * sin(gl_FragCoord.x * 0.05);
         int line_y = int(gl_FragCoord.y + offset);
 
