@@ -5,6 +5,23 @@
 
 namespace astro {
   behavior SmallBird {
+    static bool DidFlyAway(GameEntity& entity) {
+      return entity.game_activation_time != -1.f;
+    }
+
+    static void StartFlyingAway(GameEntity& entity, const float scene_time) {
+      entity.game_activation_time = scene_time;
+      entity.did_activate = true;
+    }
+
+    static void Reset(GameEntity& entity) {
+      entity.did_activate = false;
+      entity.game_activation_time = -1.f;
+
+      entity.visible_position = entity.position;
+      entity.visible_rotation = entity.orientation;
+    }
+
     addMeshes() {
       meshes.small_bird_placeholder = MODEL_MESH("./astro/3d_models/small_bird/placeholder.obj", 500);
       meshes.small_bird_body = MODEL_MESH("./astro/3d_models/small_bird/body.obj", 500);
@@ -30,6 +47,8 @@ namespace astro {
     }
 
     timeEvolve() {
+      profile("  SmallBird::timeEvolve()");
+
       auto& meshes = state.meshes;
 
       reset_instances(meshes.small_bird_body);
@@ -39,14 +58,40 @@ namespace astro {
       for_entities(state.small_birds) {
         auto& entity = state.small_birds[i];
 
+        // Outside of its astro time span, reset the bird to its original state
+        if (
+          state.astro_time < entity.astro_start_time ||
+          state.astro_time > entity.astro_end_time
+        ) {
+          Reset(entity);
+
+          continue;
+        }
+
         if (abs(state.player_position.x - entity.visible_position.x) > 15000.f) continue;
         if (abs(state.player_position.z - entity.visible_position.z) > 15000.f) continue;
+
+        // Set visible scale once we're in range
+        entity.visible_scale = entity.scale;
+
+        float player_distance = tVec3f::distance(state.player_position, entity.visible_position);
+
+        if (player_distance < 5000.f && !DidFlyAway(entity)) {
+          StartFlyingAway(entity, get_scene_time());
+        }
+
+        if (DidFlyAway(entity)) {
+          tVec3f direction = GetBaseFacingDirection(entity);
+
+          entity.visible_position += direction * 15000.f * state.dt;
+          entity.visible_position.y += 4000.f * state.dt;
+        }
 
         // Body
         {
           auto& body = use_instance(meshes.small_bird_body);
 
-          Sync(body, entity);
+          SyncVisible(body, entity);
 
           commit(body);
         }
@@ -55,7 +100,7 @@ namespace astro {
         {
           auto& head = use_instance(meshes.small_bird_head);
 
-          Sync(head, entity);
+          SyncVisible(head, entity);
 
           commit(head);
         }
@@ -64,7 +109,7 @@ namespace astro {
         {
           auto& wings = use_instance(meshes.small_bird_wings);
 
-          Sync(wings, entity);
+          SyncVisible(wings, entity);
 
           commit(wings);
         }

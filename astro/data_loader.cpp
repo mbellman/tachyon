@@ -109,7 +109,7 @@ void DataLoader::LoadLevelData(Tachyon* tachyon, State& state) {
         entity.did_activate = true;
       }
 
-      // Set base visible position + rotation
+      // Set base visible position + rotation; scale is astro time-dependent
       entity.visible_position = entity.position;
       entity.visible_rotation = entity.orientation;
 

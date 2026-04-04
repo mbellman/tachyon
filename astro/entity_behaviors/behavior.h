@@ -46,6 +46,13 @@ namespace astro {
     object.color = entity.tint;
   }
 
+  static void SyncVisible(tObject& object, GameEntity& entity) {
+    object.position = entity.visible_position;
+    object.rotation = entity.visible_rotation;
+    object.scale = entity.visible_scale;
+    object.color = entity.tint;
+  }
+
   static tVec3f UnitEntityToWorldPosition(const GameEntity& entity, const tVec3f& position) {
     tVec3f translation = entity.visible_position;
     Quaternion rotation = entity.visible_rotation;
@@ -204,6 +211,11 @@ namespace astro {
     enemy.last_attack_start_time = 0.f;
     enemy.last_block_time = 0.f;
     enemy.last_break_time = 0.f;
+  }
+
+  static tVec3f GetBaseFacingDirection(GameEntity& entity) {
+    // @todo why do we have to invert this?
+    return entity.orientation.getDirection().invert();
   }
 
   static tVec3f GetFacingDirection(GameEntity& entity) {

@@ -405,7 +405,11 @@ void main() {
       float compared = Compare(post_color, vec3(0));
 
       if (compared > 0.6) {
-        float offset = gl_FragCoord.x * 0.4 + 10.0 * sin(gl_FragCoord.x * 0.05);
+        float offset =
+          gl_FragCoord.x * 0.4 +
+          10.0 * sin(gl_FragCoord.x * 0.05) +
+          world_depth * 0.005;
+
         int line_y = int(gl_FragCoord.y + offset);
 
         if (line_y % 4 == 0 || line_y % 4 == 1) {
