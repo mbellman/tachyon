@@ -54,7 +54,8 @@ namespace astro {
     TALL_WEEDS,
     EVENT_TRIGGER,
     FAERIE,
-    VANTAGE_SPOT
+    VANTAGE_SPOT,
+    SMALL_BIRD
   };
 
   /**
@@ -103,7 +104,8 @@ namespace astro {
     TALL_WEEDS,
     EVENT_TRIGGER,
     FAERIE,
-    VANTAGE_SPOT
+    VANTAGE_SPOT,
+    SMALL_BIRD
   };
 
   /**
@@ -427,7 +429,13 @@ namespace astro {
 
       // NPC
       npc_placeholder,
-      npc
+      npc,
+
+      // SMALL_BIRD
+      small_bird_placeholder,
+      small_bird_body,
+      small_bird_head,
+      small_bird_wings
 
       ;
   };
@@ -482,6 +490,8 @@ namespace astro {
     std::vector<GameEntity> low_guards;
     std::vector<GameEntity> bandits;
     std::vector<GameEntity> faeries;
+
+    std::vector<GameEntity> small_birds;
   };
 
   /**
@@ -754,6 +764,12 @@ namespace astro {
       .name = "Faerie",
       .scale = tVec3f(750.f),
       .tint = tVec3f(1.f)
+    } },
+
+    { SMALL_BIRD, {
+      .name = "Small bird",
+      .scale = tVec3f(1000.f),
+      .tint = tVec3f(0.6f)
     } }
   };
 

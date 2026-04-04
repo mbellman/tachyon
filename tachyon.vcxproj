@@ -157,6 +157,7 @@
     <ClInclude Include="astro\entity_behaviors\RoseBush.h" />
     <ClInclude Include="astro\entity_behaviors\Sculpture_1.h" />
     <ClInclude Include="astro\entity_behaviors\Shrub.h" />
+    <ClInclude Include="astro\entity_behaviors\SmallBird.h" />
     <ClInclude Include="astro\entity_behaviors\SmallStoneBridge.h" />
     <ClInclude Include="astro\entity_behaviors\StarFlower.h" />
     <ClInclude Include="astro\entity_behaviors\StonePathNode.h" />
