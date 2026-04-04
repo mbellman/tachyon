@@ -33,7 +33,7 @@ void Astrolabe::Update(Tachyon* tachyon, State& state) {
 
   rear.scale = tVec3f(205.f);
 
-  rear.color = tVec3f(0.1f);
+  rear.color = 0x1110;
   rear.material = tVec4f(0, 1.f, 0, 0);
 
   base.color = tVec3f(0.7f, 0.4f, 0.1f);

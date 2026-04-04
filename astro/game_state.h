@@ -485,6 +485,13 @@ namespace astro {
     bool music_enabled = true;
     float bgm_start_time = -1.f;
 
+    // UI
+    struct {
+      tUIElement* present_age_title = nullptr;
+      tUIElement* past_age_title = nullptr;
+      tUIElement* divination_woodrealm_title = nullptr;
+    } ui;
+
     // @todo dev mode only
     tUIText* debug_text = nullptr;
     tUIText* debug_text_large = nullptr;

@@ -825,6 +825,10 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
   state.debug_text = Tachyon_CreateUIText("./fonts/CascadiaMonoNF.ttf", 19);
   state.debug_text_large = Tachyon_CreateUIText("./fonts/OpenSans-Regular.ttf", 32);
 
+  state.ui.present_age_title = Tachyon_CreateUIElement("./astro/textures/titles/present-age.png");
+  state.ui.past_age_title = Tachyon_CreateUIElement("./astro/textures/titles/past-age.png");
+  state.ui.divination_woodrealm_title = Tachyon_CreateUIElement("./astro/textures/titles/divination-woodrealm.png");
+
   CreateConstantObjects(tachyon, state);
 
   DataLoader::LoadLevelData(tachyon, state);
@@ -889,6 +893,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   SpellSystem::HandleSpells(tachyon, state);
   Items::HandleItemPickup(tachyon, state);
   UISystem::HandleDialogue(tachyon, state);
+  UISystem::HandleHUD(tachyon, state);
   Particles::HandleParticles(tachyon, state);
   DynamicFauna::HandleBehavior(tachyon, state);
   FacadeGeometry::HandleFacades(tachyon, state);

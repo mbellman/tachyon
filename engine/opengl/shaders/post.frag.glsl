@@ -402,16 +402,15 @@ void main() {
       post_color = GetToonShadedColor(post_color, fragUv, color_and_depth.w, world_depth);
 
       // @todo formalize/improve
-      if (world_depth > 2600.0) {
-        float compared = Compare(post_color, vec3(0));
+      float compared = Compare(post_color, vec3(0));
+      float threshold = world_depth < 2600.0 ? 0.5 : 0.65;
 
-        if (compared > 0.65) {
-          float offset = gl_FragCoord.x * 0.4 + 10.0 * sin(gl_FragCoord.x * 0.05);
-          int line_y = int(gl_FragCoord.y + offset);
+      if (compared > threshold) {
+        float offset = gl_FragCoord.x * 0.4 + 10.0 * sin(gl_FragCoord.x * 0.05);
+        int line_y = int(gl_FragCoord.y + offset);
 
-          if (line_y % 4 == 0 || line_y % 4 == 1) {
-            post_color *= (1.0 - compared * compared);
-          }
+        if (line_y % 4 == 0 || line_y % 4 == 1) {
+          post_color *= (1.0 - compared * compared);
         }
       }
     }

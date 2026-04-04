@@ -668,7 +668,7 @@ void main() {
       float depth = frag_normal_and_depth.w;
       float seed = fract(running_time);
 
-      ssao += 1.0 * GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 250.0);
+      ssao += 1.0 * GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 150.0);
       ssao += 1.1 * GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 2000.0);
       ssao += 1.2 * GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 4000.0);
       ssao += 1.3 * GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 8000.0);

@@ -48,7 +48,11 @@ static EntityRecord FindWandActionTarget(State& state) {
 }
 
 void Magic::HandleWandAction(Tachyon* tachyon, State& state) {
-  if (time_since(state.last_wand_action_time) < 0.5f || state.has_target) {
+  if (
+    time_since(state.last_wand_action_time) < 0.5f ||
+    state.has_target ||
+    state.targetable_entities.size() > 0
+  ) {
     return;
   }
 

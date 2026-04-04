@@ -188,3 +188,28 @@ void UISystem::HandleDialogue(Tachyon* tachyon, State& state) {
     HandleCurrentDialogueSet(tachyon, state);
   }
 }
+
+void UISystem::HandleHUD(Tachyon* tachyon, State& state) {
+  // Current location
+  Tachyon_DrawUIElement(tachyon, state.ui.divination_woodrealm_title, {
+    .screen_x = int32(float(tachyon->window_width) * 0.155f),
+    .screen_y = tachyon->window_height - 110,
+    .centered = false
+  });
+
+  // Current astro age
+  // @todo cross-fade
+  if (state.astro_time > -35.f) {
+    Tachyon_DrawUIElement(tachyon, state.ui.present_age_title, {
+      .screen_x = int32(float(tachyon->window_width) * 0.165f),
+      .screen_y = tachyon->window_height - 185,
+      .centered = false
+    });
+  } else {
+    Tachyon_DrawUIElement(tachyon, state.ui.past_age_title, {
+      .screen_x = int32(float(tachyon->window_width) * 0.165f),
+      .screen_y = tachyon->window_height - 185,
+      .centered = false
+    });
+  }
+}
