@@ -406,9 +406,10 @@ void main() {
         float compared = Compare(post_color, vec3(0));
 
         if (compared > 0.65) {
-          float o = gl_FragCoord.x * 0.4 + 10.0 * sin(gl_FragCoord.x * 0.02);
+          float offset = gl_FragCoord.x * 0.4 + 10.0 * sin(gl_FragCoord.x * 0.05);
+          int line_y = int(gl_FragCoord.y + offset);
 
-          if (int(gl_FragCoord.y + o) % 4 == 0 || int(gl_FragCoord.y + o) % 4 == 1) {
+          if (line_y % 4 == 0 || line_y % 4 == 1) {
             post_color *= (1.0 - compared * compared);
           }
         }
