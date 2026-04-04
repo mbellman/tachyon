@@ -176,13 +176,13 @@ static void HandleRunOscillation(Tachyon* tachyon, State& state, tVec3f& body_po
     state.run_oscillation += 5.f * state.dt;
   } else {
     // Reduce run oscillation as we slow down
-    state.run_oscillation -= 4.f * state.dt;
+    state.run_oscillation -= 3.f * state.dt;
   }
 
   if (state.run_oscillation < 0.f) state.run_oscillation = 0.f;
   if (state.run_oscillation > 1.f) state.run_oscillation = 1.f;
 
-  float run_bounce_height = 250.f * state.run_oscillation;
+  float run_bounce_height = 200.f * state.run_oscillation;
   float run_cycle_time = 2.f * t_TAU * (fmodf(state.player_mesh_animation.seek_time, 8.f) / 8.f) + t_HALF_PI;
   float run_bounce_cycle = sqrtf(0.5f + 0.5f * sinf(run_cycle_time));
 

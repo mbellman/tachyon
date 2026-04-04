@@ -148,6 +148,18 @@ void Animation::SetNextAnimation(tSkinnedMeshAnimation& mesh_animation, tSkeleto
   mesh_animation.next_animation_blend_alpha = 0.f;
 }
 
+void Animation::StartNextAnimation(tSkinnedMeshAnimation& mesh_animation, tSkeletonAnimation* skeleton_animation) {
+  if (mesh_animation.next_animation == skeleton_animation) {
+    return;
+  }
+
+  ReserveAnimationPoseData(*skeleton_animation);
+
+  mesh_animation.next_animation = skeleton_animation;
+  mesh_animation.next_animation_blend_alpha = 0.f;
+  mesh_animation.seek_time = 0.f;
+}
+
 void Animation::AwaitNextAnimation(tSkinnedMeshAnimation& mesh_animation, tSkeletonAnimation* skeleton_animation) {
   if (mesh_animation.next_animation != nullptr && mesh_animation.next_animation_blend_alpha < 1.f) {
     return;

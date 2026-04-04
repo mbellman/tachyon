@@ -9,6 +9,7 @@ namespace astro {
     void UpdatePose(tSkinnedMeshAnimation& mesh_animation);
     void UpdateBoneMatrices(tSkinnedMeshAnimation& mesh_animation);
     void SetNextAnimation(tSkinnedMeshAnimation& mesh_animation, tSkeletonAnimation* skeleton_animation);
+    void StartNextAnimation(tSkinnedMeshAnimation& mesh_animation, tSkeletonAnimation* skeleton_animation);
     void AwaitNextAnimation(tSkinnedMeshAnimation& mesh_animation, tSkeletonAnimation* skeleton_animation);
   }
 }

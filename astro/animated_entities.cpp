@@ -7,14 +7,27 @@ using namespace astro;
 struct ActiveAnimation {
   tSkeletonAnimation* animation;
   float speed;
+  bool immediate = false;
 };
 
-// @todo update to proper animations
+bool IsEnemyHit(Tachyon* tachyon, GameEntity& entity) {
+  auto& enemy = entity.enemy_state;
+
+  return (
+    time_since(enemy.last_break_time) < 1.f ||
+    time_since(enemy.last_damage_time) < 1.f
+  );
+}
+
 static ActiveAnimation GetLesserGuardActiveAnimation(Tachyon* tachyon, State& state, GameEntity& entity) {
   auto& enemy = entity.enemy_state;
 
-  if (time_since(enemy.last_break_time) < 2.f) {
-    return { &state.animations.person_idle, 1.f };
+  if (time_since(enemy.last_damage_time) < 1.f) {
+    return { &state.animations.person_hit_front, 5.f, true };
+  }
+  else if (time_since(enemy.last_break_time) < 1.f) {
+    // @todo break animation
+    return { &state.animations.person_hit_front, 5.f, true };
   }
   else if (enemy.speed > 2500.f) {
     return { &state.animations.player_run, 10.f };
@@ -75,7 +88,11 @@ void AnimatedEntities::UpdateAnimatedEntities(Tachyon* tachyon, State& state) {
 
     auto active_animation = GetLesserGuardActiveAnimation(tachyon, state, entity);
 
-    Animation::AwaitNextAnimation(skin.animation, active_animation.animation);
+    if (active_animation.immediate) {
+      Animation::StartNextAnimation(skin.animation, active_animation.animation);
+    } else {
+      Animation::AwaitNextAnimation(skin.animation, active_animation.animation);
+    }
 
     UpdateAnimation(skin.animation, active_animation.speed, state.dt);
     UpdateSkinnedMesh(person, entity, skin.animation);

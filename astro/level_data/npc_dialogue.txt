@@ -10,12 +10,17 @@ Well, I shall continue as I was.
 
 @gate_villager
 +Ah, a fellow vagabond! You're a sight for weary eyes indeed.
-+As a matter of fact, I fear I'm in quite a desperate state...
-+You see, I've been held up at this gate for quite some time now.
-Might I ask, you haven't a key in your possession, by chance?
++Oh, fear not, fear not...! I'm no guardsman.
++In fact, I've been held up at this gate for quite some time now.
+If I may, you haven't a key in your possession, by chance?
 Oh, sod it...I'm afraid we're in this pickle together, then.
-Well, I don't suppose we should ask the next fellow who trods along!
-Oh, dear me...I must at least seek recourse before nightfall.
+Well, I don't suppose you know of any other vagabonds we might ask!
+Oh, dear me...
+
+@gate_villager+
+Might I ask, you haven't a key in your possession, by chance?
+You do not? ...Then here we shall remain, for the foreseeable future.
+At the very least, I suggest seeking shelter before nightfall.
 
 @gate_villager_cutscene
 Oh, wonderful! Just wonderful. I - I am in your debt.

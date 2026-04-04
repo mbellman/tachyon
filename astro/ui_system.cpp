@@ -175,6 +175,7 @@ void UISystem::HandleDialogue(Tachyon* tachyon, State& state) {
     // Show dialogue overlay
     fx.dialogue_overlay_opacity = Tachyon_Lerpf(fx.dialogue_overlay_opacity, max_overlay_opacity, 5.f * state.dt);
   } else {
+    // Clear dialogue upon finishing
     state.dialogue_message = "";
     state.dialogue_start_time = 0.f;
     state.has_blocking_dialogue = false;
@@ -195,7 +196,8 @@ void UISystem::HandleHUD(Tachyon* tachyon, State& state) {
   if (
     player_speed > 1.f ||
     state.astro_turn_speed != 0.f ||
-    state.targetable_entities.size() > 0
+    state.targetable_entities.size() > 0 ||
+    state.dialogue_message != ""
   ) {
     // Fade out
     state.ui.title_alpha = Tachyon_Lerpf(state.ui.title_alpha, 0.f, 10.f * state.dt);

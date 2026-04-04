@@ -421,7 +421,7 @@ static void HandleStrayLeaves(Tachyon* tachyon, State& state) {
 static void HandleWalkSounds(Tachyon* tachyon, State& state) {
   // @todo use velocity
   bool is_running = is_key_held(tKey::CONTROLLER_A);
-  float distance_threshold = is_running ? 2500.f : 1400.f;
+  float distance_threshold = is_running ? 2400.f : 1400.f;
   float last_sound_distance = state.movement_distance - state.last_walk_sound_movement_distance;
 
   if (last_sound_distance > distance_threshold) {
@@ -809,6 +809,15 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
       GltfLoader("./astro/3d_skeleton_animations/person_talking/talk_6.gltf").skeleton,
       GltfLoader("./astro/3d_skeleton_animations/person_talking/talk_7.gltf").skeleton,
       GltfLoader("./astro/3d_skeleton_animations/person_talking/talk_8.gltf").skeleton,
+    };
+
+    state.animations.person_hit_front.frames = {
+      GltfLoader("./astro/3d_skeleton_animations/person_hit_front/hit_1.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/person_hit_front/hit_2.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/person_hit_front/hit_3.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/person_hit_front/hit_4.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/person_hit_front/hit_5.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/person_hit_front/hit_6.gltf").skeleton
     };
 
     for_range(0, MAX_ANIMATED_PEOPLE - 1) {
