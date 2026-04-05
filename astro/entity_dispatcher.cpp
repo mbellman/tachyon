@@ -15,6 +15,7 @@
 #include "astro/entity_behaviors/House.h"
 #include "astro/entity_behaviors/ItemPickup.h"
 #include "astro/entity_behaviors/Lamppost.h"
+#include "astro/entity_behaviors/LeafShrub.h"
 #include "astro/entity_behaviors/LightPost.h"
 #include "astro/entity_behaviors/Lilac_Bush.h"
 #include "astro/entity_behaviors/LilyPad.h"
@@ -83,6 +84,7 @@ using namespace astro;
   dispatch_macro(OAK_TREE, OakTree);\
   dispatch_macro(RIVER_LOG, RiverLog);\
   dispatch_macro(SHRUB, Shrub);\
+  dispatch_macro(LEAF_SHRUB, LeafShrub);\
   dispatch_macro(TALL_GRASS, TallGrass);\
   dispatch_macro(TALL_WEEDS, TallWeeds);\
   dispatch_macro(FLOWER_BUSH, FlowerBush);\
@@ -128,6 +130,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
     dispatch_GetEntityContainer(OAK_TREE, state.oak_trees);
     dispatch_GetEntityContainer(RIVER_LOG, state.river_logs);
     dispatch_GetEntityContainer(SHRUB, state.shrubs);
+    dispatch_GetEntityContainer(LEAF_SHRUB, state.leaf_shrubs);
     dispatch_GetEntityContainer(TALL_GRASS, state.tall_grasses);
     dispatch_GetEntityContainer(TALL_WEEDS, state.tall_weeds);
     dispatch_GetEntityContainer(FLOWER_BUSH, state.flower_bushes);

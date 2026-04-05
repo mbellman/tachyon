@@ -525,6 +525,14 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
     ResolveSoftRadiusCollision(state, entity.position, radius);
   }
 
+  for (auto& entity : state.leaf_shrubs) {
+    if (entity.visible_scale.x < 500.f) continue;
+
+    float radius = entity.visible_scale.x * 1.2f;
+
+    ResolveSoftRadiusCollision(state, entity.position, radius);
+  }
+
   for (auto& entity : state.lilac_bushes) {
     if (entity.visible_scale.x < 500.f) continue;
 

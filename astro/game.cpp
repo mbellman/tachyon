@@ -493,6 +493,8 @@ static bool IsPlayerNearWindChimes(State& state) {
 }
 
 static void HandleMusicLevels(Tachyon* tachyon, State& state) {
+  bool is_in_stealth_mode = IsInStealthMode(state);
+
   // Ambient sounds
   {
     Sound current_ambient_sound = GetCurrentAmbientSound(state);
@@ -502,7 +504,9 @@ static void HandleMusicLevels(Tachyon* tachyon, State& state) {
     if (state.astro_turn_speed != 0.f || !state.music_enabled) {
       Sfx::FadeSoundVolumeTo(current_ambient_sound, 0.f, 500);
     } else {
-      Sfx::FadeSoundVolumeTo(current_ambient_sound, 0.6f, 500);
+      float volume = is_in_stealth_mode ? 0.8f : 0.6f;
+
+      Sfx::FadeSoundVolumeTo(current_ambient_sound, volume, 500);
     }
   }
 
@@ -511,7 +515,7 @@ static void HandleMusicLevels(Tachyon* tachyon, State& state) {
     if (state.astro_turn_speed != 0.f || !state.music_enabled) {
       BGM::FadeCurrentMusicVolumeTo(0.f, 500);
     }
-    else if (IsInStealthMode(state) || Targeting::IsInCombatMode(state)) {
+    else if (is_in_stealth_mode || Targeting::IsInCombatMode(state)) {
       BGM::FadeCurrentMusicVolumeTo(0.2f, 1000);
     }
     else {

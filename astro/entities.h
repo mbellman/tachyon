@@ -55,7 +55,8 @@ namespace astro {
     EVENT_TRIGGER,
     FAERIE,
     VANTAGE_SPOT,
-    SMALL_BIRD
+    SMALL_BIRD,
+    LEAF_SHRUB
   };
 
   /**
@@ -105,7 +106,8 @@ namespace astro {
     EVENT_TRIGGER,
     FAERIE,
     VANTAGE_SPOT,
-    SMALL_BIRD
+    SMALL_BIRD,
+    LEAF_SHRUB
   };
 
   /**
@@ -232,6 +234,10 @@ namespace astro {
       shrub_bottom,
       shrub_middle,
       shrub_top,
+
+      // LEAF_SHRUB
+      leaf_shrub_placeholder,
+      leaf_shrub_plant,
 
       // TALL_GRASS
       tall_grass_placeholder,
@@ -457,6 +463,7 @@ namespace astro {
     std::vector<GameEntity> stone_path_nodes;
 
     std::vector<GameEntity> shrubs;
+    std::vector<GameEntity> leaf_shrubs;
     std::vector<GameEntity> tall_grasses;
     std::vector<GameEntity> tall_weeds;
     std::vector<GameEntity> flower_bushes;
@@ -570,6 +577,12 @@ namespace astro {
 
     { SHRUB, {
       .name = "Shrub",
+      .scale = tVec3f(800.f),
+      .tint = tVec3f(0.1f, 0.3f, 0.1f)
+    } },
+
+    { LEAF_SHRUB, {
+      .name = "Leaf Shrub",
       .scale = tVec3f(800.f),
       .tint = tVec3f(0.1f, 0.3f, 0.1f)
     } },
