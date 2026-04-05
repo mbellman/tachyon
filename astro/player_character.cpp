@@ -757,7 +757,7 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
 
     if (time_since_last_quick_turn < 1.f) {
       float alpha = 1.f - time_since_last_quick_turn;
-      float additional_turn_speed = 4.f * alpha;
+      float additional_turn_speed = 2.f * alpha;
 
       turn_speed += additional_turn_speed;
     }
@@ -765,6 +765,8 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
     // When astro turning, don't change our facing direction at all,
     // since targeted entities may jitter and jump about rapidly,
     // and we don't want the facing direction being thrown off
+    //
+    // @todo remove this since we detarget things upon astro traveling now
     if (abs(state.astro_turn_speed) > 0.05f) {
       turn_speed = 0.f;
     }
@@ -777,8 +779,7 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
     tilt *= 0.2f;
     tilt *= player_speed / PlayerCharacter::MAX_RUN_SPEED;
 
-    // @todo tVec3f::slerp (?)
-    state.player_facing_direction = tVec3f::lerp(state.player_facing_direction, desired_facing_direction, turn_speed * state.dt).unit();
+    state.player_facing_direction = tVec3f::slerp(state.player_facing_direction, desired_facing_direction, turn_speed * state.dt).unit();
     state.tilt_angle = Tachyon_Lerpf(state.tilt_angle, tilt, 5.f * state.dt);
   }
 

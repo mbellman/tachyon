@@ -101,6 +101,38 @@ tVec3f tVec3f::lerp(const tVec3f& v1, const tVec3f& v2, const float alpha) {
   };
 }
 
+/**
+ * Partially adapted from https://discussions.unity.com/t/slerp-demystified/892580
+ */
+tVec3f tVec3f::slerp(const tVec3f& v1, const tVec3f& v2, const float alpha) {
+  float dot = tVec3f::dot(v1, v2);
+  if (dot < -1.f) dot = -1.f;
+  if (dot > 1.f) dot = 1.f;
+
+  // Handle antiparallel/opposite vectors
+  if (dot == -1.f) {
+    // Find the up vector relative to v1, and rotate around that.
+    // This is expensive compared to the normal case but also
+    // extremely rare unless we're only working with axis vectors.
+    tVec3f c = tVec3f::cross(v1, tVec3f(0, 1.f, 0));
+    tVec3f up = tVec3f::cross(c, v1);
+
+    return Quaternion::fromAxisAngle(up, alpha).toMatrix4f() * v1;
+  }
+
+  auto theta = acosf(dot);
+
+  // If the vectors are infinitesimally close to each other,
+  // just return the first one
+  if (theta < 0.0001f) return v1;
+
+  auto s = sinf(theta);
+  auto j = sinf((1.f - alpha) * theta);
+  auto k = sinf(alpha * theta);
+
+  return (v1 * j + v2 * k) / s;
+}
+
 tVec3f tVec3f::invert() const {
   return *this * -1.f;
 }
