@@ -5,13 +5,27 @@
 
 namespace astro {
   behavior SmallBird {
-    static bool DidFlyAway(GameEntity& entity) {
-      return entity.game_activation_time != -1.f;
+    static void TurnRandomDirection(Tachyon* tachyon, GameEntity& entity) {
+      // For birds we use enemy state fields for behavior,
+      // but birds aren't actually enemies!
+      auto& enemy = entity.enemy_state;
+
+      if (time_since(enemy.last_mood_change_time) > 2.5f) {
+        enemy.last_mood_change_time = get_scene_time();
+
+        float angle = Tachyon_GetRandom(-t_PI, t_PI);
+
+        entity.visible_rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), angle);
+      }
     }
 
     static void StartFlyingAway(GameEntity& entity, const float scene_time) {
       entity.game_activation_time = scene_time;
       entity.did_activate = true;
+    }
+
+    static bool DidFlyAway(GameEntity& entity) {
+      return entity.game_activation_time != -1.f;
     }
 
     static void Reset(GameEntity& entity) {
@@ -78,6 +92,8 @@ namespace astro {
 
         if (player_distance < 5000.f && !DidFlyAway(entity)) {
           StartFlyingAway(entity, get_scene_time());
+        } else {
+          TurnRandomDirection(tachyon, entity);
         }
 
         if (DidFlyAway(entity)) {

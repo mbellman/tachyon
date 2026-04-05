@@ -10,10 +10,10 @@
 
 namespace astro {
   behavior LowGuard {
-    const static float wind_up_duration = 0.5f;
-    const static float stab_duration = 0.1f;
-    const static float wind_down_duration = 0.6f;
-    const static float attack_duration = wind_up_duration + stab_duration + wind_down_duration;
+    const static float WIND_UP_DURATION = 0.5f;
+    const static float STAB_DURATION = 0.1f;
+    const static float WIND_DOWN_DURATION = 0.6f;
+    const static float ATTACK_DURATION = WIND_UP_DURATION + STAB_DURATION + WIND_DOWN_DURATION;
 
     addMeshes() {
       meshes.low_guard_placeholder = MODEL_MESH("./astro/3d_models/guy.obj", 500);
@@ -51,7 +51,7 @@ namespace astro {
 
         bool can_notice_player = (
           tVec3f::dot(GetFacingDirection(entity), player_direction) > 0.2f ||
-          (player_distance < 4000.f && state.player_velocity.magnitude() > alerted_speed)
+          (player_distance < 6000.f && state.player_velocity.magnitude() > alerted_speed)
         );
 
         // Collision handling
@@ -100,7 +100,7 @@ namespace astro {
             enemy.speed += 5000.f * state.dt;
             if (enemy.speed > 3000.f) enemy.speed = 3000.f;
 
-            bool is_attacking = time_since(enemy.last_attack_start_time) < attack_duration;
+            bool is_attacking = time_since(enemy.last_attack_start_time) < ATTACK_DURATION;
 
             if (is_attacking) {
               enemy.speed *= 1.f - 5.f * state.dt;
@@ -146,9 +146,9 @@ namespace astro {
           play_random_dialogue(entity, low_guard_dialogue_agitated);
 
           if (
-            player_distance < 4000.f &&
-            time_since(enemy.last_attack_start_time) > 2.f * attack_duration &&
-            time_since(enemy.last_mood_change_time) > 0.5f
+            player_distance < 8000.f &&
+            time_since(enemy.last_attack_start_time) > 2.f * ATTACK_DURATION &&
+            time_since(enemy.last_mood_change_time) > 0.2f
           ) {
             // Attacking
             enemy.last_attack_start_time = get_scene_time();
@@ -301,20 +301,20 @@ namespace astro {
 
             if (
               entity.enemy_state.mood == ENEMY_AGITATED &&
-              time_since_starting_attack < attack_duration
+              time_since_starting_attack < ATTACK_DURATION
             ) {
-              float alpha = time_since_starting_attack / attack_duration;
+              float alpha = time_since_starting_attack / ATTACK_DURATION;
 
-              if (time_since_starting_attack < wind_up_duration) {
+              if (time_since_starting_attack < WIND_UP_DURATION) {
                 // Wind-up
-                float wind_up_alpha = alpha * (attack_duration / wind_up_duration);
+                float wind_up_alpha = alpha * (ATTACK_DURATION / WIND_UP_DURATION);
                 float angle = -0.5f * sinf(wind_up_alpha * t_HALF_PI);
 
                 spear.rotation = spear.rotation * Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), angle);
               }
-              else if (time_since_starting_attack < (wind_up_duration + stab_duration)) {
+              else if (time_since_starting_attack < (WIND_UP_DURATION + STAB_DURATION)) {
                 // Stab
-                float stab_alpha = Tachyon_InverseLerp(wind_up_duration, wind_up_duration + stab_duration, time_since_starting_attack);
+                float stab_alpha = Tachyon_InverseLerp(WIND_UP_DURATION, WIND_UP_DURATION + STAB_DURATION, time_since_starting_attack);
                 stab_alpha = powf(stab_alpha, 0.75f);
 
                 Quaternion start_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -0.5f);
@@ -348,7 +348,7 @@ namespace astro {
               }
               else {
                 // Wind-down
-                float wind_down_alpha = Tachyon_InverseLerp(wind_up_duration + stab_duration, attack_duration, time_since_starting_attack);
+                float wind_down_alpha = Tachyon_InverseLerp(WIND_UP_DURATION + STAB_DURATION, ATTACK_DURATION, time_since_starting_attack);
                 wind_down_alpha = Tachyon_EaseInOutf(wind_down_alpha);
 
                 float angle = t_HALF_PI * (1.f - wind_down_alpha);
