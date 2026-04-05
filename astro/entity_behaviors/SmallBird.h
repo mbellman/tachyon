@@ -81,9 +81,9 @@ namespace astro {
         }
 
         if (DidFlyAway(entity)) {
-          tVec3f direction = GetBaseFacingDirection(entity);
+          tVec3f player_to_entity_xz = (entity.visible_position - state.player_position).xz().unit();
 
-          entity.visible_position += direction * 15000.f * state.dt;
+          entity.visible_position += player_to_entity_xz * 15000.f * state.dt;
           entity.visible_position.y += 4000.f * state.dt;
         }
 
