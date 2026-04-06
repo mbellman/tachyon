@@ -1,10 +1,11 @@
 #include "astro/camera_system.h"
+#include "astro/entity_behaviors/behavior.h"
 #include "astro/entity_manager.h"
 #include "astro/player_character.h"
 
 using namespace astro;
 
-static void UpdateCameraNearEntities(State& state, const std::vector<GameEntity>& entities, tVec3f& camera_position, const float max_distance, const tVec3f& offset) {
+static void UpdateCameraNearInertEntities(State& state, const std::vector<GameEntity>& entities, tVec3f& camera_position, const float max_distance, const tVec3f& offset) {
   for (auto& entity : entities) {
     float player_distance = tVec3f::distance(state.player_position, entity.position);
 
@@ -16,12 +17,27 @@ static void UpdateCameraNearEntities(State& state, const std::vector<GameEntity>
   }
 }
 
+static void UpdateCameraNearLiveEntities(State& state, const std::vector<GameEntity>& entities, tVec3f& camera_position, const float max_distance, const tVec3f& offset) {
+  for (auto& entity : entities) {
+    if (!IsDuringActiveTime(entity, state)) continue;
+
+    float player_distance = tVec3f::distance(state.player_position, entity.position);
+
+    float distance_factor = 1.f - player_distance / max_distance;
+    if (distance_factor < 0.f) distance_factor = 0.f;
+
+    camera_position.y += offset.y * distance_factor;
+    camera_position.z += offset.z * distance_factor;
+  }
+}
+
 static void UpdateCameraNearEntities(State& state, tVec3f& new_camera_position) {
-  UpdateCameraNearEntities(state, state.light_posts, new_camera_position, 10000.f, tVec3f(0, 2000.f, 2000.f));
-  UpdateCameraNearEntities(state, state.gates, new_camera_position, 10000.f, tVec3f(0, 2000.f, 3000.f));
-  UpdateCameraNearEntities(state, state.water_wheels, new_camera_position, 20000.f, tVec3f(0, 3000.f, 5000.f));
-  UpdateCameraNearEntities(state, state.lesser_guards, new_camera_position, 20000.f, tVec3f(0, 500.f, 200.f));
-  UpdateCameraNearEntities(state, state.low_guards, new_camera_position, 20000.f, tVec3f(0, 500.f, 200.f));
+  UpdateCameraNearInertEntities(state, state.light_posts, new_camera_position, 10000.f, tVec3f(0, 2000.f, 2000.f));
+  UpdateCameraNearInertEntities(state, state.gates, new_camera_position, 10000.f, tVec3f(0, 2000.f, 3000.f));
+  UpdateCameraNearInertEntities(state, state.water_wheels, new_camera_position, 20000.f, tVec3f(0, 3000.f, 5000.f));
+
+  UpdateCameraNearLiveEntities(state, state.lesser_guards, new_camera_position, 20000.f, tVec3f(0, 500.f, 200.f));
+  UpdateCameraNearLiveEntities(state, state.low_guards, new_camera_position, 20000.f, tVec3f(0, 500.f, 200.f));
 }
 
 static void UpdateEventCamera(Tachyon* tachyon, State& state, tVec3f& new_camera_position) {
@@ -64,6 +80,42 @@ static void UpdateTargetCamera(Tachyon* tachyon, State& state, tVec3f& new_camer
 
   // Adjustment: move the camera back a bit during stun effects
   new_camera_position.z += 1000.f * stun_factor;
+
+  // Blend between the normal player camera shift and no shift at all
+  // depending on how close we are to the target
+  tVec3f shift_direction = state.player_facing_direction + tVec3f(0, 0, 0.4f);
+  tVec3f desired_camera_shift = shift_direction * tVec3f(0.75f, 0, 1.f) * 1950.f;
+
+  state.camera_shift = tVec3f::lerp(desired_camera_shift, tVec3f(0.f), approach_factor);
+}
+
+static void UpdatePreviewTargetCamera(Tachyon* tachyon, State& state, tVec3f& new_camera_position) {
+  tVec3f average_position = tVec3f(0.f);
+
+  for (auto& record : state.targetable_entities) {
+    auto& entity = *EntityManager::FindEntity(state, record);
+
+    average_position += entity.visible_position;
+  }
+
+  average_position /= (float)state.targetable_entities.size();
+
+  float player_distance = (state.player_position - average_position).magnitude();
+
+  float approach_factor = 1.f - player_distance / 10000.f;
+  if (approach_factor < 0.f) approach_factor = 0.f;
+
+  new_camera_position = tVec3f::lerp(state.player_position, average_position, 0.5f * approach_factor);
+
+  // Adjustment: raise the camera as we approach the target
+  // @todo it's confusing that we start at 3000 here and add the final height
+  // below, near the end of the procedure
+  new_camera_position.y = 3000.f * approach_factor;
+
+  // Adjustment: move the camera back a bit as we approach the target
+  new_camera_position.z += 3000.f * approach_factor;
+
+  UpdateCameraNearEntities(state, new_camera_position);
 
   // Blend between the normal player camera shift and no shift at all
   // depending on how close we are to the target
@@ -127,6 +179,9 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state) {
   else if (state.has_target) {
     UpdateTargetCamera(tachyon, state, new_camera_position);
   }
+  else if (state.targetable_entities.size() > 0) {
+    UpdatePreviewTargetCamera(tachyon, state, new_camera_position);
+  }
   else if (abs(state.astro_turn_speed) > 0.1f) {
     UpdateAstroTravelCamera(tachyon, state, new_camera_position);
   }
@@ -137,6 +192,17 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state) {
   new_camera_position += state.camera_shift;
   new_camera_position.y += 10000.f;
   new_camera_position.z += 7000.f;
+
+  // Limit camera distance to avoid making out-of-view culling obvious
+  {
+    if (new_camera_position.y - state.player_position.y > 13000.f) {
+      new_camera_position.y = state.player_position.y + 13000.f;
+    }
+
+    if (new_camera_position.z - state.player_position.z > 10000.f) {
+      new_camera_position.z = state.player_position.z + 10000.f;
+    }
+  }
 
   // @temporary
   // @todo dev mode only

@@ -736,6 +736,9 @@ static void HandleFrameEnd(Tachyon* tachyon, State& state) {
     if (speed > 300.f) {
       scene.foliage_mover_velocity = velocity.unit() * 300.f;
     }
+
+    // @hack
+    scene.foliage_mover_velocity *= 1.5f;
   }
 
   // Astro turn direction tracking

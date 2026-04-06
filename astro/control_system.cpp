@@ -482,8 +482,8 @@ void ControlSystem::HandleControls(Tachyon* tachyon, State& state) {
   if (
     // We do not have, or have dismissed blocking dialogue
     (!state.has_blocking_dialogue || state.dismissed_blocking_dialogue) &&
-    // We aren't doing a break attack
-    time_since(state.last_strong_attack_time) > 0.8f &&
+    // We aren't doing a strong attack
+    time_since(state.last_strong_attack_time) > 0.5f &&
     // We aren't dead
     state.player_hp > 0.f
   ) {
