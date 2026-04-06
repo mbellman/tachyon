@@ -240,7 +240,7 @@ static void TurnPlayerHeadToward(State& state, const std::vector<GameEntity>& en
   }
 }
 
-static void UpdatePlayerHeadTurnAngle(State& state) {
+static void UpdatePlayerHeadTurnAngle(Tachyon* tachyon, State& state) {
   float player_facing_angle = atan2f(state.player_facing_direction.z, state.player_facing_direction.x);
 
   if (state.has_target) {
@@ -262,6 +262,21 @@ static void UpdatePlayerHeadTurnAngle(State& state) {
     TurnPlayerHeadToward(state, state.low_guards, player_facing_angle);
     TurnPlayerHeadToward(state, state.lesser_guards, player_facing_angle);
     TurnPlayerHeadToward(state, state.wind_chimes, player_facing_angle);
+  }
+
+  // Turn head when we do quick turns, or based on tilt,
+  // for slightly more natural movement when changing direction
+  {
+    if (time_since(state.last_quick_turn_time) < 1.f) {
+      // Diminish the effect with velocity; otherwise when we
+      // quick turn while running, the head takes unnaturally long
+      // to rotate back into a normal forward orientation
+      float alpha = 1.f - 0.75f * (state.player_velocity.magnitude() / PlayerCharacter::MAX_RUN_SPEED);
+
+      state.player_mesh_animation.head_turn_angle += 40.f * alpha * state.tilt_angle * state.dt;
+    } else {
+      state.player_mesh_animation.head_turn_angle += 10.f * state.tilt_angle * state.dt;
+    }
   }
 
   // Continually drift back toward 0
@@ -792,7 +807,7 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
 
   tMat4f player_rotation_matrix = player_rotation.toMatrix4f();
 
-  UpdatePlayerHeadTurnAngle(state);
+  UpdatePlayerHeadTurnAngle(tachyon, state);
   UpdatePlayerModel(tachyon, state, player_rotation, player_rotation_matrix);
   UpdateWand(tachyon, state, player_rotation, player_rotation_matrix);
   UpdateWandLights(tachyon, state);

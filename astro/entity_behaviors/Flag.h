@@ -66,7 +66,7 @@ namespace astro {
 
           Sync(banner, entity);
 
-          banner.color = tVec4f(1.f, 0.8f, 0.4f, 0.1f);
+          banner.color = tVec4f(0.8f, 0.6f, 1.f, 0.2f);
           banner.material = tVec4f(0.7f, 0, 0, 1.f);
 
           if (age < 6.f) banner.scale = tVec3f(0.f);
