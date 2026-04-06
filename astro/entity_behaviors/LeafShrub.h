@@ -41,10 +41,10 @@ namespace astro {
         return 0.f;
       }
 
-      if (life_progress < 0.9f) {
+      if (life_progress < 0.8f) {
         return Grow(8.f * (life_progress + offset));
       } else {
-        return Die((life_progress - 0.9f) / 0.1f);
+        return 1.f - (life_progress - 0.8f);
       }
     }
 

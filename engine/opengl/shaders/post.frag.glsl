@@ -404,7 +404,7 @@ void main() {
       // @todo formalize/improve
       float compared = Compare(post_color, vec3(0));
 
-      if (compared > 0.6) {
+      if (compared > 0.5) {
         float offset =
           gl_FragCoord.x * 0.4 +
           10.0 * sin(gl_FragCoord.x * 0.05) +
@@ -415,7 +415,7 @@ void main() {
         if (line_y % 4 == 0 || line_y % 4 == 1) {
           post_color *= (1.0 - compared * compared);
         } else {
-          post_color *= 1.1;
+          post_color *= 1.15;
         }
       }
     }

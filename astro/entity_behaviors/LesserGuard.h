@@ -249,7 +249,7 @@ namespace astro {
           if (
             player_distance < 8000.f &&
             time_since(enemy.last_attack_start_time) > 1.5f * ATTACK_DURATION &&
-            time_since(enemy.last_block_time) > 2.f &&
+            time_since(enemy.last_block_time) > 1.25f &&
             time_since(enemy.last_mood_change_time) > 0.5f &&
             time_since(enemy.last_damage_time) > 1.f &&
             time_since(enemy.last_break_time) > BREAK_DURATION

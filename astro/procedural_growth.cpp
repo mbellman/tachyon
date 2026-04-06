@@ -145,7 +145,7 @@ static void UpdateWhiteVines(Tachyon* tachyon, State& state) {
         auto& flower = use_instance(meshes.vine_flower);
 
         flower.position = leaf.position;
-        flower.scale = tVec3f(250.f * growth_factor);
+        flower.scale = tVec3f(350.f * growth_factor);
         flower.rotation = rotation;
         flower.color = tVec4f(1.f, 1.f, 1.f, 0.4f);
         flower.material = tVec4f(0.5f, 0, 0, 1.f);

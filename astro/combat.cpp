@@ -94,16 +94,18 @@ static void HandleLesserGuardWandStrike(Tachyon* tachyon, State& state, GameEnti
   bool is_enemy_blocking = time_since(enemy.last_block_time) < 1.f;
   bool is_enemy_on_damage_cooldown = time_since(enemy.last_damage_time) < 0.5f || time_since(enemy.last_break_time) < 0.3f;
   bool is_enemy_preparing_attack = time_since_starting_attack < 1.5f;
+  bool is_attack_parryable = time_since_starting_attack > 0.7f;
   bool is_player_doing_break_attack = time_since(state.last_break_attack_time) < 0.5f;
   bool is_active_target = state.has_target && IsSameEntity(entity, state.target_entity);
 
-  // Striking an attacking enemy
-  if (is_enemy_preparing_attack) {
-    bool is_attack_parryable = time_since_starting_attack > 0.7f;
+  // Parrying an attacking enemy
+  if (is_enemy_preparing_attack && is_attack_parryable) {
     float facing_dot = tVec3f::dot(state.player_facing_direction, GetFacingDirection(entity));
 
-    // Parrying
-    if (is_attack_parryable && facing_dot < 0.f) {
+    if (facing_dot < 0.f) {
+      state.last_wand_swing_time = 0.f;
+      state.last_wand_bounce_time = scene_time;
+
       // @todo ParryEnemy()
       BreakEnemy(entity, scene_time);
 
