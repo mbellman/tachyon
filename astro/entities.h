@@ -56,7 +56,8 @@ namespace astro {
     FAERIE,
     VANTAGE_SPOT,
     SMALL_BIRD,
-    LEAF_SHRUB
+    LEAF_SHRUB,
+    LAMP
   };
 
   /**
@@ -107,7 +108,8 @@ namespace astro {
     FAERIE,
     VANTAGE_SPOT,
     SMALL_BIRD,
-    LEAF_SHRUB
+    LEAF_SHRUB,
+    LAMP
   };
 
   /**
@@ -402,6 +404,11 @@ namespace astro {
       lamppost_frame,
       lamppost_lamp,
 
+      // LAMP
+      lamp_placeholder,
+      lamp_frame,
+      lamp_light,
+
       // FOG_SPAWN
       fog_spawn_placeholder,
 
@@ -487,6 +494,7 @@ namespace astro {
     std::vector<GameEntity> gates;
     std::vector<GameEntity> flags;
     std::vector<GameEntity> lampposts;
+    std::vector<GameEntity> lamps;
     std::vector<GameEntity> houses;
     std::vector<GameEntity> light_posts;
     std::vector<GameEntity> wooden_fences;
@@ -728,6 +736,12 @@ namespace astro {
     { LAMPPOST, {
       .name = "Lamppost",
       .scale = tVec3f(2500.f),
+      .tint = tVec3f(1.f, 0.6f, 0.4f)
+    } },
+
+    { LAMP, {
+      .name = "Lamp",
+      .scale = tVec3f(1000.f),
       .tint = tVec3f(1.f, 0.6f, 0.4f)
     } },
 

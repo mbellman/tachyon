@@ -14,6 +14,7 @@
 #include "astro/entity_behaviors/GlowFlower.h"
 #include "astro/entity_behaviors/House.h"
 #include "astro/entity_behaviors/ItemPickup.h"
+#include "astro/entity_behaviors/Lamp.h"
 #include "astro/entity_behaviors/Lamppost.h"
 #include "astro/entity_behaviors/LeafShrub.h"
 #include "astro/entity_behaviors/LightPost.h"
@@ -101,6 +102,7 @@ using namespace astro;
   dispatch_macro(GATE, Gate);\
   dispatch_macro(FLAG, Flag);\
   dispatch_macro(LIGHT_POST, LightPost);\
+  dispatch_macro(LAMP, Lamp);\
   dispatch_macro(LAMPPOST, Lamppost);\
   dispatch_macro(WIND_CHIMES, WindChimes);\
   dispatch_macro(SCULPTURE_1, Sculpture_1);\
@@ -148,6 +150,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
     dispatch_GetEntityContainer(FLAG, state.flags);
     dispatch_GetEntityContainer(LIGHT_POST, state.light_posts);
     dispatch_GetEntityContainer(LAMPPOST, state.lampposts);
+    dispatch_GetEntityContainer(LAMP, state.lamps);
     dispatch_GetEntityContainer(WIND_CHIMES, state.wind_chimes);
     dispatch_GetEntityContainer(SCULPTURE_1, state.sculpture_1s);
     dispatch_GetEntityContainer(ALTAR, state.altars);
