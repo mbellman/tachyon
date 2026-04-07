@@ -47,14 +47,30 @@ static EntityRecord FindWandActionTarget(State& state) {
   return target;
 }
 
-void Magic::HandleWandAction(Tachyon* tachyon, State& state) {
-  if (
-    time_since(state.last_wand_action_time) < 0.5f ||
-    state.has_target ||
-    state.targetable_entities.size() > 0
-  ) {
-    return;
+static bool CanPerformWandAction(Tachyon* tachyon, State& state) {
+  if (time_since(state.last_wand_action_time) < 0.5f) return false;
+
+  // If we have any targets or potential targets, we need to
+  // check whether wand actions are allowed
+  if (state.has_target || state.targetable_entities.size() > 0) {
+    for (auto& record : state.targetable_entities) {
+      if (record.type == FAERIE) {
+        // If a Faerie is targeted, allow wand actions. Other enemy types
+        // disable them to avoid inadvertently spamming lampposts or other
+        // entities on and off.
+        return true;
+      }
+    }
+
+    return false;
   }
+
+  // No targets!
+  return true;
+}
+
+void Magic::HandleWandAction(Tachyon* tachyon, State& state) {
+  if (!CanPerformWandAction(tachyon, state)) return;
 
   state.last_wand_action_time = get_scene_time();
 

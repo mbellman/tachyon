@@ -38,11 +38,9 @@ namespace astro {
       tVec3f entity_to_target = target_position - entity.visible_position;
       float target_distance = entity_to_target.magnitude();
 
-      if (target_distance > 10000.f) {
-        return;
-      }
+      if (target_distance > 15000.f) return;
 
-      FaceTarget(entity, target_position, state.dt);
+      FacePosition(entity, target_position, state.dt);
 
       if (target_distance > 2000.f) {
         tVec3f unit_entity_to_target = entity_to_target / target_distance;
