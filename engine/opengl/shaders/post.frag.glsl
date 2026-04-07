@@ -405,11 +405,11 @@ void main() {
       float compared = Compare(post_color, vec3(0));
 
       if (compared > 0.5 && world_depth < 100000.0) {
-        float depth_alpha = pow(1.0 - (world_depth / 100000.0), 40);
-        depth_alpha = clamp(depth_alpha, 0.002, 0.005);
+        float depth_alpha = sqrt(world_depth / 100000.0);
+        float depth_factor = mix(0.005, 0.0001, depth_alpha);
 
         float screen_offset = gl_FragCoord.x * 0.4 + 10.0 * sin(gl_FragCoord.x * 0.05);
-        float world_offset = world_position.y * depth_alpha;
+        float world_offset = world_position.y * depth_factor;
         float offset = screen_offset + world_offset;
         int line_y = int(gl_FragCoord.y + offset);
 

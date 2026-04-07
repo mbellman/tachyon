@@ -51,6 +51,8 @@ static void UpdateEventCamera(Tachyon* tachyon, State& state, tVec3f& new_camera
   new_camera_position = base_position;
   new_camera_position.y += 1000.f;
   new_camera_position.z += 2000.f;
+
+  state.camera_blend_speed = 5.f * state.dt;
 }
 
 static void UpdateTargetCamera(Tachyon* tachyon, State& state, tVec3f& new_camera_position) {
@@ -87,6 +89,8 @@ static void UpdateTargetCamera(Tachyon* tachyon, State& state, tVec3f& new_camer
   tVec3f desired_camera_shift = shift_direction * tVec3f(0.75f, 0, 1.f) * 1950.f;
 
   state.camera_shift = tVec3f::lerp(desired_camera_shift, tVec3f(0.f), approach_factor);
+
+  state.camera_blend_speed = 5.f * state.dt;
 }
 
 static void UpdatePreviewTargetCamera(Tachyon* tachyon, State& state, tVec3f& new_camera_position) {
@@ -123,6 +127,7 @@ static void UpdatePreviewTargetCamera(Tachyon* tachyon, State& state, tVec3f& ne
   tVec3f desired_camera_shift = shift_direction * tVec3f(0.75f, 0, 1.f) * 1950.f;
 
   state.camera_shift = tVec3f::lerp(desired_camera_shift, tVec3f(0.f), approach_factor);
+  state.camera_blend_speed = Tachyon_Lerpf(state.camera_blend_speed, 2.f * state.dt, state.dt);
 }
 
 static void UpdateAstroTravelCamera(Tachyon* tachyon, State& state, tVec3f& new_camera_position) {
@@ -139,6 +144,7 @@ static void UpdateAstroTravelCamera(Tachyon* tachyon, State& state, tVec3f& new_
   tVec3f shift_direction = state.player_facing_direction + tVec3f(0, 0, 0.4f);
 
   state.camera_shift = shift_direction * tVec3f(0.75f, 0, 1.f) * 1500.f;
+  state.camera_blend_speed = 5.f * state.dt;
 }
 
 static void UpdateStandardCamera(Tachyon* tachyon, State& state, tVec3f& new_camera_position) {
@@ -152,6 +158,7 @@ static void UpdateStandardCamera(Tachyon* tachyon, State& state, tVec3f& new_cam
   UpdateCameraNearEntities(state, new_camera_position);
 
   state.camera_shift = tVec3f::lerp(state.camera_shift, desired_camera_shift, 5.f * state.dt);
+  state.camera_blend_speed = Tachyon_Lerpf(state.camera_blend_speed, 5.f * state.dt, state.dt);
 }
 
 // @todo continue to work on this
@@ -251,7 +258,7 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state) {
   }
 
   auto& camera = tachyon->scene.camera;
-  camera.position = tVec3f::lerp(camera.position, new_camera_position, 5.f * state.dt);
+  camera.position = tVec3f::lerp(camera.position, new_camera_position, state.camera_blend_speed);
   camera.rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), state.camera_angle);
 
   // HandleExperimentalCamera(tachyon, state);
