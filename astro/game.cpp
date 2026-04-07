@@ -25,6 +25,9 @@
 #include "astro/time_evolution.h"
 #include "astro/ui_system.h"
 
+// @todo dev_tools.cpp
+#include "astro/entity_behaviors/SmallBird.h"
+
 using namespace astro;
 
 static void CreateConstantObjects(Tachyon* tachyon, State& state) {
@@ -124,6 +127,7 @@ static void ShowHighestLevelsOfDetail(Tachyon* tachyon, State& state) {
   Tachyon_ShowHighestLevelsOfDetail(tachyon, meshes.lookout_tower);
 }
 
+// @todo dev_tools.cpp
 static void HandleInGameDevHotkeys(Tachyon* tachyon, State& state) {
   // Toggling game stats
   {
@@ -175,17 +179,18 @@ static void HandleInGameDevHotkeys(Tachyon* tachyon, State& state) {
         entity.game_activation_time = -1.f;
       }
 
-      for_entities(state.npcs) {
-        auto& entity = state.npcs[i];
+      for (auto type : { LESSER_GUARD, LOW_GUARD, FAERIE, NPC }) {
+        for_entities_of_type(type) {
+          auto& entity = entities[i];
 
-        entity.visible_position = entity.position;
-        entity.visible_rotation = entity.orientation;
+          HardResetEntity(entity);
+        }
       }
 
-      for_entities(state.lesser_guards) {
-        auto& entity = state.lesser_guards[i];
+      for_entities(state.small_birds) {
+        auto& entity = state.small_birds[i];
 
-        HardResetEntity(entity);
+        SmallBird::Reset(entity);
       }
 
       for_entities(state.sculpture_1s) {

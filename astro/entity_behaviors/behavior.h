@@ -187,6 +187,11 @@ namespace astro {
     enemy.last_damage_time = 0.f;
   }
 
+  static void ResetEntityPosition(GameEntity& entity) {
+    entity.visible_position = entity.position;
+    entity.visible_rotation = entity.orientation;
+  }
+
   static void SoftResetEntity(GameEntity& entity, const float scene_time) {
     entity.visible_rotation = entity.orientation;
 
@@ -227,6 +232,14 @@ namespace astro {
     float distance;
     float facing_dot;
   };
+
+  static bool IsInRangeX(const GameEntity& entity, const State& state, const float range) {
+    return abs(state.player_position.x - entity.visible_position.x) < range;
+  }
+
+  static bool IsInRangeZ(const GameEntity& entity, const State& state, const float range) {
+    return abs(state.player_position.z - entity.visible_position.z) < range;
+  }
 
   static EntityProximity GetEntityProximity(GameEntity& entity, const State& state) {
     tVec3f player_to_entity = entity.position - state.player_position;

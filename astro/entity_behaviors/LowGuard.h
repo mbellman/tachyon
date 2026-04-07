@@ -173,26 +173,22 @@ namespace astro {
         if (is_active) {
           entity.visible_scale = entity.scale;
 
+          if (
+            !IsInRangeX(entity, state, 25000.f) ||
+            !IsInRangeZ(entity, state, 25000.f)
+          ) {
+            ResetEntityPosition(entity);
+          }
+
           float astro_speed = abs(state.astro_turn_speed);
 
           if (astro_speed > 0.f) {
             // Astro time turning behavior
-            SetMood(entity, ENEMY_IDLE, get_scene_time());
-
-            entity.enemy_state.speed = 0.f;
-            entity.visible_rotation = entity.orientation;
+            SoftResetEntity(entity, get_scene_time());
 
             if (entity.recent_positions.size() > 0) {
-              // @todo factor
               // @todo only if astro turn speed < 0
-              float time_since_last_reverse = time_since(entity.last_recent_position_reverse_time);
-
-              if (time_since_last_reverse > 0.05f) {
-                entity.visible_position = entity.recent_positions.back();
-                entity.recent_positions.pop_back();
-
-                entity.last_recent_position_reverse_time = get_scene_time();
-              }
+              ReloadRecentPosition(entity, get_scene_time());
             }
             else if (astro_speed > 0.05f) {
               Jitter(entity, 75.f);
@@ -212,37 +208,18 @@ namespace astro {
               entity.visible_rotation = entity.orientation * idle_rotation;
             }
 
-            // @todo factor
-            {
-              float time_since_last_recent_position = time_since(entity.last_recent_position_record_time);
+            TrackRecentPositions(entity, get_scene_time());
 
-              if (time_since_last_recent_position > 1.f && entity.enemy_state.mood != ENEMY_IDLE) {
-                auto& recent_positions = entity.recent_positions;
-
-                if (recent_positions.size() > 30) {
-                  recent_positions.erase(recent_positions.begin());
-                }
-
-                recent_positions.push_back(entity.visible_position);
-
-                entity.last_recent_position_record_time = get_scene_time();
-              }
+            if (entity.enemy_state.health > 0.f) {
+              handle_enemy_behavior(LowGuard);
             }
-
-            handle_enemy_behavior(LowGuard);
           }
 
           // Remain aligned with the ground
           // @todo use proper ground height
           entity.visible_position.y = 0.f;
         } else {
-          // Hide and reset
-          // @todo factor
-          entity.visible_scale = tVec3f(0.f);
-          entity.visible_position = entity.position;
-          entity.visible_rotation = entity.orientation;
-          entity.enemy_state.speed = 0.f;
-          entity.recent_positions.clear();
+          HardResetEntity(entity);
         }
 
         // Body

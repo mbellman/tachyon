@@ -59,6 +59,16 @@ namespace astro {
       for_entities(state.faeries) {
         auto& entity = state.faeries[i];
 
+        // @todo check active time, astro turn speed etc.
+        if (
+          !IsInRangeX(entity, state, 25000.f) ||
+          !IsInRangeZ(entity, state, 25000.f)
+        ) {
+          ResetEntityPosition(entity);
+        }
+
+        entity.visible_scale = entity.scale;
+
         // The wing angle should be a function of speed * time, with a
         // per-entity offset controlled by its base position.
         float wing_angle = -0.2f + 0.9f * sinf(wing_speed * scene_time + entity.position.x);

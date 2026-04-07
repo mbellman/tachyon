@@ -276,6 +276,13 @@ namespace astro {
         if (is_active) {
           entity.visible_scale = entity.scale;
 
+          if (
+            !IsInRangeX(entity, state, 25000.f) ||
+            !IsInRangeZ(entity, state, 25000.f)
+          ) {
+            ResetEntityPosition(entity);
+          }
+
           float astro_speed = abs(state.astro_turn_speed);
 
           if (astro_speed > 0.f) {
@@ -296,7 +303,6 @@ namespace astro {
             }
           } else {
             // Normal behavior
-
             TrackRecentPositions(entity, get_scene_time());
 
             if (entity.enemy_state.health > 0.f) {
