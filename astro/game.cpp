@@ -121,6 +121,7 @@ static void ShowHighestLevelsOfDetail(Tachyon* tachyon, State& state) {
   Tachyon_ShowHighestLevelsOfDetail(tachyon, meshes.grass);
   Tachyon_ShowHighestLevelsOfDetail(tachyon, meshes.ground_flower);
   Tachyon_ShowHighestLevelsOfDetail(tachyon, meshes.tiny_ground_flower);
+  Tachyon_ShowHighestLevelsOfDetail(tachyon, meshes.lookout_tower);
 }
 
 static void HandleInGameDevHotkeys(Tachyon* tachyon, State& state) {

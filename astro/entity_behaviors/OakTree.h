@@ -18,6 +18,7 @@ namespace astro {
       meshes.oak_tree_trunk = MODEL_MESH("./astro/3d_models/oak_tree/trunk.obj", 500);
       meshes.oak_tree_branches = MODEL_MESH("./astro/3d_models/oak_tree/branches.obj", 500);
       meshes.oak_tree_leaves = MODEL_MESH_LOD_2("./astro/3d_models/oak_tree/leaves.obj", "./astro/3d_models/oak_tree/leaves_lod.obj", 500);
+      meshes.oak_tree_leaves_facade = MODEL_MESH("./astro/3d_models/oak_tree/leaves_facade.obj", 500);
 
       mesh(meshes.oak_tree_roots).shadow_cascade_ceiling = 2;
       mesh(meshes.oak_tree_trunk).shadow_cascade_ceiling = 2;
@@ -26,6 +27,9 @@ namespace astro {
       mesh(meshes.oak_tree_leaves).type = FOLIAGE_MESH;
       mesh(meshes.oak_tree_leaves).shadow_cascade_ceiling = 2;
       mesh(meshes.oak_tree_leaves).use_lowest_lod_for_shadows = true;
+
+      mesh(meshes.oak_tree_leaves_facade).type = FOLIAGE_MESH;
+      mesh(meshes.oak_tree_leaves_facade).shadow_cascade_ceiling = 0;
     }
 
     getMeshes() {
@@ -33,7 +37,8 @@ namespace astro {
         meshes.oak_tree_roots,
         meshes.oak_tree_trunk,
         meshes.oak_tree_branches,
-        meshes.oak_tree_leaves
+        meshes.oak_tree_leaves,
+        meshes.oak_tree_leaves_facade
       });
     }
 
@@ -62,6 +67,7 @@ namespace astro {
       reset_instances(meshes.oak_tree_trunk);
       reset_instances(meshes.oak_tree_branches);
       reset_instances(meshes.oak_tree_leaves);
+      reset_instances(meshes.oak_tree_leaves_facade);
 
       for_entities(state.oak_trees) {
         auto& entity = state.oak_trees[i];
@@ -156,10 +162,23 @@ namespace astro {
           leaves.color = current_leaves_color;
           leaves.material = tVec4f(0.8f, 0, 0, 1.f);
 
-          if (state.is_nighttime) {
-            // @todo use different leaf colors in Faeries' Domain
-            // leaves.color = tVec4f(0.4f, 0.6f, 1.f, 0.5f);
-          }
+          commit(leaves);
+        }
+
+        // Vantage camera facade leaves
+        // @todo only show for trees in front of the view
+        else if (state.use_vantage_camera) {
+          auto& leaves = use_instance(meshes.oak_tree_leaves_facade);
+
+          leaves.position = entity.position;
+          leaves.position = entity.position;
+          leaves.position.y += entity.scale.y * 0.1f;
+          leaves.scale = tree_scale;
+          leaves.scale.x = tree_scale.x * 1.2f;
+          leaves.scale.z = tree_scale.z * 1.2f;
+          leaves.rotation = Quaternion(1.f, 0, 0, 0);
+          leaves.color = current_leaves_color;
+          leaves.material = tVec4f(0.8f, 0, 0, 1.f);
 
           commit(leaves);
         }

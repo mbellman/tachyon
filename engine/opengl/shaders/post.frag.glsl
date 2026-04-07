@@ -404,7 +404,7 @@ void main() {
       // @todo formalize/improve
       float compared = Compare(post_color, vec3(0));
 
-      if (compared > 0.5) {
+      if (compared > 0.5 && world_depth < 100000.0) {
         float offset =
           gl_FragCoord.x * 0.4 +
           10.0 * sin(gl_FragCoord.x * 0.05) +
