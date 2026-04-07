@@ -95,7 +95,7 @@ namespace astro {
 
           Sync(plant, entity);
 
-          plant.position.y -= 0.5f * entity.scale.y * (1.f - height_factor);
+          plant.position.y -= 0.75f * entity.scale.y * (1.f - height_factor);
           plant.scale.y = entity.scale.y * height_factor;
           plant.scale.x = entity.scale.x * width_factor;
           plant.scale.z = entity.scale.z * width_factor;
