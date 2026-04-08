@@ -63,6 +63,11 @@ static void CreateConstantObjects(Tachyon* tachyon, State& state) {
     create(meshes.tree_flower);
   }
 
+  // Clothing + armor
+  for_range(1, 10) {
+    create(meshes.lesser_helmet);
+  }
+
   create(meshes.astrolabe_rear);
   create(meshes.astrolabe_base);
   create(meshes.astrolabe_plate);

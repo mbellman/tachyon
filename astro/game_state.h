@@ -44,6 +44,9 @@ namespace astro {
       butterfly_left_wing,
       butterfly_right_wing,
 
+      // Clothing + Armor meshes
+      lesser_helmet,
+
       // Procedural meshes
       grass, // @todo rename ground_1_grass
       small_grass,

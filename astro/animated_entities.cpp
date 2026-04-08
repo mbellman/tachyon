@@ -72,6 +72,10 @@ void AnimatedEntities::UpdateAnimatedEntities(Tachyon* tachyon, State& state) {
   int32 next_index = 0;
 
   // @todo factor
+  auto& meshes = state.meshes;
+
+  reset_instances(meshes.lesser_helmet);
+
   for_entities(state.lesser_guards) {
     auto& entity = state.lesser_guards[i];
 
@@ -98,6 +102,23 @@ void AnimatedEntities::UpdateAnimatedEntities(Tachyon* tachyon, State& state) {
     UpdateSkinnedMesh(person, entity, skin.animation);
 
     commit(person);
+
+    // Armor parts
+    // @todo refactor
+    auto& helmet = use_instance(meshes.lesser_helmet);
+    auto& head_bone = skin.animation.active_pose.bones[0];
+
+    tVec3f head_offset;
+    head_offset += head_bone.translation * person.scale;
+    head_offset += head_bone.rotation.toMatrix4f() * tVec3f(0, person.scale.y * 0.35f, 0);
+
+    helmet.position = person.position + person.rotation.toMatrix4f() * head_offset;
+    helmet.rotation = person.rotation * head_bone.rotation;
+    helmet.scale = person.scale;
+    helmet.color = tVec3f(0.7f, 0.4f, 0.1f);
+    helmet.material = tVec4f(0.5f, 0, 0, 0.2f);
+
+    commit(helmet);
   }
 
   // @todo factor

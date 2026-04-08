@@ -307,6 +307,14 @@ static void AddSkinnedPersonMeshes(Tachyon* tachyon, State& state) {
   }
 }
 
+static void AddClothingAndArmorMeshes(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
+  meshes.lesser_helmet = MODEL_MESH("./astro/3d_models/clothing_and_armor/lesser_helmet.obj", 10);
+
+  mesh(meshes.lesser_helmet).shadow_cascade_ceiling = 2;
+}
+
 static void AddEditorMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
@@ -364,6 +372,7 @@ void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
   AddFaunaMeshes(tachyon, state);
   AddSkinnedPlayerMeshes(tachyon, state);
   AddSkinnedPersonMeshes(tachyon, state);
+  AddClothingAndArmorMeshes(tachyon, state);
 
   // @todo dev mode only
   {
