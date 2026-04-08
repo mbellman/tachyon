@@ -13,6 +13,9 @@ static void ReserveAnimationPoseData(tSkeletonAnimation& skeleton_animation) {
 static void EvaluateAnimation(tSkeletonAnimation& animation, const float seek_time) {
   float blend_alpha = fmodf(seek_time, 1.f);
 
+  // @temporary @todo Do this when loading the animations for the first time
+  ReserveAnimationPoseData(animation);
+
   if (animation.frames.size() == 2) {
     // Special treatment for 2-frame animations: alternate between
     // both frames using an ease-in-out transition
@@ -142,8 +145,6 @@ void Animation::SetNextAnimation(tSkinnedMeshAnimation& mesh_animation, tSkeleto
     return;
   }
 
-  ReserveAnimationPoseData(*skeleton_animation);
-
   mesh_animation.next_animation = skeleton_animation;
   mesh_animation.next_animation_blend_alpha = 0.f;
 }
@@ -152,8 +153,6 @@ void Animation::StartNextAnimation(tSkinnedMeshAnimation& mesh_animation, tSkele
   if (mesh_animation.next_animation == skeleton_animation) {
     return;
   }
-
-  ReserveAnimationPoseData(*skeleton_animation);
 
   mesh_animation.next_animation = skeleton_animation;
   mesh_animation.next_animation_blend_alpha = 0.f;

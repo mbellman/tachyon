@@ -122,14 +122,13 @@ namespace astro {
 
     addMeshes() {
       meshes.lesser_guard_placeholder = MODEL_MESH("./astro/3d_models/guy.obj", 500);
-      // meshes.lesser_guard_body = MODEL_MESH("./astro/3d_models/low_guard/body.obj", 500);
+      // @todo use own shield
       meshes.lesser_guard_shield = MODEL_MESH("./astro/3d_models/low_guard/shield.obj", 500);
       meshes.lesser_guard_sword = MODEL_MESH("./astro/3d_models/lesser_guard/sword.obj", 500);
     }
 
     getMeshes() {
       return_meshes({
-        // meshes.lesser_guard_body,
         meshes.lesser_guard_shield,
         meshes.lesser_guard_sword
       });
@@ -268,54 +267,61 @@ namespace astro {
 
       auto& meshes = state.meshes;
 
-      // @todo @optimize only iterate over on-screen/in-range entities
+      // @temporary
+      reset_instances(meshes.lesser_guard_shield);
+      reset_instances(meshes.lesser_guard_sword);
+
       for_entities(state.lesser_guards) {
         auto& entity = state.lesser_guards[i];
         bool is_active = IsDuringActiveTime(entity, state);
 
-        if (is_active) {
-          entity.visible_scale = entity.scale;
-
-          if (
-            !IsInRangeX(entity, state, 25000.f) ||
-            !IsInRangeZ(entity, state, 25000.f)
-          ) {
-            ResetEntityPosition(entity);
-          }
-
-          float astro_speed = abs(state.astro_turn_speed);
-
-          if (astro_speed > 0.f) {
-            // Astro time turning behavior
-            SoftResetEntity(entity, get_scene_time());
-
-            if (entity.recent_positions.size() > 0) {
-              // @todo only if astro turn speed < 0
-              ReloadRecentPosition(entity, get_scene_time());
-            }
-            else if (astro_speed > 0.05f) {
-              Jitter(entity, 75.f);
-            }
-            else {
-              // Reset position/rotation when time slows down
-              entity.visible_position = entity.position;
-              entity.visible_rotation = entity.orientation;
-            }
-          } else {
-            // Normal behavior
-            TrackRecentPositions(entity, get_scene_time());
-
-            if (entity.enemy_state.health > 0.f) {
-              handle_enemy_behavior(LesserGuard);
-            }
-          }
-
-          // Remain aligned with the ground
-          // @todo use proper ground height
-          entity.visible_position.y = 0.f;
-        } else {
+        if (!is_active) {
           HardResetEntity(entity);
+
+          continue;
         }
+
+        if (
+          !IsInRangeX(entity, state, 25000.f) ||
+          !IsInRangeZ(entity, state, 25000.f)
+        ) {
+          ResetEntityPosition(entity);
+
+          continue;
+        }
+
+        entity.visible_scale = entity.scale;
+
+        float astro_speed = abs(state.astro_turn_speed);
+
+        if (astro_speed > 0.f) {
+          // Astro time turning behavior
+          SoftResetEntity(entity, get_scene_time());
+
+          if (entity.recent_positions.size() > 0) {
+            // @todo only if astro turn speed < 0
+            ReloadRecentPosition(entity, get_scene_time());
+          }
+          else if (astro_speed > 0.05f) {
+            Jitter(entity, 75.f);
+          }
+          else {
+            // Reset position/rotation when time slows down
+            entity.visible_position = entity.position;
+            entity.visible_rotation = entity.orientation;
+          }
+        } else {
+          // Normal behavior
+          TrackRecentPositions(entity, get_scene_time());
+
+          if (entity.enemy_state.health > 0.f) {
+            handle_enemy_behavior(LesserGuard);
+          }
+        }
+
+        // Remain aligned with the ground
+        // @todo use proper ground height
+        entity.visible_position.y = 0.f;
 
         float death_alpha = 0.f;
 
@@ -324,27 +330,10 @@ namespace astro {
           if (death_alpha > 1.f) death_alpha = 1.f;
         }
 
-        // Body
-        // {
-        //   auto& body = objects(meshes.lesser_guard_body)[i];
-
-        //   body.position = entity.visible_position;
-        //   body.scale = entity.visible_scale;
-        //   body.rotation = entity.visible_rotation;
-        //   // body.color = entity.tint;
-        //   body.color = tVec3f(0.8f, 0.4f, 0.2f);
-        //   body.material = tVec4f(0.6f, 0, 0, 0.4f);
-
-        //   if (death_alpha > 0.f) {
-        //     HandleDeathAnimation(entity, body, get_scene_time());
-        //   }
-
-        //   commit(body);
-        // }
-
         // Shield
+        // @temporary
         {
-          auto& shield = objects(meshes.lesser_guard_shield)[i];
+          auto& shield = use_instance(meshes.lesser_guard_shield);
 
           shield.position = UnitEntityToWorldPosition(entity, tVec3f(1.f, 0.2f, 1.2f));
           shield.scale = entity.visible_scale * tVec3f(1.f, 0.4f, 1.f); // @temporary
@@ -367,8 +356,9 @@ namespace astro {
         }
 
         // Sword
+        // @temporary
         {
-          auto& sword = objects(meshes.lesser_guard_sword)[i];
+          auto& sword = use_instance(meshes.lesser_guard_sword);
 
           sword.position = UnitEntityToWorldPosition(entity, tVec3f(-1.f, 1.f, 1.2f));
           sword.scale = entity.visible_scale * tVec3f(1.f, 0.4f, 1.f) * 1.25f; // @temporary

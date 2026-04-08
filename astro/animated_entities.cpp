@@ -19,6 +19,26 @@ bool IsEnemyHit(Tachyon* tachyon, GameEntity& entity) {
   );
 }
 
+static void UpdateAnimation(tSkinnedMeshAnimation& animation, const float speed, const float dt) {
+  Animation::AccumulateTime(animation, speed, dt);
+  Animation::UpdatePose(animation);
+  Animation::UpdateBoneMatrices(animation);
+}
+
+static void UpdateSkinnedMesh(tSkinnedMesh& mesh, GameEntity& entity, tSkinnedMeshAnimation& animation) {
+  mesh.position = entity.visible_position;
+  mesh.rotation = entity.visible_rotation;
+  mesh.scale = tVec3f(1500.f);
+  mesh.shadow_cascade_ceiling = 1;
+  mesh.disabled = false;
+  mesh.current_pose = &animation.active_pose;
+}
+
+/**
+ * -------------
+ * Lesser guards
+ * -------------
+ */
 static ActiveAnimation GetLesserGuardActiveAnimation(Tachyon* tachyon, State& state, GameEntity& entity) {
   auto& enemy = entity.enemy_state;
 
@@ -40,39 +60,9 @@ static ActiveAnimation GetLesserGuardActiveAnimation(Tachyon* tachyon, State& st
   }
 }
 
-static void UpdateAnimation(tSkinnedMeshAnimation& animation, const float speed, const float dt) {
-  Animation::AccumulateTime(animation, speed, dt);
-  Animation::UpdatePose(animation);
-  Animation::UpdateBoneMatrices(animation);
-}
-
-static void UpdateSkinnedMesh(tSkinnedMesh& mesh, GameEntity& entity, tSkinnedMeshAnimation& animation) {
-  mesh.position = entity.visible_position;
-  mesh.rotation = entity.visible_rotation;
-  mesh.scale = tVec3f(1500.f);
-  mesh.shadow_cascade_ceiling = 1;
-  mesh.disabled = false;
-  mesh.current_pose = &animation.active_pose;
-}
-
-void AnimatedEntities::UpdateAnimatedEntities(Tachyon* tachyon, State& state) {
-  profile("UpdateAnimatedEntities()");
-
-  auto& animations = state.animations;
-
-  // Disable all animated entity meshes upfront
-  for_range(0, MAX_ANIMATED_PEOPLE - 1) {
-    auto& skin = state.person_skinned_meshes[i];
-    auto& person = skinned_mesh(skin.mesh_index);
-
-    person.disabled = true;
-  }
-
-  // Use animated meshes on-demand based on proximity to entities
-  int32 next_index = 0;
-
-  // @todo factor
+static void HandleLesserGuardAnimations(Tachyon* tachyon, State& state, int32& usage_counter) {
   auto& meshes = state.meshes;
+  auto& animations = state.animations;
 
   reset_instances(meshes.lesser_helmet);
 
@@ -83,7 +73,7 @@ void AnimatedEntities::UpdateAnimatedEntities(Tachyon* tachyon, State& state) {
     if (abs(state.player_position.z - entity.visible_position.z) > 15000.f) continue;
     if (!IsDuringActiveTime(entity, state)) continue;
 
-    auto& skin = state.person_skinned_meshes[next_index++];
+    auto& skin = state.person_skinned_meshes[usage_counter++];
     auto& person = skinned_mesh(skin.mesh_index);
 
     if (skin.animation.current_animation == nullptr) {
@@ -120,8 +110,58 @@ void AnimatedEntities::UpdateAnimatedEntities(Tachyon* tachyon, State& state) {
 
     commit(helmet);
   }
+}
 
-  // @todo factor
+/**
+ * ----------
+ * Low guards
+ * ----------
+ */
+static void HandleLowGuardAnimations(Tachyon* tachyon, State& state, int32& usage_counter) {
+  auto& meshes = state.meshes;
+  auto& animations = state.animations;
+
+  for_entities(state.low_guards) {
+    auto& entity = state.low_guards[i];
+
+    if (abs(state.player_position.x - entity.visible_position.x) > 15000.f) continue;
+    if (abs(state.player_position.z - entity.visible_position.z) > 15000.f) continue;
+    if (!IsDuringActiveTime(entity, state)) continue;
+
+    auto& skin = state.person_skinned_meshes[usage_counter++];
+    auto& person = skinned_mesh(skin.mesh_index);
+
+    if (skin.animation.current_animation == nullptr) {
+      skin.animation.current_animation = &animations.player_run;
+    }
+
+    auto active_animation = GetLesserGuardActiveAnimation(tachyon, state, entity);
+
+    if (active_animation.immediate) {
+      Animation::StartNextAnimation(skin.animation, active_animation.animation);
+    } else {
+      Animation::AwaitNextAnimation(skin.animation, active_animation.animation);
+    }
+
+    UpdateAnimation(skin.animation, active_animation.speed, state.dt);
+    UpdateSkinnedMesh(person, entity, skin.animation);
+
+    commit(person);
+
+    // Armor parts
+    // @todo
+  }
+}
+
+/**
+ * ----
+ * NPCs
+ * ----
+ */
+static void HandleNPCAnimations(Tachyon* tachyon, State& state, int32& usage_counter) {
+  auto& meshes = state.meshes;
+  auto& animations = state.animations;
+
   for_entities(state.npcs) {
     auto& entity = state.npcs[i];
 
@@ -129,7 +169,7 @@ void AnimatedEntities::UpdateAnimatedEntities(Tachyon* tachyon, State& state) {
     if (abs(state.player_position.z - entity.visible_position.z) > 15000.f) continue;
     if (!IsDuringActiveTime(entity, state)) continue;
 
-    auto& skin = state.person_skinned_meshes[next_index++];
+    auto& skin = state.person_skinned_meshes[usage_counter++];
     auto& person = skinned_mesh(skin.mesh_index);
 
     if (skin.animation.current_animation == nullptr) {
@@ -154,4 +194,25 @@ void AnimatedEntities::UpdateAnimatedEntities(Tachyon* tachyon, State& state) {
 
     commit(person);
   }
+}
+
+void AnimatedEntities::UpdateAnimatedEntities(Tachyon* tachyon, State& state) {
+  profile("UpdateAnimatedEntities()");
+
+  auto& animations = state.animations;
+
+  // Disable all animated entity meshes upfront
+  for_range(0, MAX_ANIMATED_PEOPLE - 1) {
+    auto& skin = state.person_skinned_meshes[i];
+    auto& person = skinned_mesh(skin.mesh_index);
+
+    person.disabled = true;
+  }
+
+  // Use animated meshes on-demand based on proximity to entities
+  int32 usage_counter = 0;
+
+  HandleLesserGuardAnimations(tachyon, state, usage_counter);
+  HandleLowGuardAnimations(tachyon, state, usage_counter);
+  HandleNPCAnimations(tachyon, state, usage_counter);
 }

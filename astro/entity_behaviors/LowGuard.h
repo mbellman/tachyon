@@ -17,14 +17,12 @@ namespace astro {
 
     addMeshes() {
       meshes.low_guard_placeholder = MODEL_MESH("./astro/3d_models/guy.obj", 500);
-      meshes.low_guard_body = MODEL_MESH("./astro/3d_models/low_guard/body.obj", 500);
       meshes.low_guard_shield = MODEL_MESH("./astro/3d_models/low_guard/shield.obj", 500);
       meshes.low_guard_spear = MODEL_MESH("./astro/3d_models/low_guard/spear.obj", 500);
     }
 
     getMeshes() {
       return_meshes({
-        meshes.low_guard_body,
         meshes.low_guard_shield,
         meshes.low_guard_spear
       });
@@ -40,6 +38,9 @@ namespace astro {
       auto& enemy = entity.enemy_state;
 
       if (state.player_hp <= 0.f) {
+        // Slow down if the player dies
+        enemy.speed *= 1.f - 2.f * state.dt;
+
         return;
       }
 
@@ -147,8 +148,7 @@ namespace astro {
 
           if (
             player_distance < 8000.f &&
-            time_since(enemy.last_attack_start_time) > 2.f * ATTACK_DURATION &&
-            time_since(enemy.last_mood_change_time) > 0.2f
+            time_since(enemy.last_attack_start_time) > 1.5f * ATTACK_DURATION
           ) {
             // Attacking
             enemy.last_attack_start_time = get_scene_time();
@@ -164,80 +164,73 @@ namespace astro {
 
       auto& meshes = state.meshes;
 
-      // @todo @optimize only iterate over on-screen/in-range entities
+      // @temporary
+      reset_instances(meshes.low_guard_shield);
+      reset_instances(meshes.low_guard_spear);
+
       for_entities(state.low_guards) {
         auto& entity = state.low_guards[i];
         bool is_active = IsDuringActiveTime(entity, state);
 
-        // @todo factor
-        if (is_active) {
-          entity.visible_scale = entity.scale;
-
-          if (
-            !IsInRangeX(entity, state, 25000.f) ||
-            !IsInRangeZ(entity, state, 25000.f)
-          ) {
-            ResetEntityPosition(entity);
-          }
-
-          float astro_speed = abs(state.astro_turn_speed);
-
-          if (astro_speed > 0.f) {
-            // Astro time turning behavior
-            SoftResetEntity(entity, get_scene_time());
-
-            if (entity.recent_positions.size() > 0) {
-              // @todo only if astro turn speed < 0
-              ReloadRecentPosition(entity, get_scene_time());
-            }
-            else if (astro_speed > 0.05f) {
-              Jitter(entity, 75.f);
-            }
-            else {
-              // Reset position/rotation when time slows down
-              entity.visible_position = entity.position;
-              entity.visible_rotation = entity.orientation;
-            }
-          } else {
-            // Normal behavior
-
-            if (entity.enemy_state.mood == ENEMY_IDLE) {
-              float idle_angle = 0.2f * sinf(0.5f * get_scene_time());
-              Quaternion idle_rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), idle_angle);
-
-              entity.visible_rotation = entity.orientation * idle_rotation;
-            }
-
-            TrackRecentPositions(entity, get_scene_time());
-
-            if (entity.enemy_state.health > 0.f) {
-              handle_enemy_behavior(LowGuard);
-            }
-          }
-
-          // Remain aligned with the ground
-          // @todo use proper ground height
-          entity.visible_position.y = 0.f;
-        } else {
+        if (!is_active) {
           HardResetEntity(entity);
+
+          continue;
         }
 
-        // Body
-        {
-          auto& body = objects(meshes.low_guard_body)[i];
+        if (
+          !IsInRangeX(entity, state, 25000.f) ||
+          !IsInRangeZ(entity, state, 25000.f)
+        ) {
+          ResetEntityPosition(entity);
 
-          body.position = entity.visible_position;
-          body.scale = entity.visible_scale;
-          body.rotation = entity.visible_rotation;
-          body.color = entity.tint;
-          body.material = tVec4f(0.5f, 1.f, 0, 0);
-
-          commit(body);
+          continue;
         }
+
+        entity.visible_scale = entity.scale;
+
+        float astro_speed = abs(state.astro_turn_speed);
+
+        if (astro_speed > 0.f) {
+          // Astro time turning behavior
+          SoftResetEntity(entity, get_scene_time());
+
+          if (entity.recent_positions.size() > 0) {
+            // @todo only if astro turn speed < 0
+            ReloadRecentPosition(entity, get_scene_time());
+          }
+          else if (astro_speed > 0.05f) {
+            Jitter(entity, 75.f);
+          }
+          else {
+            // Reset position/rotation when time slows down
+            entity.visible_position = entity.position;
+            entity.visible_rotation = entity.orientation;
+          }
+        } else {
+          // Normal behavior
+
+          if (entity.enemy_state.mood == ENEMY_IDLE) {
+            float idle_angle = 0.2f * sinf(0.5f * get_scene_time());
+            Quaternion idle_rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), idle_angle);
+
+            entity.visible_rotation = entity.orientation * idle_rotation;
+          }
+
+          TrackRecentPositions(entity, get_scene_time());
+
+          if (entity.enemy_state.health > 0.f) {
+            handle_enemy_behavior(LowGuard);
+          }
+        }
+
+        // Remain aligned with the ground
+        // @todo use proper ground height
+        entity.visible_position.y = 0.f;
 
         // Shield
         {
-          auto& shield = objects(meshes.low_guard_shield)[i];
+          auto& shield = use_instance(meshes.low_guard_shield);
 
           shield.position = UnitEntityToWorldPosition(entity, tVec3f(1.f, 0.2f, 1.2f));
           shield.scale = entity.visible_scale * tVec3f(1.f, 0.4f, 1.f); // @temporary
@@ -257,7 +250,7 @@ namespace astro {
 
         // Spear
         {
-          auto& spear = objects(meshes.low_guard_spear)[i];
+          auto& spear = use_instance(meshes.low_guard_spear);
 
           spear.position = UnitEntityToWorldPosition(entity, tVec3f(-1.f, 0.f, 1.2f));
           spear.scale = entity.visible_scale * tVec3f(1.f, 0.4f, 1.f) * 1.25f; // @temporary
