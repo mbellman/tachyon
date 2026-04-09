@@ -210,14 +210,6 @@ static inline bool ShouldSelectTarget(State& state, EntityRecord& record) {
   return !state.has_target || !IsSameEntity(record, state.target_entity);
 }
 
-static void SelectTarget(Tachyon* tachyon, State& state, EntityRecord& target) {
-  state.has_target = true;
-  state.target_start_time = get_scene_time();
-  state.target_entity = target;
-
-  Targeting::SetSpeakingEntity(state, target);
-}
-
 void Targeting::HandleTargets(Tachyon* tachyon, State& state) {
   // Reset the preview target entity on each frame. We assume
   // there isn't a preview target until one is explicitly
@@ -268,7 +260,7 @@ void Targeting::SelectNextAccessibleTarget(Tachyon* tachyon, State& state) {
   }
 
   if (ShouldSelectTarget(state, new_target)) {
-    SelectTarget(tachyon, state, new_target);
+    Targeting::SelectTarget(tachyon, state, new_target);
   }
 }
 
@@ -304,8 +296,16 @@ void Targeting::SelectPreviousAccessibleTarget(Tachyon* tachyon, State& state) {
   }
 
   if (ShouldSelectTarget(state, new_target)) {
-    SelectTarget(tachyon, state, new_target);
+    Targeting::SelectTarget(tachyon, state, new_target);
   }
+}
+
+void Targeting::SelectTarget(Tachyon* tachyon, State& state, EntityRecord& target) {
+  state.has_target = true;
+  state.target_start_time = get_scene_time();
+  state.target_entity = target;
+
+  Targeting::SetSpeakingEntity(state, target);
 }
 
 void Targeting::DeselectCurrentTarget(Tachyon* tachyon, State& state) {

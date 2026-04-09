@@ -99,7 +99,7 @@ static void HandleLesserGuardWandStrike(Tachyon* tachyon, State& state, GameEnti
   bool is_active_target = state.has_target && IsSameEntity(entity, state.target_entity);
 
   // Parrying an attacking enemy
-  if (is_enemy_preparing_attack && is_attack_parryable) {
+  if (is_enemy_preparing_attack && is_attack_parryable && !is_player_doing_break_attack) {
     float facing_dot = tVec3f::dot(state.player_facing_direction, GetFacingDirection(entity));
 
     if (facing_dot < 0.f) {
@@ -262,8 +262,13 @@ void Combat::HandleWandStrikeWindow(Tachyon* tachyon, State& state) {
     float enemy_distance = tVec3f::distance(entity.visible_position, state.player_position);
     bool is_active_target = IsSameEntity(entity, state.target_entity);
 
+    // @todo use more precise collision
     if (enemy_distance < 3000.f) {
       SetMood(entity, ENEMY_AGITATED, scene_time);
+
+      if (!state.has_target) {
+        Targeting::SelectTarget(tachyon, state, entity);
+      }
 
       if (entity.type == LOW_GUARD) {
         HandleLowGuardWandStrike(tachyon, state, entity);

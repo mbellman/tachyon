@@ -34,6 +34,19 @@ static void UpdateSkinnedMesh(tSkinnedMesh& mesh, GameEntity& entity, tSkinnedMe
   mesh.current_pose = &animation.active_pose;
 }
 
+static void AttachToHead(Tachyon* tachyon, tObject& object, ReservedSkinnedMesh& skin) {
+  auto& person = skinned_mesh(skin.mesh_index);
+  auto& head_bone = skin.animation.active_pose.bones[0];
+
+  tVec3f head_offset;
+  head_offset += head_bone.translation * person.scale;
+  head_offset += head_bone.rotation.toMatrix4f() * tVec3f(0, person.scale.y * 0.35f, 0);
+
+  object.position = person.position + person.rotation.toMatrix4f() * head_offset;
+  object.rotation = person.rotation * head_bone.rotation;
+  object.scale = person.scale;
+}
+
 /**
  * -------------
  * Lesser guards
@@ -94,19 +107,12 @@ static void HandleLesserGuardAnimations(Tachyon* tachyon, State& state, int32& u
     commit(person);
 
     // Armor parts
-    // @todo refactor
     auto& helmet = use_instance(meshes.lesser_helmet);
-    auto& head_bone = skin.animation.active_pose.bones[0];
 
-    tVec3f head_offset;
-    head_offset += head_bone.translation * person.scale;
-    head_offset += head_bone.rotation.toMatrix4f() * tVec3f(0, person.scale.y * 0.35f, 0);
-
-    helmet.position = person.position + person.rotation.toMatrix4f() * head_offset;
-    helmet.rotation = person.rotation * head_bone.rotation;
-    helmet.scale = person.scale;
     helmet.color = tVec3f(0.7f, 0.4f, 0.1f);
     helmet.material = tVec4f(0.5f, 0, 0, 0.2f);
+
+    AttachToHead(tachyon, helmet, skin);
 
     commit(helmet);
   }
@@ -135,6 +141,7 @@ static void HandleLowGuardAnimations(Tachyon* tachyon, State& state, int32& usag
       skin.animation.current_animation = &animations.player_run;
     }
 
+    // @temporary
     auto active_animation = GetLesserGuardActiveAnimation(tachyon, state, entity);
 
     if (active_animation.immediate) {
