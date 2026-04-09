@@ -400,14 +400,15 @@ static void RenderDevLabels(Tachyon* tachyon, int32 y_offset) {
 
     RenderText(tachyon, tachyon->developer_overlay_font, full_label.c_str(), 10, y_offset, tachyon->window_width, tVec3f(1.f), tVec4f(0.2f, 0.2f, 1.f, 0.4f));
 
-    y_offset += 24;
+    y_offset += 20;
   }
 }
 
 static void RenderConsoleMessages(Tachyon* tachyon) {
   auto now = Tachyon_GetMicroseconds();
   auto& console_messages = Tachyon_GetConsoleMessages();
-  int32 y_offset = tachyon->window_height - console_messages.size() * 30 - 10;
+  int32 line_height = 22;
+  int32 y_offset = tachyon->window_height - console_messages.size() * line_height - 10;
 
   for (auto& console_message : console_messages) {
     auto& message = console_message.message;
@@ -418,7 +419,7 @@ static void RenderConsoleMessages(Tachyon* tachyon) {
 
     RenderText(tachyon, tachyon->developer_overlay_font, message.c_str(), 10, y_offset, tachyon->window_width, tVec4f(color, alpha), tVec4f(0.f));
 
-    y_offset += 30;
+    y_offset += line_height;
   }
 }
 
@@ -476,7 +477,7 @@ static void RenderDebugLabels(Tachyon* tachyon) {
   for (auto& label : labels) {
     RenderText(tachyon, tachyon->developer_overlay_font, label.c_str(), 10, y_offset, tachyon->window_width, tVec3f(1.f), tVec4f(0.f, 0.f, 0.f, 0.6f));
 
-    y_offset += 22;
+    y_offset += 20;
   }
 
   y_offset += 25;
