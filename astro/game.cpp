@@ -759,12 +759,13 @@ static void HandleFrameEnd(Tachyon* tachyon, State& state) {
     }
   }
 
-  // @todo ui.cpp
   // @todo debug mode only
-  if (state.show_game_stats) {
-    ShowGameStats(tachyon, state);
-  } else {
-    tachyon->dev_labels.clear();
+  {
+    tachyon->show_timing_profile = state.show_game_stats;
+
+    if (state.show_game_stats) {
+      ShowGameStats(tachyon, state);
+    }
   }
 }
 

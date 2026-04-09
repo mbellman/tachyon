@@ -138,10 +138,22 @@ void Tachyon_UseRenderBackend(Tachyon* tachyon, TachyonRenderBackend backend) {
 void Tachyon_StartFrame(Tachyon* tachyon) {
   tachyon->frame_start_time_in_microseconds = Tachyon_GetMicroseconds();
 
+  Tachyon_ResetTimingProfile();
+
   HandleEvents(tachyon);
 }
 
 void Tachyon_EndFrame(Tachyon* tachyon) {
+  // @todo factor
+  if (tachyon->show_timing_profile) {
+    for (auto& record : Tachyon_GetTimingProfile()) {
+      tachyon->dev_labels.push_back({
+        record.name,
+        std::to_string(record.duration) + "us"
+      });
+    }
+  }
+
   RenderScene(tachyon);
 
   Tachyon_ResetPerFrameInputState(tachyon);

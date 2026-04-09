@@ -360,10 +360,10 @@ static void UpdateGround1Plants(Tachyon* tachyon, State& state) {
   }
 
   // @todo dev mode only
-  {
+  if (state.show_game_stats) {
     auto total_grass = objects(meshes.grass).total_active;
 
-    add_dev_label("  Total grass: ", std::to_string(total_grass));
+    add_dev_label("Total grass: ", std::to_string(total_grass));
   }
 }
 
@@ -715,10 +715,10 @@ static void UpdateSmallGrass(Tachyon* tachyon, State& state) {
   }
 
   // @todo dev mode only
-  {
+  if (state.show_game_stats) {
     uint16 total_active = objects(meshes.small_grass).total_active;
 
-    add_dev_label("  Total small grass: ", std::to_string(total_active));
+    add_dev_label("Total small grass: ", std::to_string(total_active));
   }
 }
 
@@ -1036,10 +1036,10 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
   auto& mesh = mesh(state.meshes.bush_flower);
 
   // @todo dev only
-  {
+  if (state.show_game_stats) {
     auto total_flowers = mesh(state.meshes.bush_flower).lod_1.instance_count;
 
-    add_dev_label("  Total bush flowers: ", std::to_string(total_flowers));
+    add_dev_label("Total bush flowers: ", std::to_string(total_flowers));
   }
 }
 
@@ -1358,4 +1358,9 @@ void ProceduralBehavior::Generation::UpdateProceduralObjects(Tachyon* tachyon, S
 
   UpdateGroundFlowers(tachyon, state);
   UpdateBushFlowers(tachyon, state);
+
+  // Define a barrier between labels added here and timing labels generated later
+  if (state.show_game_stats) {
+    add_dev_label("----", "----");
+  }
 }
