@@ -107,16 +107,23 @@ static void UpdateLevelsOfDetail(Tachyon* tachyon, State& state) {
 
   auto& meshes = state.meshes;
 
+  // @temporary @todo @optimize improve culling behavior
+  static int frame = 0;
+
+  frame++;
+
   // Decorative objects
-  Tachyon_UseLodByDistance(tachyon, meshes.rock_1, 40000.f);
-  Tachyon_UseLodByDistance(tachyon, meshes.rock_2, 40000.f);
-  Tachyon_UseLodByDistance(tachyon, meshes.river_edge, 40000.f);
-  Tachyon_UseLodByDistance(tachyon, meshes.ground_1, 40000.f);
-  Tachyon_UseLodByDistance(tachyon, meshes.lookout_tower, 60000.f);
+  if (frame == 0 || frame % 3 == 0) {
+    Tachyon_UseLodByDistance(tachyon, meshes.rock_1, 40000.f);
+    Tachyon_UseLodByDistance(tachyon, meshes.rock_2, 40000.f);
+    Tachyon_UseLodByDistance(tachyon, meshes.river_edge, 40000.f);
+    Tachyon_UseLodByDistance(tachyon, meshes.ground_1, 40000.f);
+    Tachyon_UseLodByDistance(tachyon, meshes.lookout_tower, 60000.f);
+  }
 
   // Procedural objects
-  Tachyon_UseLodByDistance(tachyon, meshes.ground_flower, 35000.f);
-  Tachyon_UseLodByDistance(tachyon, meshes.tiny_ground_flower, 35000.f);
+  if (frame == 0 || frame % 3 == 1) Tachyon_UseLodByDistance(tachyon, meshes.ground_flower, 35000.f);
+  if (frame == 0 || frame % 3 == 2) Tachyon_UseLodByDistance(tachyon, meshes.tiny_ground_flower, 35000.f);
 }
 
 static void ShowHighestLevelsOfDetail(Tachyon* tachyon, State& state) {
