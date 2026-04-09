@@ -516,7 +516,6 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   // to know in the context of resolving plane collisions
   state.did_resolve_radius_collision = false;
 
-  // @todo prevent out-of-bounds stuff
   for (auto& entity : state.shrubs) {
     if (entity.visible_scale.y < 500.f) continue;
 
@@ -556,13 +555,17 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   // @temporary (?)
   float player_bottom_y = state.player_position.y - PLAYER_HEIGHT;
 
-  for (auto& rock : objects(state.meshes.rock_1)) {
+  for_used_instances(state.meshes.rock_1) {
+    auto& rock = objects(state.meshes.rock_1)[i];
+
     if (rock.position.y + rock.scale.y < player_bottom_y) continue;
 
     ResolveSingleRadiusCollision(state, rock.position, rock.scale, 1.f);
   }
 
-  for (auto& rock : objects(state.meshes.rock_2)) {
+  for_used_instances(state.meshes.rock_2) {
+    auto& rock = objects(state.meshes.rock_2)[i];
+
     if (rock.position.y + rock.scale.y < player_bottom_y) continue;
 
     ResolveSingleRadiusCollision(state, rock.position, rock.scale, 1.f);
@@ -586,7 +589,9 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
     ResolveSingleRadiusCollision(state, entity.visible_position, entity.scale, 1.f);
   }
 
-  for (auto& ground : objects(state.meshes.ground_1)) {
+  for_used_instances(state.meshes.ground_1) {
+    auto& ground = objects(state.meshes.ground_1)[i];
+
     bool has_collision = true;
 
     // Make an exception for ground_1 objects near small stone bridges.
@@ -624,9 +629,10 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   HandleSmallStoneBridgeCollisions(tachyon, state);
   HandleWoodenBridgeCollisions(tachyon, state);
   HandleAltarCollisions(tachyon, state);
-  // HandleRiverLogCollisions(tachyon, state); // @todo remove (?)
   HandleWaterWheelCollisions(tachyon, state);
   HandleSlopeCollisions(tachyon, state);
+
+  // HandleRiverLogCollisions(tachyon, state); // @todo remove (?)
 
   // Handle walking on flat ground
   if (!state.is_on_solid_platform) {

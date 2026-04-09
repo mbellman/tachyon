@@ -24,6 +24,9 @@
 #define count_used_instances(__mesh_index)\
   mesh(__mesh_index).lod_1.instance_count
 
+#define for_used_instances(__mesh_index)\
+  for (uint16 i = 0, t = count_used_instances(__mesh_index); i < t; i++)
+
 #define create_point_light() Tachyon_CreatePointLight(tachyon)
 #define get_point_light(__light_id) Tachyon_GetPointLight(tachyon, __light_id)
 #define remove_point_light(__light_or_light_id) Tachyon_RemovePointLight(tachyon, __light_or_light_id)
