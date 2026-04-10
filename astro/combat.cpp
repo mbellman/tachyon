@@ -133,9 +133,9 @@ static void HandleLesserGuardWandStrike(Tachyon* tachyon, State& state, GameEnti
         }
       } else {
         // Enemy knockback from wand bounce
-        enemy.speed = -2000.f;
+        enemy.speed = -3000.f;
 
-        PlayerCharacter::GetKnockedBack(state, 1000.f);
+        PlayerCharacter::GetKnockedBack(state, 500.f);
 
         PlayMetalHitSound();
       }
@@ -163,7 +163,7 @@ static void HandleLesserGuardWandStrike(Tachyon* tachyon, State& state, GameEnti
       // Attack damage + knockback
       bool is_enemy_broken = time_since(enemy.last_break_time) < 2.f;
       float damage = is_enemy_broken ? 100.f : 30.f;
-      float knockback = is_enemy_broken ? -7000.f : -3000.f;
+      float knockback = is_enemy_broken ? -7000.f : -4000.f;
 
       enemy.health -= damage;
       enemy.last_damage_time = scene_time;
@@ -213,6 +213,9 @@ void Combat::HandleWandSwing(Tachyon* tachyon, State& state) {
       bool is_enemy_broken = time_since(enemy.last_break_time) < 2.f;
       bool is_enemy_attacking = time_since(enemy.last_attack_start_time) < 2.f;
 
+      // Agitate all nearby (targetable) enemies when try to attack
+      SetMood(entity, ENEMY_AGITATED, scene_time);
+
       // @todo handle per enemy type (target.type)
       float attack_without_blocking_duration = 0.3f;
       bool can_enemy_cancel_attack_to_block = time_since(enemy.last_attack_start_time) < attack_without_blocking_duration;
@@ -233,6 +236,13 @@ void Combat::HandleWandSwing(Tachyon* tachyon, State& state) {
           enemy.last_block_time = scene_time;
         }
         else if (entity.type == LESSER_GUARD) {
+          bool is_not_active_target = state.has_target && entity.id != state.target_entity.id;
+
+          // If we have a target, but it's not this one, don't block.
+          // Otherwise we can spam attack and cause every enemy surrounding
+          // us to just block repeatedly, making them totally nonthreatening.
+          if (is_not_active_target) continue;
+
           float facing_dot = tVec3f::dot(state.player_facing_direction, GetFacingDirection(entity));
 
           // Block when facing the player

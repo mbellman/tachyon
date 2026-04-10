@@ -42,8 +42,16 @@ static void SetActivePlayerAnimation(Tachyon* tachyon, State& state) {
     player_animation.current_animation = &animations.player_idle;
   }
 
-  // Astro traveling
+  // Taking damage
   if (
+    state.last_damage_time != 0.f &&
+    time_since(state.last_damage_time) < 1.f
+  ) {
+    Animation::StartNextAnimation(player_animation, &animations.person_hit_front);
+  }
+
+  // Astro traveling
+  else if (
     state.last_wind_chimes_action_time != 0.f &&
     time_since(state.last_wind_chimes_action_time) < 3.8f
   ) {
@@ -77,11 +85,13 @@ static void SetActivePlayerAnimation(Tachyon* tachyon, State& state) {
   }
 }
 
-static float GetPlayerAnimationSpeed(State& state) {
+static float GetPlayerAnimationSpeed(Tachyon* tachyon, State& state) {
   bool is_astro_traveling = state.astro_turn_speed != 0.f;
   bool is_idle = state.player_mesh_animation.next_animation == &state.animations.player_idle;
+  bool is_hit = state.last_damage_time != 0.f && time_since(state.last_damage_time) < 1.f;
 
   if (is_astro_traveling) return 0.65f;
+  if (is_hit) return 7.f;
   if (is_idle) return 0.8f;
 
   float player_speed = state.player_velocity.magnitude();
@@ -101,7 +111,7 @@ static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
   SetActivePlayerAnimation(tachyon, state);
 
   bool moving_forward = tVec3f::dot(state.player_velocity, state.player_facing_direction) >= 0.f;
-  float animation_speed = GetPlayerAnimationSpeed(state);
+  float animation_speed = GetPlayerAnimationSpeed(tachyon, state);
 
   if (!moving_forward) {
     animation_speed *= -1.f;
@@ -659,7 +669,7 @@ static void UpdateWandLights(Tachyon* tachyon, State& state) {
       const tVec3f spark_color = tVec3f(0.1f, 0.2f, 1.f);
       float alpha = time_since(state.last_wand_strike_time) / 2.f;
 
-      main_light_power += 5.f * (1.f - alpha);
+      main_light_power += 3.f * (1.f - alpha);
     }
 
     main_light.position = wand_end_position;

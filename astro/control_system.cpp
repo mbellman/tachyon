@@ -484,6 +484,8 @@ void ControlSystem::HandleControls(Tachyon* tachyon, State& state) {
     (!state.has_blocking_dialogue || state.dismissed_blocking_dialogue) &&
     // We aren't doing a strong attack
     time_since(state.last_strong_attack_time) > 0.5f &&
+    // We aren't currently recovering from being hit
+    time_since(state.last_damage_time) > 0.5f &&
     // We aren't dead
     state.player_hp > 0.f
   ) {
