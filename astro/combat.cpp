@@ -10,7 +10,7 @@ using namespace astro;
 static void BreakEnemy(GameEntity& entity, const float scene_time) {
   auto& enemy = entity.enemy_state;
 
-  enemy.speed = -4000.f;
+  enemy.speed = -3000.f;
   enemy.last_break_time = scene_time;
   enemy.last_attack_start_time = 0.f;
   enemy.last_attack_action_time = 0.f;
@@ -20,7 +20,7 @@ static void BreakEnemy(GameEntity& entity, const float scene_time) {
 static void StunEnemy(GameEntity& entity, const float scene_time) {
   auto& enemy = entity.enemy_state;
 
-  enemy.speed = -4000.f;
+  enemy.speed = -3000.f;
   enemy.last_damage_time = scene_time;
   enemy.last_attack_start_time = 0.f;
   enemy.last_attack_action_time = 0.f;
@@ -77,9 +77,9 @@ static void HandleLowGuardWandStrike(Tachyon* tachyon, State& state, GameEntity&
 
   // Knockback
   if (is_player_doing_break_attack) {
-    enemy.speed = -5000.f;
+    enemy.speed = -4000.f;
   } else {
-    enemy.speed = -3000.f;
+    enemy.speed = -2000.f;
   }
 
   PlayerCharacter::GetKnockedBack(state, 2000.f);
@@ -133,9 +133,9 @@ static void HandleLesserGuardWandStrike(Tachyon* tachyon, State& state, GameEnti
         }
       } else {
         // Enemy knockback from wand bounce
-        enemy.speed = -3000.f;
+        enemy.speed = -2000.f;
 
-        PlayerCharacter::GetKnockedBack(state, 2000.f);
+        PlayerCharacter::GetKnockedBack(state, 1000.f);
 
         PlayMetalHitSound();
       }
@@ -163,7 +163,7 @@ static void HandleLesserGuardWandStrike(Tachyon* tachyon, State& state, GameEnti
       // Attack damage + knockback
       bool is_enemy_broken = time_since(enemy.last_break_time) < 2.f;
       float damage = is_enemy_broken ? 100.f : 30.f;
-      float knockback = is_enemy_broken ? -10000.f : -7000.f;
+      float knockback = is_enemy_broken ? -7000.f : -3000.f;
 
       enemy.health -= damage;
       enemy.last_damage_time = scene_time;
