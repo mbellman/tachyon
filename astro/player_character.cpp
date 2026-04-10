@@ -797,7 +797,7 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
 
       desired_facing_direction = (target.visible_position - state.player_position).xz().unit();
     }
-    else if (player_speed > 0.01f) {
+    else if (state.player_hp > 0.f && player_speed > 0.01f) {
       // Without a target, use our velocity vector to influence facing direction
       desired_facing_direction = state.player_velocity.unit();
     }

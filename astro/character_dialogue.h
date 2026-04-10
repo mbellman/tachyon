@@ -136,6 +136,53 @@ namespace astro {
 
   /**
    * ----------------------------
+   * LESSER_GUARD
+   * @todo should these be loaded in from a file instead?
+   * ----------------------------
+   */
+  static DialogueList lesser_guard_dialogue_stunned = {
+    {
+      .text = "Wha...?! I've been blinded!",
+      .sound = ""
+    },
+    {
+      .text = "I'm blinded! Where did the scoundrel go?",
+      .sound = ""
+    }
+  };
+
+  static DialogueList lesser_guard_dialogue_engaged = {
+    {
+      .text = "You there! I order thee, retreat!",
+      .sound = ""
+    },
+    {
+      .text = "You've no business here! Be on your way!",
+      .sound = ""
+    },
+    {
+      .text = "Layabout! Be off with you!",
+      .sound = ""
+    }
+  };
+
+  static DialogueList lesser_guard_dialogue_agitated = {
+    {
+      .text = "Cease thy trespass this instant!",
+      .sound = ""
+    },
+    {
+      .text = "Surrender thyself at once!",
+      .sound = ""
+    },
+    {
+      .text = "Halt! I command thee!",
+      .sound = ""
+    }
+  };
+
+  /**
+   * ----------------------------
    * LOW_GUARD
    * @todo should these be loaded in from a file instead?
    * ----------------------------
@@ -153,30 +200,30 @@ namespace astro {
 
   static DialogueList low_guard_dialogue_engaged = {
     {
-      .text = "You there! I order thee, retreat!",
+      .text = "Who goes there? Retreat at once!",
       .sound = ""
     },
     {
-      .text = "You've no business here! Be on your way!",
+      .text = "Interloper! Be off, I say!",
       .sound = ""
     },
     {
-      .text = "Layabout! Be off with you!",
+      .text = "Who trespasses thus? Reveal thyself!",
       .sound = ""
     }
   };
 
   static DialogueList low_guard_dialogue_agitated = {
     {
-      .text = "Cease thy trespass this instant!",
+      .text = "Thou'rt in over your head!",
       .sound = ""
     },
     {
-      .text = "Surrender thyself at once!",
+      .text = "Prepare to draw thy final breath!",
       .sound = ""
     },
     {
-      .text = "Halt! I command thee!",
+      .text = "Thy pride shall be short-lived!",
       .sound = ""
     }
   };

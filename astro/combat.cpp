@@ -44,9 +44,8 @@ static void PlayMetalHitSound() {
   // @todo refactor
   float r = Tachyon_GetRandom();
 
-  if (r < 0.25f) Sfx::PlaySound(SFX_METAL_HIT_1, 0.5f);
-  else if (r < 0.5f) Sfx::PlaySound(SFX_METAL_HIT_2, 0.5f);
-  else if (r < 0.75f) Sfx::PlaySound(SFX_METAL_HIT_3, 0.5f);
+  if (r < 0.33f) Sfx::PlaySound(SFX_METAL_HIT_1, 0.5f);
+  else if (r < 0.66f) Sfx::PlaySound(SFX_METAL_HIT_2, 0.5f);
   else Sfx::PlaySound(SFX_METAL_HIT_4, 0.5f);
 }
 
@@ -82,7 +81,7 @@ static void HandleLowGuardWandStrike(Tachyon* tachyon, State& state, GameEntity&
     enemy.speed = -2000.f;
   }
 
-  PlayerCharacter::GetKnockedBack(state, 2000.f);
+  PlayerCharacter::GetKnockedBack(state, 1000.f);
 
   PlayMetalHitSound();
 }
@@ -213,7 +212,7 @@ void Combat::HandleWandSwing(Tachyon* tachyon, State& state) {
       bool is_enemy_broken = time_since(enemy.last_break_time) < 2.f;
       bool is_enemy_attacking = time_since(enemy.last_attack_start_time) < 2.f;
 
-      // Agitate all nearby (targetable) enemies when try to attack
+      // Agitate all nearby (targetable) enemies when trying to attack
       SetMood(entity, ENEMY_AGITATED, scene_time);
 
       // @todo handle per enemy type (target.type)

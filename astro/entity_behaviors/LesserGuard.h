@@ -219,7 +219,7 @@ namespace astro {
           // Stunned
           SetMood(entity, ENEMY_AGITATED, get_scene_time());
 
-          play_random_dialogue(entity, low_guard_dialogue_stunned);
+          play_random_dialogue(entity, lesser_guard_dialogue_stunned);
         }
         else if (enemy.mood == ENEMY_IDLE && can_notice_player) {
           // Noticed
@@ -227,7 +227,7 @@ namespace astro {
 
           Targeting::SetSpeakingEntity(state, entity);
 
-          play_random_dialogue(entity, low_guard_dialogue_engaged);
+          play_random_dialogue(entity, lesser_guard_dialogue_engaged);
         }
         else if (
           enemy.mood == ENEMY_ENGAGED &&
@@ -235,7 +235,7 @@ namespace astro {
           time_since(enemy.last_mood_change_time) < 5.f
         ) {
           // Engaged from a distance
-          play_random_dialogue(entity, low_guard_dialogue_engaged);
+          play_random_dialogue(entity, lesser_guard_dialogue_engaged);
         }
         else if (enemy.mood != ENEMY_IDLE) {
           // Agitated
@@ -243,7 +243,7 @@ namespace astro {
 
           Targeting::SetSpeakingEntity(state, entity);
 
-          play_random_dialogue(entity, low_guard_dialogue_agitated);
+          play_random_dialogue(entity, lesser_guard_dialogue_agitated);
 
           if (
             player_distance < 8000.f &&
