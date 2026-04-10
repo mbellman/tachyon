@@ -417,111 +417,6 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
   }
 }
 
-static void UpdateWandLights(Tachyon* tachyon, State& state) {
-  // Initialization
-  {
-    if (state.wand_lights.size() == 0) {
-      for_range(0, 10) {
-        WandLight wand_light;
-        wand_light.light_id = create_point_light();
-
-        state.wand_lights.push_back(wand_light);
-      }
-    }
-  }
-
-  float scene_time = get_scene_time();
-  auto& wand = objects(state.meshes.player_wand)[0];
-  tVec3f wand_end_offset = tVec3f(0, 1.48f * wand.scale.y, 0.18f * wand.scale.z);
-  tVec3f wand_end_position = wand.position + wand.rotation.toMatrix4f() * wand_end_offset;
-  float time_since_last_wand_swing = time_since(state.last_wand_swing_time);
-
-  // Main wand light
-  {
-    const float base_power = 0.1f;
-    const float oscillating_power = 0.2f;
-    const float wand_swing_power = 2.f;
-
-    auto& main_light = *get_point_light(state.wand_lights[0].light_id);
-    float main_light_power = base_power + oscillating_power * (0.5f + 0.5f * sinf(2.f * scene_time));
-    tVec3f main_light_color = tVec3f(1.f, 0.6f, 0.2f);
-
-    // Glow when swinging
-    if (state.last_wand_swing_time != 0.f && time_since_last_wand_swing < 1.f) {
-      float alpha = time_since_last_wand_swing;
-
-      if (alpha < 0.1f) {
-        alpha = 10.f * alpha;
-      } else {
-        alpha = 1.f - alpha;
-      }
-
-      main_light_power += wand_swing_power * alpha;
-    }
-
-    // Glow during wind chimes actions
-    if (
-      state.last_wind_chimes_action_time != 0.f &&
-      time_since(state.last_wind_chimes_action_time) < 4.f
-    ) {
-      float alpha = time_since(state.last_wind_chimes_action_time) / 4.f;
-      float intensity = sinf(t_PI * alpha);
-
-      main_light_power += 3.f * intensity;
-      main_light_color = tVec3f::lerp(main_light_color, tVec3f(1.f, 0.8f, 0.6f), intensity);
-    }
-
-    main_light.position = wand_end_position;
-    main_light.color = main_light_color;
-    main_light.radius = 500.f + main_light_power * 500.f;
-    main_light.power = main_light_power;
-  }
-
-  // Trailing wand lights
-  {
-    const float glow_duration = 1.f;
-    bool spawn_new_lights = false;
-
-    if (
-      (state.last_wand_swing_time != 0.f && time_since_last_wand_swing < 0.75f) ||
-      state.previous_move_delta > 5.f
-    ) {
-      spawn_new_lights = true;
-    }
-
-    // Spawn in new wand lights, rotating between the preallocated set
-    float time_since_last_wand_light = time_since(state.last_wand_light_time);
-
-    for_range(1, 10) {
-      auto& wand_light = state.wand_lights[i];
-      auto& light = *get_point_light(wand_light.light_id);
-
-      if (
-        spawn_new_lights &&
-        time_since(wand_light.spawn_time) > glow_duration &&
-        time_since_last_wand_light > 0.1f
-      ) {
-        state.last_wand_light_time = scene_time;
-
-        wand_light.spawn_time = scene_time;
-        light.position = wand_end_position;
-
-        break;
-      }
-
-      float power_alpha = time_since(wand_light.spawn_time) / glow_duration;
-      if (power_alpha > 1.f) power_alpha = 1.f;
-
-      float power = sinf(power_alpha * t_PI);
-
-      light.color = tVec3f(1.f, 0.6f, 0.2f);
-      light.radius = 500.f;
-      light.glow_power = power;
-      light.power = power;
-    }
-  }
-}
-
 static void HandleWandStrike(Tachyon* tachyon, State& state) {
   Magic::HandleWandAction(tachyon, state);
   Combat::HandleWandStrikeWindow(tachyon, state);
@@ -586,12 +481,13 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
     ) {
       tVec3f player_right = tVec3f::cross(state.player_facing_direction, tVec3f(0, 1.f, 0));
 
-      // Define the animation steps
+      // Draw wand up
       AnimationStep s1;
       s1.duration = 0.2f;
       s1.offset = tVec3f(0.f);
       s1.rotation = base_wand_rotation;
 
+      // Swing the wand
       AnimationStep s2;
       s2.duration = 0.15f;
       s2.offset = tVec3f(0, 1500.f, 0) + player_right * 500.f;
@@ -600,6 +496,7 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
         Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -1.f)
       );
 
+      // Draw the wand back
       AnimationStep s3;
       s3.duration = 0.5f;
       s3.offset = state.player_facing_direction * 1000.f - player_right * 1000.f;
@@ -688,6 +585,134 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
   commit(wand);
 }
 
+static void UpdateWandLights(Tachyon* tachyon, State& state) {
+  // Initialization
+  {
+    if (state.wand_lights.size() == 0) {
+      for_range(0, 10) {
+        WandLight wand_light;
+        wand_light.light_id = create_point_light();
+
+        state.wand_lights.push_back(wand_light);
+      }
+    }
+  }
+
+  float scene_time = get_scene_time();
+  auto& wand = objects(state.meshes.player_wand)[0];
+  tVec3f wand_end_offset = tVec3f(0, 1.48f * wand.scale.y, 0.18f * wand.scale.z);
+  tVec3f wand_end_position = wand.position + wand.rotation.toMatrix4f() * wand_end_offset;
+  float time_since_last_wand_swing = time_since(state.last_wand_swing_time);
+  float time_since_last_wand_strike = time_since(state.last_wand_strike_time);
+  tVec3f light_color = tVec3f(1.f, 0.6f, 0.2f);
+
+  // When striking an enemy, glow blue for a short duration
+  if (
+    state.last_wand_strike_time != 0.f &&
+    time_since_last_wand_strike < 2.f
+  ) {
+    const tVec3f spark_color = tVec3f(0.1f, 0.2f, 1.f);
+    float alpha = time_since(state.last_wand_strike_time) / 2.f;
+
+    light_color = tVec3f::lerp(spark_color, light_color, alpha);
+  }
+
+  // Main wand light
+  {
+    const float base_power = 0.1f;
+    const float oscillating_power = 0.2f;
+    const float wand_swing_power = 2.f;
+
+    auto& main_light = *get_point_light(state.wand_lights[0].light_id);
+    float main_light_power = base_power + oscillating_power * (0.5f + 0.5f * sinf(2.f * scene_time));
+
+    // Glow when swinging
+    if (state.last_wand_swing_time != 0.f && time_since_last_wand_swing < 1.f) {
+      float alpha = time_since_last_wand_swing;
+
+      if (alpha < 0.1f) {
+        alpha = 10.f * alpha;
+      } else {
+        alpha = 1.f - alpha;
+      }
+
+      main_light_power += wand_swing_power * alpha;
+    }
+
+    // Glow during wind chimes actions
+    if (
+      state.last_wind_chimes_action_time != 0.f &&
+      time_since(state.last_wind_chimes_action_time) < 4.f
+    ) {
+      float alpha = time_since(state.last_wind_chimes_action_time) / 4.f;
+      float intensity = sinf(t_PI * alpha);
+
+      main_light_power += 3.f * intensity;
+      light_color = tVec3f::lerp(light_color, tVec3f(1.f, 0.8f, 0.6f), intensity);
+    }
+
+    // Glow during wand strikes from combat
+    if (
+      state.last_wand_strike_time != 0.f &&
+      time_since(state.last_wand_strike_time) < 2.f
+    ) {
+      const tVec3f spark_color = tVec3f(0.1f, 0.2f, 1.f);
+      float alpha = time_since(state.last_wand_strike_time) / 2.f;
+
+      main_light_power += 5.f * (1.f - alpha);
+    }
+
+    main_light.position = wand_end_position;
+    main_light.color = light_color;
+    main_light.radius = 500.f + main_light_power * 500.f;
+    main_light.power = main_light_power;
+  }
+
+  // Trailing wand lights
+  {
+    const float glow_duration = 1.f;
+    bool spawn_new_lights = false;
+
+    if (
+      (state.last_wand_swing_time != 0.f && time_since_last_wand_swing < 0.75f) ||
+      state.previous_move_delta > 5.f
+    ) {
+      spawn_new_lights = true;
+    }
+
+    // Spawn in new wand lights, rotating between the preallocated set
+    float time_since_last_wand_light = time_since(state.last_wand_light_time);
+
+    for_range(1, 10) {
+      auto& wand_light = state.wand_lights[i];
+      auto& light = *get_point_light(wand_light.light_id);
+
+      if (
+        spawn_new_lights &&
+        time_since(wand_light.spawn_time) > glow_duration &&
+        time_since_last_wand_light > 0.1f
+      ) {
+        state.last_wand_light_time = scene_time;
+
+        wand_light.spawn_time = scene_time;
+        light.position = wand_end_position;
+
+        break;
+      }
+
+      float power_alpha = time_since(wand_light.spawn_time) / glow_duration;
+      if (power_alpha > 1.f) power_alpha = 1.f;
+
+      float power = sinf(power_alpha * t_PI);
+
+      light.color = light_color;
+      light.radius = 500.f;
+      light.glow_power = power;
+      light.power = power;
+    }
+  }
+}
+
 static void UpdateLantern(Tachyon* tachyon, State& state, const Quaternion& player_rotation, const tMat4f& player_rotation_matrix) {
   // Lantern object
   {
@@ -765,16 +790,6 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
     else if (player_speed > 0.01f) {
       // Without a target, use our velocity vector to influence facing direction
       desired_facing_direction = state.player_velocity.unit();
-    }
-
-    // Speed up turning during quick turns
-    float time_since_last_quick_turn = time_since(state.last_quick_turn_time);
-
-    if (time_since_last_quick_turn < 1.f) {
-      float alpha = 1.f - time_since_last_quick_turn;
-      float additional_turn_speed = 0.5f * alpha;
-
-      turn_speed += additional_turn_speed;
     }
 
     // When astro turning, don't change our facing direction at all,

@@ -454,6 +454,7 @@ namespace astro {
     // Wand effects
     std::vector<WandLight> wand_lights;
     float last_wand_light_time = 0.f;
+    float last_wand_strike_time = 0.f;
 
     // Dynamic fauna
     std::vector<Butterfly> butterflies;

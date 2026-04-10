@@ -48,6 +48,7 @@ static EntityRecord FindWandActionTarget(State& state) {
 }
 
 static bool CanPerformWandAction(Tachyon* tachyon, State& state) {
+  if (time_since(state.last_wand_strike_time) < 2.f) return false;
   if (time_since(state.last_wand_action_time) < 0.5f) return false;
 
   // If we have any targets or potential targets, we need to
