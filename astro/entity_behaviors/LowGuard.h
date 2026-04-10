@@ -165,8 +165,11 @@ namespace astro {
       auto& meshes = state.meshes;
 
       // @temporary
+      // @todo handle these in animated_entities.cpp
       reset_instances(meshes.low_guard_shield);
       reset_instances(meshes.low_guard_spear);
+
+      reset_instances(meshes.item_gate_key);
 
       for_entities(state.low_guards) {
         auto& entity = state.low_guards[i];
@@ -341,47 +344,32 @@ namespace astro {
           bool is_gate_key_guard = entity.item_pickup_name == "gate_key";
           bool player_has_gate_key = Items::HasItem(state, GATE_KEY);
 
-          if (!player_has_gate_key) {
-            if (is_gate_key_guard) {
-              auto& gate_key = objects(meshes.item_gate_key)[0];
+          // Show the key on the active guard, if we don't already have it
+          if (is_gate_key_guard && !player_has_gate_key) {
+            auto& gate_key = use_instance(meshes.item_gate_key);
 
-              if (is_active) {
-                // Show the key on the active guard
-                gate_key.position = UnitEntityToWorldPosition(entity, tVec3f(1.2f, 0, 0));
-                gate_key.scale = tVec3f(700.f);
-                gate_key.rotation = entity.visible_rotation;
-                gate_key.color = tVec4f(1.f, 1.f, 0.2f, 0.3f);
-                gate_key.material = tVec4f(0.2f, 1.f, 1.f, 1.f);
+            gate_key.position = UnitEntityToWorldPosition(entity, tVec3f(1.2f, 0, 0));
+            gate_key.scale = tVec3f(700.f);
+            gate_key.rotation = entity.visible_rotation;
+            gate_key.color = tVec4f(1.f, 1.f, 0.2f, 0.5f);
+            gate_key.material = tVec4f(0.1f, 1.f, 0, 1.f);
 
-                commit(gate_key);
+            commit(gate_key);
 
-                // Handle key retrieval
-                float player_to_key_distance = tVec3f::distance(state.player_position, gate_key.position);
+            // Handle key retrieval
+            float player_to_key_distance = tVec3f::distance(state.player_position, gate_key.position);
 
-                if (
-                  entity.enemy_state.mood == ENEMY_IDLE &&
-                  player_to_key_distance < 2500.f &&
-                  state.astro_turn_speed == 0.f
-                ) {
-                  if (did_press_key(tKey::CONTROLLER_A)) {
-                    Items::CollectItem(tachyon, state, GATE_KEY);
-
-                    remove_object(gate_key);
-                  } else {
-                    // @todo only if not noticed by any guards!
-                    // @bug showing this dialogue resets the current dialogue,
-                    // allowing the adjacent guard to repeatedly restart his
-                    // "cease your trespass!" line and spam the audio line
-                    UISystem::ShowTransientDialogue(tachyon, state, "[X] Collect gate key");
-
-                    gate_key.color.rgba |= 0x000A;
-
-                    commit(gate_key);
-                  }
-                }
+            if (
+              entity.enemy_state.mood == ENEMY_IDLE &&
+              player_to_key_distance < 2500.f &&
+              state.astro_turn_speed == 0.f
+            ) {
+              if (did_press_key(tKey::CONTROLLER_A)) {
+                Items::CollectItem(tachyon, state, GATE_KEY);
               } else {
-                // Hide the key when the guard is not active
-                gate_key.scale = tVec3f(0.f);
+                UISystem::ShowTransientDialogue(tachyon, state, "[X] Collect gate key");
+
+                gate_key.color.rgba |= 0x000A;
 
                 commit(gate_key);
               }
