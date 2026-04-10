@@ -911,6 +911,8 @@ void PlayerCharacter::PerformStandardDodgeAction(Tachyon* tachyon, State& state)
   state.last_dodge_time = get_scene_time();
   state.last_break_attack_time = 0.f;
   state.last_target_jump_time = 0.f;
+
+  Sfx::PlaySound(SFX_DODGE, 0.5f);
 }
 
 void PlayerCharacter::PerformTargetJumpAction(Tachyon* tachyon, State& state) {
@@ -922,4 +924,6 @@ void PlayerCharacter::PerformTargetJumpAction(Tachyon* tachyon, State& state) {
   state.last_target_jump_time = get_scene_time();
   state.last_dodge_time = 0.f;
   state.last_break_attack_time = 0.f;
+
+  Sfx::PlaySound(SFX_DODGE, 0.5f);
 }

@@ -109,6 +109,8 @@ namespace astro {
 
           SyncVisible(body, entity);
 
+          body.material = tVec4f(0.8f, 0, 0, 0.6f);
+
           commit(body);
         }
 
@@ -126,6 +128,8 @@ namespace astro {
           auto& wings = use_instance(meshes.small_bird_wings);
 
           SyncVisible(wings, entity);
+
+          wings.material = tVec4f(0.8f, 0, 0, 0.6f);
 
           commit(wings);
         }

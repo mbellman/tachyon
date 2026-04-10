@@ -27,6 +27,8 @@ static std::map<Sound, const char*> sound_file_map = {
   { SFX_METAL_HIT_4, "./astro/audio/sfx_metal_hit_4.wav" },
   { SFX_PARRY, "./astro/audio/sfx_parry.wav" },
 
+  { SFX_DODGE, "./astro/audio/sfx_dodge.wav" },
+
   { SFX_HUMAN_ENEMY_GRUNT_1, "./astro/audio/sfx_human_enemy_grunt_1.wav" },
   { SFX_HUMAN_ENEMY_GRUNT_2, "./astro/audio/sfx_human_enemy_grunt_2.wav" },
   { SFX_HUMAN_ENEMY_DEFEATED_1, "./astro/audio/sfx_human_enemy_defeated_1.wav" },

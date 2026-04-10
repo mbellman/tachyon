@@ -44,7 +44,7 @@ namespace astro {
       if (life_progress < 0.8f) {
         return Grow(8.f * (life_progress + offset));
       } else {
-        return 1.f - (life_progress - 0.8f);
+        return 1.f - 2.f * (life_progress - 0.8f);
       }
     }
 
