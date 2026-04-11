@@ -218,6 +218,8 @@ namespace astro {
     //
     // Light pillars: requires that their associated light pillar is astro-synced
     // before responding to them
+    //
+    // Sculpture_1s: requires activating to form a chain for activating distant entities
     bool requires_action = false;
 
     // For responder light pillars which have become "synced" with their associated entity

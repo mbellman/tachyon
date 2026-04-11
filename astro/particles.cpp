@@ -102,6 +102,7 @@ static void HandleSculptureParticles(Tachyon* tachyon, State& state) {
   float scene_time = get_scene_time();
   float alpha_offset = fmodf(scene_time, 1.f) * 0.25f;
 
+  // Assuming no sculpture particle lights are in view until we satisfy distance checks
   for (auto light_id : state.sculpture_particles) {
     auto& light = *get_point_light(light_id);
 
@@ -130,10 +131,26 @@ static void HandleSculptureParticles(Tachyon* tachyon, State& state) {
           auto& light = *get_point_light(light_id);
           float alpha = Tachyon_InverseLerp(float(start), float(end), float(i)) + alpha_offset;
 
-          light.position = tVec3f::lerp(entity.position, next_entity.position, alpha);
-          light.position.y = 2000.f;
+          float glow_power = sinf(alpha * t_PI);
+          if (glow_power < 0.f) glow_power = 0.f;
+          glow_power = sqrtf(glow_power);
+
+          // Form a light path between the two entities (including y offset)
+          light.position = tVec3f::lerp(
+            entity.position + tVec3f(0, entity.scale.y, 0),
+            next_entity.position + tVec3f(0, next_entity.scale.y, 0),
+            alpha
+          );
+
+          // Random oscillation
+          light.position.x += 500.f * sinf(light.position.z * 0.001f + float(entity.id));
+          light.position.y += 500.f * cosf(light.position.z * 0.0015f + float(entity.id));
+          light.position.z += 500.f * sinf(light.position.x * 0.001f + float(entity.id));
+
+          light.color = tVec3f(1.f, 0.8f, 0.5f);
           light.radius = 500.f;
           light.power = 1.f;
+          light.glow_power = glow_power;
         }
 
         total_particles += 5;

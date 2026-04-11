@@ -30,6 +30,15 @@ namespace astro {
         Sound sound_effect = *(activation_sounds.begin() + sound_index);
 
         Sfx::PlaySound(sound_effect, 0.4f);
+
+        // @todo factor
+        {
+          if (entity.requires_action) {
+            entity.is_astro_synced = true;
+          }
+
+          // @todo check all sculpture chains
+        }
       }
     }
 
