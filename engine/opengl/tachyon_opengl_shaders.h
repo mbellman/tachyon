@@ -145,6 +145,7 @@ struct tUniformLocations {
     light_matrix_cascade_3,
     light_matrix_cascade_4,
     accumulation_blur_factor,
+    enable_shadows,
     time
   ) water_mesh;
 

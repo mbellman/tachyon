@@ -1136,6 +1136,7 @@ static void RenderPostMeshes(Tachyon* tachyon) {
     SetShaderMat4f(locations.light_matrix_cascade_3, CreateCascadedLightMatrix(2, scene.primary_light_direction, camera));
     SetShaderMat4f(locations.light_matrix_cascade_4, CreateCascadedLightMatrix(3, scene.primary_light_direction, camera));
     SetShaderFloat(locations.accumulation_blur_factor, fx.accumulation_blur_factor);
+    SetShaderBool(locations.enable_shadows, fx.enable_shadows);
     SetShaderFloat(locations.time, fx.water_time);
 
     RenderMeshesByType(tachyon, WATER_MESH);
@@ -1498,7 +1499,10 @@ void Tachyon_OpenGL_RenderScene(Tachyon* tachyon) {
   UpdateRendererContext(tachyon);
   RenderStaticMeshes(tachyon);
   RenderSkinnedMeshes(tachyon);
-  RenderPrimaryShadowMapCascades(tachyon);
+
+  if (tachyon->fx.enable_shadows) {
+    RenderPrimaryShadowMapCascades(tachyon);
+  }
 
   // The next steps in the pipeline render quads in screen space,
   // so we don't need to do any back-face culling or depth testing

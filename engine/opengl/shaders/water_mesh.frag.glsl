@@ -19,6 +19,9 @@ uniform mat4 light_matrix_cascade_4;
 // Frame blur
 uniform float accumulation_blur_factor;
 
+// Graphics features
+uniform bool enable_shadows;
+
 flat in uvec4 fragSurface;
 in vec3 fragPosition;
 in vec3 fragNormal;
@@ -357,7 +360,7 @@ void main() {
   }
 
   // Shadows
-  {
+  if (enable_shadows) {
     out_color = mix(out_color, base_water_color, shadow * 0.8);
   }
 
