@@ -45,6 +45,17 @@ namespace astro {
       for_entities(state.houses) {
         auto& entity = state.houses[i];
 
+        if (!IsDuringActiveTime(entity, state)) {
+          // Remove house lights when inactive
+          if (entity.light_id != -1) {
+            remove_point_light(entity.light_id);
+
+            entity.light_id = -1;
+          }
+
+          continue;
+        }
+
         if (!state.use_vantage_camera) {
           if (abs(state.player_position.x - entity.position.x) > 30000.f) continue;
           if (abs(state.player_position.z - entity.position.z) > 30000.f) continue;

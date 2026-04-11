@@ -562,7 +562,7 @@ namespace astro {
     { VANTAGE_SPOT, {
       .name = "Vantage Spot",
       .scale = tVec3f(1500.f),
-      .tint = tVec3f(1., 0.8f, 0.2f)
+      .tint = tVec3f(1., 0.1f, 0.2f)
     } },
 
     // @unused

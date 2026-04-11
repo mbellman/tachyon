@@ -93,7 +93,7 @@ static void HandleLesserGuardWandStrike(Tachyon* tachyon, State& state, GameEnti
   bool is_enemy_blocking = time_since(enemy.last_block_time) < 1.f;
   bool is_enemy_on_damage_cooldown = time_since(enemy.last_damage_time) < 0.5f || time_since(enemy.last_break_time) < 0.3f;
   bool is_enemy_preparing_attack = time_since_starting_attack < 1.5f;
-  bool is_attack_parryable = time_since_starting_attack > 0.8f;
+  bool is_attack_parryable = time_since_starting_attack > 0.75f;
   bool is_player_doing_break_attack = time_since(state.last_break_attack_time) < 0.5f;
   bool is_active_target = state.has_target && IsSameEntity(entity, state.target_entity);
 
