@@ -178,7 +178,8 @@ namespace astro {
 
             light.position = UnitEntityToWorldPosition(entity, tVec3f(0, 1.5f, 0.25f));
             light.color = tVec3f(1.f, 0.6f, 0.3f);
-            light.radius = light.power * 3000.f;
+            light.radius = light.power * 2000.f;
+            light.glow_power = 2.f;
           }
         }
 
