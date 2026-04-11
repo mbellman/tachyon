@@ -286,7 +286,11 @@ static void HandleSmallStoneBridgeCollisions(Tachyon* tachyon, State& state) {
 
 static void HandleWoodenBridgeCollisions(Tachyon* tachyon, State& state) {
   for (auto& entity : state.wooden_bridges) {
+    // Ignore bridges not currently active (@todo use astro start/end times)
     if (entity.visible_scale == tVec3f(0.f)) continue;
+
+    // Ignore bridges not level with the player's y position
+    if (abs(state.player_position.y - entity.visible_position.y) > 2000.f) continue;
 
     auto bridge_plane = CollisionSystem::CreatePlane(entity.visible_position, entity.visible_scale * tVec3f(1.1f, 0, 0.4f), entity.visible_rotation);
 

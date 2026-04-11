@@ -142,6 +142,9 @@ static void HandleLesserGuardWandStrike(Tachyon* tachyon, State& state, GameEnti
 
   // Striking a non-blocking enemy
   } else if (!is_enemy_on_damage_cooldown) {
+    // If we have a target, ignore hits against non-active targets
+    if (state.has_target && !is_active_target) return;
+
     enemy.last_attack_start_time = 0.f;
     enemy.last_attack_action_time = 0.f;
 
@@ -235,7 +238,7 @@ void Combat::HandleWandSwing(Tachyon* tachyon, State& state) {
           enemy.last_block_time = scene_time;
         }
         else if (entity.type == LESSER_GUARD) {
-          bool is_not_active_target = state.has_target && entity.id != state.target_entity.id;
+          bool is_not_active_target = state.has_target && !IsSameEntity(entity, state.target_entity);
 
           // If we have a target, but it's not this one, don't block.
           // Otherwise we can spam attack and cause every enemy surrounding
