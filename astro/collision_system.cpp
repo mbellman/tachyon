@@ -529,7 +529,11 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   }
 
   for (auto& entity : state.leaf_shrubs) {
+    // @todo use astro time
     if (entity.visible_scale.x < 500.f) continue;
+
+    // Ignore leaf shrubs well below the player
+    if (state.player_position.y - entity.position.y > entity.scale.y) continue;
 
     float radius = entity.visible_scale.x * 1.2f;
 
