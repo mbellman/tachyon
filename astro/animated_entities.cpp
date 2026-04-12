@@ -25,7 +25,7 @@ static void UpdateAnimation(tSkinnedMeshAnimation& animation, const float speed,
   Animation::UpdateBoneMatrices(animation);
 }
 
-static void UpdateSkinnedMesh(tSkinnedMesh& mesh, GameEntity& entity, tSkinnedMeshAnimation& animation) {
+static void SyncSkinnedMesh(tSkinnedMesh& mesh, GameEntity& entity, tSkinnedMeshAnimation& animation) {
   mesh.position = entity.visible_position;
   mesh.rotation = entity.visible_rotation;
   mesh.scale = tVec3f(1500.f);
@@ -102,7 +102,25 @@ static void HandleLesserGuardAnimations(Tachyon* tachyon, State& state, int32& u
     }
 
     UpdateAnimation(skin.animation, active_animation.speed, state.dt);
-    UpdateSkinnedMesh(person, entity, skin.animation);
+    SyncSkinnedMesh(person, entity, skin.animation);
+
+    // @todo factor
+    if (entity.enemy_state.last_death_time != 0.f) {
+      float death_alpha = 3.f * time_since(entity.enemy_state.last_death_time);
+      if (death_alpha > 1.f) death_alpha = 1.f;
+
+      Quaternion death_rotation = entity.visible_rotation * (
+        Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -t_HALF_PI)
+      );
+
+      person.rotation = Quaternion::slerp(entity.visible_rotation, death_rotation, death_alpha);
+
+      person.position = tVec3f::lerp(
+        entity.visible_position,
+        entity.visible_position - tVec3f(0, 1200.f, 0),
+        death_alpha
+      );
+    }
 
     commit(person);
 
@@ -151,7 +169,7 @@ static void HandleLowGuardAnimations(Tachyon* tachyon, State& state, int32& usag
     }
 
     UpdateAnimation(skin.animation, active_animation.speed, state.dt);
-    UpdateSkinnedMesh(person, entity, skin.animation);
+    SyncSkinnedMesh(person, entity, skin.animation);
 
     commit(person);
 
@@ -197,7 +215,7 @@ static void HandleNPCAnimations(Tachyon* tachyon, State& state, int32& usage_cou
     }
 
     UpdateAnimation(skin.animation, animation_speed, state.dt);
-    UpdateSkinnedMesh(person, entity, skin.animation);
+    SyncSkinnedMesh(person, entity, skin.animation);
 
     commit(person);
   }

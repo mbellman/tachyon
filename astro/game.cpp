@@ -820,7 +820,9 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
       GltfLoader("./astro/3d_skeleton_animations/player_swing_wand/swing_4.gltf").skeleton,
       GltfLoader("./astro/3d_skeleton_animations/player_swing_wand/swing_5.gltf").skeleton,
       GltfLoader("./astro/3d_skeleton_animations/player_swing_wand/swing_6.gltf").skeleton,
-      GltfLoader("./astro/3d_skeleton_animations/player_swing_wand/swing_7.gltf").skeleton
+      GltfLoader("./astro/3d_skeleton_animations/player_swing_wand/swing_7.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_swing_wand/swing_8.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_swing_wand/swing_9.gltf").skeleton
     };
 
     // @todo factor

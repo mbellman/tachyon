@@ -14,7 +14,7 @@ using namespace astro;
 
 constexpr static float ATTACK_WIND_UP_DURATION = 0.3f;
 constexpr static float ATTACK_SWING_DURATION = 0.2f;
-constexpr static float ATTACK_WIND_DOWN_DURATION = 0.5f;
+constexpr static float ATTACK_WIND_DOWN_DURATION = 0.6f;
 constexpr static float ATTACK_DURATION = ATTACK_WIND_UP_DURATION + ATTACK_SWING_DURATION + ATTACK_WIND_DOWN_DURATION;
 
 constexpr static float AUTO_HOP_DURATION = 0.3f;
@@ -123,17 +123,23 @@ static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
   }
 
   // @todo factor
-  if (
-    state.last_wand_swing_time != 0.f &&
-    time_since(state.last_wand_swing_time) < ATTACK_DURATION
-  ) {
+  {
     auto& swing_animation = animations.player_swing_wand;
-    float alpha = time_since(state.last_wand_swing_time) / ATTACK_DURATION;
+    float frame_duration = 0.15f;
+    float animation_duration = frame_duration * float(swing_animation.frames.size());
 
-    player_animation.upper_body_animation = &swing_animation;
-    player_animation.upper_body_animation_time = 7.f * alpha;
-  } else {
-    player_animation.upper_body_animation = nullptr;
+    if (
+      state.last_wand_swing_time != 0.f &&
+      time_since(state.last_wand_swing_time) < animation_duration
+    ) {
+      float speed = animation_duration / frame_duration;
+      float alpha = time_since(state.last_wand_swing_time) / animation_duration;
+
+      player_animation.upper_body_animation = &swing_animation;
+      player_animation.upper_body_animation_time = speed * alpha;
+    } else {
+      player_animation.upper_body_animation = nullptr;
+    }
   }
 
   Animation::AccumulateTime(state.player_mesh_animation, animation_speed, state.dt);
@@ -528,7 +534,7 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
       s3.offset = state.player_facing_direction * 1000.f - player_right * 1000.f;
       s3.rotation = held_wand_rotation * (
         Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), t_PI) *
-        Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 2.5f)
+        Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 1.f)
       );;
 
       AnimationStep s4 = s1;
