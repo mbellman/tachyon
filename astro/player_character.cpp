@@ -12,8 +12,8 @@
 
 using namespace astro;
 
-constexpr static float ATTACK_WIND_UP_DURATION = 0.4f;
-constexpr static float ATTACK_SWING_DURATION = 0.3f;
+constexpr static float ATTACK_WIND_UP_DURATION = 0.3f;
+constexpr static float ATTACK_SWING_DURATION = 0.2f;
 constexpr static float ATTACK_WIND_DOWN_DURATION = 0.5f;
 constexpr static float ATTACK_DURATION = ATTACK_WIND_UP_DURATION + ATTACK_SWING_DURATION + ATTACK_WIND_DOWN_DURATION;
 
@@ -907,6 +907,10 @@ void PlayerCharacter::TakeDamage(Tachyon* tachyon, State& state, const float dam
   // Cancel any dodge motions
   state.last_dodge_time = 0.f;
   state.last_target_jump_time = 0.f;
+
+  // Cancel attack animation
+  state.player_mesh_animation.upper_body_animation = nullptr;
+  state.player_mesh_animation.upper_body_animation_time = 0.f;
 
   if (state.player_hp <= 0.f) {
     // @temporary

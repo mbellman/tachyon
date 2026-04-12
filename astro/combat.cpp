@@ -10,7 +10,7 @@ using namespace astro;
 static void BreakEnemy(GameEntity& entity, const float scene_time) {
   auto& enemy = entity.enemy_state;
 
-  enemy.speed = -3000.f;
+  enemy.speed = -6000.f;
   enemy.last_break_time = scene_time;
   enemy.last_attack_start_time = 0.f;
   enemy.last_attack_action_time = 0.f;
@@ -102,11 +102,10 @@ static void HandleLesserGuardWandStrike(Tachyon* tachyon, State& state, GameEnti
     float facing_dot = tVec3f::dot(state.player_facing_direction, GetFacingDirection(entity));
 
     if (facing_dot < 0.f) {
-      // state.last_wand_swing_time = 0.f;
-      // state.last_wand_bounce_time = scene_time;
-
       // @todo ParryEnemy()
       BreakEnemy(entity, scene_time);
+
+      enemy.speed = -10000.f;
 
       Sfx::PlaySound(SFX_PARRY, 0.5f);
     }
@@ -132,7 +131,7 @@ static void HandleLesserGuardWandStrike(Tachyon* tachyon, State& state, GameEnti
         }
       } else {
         // Enemy knockback from wand bounce
-        enemy.speed = -3000.f;
+        enemy.speed = -5000.f;
 
         PlayerCharacter::GetKnockedBack(state, 500.f);
 
@@ -165,7 +164,7 @@ static void HandleLesserGuardWandStrike(Tachyon* tachyon, State& state, GameEnti
       // Attack damage + knockback
       bool is_enemy_broken = time_since(enemy.last_break_time) < 2.f;
       float damage = is_enemy_broken ? 100.f : 30.f;
-      float knockback = is_enemy_broken ? -7000.f : -4000.f;
+      float knockback = is_enemy_broken ? -9000.f : -7000.f;
 
       enemy.health -= damage;
       enemy.last_damage_time = scene_time;
