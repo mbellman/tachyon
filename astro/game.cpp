@@ -813,6 +813,16 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
       GltfLoader("./astro/3d_skeleton_animations/player_arms_out/arms_out_2.gltf").skeleton
     };
 
+    state.animations.player_swing_wand.frames = {
+      GltfLoader("./astro/3d_skeleton_animations/player_swing_wand/swing_1.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_swing_wand/swing_2.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_swing_wand/swing_3.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_swing_wand/swing_4.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_swing_wand/swing_5.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_swing_wand/swing_6.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_swing_wand/swing_7.gltf").skeleton
+    };
+
     // @todo factor
     for (auto& bone : state.animations.player_idle.frames[0].bones) {
       state.player_mesh_animation.active_pose.bones.push_back(bone);

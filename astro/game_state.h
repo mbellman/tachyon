@@ -320,9 +320,11 @@ namespace astro {
     tSkeleton active_pose;
     tSkeletonAnimation* current_animation = nullptr;
     tSkeletonAnimation* next_animation = nullptr;
+    tSkeletonAnimation* upper_body_animation = nullptr;
     float seek_time = 0.f;
     float next_animation_blend_alpha = 0.f;
     float head_turn_angle = 0.f;
+    float upper_body_animation_time = 0.f;
   };
 
   /**
@@ -389,6 +391,7 @@ namespace astro {
       tSkeletonAnimation player_walk;
       tSkeletonAnimation player_run;
       tSkeletonAnimation player_arms_out;
+      tSkeletonAnimation player_swing_wand;
 
       tSkeletonAnimation person_idle;
       tSkeletonAnimation person_talking;

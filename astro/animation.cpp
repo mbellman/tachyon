@@ -88,6 +88,10 @@ void Animation::UpdatePose(tSkinnedMeshAnimation& mesh_animation) {
   EvaluateAnimation(current_animation, mesh_animation.seek_time);
   EvaluateAnimation(next_animation, mesh_animation.seek_time);
 
+  if (mesh_animation.upper_body_animation != nullptr) {
+    EvaluateAnimation(*mesh_animation.upper_body_animation, mesh_animation.upper_body_animation_time);
+  }
+
   // Update the active pose based on the blended result of the current/next animations
   {
     auto& active_pose = mesh_animation.active_pose;
@@ -104,6 +108,27 @@ void Animation::UpdatePose(tSkinnedMeshAnimation& mesh_animation) {
 
       // Set blended rotation
       active_pose_bone.rotation = blended_rotation;
+
+      // @todo factor
+      // @todo use a second loop for this
+      if (mesh_animation.upper_body_animation != nullptr) {
+        auto& animation = *mesh_animation.upper_body_animation;
+        auto& bone_name = active_pose_bone.name;
+        float seek_time = mesh_animation.upper_body_animation_time;
+        float progress = seek_time / float(animation.frames.size());
+        if (progress > 1.f) progress = 1.f;
+        float blend_alpha = powf(sinf(progress * t_PI), 0.33f);
+
+        // Skip lower-body bones
+        if (bone_name.starts_with("Pelvis")) continue;
+        if (bone_name.starts_with("Thigh")) continue;
+        if (bone_name.starts_with("Shin")) continue;
+        if (bone_name.starts_with("Foot")) continue;
+
+        auto& upper_bone = animation.evaluated_pose.bones[active_pose_bone.index];
+
+        active_pose_bone.rotation = Quaternion::nlerp(active_pose_bone.rotation, upper_bone.rotation, blend_alpha);
+      }
     }
   }
 }

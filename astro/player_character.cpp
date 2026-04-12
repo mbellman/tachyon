@@ -12,7 +12,12 @@
 
 using namespace astro;
 
-const static float AUTO_HOP_DURATION = 0.3f;
+constexpr static float ATTACK_WIND_UP_DURATION = 0.4f;
+constexpr static float ATTACK_SWING_DURATION = 0.3f;
+constexpr static float ATTACK_WIND_DOWN_DURATION = 0.5f;
+constexpr static float ATTACK_DURATION = ATTACK_WIND_UP_DURATION + ATTACK_SWING_DURATION + ATTACK_WIND_DOWN_DURATION;
+
+constexpr static float AUTO_HOP_DURATION = 0.3f;
 
 static inline float GetAngleBetween(const float a1, const float a2) {
   float angle = a1 - a2;
@@ -91,8 +96,8 @@ static float GetPlayerAnimationSpeed(Tachyon* tachyon, State& state) {
   bool is_hit = state.last_damage_time != 0.f && time_since(state.last_damage_time) < 1.f;
 
   if (is_astro_traveling) return 0.65f;
-  if (is_hit) return 7.f;
   if (is_idle) return 0.8f;
+  if (is_hit) return 7.f;
 
   float player_speed = state.player_velocity.magnitude();
   float max_walk_speed = state.has_target ? PlayerCharacter::MAX_COMBAT_WALK_SPEED : PlayerCharacter::MAX_WALK_SPEED;
@@ -115,6 +120,20 @@ static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
 
   if (!moving_forward) {
     animation_speed *= -1.f;
+  }
+
+  // @todo factor
+  if (
+    state.last_wand_swing_time != 0.f &&
+    time_since(state.last_wand_swing_time) < ATTACK_DURATION
+  ) {
+    auto& swing_animation = animations.player_swing_wand;
+    float alpha = time_since(state.last_wand_swing_time) / ATTACK_DURATION;
+
+    player_animation.upper_body_animation = &swing_animation;
+    player_animation.upper_body_animation_time = 7.f * alpha;
+  } else {
+    player_animation.upper_body_animation = nullptr;
   }
 
   Animation::AccumulateTime(state.player_mesh_animation, animation_speed, state.dt);
@@ -442,21 +461,24 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
   wand.color = tVec3f(1.f, 0.6f, 0.2f);
   wand.material = tVec4f(1.f, 0, 0, 0.4f);
 
+  // @todo declare a constant for 5
+  auto& right_hand = active_pose.bones[5];
+
+  Quaternion held_wand_rotation = (
+    right_hand.rotation *
+    Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), 0.2f) *
+    Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 1.8f) *
+    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI)
+  );
+
   if (state.player_hp > 0.f) {
     // Sync the wand to the player's right hand
     // @todo factor
     auto& right_hand = active_pose.bones[5];
     tVec3f position = right_hand.translation;
-    Quaternion rotation = right_hand.rotation;
-
     position += right_hand.rotation.toMatrix4f() * tVec3f(-0.05f, 0.32f, 0);
 
-    wand.rotation =
-      player_rotation * rotation *
-      Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), 0.2f) *
-      Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 1.8f) *
-      Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI);
-
+    wand.rotation = player_rotation * held_wand_rotation;
     wand.position = state.player_position + player_rotation_matrix * (position * 1500.f);
     wand.position -= wand.rotation.toMatrix4f() * tVec3f(0, 200.f, 0);
   }
@@ -477,53 +499,47 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
   {
     float time_since_last_swing = time_since(state.last_wand_swing_time);
 
-    Quaternion base_wand_rotation = (
-      active_pose.bones[5].rotation *
-      Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), 0.2f) *
-      Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 1.8f) *
-      Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI)
-    );
-
     if (
       state.last_wand_swing_time != 0.f &&
-      time_since_last_swing <= 1.f &&
+      time_since_last_swing <= 1.2f &&
       state.player_hp > 0.f
     ) {
       tVec3f player_right = tVec3f::cross(state.player_facing_direction, tVec3f(0, 1.f, 0));
 
       // Draw wand up
       AnimationStep s1;
-      s1.duration = 0.2f;
+      s1.duration = ATTACK_WIND_UP_DURATION;
       s1.offset = tVec3f(0.f);
-      s1.rotation = base_wand_rotation;
+      s1.rotation = held_wand_rotation;
 
       // Swing the wand
       AnimationStep s2;
-      s2.duration = 0.15f;
+      s2.duration = ATTACK_SWING_DURATION;
       s2.offset = tVec3f(0, 1500.f, 0) + player_right * 500.f;
-      s2.rotation = (
-        Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), 1.f) *
-        Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -1.f)
+      s2.rotation = held_wand_rotation * (
+        Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), t_PI) *
+        Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 1.f) *
+        Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.5f)
       );
 
-      // Draw the wand back
+      // Wind-down
       AnimationStep s3;
-      s3.duration = 0.5f;
+      s3.duration = ATTACK_WIND_DOWN_DURATION;
       s3.offset = state.player_facing_direction * 1000.f - player_right * 1000.f;
-      s3.rotation = (
-        Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), 2.f) *
-        Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 2.1f)
-      );
+      s3.rotation = held_wand_rotation * (
+        Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), t_PI) *
+        Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 2.5f)
+      );;
 
       AnimationStep s4 = s1;
-      s4.rotation = base_wand_rotation;
+      s4.rotation = held_wand_rotation;
 
       AnimationSequence swing_animation;
       swing_animation.steps = { s1, s2, s3, s4 };
 
       // Sample the animation
       TransformState sample = SimpleAnimation::Sample(swing_animation, time_since_last_swing);
-      wand.position += sample.offset;
+      // wand.position += sample.offset;
       wand.rotation = player_rotation * sample.rotation;
 
       if (
@@ -544,7 +560,7 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
       AnimationStep s1;
       s1.duration = 0.3f;
       s1.offset = state.player_facing_direction * 1000.f - player_right * 1000.f;
-      s1.rotation = base_wand_rotation;
+      s1.rotation = held_wand_rotation;
 
       AnimationStep s2;
       s2.duration = 0.5f;
@@ -556,7 +572,7 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
 
       AnimationStep s3;
       s3.offset = tVec3f(0.f);
-      s3.rotation = base_wand_rotation;
+      s3.rotation = held_wand_rotation;
 
       AnimationSequence bounce_animation;
       bounce_animation.steps = { s1, s2, s3 };
