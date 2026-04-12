@@ -106,7 +106,7 @@ static void HandleLesserGuardAnimations(Tachyon* tachyon, State& state, int32& u
 
     // @todo factor
     if (entity.enemy_state.last_death_time != 0.f) {
-      float death_alpha = 3.f * time_since(entity.enemy_state.last_death_time);
+      float death_alpha = 2.f * time_since(entity.enemy_state.last_death_time);
       if (death_alpha > 1.f) death_alpha = 1.f;
 
       Quaternion death_rotation = entity.visible_rotation * (

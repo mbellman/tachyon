@@ -2,6 +2,15 @@
 
 using namespace astro;
 
+// @todo move to engine
+static float SmoothStep(const float e1, const float e2, float x) {
+  x = (x - e1) / (e2 - e1);
+  if (x < 0.f) x = 0.f;
+  if (x > 1.f) x = 1.f;
+
+  return x * x * (3.f - 2.f * x);
+}
+
 static void ReserveAnimationPoseData(tSkeletonAnimation& skeleton_animation) {
   if (skeleton_animation.evaluated_pose.bones.size() == 0) {
     for (auto& bone : skeleton_animation.frames[0].bones) {
@@ -115,9 +124,12 @@ void Animation::UpdatePose(tSkinnedMeshAnimation& mesh_animation) {
         auto& animation = *mesh_animation.upper_body_animation;
         auto& bone_name = active_pose_bone.name;
         float seek_time = mesh_animation.upper_body_animation_time;
+
+        // @optimize This stuff does not need to be computed for each bone!!!!!!!
         float progress = seek_time / float(animation.frames.size());
         if (progress > 1.f) progress = 1.f;
-        float blend_alpha = powf(sinf(progress * t_PI), 0.33f);
+        // @todo make blend alpha configurable
+        float blend_alpha = SmoothStep(0.f, 0.05f, progress) * (1.f - SmoothStep(0.7f, 1.f, progress));
 
         // Skip lower-body bones
         if (bone_name.starts_with("Pelvis")) continue;
