@@ -99,7 +99,7 @@ static float GetPlayerAnimationSpeed(Tachyon* tachyon, State& state) {
   float speed_ratio = player_speed / PlayerCharacter::MAX_RUN_SPEED;
   bool is_running = player_speed > max_walk_speed;
 
-  return (is_running ? 11.f : 12.f) * sqrtf(speed_ratio);
+  return (is_running ? 11.5f : 12.f) * sqrtf(speed_ratio);
 }
 
 static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
