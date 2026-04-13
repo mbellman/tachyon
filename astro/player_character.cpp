@@ -139,7 +139,7 @@ static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
     }
   }
 
-  Animation::AccumulateTime(state.player_mesh_animation, animation_speed, state.dt);
+  Animation::AccumulateTime(state.player_mesh_animation, animation_speed, 3.f, state.dt);
   Animation::UpdatePose(state.player_mesh_animation);
   Animation::UpdateBoneMatrices(state.player_mesh_animation);
 }
