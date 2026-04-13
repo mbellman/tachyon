@@ -536,6 +536,9 @@ static void HandleMusicLevels(Tachyon* tachyon, State& state) {
     else if (is_in_stealth_mode || Targeting::IsInCombatMode(state)) {
       BGM::FadeCurrentMusicVolumeTo(0.2f, 1000);
     }
+    else if (state.wand_hold_factor > 0.5f) {
+      BGM::FadeCurrentMusicVolumeTo(0.f, 1000);
+    }
     else {
       BGM::FadeCurrentMusicVolumeTo(0.4f, 3000);
     }

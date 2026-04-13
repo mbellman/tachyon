@@ -385,7 +385,7 @@ static void HandleWandControls(Tachyon* tachyon, State& state) {
     }
   }
 
-  // Square
+  // Pressing Square
   if (did_press_key(tKey::CONTROLLER_X)) {
     // If we're performing a wind chimes action, stop here
     if (TestWindChimesAction(tachyon, state)) return;
@@ -405,11 +405,20 @@ static void HandleWandControls(Tachyon* tachyon, State& state) {
     }
   }
 
-  // Square
+  // Holding Square
   if (is_key_held(tKey::CONTROLLER_X) && state.targetable_entities.size() == 0) {
     state.wand_hold_factor += 4.f * state.dt;
 
     if (state.wand_hold_factor > 1.f) state.wand_hold_factor = 1.f;
+
+    if (
+      state.wand_hold_factor > 0.5f &&
+      time_since(state.last_wand_light_pulse_time) > 4.f
+    ) {
+      state.last_wand_light_pulse_time = get_scene_time();
+
+      Sfx::PlaySound(SFX_LIGHT_PULSE, 0.8f);
+    }
   } else {
     state.wand_hold_factor -= 4.f * state.dt;
 

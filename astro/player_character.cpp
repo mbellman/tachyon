@@ -682,6 +682,12 @@ static void UpdateWandLights(Tachyon* tachyon, State& state) {
       main_light_power += wand_swing_power * alpha;
     }
 
+    // Glow when holding up the wand
+    {
+      main_light_power += 5.f * state.wand_hold_factor;
+      main_light_power += 2.f * state.wand_hold_factor * (0.5f + 0.5f * sinf(2.f * scene_time));
+    }
+
     // Glow during wind chimes actions
     if (
       state.last_wind_chimes_action_time != 0.f &&

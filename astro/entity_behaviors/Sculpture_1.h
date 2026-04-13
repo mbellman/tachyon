@@ -15,29 +15,42 @@ namespace astro {
       entity.did_activate = true;
       entity.game_activation_time = get_scene_time();
 
+      // Activation sound effect
+      int sound_index = Tachyon_GetRandom(0, 3);
+      Sound sound_effect = *(activation_sounds.begin() + sound_index);
+
+      Sfx::PlaySound(sound_effect, 0.4f);
+
+      // @todo factor
+      {
+        if (entity.requires_action) {
+          entity.is_astro_synced = true;
+        }
+
+        // @todo check all sculpture chains
+      }
+    }
+
+    static void Charge(Tachyon* tachyon, State& state, GameEntity& entity) {
       if (entity.light_id == -1) {
-        // Initialize the activation light
+        // Start charging
         entity.light_id = create_point_light();
 
         auto& light = *get_point_light(entity.light_id);
 
-        // Allow the light's power to be ramped up upon first interaction,
-        // and remain at normal power even upon repeat interactions
-        light.power = -0.25f;
+        light.power = 0.f;
+      } else {
+        // Continue charging
+        auto& light = *get_point_light(entity.light_id);
 
-        // Activation sound effect
-        int sound_index = Tachyon_GetRandom(0, 3);
-        Sound sound_effect = *(activation_sounds.begin() + sound_index);
+        light.power += 0.75f * state.dt;
 
-        Sfx::PlaySound(sound_effect, 0.4f);
+        if (light.power >= 1.f) {
+          light.power = 1.f;
 
-        // @todo factor
-        {
-          if (entity.requires_action) {
-            entity.is_astro_synced = true;
+          if (!entity.did_activate) {
+            HandleWandAction(tachyon, state, entity);
           }
-
-          // @todo check all sculpture chains
         }
       }
     }
@@ -86,6 +99,15 @@ namespace astro {
         float alpha = powf(life_progress, 3.f);
         tVec3f color = tVec3f::lerp(start_color, end_color, alpha);
         float roughness = Tachyon_Lerpf(0.f, 1.f, alpha);
+
+        // @todo move to Magic::
+        if (state.wand_hold_factor > 0.5f) {
+          auto proximity = GetEntityProximity(entity, state);
+
+          if (proximity.distance < 9000.f && proximity.facing_dot > 0.1f) {
+            Charge(tachyon, state, entity);
+          }
+        }
 
         // Stand
         {
@@ -174,15 +196,20 @@ namespace astro {
 
           entity.accumulation_value += state.dt * 3.f * spin_alpha;
 
-          // Glowing after interaction
+          // Light
           if (entity.light_id != -1) {
             auto& light = *get_point_light(entity.light_id);
 
             if (state.astro_time > entity.astro_end_time) {
               light.power = 0.f;
-            } else {
-              if (light.power < 1.f) light.power += state.dt;
-              if (light.power > 1.f) light.power = 1.f;
+            }
+
+            // If we haven't fully activated the sculpture (e.g. while charging),
+            // and if we've stopped charging it, let its power dwindle
+            if (!entity.did_activate && state.wand_hold_factor < 0.5f) {
+              light.power -= 0.5f * state.dt;
+
+              if (light.power < 0.f) light.power = 0.f;
             }
 
             light.position = UnitEntityToWorldPosition(entity, tVec3f(0, 1.5f, 0.25f));
