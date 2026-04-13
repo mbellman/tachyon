@@ -166,6 +166,20 @@ void Tachyon_EndFrame(Tachyon* tachyon) {
   tachyon->dev_labels.clear();
 }
 
+float Tachyon_GetDeltaTime(Tachyon* tachyon) {
+  float actual_delta_time = (float)tachyon->last_frame_time_in_microseconds / 1000000.f;
+
+  switch (tachyon->render_backend) {
+    case TachyonRenderBackend::OPENGL: {
+      int refresh_rate = Tachyon_OpenGL_GetCurrentRefreshRate(tachyon);
+
+      return refresh_rate == 0 ? actual_delta_time : 1.f / float(refresh_rate);
+    }
+    default:
+      return actual_delta_time;
+  }
+}
+
 void Tachyon_FocusWindow(Tachyon* tachyon) {
   SDL_SetRelativeMouseMode(SDL_TRUE);
 

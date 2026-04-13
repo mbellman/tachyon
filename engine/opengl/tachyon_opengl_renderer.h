@@ -61,4 +61,5 @@ void Tachyon_OpenGL_InitRenderer(Tachyon* tachyon);
 void Tachyon_OpenGL_HandleWindowResize(Tachyon* tachyon);
 void Tachyon_OpenGL_RenderScene(Tachyon* tachyon);
 void Tachyon_OpenGL_RenderDeveloperOverlay(Tachyon* tachyon);
+int Tachyon_OpenGL_GetCurrentRefreshRate(Tachyon* tachyon);
 void Tachyon_OpenGL_DestroyRenderer(Tachyon* tachyon);

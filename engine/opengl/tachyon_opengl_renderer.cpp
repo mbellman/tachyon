@@ -1554,6 +1554,21 @@ void Tachyon_OpenGL_RenderScene(Tachyon* tachyon) {
   renderer.last_render_time_in_microseconds = Tachyon_GetMicroseconds() - start;
 }
 
+int Tachyon_OpenGL_GetCurrentRefreshRate(Tachyon* tachyon) {
+  auto& renderer = get_renderer();
+  int swap_interval = SDL_GL_GetSwapInterval();
+
+  // Use 0 to represent an unlocked refresh rate
+  if (swap_interval == 0) return 0;
+
+  int active_display_index = SDL_GetWindowDisplayIndex(tachyon->sdl_window);
+
+  SDL_DisplayMode mode;
+  SDL_GetCurrentDisplayMode(active_display_index, &mode);
+
+  return mode.refresh_rate / swap_interval;
+}
+
 void Tachyon_OpenGL_DestroyRenderer(Tachyon* tachyon) {
   auto& renderer = get_renderer();
 

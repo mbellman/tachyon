@@ -585,7 +585,8 @@ static void ShowGameStats(Tachyon* tachyon, State& state) {
     "Target time: " + std::to_string(state.target_astro_time),
     "Astro turn speed: " + std::to_string(state.astro_turn_speed),
     "Ground Y: " + std::to_string(state.current_ground_y),
-    "Animation time: " + std::to_string(state.player_mesh_animation.seek_time)
+    "Animation time: " + std::to_string(state.player_mesh_animation.seek_time),
+    "Delta time: " + std::to_string(state.dt)
   };
 
   for (uint8 i = 0; i < std::size(stat_messages); i++) {
@@ -913,10 +914,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
 
   // @todo HandleFrameStart()
   {
-    auto& scene = tachyon->scene;
-
-    // @temporary
-    scene.scene_time += dt;
+    tachyon->scene.scene_time += dt;
 
     state.spells.did_cast_stun_this_frame = false;
     state.dt = dt;

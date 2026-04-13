@@ -8,7 +8,7 @@
 #define Tachyon_RunMainLoop(code)\
   while (tachyon->is_running) {\
     Tachyon_StartFrame(tachyon);\
-    float dt = (float)tachyon->last_frame_time_in_microseconds / 1000000.f;\
+    float dt = Tachyon_GetDeltaTime(tachyon);\
     if (dt > MAX_DT) dt = MAX_DT;\
     code;\
     Tachyon_EndFrame(tachyon);\
@@ -22,6 +22,7 @@ void Tachyon_SpawnWindow(Tachyon* tachyon, const char* title, uint32 width, uint
 void Tachyon_UseRenderBackend(Tachyon* tachyon, TachyonRenderBackend backend);
 void Tachyon_StartFrame(Tachyon* tachyon);
 void Tachyon_EndFrame(Tachyon* tachyon);
+float Tachyon_GetDeltaTime(Tachyon* tachyon);
 void Tachyon_FocusWindow(Tachyon* tachyon);
 void Tachyon_UnfocusWindow(Tachyon* tachyon);
 void Tachyon_HandleWindowResize(Tachyon* tachyon);
