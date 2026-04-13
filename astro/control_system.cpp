@@ -390,17 +390,30 @@ static void HandleWandControls(Tachyon* tachyon, State& state) {
     // If we're performing a wind chimes action, stop here
     if (TestWindChimesAction(tachyon, state)) return;
 
-    if (Items::HasItem(state, ITEM_HOMING_SPELL)) {
-      // @todo magic weapons
-      SpellSystem::CastHoming(tachyon, state);
-    }
-    else if (time_since(state.last_wand_swing_time) > 0.7f) {
-      // Before we have magic weapons, swing the wand as a melee weapon
-      state.last_wand_swing_time = get_scene_time();
-      state.last_wand_bounce_time = 0.f;
+    if (state.targetable_entities.size() > 0) {
+      if (Items::HasItem(state, ITEM_HOMING_SPELL)) {
+        // @todo magic weapons
+        SpellSystem::CastHoming(tachyon, state);
+      }
+      else if (time_since(state.last_wand_swing_time) > 0.7f) {
+        // Before we have magic weapons, swing the wand as a melee weapon
+        state.last_wand_swing_time = get_scene_time();
+        state.last_wand_bounce_time = 0.f;
 
-      Combat::HandleWandSwing(tachyon, state);
+        Combat::HandleWandSwing(tachyon, state);
+      }
     }
+  }
+
+  // Square
+  if (is_key_held(tKey::CONTROLLER_X) && state.targetable_entities.size() == 0) {
+    state.wand_hold_factor += 4.f * state.dt;
+
+    if (state.wand_hold_factor > 1.f) state.wand_hold_factor = 1.f;
+  } else {
+    state.wand_hold_factor -= 4.f * state.dt;
+
+    if (state.wand_hold_factor < 0.f) state.wand_hold_factor = 0.f;
   }
 
   // Triangle

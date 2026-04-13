@@ -390,6 +390,7 @@ namespace astro {
       tSkeletonAnimation player_idle;
       tSkeletonAnimation player_walk;
       tSkeletonAnimation player_run;
+      tSkeletonAnimation player_run_wand;
       tSkeletonAnimation player_arms_out;
       tSkeletonAnimation player_swing_wand;
 
@@ -458,6 +459,7 @@ namespace astro {
     std::vector<WandLight> wand_lights;
     float last_wand_light_time = 0.f;
     float last_wand_strike_time = 0.f;
+    float wand_hold_factor = 0.f;
 
     // Dynamic fauna
     std::vector<Butterfly> butterflies;

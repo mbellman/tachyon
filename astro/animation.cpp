@@ -72,7 +72,8 @@ void Animation::AccumulateTime(tSkinnedMeshAnimation& mesh_animation, const floa
   // Increment the blend factor to the next animation, in case
   // we're transitioning between animations.
   {
-    mesh_animation.next_animation_blend_alpha += 3.f * dt;
+    // @todo make blend speed configurable
+    mesh_animation.next_animation_blend_alpha += 2.f * dt;
 
     if (mesh_animation.next_animation_blend_alpha > 1.f) {
       mesh_animation.next_animation_blend_alpha = 1.f;
@@ -104,7 +105,8 @@ void Animation::UpdatePose(tSkinnedMeshAnimation& mesh_animation) {
   // Update the active pose based on the blended result of the current/next animations
   {
     auto& active_pose = mesh_animation.active_pose;
-    float blend_alpha = mesh_animation.next_animation_blend_alpha;
+    // @todo make blend type configurable
+    float blend_alpha = Tachyon_EaseInOutf(mesh_animation.next_animation_blend_alpha);
 
     for (size_t i = 0; i < current_animation.evaluated_pose.bones.size(); i++) {
       auto& previous_bone = current_animation.evaluated_pose.bones[i];

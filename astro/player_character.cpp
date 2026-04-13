@@ -69,14 +69,11 @@ static void SetActivePlayerAnimation(Tachyon* tachyon, State& state) {
     state.previous_move_delta > 0.f &&
     (abs(tachyon->left_stick.x) > 0.1f || abs(tachyon->left_stick.y) > 0.1f)
   ) {
-    Animation::AwaitNextAnimation(player_animation, &animations.player_run);
-
-    // Speed up the transition to the next animation (running)
-    // so it can be started sooner. Otherwise the transition
-    // from idle -> walking or walking -> idle can take too long,
-    // which appears as the player "gliding" along the ground
-    // for a short moment.
-    player_animation.next_animation_blend_alpha += 5.f * state.dt;
+    if (state.wand_hold_factor > 0.f) {
+      Animation::AwaitNextAnimation(player_animation, &animations.player_run_wand);
+    } else {
+      Animation::AwaitNextAnimation(player_animation, &animations.player_run);
+    }
   }
 
   // Walking
@@ -460,6 +457,7 @@ static void HandleWandStrike(Tachyon* tachyon, State& state) {
 static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotation, tMat4f& player_rotation_matrix) {
   auto& active_pose = state.player_mesh_animation.active_pose;
   auto& wand = objects(state.meshes.player_wand)[0];
+  tVec3f player_body_position = skinned_mesh(state.meshes.player_robes).position;
 
   tVec3f offset = player_rotation_matrix * tVec3f(-1.f, 0, 0);
 
@@ -477,6 +475,19 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
     Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI)
   );
 
+  if (state.wand_hold_factor > 0.f) {
+    Quaternion adjusted_rotation = held_wand_rotation * (
+      // Pitch correction
+      Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.6f) *
+      // Yaw correction
+      Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 0.25f) *
+      // Roll correction
+      Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), 0.6f)
+    );
+
+    held_wand_rotation = Quaternion::slerp(held_wand_rotation, adjusted_rotation, state.wand_hold_factor);
+  }
+
   if (state.player_hp > 0.f) {
     // Sync the wand to the player's right hand
     // @todo factor
@@ -485,7 +496,7 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
     position += right_hand.rotation.toMatrix4f() * tVec3f(-0.05f, 0.32f, 0);
 
     wand.rotation = player_rotation * held_wand_rotation;
-    wand.position = state.player_position + player_rotation_matrix * (position * 1500.f);
+    wand.position = player_body_position + player_rotation_matrix * (position * 1500.f);
     wand.position -= wand.rotation.toMatrix4f() * tVec3f(0, 200.f, 0);
   }
 
