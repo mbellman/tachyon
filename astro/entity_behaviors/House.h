@@ -53,6 +53,9 @@ namespace astro {
             entity.light_id = -1;
           }
 
+          // Disable collision
+          entity.visible_scale = tVec3f(0.f);
+
           continue;
         }
 

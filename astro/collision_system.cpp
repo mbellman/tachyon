@@ -201,8 +201,7 @@ static void HandleWoodenFenceCollisions(Tachyon* tachyon, State& state) {
 
 static void HandleHouseCollisions(Tachyon* tachyon, State& state) {
   for (auto& entity : state.houses) {
-    // @todo
-    // if (state.astro_time < entity.astro_start_time) continue;
+    if (entity.visible_scale.x == 0.f) continue;
 
     auto house_plane = CollisionSystem::CreatePlane(entity.position, entity.visible_scale * 1.2f, entity.orientation);
 
