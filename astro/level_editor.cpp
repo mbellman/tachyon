@@ -1759,6 +1759,7 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
       editor.current_selectable.is_entity
     ) {
       CopySelectedEntityProperties(state);
+      show_overlay_message("Copied astro times");
     }
 
     if (
@@ -1766,6 +1767,7 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
       editor.current_selectable.is_entity
     ) {
       PasteCopiedEntityProperties(state);
+      show_overlay_message("Pasted astro times");
     }
   } else {
     // Free actions

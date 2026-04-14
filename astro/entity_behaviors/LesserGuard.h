@@ -90,11 +90,10 @@ namespace astro {
         float death_alpha = 2.f * time_since_death;
         if (death_alpha > 1.f) death_alpha = 1.f;
 
-        float z_angle = fmodf(abs(entity.visible_position.x), 2.f) - 1.f;
+        float z_angle = fmodf(abs(entity.visible_position.x), t_PI) - t_HALF_PI;
 
-        Quaternion final_rotation = (
-          entity.visible_rotation *
-          Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -t_HALF_PI) *
+        Quaternion final_rotation = entity.visible_rotation * (
+          Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), t_HALF_PI) *
           Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), z_angle)
         );
 
