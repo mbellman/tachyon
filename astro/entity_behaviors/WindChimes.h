@@ -1,9 +1,58 @@
 #pragma once
 
 #include "astro/entity_behaviors/behavior.h"
+#include "astro/time_evolution.h"
 
 namespace astro {
   behavior WindChimes {
+    static void Activate(Tachyon* tachyon, State& state, GameEntity& entity) {
+      float scene_time = get_scene_time();
+
+      entity.did_activate = true;
+      entity.game_activation_time = scene_time;
+
+      state.astro_particle_spawn_position = entity.position;
+      state.last_wind_chimes_action_time = scene_time;
+      state.last_used_wind_chimes_id = entity.id;
+
+      // @todo have different wind chimes for different time ranges
+      if (state.target_astro_time == astro_time_periods.present) {
+        // Present -> Past
+        TimeEvolution::StartAstroTraveling(tachyon, state, astro_time_periods.past);
+      } else {
+        // Past -> Present
+        TimeEvolution::StartAstroTraveling(tachyon, state, astro_time_periods.present);
+      }
+    }
+
+    static void StartActivating(Tachyon* tachyon, State& state, GameEntity& entity) {
+      entity.accumulation_value += state.dt;
+
+      // @todo tune this + play a lead-in sound effect
+      if (entity.accumulation_value > 0.5f) {
+        Activate(tachyon, state, entity);
+      }
+    }
+
+    static void HandleActivationBehavior(Tachyon* tachyon, State& state, GameEntity& entity) {
+      if (
+        state.wand_hold_factor > 0.5f &&
+        state.astro_turn_speed == 0.f
+      ) {
+        auto proximity = GetEntityProximity(entity, state);
+
+        if (proximity.distance < 5000.f && proximity.facing_dot > 0.f) {
+          StartActivating(tachyon, state, entity);
+
+          return;
+        }
+      }
+
+      // Not currently activating! Run the accumulation back value down.
+      entity.accumulation_value -= state.dt;
+      if (entity.accumulation_value < 0.f) entity.accumulation_value = 0.f;
+    }
+
     addMeshes() {
       meshes.wind_chimes_placeholder = MODEL_MESH("./astro/3d_models/wind_chimes/placeholder.obj", 500);
       meshes.wind_chimes_stand = MODEL_MESH("./astro/3d_models/wind_chimes/stand.obj", 500);
@@ -42,6 +91,8 @@ namespace astro {
         entity.visible_position = entity.position;
         entity.visible_rotation = entity.orientation;
         entity.visible_scale = entity.scale;
+
+        HandleActivationBehavior(tachyon, state, entity);
 
         // Stand
         {

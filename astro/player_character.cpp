@@ -887,27 +887,6 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
   UpdateWand(tachyon, state, player_rotation, player_rotation_matrix);
   UpdateWandLights(tachyon, state);
   UpdateLantern(tachyon, state, player_rotation, player_rotation_matrix);
-
-  // @todo factor
-  {
-    float time_since_last_wind_chimes_action = time_since(state.last_wind_chimes_action_time);
-
-    if (
-      state.last_wind_chimes_action_time != 0.f &&
-      time_since_last_wind_chimes_action > 0.6f &&
-      time_since_last_wind_chimes_action < 1.5f &&
-      state.astro_turn_speed == 0.f
-    ) {
-      // @todo have different wind chimes for different time ranges
-      if (state.target_astro_time == astro_time_periods.present) {
-        // Present -> Past
-        TimeEvolution::StartAstroTraveling(tachyon, state, astro_time_periods.past);
-      } else {
-        // Past -> Present
-        TimeEvolution::StartAstroTraveling(tachyon, state, astro_time_periods.present);
-      }
-    }
-  }
 }
 
 void PlayerCharacter::AutoHop(Tachyon* tachyon, State& state) {

@@ -104,7 +104,7 @@ namespace astro {
         if (state.wand_hold_factor > 0.5f) {
           auto proximity = GetEntityProximity(entity, state);
 
-          if (proximity.distance < 9000.f && proximity.facing_dot > 0.1f) {
+          if (proximity.distance < 6000.f && proximity.facing_dot > 0.1f) {
             Charge(tachyon, state, entity);
           }
         }

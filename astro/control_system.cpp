@@ -66,7 +66,7 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
     // Astro travel
     abs(state.astro_turn_speed) > 0.1f ||
     // Wind chime actions
-    (state.last_wind_chimes_action_time != 0.f && time_since(state.last_wind_chimes_action_time) < 4.25f) ||
+    (state.last_wind_chimes_action_time != 0.f && time_since(state.last_wind_chimes_action_time) < 4.f) ||
     // Camera events
     state.camera_events.size() > 0 ||
     // Dodge actions
@@ -343,34 +343,6 @@ static void HandleDayNightControls(Tachyon* tachyon, State& state) {
   }
 }
 
-// @todo Magic:: (???) (or elsewhere???)
-static bool TestWindChimesAction(Tachyon* tachyon, State& state) {
-  const float distance_threshold = 5000.f;
-
-  float scene_time = get_scene_time();
-  float player_speed = state.player_velocity.magnitude();
-
-  for (auto& entity : state.wind_chimes) {
-    float distance = tVec3f::distance(entity.position, state.player_position);
-
-    if (
-      distance < distance_threshold &&
-      time_since(entity.game_activation_time) > 1.f
-    ) {
-      // @todo factor
-      entity.game_activation_time = scene_time;
-
-      state.astro_particle_spawn_position = entity.position;
-      state.last_wind_chimes_action_time = scene_time;
-      state.last_used_wind_chimes_id = entity.id;
-
-      return true;
-    }
-  }
-
-  return false;
-}
-
 static void HandleWandControls(Tachyon* tachyon, State& state) {
   if (abs(state.astro_turn_speed) != 0.f) {
     return;
@@ -387,9 +359,6 @@ static void HandleWandControls(Tachyon* tachyon, State& state) {
 
   // Pressing Square
   if (did_press_key(tKey::CONTROLLER_X)) {
-    // If we're performing a wind chimes action, stop here
-    if (TestWindChimesAction(tachyon, state)) return;
-
     if (state.targetable_entities.size() > 0) {
       if (Items::HasItem(state, ITEM_HOMING_SPELL)) {
         // @todo magic weapons
