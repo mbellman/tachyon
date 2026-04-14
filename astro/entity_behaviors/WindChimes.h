@@ -35,9 +35,14 @@ namespace astro {
     }
 
     static void HandleActivationBehavior(Tachyon* tachyon, State& state, GameEntity& entity) {
+      // Allow us to start activating the wind chimes if:
       if (
+        // We're holding up the wand
         state.wand_hold_factor > 0.5f &&
-        state.astro_turn_speed == 0.f
+        // We're not astro traveling
+        state.astro_turn_speed == 0.f &&
+        // The entity has not activated yet, or it has been long enough since last time
+        (entity.game_activation_time == -1.f || time_since(entity.game_activation_time) > 6.f)
       ) {
         auto proximity = GetEntityProximity(entity, state);
 
@@ -48,7 +53,7 @@ namespace astro {
         }
       }
 
-      // Not currently activating! Run the accumulation back value down.
+      // Not currently activating! Run the accumulation value back down.
       entity.accumulation_value -= state.dt;
       if (entity.accumulation_value < 0.f) entity.accumulation_value = 0.f;
     }

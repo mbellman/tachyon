@@ -32,25 +32,19 @@ namespace astro {
     }
 
     static void Charge(Tachyon* tachyon, State& state, GameEntity& entity) {
-      if (entity.light_id == -1) {
-        // Start charging
-        entity.light_id = create_point_light();
+      // Wait for the light be created first
+      if (entity.light_id == -1) return;
 
-        auto& light = *get_point_light(entity.light_id);
+      // Charge the light
+      auto& light = *get_point_light(entity.light_id);
 
-        light.power = 0.f;
-      } else {
-        // Continue charging
-        auto& light = *get_point_light(entity.light_id);
+      light.power += 0.5f * state.dt;
 
-        light.power += 0.75f * state.dt;
+      if (light.power >= 1.f) {
+        light.power = 1.f;
 
-        if (light.power >= 1.f) {
-          light.power = 1.f;
-
-          if (!entity.did_activate) {
-            HandleWandAction(tachyon, state, entity);
-          }
+        if (!entity.did_activate) {
+          HandleWandAction(tachyon, state, entity);
         }
       }
     }
@@ -98,7 +92,9 @@ namespace astro {
         float life_progress = Tachyon_InverseLerp(entity.astro_start_time, entity.astro_end_time, state.astro_time);
         float alpha = powf(life_progress, 3.f);
         tVec3f color = tVec3f::lerp(start_color, end_color, alpha);
+
         float roughness = Tachyon_Lerpf(0.f, 1.f, alpha);
+        roughness *= roughness;
 
         // @todo move to Magic::
         if (state.wand_hold_factor > 0.5f) {
@@ -116,7 +112,7 @@ namespace astro {
           Sync(stand, entity);
 
           stand.color = color;
-          stand.material = tVec4f(roughness, 1.f, 0, 0);
+          stand.material = tVec4f(roughness, 1.f, 0, 0.4f);
 
           commit(stand);
         }
@@ -140,12 +136,12 @@ namespace astro {
           wheel1.scale = entity.scale * 0.5f;
           wheel1.rotation = entity.orientation * Quaternion::fromAxisAngle(rotation_axis, entity.accumulation_value);
           wheel1.color = color;
-          wheel1.material = tVec4f(roughness, 1.f, 0, 0);
+          wheel1.material = tVec4f(roughness, 1.f, 0, 0.4f);
 
           wheel2.scale = entity.scale * 0.3f;
           wheel2.rotation = entity.orientation * Quaternion::fromAxisAngle(rotation_axis, -entity.accumulation_value * 0.7f);
           wheel2.color = color;
-          wheel2.material = tVec4f(roughness, 1.f, 0, 0);
+          wheel2.material = tVec4f(roughness, 1.f, 0, 0.4f);
 
           // Disrepair
           float time_until_end = entity.astro_end_time - state.astro_time;
@@ -195,28 +191,40 @@ namespace astro {
           }
 
           entity.accumulation_value += state.dt * 3.f * spin_alpha;
+        }
 
-          // Light
-          if (entity.light_id != -1) {
-            auto& light = *get_point_light(entity.light_id);
+        // Light
+        {
+          const float minimum_power = 0.5f;
+          tVec3f default_color = tVec3f(1.f, 0.4f, 0.1f);
+          tVec3f activated_color = tVec3f(1.f, 0.6f, 0.3f);
 
-            if (state.astro_time > entity.astro_end_time) {
-              light.power = 0.f;
-            }
+          if (entity.light_id == -1) {
+            // Initialization
+            entity.light_id = create_point_light();
 
-            // If we haven't fully activated the sculpture (e.g. while charging),
-            // and if we've stopped charging it, let its power dwindle
-            if (!entity.did_activate && state.wand_hold_factor < 0.5f) {
-              light.power -= 0.5f * state.dt;
-
-              if (light.power < 0.f) light.power = 0.f;
-            }
-
-            light.position = UnitEntityToWorldPosition(entity, tVec3f(0, 1.5f, 0.25f));
-            light.color = tVec3f(1.f, 0.6f, 0.3f);
-            light.radius = light.power * 2000.f;
-            light.glow_power = 2.f;
+            get_point_light(entity.light_id)->power = minimum_power;
           }
+
+          auto& light = *get_point_light(entity.light_id);
+
+          // If we haven't fully activated the sculpture (e.g. while charging),
+          // and if we've stopped charging it, let its power dwindle
+          if (!entity.did_activate && state.wand_hold_factor < 0.5f) {
+            light.power -= 0.5f * state.dt;
+
+            if (light.power < minimum_power) light.power = minimum_power;
+          }
+
+          // Kill the light if past end time
+          if (state.astro_time > entity.astro_end_time) {
+            light.power = 0.f;
+          }
+
+          light.position = UnitEntityToWorldPosition(entity, tVec3f(0, 1.5f, 0.25f));
+          light.color = tVec3f::lerp(default_color, activated_color, light.power);
+          light.radius = light.power * 2000.f;
+          light.glow_power = 2.f;
         }
 
         // Collision
