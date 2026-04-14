@@ -331,6 +331,7 @@ namespace astro {
     float seek_time = 0.f;
     float next_animation_blend_alpha = 0.f;
     float head_turn_angle = 0.f;
+    float torso_turn_angle = 0.f;
     float upper_body_animation_time = 0.f;
   };
 

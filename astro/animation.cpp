@@ -119,6 +119,11 @@ void Animation::UpdatePose(tSkinnedMeshAnimation& mesh_animation) {
       // Set blended rotation
       active_pose_bone.rotation = blended_rotation;
 
+      // @todo allow the torso bone name to be specified
+      if (active_pose_bone.name == "Torso") {
+        active_pose_bone.rotation *= Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), mesh_animation.torso_turn_angle);
+      }
+
       // @todo factor
       // @todo use a second loop for this
       if (mesh_animation.upper_body_animation != nullptr) {
