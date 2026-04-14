@@ -16,6 +16,7 @@ layout (location = 4) in uint modelSurface;
 layout (location = 5) in mat4 modelMatrix;
 
 flat out uvec4 fragSurface;
+out vec3 fragWorldPosition;
 out vec3 fragNormal;
 out vec3 fragTangent;
 out vec3 fragBitangent;
@@ -115,6 +116,7 @@ void main() {
   gl_Position = view_projection_matrix * vec4(world_space_position, 1.0);
 
   fragSurface = SurfaceToUVec4(modelSurface);
+  fragWorldPosition = world_space_position;
   fragNormal = normal_matrix * vertexNormal;
   fragTangent = normal_matrix * vertexTangent;
   fragBitangent = getFragBitangent(fragNormal, fragTangent);

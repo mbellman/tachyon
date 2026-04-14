@@ -168,6 +168,7 @@ struct tMeshRecord {
   uint16 mesh_index;
   uint8 shadow_cascade_ceiling = 4;
   bool use_lowest_lod_for_shadows = false;
+  bool use_disocclusion = false;
   tMeshType type = PBR_MESH;
   std::string texture = "";
 
@@ -318,12 +319,14 @@ struct Tachyon {
     tVec3f foliage_mover_velocity;
 
     bool use_close_camera_disocclusion = false;
+    tVec3f disocclusion_target_position = tVec3f(0.f);
   } scene;
 
   struct Fx {
     bool enable_shadows = true;
     bool enable_ssao = true;
 
+    // @todo move to .scene
     float fog_visibility = 10000.f;
     float water_time = 0.f;
 

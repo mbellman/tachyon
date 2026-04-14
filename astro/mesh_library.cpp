@@ -172,6 +172,7 @@ static void AddProceduralMeshes(Tachyon* tachyon, State& state) {
 
     mesh(meshes.tree_flower).shadow_cascade_ceiling = 1;
     mesh(meshes.tree_flower).type = FOLIAGE_MESH;
+    mesh(meshes.tree_flower).use_disocclusion = true;
   }
 
   // Dirt paths

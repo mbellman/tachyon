@@ -10,9 +10,11 @@ namespace astro {
       meshes.chestnut_tree_leaves = MODEL_MESH("./astro/3d_models/chestnut_tree/leaves.obj", 500);
 
       mesh(meshes.chestnut_tree_trunk).shadow_cascade_ceiling = 3;
-      mesh(meshes.chestnut_tree_leaves).shadow_cascade_ceiling = 3;
+      mesh(meshes.chestnut_tree_trunk).use_disocclusion = true;
 
+      mesh(meshes.chestnut_tree_leaves).shadow_cascade_ceiling = 3;
       mesh(meshes.chestnut_tree_leaves).type = FOLIAGE_MESH;
+      mesh(meshes.chestnut_tree_leaves).use_disocclusion = true;
     }
 
     getMeshes() {

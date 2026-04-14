@@ -1,11 +1,13 @@
 #version 460 core
 
 uniform bool use_close_camera_disocclusion;
+uniform vec3 disocclusion_target_position;
 
 uniform bool has_texture;
 uniform sampler2D albedo_texture;
 
 flat in uvec4 fragSurface;
+in vec3 fragWorldPosition;
 in vec3 fragNormal;
 in vec3 fragTangent;
 in vec3 fragBitangent;
@@ -170,26 +172,26 @@ vec4 UnpackColor(uvec4 surface) {
 }
 
 void main() {
-  // @hack @temporary
-  // @todo DON'T DO THIS!!!!!!!!!!! Figure out a way to mark meshes
-  // as non-disoccluding. Dissocluded meshes may just have to be rendered
-  // in a separate draw call.
-  float metalness = (fragSurface.z & 0x0F);
-
-  if (use_close_camera_disocclusion && metalness < 0.5) {
-    bool is_close_to_camera = GetWorldDepth(gl_FragCoord.z, Z_NEAR, Z_FAR) < 9000.0;
+  if (use_close_camera_disocclusion) {
+    float world_depth = GetWorldDepth(gl_FragCoord.z, Z_NEAR, Z_FAR);
     float screen_center_distance = length(gl_FragCoord.xy - RESOLUTION / 2.0);
-    bool is_center_frame = screen_center_distance < 900.0;
+    bool is_within_disocclusion_radius = screen_center_distance < 900.0;
+    bool is_higher_than_disocclusion_target = fragWorldPosition.y > disocclusion_target_position.y;
     int dither_level = clamp(int(screen_center_distance / 18.0) - 33, 0, 15);
     mat4 dither_kernel = dither_kernels[dither_level];
     float x = gl_FragCoord.x + 0.5;
     float y = gl_FragCoord.y + 0.5;
     float dither_value = dither_kernel[int(x) % 4][int(y) % 4];
 
+    // Discard the fragment if:
     if (
-      is_close_to_camera &&
-      is_center_frame &&
-      dither_value == 0.0
+      // It's within range of the camera
+      // @todo make configurable (?)
+      world_depth < 20000.0 &&
+      // Dithering kernel specifies a zero'd-out pixel here
+      dither_value == 0.0 &&
+      is_within_disocclusion_radius &&
+      is_higher_than_disocclusion_target
     ) {
       discard;
     }

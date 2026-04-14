@@ -7,6 +7,8 @@ namespace astro {
     addMeshes() {
       meshes.wooden_bridge_placeholder = MODEL_MESH("./astro/3d_models/wooden_bridge/placeholder.obj", 500);
       meshes.wooden_bridge_platform = MODEL_MESH("./astro/3d_models/wooden_bridge/platform.obj", 500);
+
+      mesh(meshes.wooden_bridge_platform).use_disocclusion = true;
     }
 
     getMeshes() {

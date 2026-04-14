@@ -655,7 +655,7 @@ static void AddLowestLodDrawElementsIndirectCommands(std::vector<DrawElementsInd
   AddDrawElementsIndirectCommands(commands, record, triangle_count, vertex_count);
 }
 
-static void RenderMeshesByType(Tachyon* tachyon, tMeshType type) {
+static void RenderMeshesByType(Tachyon* tachyon, tMeshType type, bool using_disocclusion = false) {
   auto& renderer = get_renderer();
   auto& gl_mesh_pack = renderer.mesh_pack;
 
@@ -697,7 +697,8 @@ static void RenderMeshesByType(Tachyon* tachyon, tMeshType type) {
       record.group.disabled ||
       record.group.total_active == 0 ||
       record.type != type ||
-      record.texture != ""
+      record.texture != "" ||
+      record.use_disocclusion != using_disocclusion
     ) {
       continue;
     }
@@ -709,6 +710,9 @@ static void RenderMeshesByType(Tachyon* tachyon, tMeshType type) {
       renderer.total_meshes_drawn++;
     }
   }
+
+  // Stop here if no draw commands were generated
+  if (commands.size() == 0) return;
 
   glBindBuffer(GL_DRAW_INDIRECT_BUFFER, renderer.indirect_buffer);
   glBufferData(GL_DRAW_INDIRECT_BUFFER, commands.size() * sizeof(DrawElementsIndirectCommand), commands.data(), GL_DYNAMIC_DRAW);
@@ -727,6 +731,8 @@ static void RenderStaticMeshes(Tachyon* tachyon) {
   auto& locations = renderer.shaders.locations.main_geometry;
   auto& ctx = renderer.ctx;
 
+  tVec3f disocclusion_target_position = tachyon->scene.disocclusion_target_position;
+
   glEnable(GL_CULL_FACE);
   glEnable(GL_DEPTH_TEST);
   glDisable(GL_BLEND);
@@ -737,14 +743,21 @@ static void RenderStaticMeshes(Tachyon* tachyon) {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
   glUseProgram(shader.program);
-  SetShaderBool(locations.use_close_camera_disocclusion, tachyon->scene.use_close_camera_disocclusion);
   SetShaderBool(locations.has_texture, false);
   SetShaderMat4f(locations.view_projection_matrix, ctx.view_projection_matrix);
   SetShaderVec3f(locations.transform_origin, tachyon->scene.transform_origin);
   SetShaderFloat(locations.scene_time, tachyon->scene.scene_time);
+  SetShaderBool(locations.use_close_camera_disocclusion, false);
+  SetShaderVec3f(locations.disocclusion_target_position, disocclusion_target_position);
+
+  #define render_disoccluding_meshes(__type)\
+    SetShaderBool(locations.use_close_camera_disocclusion, true);\
+    RenderMeshesByType(tachyon, __type, true);\
+    SetShaderBool(locations.use_close_camera_disocclusion, false);
 
   // Render regular, untextured PBR meshes
   RenderMeshesByType(tachyon, PBR_MESH);
+  render_disoccluding_meshes(PBR_MESH);
 
   // Render grass meshes
   if (HasObjectsOfMeshType(tachyon, GRASS_MESH)) {
@@ -753,6 +766,7 @@ static void RenderStaticMeshes(Tachyon* tachyon) {
     SetShaderVec3f(locations.foliage_mover_velocity, tachyon->scene.foliage_mover_velocity);
 
     RenderMeshesByType(tachyon, GRASS_MESH);
+    render_disoccluding_meshes(GRASS_MESH);
 
     SetShaderBool(locations.is_grass, false);
   }
@@ -762,15 +776,18 @@ static void RenderStaticMeshes(Tachyon* tachyon) {
     SetShaderBool(locations.is_foliage, true);
 
     RenderMeshesByType(tachyon, FOLIAGE_MESH);
+    render_disoccluding_meshes(FOLIAGE_MESH);
 
     SetShaderBool(locations.is_foliage, false);
   }
 
-  SetShaderBool(locations.has_texture, true);
-  SetShaderInt(locations.albedo_texture, 0);
+  #undef render_disoccluding_meshes
 
   // Render textured PBR meshes
   // @todo factor
+  SetShaderBool(locations.has_texture, true);
+  SetShaderInt(locations.albedo_texture, 0);
+
   for (auto& record : tachyon->mesh_pack.mesh_records) {
     if (
       !record.group.disabled &&

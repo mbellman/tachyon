@@ -21,12 +21,18 @@ namespace astro {
       meshes.oak_tree_leaves_facade = MODEL_MESH("./astro/3d_models/oak_tree/leaves_facade.obj", 500);
 
       mesh(meshes.oak_tree_roots).shadow_cascade_ceiling = 2;
+      mesh(meshes.oak_tree_roots).shadow_cascade_ceiling = 2;
+
       mesh(meshes.oak_tree_trunk).shadow_cascade_ceiling = 2;
+      // mesh(meshes.oak_tree_trunk).use_disocclusion = true;
+
       mesh(meshes.oak_tree_branches).shadow_cascade_ceiling = 2;
+      mesh(meshes.oak_tree_branches).use_disocclusion = true;
 
       mesh(meshes.oak_tree_leaves).type = FOLIAGE_MESH;
       mesh(meshes.oak_tree_leaves).shadow_cascade_ceiling = 2;
       mesh(meshes.oak_tree_leaves).use_lowest_lod_for_shadows = true;
+      mesh(meshes.oak_tree_leaves).use_disocclusion = true;
 
       mesh(meshes.oak_tree_leaves_facade).type = FOLIAGE_MESH;
       mesh(meshes.oak_tree_leaves_facade).shadow_cascade_ceiling = 0;

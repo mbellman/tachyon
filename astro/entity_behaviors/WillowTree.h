@@ -11,10 +11,14 @@ namespace astro {
       meshes.willow_tree_leaves = MODEL_MESH("./astro/3d_models/willow_tree/leaves.obj", 500);
 
       mesh(meshes.willow_tree_trunk).shadow_cascade_ceiling = 2;
+      mesh(meshes.willow_tree_trunk).use_disocclusion = true;
+
       mesh(meshes.willow_tree_branches).shadow_cascade_ceiling = 2;
+      mesh(meshes.willow_tree_branches).use_disocclusion = true;
 
       mesh(meshes.willow_tree_leaves).type = FOLIAGE_MESH;
       mesh(meshes.willow_tree_leaves).shadow_cascade_ceiling = 2;
+      mesh(meshes.willow_tree_leaves).use_disocclusion = true;
     }
 
     getMeshes() {

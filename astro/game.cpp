@@ -763,6 +763,12 @@ static void HandleFrameEnd(Tachyon* tachyon, State& state) {
     scene.foliage_mover_velocity *= 1.5f;
   }
 
+  // Disocclusion target
+  {
+    scene.disocclusion_target_position = state.player_position;
+    scene.disocclusion_target_position.y += 1500.f;
+  }
+
   // Astro turn direction tracking
   {
     if (state.astro_turn_speed != 0.f) {
