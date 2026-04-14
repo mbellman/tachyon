@@ -28,6 +28,14 @@ static inline float GetAngleBetween(const float a1, const float a2) {
   return angle;
 }
 
+static bool IsPlayerRunning(Tachyon* tachyon, State& state) {
+  return (
+    is_key_held(tKey::CONTROLLER_A) &&
+    state.previous_move_delta > 0.f &&
+    (abs(tachyon->left_stick.x) > 0.1f || abs(tachyon->left_stick.y) > 0.1f)
+  );
+}
+
 static void SetActivePlayerAnimation(Tachyon* tachyon, State& state) {
   auto& player_animation = state.player_mesh_animation;
   auto& animations = state.animations;
@@ -64,11 +72,7 @@ static void SetActivePlayerAnimation(Tachyon* tachyon, State& state) {
   }
 
   // Running
-  else if (
-    is_key_held(tKey::CONTROLLER_A) &&
-    state.previous_move_delta > 0.f &&
-    (abs(tachyon->left_stick.x) > 0.1f || abs(tachyon->left_stick.y) > 0.1f)
-  ) {
+  else if (IsPlayerRunning(tachyon, state)) {
     if (state.wand_hold_factor > 0.f) {
       Animation::AwaitNextAnimation(player_animation, &animations.player_run_wand);
     } else {
@@ -78,7 +82,11 @@ static void SetActivePlayerAnimation(Tachyon* tachyon, State& state) {
 
   // Walking
   else if (state.previous_move_delta > 5.f || is_doing_quick_turn || is_moving_with_target) {
-    Animation::AwaitNextAnimation(player_animation, &animations.player_walk);
+    if (state.wand_hold_factor > 0.f) {
+      Animation::AwaitNextAnimation(player_animation, &animations.player_walk_wand);
+    } else {
+      Animation::AwaitNextAnimation(player_animation, &animations.player_walk);
+    }
   }
 
   // Idling
@@ -476,9 +484,12 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
   );
 
   if (state.wand_hold_factor > 0.f) {
+    float swing_rate = IsPlayerRunning(tachyon, state) ? 15.f : 6.f;
+    float adjusted_pitch = 0.6f + 0.1f * sinf(swing_rate * get_scene_time());
+
     Quaternion adjusted_rotation = held_wand_rotation * (
       // Pitch correction
-      Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.6f) *
+      Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), adjusted_pitch) *
       // Yaw correction
       Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 0.25f) *
       // Roll correction
@@ -932,6 +943,7 @@ void PlayerCharacter::TakeDamage(Tachyon* tachyon, State& state, const float dam
   state.last_target_jump_time = 0.f;
 
   // Cancel attack animation
+  state.last_wand_swing_time = 0.f;
   state.player_mesh_animation.upper_body_animation = nullptr;
   state.player_mesh_animation.upper_body_animation_time = 0.f;
 

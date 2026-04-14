@@ -253,6 +253,12 @@ namespace astro {
     int32 light_id = -1;
   };
 
+  enum AmbientParticleType {
+    PARTICLE_RISING,
+    PARTICLE_FLOATING,
+    PARTICLE_FADING_OUT
+  };
+
   struct AmbientParticle {
     float spawn_time = 0.f;
     float lifetime = 1.f;
@@ -261,6 +267,7 @@ namespace astro {
     tVec3f color = tVec3f(1.f);
     int32 light_id = -1;
     int32 spawning_entity_id = -1;
+    AmbientParticleType type = PARTICLE_RISING;
   };
 
   /**
@@ -389,6 +396,7 @@ namespace astro {
     struct SkeletonAnimations {
       tSkeletonAnimation player_idle;
       tSkeletonAnimation player_walk;
+      tSkeletonAnimation player_walk_wand;
       tSkeletonAnimation player_run;
       tSkeletonAnimation player_run_wand;
       tSkeletonAnimation player_arms_out;
