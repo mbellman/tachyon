@@ -91,18 +91,26 @@ static void SetActivePlayerAnimation(Tachyon* tachyon, State& state) {
 
   // Idling
   else {
-    Animation::AwaitNextAnimation(player_animation, &animations.player_idle);
+    if (state.wand_hold_factor > 0.f) {
+      Animation::AwaitNextAnimation(player_animation, &animations.player_idle_wand);
+    } else {
+      Animation::AwaitNextAnimation(player_animation, &animations.player_idle);
+    }
   }
 }
 
 static float GetPlayerAnimationSpeed(Tachyon* tachyon, State& state) {
   bool is_astro_traveling = state.astro_turn_speed != 0.f;
-  bool is_idle = state.player_mesh_animation.next_animation == &state.animations.player_idle;
   bool is_hit = state.last_damage_time != 0.f && time_since(state.last_damage_time) < 1.f;
 
+  bool is_idle = (
+    state.player_mesh_animation.next_animation == &state.animations.player_idle ||
+    state.player_mesh_animation.next_animation == &state.animations.player_idle_wand
+  );
+
   if (is_astro_traveling) return 0.65f;
-  if (is_idle) return 0.8f;
   if (is_hit) return 7.f;
+  if (is_idle) return 0.8f;
 
   float player_speed = state.player_velocity.magnitude();
   float max_walk_speed = state.has_target ? PlayerCharacter::MAX_COMBAT_WALK_SPEED : PlayerCharacter::MAX_WALK_SPEED;
@@ -484,7 +492,15 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
   );
 
   if (state.wand_hold_factor > 0.f) {
-    float swing_rate = IsPlayerRunning(tachyon, state) ? 15.f : 6.f;
+    float swing_rate = (
+      // Running
+      IsPlayerRunning(tachyon, state) ? 15.f :
+      // Walking
+      state.previous_move_delta > 0.f ? 6.f :
+      // Idle
+      2.5f
+    );
+
     float adjusted_pitch = 0.6f + 0.1f * sinf(swing_rate * get_scene_time());
 
     Quaternion adjusted_rotation = held_wand_rotation * (

@@ -396,6 +396,7 @@ namespace astro {
     // Animations
     struct SkeletonAnimations {
       tSkeletonAnimation player_idle;
+      tSkeletonAnimation player_idle_wand;
       tSkeletonAnimation player_walk;
       tSkeletonAnimation player_walk_wand;
       tSkeletonAnimation player_run;

@@ -1,0 +1,392 @@
+{
+    "asset" : {
+        "generator" : "Khronos glTF Blender I/O v3.4.50",
+        "version" : "2.0"
+    },
+    "scene" : 0,
+    "scenes" : [
+        {
+            "name" : "Scene",
+            "nodes" : [
+                18
+            ]
+        }
+    ],
+    "nodes" : [
+        {
+            "name" : "Head",
+            "translation" : [
+                0,
+                0.21452438831329346,
+                0
+            ]
+        },
+        {
+            "children" : [
+                0
+            ],
+            "name" : "Neck",
+            "translation" : [
+                0,
+                0.4728354513645172,
+                0
+            ]
+        },
+        {
+            "name" : "Arm3.L",
+            "rotation" : [
+                0.16317525506019592,
+                -0.006587964482605457,
+                -0.039800699800252914,
+                0.9857719540596008
+            ],
+            "scale" : [
+                0.9999998807907104,
+                0.9999999403953552,
+                1
+            ],
+            "translation" : [
+                2.9802372125686816e-08,
+                0.3763037621974945,
+                -4.440892098500626e-14
+            ]
+        },
+        {
+            "children" : [
+                2
+            ],
+            "name" : "Arm2.L",
+            "rotation" : [
+                4.7742719999632754e-08,
+                -6.024323795372766e-08,
+                -0.4062374234199524,
+                0.9137675762176514
+            ],
+            "scale" : [
+                0.9999999403953552,
+                1,
+                1
+            ],
+            "translation" : [
+                2.980239699468257e-08,
+                0.4100313186645508,
+                -1.4210854715202004e-14
+            ]
+        },
+        {
+            "children" : [
+                3
+            ],
+            "name" : "Arm1.L",
+            "rotation" : [
+                2.8579773925230256e-07,
+                2.322741323723676e-07,
+                -0.8213534355163574,
+                0.5704196691513062
+            ],
+            "translation" : [
+                0,
+                0.4728354513645172,
+                0
+            ]
+        },
+        {
+            "name" : "Arm3.R",
+            "rotation" : [
+                0.24958887696266174,
+                0.6044631004333496,
+                0.06976665556430817,
+                0.7533010244369507
+            ],
+            "scale" : [
+                1,
+                0.9999998807907104,
+                1
+            ],
+            "translation" : [
+                -2.9802322387695312e-08,
+                0.37630370259284973,
+                9.313225746154785e-09
+            ]
+        },
+        {
+            "children" : [
+                5
+            ],
+            "name" : "Arm2.R",
+            "rotation" : [
+                0.10369973629713058,
+                0.15149298310279846,
+                -0.18143858015537262,
+                0.9661140441894531
+            ],
+            "translation" : [
+                -3.282912075519562e-08,
+                0.41003137826919556,
+                -3.725290298461914e-09
+            ]
+        },
+        {
+            "children" : [
+                6
+            ],
+            "name" : "Arm1.R",
+            "rotation" : [
+                0.10753241926431656,
+                0.13277241587638855,
+                0.5827417969703674,
+                0.7944937348365784
+            ],
+            "scale" : [
+                0.9999999403953552,
+                1.0000001192092896,
+                1
+            ],
+            "translation" : [
+                -4.1325876054543187e-10,
+                0.4728354513645172,
+                -1.8844730220735073e-09
+            ]
+        },
+        {
+            "children" : [
+                1,
+                4,
+                7
+            ],
+            "name" : "Torso",
+            "rotation" : [
+                0,
+                1.1920928955078125e-07,
+                0,
+                1
+            ],
+            "translation" : [
+                0,
+                0.21348628401756287,
+                0
+            ]
+        },
+        {
+            "name" : "Foot.L",
+            "rotation" : [
+                -3.245492052883492e-07,
+                -3.887281962988709e-08,
+                -0.748693585395813,
+                0.6629162430763245
+            ],
+            "scale" : [
+                0.9999998807907104,
+                0.9999998807907104,
+                0.9999999403953552
+            ],
+            "translation" : [
+                1.7462298274040222e-08,
+                0.4888451397418976,
+                -4.656612873077393e-10
+            ]
+        },
+        {
+            "children" : [
+                9
+            ],
+            "name" : "Shin.L",
+            "rotation" : [
+                -0.016356777399778366,
+                -2.8596765844213223e-08,
+                -7.720823980150726e-09,
+                0.999866247177124
+            ],
+            "scale" : [
+                0.9999999403953552,
+                1,
+                0.9999998211860657
+            ],
+            "translation" : [
+                1.0011717677116394e-08,
+                0.42642199993133545,
+                -6.502514082740163e-09
+            ]
+        },
+        {
+            "children" : [
+                10
+            ],
+            "name" : "Thigh.L",
+            "rotation" : [
+                -0.26852813363075256,
+                0.03130084648728371,
+                0.11146895587444305,
+                0.9562884569168091
+            ],
+            "scale" : [
+                1,
+                1,
+                0.9999999403953552
+            ],
+            "translation" : [
+                1.7763568394002505e-15,
+                0.2780107855796814,
+                -3.725284969391396e-09
+            ]
+        },
+        {
+            "children" : [
+                11
+            ],
+            "name" : "Pelvis.L",
+            "rotation" : [
+                -0.6743513345718384,
+                -0.21272176504135132,
+                -0.6743509769439697,
+                0.21272175014019012
+            ],
+            "scale" : [
+                0.9999994039535522,
+                0.9999998211860657,
+                0.9999999403953552
+            ],
+            "translation" : [
+                0,
+                0.21348628401756287,
+                0
+            ]
+        },
+        {
+            "name" : "Foot.R",
+            "rotation" : [
+                -3.1415476087204297e-07,
+                4.859073143848036e-09,
+                0.6696149110794067,
+                0.7427085041999817
+            ],
+            "translation" : [
+                1.3969838619232178e-09,
+                0.4888451099395752,
+                -1.257285475730896e-08
+            ]
+        },
+        {
+            "children" : [
+                13
+            ],
+            "name" : "Shin.R",
+            "rotation" : [
+                -0.051315538585186005,
+                0.004939326085150242,
+                -0.08263684064149857,
+                0.9952454566955566
+            ],
+            "translation" : [
+                -2.7939677238464355e-09,
+                0.42642202973365784,
+                -1.7811544239521027e-08
+            ]
+        },
+        {
+            "children" : [
+                14
+            ],
+            "name" : "Thigh.R",
+            "rotation" : [
+                -0.22266651690006256,
+                0.031921692192554474,
+                0.09575474262237549,
+                0.969655454158783
+            ],
+            "translation" : [
+                3.1086244689504383e-15,
+                0.2780108153820038,
+                -1.8626419295841856e-09
+            ]
+        },
+        {
+            "children" : [
+                15
+            ],
+            "name" : "Pelvis.R",
+            "rotation" : [
+                -0.6773383617401123,
+                0.20300979912281036,
+                0.6773380041122437,
+                0.20300976932048798
+            ],
+            "scale" : [
+                0.9999994039535522,
+                0.9999997615814209,
+                0.9999999403953552
+            ],
+            "translation" : [
+                0,
+                0.21348628401756287,
+                0
+            ]
+        },
+        {
+            "children" : [
+                8,
+                12,
+                16
+            ],
+            "name" : "Root",
+            "translation" : [
+                0,
+                0.0430910587310791,
+                0
+            ]
+        },
+        {
+            "children" : [
+                17
+            ],
+            "name" : "Armature"
+        }
+    ],
+    "skins" : [
+        {
+            "inverseBindMatrices" : 0,
+            "joints" : [
+                17,
+                8,
+                1,
+                0,
+                4,
+                3,
+                2,
+                7,
+                6,
+                5,
+                12,
+                11,
+                10,
+                9,
+                16,
+                15,
+                14,
+                13
+            ],
+            "name" : "Armature"
+        }
+    ],
+    "accessors" : [
+        {
+            "bufferView" : 0,
+            "componentType" : 5126,
+            "count" : 18,
+            "type" : "MAT4"
+        }
+    ],
+    "bufferViews" : [
+        {
+            "buffer" : 0,
+            "byteLength" : 1152,
+            "byteOffset" : 0
+        }
+    ],
+    "buffers" : [
+        {
+            "byteLength" : 1152,
+            "uri" : "data:application/octet-stream;base64,AACAPwAAAIAAAAAAAAAAgAAAAIAAAIA/AAAAgAAAAAAAAAAAAAAAgAAAgD8AAACAAAAAgECAML0AAACAAACAPwAAgD8AAACAAACANAAAAIAAAACAAACAPwAAAIAAAAAAAACAtAAAAIAAAIA/AAAAgAAAAIAbXoO+AAAAgAAAgD8AAIA/AAAAgAAAgDQAAACAAAAAgAAAgD8AAACAAAAAAAAAgLQAAACAAACAPwAAAIAAAACAzLo6vwAAAIAAAIA/AACAPwAAAIAAAIA0AAAAgAAAAIAAAIA/AAAAgAAAAAAAAIC0AAAAgAAAgD8AAACAAAAAgN6lcb8AAACAAACAPzwlRD3RtH8/B7QRMwAAAIDRtH+/MCVEPW7yPbUAAAAARyo+tQAA4KgAAIA/AAAAgPWDOj8kEg+9vYwKNQAAgD/tfae8TPJ/P+r/RLIAAACAS/J/vwV+p7zThBa1AAAAAOCMFrX//7eoAACAPwAAAIAg3EE/ZM/JvlUD5DQAAIA/M8/OvQGxfj+xB+ezAAAAgAGxfr84z869ikKOtQAAAACn/Y61AACAqAAAgD8AAACASiFRP9T3NL9bn2k1AACAPzwlRD3RtH+/B7QRswAAAIDRtH8/MCVEPW7yPbUAAAAARyo+NQAAMKkAAIA/AAAAgPWDOr8kEg+9vYwKNQAAgD/tfae8TPJ/v+r/RDIAAACAS/J/PwV+p7zThBa1AAAAAOCMFjX//xupAACAPwAAAIAg3EG/ZM/JvlUD5DQAAIA/M8/OvQGxfr+xB+czAAAAgAGxfj84z869ikKOtQAAAACn/Y41AAAAqQAAgD8AAACASiFRv9T3NL9bn2k1AACAP6LM7zQ3eAM/r6lbPwAAAIB7hY80salbvzZ4Az8AAAAABQCAP6+blrTWZQ21AAAAgB9Mk7MqcWE+r+0GvgAAgD+k3oU0YxkGvND9fz8AAACAJiyRsdH9f78DGga8AAAAAAUAgD+ICIC0KiDXtAAAAICxkxiz7kCdPDgLEr4AAIA/YIioNP7/HzQBAIA/AAAAgGGIqCUBAIC/AgCAMAAAAAAFAIA/AQt/tMq7+LQAAACAP8o3syQX0b42oA6+AACAPwqZqDRuIQ+0AQCAPwAAAIDeoX4/OWvTvbaV/rQAAAAAY2vTPeahfj9LYVOzAAAAgF12ZD+usL29U6AOvgAAgD+izO80N3gDv6+pW78AAACAe4WPtLGpW782eAM/AAAAAAUAgL+vm5a01mUNtQAAAIAfTJMzKnFhPq/tBr4AAIA/pN6FNGMZBjzQ/X+/AAAAgCYskTHR/X+/AxoGvAAAAAAFAIC/iAiAtCog17QAAACAsZMYM+5AnTw4CxK+AACAP2CIqDT+/x+0AQCAvwAAAIBhiKilAQCAvwIAgDAAAAAABQCAvwELf7TKu/i0AAAAAD/KNzMkF9G+NqAOvgAAgD8Kmag0biEPNAEAgL8AAACA3qF+vzlr0722lf60AAAAAGNr073moX4/S2FTswAAAIBddmS/rrC9vVOgDr4AAIA/"
+        }
+    ]
+}
