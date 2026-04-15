@@ -90,7 +90,11 @@ namespace astro {
 
         float player_distance = tVec3f::distance(state.player_position, entity.visible_position);
 
-        if (player_distance < 6000.f && !DidFlyAway(entity)) {
+        if (
+          player_distance < 6000.f &&
+          !DidFlyAway(entity) &&
+          state.astro_turn_speed == 0.f
+        ) {
           StartFlyingAway(entity, get_scene_time());
         } else {
           TurnRandomDirection(tachyon, entity);

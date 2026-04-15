@@ -1,4 +1,5 @@
 #include "astro/particles.h"
+#include "astro/entity_behaviors/behavior.h"
 
 using namespace astro;
 
@@ -114,11 +115,11 @@ static void HandleSculptureParticles(Tachyon* tachyon, State& state) {
   for (auto& entity : state.sculpture_1s) {
     if (abs(entity.position.x - state.player_position.x) > 12000.f) continue;
     if (abs(entity.position.z - state.player_position.z) > 12000.f) continue;
-    if (!entity.did_activate) continue;
+    if (!entity.did_activate || !IsDuringActiveTime(entity, state)) continue;
 
     for (auto& next_entity : state.sculpture_1s) {
       if (IsSameEntity(entity, next_entity)) continue;
-      if (!next_entity.did_activate) continue;
+      if (!next_entity.did_activate || !IsDuringActiveTime(next_entity, state)) continue;
 
       float distance = tVec3f::distance(entity.position, next_entity.position);
 
