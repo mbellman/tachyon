@@ -50,12 +50,12 @@ static void HandleQuickManeuverAction(Tachyon* tachyon, State& state) {
 }
 
 // @todo continue to work on this
-static void HandleExperimentalControls(Tachyon* tachyon, State& state, const float movement_speed) {
+static void HandleExperimentalControls(Tachyon* tachyon, State& state, const float acceleration) {
   tVec3f forward = state.player_facing_direction;
   tVec3f left = tVec3f::cross(state.player_facing_direction, tVec3f(0, 1.f, 0));
 
-  state.player_velocity += state.player_facing_direction * -tachyon->left_stick.y * movement_speed * state.dt;
-  state.player_velocity += left * tachyon->left_stick.x * movement_speed * state.dt;
+  state.player_velocity += state.player_facing_direction * -tachyon->left_stick.y * acceleration * state.dt;
+  state.player_velocity += left * tachyon->left_stick.x * acceleration * state.dt;
 }
 
 static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
@@ -78,31 +78,31 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
   }
 
   // Directional movement
-  float movement_speed =
-    is_running ? 14000.f :
+  float acceleration =
+    is_running ? 12000.f :
     state.has_target ? 8000.f :
     4000.f;
 
   if (is_key_held(tKey::W)) {
-    state.player_velocity += tVec3f(0, 0, -1.f) * movement_speed * state.dt;
+    state.player_velocity += tVec3f(0, 0, -1.f) * acceleration * state.dt;
   }
 
   if (is_key_held(tKey::A)) {
-    state.player_velocity += tVec3f(-1.f, 0, 0) * movement_speed * state.dt;
+    state.player_velocity += tVec3f(-1.f, 0, 0) * acceleration * state.dt;
   }
 
   if (is_key_held(tKey::D)) {
-    state.player_velocity += tVec3f(1.f, 0, 0) * movement_speed * state.dt;
+    state.player_velocity += tVec3f(1.f, 0, 0) * acceleration * state.dt;
   }
 
   if (is_key_held(tKey::S)) {
-    state.player_velocity += tVec3f(0, 0, 1.f) * movement_speed * state.dt;
+    state.player_velocity += tVec3f(0, 0, 1.f) * acceleration * state.dt;
   }
 
-  state.player_velocity.x += tachyon->left_stick.x * movement_speed * state.dt;
-  state.player_velocity.z += tachyon->left_stick.y * movement_speed * state.dt;
+  state.player_velocity.x += tachyon->left_stick.x * acceleration * state.dt;
+  state.player_velocity.z += tachyon->left_stick.y * acceleration * state.dt;
 
-  // HandleExperimentalControls(tachyon, state, movement_speed);
+  // HandleExperimentalControls(tachyon, state, acceleration);
 
   // Track run input timings to use for dodges
   if (did_press_key(tKey::CONTROLLER_A)) {

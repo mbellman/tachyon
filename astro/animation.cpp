@@ -52,8 +52,8 @@ static float GetMaxSeekTime(tSkeletonAnimation& animation) {
   return (float)animation.frames.size();
 }
 
-void Animation::AccumulateTime(tSkinnedMeshAnimation& mesh_animation, const float accumulation, const float blend_rate, const float dt) {
-  mesh_animation.seek_time += accumulation * dt;
+void Animation::AccumulateTime(tSkinnedMeshAnimation& mesh_animation, const float animation_speed, const float blend_rate, const float dt) {
+  mesh_animation.seek_time += animation_speed * dt;
 
   // Limit and wrap the animation time to a common multiple of the
   // current/next animation times so that we don't eventually encounter

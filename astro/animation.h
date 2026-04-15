@@ -10,7 +10,7 @@ namespace astro {
 
   // @todo move to engine (?)
   namespace Animation {
-    void AccumulateTime(tSkinnedMeshAnimation& mesh_animation, const float accumulation, const float blend_rate, const float dt);
+    void AccumulateTime(tSkinnedMeshAnimation& mesh_animation, const float animation_speed, const float blend_rate, const float dt);
     void UpdatePose(tSkinnedMeshAnimation& mesh_animation);
     void UpdateBoneMatrices(tSkinnedMeshAnimation& mesh_animation);
     void SetNextAnimation(tSkinnedMeshAnimation& mesh_animation, tSkeletonAnimation* skeleton_animation);

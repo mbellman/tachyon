@@ -45,7 +45,7 @@ static void SetActivePlayerAnimation(Tachyon* tachyon, State& state) {
     time_since(state.last_quick_turn_time) < 0.3f
   );
 
-  bool is_moving_with_target = (
+  bool has_target_and_is_moving = (
     state.has_target &&
     (tachyon->left_stick.x != 0.f || tachyon->left_stick.y != 0.f)
   );
@@ -64,11 +64,8 @@ static void SetActivePlayerAnimation(Tachyon* tachyon, State& state) {
   }
 
   // Astro traveling
-  else if (
-    state.last_wind_chimes_action_time != 0.f &&
-    time_since(state.last_wind_chimes_action_time) < 3.8f
-  ) {
-    Animation::SetNextAnimation(player_animation, &animations.player_idle_wand);
+  else if (state.astro_turn_speed != 0.f) {
+    Animation::AwaitNextAnimation(player_animation, &animations.player_idle_wand);
   }
 
   // Running
@@ -81,7 +78,7 @@ static void SetActivePlayerAnimation(Tachyon* tachyon, State& state) {
   }
 
   // Walking
-  else if (state.previous_move_delta > 5.f || is_doing_quick_turn || is_moving_with_target) {
+  else if (state.previous_move_delta > 5.f || is_doing_quick_turn || has_target_and_is_moving) {
     if (state.wand_hold_factor > 0.f) {
       Animation::AwaitNextAnimation(player_animation, &animations.player_walk_wand);
     } else {
@@ -120,6 +117,44 @@ static float GetPlayerAnimationSpeed(Tachyon* tachyon, State& state) {
   return (is_running ? 11.5f : 12.f) * sqrtf(speed_ratio);
 }
 
+static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
+  auto& player_animation = state.player_mesh_animation;
+  auto& animations = state.animations;
+
+  // Transition idle animations into running as quickly as possible,
+  // so we don't "glide" along the ground if we're still blending into idle
+  if (
+    IsPlayerRunning(tachyon, state) && (
+      player_animation.current_animation == &animations.person_idle ||
+      player_animation.current_animation == &animations.player_idle_wand ||
+      player_animation.next_animation == &animations.person_idle ||
+      player_animation.next_animation == &animations.player_idle_wand
+    )
+  ) {
+    return 10.f;
+  }
+
+  // Blend more slowly into wand holding actions
+  if (
+    player_animation.next_animation == &animations.player_idle_wand ||
+    player_animation.next_animation == &animations.player_walk_wand ||
+    player_animation.next_animation == &animations.player_run_wand
+  ) {
+    return 1.5f;
+  }
+
+  // Blend more slowly out of wand holding actions
+  if (
+    player_animation.current_animation == &animations.player_idle_wand ||
+    player_animation.current_animation == &animations.player_walk_wand ||
+    player_animation.current_animation == &animations.player_run_wand
+  ) {
+    return 1.5f;
+  }
+
+  return 4.f;
+}
+
 static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
   profile("UpdatePlayerSkeleton()");
 
@@ -130,6 +165,7 @@ static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
 
   bool moving_forward = tVec3f::dot(state.player_velocity, state.player_facing_direction) >= 0.f;
   float animation_speed = GetPlayerAnimationSpeed(tachyon, state);
+  float blend_rate = GetAnimationBlendRate(tachyon, state);
 
   if (!moving_forward) {
     animation_speed *= -1.f;
@@ -155,7 +191,7 @@ static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
     }
   }
 
-  Animation::AccumulateTime(state.player_mesh_animation, animation_speed, 3.f, state.dt);
+  Animation::AccumulateTime(state.player_mesh_animation, animation_speed, blend_rate, state.dt);
   Animation::UpdatePose(state.player_mesh_animation);
   Animation::UpdateBoneMatrices(state.player_mesh_animation);
 }
