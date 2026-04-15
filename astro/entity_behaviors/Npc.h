@@ -31,11 +31,10 @@ namespace astro {
         // Interaction
         {
           float player_distance = tVec3f::distance(state.player_position, entity.visible_position);
-
           tVec3f unit_player_to_entity = (entity.visible_position - state.player_position).xz().unit();
           float facing_dot = tVec3f::dot(state.player_facing_direction, unit_player_to_entity);
 
-          // Initiating dialogue
+          // Readying/initiating dialogue
           if (
             player_distance < 4000.f &&
             player_speed < 200.f &&

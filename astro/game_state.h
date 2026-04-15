@@ -512,7 +512,7 @@ namespace astro {
       tUIElement* past_age_title = nullptr;
       tUIElement* divination_woodrealm_title = nullptr;
 
-      float title_alpha = 1.f;
+      float titles_alpha = 1.f;
     } ui;
 
     // @todo dev mode only

@@ -969,7 +969,6 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   SpellSystem::HandleSpells(tachyon, state);
   Items::HandleItemPickup(tachyon, state);
   UISystem::HandleDialogue(tachyon, state);
-  UISystem::HandleHUD(tachyon, state);
   Particles::HandleParticles(tachyon, state);
   DynamicFauna::HandleBehavior(tachyon, state);
   FacadeGeometry::HandleFacades(tachyon, state);
@@ -985,6 +984,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   ProceduralBehavior::Growth::Update(tachyon, state);
   CameraSystem::UpdateCamera(tachyon, state);
   Astrolabe::Update(tachyon, state);
+  UISystem::UpdateHUD(tachyon, state);
   PlayerCharacter::UpdatePlayer(tachyon, state);
   AnimatedEntities::UpdateAnimatedEntities(tachyon, state);
   UpdateWaterPlane(tachyon, state);

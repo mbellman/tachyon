@@ -10,6 +10,6 @@ namespace astro {
     void ShowTransientDialogue(Tachyon* tachyon, State& state, const std::string& message);
     void ShowBlockingDialogue(Tachyon* tachyon, State& state, const std::string& message);
     void HandleDialogue(Tachyon* tachyon, State& state);
-    void HandleHUD(Tachyon* tachyon, State& state);
+    void UpdateHUD(Tachyon* tachyon, State& state);
   }
 }
