@@ -216,6 +216,10 @@ namespace astro {
             if (light.power < minimum_power) light.power = minimum_power;
           }
 
+          if (entity.did_activate) {
+            light.power = 1.f;
+          }
+
           // Kill the light if past end time
           if (state.astro_time > entity.astro_end_time) {
             light.power = 0.f;

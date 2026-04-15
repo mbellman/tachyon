@@ -68,7 +68,7 @@ static void SetActivePlayerAnimation(Tachyon* tachyon, State& state) {
     state.last_wind_chimes_action_time != 0.f &&
     time_since(state.last_wind_chimes_action_time) < 3.8f
   ) {
-    Animation::SetNextAnimation(player_animation, &animations.player_arms_out);
+    Animation::SetNextAnimation(player_animation, &animations.player_idle_wand);
   }
 
   // Running

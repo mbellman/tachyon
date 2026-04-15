@@ -1,15 +1,15 @@
 @lake_girl
 Oh, my! I'm frightfully sorry, I...
-You're not...you're not a...?
-You...can it be? Oh, I can scarcely believe my eyes. I do believe you are.
-I must take this moment in. Can this truly be...?
+You're not...you're not one of...?
+Oh...can it be? I can scarcely believe my eyes. I do believe you are.
+Forgive my manners; I must compose myself.
 
 @lake_girl+
 You see, I...I dreamt of a traveler, from afar.
 With garments as yours, and a countenance the very same.
-This is a most auspicious occasion indeed; let there be no doubt.
-It is considered a harbinger of fortune that we should meet our subjects.
-I still cannot believe this. Please, abide me yet another moment.
+This is a most auspicious occasion indeed; I've little doubt.
+It is considered a harbinger of fortune that we should meet those envisaged.
+Oh, this astonishes me so. Please, abide me yet another moment.
 
 @lake_girl++
 DIALOGUE_3
