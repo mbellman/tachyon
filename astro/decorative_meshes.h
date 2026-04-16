@@ -64,8 +64,9 @@ namespace astro {
         .default_color = tVec3f(0.8f)
       },
       {
+        // @todo rename ground_slope
         .mesh_index = meshes.stairs_floor,
-        .mesh_name = "stairs_floor",
+        .mesh_name = "ground_slope",
         .default_scale = tVec3f(2000.f, 1500.f, 2000.f),
         .default_color = tVec3f(0.3f, 0.5f, 0.1f)
       },

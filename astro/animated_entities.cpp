@@ -149,7 +149,7 @@ static void HandleLowGuardAnimations(Tachyon* tachyon, State& state, int32& usag
     auto& entity = state.low_guards[i];
 
     if (abs(state.player_position.x - entity.visible_position.x) > 15000.f) continue;
-    if (abs(state.player_position.z - entity.visible_position.z) > 15000.f) continue;
+    if (abs(state.player_position.z - entity.visible_position.z) > 25000.f) continue;
     if (!IsDuringActiveTime(entity, state)) continue;
 
     auto& skin = state.person_skinned_meshes[usage_counter++];

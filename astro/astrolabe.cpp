@@ -70,11 +70,23 @@ void Astrolabe::Update(Tachyon* tachyon, State& state) {
     Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -t_HALF_PI * 0.85f)
   );
 
-  hand.rotation =
-  (
-    base.rotation *
-    Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -state.astro_time * 0.02f)
-  );
+  // Hand behavior
+  {
+    float hand_angle = -state.astro_time * 0.02f;
+
+    if (state.astro_time > astro_time_periods.present) {
+      // @hack Tweaky alignment stuff for the hand
+      //
+      // @todo just define constants for the angles if necessary; this is ridiculous
+      hand_angle -= state.astro_time * 0.0015f;
+    }
+
+    hand.rotation =
+    (
+      base.rotation *
+      Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), hand_angle)
+    );
+  }
 
   // Ring behavior
   {
@@ -83,10 +95,7 @@ void Astrolabe::Update(Tachyon* tachyon, State& state) {
     if (state.astro_time < -76.f) {
       // @hack Tweaky alignment stuff for the rotating ring
       //
-      // @todo as unscrupulous as this correction is, we might be able
-      // to get away with correcting the hand rotation as well and then
-      // using equidistant min/max time segments, which would bring us
-      // closer to normalizing some of this.
+      // @todo just define constants for the angles if necessary; this is ridiculous
       float correction = state.astro_time + 76.f;
 
       ring_angle += correction * 0.0022f;
@@ -153,6 +162,7 @@ void Astrolabe::Update(Tachyon* tachyon, State& state) {
   commit(hand);
 }
 
+// @deprecated @todo remove
 float Astrolabe::GetMaxAstroTime(const State& state) {
   if (Items::HasItem(state, ASTROLABE_UPPER_RIGHT)) {
     return astro_time_periods.future;
@@ -161,6 +171,7 @@ float Astrolabe::GetMaxAstroTime(const State& state) {
   return astro_time_periods.present;
 }
 
+// @deprecated @todo remove
 float Astrolabe::GetMinAstroTime(const State& state) {
   if (Items::HasItem(state, ASTROLABE_LOWER_RIGHT)) {
     return astro_time_periods.very_distant_past;

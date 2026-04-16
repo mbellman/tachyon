@@ -15,6 +15,20 @@ namespace astro {
       state.last_wind_chimes_action_time = scene_time;
       state.last_used_wind_chimes_id = entity.id;
 
+      // @temporary
+      // @todo have different wind chimes for different time ranges
+      if (entity.unique_name == "game_start_chimes") {
+        if (state.astro_time == astro_time_periods.future) {
+          // Future -> Present
+          TimeEvolution::StartAstroTraveling(tachyon, state, astro_time_periods.present);
+        } else {
+          // Present -> Future
+          TimeEvolution::StartAstroTraveling(tachyon, state, astro_time_periods.future);
+        }
+
+        return;
+      }
+
       // @todo have different wind chimes for different time ranges
       if (state.target_astro_time == astro_time_periods.present) {
         // Present -> Past

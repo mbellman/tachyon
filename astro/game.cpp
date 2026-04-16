@@ -114,10 +114,10 @@ static void UpdateLevelsOfDetail(Tachyon* tachyon, State& state) {
 
   // Decorative objects
   if (frame == 0 || frame % 3 == 0) {
-    Tachyon_UseLodByDistance(tachyon, meshes.rock_1, 40000.f);
-    Tachyon_UseLodByDistance(tachyon, meshes.rock_2, 40000.f);
-    Tachyon_UseLodByDistance(tachyon, meshes.river_edge, 40000.f);
-    Tachyon_UseLodByDistance(tachyon, meshes.ground_1, 40000.f);
+    Tachyon_UseLodByDistance(tachyon, meshes.rock_1, 50000.f);
+    Tachyon_UseLodByDistance(tachyon, meshes.rock_2, 50000.f);
+    Tachyon_UseLodByDistance(tachyon, meshes.river_edge, 50000.f);
+    Tachyon_UseLodByDistance(tachyon, meshes.ground_1, 50000.f);
     Tachyon_UseLodByDistance(tachyon, meshes.lookout_tower, 60000.f);
   }
 
@@ -558,11 +558,15 @@ static void HandleCurrentAreaMusic(Tachyon* tachyon, State& state) {
     return;
   }
 
-  // @temporary
+  // @temporary!!!!!
   // @todo BGM entities
   tVec3f village_position = tVec3f(232000.f, 0, 106000.f);
 
   if (IsPlayerNearWindChimes(state)) {
+    BGM::LoopMusic(BGM_WIND_CHIMES, 0.4f);
+  }
+  else if (state.astro_time >= astro_time_periods.present) {
+    // @temporary!!!!!
     BGM::LoopMusic(BGM_WIND_CHIMES, 0.4f);
   }
   else if (tVec3f::distance(state.player_position, village_position) < 40000.f) {

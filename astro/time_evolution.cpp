@@ -13,9 +13,17 @@ static tVec3f GetLightColor(const float astro_time, bool is_nighttime) {
 
   auto& periods = astro_time_periods;
 
+  tVec3f future_color = tVec3f(1.f, 0.05f, 0.1f);
   tVec3f present_color = tVec3f(1., 0.1f, 0.2f);
   tVec3f past_color = tVec3f(0.8f, 0.2f, 0.1f);
   tVec3f distant_past_color = tVec3f(0.6f, 0.5f, 2.f);
+
+  if (astro_time <= periods.future && astro_time >= periods.present) {
+    float age_duration = periods.future - periods.present;
+    float alpha = (astro_time - periods.present) / age_duration;
+
+    return tVec3f::lerp(present_color, future_color, alpha);
+  }
 
   if (astro_time < periods.present && astro_time >= periods.past) {
     float age_duration = periods.present - periods.past;
@@ -42,9 +50,18 @@ static tVec3f GetLightColor(const float astro_time, bool is_nighttime) {
 static tVec3f GetLightDirection(const float astro_time) {
   auto& periods = astro_time_periods;
 
+  tVec3f future_direction = tVec3f(-0.1f, -1.f, 0.2f);
   tVec3f present_direction = tVec3f(0.7f, -1.f, 0.5f);
   tVec3f past_direction = tVec3f(-0.5f, -0.8f, 0.35f);
   tVec3f distant_past_direction = tVec3f(0.6f, 0.5f, 2.f);
+
+  if (astro_time <= periods.future && astro_time >= periods.present) {
+    float age_duration = periods.future - periods.present;
+    float alpha = (astro_time - periods.present) / age_duration;
+    alpha = Tachyon_EaseInOutf(alpha);
+
+    return tVec3f::lerp(present_direction, future_direction, alpha);
+  }
 
   if (astro_time < periods.present && astro_time >= periods.past) {
     float age_duration = periods.present - periods.past;
@@ -89,9 +106,6 @@ void TimeEvolution::StartAstroTraveling(Tachyon* tachyon, State& state, const fl
 
 void TimeEvolution::HandleAstroTravel(State& state) {
   const float astro_travel_rate = 0.8f;
-
-  const float max_astro_time = Astrolabe::GetMaxAstroTime(state);
-  const float min_astro_time = Astrolabe::GetMinAstroTime(state);
   const float max_astro_turn_speed = Astrolabe::GetMaxTurnSpeed();
 
   if (state.astro_time > state.target_astro_time) {
@@ -103,7 +117,7 @@ void TimeEvolution::HandleAstroTravel(State& state) {
 
     if (state.astro_time < slowdown_threshold) {
       float threshold_distance = abs(slowdown_threshold - state.astro_time);
-      float threshold_to_limit = abs(min_astro_time - slowdown_threshold);
+      float threshold_to_limit = abs(state.target_astro_time - slowdown_threshold);
       float slowdown_factor = 20.f * powf(threshold_distance / threshold_to_limit, 2.f);
 
       state.astro_turn_speed *= 1.f - slowdown_factor * state.dt;
@@ -118,7 +132,7 @@ void TimeEvolution::HandleAstroTravel(State& state) {
 
     if (state.astro_time > slowdown_threshold) {
       float threshold_distance = abs(slowdown_threshold - state.astro_time);
-      float threshold_to_limit = max_astro_time - slowdown_threshold;
+      float threshold_to_limit = state.target_astro_time - slowdown_threshold;
       float slowdown_factor = 20.f * powf(threshold_distance / threshold_to_limit, 2.f);
 
       state.astro_turn_speed *= 1.f - slowdown_factor * state.dt;
