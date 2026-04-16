@@ -26,6 +26,8 @@ namespace astro {
     timeEvolve() {
       auto& meshes = state.meshes;
 
+      reset_instances(meshes.item_pickup);
+
       // @todo culling
       for_entities(state.item_pickups) {
         auto& entity = state.item_pickups[i];
@@ -34,7 +36,7 @@ namespace astro {
 
         // Pickup indicator
         {
-          auto& pickup = objects(meshes.item_pickup)[i];
+          auto& pickup = use_instance(meshes.item_pickup);
 
           Sync(pickup, entity);
 

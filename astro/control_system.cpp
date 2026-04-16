@@ -78,29 +78,51 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
   }
 
   // Directional movement
-  float acceleration =
-    is_running ? 12000.f :
-    state.has_target ? 8000.f :
-    4000.f;
+  {
+    float acceleration =
+      is_running ? 12000.f :
+      state.has_target ? 8000.f :
+      4000.f;
 
-  if (is_key_held(tKey::W)) {
-    state.player_velocity += tVec3f(0, 0, -1.f) * acceleration * state.dt;
+    // Make sure we can't accelerate beyond our current movement speed.
+    // In HandleSpeedDampening(), we actually perform hard speed limiting
+    // and slowdown behavior.
+    float controlled_speed_limit =
+      is_running ? PlayerCharacter::MAX_RUN_SPEED :
+      state.has_target ? PlayerCharacter::MAX_COMBAT_WALK_SPEED :
+      PlayerCharacter::MAX_WALK_SPEED;
+
+    if (state.player_velocity.magnitude() < controlled_speed_limit) {
+      if (is_key_held(tKey::W)) {
+        state.player_velocity += tVec3f(0, 0, -1.f) * acceleration * state.dt;
+      }
+
+      if (is_key_held(tKey::A)) {
+        state.player_velocity += tVec3f(-1.f, 0, 0) * acceleration * state.dt;
+      }
+
+      if (is_key_held(tKey::D)) {
+        state.player_velocity += tVec3f(1.f, 0, 0) * acceleration * state.dt;
+      }
+
+      if (is_key_held(tKey::S)) {
+        state.player_velocity += tVec3f(0, 0, 1.f) * acceleration * state.dt;
+      }
+
+      state.player_velocity.x += tachyon->left_stick.x * acceleration * state.dt;
+      state.player_velocity.z += tachyon->left_stick.y * acceleration * state.dt;
+
+      // Check our speed after acceleration and cap it at the controlled speed limit
+      // if we went over. This allows us to lock our speed to predefined limits, but
+      // also allows us to decelerate from run to walking speed if we stop running,
+      // without immediately clamping to walk speed.
+      float updated_speed = state.player_velocity.magnitude();
+
+      if (updated_speed > controlled_speed_limit) {
+        state.player_velocity = (state.player_velocity / updated_speed) * controlled_speed_limit;
+      }
+    }
   }
-
-  if (is_key_held(tKey::A)) {
-    state.player_velocity += tVec3f(-1.f, 0, 0) * acceleration * state.dt;
-  }
-
-  if (is_key_held(tKey::D)) {
-    state.player_velocity += tVec3f(1.f, 0, 0) * acceleration * state.dt;
-  }
-
-  if (is_key_held(tKey::S)) {
-    state.player_velocity += tVec3f(0, 0, 1.f) * acceleration * state.dt;
-  }
-
-  state.player_velocity.x += tachyon->left_stick.x * acceleration * state.dt;
-  state.player_velocity.z += tachyon->left_stick.y * acceleration * state.dt;
 
   // HandleExperimentalControls(tachyon, state, acceleration);
 
@@ -430,7 +452,7 @@ static void HandleTargetingControls(Tachyon* tachyon, State& state) {
   }
 }
 
-static void HandleSpeedLimiting(Tachyon* tachyon, State& state) {
+static void HandleSpeedDampening(Tachyon* tachyon, State& state) {
   bool is_running = is_key_held(tKey::CONTROLLER_A) || is_key_held(tKey::SHIFT);
   bool is_dodging = time_since(state.last_dodge_time) < dodge_cooldown_time;
   bool is_target_jumping = time_since(state.last_target_jump_time) < target_jump_cooldown_time;
@@ -450,16 +472,12 @@ static void HandleSpeedLimiting(Tachyon* tachyon, State& state) {
   }
 
   float speed = state.player_velocity.magnitude();
+  float speed_limit = PlayerCharacter::MAX_RUN_SPEED;
 
-  float max_speed =
-    is_running ? PlayerCharacter::MAX_RUN_SPEED :
-    state.has_target ? PlayerCharacter::MAX_COMBAT_WALK_SPEED :
-    PlayerCharacter::MAX_WALK_SPEED;
-
-  if (speed > max_speed && !is_dodging && !is_target_jumping) {
+  if (speed > speed_limit && !is_dodging && !is_target_jumping) {
     tVec3f unit_velocity = state.player_velocity / speed;
 
-    state.player_velocity = unit_velocity * max_speed;
+    state.player_velocity = unit_velocity * speed_limit;
   }
 }
 
@@ -469,6 +487,8 @@ static void UpdatePlayerPosition(State& state) {
 }
 
 void ControlSystem::HandleControls(Tachyon* tachyon, State& state) {
+  HandleSpeedDampening(tachyon, state);
+
   // Only allow character controls if:
   if (
     // We do not have, or have dismissed blocking dialogue
@@ -487,6 +507,5 @@ void ControlSystem::HandleControls(Tachyon* tachyon, State& state) {
     HandleTargetingControls(tachyon, state);
   }
 
-  HandleSpeedLimiting(tachyon, state);
   UpdatePlayerPosition(state);
 }
