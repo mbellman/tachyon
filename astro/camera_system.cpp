@@ -152,7 +152,7 @@ static void UpdateStandardCamera(Tachyon* tachyon, State& state, tVec3f& new_cam
 
   float player_speed = state.player_velocity.magnitude();
   float shift_amount = 1500.f + player_speed * 0.5f;
-  tVec3f shift_direction = state.player_facing_direction + tVec3f(0, 0, 0.4f);
+  tVec3f shift_direction = state.player_facing_direction * 1.1f + tVec3f(0, 0, 0.4f);
   tVec3f desired_camera_shift = shift_direction * tVec3f(0.75f, 0, 1.f) * shift_amount;
 
   UpdateCameraNearEntities(state, new_camera_position);

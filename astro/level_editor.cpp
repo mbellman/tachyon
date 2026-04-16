@@ -1756,7 +1756,8 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
 
     if (
       did_press_key(tKey::C) &&
-      editor.current_selectable.is_entity
+      editor.current_selectable.is_entity &&
+      !editor.is_editing_entity_properties
     ) {
       CopySelectedEntityProperties(state);
       show_overlay_message("Copied astro times");
@@ -1764,7 +1765,8 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
 
     if (
       did_press_key(tKey::P) &&
-      editor.current_selectable.is_entity
+      editor.current_selectable.is_entity &&
+      !editor.is_editing_entity_properties
     ) {
       PasteCopiedEntityProperties(state);
       show_overlay_message("Pasted astro times");

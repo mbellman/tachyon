@@ -924,9 +924,17 @@ static void GenerateBushFlowers(Tachyon* tachyon, State& state) {
 static tVec3f GetBushFlowerBlossomColor(const float astro_time) {
   auto& periods = astro_time_periods;
 
+  tVec3f future_color = tVec3f(1.f, 0.4f, 0.4f);
   tVec3f present_color = tVec3f(1.f);
   tVec3f past_color = tVec3f(1.f, 0.8f, 0.2f);
   tVec3f distant_past_color = tVec3f(1.f, 0.8f, 1.f);
+
+  if (astro_time <= periods.future && astro_time >= periods.present) {
+    float age_duration = periods.future - periods.present;
+    float alpha = (astro_time - periods.present) / age_duration;
+
+    return tVec3f::lerp(present_color, future_color, alpha);
+  }
 
   if (astro_time < periods.present && astro_time >= periods.past) {
     float age_duration = periods.present - periods.past;

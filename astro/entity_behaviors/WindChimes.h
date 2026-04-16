@@ -55,8 +55,10 @@ namespace astro {
         state.wand_hold_factor > 0.5f &&
         // We're not astro traveling
         state.astro_turn_speed == 0.f &&
+        // We're not moving
+        state.previous_move_delta == 0.f &&
         // The entity has not activated yet, or it has been long enough since last time
-        (entity.game_activation_time == -1.f || time_since(entity.game_activation_time) > 6.f)
+        (entity.game_activation_time == -1.f || time_since(entity.game_activation_time) > 5.f)
       ) {
         auto proximity = GetEntityProximity(entity, state);
 
@@ -111,6 +113,9 @@ namespace astro {
         entity.visible_rotation = entity.orientation;
         entity.visible_scale = entity.scale;
 
+        bool is_dismantled = entity.requires_action && !entity.is_astro_synced;
+
+        // @todo disallow activation when dismantled
         HandleActivationBehavior(tachyon, state, entity);
 
         // Stand
@@ -137,6 +142,10 @@ namespace astro {
 
           pivot.rotation *= Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 0.5f * sinf(scene_time));
 
+          if (is_dismantled) {
+            pivot.rotation = entity.orientation;
+          }
+
           commit(pivot);
         }
 
@@ -159,6 +168,11 @@ namespace astro {
           hook.rotation *= Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 0.5f * sinf(scene_time - 0.8f));
           hook2.rotation *= Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 0.5f * sinf(scene_time - 1.6f));
 
+          if (is_dismantled) {
+            hook.scale = tVec3f(0.f);
+            hook2.scale = tVec3f(0.f);
+          }
+
           commit(hook);
           commit(hook2);
         }
@@ -176,6 +190,11 @@ namespace astro {
           light.color = tVec3f(1.f, 0.6f, 0.3f);
           light.glow_power = 1.f;
           light.power = 1.4f + 0.5f * sinf(scene_time);
+
+          // @temporary
+          if (is_dismantled) {
+            light.power = 0.f;
+          }
 
           float time_since_activating = time_since(entity.game_activation_time);
 

@@ -223,6 +223,7 @@ namespace astro {
     bool requires_action = false;
 
     // For responder light pillars which have become "synced" with their associated entity
+    // @todo rename is_action_taken
     bool is_astro_synced = false;
   };
 
@@ -339,6 +340,7 @@ namespace astro {
 
       // ITEM_PICKUP
       item_pickup_placeholder,
+      item_pickup,
 
       // GLOW_FLOWER
       glow_flower_placeholder,

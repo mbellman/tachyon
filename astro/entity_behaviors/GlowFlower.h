@@ -7,6 +7,11 @@ namespace astro {
     addMeshes() {
       meshes.glow_flower_placeholder = MODEL_MESH("./astro/3d_models/glow_flower/placeholder.obj", 500);
       meshes.glow_flower_petals = MODEL_MESH("./astro/3d_models/glow_flower/petals.obj", 500);
+
+      mesh(meshes.glow_flower_placeholder).type = GRASS_MESH;
+      mesh(meshes.glow_flower_placeholder).shadow_cascade_ceiling = 2;
+      mesh(meshes.glow_flower_petals).type = GRASS_MESH;
+      mesh(meshes.glow_flower_petals).shadow_cascade_ceiling = 2;
     }
 
     getMeshes() {

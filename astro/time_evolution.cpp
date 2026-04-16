@@ -50,7 +50,7 @@ static tVec3f GetLightColor(const float astro_time, bool is_nighttime) {
 static tVec3f GetLightDirection(const float astro_time) {
   auto& periods = astro_time_periods;
 
-  tVec3f future_direction = tVec3f(-0.1f, -1.f, 0.2f);
+  tVec3f future_direction = tVec3f(-0.1f, -1.f, -0.2f);
   tVec3f present_direction = tVec3f(0.7f, -1.f, 0.5f);
   tVec3f past_direction = tVec3f(-0.5f, -0.8f, 0.35f);
   tVec3f distant_past_direction = tVec3f(0.6f, 0.5f, 2.f);

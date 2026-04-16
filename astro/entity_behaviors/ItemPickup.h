@@ -6,15 +6,17 @@ namespace astro {
   behavior ItemPickup {
     addMeshes() {
       meshes.item_pickup_placeholder = SPHERE_MESH(500);
+      // @temporary
+      meshes.item_pickup = CUBE_MESH(500);
 
       mesh(meshes.item_pickup_placeholder).shadow_cascade_ceiling = 0;
+      mesh(meshes.item_pickup).shadow_cascade_ceiling = 0;
     }
 
     getMeshes() {
-      // Item pickups don't have a specific in-game object.
-      // Instead, their type influences which object appears
-      // in their spot; that object is generated elsewhere.
-      return_meshes({});
+      return_meshes({
+        meshes.item_pickup
+      });
     }
 
     getPlaceholderMesh() {
@@ -22,7 +24,26 @@ namespace astro {
     }
 
     timeEvolve() {
-      // Do nothing
+      auto& meshes = state.meshes;
+
+      // @todo culling
+      for_entities(state.item_pickups) {
+        auto& entity = state.item_pickups[i];
+
+        if (!IsDuringActiveTime(entity, state)) continue;
+
+        // Pickup indicator
+        {
+          auto& pickup = objects(meshes.item_pickup)[i];
+
+          Sync(pickup, entity);
+
+          pickup.scale = tVec3f(500.f);
+          pickup.color = tVec4f(1.f);
+
+          commit(pickup);
+        }
+      }
     }
   };
 }
