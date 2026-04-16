@@ -5,13 +5,13 @@
 
 namespace astro {
   struct TimePeriods {
-    // Age of ???
+    // Age of Succession
     float future = 76.f;
 
     // Age of Auspice
     float present = 0.f;
 
-    // Age of ???
+    // Age of Consortium
     float past = -76.f;
 
     // Age of ???

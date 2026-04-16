@@ -216,15 +216,27 @@ void UISystem::UpdateHUD(Tachyon* tachyon, State& state) {
     .alpha = state.ui.titles_alpha
   });
 
-  // Current astro age
-  if (state.astro_time > -35.f) {
+  if (state.astro_time > 35.f) {
+    Tachyon_DrawUIElement(tachyon, state.ui.future_age_title, {
+      .screen_x = int32(float(tachyon->window_width) * 0.165f),
+      .screen_y = tachyon->window_height - 185,
+      .centered = false,
+      .alpha = sqrtf(state.ui.titles_alpha)
+    });
+  }
+
+  // Present
+  else if (state.astro_time > -35.f) {
     Tachyon_DrawUIElement(tachyon, state.ui.present_age_title, {
       .screen_x = int32(float(tachyon->window_width) * 0.165f),
       .screen_y = tachyon->window_height - 185,
       .centered = false,
       .alpha = sqrtf(state.ui.titles_alpha)
     });
-  } else {
+  }
+
+  // Past
+  else {
     Tachyon_DrawUIElement(tachyon, state.ui.past_age_title, {
       .screen_x = int32(float(tachyon->window_width) * 0.165f),
       .screen_y = tachyon->window_height - 185,

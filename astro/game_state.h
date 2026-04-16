@@ -508,6 +508,7 @@ namespace astro {
 
     // UI
     struct {
+      tUIElement* future_age_title = nullptr;
       tUIElement* present_age_title = nullptr;
       tUIElement* past_age_title = nullptr;
       tUIElement* divination_woodrealm_title = nullptr;
