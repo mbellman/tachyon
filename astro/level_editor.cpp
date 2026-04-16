@@ -1,6 +1,7 @@
 #include <format>
 #include <map>
 #include <string>
+#include <thread>
 #include <vector>
 
 #include "astro/level_editor.h"
@@ -2100,7 +2101,12 @@ void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
   CollisionSystem::RebuildFlatGroundPlanes(tachyon, state);
 
   if (editor.should_rebuild_all_procedural_objects) {
-    ProceduralBehavior::Generation::RebuildAllProceduralObjects(tachyon, state);
+    // Offload the procedural rebuild work to another thread
+    std::thread builder_thread([tachyon, &state]() {
+      ProceduralBehavior::Generation::RebuildAllProceduralObjects(tachyon, state);
+    });
+
+    builder_thread.detach();
   }
 
   Items::SpawnItemObjects(tachyon, state);

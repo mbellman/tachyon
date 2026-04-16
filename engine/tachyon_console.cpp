@@ -1,12 +1,18 @@
+#include <mutex>
 #include <vector>
 
 #include "engine/tachyon_aliases.h"
 #include "engine/tachyon_console.h"
 #include "engine/tachyon_timer.h"
 
+static std::mutex console_mutex;
 static std::vector<tConsoleMessage> console_messages;
 
+#define thread_safety_guard() std::lock_guard<std::mutex> lock(console_mutex)
+
 void Tachyon_AddConsoleMessage(const std::string& message, const tVec3f& color) {
+  thread_safety_guard();
+
   console_messages.push_back({
     .time = Tachyon_GetMicroseconds(),
     .message = message,
@@ -61,6 +67,8 @@ void Tachyon_ManageConsoleMessageLifetimes() {
     return;
   }
 
+  thread_safety_guard();
+
   auto now = Tachyon_GetMicroseconds();
 
   for (int32 i = console_messages.size() - 1; i >= 0; i--) {
@@ -71,6 +79,8 @@ void Tachyon_ManageConsoleMessageLifetimes() {
 }
 
 void Tachyon_ClearConsole(Tachyon* tachyon) {
+  thread_safety_guard();
+
   auto now = Tachyon_GetMicroseconds();
 
   for (auto& message : console_messages) {

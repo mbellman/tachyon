@@ -1,7 +1,5 @@
 #include <algorithm>
-#include <execution>
 #include <functional>
-#include <ranges>
 
 #include "astro/procedural_generation.h"
 #include "astro/astrolabe.h"
@@ -10,14 +8,6 @@
 #include "astro/path_generation.h"
 
 using namespace astro;
-
-#define parallel_for_range(__start, __end, ...)\
-  {\
-    std::ranges::iota_view __range((int)__start, (int)__end);\
-    std::for_each(std::execution::par, __range.begin(), __range.end(), [&, tachyon](size_t __index){\
-      __VA_ARGS__\
-    });\
-  }\
 
 struct Bounds2D {
   float x[2];
@@ -423,8 +413,8 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
   }
 
   // Add blades to each chunk in parallel
-  parallel_for_range(0, state.grass_chunks.size(), {
-    auto& chunk = state.grass_chunks[__index];
+  for_range(0, state.grass_chunks.size() - 1) {
+    auto& chunk = state.grass_chunks[i];
 
     tVec3f upper_left_corner = chunk.center_position + tVec3f(-chunk_width * 0.5f, 0, -chunk_height * 0.5f);
     tVec3f upper_right_corner = chunk.center_position + tVec3f(chunk_width * 0.5f, 0, -chunk_height * 0.5f);
@@ -542,7 +532,7 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
 
       chunk.grass_blades.push_back(blade);
     }
-  });
+  }
 
   // Count total blades
   int32 total_blades = 0;
@@ -739,8 +729,8 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
   remove_all(meshes.ground_flower);
 
   // Clusters
-  parallel_for_range(0, 12000, {
-    tRNG rng(1234.f + float(__index));
+  for_range(0, 12000) {
+    tRNG rng(1234.f + float(i));
 
     tVec3f center;
     center.x = rng.Random(-400000.f, 400000.f);
@@ -777,7 +767,7 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
 
       commit(flower);
     }
-  });
+  }
 
   // @todo dev mode only
   {
@@ -790,8 +780,8 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
   remove_all(meshes.tiny_ground_flower);
 
   // Clusters
-  parallel_for_range(0, 12000, {
-    tRNG rng(5678.f + float(__index));
+  for_range(0, 12000) {
+    tRNG rng(5678.f + float(i));
 
     tVec3f center;
     center.x = rng.Random(-400000.f, 400000.f);
@@ -828,7 +818,7 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
 
       commit(flower);
     }
-  });
+  }
 
   // @todo dev mode only
   {
@@ -999,8 +989,8 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
       for (int i = 0; i < 3; i++) {
         auto& flower = use_instance(flower_mesh);
 
-        float offset_x = fmodf(vx + vx * 0.1f + 847.f * (float)i, spawn_radius) - half_spawn_radius;
-        float offset_z = fmodf(vz + vz * 0.1f + 847.f * (float)i, spawn_radius) - half_spawn_radius;
+        float offset_x = fmodf(vx + 847.f * (float)i, spawn_radius) - half_spawn_radius;
+        float offset_z = fmodf(vz + 847.f * (float)i, spawn_radius) - half_spawn_radius;
 
         flower.position = entity.visible_position;
         flower.position.x += offset_x;
