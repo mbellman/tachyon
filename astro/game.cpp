@@ -249,15 +249,15 @@ static void HandleInGameDevHotkeys(Tachyon* tachyon, State& state) {
   // Acquiring/unacquiring all items
   {
     if (did_press_key(tKey::I)) {
-      if (Items::HasItem(state, ASTROLABE_LOWER_LEFT)) {
+      if (Items::HasItem(state, MAGIC_WAND)) {
         show_overlay_message("Reset items");
 
         state.inventory.clear();
       } else {
         Items::CollectItem(tachyon, state, ITEM_STUN_SPELL);
         Items::CollectItem(tachyon, state, ITEM_HOMING_SPELL);
-        Items::CollectItem(tachyon, state, ASTROLABE_LOWER_LEFT);
         Items::CollectItem(tachyon, state, GATE_KEY);
+        Items::CollectItem(tachyon, state, MAGIC_WAND);
       }
     }
   }
@@ -683,8 +683,8 @@ static void RespawnPlayer(Tachyon* tachyon, State& state) {
   RecordPreviousPlayerPosition(state);
 
   // Reset camera
-  state.camera_shift = tVec3f(0, 0, 1875.f);
-  tachyon->scene.camera.position = spawn_position + tVec3f(0.f, 10000.f, 9000.f);
+  state.camera_shift = tVec3f(0, 0, 1800.f);
+  tachyon->scene.camera.position = spawn_position + tVec3f(0.f, 11000.f, 10800.f);
 
   // @temporary
   state.dismissed_blocking_dialogue = true;
@@ -752,6 +752,7 @@ static void HandleFrameEnd(Tachyon* tachyon, State& state) {
   }
 
   // Haze intensity
+  // @todo move to time_evolution.cpp
   {
     float haze_alpha = Tachyon_InverseLerp(astro_time_periods.past, astro_time_periods.present, state.astro_time);
 
@@ -932,8 +933,8 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
 
   DataLoader::LoadLevelData(tachyon, state);
   DataLoader::LoadNpcDialogue(tachyon, state);
-  Items::SpawnItemObjects(tachyon, state);
   CollisionSystem::RebuildFlatGroundPlanes(tachyon, state);
+  Items::SpawnItemObjects(tachyon, state);
   ProceduralBehavior::Generation::RebuildAllProceduralObjects(tachyon, state);
   EntityManager::CreateEntityAssociations(state);
   Particles::InitParticles(tachyon, state);
@@ -992,7 +993,6 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   ControlSystem::HandleControls(tachyon, state);
   CollisionSystem::HandleCollisions(tachyon, state);
   SpellSystem::HandleSpells(tachyon, state);
-  Items::HandleItemPickup(tachyon, state);
   UISystem::HandleDialogue(tachyon, state);
   Particles::HandleParticles(tachyon, state);
   DynamicFauna::HandleBehavior(tachyon, state);

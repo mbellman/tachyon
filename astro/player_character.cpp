@@ -4,6 +4,7 @@
 #include "astro/combat.h"
 #include "astro/entity_behaviors/behavior.h"
 #include "astro/entity_manager.h"
+#include "astro/items.h"
 #include "astro/magic.h"
 #include "astro/sfx.h"
 #include "astro/simple_animation.h"
@@ -520,16 +521,8 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
   );
 
   if (state.wand_hold_factor > 0.f) {
-    float swing_rate = (
-      // Running
-      PlayerCharacter::IsRunning(tachyon, state) ? 15.f :
-      // Walking
-      state.previous_move_delta > 0.f ? 6.f :
-      // Idle
-      2.5f
-    );
-
-    float adjusted_pitch = 0.6f + 0.1f * sinf(swing_rate * get_scene_time());
+    float swing_alpha = 0.002f * state.movement_distance + 2.5f * get_scene_time();
+    float adjusted_pitch = 0.6f + 0.1f * sinf(swing_alpha);
 
     Quaternion adjusted_rotation = held_wand_rotation * (
       // Pitch correction
@@ -930,9 +923,12 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
 
   UpdatePlayerHeadTurnAngle(tachyon, state);
   UpdatePlayerModel(tachyon, state, player_rotation, player_rotation_matrix);
-  UpdateWand(tachyon, state, player_rotation, player_rotation_matrix);
-  UpdateWandLights(tachyon, state);
   UpdateLantern(tachyon, state, player_rotation, player_rotation_matrix);
+
+  if (Items::HasItem(state, MAGIC_WAND)) {
+    UpdateWand(tachyon, state, player_rotation, player_rotation_matrix);
+    UpdateWandLights(tachyon, state);
+  }
 }
 
 void PlayerCharacter::AutoHop(Tachyon* tachyon, State& state) {

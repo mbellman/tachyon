@@ -1,34 +1,37 @@
 #include <map>
 
 #include "astro/items.h"
+#include "astro/collision_system.h"
 #include "astro/sfx.h"
 #include "astro/ui_system.h"
 
 using namespace astro;
 
 static std::map<std::string, ItemType> item_map = {
-  { "astrolabe_lower_left", ASTROLABE_LOWER_LEFT },
-  { "astrolabe_lower_right", ASTROLABE_LOWER_RIGHT },
-  { "astrolabe_upper_right", ASTROLABE_UPPER_RIGHT },
+  { "magic_wand", MAGIC_WAND }
 };
 
 static void SpawnItemObject(Tachyon* tachyon, State& state, const tVec3f& position, ItemType item_type) {
   auto& meshes = state.meshes;
 
   switch (item_type) {
-    // Astrolabe parts
-    case ASTROLABE_LOWER_LEFT:
-    case ASTROLABE_LOWER_RIGHT:
-    case ASTROLABE_UPPER_RIGHT: {
-      auto& item = create(meshes.item_astro_part);
+    // Wand
+    case MAGIC_WAND: {
+      auto& item = objects(meshes.player_wand)[0];
 
       item.position = position;
-      item.scale = tVec3f(500.f);
-      item.color = tVec3f(0, 0, 1.f);
+      item.position.y = CollisionSystem::QueryGroundHeight(state, position.x, position.z);
+      item.position.y += 250.f;
+
+      // @todo precalculate
+      item.rotation = Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), -t_HALF_PI) *
+      Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.5f);
+
+      item.scale = tVec3f(800.f);
+      item.color = tVec3f(1.f, 0.6f, 0.2f);
+      item.material = tVec4f(1.f, 0, 0, 0.4f);
 
       commit(item);
-
-      break;
     }
 
     default:
@@ -40,8 +43,8 @@ static std::string GetCollectItemDialogue(ItemType item_type) {
   switch (item_type) {
     case GATE_KEY:
       return "Collected the gate key.";
-    case ASTROLABE_LOWER_LEFT:
-      return "Acquired lower-left astrolabe fragment.";
+    case MAGIC_WAND:
+      return "Retrieved the alchemist's wand.";
     default:
       return "Collected [unknown item].";
   }
@@ -70,31 +73,8 @@ void Items::SpawnItemObjects(Tachyon* tachyon, State& state) {
       continue;
     }
 
-    SpawnItemObject(tachyon, state, entity.position, item_type);
-  }
-}
-
-void Items::HandleItemPickup(Tachyon* tachyon, State& state) {
-  auto& meshes = state.meshes;
-  tVec3f& player_position = state.player_position;
-
-  // @todo iterate over item_pickup entities instead
-  for (auto& part : objects(meshes.item_astro_part)) {
-    if (tVec3f::distance(player_position, part.position) < 700.f) {
-      // @todo per-item messaging
-      UISystem::ShowDialogue(tachyon, state, "Acquired lower-left astrolabe fragment.");
-      // @temporary
-      Sfx::PlaySound(SFX_SPELL_STUN);
-
-      remove_object(part);
-
-      // @temporary
-      Item item;
-      item.type = ASTROLABE_LOWER_LEFT;
-
-      state.inventory.push_back(item);
-
-      break;
+    if (!Items::HasItem(state, item_type)) {
+      SpawnItemObject(tachyon, state, entity.position, item_type);
     }
   }
 }

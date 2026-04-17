@@ -164,22 +164,22 @@ void Astrolabe::Update(Tachyon* tachyon, State& state) {
 
 // @deprecated @todo remove
 float Astrolabe::GetMaxAstroTime(const State& state) {
-  if (Items::HasItem(state, ASTROLABE_UPPER_RIGHT)) {
-    return astro_time_periods.future;
-  }
+  // if (Items::HasItem(state, ASTROLABE_UPPER_RIGHT)) {
+  //   return astro_time_periods.future;
+  // }
 
   return astro_time_periods.present;
 }
 
 // @deprecated @todo remove
 float Astrolabe::GetMinAstroTime(const State& state) {
-  if (Items::HasItem(state, ASTROLABE_LOWER_RIGHT)) {
-    return astro_time_periods.very_distant_past;
-  }
+  // if (Items::HasItem(state, ASTROLABE_LOWER_RIGHT)) {
+  //   return astro_time_periods.very_distant_past;
+  // }
 
-  if (Items::HasItem(state, ASTROLABE_LOWER_LEFT)) {
-    return astro_time_periods.distant_past;
-  }
+  // if (Items::HasItem(state, ASTROLABE_LOWER_LEFT)) {
+  //   return astro_time_periods.distant_past;
+  // }
 
   return astro_time_periods.past;
 }

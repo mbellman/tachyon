@@ -149,9 +149,8 @@ namespace astro {
    */
   enum ItemType {
     ITEM_UNSPECIFIED = -1,
-    ASTROLABE_LOWER_LEFT,
-    ASTROLABE_LOWER_RIGHT,
-    ASTROLABE_UPPER_RIGHT,
+
+    MAGIC_WAND,
     GATE_KEY,
 
     ITEM_STUN_SPELL,
