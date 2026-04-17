@@ -153,9 +153,9 @@ static void UpdateStandardCamera(Tachyon* tachyon, State& state, tVec3f& new_cam
   // @todo cleanup/refactor
   float player_speed = state.player_velocity.magnitude();
   float speed_ratio = player_speed / PlayerCharacter::MAX_RUN_SPEED;
-  float facing_factor = 1.f + speed_ratio * 0.2f;
+  float facing_factor = 1.f + speed_ratio * 0.5f;
   float shift_amount = 1500.f + player_speed * 0.5f;
-  tVec3f shift_vector = state.player_facing_direction * facing_factor + tVec3f(0, 0, 0.4f);
+  tVec3f shift_vector = state.player_facing_direction + tVec3f(0, 0, 0.2f);
   tVec3f desired_camera_shift = shift_vector * tVec3f(0.75f, 0, 1.f) * shift_amount;
 
   UpdateCameraNearEntities(state, new_camera_position);
@@ -200,8 +200,8 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state) {
   }
 
   new_camera_position += state.camera_shift;
-  new_camera_position.y += 10000.f;
-  new_camera_position.z += 7000.f;
+  new_camera_position.y += 11000.f;
+  new_camera_position.z += 9000.f;
 
   // Limit camera distance to avoid making out-of-view culling obvious
   {
@@ -209,8 +209,8 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state) {
       new_camera_position.y = state.player_position.y + 13000.f;
     }
 
-    if (new_camera_position.z - state.player_position.z > 10000.f) {
-      new_camera_position.z = state.player_position.z + 10000.f;
+    if (new_camera_position.z - state.player_position.z > 12000.f) {
+      new_camera_position.z = state.player_position.z + 12000.f;
     }
   }
 

@@ -313,7 +313,7 @@ static void UpdateGround1Plants(Tachyon* tachyon, State& state) {
         grass.scale.z = 3.f * scale_variation;
         grass.scale *= scale_factor;
 
-        grass.color = tVec4f(0.2f, 0.3f, 0.1f, 0.3f);
+        grass.color = tVec4f(0.3f, 0.4f, 0.2f, 0.3f);
         grass.material = tVec4f(0.8f, 0, 0, 1.f);
 
         grass.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), rotation_angle);

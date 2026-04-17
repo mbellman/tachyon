@@ -373,6 +373,7 @@ namespace astro {
       // MAGIC_GATE
       magic_gate_placeholder,
       magic_gate,
+      magic_gate_barrier,
 
       // FLAG
       flag_placeholder,

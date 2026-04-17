@@ -82,8 +82,8 @@ namespace astro {
           continue;
         }
 
-        if (abs(state.player_position.x - entity.visible_position.x) > 15000.f) continue;
-        if (abs(state.player_position.z - entity.visible_position.z) > 15000.f) continue;
+        if (!IsInRangeX(entity, state, 20000.f)) continue;
+        if (!IsInRangeZ(entity, state, 20000.f)) continue;
 
         // Set visible scale once we're in range
         entity.visible_scale = entity.scale;

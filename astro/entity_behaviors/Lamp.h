@@ -46,8 +46,8 @@ namespace astro {
         }
 
         if (!state.use_vantage_camera) {
-          if (abs(state.player_position.x - entity.position.x) > 15000.f) continue;
-          if (abs(state.player_position.z - entity.position.z) > 15000.f) continue;
+          if (abs(state.player_position.x - entity.position.x) > 20000.f) continue;
+          if (abs(state.player_position.z - entity.position.z) > 25000.f) continue;
         }
 
         // Frame

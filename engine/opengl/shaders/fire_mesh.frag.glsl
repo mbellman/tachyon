@@ -94,7 +94,7 @@ void main() {
   vec3 out_color = vec3(0.0);
   vec3 sample_position = fragPosition - N * 1500.0;
   float t = scene_time * 0.5 + modelPosition.x;
-  float intensity = 5.0 * (0.5 * sin(t) + 0.5);
+  float intensity = 5.0 * (0.7 + 0.3 * sin(t));
 
   for (int i = 0; i < 5; i++) {
     float base_distance = 0.0002 * length(sample_position - basePosition);
@@ -128,8 +128,6 @@ void main() {
 
   out_color *= pow(NdotV, 2.0) * intensity;
   out_color *= out_color * 100.0;
-  // out_color = pow(out_color, vec3(1.0 / 2.2));
-  // out_color += vec3(0.2);
 
   out_color_and_depth = vec4(out_color, 0);
 }
