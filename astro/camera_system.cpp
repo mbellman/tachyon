@@ -130,23 +130,6 @@ static void UpdatePreviewTargetCamera(Tachyon* tachyon, State& state, tVec3f& ne
   state.camera_blend_speed = Tachyon_Lerpf(state.camera_blend_speed, 2.f * state.dt, state.dt);
 }
 
-static void UpdateAstroTravelCamera(Tachyon* tachyon, State& state, tVec3f& new_camera_position) {
-  // Astro-turning camera; use the player position as with walking/standing still,
-  // but apply the camera shift immediately instead of lerping. This ensures that
-  // the camera more smoothly blends back into its expected position when a targeted
-  // entity ends its lifespan and disappears during an astro turn action. Without
-  // this special case, the slower camera shift lerp causes the camera to "curve"
-  // as it returns to its expected position, which looks odd.
-  new_camera_position = state.player_position;
-
-  UpdateCameraNearEntities(state, new_camera_position);
-
-  tVec3f shift_direction = state.player_facing_direction + tVec3f(0, 0, 0.4f);
-
-  state.camera_shift = shift_direction * tVec3f(0.75f, 0, 1.f) * 1500.f;
-  state.camera_blend_speed = 5.f * state.dt;
-}
-
 static void UpdateStandardCamera(Tachyon* tachyon, State& state, tVec3f& new_camera_position) {
   new_camera_position = state.player_position;
 
@@ -191,9 +174,6 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state) {
   }
   else if (state.targetable_entities.size() > 0) {
     UpdatePreviewTargetCamera(tachyon, state, new_camera_position);
-  }
-  else if (abs(state.astro_turn_speed) > 0.1f) {
-    UpdateAstroTravelCamera(tachyon, state, new_camera_position);
   }
   else {
     UpdateStandardCamera(tachyon, state, new_camera_position);
