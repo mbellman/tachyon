@@ -57,8 +57,18 @@ namespace astro {
       for_entities(state.lampposts) {
         auto& entity = state.lampposts[i];
 
-        if (abs(state.player_position.x - entity.position.x) > 20000.f) continue;
-        if (abs(state.player_position.z - entity.position.z) > 20000.f) continue;
+        if (!IsInRangeX(entity, state, 20000.f)) continue;
+        if (!IsInRangeZ(entity, state, 20000.f)) continue;
+
+        if (!IsDuringActiveTime(entity, state)) {
+          if (entity.light_id != -1) {
+            remove_point_light(entity.light_id);
+
+            entity.light_id = -1;
+          }
+
+          continue;
+        };
 
         bool is_light_active = entity.did_activate;
 

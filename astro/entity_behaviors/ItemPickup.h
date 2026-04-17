@@ -34,6 +34,12 @@ namespace astro {
 
         if (!IsDuringActiveTime(entity, state)) continue;
 
+        auto proximity = GetEntityProximity(entity, state);
+
+        if (proximity.distance < 3000.f && proximity.facing_dot > 0.f) {
+          UISystem::ShowTransientDialogue(tachyon, state, "[X] Pick up");
+        }
+
         // Pickup indicator
         {
           auto& pickup = use_instance(meshes.item_pickup);

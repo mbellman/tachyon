@@ -99,6 +99,9 @@ static void UpdateWhiteVines(Tachyon* tachyon, State& state) {
 
   uint16 total_visible_oak_trunks = mesh(meshes.oak_tree_trunk).lod_1.instance_count;
 
+  int leaves_per_vine = int((state.astro_time - astro_time_periods.past) / 2.5f);
+  if (leaves_per_vine > 20) leaves_per_vine = 20;
+
   for (uint16 i = 0; i < total_visible_oak_trunks; i++) {
     auto& trunk = objects(meshes.oak_tree_trunk)[i];
 
@@ -109,12 +112,10 @@ static void UpdateWhiteVines(Tachyon* tachyon, State& state) {
     if (abs(state.player_position.x - trunk.position.x) > 20000.f) continue;
     if (abs(state.player_position.z - trunk.position.z) > 15000.f) continue;
 
-    int total_leaves = int((state.astro_time - astro_time_periods.past) / 2.5f);
-
-    for (int j = 0; j < total_leaves; j++) {
+    for (int j = 0; j < leaves_per_vine; j++) {
       auto& leaf = use_instance(meshes.vine_leaf);
 
-      float leaf_age = (total_leaves - j) * 2.5f;
+      float leaf_age = (leaves_per_vine - j) * 2.5f;
       float growth_factor = leaf_age / 10.f;
       if (growth_factor > 1.f) growth_factor = 1.f;
 
