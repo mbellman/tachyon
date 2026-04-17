@@ -22,6 +22,7 @@
 #include "astro/entity_behaviors/LilyPad.h"
 #include "astro/entity_behaviors/LesserGuard.h"
 #include "astro/entity_behaviors/LowGuard.h"
+#include "astro/entity_behaviors/MagicGate.h"
 #include "astro/entity_behaviors/Mushroom.h"
 #include "astro/entity_behaviors/Npc.h"
 #include "astro/entity_behaviors/OakTree.h"
@@ -100,6 +101,7 @@ using namespace astro;
   dispatch_macro(SMALL_STONE_BRIDGE, SmallStoneBridge);\
   dispatch_macro(STONE_WALL, StoneWall);\
   dispatch_macro(GATE, Gate);\
+  dispatch_macro(MAGIC_GATE, MagicGate);\
   dispatch_macro(FLAG, Flag);\
   dispatch_macro(LIGHT_POST, LightPost);\
   dispatch_macro(LAMP, Lamp);\
@@ -147,6 +149,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
     dispatch_GetEntityContainer(SMALL_STONE_BRIDGE, state.small_stone_bridges);
     dispatch_GetEntityContainer(STONE_WALL, state.stone_walls);
     dispatch_GetEntityContainer(GATE, state.gates);
+    dispatch_GetEntityContainer(MAGIC_GATE, state.magic_gates);
     dispatch_GetEntityContainer(FLAG, state.flags);
     dispatch_GetEntityContainer(LIGHT_POST, state.light_posts);
     dispatch_GetEntityContainer(LAMPPOST, state.lampposts);

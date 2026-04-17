@@ -57,7 +57,8 @@ namespace astro {
     VANTAGE_SPOT,
     SMALL_BIRD,
     LEAF_SHRUB,
-    LAMP
+    LAMP,
+    MAGIC_GATE
   };
 
   /**
@@ -109,7 +110,8 @@ namespace astro {
     VANTAGE_SPOT,
     SMALL_BIRD,
     LEAF_SHRUB,
-    LAMP
+    LAMP,
+    MAGIC_GATE
   };
 
   /**
@@ -368,6 +370,10 @@ namespace astro {
       gate_right_door,
       gate_lock,
 
+      // MAGIC_GATE
+      magic_gate_placeholder,
+      magic_gate,
+
       // FLAG
       flag_placeholder,
       flag_pole,
@@ -497,6 +503,7 @@ namespace astro {
     std::vector<GameEntity> stone_walls;
     std::vector<GameEntity> wooden_gate_doors;
     std::vector<GameEntity> gates;
+    std::vector<GameEntity> magic_gates;
     std::vector<GameEntity> flags;
     std::vector<GameEntity> lampposts;
     std::vector<GameEntity> lamps;
@@ -706,6 +713,12 @@ namespace astro {
       .name = "Gate",
       .scale = tVec3f(4000.f),
       .tint = tVec3f(0.4f)
+    } },
+
+    { MAGIC_GATE, {
+      .name = "Magic Gate",
+      .scale = tVec3f(4000.f),
+      .tint = tVec3f(0.6f)
     } },
 
     { FLAG, {
