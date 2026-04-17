@@ -608,12 +608,14 @@ static void UpdateSmallGrass(Tachyon* tachyon, State& state) {
   Quaternion standard_camera_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.9f);
   // @hack Invert y to get the proper direction. Probably a mistake somewhere.
   tVec3f camera_direction = standard_camera_rotation.getDirection() * tVec3f(1.f, -1.f, 1.f);
+
+  // @todo clarify this and make it easier to understand
   tVec3f ground_center = camera.position + camera_direction * 10000.f * 1.2f;
 
   for (auto& chunk : state.grass_chunks) {
     bool is_chunk_in_view = (
       abs(ground_center.x - chunk.center_position.x) < 28000.f &&
-      abs(ground_center.z - chunk.center_position.z) < 25000.f
+      abs(ground_center.z - chunk.center_position.z) < 30000.f
     );
 
     if (!is_chunk_in_view) {
@@ -639,7 +641,7 @@ static void UpdateSmallGrass(Tachyon* tachyon, State& state) {
       if (
         abs(blade.position.x - ground_center.x) > x_limit ||
         z_distance > 8000.f ||
-        z_distance < -18000.f
+        z_distance < -25000.f
       ) {
         remove_blade_if_active(blade);
 
@@ -1080,15 +1082,15 @@ static void UpdateDirtPaths(Tachyon* tachyon, State& state) {
   const tVec3f solid_ground_color = tVec3f(0.3f, 0.5f, 0.1f);
   // @todo change by area/world position
   tVec3f path_color = tVec3f(1.f, 0.8f, 0.4f);
-  const float distance_limit = 17000.f;
 
+  // @todo reset_instances() + use_instance()
   uint16 total_rocks = 0;
 
   for (auto& segment : state.dirt_path_segments) {
     auto& position = segment.base_position;
 
-    if (abs(position.x - player_position.x) > distance_limit) continue;
-    if (abs(position.z - player_position.z) > distance_limit) continue;
+    if (abs(position.x - player_position.x) > 18000.f) continue;
+    if (abs(position.z - player_position.z) > 22000.f) continue;
 
     auto& entity_a = state.dirt_path_nodes[segment.entity_index_a];
     auto& entity_b = state.dirt_path_nodes[segment.entity_index_b];
@@ -1199,8 +1201,7 @@ static void UpdateStonePaths(Tachyon* tachyon, State& state) {
   const tVec3f solid_ground_color = tVec3f(0.3f, 0.5f, 0.1f);
   tVec3f path_color = tVec3f(0.2f, 0.3f, 0.2f);
 
-  const float distance_limit = 17000.f;
-
+  // @todo reset_instances() + use_instance()
   uint16 total_path_stones = 0;
 
   Quaternion rotations[] = {
@@ -1235,8 +1236,8 @@ static void UpdateStonePaths(Tachyon* tachyon, State& state) {
   for (auto& segment : state.stone_path_segments) {
     auto& position = segment.base_position;
 
-    if (abs(position.x - player_position.x) > distance_limit) continue;
-    if (abs(position.z - player_position.z) > distance_limit) continue;
+    if (abs(position.x - player_position.x) > 18000.f) continue;
+    if (abs(position.z - player_position.z) > 22000.f) continue;
 
     auto& entity_a = state.stone_path_nodes[segment.entity_index_a];
     auto& entity_b = state.stone_path_nodes[segment.entity_index_b];

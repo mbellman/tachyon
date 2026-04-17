@@ -584,6 +584,8 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   }
 
   for (auto& entity : state.lampposts) {
+    if (!IsDuringActiveTime(entity, state)) continue;
+
     ResolveSingleRadiusCollision(state, entity.position, entity.visible_scale, 0.5f);
   }
 

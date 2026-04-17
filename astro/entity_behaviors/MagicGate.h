@@ -78,7 +78,7 @@ namespace astro {
           light.position = entity.position;
           light.color = barrier_color;
           light.radius = 8000.f;
-          light.power = 5.f;
+          light.power = 3.f;
           light.glow_power = 0.f;
         }
 
