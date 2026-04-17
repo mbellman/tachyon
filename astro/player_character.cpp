@@ -28,14 +28,6 @@ static inline float GetAngleBetween(const float a1, const float a2) {
   return angle;
 }
 
-static bool IsPlayerRunning(Tachyon* tachyon, State& state) {
-  return (
-    is_key_held(tKey::CONTROLLER_A) &&
-    state.previous_move_delta > 0.f &&
-    (abs(tachyon->left_stick.x) > 0.1f || abs(tachyon->left_stick.y) > 0.1f)
-  );
-}
-
 static void SetActivePlayerAnimation(Tachyon* tachyon, State& state) {
   auto& player_animation = state.player_mesh_animation;
   auto& animations = state.animations;
@@ -69,7 +61,7 @@ static void SetActivePlayerAnimation(Tachyon* tachyon, State& state) {
   }
 
   // Running
-  else if (IsPlayerRunning(tachyon, state)) {
+  else if (PlayerCharacter::IsRunning(tachyon, state)) {
     if (state.wand_hold_factor > 0.f) {
       Animation::AwaitNextAnimation(player_animation, &animations.player_run_wand);
     } else {
@@ -124,7 +116,7 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
   // Transition idle animations into running as quickly as possible,
   // so we don't "glide" along the ground if we're still blending into idle
   if (
-    IsPlayerRunning(tachyon, state) && (
+    PlayerCharacter::IsRunning(tachyon, state) && (
       player_animation.current_animation == &animations.person_idle ||
       player_animation.current_animation == &animations.player_idle_wand ||
       player_animation.next_animation == &animations.person_idle ||
@@ -530,7 +522,7 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
   if (state.wand_hold_factor > 0.f) {
     float swing_rate = (
       // Running
-      IsPlayerRunning(tachyon, state) ? 15.f :
+      PlayerCharacter::IsRunning(tachyon, state) ? 15.f :
       // Walking
       state.previous_move_delta > 0.f ? 6.f :
       // Idle
@@ -955,6 +947,14 @@ bool PlayerCharacter::CanTakeDamage(Tachyon* tachyon, const State& state) {
     time_since(state.last_target_jump_time) > 1.f &&
     time_since(state.last_dodge_time) > 0.3f &&
     time_since(state.last_break_attack_time) > 1.f
+  );
+}
+
+bool PlayerCharacter::IsRunning(Tachyon* tachyon, State& state) {
+  return (
+    is_key_held(tKey::CONTROLLER_A) &&
+    state.previous_move_delta > 0.f &&
+    (abs(tachyon->left_stick.x) > 0.1f || abs(tachyon->left_stick.y) > 0.1f)
   );
 }
 

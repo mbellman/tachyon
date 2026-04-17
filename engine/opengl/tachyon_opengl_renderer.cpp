@@ -405,8 +405,11 @@ static void RenderDevLabels(Tachyon* tachyon, int32 y_offset) {
 }
 
 static void RenderConsoleMessages(Tachyon* tachyon) {
+  // Retrieve the console messages list as a copy, since
+  // other threads may be writing to it while we display them
+  auto console_messages = Tachyon_GetConsoleMessages();
+
   auto now = Tachyon_GetMicroseconds();
-  auto& console_messages = Tachyon_GetConsoleMessages();
   int32 line_height = 22;
   int32 y_offset = tachyon->window_height - console_messages.size() * line_height - 10;
 

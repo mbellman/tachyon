@@ -521,5 +521,6 @@ namespace astro {
     tUIText* debug_text_large = nullptr;
     bool is_level_editor_open = false;
     bool show_game_stats = false;
+    bool use_slow_motion = false;
   };
 }

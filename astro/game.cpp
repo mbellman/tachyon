@@ -163,6 +163,21 @@ static void HandleInGameDevHotkeys(Tachyon* tachyon, State& state) {
     }
   }
 
+  // Toggling slow motion
+  {
+    if (did_press_key(tKey::ARROW_LEFT)) {
+      state.use_slow_motion = true;
+
+      show_overlay_message("Slow motion ON");
+    }
+
+    if (did_press_key(tKey::ARROW_RIGHT)) {
+      state.use_slow_motion = false;
+
+      show_overlay_message("Slow motion OFF");
+    }
+  }
+
   // Resetting entities
   {
     if (did_press_key(tKey::R)) {
@@ -940,6 +955,11 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
 
     state.spells.did_cast_stun_this_frame = false;
     state.dt = dt;
+
+    // @todo dev mode only
+    if (state.use_slow_motion) {
+      state.dt *= 0.2f;
+    }
   }
 
   // Toggle level editor with E

@@ -1947,6 +1947,7 @@ void LevelEditor::OpenLevelEditor(Tachyon* tachyon, State& state) {
   tachyon->scene.use_close_camera_disocclusion = false;
 
   state.is_level_editor_open = true;
+  state.use_slow_motion = false;
 
   editor.show_fog_volumes = true;
   editor.should_rebuild_all_procedural_objects = false;
