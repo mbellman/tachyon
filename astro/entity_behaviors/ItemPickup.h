@@ -50,6 +50,11 @@ namespace astro {
             Sfx::PlaySound(SFX_SCULPTURE_ACTIVATE_1, 0.5f);
 
             entity.did_activate = true;
+
+            // @todo dev mode only
+            {
+              add_console_message("Collected item: " + entity.item_pickup_name, tVec3f(0.8f, 0.8f, 1.f));
+            }
           }
         }
 

@@ -8,7 +8,14 @@
 using namespace astro;
 
 static std::map<std::string, ItemType> item_map = {
-  { "magic_wand", MAGIC_WAND }
+  { "magic_wand", MAGIC_WAND },
+  { "chime_parts", CHIME_PARTS }
+};
+
+static std::map<ItemType, std::string> collect_item_text_map = {
+  { GATE_KEY, "Grabbed the gate key." },
+  { MAGIC_WAND, "Retrieved the alchemist's wand." },
+  { CHIME_PARTS, "Found a peculiar metal fixture." }
 };
 
 static void SpawnItemObject(Tachyon* tachyon, State& state, const tVec3f& position, ItemType item_type) {
@@ -40,14 +47,11 @@ static void SpawnItemObject(Tachyon* tachyon, State& state, const tVec3f& positi
 }
 
 static std::string GetCollectItemDialogue(ItemType item_type) {
-  switch (item_type) {
-    case GATE_KEY:
-      return "Collected the gate key.";
-    case MAGIC_WAND:
-      return "Retrieved the alchemist's wand.";
-    default:
-      return "Collected [unknown item].";
+  if (collect_item_text_map.find(item_type) == collect_item_text_map.end()) {
+    return "[Item collection text missing from map]";
   }
+
+  return collect_item_text_map.at(item_type);
 }
 
 ItemType Items::ItemNameToType(const std::string& item_name) {
@@ -60,8 +64,6 @@ ItemType Items::ItemNameToType(const std::string& item_name) {
 
 void Items::SpawnItemObjects(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
-
-  remove_all(meshes.item_astro_part);
 
   for_entities(state.item_pickups) {
     auto& entity = state.item_pickups[i];

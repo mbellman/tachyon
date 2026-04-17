@@ -225,7 +225,7 @@ namespace astro {
     bool requires_action = false;
 
     // For responder light pillars which have become "synced" with their associated entity
-    // @todo rename is_action_taken
+    // @todo rename did_take_action
     bool is_astro_synced = false;
   };
 

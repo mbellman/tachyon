@@ -1,6 +1,7 @@
 #pragma once
 
 #include "astro/entity_behaviors/behavior.h"
+#include "astro/items.h"
 #include "astro/time_evolution.h"
 
 namespace astro {
@@ -115,8 +116,26 @@ namespace astro {
 
         bool is_dismantled = entity.requires_action && !entity.is_astro_synced;
 
-        // @todo disallow activation when dismantled
-        HandleActivationBehavior(tachyon, state, entity);
+        if (is_dismantled) {
+          auto proximity = GetEntityProximity(entity, state);
+
+          if (proximity.distance < 5000.f && proximity.facing_dot > 0.f) {
+            UISystem::ShowTransientDialogue(tachyon, state, "[X] Repair");
+
+            if (did_press_key(tKey::CONTROLLER_A)) {
+              if (Items::HasItem(state, CHIME_PARTS)) {
+                UISystem::ShowBlockingDialogue(tachyon, state, "Repaired the traveler's chime.");
+
+                // @todo rename did_take_action
+                entity.is_astro_synced = true;
+              } else {
+                UISystem::ShowBlockingDialogue(tachyon, state, "You do not have the parts on hand.");
+              }
+            }
+          }
+        } else {
+          HandleActivationBehavior(tachyon, state, entity);
+        }
 
         // Stand
         {

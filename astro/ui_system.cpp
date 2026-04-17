@@ -208,40 +208,46 @@ void UISystem::UpdateHUD(Tachyon* tachyon, State& state) {
     state.ui.titles_alpha = Tachyon_Lerpf(state.ui.titles_alpha, 1.f, state.dt);
   }
 
+  // Current age
+  {
+    // Future
+    if (state.astro_time > 35.f) {
+      Tachyon_DrawUIElement(tachyon, state.ui.future_age_title, {
+        .screen_x = int32(float(tachyon->window_width) * 0.165f),
+        .screen_y = tachyon->window_height - 185,
+        .centered = false,
+        .alpha = sqrtf(state.ui.titles_alpha)
+      });
+    }
+
+    // Present
+    else if (state.astro_time > -35.f) {
+      Tachyon_DrawUIElement(tachyon, state.ui.present_age_title, {
+        .screen_x = int32(float(tachyon->window_width) * 0.165f),
+        .screen_y = tachyon->window_height - 185,
+        .centered = false,
+        .alpha = sqrtf(state.ui.titles_alpha)
+      });
+    }
+
+    // Past
+    else {
+      Tachyon_DrawUIElement(tachyon, state.ui.past_age_title, {
+        .screen_x = int32(float(tachyon->window_width) * 0.165f),
+        .screen_y = tachyon->window_height - 185,
+        .centered = false,
+        .alpha = sqrtf(state.ui.titles_alpha)
+      });
+    }
+  }
+
   // Current location
-  Tachyon_DrawUIElement(tachyon, state.ui.divination_woodrealm_title, {
-    .screen_x = int32(float(tachyon->window_width) * 0.155f),
-    .screen_y = tachyon->window_height - 110,
-    .centered = false,
-    .alpha = state.ui.titles_alpha
-  });
-
-  if (state.astro_time > 35.f) {
-    Tachyon_DrawUIElement(tachyon, state.ui.future_age_title, {
-      .screen_x = int32(float(tachyon->window_width) * 0.165f),
-      .screen_y = tachyon->window_height - 185,
+  {
+    Tachyon_DrawUIElement(tachyon, state.ui.divination_woodrealm_title, {
+      .screen_x = int32(float(tachyon->window_width) * 0.155f),
+      .screen_y = tachyon->window_height - 110,
       .centered = false,
-      .alpha = sqrtf(state.ui.titles_alpha)
-    });
-  }
-
-  // Present
-  else if (state.astro_time > -35.f) {
-    Tachyon_DrawUIElement(tachyon, state.ui.present_age_title, {
-      .screen_x = int32(float(tachyon->window_width) * 0.165f),
-      .screen_y = tachyon->window_height - 185,
-      .centered = false,
-      .alpha = sqrtf(state.ui.titles_alpha)
-    });
-  }
-
-  // Past
-  else {
-    Tachyon_DrawUIElement(tachyon, state.ui.past_age_title, {
-      .screen_x = int32(float(tachyon->window_width) * 0.165f),
-      .screen_y = tachyon->window_height - 185,
-      .centered = false,
-      .alpha = sqrtf(state.ui.titles_alpha)
+      .alpha = state.ui.titles_alpha
     });
   }
 }

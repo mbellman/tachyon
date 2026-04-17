@@ -151,6 +151,7 @@ namespace astro {
     ITEM_UNSPECIFIED = -1,
 
     MAGIC_WAND,
+    CHIME_PARTS,
     GATE_KEY,
 
     ITEM_STUN_SPELL,
