@@ -151,12 +151,6 @@ namespace astro {
               light.glow_power = 0.f;
             }
           }
-
-          if (state.is_nighttime) {
-            light.radius = 5000.f;
-          } else {
-            light.radius = 5000.f;
-          }
         }
 
         // Collision

@@ -28,6 +28,9 @@ namespace astro {
       for_entities(state.fog_spawns) {
         auto& entity = state.fog_spawns[i];
 
+        // @todo check for editor in dev mode only
+        if (!state.is_level_editor_open && !IsDuringActiveTime(entity, state)) continue;
+
         tFogVolume volume;
         volume.position = entity.position;
         volume.radius = 30000.f;
@@ -43,6 +46,7 @@ namespace astro {
       }
 
       // @hack Add permanent player-aligned fog during certain portions of the game
+      // @todo move this to time_evolution.cpp
       {
         auto& fx = tachyon->fx;
         float thickness = 1.f - Tachyon_InverseLerp(astro_time_periods.distant_past, astro_time_periods.past, state.astro_time);

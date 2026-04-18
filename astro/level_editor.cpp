@@ -935,6 +935,13 @@ static void MakeSelection(Tachyon* tachyon, State& state, Selectable& selectable
 
   placeholder.color = tVec4f(1.f, 0, 1.f, 0.2f);
 
+  // @hack
+  if (selectable.is_entity) {
+    if (selectable.entity_record.type == MOOD_LIGHT) {
+      placeholder.color.rgba |= 0x000F;
+    }
+  }
+
   commit(placeholder);
 
   CreateGizmo(tachyon, state, editor.current_gizmo_action);
@@ -1077,6 +1084,12 @@ static void SpawnEntityPlaceholder(Tachyon* tachyon, State& state, GameEntity& e
 
   SyncEntityPlaceholder(placeholder, entity);
   TrackSelectableEntity(entity, placeholder);
+
+  // @temporary
+  // @todo allow
+  if (entity.type == MOOD_LIGHT) {
+    placeholder.color.rgba |= 0x000F;
+  }
 
   commit(placeholder);
 }
@@ -2019,8 +2032,11 @@ void LevelEditor::HandleLevelEditor(Tachyon* tachyon, State& state) {
     UpdatePlacer(tachyon, state);
   }
 
+  // Ensure mood lights are synced in the editor
+  EntityDispatcher::TimeEvolve(tachyon, state, MOOD_LIGHT);
+
   if (editor.show_fog_volumes) {
-    // Ensure fog spawns are synced in the editor
+    // Ensure fog spawns are synced in the editor, when enabled
     EntityDispatcher::TimeEvolve(tachyon, state, FOG_SPAWN);
   } else {
     tachyon->fog_volumes.clear();

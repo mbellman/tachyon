@@ -23,6 +23,7 @@
 #include "astro/entity_behaviors/LesserGuard.h"
 #include "astro/entity_behaviors/LowGuard.h"
 #include "astro/entity_behaviors/MagicGate.h"
+#include "astro/entity_behaviors/MoodLight.h"
 #include "astro/entity_behaviors/Mushroom.h"
 #include "astro/entity_behaviors/Npc.h"
 #include "astro/entity_behaviors/OakTree.h"
@@ -76,6 +77,7 @@ using namespace astro;
   dispatch_macro(STONE_PATH_NODE, StonePathNode);\
   dispatch_macro(DIRT_PATH_NODE, DirtPathNode);\
   dispatch_macro(FOG_SPAWN, FogSpawn);\
+  dispatch_macro(MOOD_LIGHT, MoodLight);\
   dispatch_macro(EVENT_TRIGGER, EventTrigger);\
   dispatch_macro(VANTAGE_SPOT, VantageSpot);\
   dispatch_macro(ITEM_PICKUP, ItemPickup);\
@@ -125,6 +127,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
     dispatch_GetEntityContainer(DIRT_PATH_NODE, state.dirt_path_nodes);
     dispatch_GetEntityContainer(ITEM_PICKUP, state.item_pickups);
     dispatch_GetEntityContainer(FOG_SPAWN, state.fog_spawns);
+    dispatch_GetEntityContainer(MOOD_LIGHT, state.mood_lights);
     dispatch_GetEntityContainer(EVENT_TRIGGER, state.event_triggers);
     dispatch_GetEntityContainer(VANTAGE_SPOT, state.vantage_spots);
     dispatch_GetEntityContainer(LESSER_GUARD, state.lesser_guards);

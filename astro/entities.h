@@ -58,7 +58,8 @@ namespace astro {
     SMALL_BIRD,
     LEAF_SHRUB,
     LAMP,
-    MAGIC_GATE
+    MAGIC_GATE,
+    MOOD_LIGHT
   };
 
   /**
@@ -111,7 +112,8 @@ namespace astro {
     SMALL_BIRD,
     LEAF_SHRUB,
     LAMP,
-    MAGIC_GATE
+    MAGIC_GATE,
+    MOOD_LIGHT
   };
 
   /**
@@ -424,6 +426,9 @@ namespace astro {
       // FOG_SPAWN
       fog_spawn_placeholder,
 
+      // MOOD_LIGHT
+      mood_light_placeholder,
+
       // EVENT_TRIGGER,
       event_trigger_placeholder,
 
@@ -476,6 +481,7 @@ namespace astro {
     std::vector<GameEntity> altars;
     std::vector<GameEntity> item_pickups;
     std::vector<GameEntity> fog_spawns;
+    std::vector<GameEntity> mood_lights;
     std::vector<GameEntity> event_triggers;
     std::vector<GameEntity> vantage_spots;
     std::vector<GameEntity> dirt_path_nodes;
@@ -563,6 +569,12 @@ namespace astro {
       .name = "Fog Spawn",
       .scale = tVec3f(1500.f),
       .tint = tVec3f(0.8f)
+    } },
+
+    { MOOD_LIGHT, {
+      .name = "Mood Light",
+      .scale = tVec3f(500.f),
+      .tint = tVec3f(1.f)
     } },
 
     { EVENT_TRIGGER, {
