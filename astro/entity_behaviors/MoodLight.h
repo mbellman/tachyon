@@ -43,10 +43,10 @@ namespace astro {
           auto& light = *get_point_light(entity.light_id);
 
           light.position = entity.position;
+          light.color = entity.tint;
           // @temporary
           // @todo make everything configurable
           light.radius = 4000.f;
-          light.color = tVec3f(1.f, 0.5f, 0.1f);
           light.power = 3.f;
           light.glow_power = 0.f;
         }

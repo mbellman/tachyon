@@ -64,9 +64,30 @@ const static EntityDefaults missing_entity_defaults = {
   .tint = tVec3f(1.f)
 };
 
+// @todo move elsewhere
+static std::vector<std::string> SplitString(const std::string& str, const std::string& delimiter) {
+  // @allocation
+  std::vector<std::string> values;
+  uint32 offset = 0;
+  uint32 found = 0;
+
+  // Add each delimited string segment to the list
+  while ((found = str.find(delimiter, offset)) != std::string::npos) {
+    values.push_back(str.substr(offset, found - offset));
+
+    offset = found + delimiter.size();
+  }
+
+  // Include the remaining string segment after the final delimiter
+  values.push_back(str.substr(offset, str.size() - offset));
+
+  // @allocation
+  return values;
+}
+
 /**
  * ----------------------------
- * Exception-safe string to type conversion helpers.
+ * Exception-safe string <-> type conversion helpers.
  * ----------------------------
  */
 static inline float ToFloat(const std::string& string, const float fallback) {
@@ -81,6 +102,31 @@ static inline float ToFloat(const std::string& string, const float fallback) {
 
 static inline float ToBool(const std::string& string) {
   return string == "true" || string == "1";
+}
+
+static inline std::string BoolToString(const bool value) {
+  return value ? "true" : "false";
+}
+
+static inline tVec3f ToColor(const std::string& string, const tVec3f& fallback) {
+  try {
+    auto parts = SplitString(string, ",");
+    tVec3f color = tVec3f(stof(parts.at(0)), stof(parts.at(1)), stof(parts.at(2)));
+
+    return color;
+  } catch (const std::invalid_argument& e) {
+    return fallback;
+  } catch (const std::out_of_range& e) {
+    return fallback;
+  }
+}
+
+static inline std::string ColorToString(const tVec3f& color) {
+  #define part(__p) std::format("{:.2f}", color.__p)
+
+  return part(x) + "," + part(y) + "," + part(z);
+
+  #undef part
 }
 
 /**
@@ -861,6 +907,18 @@ static void HandleEntityPropertiesEditor(Tachyon* tachyon, State& state) {
     // 6. requires_action
     else if (editor.editing_entity_step == 5) {
       entity->requires_action = ToBool(property_value);
+    }
+    // 7. color
+    else if (editor.editing_entity_step == 6) {
+      entity->tint = ToColor(property_value, entity->tint);
+
+      // Update the live placeholder color
+      {
+        auto& live_placeholder = *get_live_object(editor.current_selectable.placeholder);
+
+        live_placeholder.color = entity->tint;
+        live_placeholder.color.rgba |= 0x000F;
+      }
 
       StopEditingEntityProperties(tachyon);
 
@@ -869,7 +927,7 @@ static void HandleEntityPropertiesEditor(Tachyon* tachyon, State& state) {
 
     editor.editing_entity_step++;
 
-    // @todo make this fix for requires_action as well
+    // Preload the edited value when moving to a new step
     if (editor.editing_entity_step == 2) {
       editor.edited_entity_property_value = entity->item_pickup_name;
     }
@@ -878,6 +936,9 @@ static void HandleEntityPropertiesEditor(Tachyon* tachyon, State& state) {
     }
     else if (editor.editing_entity_step == 4) {
       editor.edited_entity_property_value = entity->associated_entity_name;
+    }
+    else if (editor.editing_entity_step == 5) {
+      editor.edited_entity_property_value = BoolToString(entity->requires_action);
     }
     else {
       editor.edited_entity_property_value = "";
@@ -1089,6 +1150,7 @@ static void SpawnEntityPlaceholder(Tachyon* tachyon, State& state, GameEntity& e
   // @todo allow
   if (entity.type == MOOD_LIGHT) {
     placeholder.color.rgba |= 0x000F;
+    placeholder.material = tVec4f(1.f, 0, 0, 1.f);
   }
 
   commit(placeholder);
@@ -1492,6 +1554,12 @@ static void DisplaySelectedEntityProperties(Tachyon* tachyon, State& state) {
     labels.push_back(".requires_action: " + editor.edited_entity_property_value + text_cursor);
   } else {
     labels.push_back(".requires_action: " + std::string(entity.requires_action ? "true" : "false"));
+  }
+
+  if (is_on_editing_step(6)) {
+    labels.push_back(".color: " + editor.edited_entity_property_value + text_cursor);
+  } else {
+    labels.push_back(".color: " + ColorToString(entity.tint));
   }
 
   RenderInfoLabels(tachyon, state, labels);
