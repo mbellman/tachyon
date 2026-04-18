@@ -42,6 +42,21 @@ namespace astro {
         if (abs(state.player_position.x - entity.position.x) > 25000.f) continue;
         if (abs(state.player_position.z - entity.position.z) > 25000.f) continue;
 
+        auto& fade_out = entity.accumulation_value;
+
+        // Wand interaction
+        {
+          if (state.wand_hold_factor) {
+            fade_out += 0.5f * state.dt;
+
+            if (fade_out > 1.f) fade_out = 1.f;
+          } else {
+            fade_out -= 0.5f * state.dt;
+
+            if (fade_out < 0.f) fade_out = 0.f;
+          }
+        }
+
         // Gate
         {
           auto& gate = use_instance(meshes.magic_gate);
@@ -64,6 +79,12 @@ namespace astro {
           barrier.scale.z *= 0.5f;
           barrier.color = barrier_color;
 
+          barrier.position = tVec3f::lerp(
+            barrier.position,
+            barrier.position - tVec3f(0, 2.f * entity.scale.y, 0),
+            fade_out
+          );
+
           commit(barrier);
         }
 
@@ -78,7 +99,7 @@ namespace astro {
           light.position = entity.position;
           light.color = barrier_color;
           light.radius = 8000.f;
-          light.power = 3.f;
+          light.power = Tachyon_Lerpf(3.f, 0.f, Tachyon_EaseInOutf(fade_out));
           light.glow_power = 0.f;
         }
 
