@@ -663,6 +663,15 @@
     <ClInclude Include="astro\entity_behaviors\Lamp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="astro\entity_behaviors\MoodLight.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\entity_behaviors\MagicGate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\environment.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -873,6 +882,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="astro\facade_geometry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="astro\environment.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
