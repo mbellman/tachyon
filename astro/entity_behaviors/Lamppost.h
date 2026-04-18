@@ -58,7 +58,7 @@ namespace astro {
         auto& entity = state.lampposts[i];
 
         if (!IsInRangeX(entity, state, 20000.f)) continue;
-        if (!IsInRangeZ(entity, state, 20000.f)) continue;
+        if (!IsInRangeZ(entity, state, 25000.f)) continue;
 
         if (!IsDuringActiveTime(entity, state)) {
           if (entity.light_id != -1) {

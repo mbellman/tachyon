@@ -190,9 +190,6 @@ void main() {
       world_depth < 20000.0 &&
       // Dithering kernel specifies a zero'd-out pixel here
       dither_value == 0.0 &&
-      // It's closer to the camera z than the target
-      // @todo improve this to avoid sudden clipping
-      fragWorldPosition.z > disocclusion_target_position.z &&
       is_within_disocclusion_radius &&
       is_higher_than_disocclusion_target
     ) {

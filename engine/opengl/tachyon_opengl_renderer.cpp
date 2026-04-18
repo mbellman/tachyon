@@ -468,6 +468,7 @@ static void RenderDebugLabels(Tachyon* tachyon) {
     "  (Cascade 2): " + String(renderer.total_vertices_by_cascade[2]),
     "  (Cascade 3): " + String(renderer.total_vertices_by_cascade[3]),
     "Point lights: " + String(renderer.total_point_lights_drawn) + " / " + String(tachyon->point_lights.size()),
+    "Fog volumes: " + String(tachyon->fog_volumes.size()),
     "Draw calls: " + String(renderer.total_draw_calls),
     "Running time: " + String(tachyon->running_time)
   };
