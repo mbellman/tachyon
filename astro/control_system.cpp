@@ -366,9 +366,9 @@ static void HandleDayNightControls(Tachyon* tachyon, State& state) {
 }
 
 static void HandleWandControls(Tachyon* tachyon, State& state) {
-  if (abs(state.astro_turn_speed) != 0.f) {
-    return;
-  }
+  if (abs(state.astro_turn_speed) != 0.f) return;
+
+  bool has_wand = Items::HasItem(state, MAGIC_WAND);
 
   // O
   if (did_press_key(tKey::CONTROLLER_B)) {
@@ -380,8 +380,8 @@ static void HandleWandControls(Tachyon* tachyon, State& state) {
   }
 
   // Pressing Square
-  if (did_press_key(tKey::CONTROLLER_X)) {
-    if (state.targetable_entities.size() > 0) {
+  if (has_wand && did_press_key(tKey::CONTROLLER_X)) {
+    if ( state.targetable_entities.size() > 0) {
       if (Items::HasItem(state, ITEM_HOMING_SPELL)) {
         // @todo magic weapons
         SpellSystem::CastHoming(tachyon, state);
@@ -397,7 +397,7 @@ static void HandleWandControls(Tachyon* tachyon, State& state) {
   }
 
   // Holding Square
-  if (is_key_held(tKey::CONTROLLER_X) && state.targetable_entities.size() == 0) {
+  if (has_wand && is_key_held(tKey::CONTROLLER_X) && state.targetable_entities.size() == 0) {
     state.wand_hold_factor += 4.f * state.dt;
 
     if (state.wand_hold_factor > 1.f) state.wand_hold_factor = 1.f;
