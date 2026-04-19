@@ -39,6 +39,7 @@ namespace astro {
       water_plane,
       snow_particle,
       stray_leaf,
+      dust_mote,
 
       // Dynamic fauna meshes
       butterfly_left_wing,

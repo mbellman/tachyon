@@ -11,7 +11,7 @@ in vec3 fragNormal;
 layout (location = 0) out vec4 out_color_and_depth;
 
 //
-// Description : Array and textureless GLSL 2D/3D/4D simplex 
+// Description : Array and textureless GLSL 2D/3D/4D simplex
 //               noise functions.
 //      Author : Ian McEwan, Ashima Arts.
 //  Maintainer : stegu
@@ -20,7 +20,7 @@ layout (location = 0) out vec4 out_color_and_depth;
 //               Distributed under the MIT License. See LICENSE file.
 //               https://github.com/ashima/webgl-noise
 //               https://github.com/stegu/webgl-noise
-// 
+//
 
 vec4 mod289(vec4 x) {
   return x - floor(x * (1.0 / 289.0)) * 289.0; }
@@ -54,7 +54,7 @@ vec4 grad4(float j, vec4 ip)
   p.xyz = floor( fract (vec3(j) * ip.xyz) * 7.0) * ip.z - 1.0;
   p.w = 1.5 - dot(abs(p.xyz), ones.xyz);
   s = vec4(lessThan(p, vec4(0.0)));
-  p.xyz = p.xyz + (s.xyz*2.0 - 1.0) * s.www; 
+  p.xyz = p.xyz + (s.xyz*2.0 - 1.0) * s.www;
 
   return p;
 }
@@ -284,6 +284,10 @@ void main() {
     pow(1.0 - NdotV, 2.0) *
     pow(1.0 - NdotL, 10.0) *
     edge_factor;
+
+  // @TEMPORARY!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  // @todo make a new shader for glow particles!!!!!!!!!!!!!!!
+  out_color = vec3(0.8, 0.5, 0.8) * (1.0 - pow(edge_factor, 0.02));
 
   out_color_and_depth = vec4(out_color, 0);
 }

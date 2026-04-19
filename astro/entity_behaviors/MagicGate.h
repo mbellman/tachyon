@@ -46,10 +46,14 @@ namespace astro {
 
         // Wand interaction
         {
-          if (state.wand_hold_factor) {
-            fade_out += 0.5f * state.dt;
+          auto proximity = GetEntityProximity(entity, state);
 
-            if (fade_out > 1.f) fade_out = 1.f;
+          if (state.wand_hold_factor) {
+            if (proximity.distance < 5000.f && proximity.facing_dot > 0.f) {
+              fade_out += 0.5f * state.dt;
+
+              if (fade_out > 1.f) fade_out = 1.f;
+            }
           } else {
             fade_out -= 0.5f * state.dt;
 
@@ -74,7 +78,7 @@ namespace astro {
 
           Sync(barrier, entity);
 
-          barrier.position.y -= entity.scale.y * 0.1f;
+          barrier.position.y -= entity.scale.y * 0.45f;
           barrier.scale.x *= 0.05f;
           barrier.scale.z *= 0.5f;
           barrier.color = barrier_color;

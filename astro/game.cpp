@@ -40,12 +40,19 @@ static void CreateConstantObjects(Tachyon* tachyon, State& state) {
 
   create(meshes.water_plane);
 
-  for (uint16 i = 0; i < 100; i++) {
-    create(meshes.snow_particle);
-  }
+  // Environment meshes
+  {
+    for_range(1, 100) {
+      create(meshes.snow_particle);
+    }
 
-  for_range(1, 30) {
-    create(meshes.stray_leaf);
+    for_range(1, 30) {
+      create(meshes.stray_leaf);
+    }
+
+    for_range(1, 1000) {
+      create(meshes.dust_mote);
+    }
   }
 
   for (uint16 i = 0; i < 200; i++) {
@@ -869,8 +876,6 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
 
   // @todo HandleFrameStart()
   {
-    tachyon->scene.scene_time += dt;
-
     state.spells.did_cast_stun_this_frame = false;
     state.dt = dt;
 
@@ -878,6 +883,8 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
     if (state.use_slow_motion) {
       state.dt *= 0.2f;
     }
+
+    tachyon->scene.scene_time += dt;
   }
 
   // Toggle level editor with E
