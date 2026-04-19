@@ -48,7 +48,7 @@ static void SpawnItemObject(Tachyon* tachyon, State& state, const tVec3f& positi
 
 static std::string GetCollectItemDialogue(ItemType item_type) {
   if (collect_item_text_map.find(item_type) == collect_item_text_map.end()) {
-    return "[Item collection text missing from map]";
+    return "[Item collection text missing]";
   }
 
   return collect_item_text_map.at(item_type);

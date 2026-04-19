@@ -3,6 +3,7 @@
 #include "astro/entity_behaviors/Altar.h"
 #include "astro/entity_behaviors/Bandit.h"
 #include "astro/entity_behaviors/BellFlower.h"
+#include "astro/entity_behaviors/BirdGate.h"
 #include "astro/entity_behaviors/ChestnutTree.h"
 #include "astro/entity_behaviors/DirtPathNode.h"
 #include "astro/entity_behaviors/EventTrigger.h"
@@ -104,6 +105,7 @@ using namespace astro;
   dispatch_macro(STONE_WALL, StoneWall);\
   dispatch_macro(GATE, Gate);\
   dispatch_macro(MAGIC_GATE, MagicGate);\
+  dispatch_macro(BIRD_GATE, BirdGate);\
   dispatch_macro(FLAG, Flag);\
   dispatch_macro(LIGHT_POST, LightPost);\
   dispatch_macro(LAMP, Lamp);\
@@ -153,6 +155,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
     dispatch_GetEntityContainer(STONE_WALL, state.stone_walls);
     dispatch_GetEntityContainer(GATE, state.gates);
     dispatch_GetEntityContainer(MAGIC_GATE, state.magic_gates);
+    dispatch_GetEntityContainer(BIRD_GATE, state.bird_gates);
     dispatch_GetEntityContainer(FLAG, state.flags);
     dispatch_GetEntityContainer(LIGHT_POST, state.light_posts);
     dispatch_GetEntityContainer(LAMPPOST, state.lampposts);

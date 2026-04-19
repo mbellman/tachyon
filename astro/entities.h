@@ -59,7 +59,8 @@ namespace astro {
     LEAF_SHRUB,
     LAMP,
     MAGIC_GATE,
-    MOOD_LIGHT
+    MOOD_LIGHT,
+    BIRD_GATE
   };
 
   /**
@@ -113,7 +114,8 @@ namespace astro {
     LEAF_SHRUB,
     LAMP,
     MAGIC_GATE,
-    MOOD_LIGHT
+    MOOD_LIGHT,
+    BIRD_GATE
   };
 
   /**
@@ -377,6 +379,10 @@ namespace astro {
       magic_gate,
       magic_gate_barrier,
 
+      // BIRD_GATE
+      bird_gate_placeholder,
+      bird_gate,
+
       // FLAG
       flag_placeholder,
       flag_pole,
@@ -475,57 +481,60 @@ namespace astro {
    * Supplies a series of containers for different entity types.
    * ----------------------------
    */
+  typedef std::vector<GameEntity> EntityList;
+
   struct EntityContainers {
-    std::vector<GameEntity> wind_chimes;
-    std::vector<GameEntity> sculpture_1s;
-    std::vector<GameEntity> altars;
-    std::vector<GameEntity> item_pickups;
-    std::vector<GameEntity> fog_spawns;
-    std::vector<GameEntity> mood_lights;
-    std::vector<GameEntity> event_triggers;
-    std::vector<GameEntity> vantage_spots;
-    std::vector<GameEntity> dirt_path_nodes;
-    std::vector<GameEntity> stone_path_nodes;
+    EntityList wind_chimes;
+    EntityList sculpture_1s;
+    EntityList altars;
+    EntityList item_pickups;
+    EntityList fog_spawns;
+    EntityList mood_lights;
+    EntityList event_triggers;
+    EntityList vantage_spots;
+    EntityList dirt_path_nodes;
+    EntityList stone_path_nodes;
 
-    std::vector<GameEntity> shrubs;
-    std::vector<GameEntity> leaf_shrubs;
-    std::vector<GameEntity> tall_grasses;
-    std::vector<GameEntity> tall_weeds;
-    std::vector<GameEntity> flower_bushes;
-    std::vector<GameEntity> tulip_plants;
-    std::vector<GameEntity> bellflowers;
-    std::vector<GameEntity> starflowers;
-    std::vector<GameEntity> lilac_bushes;
-    std::vector<GameEntity> rose_bushes;
-    std::vector<GameEntity> lily_pads;
-    std::vector<GameEntity> mushrooms;
-    std::vector<GameEntity> glow_flowers;
-    std::vector<GameEntity> oak_trees;
-    std::vector<GameEntity> chestnut_trees;
-    std::vector<GameEntity> willow_trees;
-    std::vector<GameEntity> river_logs;
+    EntityList shrubs;
+    EntityList leaf_shrubs;
+    EntityList tall_grasses;
+    EntityList tall_weeds;
+    EntityList flower_bushes;
+    EntityList tulip_plants;
+    EntityList bellflowers;
+    EntityList starflowers;
+    EntityList lilac_bushes;
+    EntityList rose_bushes;
+    EntityList lily_pads;
+    EntityList mushrooms;
+    EntityList glow_flowers;
+    EntityList oak_trees;
+    EntityList chestnut_trees;
+    EntityList willow_trees;
+    EntityList river_logs;
 
-    std::vector<GameEntity> small_stone_bridges;
-    std::vector<GameEntity> wooden_bridges;
-    std::vector<GameEntity> stone_walls;
-    std::vector<GameEntity> wooden_gate_doors;
-    std::vector<GameEntity> gates;
-    std::vector<GameEntity> magic_gates;
-    std::vector<GameEntity> flags;
-    std::vector<GameEntity> lampposts;
-    std::vector<GameEntity> lamps;
-    std::vector<GameEntity> houses;
-    std::vector<GameEntity> light_posts;
-    std::vector<GameEntity> wooden_fences;
-    std::vector<GameEntity> water_wheels;
+    EntityList small_stone_bridges;
+    EntityList wooden_bridges;
+    EntityList stone_walls;
+    EntityList wooden_gate_doors;
+    EntityList gates;
+    EntityList magic_gates;
+    EntityList bird_gates;
+    EntityList flags;
+    EntityList lampposts;
+    EntityList lamps;
+    EntityList houses;
+    EntityList light_posts;
+    EntityList wooden_fences;
+    EntityList water_wheels;
 
-    std::vector<GameEntity> npcs;
-    std::vector<GameEntity> lesser_guards;
-    std::vector<GameEntity> low_guards;
-    std::vector<GameEntity> bandits;
-    std::vector<GameEntity> faeries;
+    EntityList npcs;
+    EntityList lesser_guards;
+    EntityList low_guards;
+    EntityList bandits;
+    EntityList faeries;
 
-    std::vector<GameEntity> small_birds;
+    EntityList small_birds;
   };
 
   /**
@@ -732,6 +741,12 @@ namespace astro {
       .name = "Magic Gate",
       .scale = tVec3f(4000.f),
       .tint = tVec3f(0.6f)
+    } },
+
+    { BIRD_GATE, {
+      .name = "Bird Gate",
+      .scale = tVec3f(4000.f),
+      .tint = tVec3f(1.f)
     } },
 
     { FLAG, {

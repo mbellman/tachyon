@@ -49,7 +49,7 @@ namespace astro {
           auto proximity = GetEntityProximity(entity, state);
 
           if (state.wand_hold_factor) {
-            if (proximity.distance < 5000.f && proximity.facing_dot > 0.f) {
+            if (proximity.distance < 7500.f && proximity.facing_dot > 0.f) {
               fade_out += 0.5f * state.dt;
 
               if (fade_out > 1.f) fade_out = 1.f;
