@@ -26,6 +26,7 @@ namespace astro {
 
     timeEvolve() {
       auto& meshes = state.meshes;
+      float player_speed = state.player_velocity.magnitude();
 
       reset_instances(meshes.item_pickup);
 
@@ -38,7 +39,11 @@ namespace astro {
 
         auto proximity = GetEntityProximity(entity, state);
 
-        if (proximity.distance < 3000.f && proximity.facing_dot > 0.f) {
+        if (
+          proximity.distance < 3000.f &&
+          proximity.facing_dot > 0.f &&
+          player_speed < 200.f
+        ) {
           UISystem::ShowTransientDialogue(tachyon, state, "[X] Pick up");
 
           if (did_press_key(tKey::CONTROLLER_A)) {

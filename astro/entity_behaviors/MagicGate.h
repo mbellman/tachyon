@@ -44,12 +44,19 @@ namespace astro {
 
         auto& fade_out = entity.accumulation_value;
 
-        // Wand interaction
+        // Interaction
         {
           auto proximity = GetEntityProximity(entity, state);
 
-          if (state.wand_hold_factor) {
-            if (proximity.distance < 7500.f && proximity.facing_dot > 0.f) {
+          if (
+            proximity.distance < 7500.f &&
+            proximity.facing_dot > 0.f &&
+            Items::HasItem(state, MAGIC_WAND)
+          ) {
+            // @todo factor
+            state.wand_sense_factor = Tachyon_Lerpf(state.wand_sense_factor, 1.f, 5.f * state.dt);
+
+            if (state.wand_hold_factor > 0.5f) {
               fade_out += 0.5f * state.dt;
 
               if (fade_out > 1.f) fade_out = 1.f;

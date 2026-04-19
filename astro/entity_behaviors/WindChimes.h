@@ -1,7 +1,6 @@
 #pragma once
 
 #include "astro/entity_behaviors/behavior.h"
-#include "astro/items.h"
 #include "astro/time_evolution.h"
 
 namespace astro {
@@ -52,8 +51,6 @@ namespace astro {
     static void HandleActivationBehavior(Tachyon* tachyon, State& state, GameEntity& entity) {
       // Allow us to start activating the wind chimes if:
       if (
-        // We're holding up the wand
-        state.wand_hold_factor > 0.5f &&
         // We're not astro traveling
         state.astro_turn_speed == 0.f &&
         // We're not moving
@@ -61,18 +58,12 @@ namespace astro {
         // The entity has not activated yet, or it has been long enough since last time
         (entity.game_activation_time == -1.f || time_since(entity.game_activation_time) > 5.f)
       ) {
-        auto proximity = GetEntityProximity(entity, state);
-
-        if (proximity.distance < 5000.f && proximity.facing_dot > 0.f) {
-          StartActivating(tachyon, state, entity);
-
-          return;
-        }
+        StartActivating(tachyon, state, entity);
+      } else {
+        // Not currently activating! Run the accumulation value back down.
+        entity.accumulation_value -= state.dt;
+        if (entity.accumulation_value < 0.f) entity.accumulation_value = 0.f;
       }
-
-      // Not currently activating! Run the accumulation value back down.
-      entity.accumulation_value -= state.dt;
-      if (entity.accumulation_value < 0.f) entity.accumulation_value = 0.f;
     }
 
     addMeshes() {
@@ -105,6 +96,7 @@ namespace astro {
       auto& meshes = state.meshes;
 
       float scene_time = get_scene_time();
+      float player_speed = state.player_velocity.magnitude();
 
       for_entities(state.wind_chimes) {
         auto& entity = state.wind_chimes[i];
@@ -116,25 +108,36 @@ namespace astro {
 
         bool is_dismantled = entity.requires_action && !entity.is_astro_synced;
 
-        if (is_dismantled) {
+        // Interaction
+        {
           auto proximity = GetEntityProximity(entity, state);
 
           if (proximity.distance < 5000.f && proximity.facing_dot > 0.f) {
-            UISystem::ShowTransientDialogue(tachyon, state, "[X] Repair");
+            if (is_dismantled) {
+              UISystem::ShowTransientDialogue(tachyon, state, "[X] Repair");
 
-            if (did_press_key(tKey::CONTROLLER_A)) {
-              if (Items::HasItem(state, CHIME_PARTS)) {
-                UISystem::ShowBlockingDialogue(tachyon, state, "Repaired the traveler's chime.");
+              if (
+                player_speed < 200.f &&
+                did_press_key(tKey::CONTROLLER_A)
+              ) {
+                if (Items::HasItem(state, CHIME_PARTS)) {
+                  UISystem::ShowBlockingDialogue(tachyon, state, "Repaired the traveler's chime.");
 
-                // @todo rename did_take_action
-                entity.is_astro_synced = true;
-              } else {
-                UISystem::ShowBlockingDialogue(tachyon, state, "You do not have the parts on hand.");
+                  // @todo rename did_take_action
+                  entity.is_astro_synced = true;
+                } else {
+                  UISystem::ShowBlockingDialogue(tachyon, state, "You do not have the parts on hand.");
+                }
+              }
+            } else if (Items::HasItem(state, MAGIC_WAND)) {
+              // @todo factor
+              state.wand_sense_factor = Tachyon_Lerpf(state.wand_sense_factor, 1.f, 5.f * state.dt);
+
+              if (state.wand_hold_factor > 0.5f) {
+                HandleActivationBehavior(tachyon, state, entity);
               }
             }
           }
-        } else {
-          HandleActivationBehavior(tachyon, state, entity);
         }
 
         // Stand

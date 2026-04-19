@@ -470,6 +470,7 @@ namespace astro {
     float last_wand_light_time = 0.f;
     float last_wand_strike_time = 0.f;
     float last_wand_light_pulse_time = 0.f;
+    float wand_sense_factor = 0.f;
     float wand_hold_factor = 0.f;
 
     // Dynamic fauna
@@ -485,6 +486,7 @@ namespace astro {
     // Items
     std::vector<Item> inventory;
 
+    // @deprecated @todo remove
     float last_frame_left_trigger = 0.f;
     float last_frame_right_trigger = 0.f;
 

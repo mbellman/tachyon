@@ -4,6 +4,7 @@
 #include "astro/entities.h"
 #include "astro/game_events.h"
 #include "astro/game_state.h"
+#include "astro/items.h"
 #include "astro/player_character.h"
 #include "astro/sfx.h"
 #include "astro/simple_animation.h"

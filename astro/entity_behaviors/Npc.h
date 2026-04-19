@@ -18,7 +18,6 @@ namespace astro {
 
     timeEvolve() {
       auto& meshes = state.meshes;
-
       float player_speed = state.player_velocity.magnitude();
 
       for_entities(state.npcs) {

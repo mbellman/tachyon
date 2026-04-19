@@ -673,6 +673,13 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
     }
   }
 
+  // Gradually bring wand sense down to zero.
+  // If we're near any wand-interactible entities,
+  // wand sense will increase accordingly.
+  {
+    state.wand_sense_factor = Tachyon_Lerpf(state.wand_sense_factor, 0.f, state.dt);
+  }
+
   commit(wand);
 }
 
@@ -714,8 +721,10 @@ static void UpdateWandLights(Tachyon* tachyon, State& state) {
     const float oscillating_power = 0.2f;
     const float wand_swing_power = 2.f;
 
+    float oscillating_alpha = 0.5f + 0.5f * sinf(2.f * scene_time);
+
     auto& main_light = *get_point_light(state.wand_lights[0].light_id);
-    float main_light_power = base_power + oscillating_power * (0.5f + 0.5f * sinf(2.f * scene_time));
+    float main_light_power = base_power + oscillating_power * oscillating_alpha;
 
     // Glow when swinging
     if (state.last_wand_swing_time != 0.f && time_since_last_wand_swing < 1.f) {
@@ -733,7 +742,15 @@ static void UpdateWandLights(Tachyon* tachyon, State& state) {
     // Glow when holding up the wand
     {
       main_light_power += 5.f * state.wand_hold_factor;
-      main_light_power += 2.f * state.wand_hold_factor * (0.5f + 0.5f * sinf(2.f * scene_time));
+      main_light_power += 2.f * state.wand_hold_factor * oscillating_alpha;
+    }
+
+    // Glow when close to interactibles ("wand sense")
+    {
+      float alpha = state.wand_sense_factor * (1.f - state.wand_hold_factor);
+
+      main_light_power += 4.f * alpha;
+      light_color = tVec3f::lerp(light_color, tVec3f(1.f), alpha);
     }
 
     // Glow during wind chimes actions

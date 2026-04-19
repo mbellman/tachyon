@@ -96,12 +96,22 @@ namespace astro {
         float roughness = Tachyon_Lerpf(0.f, 1.f, alpha);
         roughness *= roughness;
 
-        // @todo move to Magic::
-        if (state.wand_hold_factor > 0.5f) {
+        // Interaction
+        {
           auto proximity = GetEntityProximity(entity, state);
 
-          if (proximity.distance < 6000.f && proximity.facing_dot > 0.1f) {
-            Charge(tachyon, state, entity);
+          if (
+            proximity.distance < 6000.f &&
+            proximity.facing_dot > 0.f &&
+            IsDuringActiveTime(entity, state) &&
+            Items::HasItem(state, MAGIC_WAND)
+          ) {
+            // @todo factor
+            state.wand_sense_factor = Tachyon_Lerpf(state.wand_sense_factor, 1.f, 5.f * state.dt);
+
+            if (state.wand_hold_factor > 0.5f) {
+              Charge(tachyon, state, entity);
+            }
           }
         }
 
