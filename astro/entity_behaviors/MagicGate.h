@@ -60,6 +60,10 @@ namespace astro {
               fade_out += 0.5f * state.dt;
 
               if (fade_out > 1.f) fade_out = 1.f;
+            } else {
+              fade_out -= 0.5f * state.dt;
+
+              if (fade_out < 0.f) fade_out = 0.f;
             }
           } else {
             fade_out -= 0.5f * state.dt;

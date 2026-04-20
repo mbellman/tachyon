@@ -206,6 +206,14 @@ static void HandleInGameDevHotkeys(Tachyon* tachyon, State& state) {
         entity.game_activation_time = -1.f;
       }
 
+      for_entities(state.bird_gates) {
+        auto& entity = state.bird_gates[i];
+
+        entity.did_activate = false;
+        entity.astro_activation_time = 0.f;
+        entity.game_activation_time = -1.f;
+      }
+
       for_entities(state.water_wheels) {
         auto& entity = state.water_wheels[i];
 
@@ -244,10 +252,12 @@ static void HandleInGameDevHotkeys(Tachyon* tachyon, State& state) {
         }
       }
 
-      for_entities(state.event_triggers) {
-        auto& entity = state.event_triggers[i];
+      for (auto type : { EVENT_TRIGGER, ITEM_PICKUP }) {
+        for_entities_of_type(type) {
+          auto& entity = entities[i];
 
-        entity.did_activate = false;
+          entity.did_activate = false;
+        }
       }
 
       show_overlay_message("Reset interactible entities");

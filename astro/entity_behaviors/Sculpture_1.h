@@ -90,10 +90,10 @@ namespace astro {
         if (abs(state.player_position.z - entity.position.z) > 20000.f) continue;
 
         float life_progress = Tachyon_InverseLerp(entity.astro_start_time, entity.astro_end_time, state.astro_time);
-        float alpha = powf(life_progress, 3.f);
-        tVec3f color = tVec3f::lerp(start_color, end_color, alpha);
+        float decay_alpha = powf(life_progress, 3.f);
+        tVec3f color = tVec3f::lerp(start_color, end_color, decay_alpha);
 
-        float roughness = Tachyon_Lerpf(0.f, 1.f, alpha);
+        float roughness = Tachyon_Lerpf(0.f, 1.f, decay_alpha);
         roughness *= roughness;
 
         // Interaction

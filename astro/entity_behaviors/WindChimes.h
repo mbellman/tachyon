@@ -112,7 +112,11 @@ namespace astro {
         {
           auto proximity = GetEntityProximity(entity, state);
 
-          if (proximity.distance < 5000.f && proximity.facing_dot > 0.f) {
+          if (
+            proximity.distance < 5000.f &&
+            proximity.facing_dot > 0.f &&
+            player_speed < 500.f
+          ) {
             if (is_dismantled) {
               UISystem::ShowTransientDialogue(tachyon, state, "[X] Repair");
 

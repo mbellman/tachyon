@@ -228,6 +228,8 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state) {
   {
     for (auto& entity : state.npcs) {
       if (entity.unique_name == "lake_girl") {
+        // if (abs(entity.position.y - state.player_position.y) > 250.f) continue;
+
         float distance = tVec3f::distance(state.player_position, entity.position);
 
         float alpha = Tachyon_InverseLerp(8000.f, 15000.f, distance);
