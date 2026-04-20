@@ -29,6 +29,28 @@ static inline float GetAngleBetween(const float a1, const float a2) {
   return angle;
 }
 
+static bool HasCurrentWandAnimation(State& state) {
+  auto& animations = state.animations;
+  auto& player_animation = state.player_mesh_animation;
+
+  return (
+    player_animation.current_animation == &animations.player_idle_wand ||
+    player_animation.current_animation == &animations.player_walk_wand ||
+    player_animation.current_animation == &animations.player_run_wand
+  );
+}
+
+static bool HasNextWandAnimation(State& state) {
+  auto& animations = state.animations;
+  auto& player_animation = state.player_mesh_animation;
+
+  return (
+    player_animation.next_animation == &animations.player_idle_wand ||
+    player_animation.next_animation == &animations.player_walk_wand ||
+    player_animation.next_animation == &animations.player_run_wand
+  );
+}
+
 static void HandleActivePlayerAnimation(Tachyon* tachyon, State& state) {
   auto& player_animation = state.player_mesh_animation;
   auto& animations = state.animations;
@@ -114,15 +136,14 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
   auto& player_animation = state.player_mesh_animation;
   auto& animations = state.animations;
 
-  // Transition idle animations into running as quickly as possible,
-  // so we don't "glide" along the ground if we're still blending into idle
+  // If our current or pending animation involves holding the wand,
+  // but we're not longer holding it, speed up the current blend
+  // so we transition out of the idle/walk/run-with-wand animation
+  // more quickly.
   if (
-    PlayerCharacter::IsRunning(tachyon, state) && (
-      player_animation.current_animation == &animations.person_idle ||
-      player_animation.current_animation == &animations.player_idle_wand ||
-      player_animation.next_animation == &animations.person_idle ||
-      player_animation.next_animation == &animations.player_idle_wand
-    )
+    state.wand_hold_factor < 1.f &&
+    HasCurrentWandAnimation(state) &&
+    HasNextWandAnimation(state)
   ) {
     return 10.f;
   }
