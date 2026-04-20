@@ -107,14 +107,16 @@ void Animation::UpdatePose(tSkinnedMeshAnimation& mesh_animation) {
     // @todo make blend type configurable
     float blend_alpha = Tachyon_EaseInOutf(mesh_animation.next_animation_blend_alpha);
 
+    // Compute the active pose rotation by blending between the current/next animations
+    // @optimize if the current and next animations are identical, this is unnecessary
     for (size_t i = 0; i < current_animation.evaluated_pose.bones.size(); i++) {
-      auto& previous_bone = current_animation.evaluated_pose.bones[i];
+      auto& current_bone = current_animation.evaluated_pose.bones[i];
       auto& next_bone = next_animation.evaluated_pose.bones[i];
       auto& active_pose_bone = active_pose.bones[i];
-      Quaternion blended_rotation = Quaternion::nlerp(previous_bone.rotation, next_bone.rotation, blend_alpha);
+      Quaternion blended_rotation = Quaternion::nlerp(current_bone.rotation, next_bone.rotation, blend_alpha);
 
       // Reset current pose bone translation back to bone space
-      active_pose_bone.translation = previous_bone.translation;
+      active_pose_bone.translation = current_bone.translation;
 
       // Set blended rotation
       active_pose_bone.rotation = blended_rotation;
@@ -123,19 +125,24 @@ void Animation::UpdatePose(tSkinnedMeshAnimation& mesh_animation) {
       if (active_pose_bone.name == "Torso") {
         active_pose_bone.rotation *= Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), mesh_animation.torso_turn_angle);
       }
+    }
 
-      // @todo factor
-      // @todo use a second loop for this
-      if (mesh_animation.upper_body_animation != nullptr) {
+    // Handle separate upper body animation
+    if (mesh_animation.upper_body_animation != nullptr) {
+      auto& animation = *mesh_animation.upper_body_animation;
+      float seek_time = mesh_animation.upper_body_animation_time;
+      float progress = seek_time / float(animation.frames.size());
+      if (progress > 1.f) progress = 1.f;
+      // @todo make blend alpha configurable. Right now this assumes
+      // we play the upper body once, ramping it up and then down again
+      // as it completes. We may have cases where we want an upper body
+      // animation to play cyclically.
+      float blend_alpha = SmoothStep(0.f, 0.05f, progress) * (1.f - SmoothStep(0.7f, 1.f, progress));
+
+      for (size_t i = 0; i < active_pose.bones.size(); i++) {
+        auto& active_pose_bone = active_pose.bones[i];
         auto& animation = *mesh_animation.upper_body_animation;
         auto& bone_name = active_pose_bone.name;
-        float seek_time = mesh_animation.upper_body_animation_time;
-
-        // @optimize This stuff does not need to be computed for each bone!!!!!!!
-        float progress = seek_time / float(animation.frames.size());
-        if (progress > 1.f) progress = 1.f;
-        // @todo make blend alpha configurable
-        float blend_alpha = SmoothStep(0.f, 0.05f, progress) * (1.f - SmoothStep(0.7f, 1.f, progress));
 
         // Skip lower-body bones
         if (bone_name.starts_with("Pelvis")) continue;
@@ -147,6 +154,11 @@ void Animation::UpdatePose(tSkinnedMeshAnimation& mesh_animation) {
 
         active_pose_bone.rotation = Quaternion::nlerp(active_pose_bone.rotation, upper_bone.rotation, blend_alpha);
       }
+    }
+
+    // Handle right arm animation
+    if (mesh_animation.arm_animation != nullptr) {
+      // @todo ?
     }
   }
 }

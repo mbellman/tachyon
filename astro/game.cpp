@@ -540,6 +540,8 @@ static void ShowGameStats(Tachyon* tachyon, State& state) {
     "Target time: " + std::to_string(state.target_astro_time),
     "Astro turn speed: " + std::to_string(state.astro_turn_speed),
     "Ground Y: " + std::to_string(state.current_ground_y),
+    "Current animation: " + state.player_mesh_animation.current_animation->name,
+    "Next animation: " + state.player_mesh_animation.next_animation->name,
     "Animation time: " + std::to_string(state.player_mesh_animation.seek_time),
     "Delta time: " + std::to_string(state.dt)
   };
@@ -752,10 +754,14 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
       GltfLoader("./astro/3d_skeleton_animations/player_idle/idle_2.gltf").skeleton
     };
 
+    state.animations.player_idle.name = "PLAYER_IDLE";
+
     state.animations.player_idle_wand.frames = {
       GltfLoader("./astro/3d_skeleton_animations/player_idle_wand/idle_1.gltf").skeleton,
       GltfLoader("./astro/3d_skeleton_animations/player_idle_wand/idle_2.gltf").skeleton
     };
+
+    state.animations.player_idle_wand.name = "PLAYER_IDLE_WAND";
 
     state.animations.player_walk.frames = {
       GltfLoader("./astro/3d_skeleton_animations/player_walk/walk_1.gltf").skeleton,
@@ -768,6 +774,8 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
       GltfLoader("./astro/3d_skeleton_animations/player_walk/walk_8.gltf").skeleton
     };
 
+    state.animations.player_walk.name = "PLAYER_WALK";
+
     state.animations.player_walk_wand.frames = {
       GltfLoader("./astro/3d_skeleton_animations/player_walk_wand/walk_1.gltf").skeleton,
       GltfLoader("./astro/3d_skeleton_animations/player_walk_wand/walk_2.gltf").skeleton,
@@ -778,6 +786,8 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
       GltfLoader("./astro/3d_skeleton_animations/player_walk_wand/walk_7.gltf").skeleton,
       GltfLoader("./astro/3d_skeleton_animations/player_walk_wand/walk_8.gltf").skeleton
     };
+
+    state.animations.player_walk_wand.name = "PLAYER_WALK_WAND";
 
     state.animations.player_run.frames = {
       GltfLoader("./astro/3d_skeleton_animations/player_run/run_1.gltf").skeleton,
@@ -790,6 +800,8 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
       GltfLoader("./astro/3d_skeleton_animations/player_run/run_8.gltf").skeleton
     };
 
+    state.animations.player_run.name = "PLAYER_RUN";
+
     state.animations.player_run_wand.frames = {
       GltfLoader("./astro/3d_skeleton_animations/player_run_wand/run_1.gltf").skeleton,
       GltfLoader("./astro/3d_skeleton_animations/player_run_wand/run_2.gltf").skeleton,
@@ -800,6 +812,8 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
       GltfLoader("./astro/3d_skeleton_animations/player_run_wand/run_7.gltf").skeleton,
       GltfLoader("./astro/3d_skeleton_animations/player_run_wand/run_8.gltf").skeleton
     };
+
+    state.animations.player_run_wand.name = "PLAYER_RUN_WAND";
 
     state.animations.player_swing_wand.frames = {
       GltfLoader("./astro/3d_skeleton_animations/player_swing_wand/swing_1.gltf").skeleton,
@@ -812,6 +826,8 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
       GltfLoader("./astro/3d_skeleton_animations/player_swing_wand/swing_8.gltf").skeleton,
       GltfLoader("./astro/3d_skeleton_animations/player_swing_wand/swing_9.gltf").skeleton
     };
+
+    state.animations.player_swing_wand.name = "PLAYER_SWING_WAND";
 
     // @todo factor
     for (auto& bone : state.animations.player_idle.frames[0].bones) {

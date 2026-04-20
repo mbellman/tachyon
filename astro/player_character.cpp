@@ -29,7 +29,7 @@ static inline float GetAngleBetween(const float a1, const float a2) {
   return angle;
 }
 
-static void SetActivePlayerAnimation(Tachyon* tachyon, State& state) {
+static void HandleActivePlayerAnimation(Tachyon* tachyon, State& state) {
   auto& player_animation = state.player_mesh_animation;
   auto& animations = state.animations;
 
@@ -63,7 +63,7 @@ static void SetActivePlayerAnimation(Tachyon* tachyon, State& state) {
 
   // Running
   else if (PlayerCharacter::IsRunning(tachyon, state)) {
-    if (state.wand_hold_factor > 0.f) {
+    if (state.wand_hold_factor == 1.f) {
       Animation::AwaitNextAnimation(player_animation, &animations.player_run_wand);
     } else {
       Animation::AwaitNextAnimation(player_animation, &animations.player_run);
@@ -72,7 +72,7 @@ static void SetActivePlayerAnimation(Tachyon* tachyon, State& state) {
 
   // Walking
   else if (state.previous_move_delta > 5.f || is_doing_quick_turn || has_target_and_is_moving) {
-    if (state.wand_hold_factor > 0.f) {
+    if (state.wand_hold_factor == 1.f) {
       Animation::AwaitNextAnimation(player_animation, &animations.player_walk_wand);
     } else {
       Animation::AwaitNextAnimation(player_animation, &animations.player_walk);
@@ -81,7 +81,7 @@ static void SetActivePlayerAnimation(Tachyon* tachyon, State& state) {
 
   // Idling
   else {
-    if (state.wand_hold_factor > 0.f) {
+    if (state.wand_hold_factor == 1.f) {
       Animation::AwaitNextAnimation(player_animation, &animations.player_idle_wand);
     } else {
       Animation::AwaitNextAnimation(player_animation, &animations.player_idle);
@@ -154,7 +154,7 @@ static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
   auto& player_animation = state.player_mesh_animation;
   auto& animations = state.animations;
 
-  SetActivePlayerAnimation(tachyon, state);
+  HandleActivePlayerAnimation(tachyon, state);
 
   bool moving_forward = tVec3f::dot(state.player_velocity, state.player_facing_direction) >= 0.f;
   float animation_speed = GetPlayerAnimationSpeed(tachyon, state);
