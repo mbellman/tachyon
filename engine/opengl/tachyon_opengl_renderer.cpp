@@ -386,7 +386,7 @@ static void HandleDevModeInputs(Tachyon* tachyon) {
       std::string("[Tachyon] V-Sync ") +
       (swap_interval ? "disabled" : "enabled");
 
-    SDL_GL_SetSwapInterval(swap_interval ? 0 : 2);
+    SDL_GL_SetSwapInterval(swap_interval ? 0 : 1);
 
     add_console_message(message, tVec3f(1.f));
     show_overlay_message(message);
@@ -1421,9 +1421,8 @@ void Tachyon_OpenGL_InitRenderer(Tachyon* tachyon) {
 
     glewInit();
 
-    // @todo set to 2 only if framerate is > 60 * 2,
-    // otherwise set to 1
-    SDL_GL_SetSwapInterval(2);
+    // @todo set to 2 on a 144hz+ monitor, 1 otherwise
+    SDL_GL_SetSwapInterval(1);
 
     // Apply default OpenGL settings
     glEnable(GL_PROGRAM_POINT_SIZE);

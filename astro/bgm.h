@@ -11,7 +11,7 @@ namespace astro {
 
   namespace BGM {
     void LoopMusic(Music music, const float volume);
+    void StopCurrentMusic();
     void FadeCurrentMusicVolumeTo(const float volume, uint64 duration);
-    void FadeOutMusic(Music music);
   }
 }

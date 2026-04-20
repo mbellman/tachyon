@@ -60,14 +60,23 @@ void BGM::LoopMusic(Music music, const float volume) {
   current_music = music;
 }
 
+void BGM::StopCurrentMusic() {
+  if (current_music == MUSIC_NONE) return;
+
+  // Fade out and stop the previous music
+  auto& current_sound = FindSoundResource(current_music);
+
+  Tachyon_FadeOutSound(current_sound, 3000);
+  Tachyon_StopSoundAfterDuration(current_sound, 3000);
+
+  current_music = MUSIC_NONE;
+}
+
+
 void BGM::FadeCurrentMusicVolumeTo(const float volume, uint64 duration) {
   if (current_music == MUSIC_NONE) return;
 
   auto& resource = FindSoundResource(current_music);
 
   Tachyon_FadeSoundTo(resource, volume, duration);
-}
-
-void BGM::FadeOutMusic(Music music) {
-  // @todo
 }

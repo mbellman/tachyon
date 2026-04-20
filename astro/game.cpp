@@ -515,9 +515,11 @@ static void HandleCurrentAreaMusic(Tachyon* tachyon, State& state) {
     BGM::LoopMusic(BGM_WIND_CHIMES, 0.4f);
   }
   else if (state.astro_time >= astro_time_periods.present) {
-    // @temporary!!!!!
-    BGM::LoopMusic(BGM_WIND_CHIMES, 0.4f);
+    // @temporary
+    // @todo add overworld music for this period
+    BGM::StopCurrentMusic();
   }
+  // @temporary
   else if (tVec3f::distance(state.player_position, village_position) < 40000.f) {
     BGM::LoopMusic(VILLAGE_1, 0.4f);
   }
