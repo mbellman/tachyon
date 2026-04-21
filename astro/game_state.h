@@ -106,6 +106,7 @@ namespace astro {
     int32
       player_hood,
       player_robes,
+      player_trim,
       player_shirt,
       player_pants,
       player_boots,

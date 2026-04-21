@@ -222,9 +222,9 @@ static void AddSkinnedPlayerMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
   auto& rest_pose = state.player_mesh_animation.rest_pose;
 
-  state.player_mesh_animation.rest_pose = GltfLoader("./astro/3d_skeleton_animations/player_skeleton.gltf").skeleton;
+  rest_pose = GltfLoader("./astro/3d_skeleton_animations/player_skeleton.gltf").skeleton;
 
-  TransformBonesIntoMeshSpace(state.player_mesh_animation.rest_pose);
+  TransformBonesIntoMeshSpace(rest_pose);
 
   // Compute inverse bind matrices
   {
@@ -242,6 +242,11 @@ static void AddSkinnedPlayerMeshes(Tachyon* tachyon, State& state) {
 
   tSkinnedMesh player_robes = Tachyon_LoadSkinnedMesh(
     "./astro/3d_models/characters/player_robes.skin",
+    rest_pose
+  );
+
+  tSkinnedMesh player_trim = Tachyon_LoadSkinnedMesh(
+    "./astro/3d_models/characters/player_trim.skin",
     rest_pose
   );
 
@@ -267,6 +272,7 @@ static void AddSkinnedPlayerMeshes(Tachyon* tachyon, State& state) {
 
   meshes.player_hood = Tachyon_AddSkinnedMesh(tachyon, player_hood);
   meshes.player_robes = Tachyon_AddSkinnedMesh(tachyon, player_robes);
+  meshes.player_trim = Tachyon_AddSkinnedMesh(tachyon, player_trim);
   meshes.player_shirt = Tachyon_AddSkinnedMesh(tachyon, player_shirt);
   meshes.player_pants = Tachyon_AddSkinnedMesh(tachyon, player_pants);
   meshes.player_boots = Tachyon_AddSkinnedMesh(tachyon, player_boots);

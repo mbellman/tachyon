@@ -440,6 +440,7 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
   {
     auto& hood = skinned_mesh(meshes.player_hood);
     auto& robes = skinned_mesh(meshes.player_robes);
+    auto& trim = skinned_mesh(meshes.player_trim);
     auto& shirt = skinned_mesh(meshes.player_shirt);
     auto& pants = skinned_mesh(meshes.player_pants);
     auto& boots = skinned_mesh(meshes.player_boots);
@@ -447,14 +448,13 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
 
     auto& head_bone = active_pose.bones[0];
 
-    // @hack @todo fix the hood model size
-    hood.position = body_position + body_rotation.toMatrix4f() * (head_bone.translation * 220.f);
+    hood.position = body_position;
     hood.rotation = body_rotation;
-    // @hack @todo fix the hood model size
-    hood.scale = tVec3f(1350.f);
+    hood.scale = body_scale;
     hood.color = tVec3f(0.1f, 0.2f, 0.6f);
     hood.material = tVec4f(1.f, 0, 0, 0.2f);
     hood.shadow_cascade_ceiling = 2;
+    hood.current_pose = &active_pose;
 
     robes.position = body_position;
     robes.rotation = body_rotation;
@@ -462,6 +462,15 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
     robes.color = tVec3f(0.3f, 0.4f, 0.6f);
     robes.material = tVec4f(1.f, 0, 0, 0.2f);
     robes.shadow_cascade_ceiling = 2;
+    robes.current_pose = &active_pose;
+
+    trim.position = body_position;
+    trim.rotation = body_rotation;
+    trim.scale = body_scale;
+    trim.color = tVec3f(0.6, 0.4f, 0.2f);
+    trim.material = tVec4f(0.3f, 1.f, 0, 0);
+    trim.shadow_cascade_ceiling = 0;
+    trim.current_pose = &active_pose;
 
     shirt.position = body_position;
     shirt.rotation = body_rotation;
@@ -469,6 +478,7 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
     shirt.color = tVec3f(0.3f, 0.1f, 0.3f);
     shirt.material = tVec4f(1.f, 0, 0, 0.1f);
     shirt.shadow_cascade_ceiling = 2;
+    shirt.current_pose = &active_pose;
 
     pants.position = body_position;
     pants.rotation = body_rotation;
@@ -476,6 +486,7 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
     pants.color = tVec3f(0.4f, 0.2f, 0.1f);
     pants.material = tVec4f(1.f, 0, 0, 0.1f);
     pants.shadow_cascade_ceiling = 2;
+    pants.current_pose = &active_pose;
 
     boots.position = body_position;
     boots.rotation = body_rotation;
@@ -483,23 +494,19 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
     boots.color = tVec3f(0.1f, 0.1f, 0.1f);
     boots.material = tVec4f(1.f, 0, 0, 0);
     boots.shadow_cascade_ceiling = 2;
+    boots.current_pose = &active_pose;
 
     belt.position = body_position;
     belt.rotation = body_rotation;
     belt.scale = body_scale;
     belt.color = tVec3f(0.4f, 0.2f, 0.1f);
-    belt.material = tVec4f(0.6f, 0, 0, 0.2f);
+    belt.material = tVec4f(0.8f, 0, 0, 0.2f);
     belt.shadow_cascade_ceiling = 0;
-
-    hood.current_pose = &active_pose;
-    robes.current_pose = &active_pose;
-    shirt.current_pose = &active_pose;
-    pants.current_pose = &active_pose;
-    boots.current_pose = &active_pose;
     belt.current_pose = &active_pose;
 
     commit(hood);
     commit(robes);
+    commit(trim);
     commit(shirt);
     commit(pants);
     commit(boots);
