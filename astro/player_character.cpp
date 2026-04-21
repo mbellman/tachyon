@@ -150,18 +150,16 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
 
   // Blend more slowly into wand holding actions
   if (
-    player_animation.next_animation == &animations.player_idle_wand ||
-    player_animation.next_animation == &animations.player_walk_wand ||
-    player_animation.next_animation == &animations.player_run_wand
+    !HasCurrentWandAnimation(state) &&
+    HasNextWandAnimation(state)
   ) {
     return 1.5f;
   }
 
   // Blend more slowly out of wand holding actions
   if (
-    player_animation.current_animation == &animations.player_idle_wand ||
-    player_animation.current_animation == &animations.player_walk_wand ||
-    player_animation.current_animation == &animations.player_run_wand
+    HasCurrentWandAnimation(state) &&
+    !HasNextWandAnimation(state)
   ) {
     return 1.5f;
   }
@@ -280,8 +278,8 @@ static void HandleRunOscillation(Tachyon* tachyon, State& state, tVec3f& body_po
   if (state.run_oscillation < 0.f) state.run_oscillation = 0.f;
   if (state.run_oscillation > 1.f) state.run_oscillation = 1.f;
 
-  float run_bounce_height = 200.f * state.run_oscillation;
-  float run_cycle_time = 2.f * t_TAU * (fmodf(state.player_mesh_animation.seek_time, 8.f) / 8.f) + t_HALF_PI;
+  float run_bounce_height = 250.f * state.run_oscillation;
+  float run_cycle_time = 2.f * t_TAU * (fmodf(state.player_mesh_animation.seek_time + 1.f, 8.f) / 8.f) + t_HALF_PI;
   float run_bounce_cycle = sqrtf(0.5f + 0.5f * sinf(run_cycle_time));
 
   body_position.y += run_bounce_height * run_bounce_cycle;

@@ -59,8 +59,6 @@ static void HandleExperimentalControls(Tachyon* tachyon, State& state, const flo
 }
 
 static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
-  bool is_running = is_key_held(tKey::CONTROLLER_A) || is_key_held(tKey::SHIFT);
-
   // Disable movement during:
   if (
     // Astro travel
@@ -79,6 +77,8 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
 
   // Directional movement
   {
+    bool is_running = is_key_held(tKey::CONTROLLER_A) || is_key_held(tKey::SHIFT);
+
     float acceleration =
       is_running ? 12000.f :
       state.has_target ? 8000.f :

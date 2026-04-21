@@ -445,10 +445,13 @@ static Sound GetCurrentAmbientSound(State& state) {
   }
 }
 
-// @todo WindChimes::
-static bool IsPlayerNearWindChimes(State& state) {
+static bool IsPlayerNearUsableWindChimes(State& state) {
   for_entities(state.wind_chimes) {
     auto& entity = state.wind_chimes[i];
+
+    // Ignore wind chimes which aren't repaired yet
+    if (entity.requires_action && !entity.is_astro_synced) continue;
+
     float player_distance = tVec3f::distance(state.player_position, entity.position);
 
     if (player_distance < 7500.f) {
@@ -511,7 +514,7 @@ static void HandleCurrentAreaMusic(Tachyon* tachyon, State& state) {
   // @todo BGM entities
   tVec3f village_position = tVec3f(232000.f, 0, 106000.f);
 
-  if (IsPlayerNearWindChimes(state)) {
+  if (IsPlayerNearUsableWindChimes(state)) {
     BGM::LoopMusic(BGM_WIND_CHIMES, 0.4f);
   }
   else if (state.astro_time >= astro_time_periods.present) {
