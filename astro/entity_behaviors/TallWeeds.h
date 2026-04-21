@@ -49,9 +49,9 @@ namespace astro {
         if (life_progress == 0.f || life_progress == 1.f) continue;
 
         auto& weeds = use_instance(meshes.tall_weeds);
+        float growth_factor = sqrtf(sinf(life_progress * t_PI));
 
         Sync(weeds, entity);
-        float growth_factor = sqrtf(sinf(life_progress * t_PI));
 
         weeds.scale *= growth_factor;
         weeds.color = tVec4f(0.1f, 0.3f, 0.1f, 0.2f);

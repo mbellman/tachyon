@@ -69,12 +69,13 @@ struct FlowerBloomParameters {
   // @todo
 };
 
-static void UpdateBloomingFlower(tObject& flower, const tVec3f& blossom_color, const float max_size, const float alpha, const float lifetime) {
+static void UpdateBloomingFlower(tObject& flower, const tVec3f& blossom_color, const float max_size, const float life_alpha, const float lifetime) {
   const tVec3f sprouting_color = tVec3f(0.1f, 0.6f, 0.1f);
   const tVec3f wilted_color = tVec3f(0.2f, 0.1f, 0.1f);
 
-  float life_cycles = alpha / lifetime;
-  float life_progress = (life_cycles - (int)life_cycles);
+  float incarnation_time = life_alpha / lifetime;
+  // Get the progress of a single incarnation as the fractional part of the incarnation time
+  float life_progress = (incarnation_time - (int)incarnation_time);
   float growth_factor;
   float wilting_factor;
   tVec3f color;
@@ -101,6 +102,7 @@ static void UpdateBloomingFlower(tObject& flower, const tVec3f& blossom_color, c
   flower.scale.x = growth_factor * max_size;
   flower.scale.y = max_size * (1.f - 0.9f * wilting_factor);
   flower.scale.z = growth_factor * max_size;
+
   flower.color = color;
 }
 
@@ -413,7 +415,7 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
   }
 
   // Add blades to each chunk in parallel
-  for_range(0, state.grass_chunks.size() - 1) {
+  for_range(0, int(state.grass_chunks.size() - 1)) {
     auto& chunk = state.grass_chunks[i];
 
     tVec3f upper_left_corner = chunk.center_position + tVec3f(-chunk_width * 0.5f, 0, -chunk_height * 0.5f);
@@ -844,10 +846,9 @@ static void UpdateGroundFlowers(Tachyon* tachyon, State& state) {
 
   const tVec3f sprouting_color = tVec3f(0.1f, 0.6f, 0.1f);
   const tVec3f blossom_color = tVec3f(1.f, 0.1f, 0.1f);
-  const tVec3f wilted_color = tVec3f(0.1f);
 
   auto& player_position = state.player_position;
-  float base_time_progress = 0.5f * (state.astro_time - -500.f);
+  float base_time_progress = 0.5f * (state.astro_time + 500.f);
 
   // @todo factor
   const float lifetime = t_PI + t_HALF_PI;
@@ -855,16 +856,16 @@ static void UpdateGroundFlowers(Tachyon* tachyon, State& state) {
   for (uint16 i = 0; i < mesh(meshes.ground_flower).lod_1.instance_count; i++) {
     auto& flower = objects(meshes.ground_flower)[i];
 
-    float alpha_variation = fmodf(abs(flower.position.x + flower.position.z) * 0.1f, 10.f);
-    float alpha = base_time_progress + alpha_variation;
-    float life_cycles = alpha / lifetime;
-    int life_cycle = (int)life_cycles + (int)abs(flower.position.x);
+    float life_variation = fmodf(abs(flower.position.x + flower.position.z) * 0.1f, 10.f);
+    float life_alpha = base_time_progress + life_variation;
+    float incarnation_time = life_alpha / lifetime;
+    int life_cycle = (int)incarnation_time + (int)abs(flower.position.x);
 
     tVec3f base_position = flower.position;
 
     flower.position = base_position + offsets[life_cycle % 4];
 
-    UpdateBloomingFlower(flower, blossom_color, 200.f, alpha, lifetime);
+    UpdateBloomingFlower(flower, blossom_color, 200.f, life_alpha, lifetime);
 
     commit(flower);
 
@@ -878,16 +879,16 @@ static void UpdateGroundFlowers(Tachyon* tachyon, State& state) {
   for (uint16 i = 0; i < mesh(meshes.tiny_ground_flower).lod_1.instance_count; i++) {
     auto& flower = objects(meshes.tiny_ground_flower)[i];
 
-    float alpha_variation = fmodf(abs(flower.position.x + flower.position.z) * 0.1f, 10.f);
-    float alpha = base_time_progress + alpha_variation;
-    float life_cycles = alpha / tiny_lifetime;
-    int life_cycle = (int)life_cycles + (int)abs(flower.position.x);
+    float life_variation = fmodf(abs(flower.position.x + flower.position.z) * 0.1f, 10.f);
+    float life_alpha = base_time_progress + life_variation;
+    float incarnation_time = life_alpha / tiny_lifetime;
+    int life_cycle = (int)incarnation_time + (int)abs(flower.position.x);
 
     tVec3f base_position = flower.position;
 
     flower.position = base_position + offsets[life_cycle % 4];
 
-    UpdateBloomingFlower(flower, tVec3f(1.f), 100.f, alpha, tiny_lifetime);
+    UpdateBloomingFlower(flower, tVec3f(1.f), 100.f, life_alpha, tiny_lifetime);
 
     commit(flower);
 
@@ -962,6 +963,12 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
   const float plant_lifetime = 100.f;
   const float flower_lifetime = 12.f;
 
+  const Quaternion rotations[] = {
+    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 0),
+    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_HALF_PI),
+    Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI)
+  };
+
   auto& player_position = state.player_position;
   float base_time_progress = 0.5f * (state.astro_time - -500.f);
 
@@ -999,16 +1006,18 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
         flower.position.y += entity.visible_scale.y * 0.4f;
         flower.position.z += offset_z;
 
+        flower.rotation = rotations[int(abs(flower.position.x)) % 3];
+
         // Give blossoms a bit of color variation based on position
         float flower_brightness = 1.f - 0.2f * fmodf(abs(flower.position.x), 1.f);
         tVec3f adjusted_blossom_color = blossom_color * flower_brightness;
 
         // Determine the progress of the flower
         // @todo rename
-        float alpha_variation = fmodf(abs(flower.position.x + flower.position.z), 10.f);
-        float alpha = base_time_progress + alpha_variation;
+        float life_progress_variation = fmodf(abs(flower.position.x + flower.position.z), 10.f);
+        float life_alpha = base_time_progress + life_progress_variation;
 
-        UpdateBloomingFlower(flower, adjusted_blossom_color, flower_size, alpha, flower_lifetime);
+        UpdateBloomingFlower(flower, adjusted_blossom_color, flower_size, life_alpha, flower_lifetime);
 
         if (state.is_nighttime) {
           flower.color.rgba |= 0x0002;

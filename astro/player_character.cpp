@@ -51,7 +51,7 @@ static bool HasNextWandAnimation(State& state) {
   );
 }
 
-static void HandleActivePlayerAnimation(Tachyon* tachyon, State& state) {
+static void HandleActiveAnimation(Tachyon* tachyon, State& state) {
   auto& player_animation = state.player_mesh_animation;
   auto& animations = state.animations;
 
@@ -111,7 +111,7 @@ static void HandleActivePlayerAnimation(Tachyon* tachyon, State& state) {
   }
 }
 
-static float GetPlayerAnimationSpeed(Tachyon* tachyon, State& state) {
+static float GetAnimationSpeed(Tachyon* tachyon, State& state) {
   bool is_astro_traveling = state.astro_turn_speed != 0.f;
   bool is_hit = state.last_damage_time != 0.f && time_since(state.last_damage_time) < 1.f;
 
@@ -173,10 +173,10 @@ static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
   auto& player_animation = state.player_mesh_animation;
   auto& animations = state.animations;
 
-  HandleActivePlayerAnimation(tachyon, state);
+  HandleActiveAnimation(tachyon, state);
 
   bool moving_forward = tVec3f::dot(state.player_velocity, state.player_facing_direction) >= 0.f;
-  float animation_speed = GetPlayerAnimationSpeed(tachyon, state);
+  float animation_speed = GetAnimationSpeed(tachyon, state);
   float blend_rate = GetAnimationBlendRate(tachyon, state);
 
   if (!moving_forward) {

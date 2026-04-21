@@ -71,7 +71,6 @@ void Animation::AccumulateTime(tSkinnedMeshAnimation& mesh_animation, const floa
   // Increment the blend factor to the next animation, in case
   // we're transitioning between animations.
   {
-    // @todo make blend speed configurable
     mesh_animation.next_animation_blend_alpha += blend_rate * dt;
 
     if (mesh_animation.next_animation_blend_alpha > 1.f) {
@@ -187,7 +186,7 @@ void Animation::UpdateBoneMatrices(tSkinnedMeshAnimation& mesh_animation) {
       bone.rotation *= Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), mesh_animation.head_turn_angle);
     }
 
-    tMat4f inverse_bind_matrix = rest_pose.bone_matrices[bone.index];
+    tMat4f& inverse_bind_matrix = rest_pose.bone_matrices[bone.index];
     tMat4f pose_matrix = tMat4f::transformation(bone.translation, tVec3f(1.f), bone.rotation);
     tMat4f bone_matrix = pose_matrix * inverse_bind_matrix;
 

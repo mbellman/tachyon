@@ -28,6 +28,7 @@ namespace astro {
       }
 
       // @todo stay at 0 if we've already played the stopping animation to completion
+      // @todo now that we can't astro travel everywhere, just set this to 0 (or do something simpler)
       if (
         entity.game_activation_time != -1.f &&
         state.astro_time >= entity.astro_activation_time
