@@ -915,7 +915,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
       state.dt *= 0.2f;
     }
 
-    tachyon->scene.scene_time += dt;
+    tachyon->scene.scene_time += state.dt;
   }
 
   // Toggle level editor with E

@@ -5,17 +5,37 @@
 
 namespace astro {
   behavior SmallBird {
-    static void TurnRandomDirection(Tachyon* tachyon, GameEntity& entity) {
+    static bool DidFlyAway(GameEntity& entity) {
+      return entity.did_activate;
+    }
+
+    static void HandleIdleBehavior(Tachyon* tachyon, GameEntity& entity) {
       // For birds we use enemy state fields for behavior,
       // but birds aren't actually enemies!
       auto& enemy = entity.enemy_state;
 
-      if (time_since(enemy.last_mood_change_time) > 2.5f) {
-        enemy.last_mood_change_time = get_scene_time();
+      // Randomly trigger a turn action whenever the bird's "mood" ""changes""
+      {
+        if (time_since(enemy.last_mood_change_time) > 2.5f) {
+          enemy.last_mood_change_time = get_scene_time();
+        }
+      }
 
-        float angle = Tachyon_GetRandom(-t_PI, t_PI);
+      // Turning behavior; do a little jump and turn smoothly to a new angle
+      {
+        float time_since_turn = time_since(enemy.last_mood_change_time);
 
-        entity.visible_rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), angle);
+        if (enemy.last_mood_change_time != 0.f && time_since_turn < 0.2f) {
+          float alpha = time_since_turn / 0.2f;
+
+          entity.visible_position.y = entity.position.y + 250.f * sinf(alpha * t_PI);
+
+          // Pick a "random" turn angle based on the last mood change time
+          float angle = t_PI * sinf(3.456f * enemy.last_mood_change_time);
+          Quaternion new_rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), angle);
+
+          entity.visible_rotation = Quaternion::nlerp(entity.visible_rotation, new_rotation, alpha);
+        }
       }
     }
 
@@ -24,13 +44,11 @@ namespace astro {
       entity.did_activate = true;
     }
 
-    static bool DidFlyAway(GameEntity& entity) {
-      return entity.game_activation_time != -1.f;
-    }
-
     static void Reset(GameEntity& entity) {
       entity.did_activate = false;
       entity.game_activation_time = -1.f;
+
+      entity.accumulation_value = 0.f;
 
       entity.visible_position = entity.position;
       entity.visible_rotation = entity.orientation;
@@ -65,6 +83,14 @@ namespace astro {
 
       auto& meshes = state.meshes;
 
+      const Quaternion head_rotations[] = {
+        Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 0),
+        Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 0.3f),
+        Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -0.3f),
+        Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 0.5f) * Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -0.3f),
+        Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -0.5f) * Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -0.3f)
+      };
+
       reset_instances(meshes.small_bird_body);
       reset_instances(meshes.small_bird_head);
       reset_instances(meshes.small_bird_wings);
@@ -72,11 +98,7 @@ namespace astro {
       for_entities(state.small_birds) {
         auto& entity = state.small_birds[i];
 
-        // Outside of its astro time span, reset the bird to its original state
-        if (
-          state.astro_time < entity.astro_start_time ||
-          state.astro_time > entity.astro_end_time
-        ) {
+        if (!IsDuringActiveTime(entity, state)) {
           Reset(entity);
 
           continue;
@@ -85,26 +107,24 @@ namespace astro {
         if (!IsInRangeX(entity, state, 20000.f)) continue;
         if (!IsInRangeZ(entity, state, 20000.f)) continue;
 
-        // Set visible scale once we're in range
+        // Set visible scale once we're in range (so we can use SyncVisible())
         entity.visible_scale = entity.scale;
+
+        // Timer for smaller movement actions
+        entity.accumulation_value += state.dt;
 
         float player_distance = tVec3f::distance(state.player_position, entity.visible_position);
 
-        if (
-          player_distance < 6000.f &&
-          !DidFlyAway(entity) &&
-          state.astro_turn_speed == 0.f
-        ) {
-          StartFlyingAway(entity, get_scene_time());
-        } else {
-          TurnRandomDirection(tachyon, entity);
-        }
-
         if (DidFlyAway(entity)) {
+          // @todo factor
           tVec3f player_to_entity_xz = (entity.visible_position - state.player_position).xz().unit();
 
           entity.visible_position += player_to_entity_xz * 15000.f * state.dt;
           entity.visible_position.y += 4000.f * state.dt;
+        } else if (player_distance < 6000.f && state.astro_turn_speed == 0.f) {
+          StartFlyingAway(entity, get_scene_time());
+        } else {
+          HandleIdleBehavior(tachyon, entity);
         }
 
         // Body
@@ -122,7 +142,31 @@ namespace astro {
         {
           auto& head = use_instance(meshes.small_bird_head);
 
-          SyncVisible(head, entity);
+          // If we haven't initialized the head object, or otherwise if the bird flies away,
+          // sync it with the entity's visible attributes
+          if (head.scale.x < entity.visible_scale.x || DidFlyAway(entity)) {
+            SyncVisible(head, entity);
+
+          // Otherwise, randomly swivel the head
+          } else {
+            // @todo factor
+            const float swivel_duration = 0.08f;
+
+            int previous_rotation_index = int(entity.accumulation_value) % 5 - 1;
+            if (previous_rotation_index < 0) previous_rotation_index = 4;
+
+            int rotation_index = int(entity.accumulation_value) % 5;
+
+            Quaternion old_rotation = entity.visible_rotation * head_rotations[previous_rotation_index];
+            Quaternion new_rotation = entity.visible_rotation * head_rotations[rotation_index];
+
+            float alpha = std::min(fmodf(entity.accumulation_value, 1.f), swivel_duration);
+            alpha *= 1.f / swivel_duration;
+            alpha = Tachyon_EaseOutQuad(alpha);
+
+            head.rotation = Quaternion::nlerp(old_rotation, new_rotation, alpha);
+            head.position = entity.visible_position;
+          }
 
           commit(head);
         }
