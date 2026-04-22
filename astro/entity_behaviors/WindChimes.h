@@ -130,7 +130,7 @@ namespace astro {
                   // @todo rename did_take_action
                   entity.is_astro_synced = true;
                 } else {
-                  UISystem::ShowBlockingDialogue(tachyon, state, "You do not have the parts on hand.");
+                  UISystem::ShowBlockingDialogue(tachyon, state, "You don't have the parts on hand.");
                 }
               }
             } else if (Items::HasItem(state, MAGIC_WAND)) {

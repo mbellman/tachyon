@@ -118,13 +118,13 @@ namespace astro {
           commit(platform);
         }
 
-        // Player interactions
+        // Interaction
         {
           tVec3f lever_position = UnitEntityToWorldPosition(entity, tVec3f(0, 0, 0.85f));
           float distance_from_lever = tVec3f::distance(state.player_position, lever_position);
 
           if (distance_from_lever < 2500.f && player_speed < 200.f) {
-            UISystem::ShowTransientDialogue(tachyon, state, "[X] Operate Lever");
+            UISystem::ShowTransientDialogue(tachyon, state, "[X] Close Gate");
 
             if (
               !state.has_blocking_dialogue &&
@@ -134,7 +134,7 @@ namespace astro {
               state.player_velocity = tVec3f(0.f);
 
               if (state.astro_time >= entity.astro_end_time) {
-                UISystem::ShowBlockingDialogue(tachyon, state, "The mechanism resists.");
+                UISystem::ShowBlockingDialogue(tachyon, state, "The gate closed - though the mill stopped turning long ago.");
               } else {
                 entity.astro_activation_time = state.astro_time;
                 entity.game_activation_time = get_scene_time();

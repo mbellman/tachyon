@@ -92,6 +92,9 @@ void Items::CollectItem(Tachyon* tachyon, State& state, ItemType item_type) {
   UISystem::ShowDialogue(tachyon, state, dialogue.c_str());
 }
 
+void Items::UseDisposableItem(ItemType item_type) {
+  // @todo
+}
 
 bool Items::HasItem(const State& state, ItemType item_type) {
   for (auto& item : state.inventory) {
