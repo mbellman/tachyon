@@ -1,0 +1,52 @@
+#pragma once
+
+#include "astro/entity_behaviors/behavior.h"
+
+namespace astro {
+  behavior Sunbeam {
+    addMeshes() {
+      meshes.sunbeam_placeholder = MODEL_MESH("./astro/3d_models/cylinder.obj", 500);
+      meshes.sunbeam = MODEL_MESH("./astro/3d_models/cylinder.obj", 500);
+
+      mesh(meshes.sunbeam_placeholder).shadow_cascade_ceiling = 0;
+      mesh(meshes.sunbeam).shadow_cascade_ceiling = 0;
+    }
+
+    getMeshes() {
+      return_meshes({
+        meshes.sunbeam
+      });
+    }
+
+    getPlaceholderMesh() {
+      return meshes.sunbeam_placeholder;
+    }
+
+    timeEvolve() {
+      // profile("  Sunbeam::timeEvolve()");
+
+      auto& scene = tachyon->scene;
+      auto& meshes = state.meshes;
+
+      reset_instances(meshes.sunbeam);
+
+      for_entities(state.sunbeams) {
+        auto& entity = state.sunbeams[i];
+
+        if (abs(state.player_position.x - entity.position.x) > 30000.f) continue;
+        if (abs(state.player_position.z - entity.position.z) > 30000.f) continue;
+
+        auto& sunbeam = use_instance(meshes.sunbeam);
+
+        Sync(sunbeam, entity);
+
+        sunbeam.rotation = (
+          Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI) *
+          Quaternion::FromDirection(scene.primary_light_direction, tVec3f(0, 1.f, 0))
+        );
+
+        commit(sunbeam);
+      }
+    }
+  }
+}

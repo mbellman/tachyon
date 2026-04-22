@@ -60,7 +60,8 @@ namespace astro {
     LAMP,
     MAGIC_GATE,
     MOOD_LIGHT,
-    BIRD_GATE
+    BIRD_GATE,
+    SUNBEAM
   };
 
   /**
@@ -115,7 +116,8 @@ namespace astro {
     LAMP,
     MAGIC_GATE,
     MOOD_LIGHT,
-    BIRD_GATE
+    BIRD_GATE,
+    SUNBEAM
   };
 
   /**
@@ -473,7 +475,11 @@ namespace astro {
       small_bird_head,
       small_bird_wings,
       small_bird_left_wing,
-      small_bird_right_wing
+      small_bird_right_wing,
+
+      // SUNBEAM
+      sunbeam_placeholder,
+      sunbeam
 
       ;
   };
@@ -492,6 +498,7 @@ namespace astro {
     EntityList item_pickups;
     EntityList fog_spawns;
     EntityList mood_lights;
+    EntityList sunbeams;
     EntityList event_triggers;
     EntityList vantage_spots;
     EntityList dirt_path_nodes;
@@ -588,6 +595,12 @@ namespace astro {
       .tint = tVec3f(1.f)
     } },
 
+    { SUNBEAM, {
+      .name = "Sunbeam",
+      .scale = tVec3f(1200.f, 4000.f, 1200.f),
+      .tint = tVec3f(1.f)
+    } },
+
     { EVENT_TRIGGER, {
       .name = "Event Trigger",
       .scale = tVec3f(1500.f),
@@ -628,7 +641,7 @@ namespace astro {
     { LEAF_SHRUB, {
       .name = "Leaf Shrub",
       .scale = tVec3f(800.f),
-      .tint = tVec3f(0.1f, 0.3f, 0.1f)
+      .tint = tVec3f(0.07f, 0.14f, 0.07f)
     } },
 
     { TALL_GRASS, {
