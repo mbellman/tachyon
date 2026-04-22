@@ -9,13 +9,29 @@ namespace astro {
       return entity.did_activate;
     }
 
-    static void HandleFlyingAway(GameEntity& entity,  const State& state) {
+    static void StartFlyingAway(GameEntity& entity, const float scene_time) {
+      entity.game_activation_time = scene_time;
+      entity.did_activate = true;
+
+      // @todo refactor
+      {
+        float r = Tachyon_GetRandom();
+
+        if (r < 0.33f) Sfx::PlaySound(SFX_BIRD_WINGS_1, 0.3f);
+        else if (r < 0.66f) Sfx::PlaySound(SFX_BIRD_WINGS_2, 0.3f);
+        else Sfx::PlaySound(SFX_BIRD_WINGS_3, 0.3f);
+      }
+    }
+
+    static void HandleFlyingAway(GameEntity& entity, const State& state, const float scene_time) {
       tVec3f player_to_entity_xz = (entity.visible_position - state.player_position).xz().unit();
+      float y_speed = 4000.f + 2000.f * (scene_time - entity.game_activation_time);
 
       entity.visible_position += player_to_entity_xz * 15000.f * state.dt;
-      entity.visible_position.y += 4000.f * state.dt;
+      entity.visible_position.y += y_speed * state.dt;
 
-      Quaternion away_rotation = Quaternion::FromDirection(player_to_entity_xz, tVec3f(0, 1.f, 0));
+      tVec3f away_direction = (player_to_entity_xz + tVec3f(0, 0.5f, 0)).unit();
+      Quaternion away_rotation = Quaternion::FromDirection(away_direction, tVec3f(0, 1.f, 0));
 
       entity.visible_rotation = Quaternion::nlerp(entity.visible_rotation, away_rotation, 20.f * state.dt);
     }
@@ -27,7 +43,15 @@ namespace astro {
 
       // Randomly trigger a turn action whenever the bird's "mood" ""changes""
       {
-        if (time_since(enemy.last_mood_change_time) > 2.5f) {
+        const float mood_durations[] = {
+          2.5f,
+          2.75f,
+          3.f
+        };
+
+        float mood_duration = mood_durations[int(entity.id) % 3];
+
+        if (time_since(enemy.last_mood_change_time) > mood_duration) {
           enemy.last_mood_change_time = get_scene_time();
         }
       }
@@ -50,23 +74,12 @@ namespace astro {
       }
     }
 
-    static void StartFlyingAway(GameEntity& entity, const float scene_time) {
-      entity.game_activation_time = scene_time;
-      entity.did_activate = true;
-
-      // @todo refactor
-      float r = Tachyon_GetRandom();
-
-      if (r < 0.33f) Sfx::PlaySound(SFX_BIRD_WINGS_1, 0.3f);
-      else if (r < 0.66f) Sfx::PlaySound(SFX_BIRD_WINGS_2, 0.3f);
-      else Sfx::PlaySound(SFX_BIRD_WINGS_3, 0.3f);
-    }
-
     static void Reset(GameEntity& entity) {
       entity.did_activate = false;
       entity.game_activation_time = -1.f;
 
-      entity.accumulation_value = 0.f;
+      // Use a "random" timer offset for each bird
+      entity.accumulation_value = 0.345f * float(entity.id);
 
       entity.visible_position = entity.position;
       entity.visible_rotation = entity.orientation;
@@ -142,7 +155,7 @@ namespace astro {
         float player_distance = tVec3f::distance(state.player_position, entity.visible_position);
 
         if (IsFlyingAway(entity)) {
-          HandleFlyingAway(entity, state);
+          HandleFlyingAway(entity, state, get_scene_time());
         } else if (player_distance < 6000.f && state.astro_turn_speed == 0.f) {
           StartFlyingAway(entity, get_scene_time());
         } else {
@@ -190,13 +203,17 @@ namespace astro {
             head.position = entity.visible_position;
           }
 
+          head.color = tVec3f(0.2f);
+          head.material = tVec4f(0.6f, 0, 0, 0.5f);
+
           commit(head);
         }
 
         // Wings (flying away)
         if (IsFlyingAway(entity)) {
           float flying_alpha = time_since(entity.game_activation_time) / 0.25f;
-          float angle = sinf(30.f * get_scene_time());
+          float flap_rate = 35.f;
+          float angle = sinf(flap_rate * get_scene_time());
 
           // Left
           {
@@ -205,6 +222,8 @@ namespace astro {
             SyncVisible(left_wing, entity);
 
             left_wing.rotation = left_wing.rotation * Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), -angle);
+            left_wing.color = tVec3f(0.4f);
+            left_wing.material = tVec4f(0.8f, 0, 0, 0.6f);
 
             commit(left_wing);
           }
@@ -216,6 +235,8 @@ namespace astro {
             SyncVisible(right_wing, entity);
 
             right_wing.rotation = right_wing.rotation * Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), angle);
+            right_wing.color = tVec3f(0.4f);
+            right_wing.material = tVec4f(0.8f, 0, 0, 0.6f);
 
             commit(right_wing);
           }
@@ -226,6 +247,7 @@ namespace astro {
 
           SyncVisible(wings, entity);
 
+          wings.color = tVec3f(0.4f);
           wings.material = tVec4f(0.8f, 0, 0, 0.6f);
 
           commit(wings);
