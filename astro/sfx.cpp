@@ -37,10 +37,16 @@ static std::map<Sound, const char*> sound_file_map = {
   { SFX_HUMAN_ENEMY_DEFEATED_2, "./astro/audio/sfx_human_enemy_defeated_2.wav" },
   { SFX_SWORD_DROP, "./astro/audio/sfx_sword_drop.wav" },
 
+  { SFX_BIRD_WINGS_1, "./astro/audio/sfx_bird_wings_1.wav" },
+  { SFX_BIRD_WINGS_2, "./astro/audio/sfx_bird_wings_2.wav" },
+  { SFX_BIRD_WINGS_3, "./astro/audio/sfx_bird_wings_3.wav" },
+
   { SFX_SCULPTURE_ACTIVATE_1, "./astro/audio/sfx_sculpture_activate_1.wav" },
   { SFX_SCULPTURE_ACTIVATE_2, "./astro/audio/sfx_sculpture_activate_2.wav" },
   { SFX_SCULPTURE_ACTIVATE_3, "./astro/audio/sfx_sculpture_activate_3.wav" },
   { SFX_SCULPTURE_ACTIVATE_4, "./astro/audio/sfx_sculpture_activate_4.wav" },
+
+  { SFX_GATE_OPEN, "./astro/audio/sfx_gate_open.wav" },
 
   { SFX_SPELL_STUN, "./astro/audio/sfx_spell_stun.wav" },
 

@@ -5,11 +5,11 @@
 
 namespace astro {
   behavior SmallBird {
-    static bool StartedFlyingAway(GameEntity& entity) {
+    static bool IsFlyingAway(GameEntity& entity) {
       return entity.did_activate;
     }
 
-    static void FlyAway(GameEntity& entity,  const State& state) {
+    static void HandleFlyingAway(GameEntity& entity,  const State& state) {
       tVec3f player_to_entity_xz = (entity.visible_position - state.player_position).xz().unit();
 
       entity.visible_position += player_to_entity_xz * 15000.f * state.dt;
@@ -53,6 +53,13 @@ namespace astro {
     static void StartFlyingAway(GameEntity& entity, const float scene_time) {
       entity.game_activation_time = scene_time;
       entity.did_activate = true;
+
+      // @todo refactor
+      float r = Tachyon_GetRandom();
+
+      if (r < 0.33f) Sfx::PlaySound(SFX_BIRD_WINGS_1, 0.3f);
+      else if (r < 0.66f) Sfx::PlaySound(SFX_BIRD_WINGS_2, 0.3f);
+      else Sfx::PlaySound(SFX_BIRD_WINGS_3, 0.3f);
     }
 
     static void Reset(GameEntity& entity) {
@@ -70,18 +77,24 @@ namespace astro {
       meshes.small_bird_body = MODEL_MESH("./astro/3d_models/small_bird/body.obj", 500);
       meshes.small_bird_head = MODEL_MESH("./astro/3d_models/small_bird/head.obj", 500);
       meshes.small_bird_wings = MODEL_MESH("./astro/3d_models/small_bird/wings.obj", 500);
+      meshes.small_bird_left_wing = MODEL_MESH("./astro/3d_models/small_bird/left_wing.obj", 500);
+      meshes.small_bird_right_wing = MODEL_MESH("./astro/3d_models/small_bird/right_wing.obj", 500);
 
       mesh(meshes.small_bird_placeholder).shadow_cascade_ceiling = 1;
       mesh(meshes.small_bird_body).shadow_cascade_ceiling = 1;
       mesh(meshes.small_bird_head).shadow_cascade_ceiling = 1;
       mesh(meshes.small_bird_wings).shadow_cascade_ceiling = 1;
+      mesh(meshes.small_bird_left_wing).shadow_cascade_ceiling = 1;
+      mesh(meshes.small_bird_right_wing).shadow_cascade_ceiling = 1;
     }
 
     getMeshes() {
       return_meshes({
         meshes.small_bird_body,
         meshes.small_bird_head,
-        meshes.small_bird_wings
+        meshes.small_bird_wings,
+        meshes.small_bird_left_wing,
+        meshes.small_bird_right_wing,
       });
     }
 
@@ -105,6 +118,8 @@ namespace astro {
       reset_instances(meshes.small_bird_body);
       reset_instances(meshes.small_bird_head);
       reset_instances(meshes.small_bird_wings);
+      reset_instances(meshes.small_bird_left_wing);
+      reset_instances(meshes.small_bird_right_wing);
 
       for_entities(state.small_birds) {
         auto& entity = state.small_birds[i];
@@ -126,8 +141,8 @@ namespace astro {
 
         float player_distance = tVec3f::distance(state.player_position, entity.visible_position);
 
-        if (StartedFlyingAway(entity)) {
-          FlyAway(entity, state);
+        if (IsFlyingAway(entity)) {
+          HandleFlyingAway(entity, state);
         } else if (player_distance < 6000.f && state.astro_turn_speed == 0.f) {
           StartFlyingAway(entity, get_scene_time());
         } else {
@@ -151,7 +166,7 @@ namespace astro {
 
           // If we haven't initialized the head object, or otherwise if the bird flies away,
           // sync it with the entity's visible attributes
-          if (head.scale.x < entity.visible_scale.x || StartedFlyingAway(entity)) {
+          if (head.scale.x < entity.visible_scale.x || IsFlyingAway(entity)) {
             SyncVisible(head, entity);
 
           // Otherwise, randomly swivel the head
@@ -178,8 +193,35 @@ namespace astro {
           commit(head);
         }
 
-        // Wings
-        {
+        // Wings (flying away)
+        if (IsFlyingAway(entity)) {
+          float flying_alpha = time_since(entity.game_activation_time) / 0.25f;
+          float angle = sinf(30.f * get_scene_time());
+
+          // Left
+          {
+            auto& left_wing = use_instance(meshes.small_bird_left_wing);
+
+            SyncVisible(left_wing, entity);
+
+            left_wing.rotation = left_wing.rotation * Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), -angle);
+
+            commit(left_wing);
+          }
+
+          // Right
+          {
+            auto& right_wing = use_instance(meshes.small_bird_right_wing);
+
+            SyncVisible(right_wing, entity);
+
+            right_wing.rotation = right_wing.rotation * Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), angle);
+
+            commit(right_wing);
+          }
+
+        // Wings (stationary)
+        } else {
           auto& wings = use_instance(meshes.small_bird_wings);
 
           SyncVisible(wings, entity);

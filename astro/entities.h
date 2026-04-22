@@ -471,7 +471,9 @@ namespace astro {
       small_bird_placeholder,
       small_bird_body,
       small_bird_head,
-      small_bird_wings
+      small_bird_wings,
+      small_bird_left_wing,
+      small_bird_right_wing
 
       ;
   };
