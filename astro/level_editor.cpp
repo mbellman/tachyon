@@ -1078,6 +1078,8 @@ static void MaybeMakeSelection(Tachyon* tachyon, State& state) {
   Selectable candidate;
 
   for (auto& selectable : editor.selectables) {
+    if (objects(selectable.placeholder.mesh_index).disabled) continue;
+
     auto& live_placeholder = *get_live_object(selectable.placeholder);
     float distance_limit = live_placeholder.scale.magnitude() * 10.f;
     tVec3f camera_to_entity = live_placeholder.position - camera.position;

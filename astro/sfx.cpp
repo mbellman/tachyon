@@ -41,6 +41,8 @@ static std::map<Sound, const char*> sound_file_map = {
   { SFX_BIRD_WINGS_2, "./astro/audio/sfx_bird_wings_2.wav" },
   { SFX_BIRD_WINGS_3, "./astro/audio/sfx_bird_wings_3.wav" },
 
+  { SFX_BIRD_CALL_1, "./astro/audio/sfx_bird_call_1.wav" },
+
   { SFX_SCULPTURE_ACTIVATE_1, "./astro/audio/sfx_sculpture_activate_1.wav" },
   { SFX_SCULPTURE_ACTIVATE_2, "./astro/audio/sfx_sculpture_activate_2.wav" },
   { SFX_SCULPTURE_ACTIVATE_3, "./astro/audio/sfx_sculpture_activate_3.wav" },

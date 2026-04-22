@@ -37,19 +37,25 @@ namespace astro {
     }
 
     static void HandleIdleBehavior(Tachyon* tachyon, GameEntity& entity) {
+      float scene_time = get_scene_time();
+
       // For birds we use enemy state fields for behavior,
       // but birds aren't actually enemies!
       auto& enemy = entity.enemy_state;
 
       // Randomly trigger a turn action whenever the bird's "mood" ""changes""
       {
+        // Cycle between a few different durations to add variance to turn timings
         const float mood_durations[] = {
-          2.4f,
-          2.8f,
+          0.8f,
+          2.5f,
+          2.f,
+          5.4f,
           3.2f
         };
 
-        float mood_duration = mood_durations[int(entity.id) % 3];
+        int duration_cycle = int(enemy.last_mood_change_time) + int(entity.id);
+        float mood_duration = mood_durations[duration_cycle % 5];
 
         if (time_since(enemy.last_mood_change_time) > mood_duration) {
           enemy.last_mood_change_time = get_scene_time();
@@ -66,7 +72,7 @@ namespace astro {
           entity.visible_position.y = entity.position.y + 250.f * sinf(alpha * t_PI);
 
           // Pick a "random" turn angle based on the last mood change time
-          float angle = t_PI * sinf(3.456f * enemy.last_mood_change_time);
+          float angle = t_PI * sinf(2.123f * enemy.last_mood_change_time);
           Quaternion new_rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), angle);
 
           entity.visible_rotation = Quaternion::nlerp(entity.visible_rotation, new_rotation, alpha);

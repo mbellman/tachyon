@@ -882,7 +882,9 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
   state.ui.future_age_title = Tachyon_CreateUIElement("./astro/textures/titles/future-age.png");
   state.ui.present_age_title = Tachyon_CreateUIElement("./astro/textures/titles/present-age.png");
   state.ui.past_age_title = Tachyon_CreateUIElement("./astro/textures/titles/past-age.png");
+
   state.ui.divination_woodrealm_title = Tachyon_CreateUIElement("./astro/textures/titles/divination-woodrealm.png");
+  state.ui.lake_promenade_title = Tachyon_CreateUIElement("./astro/textures/titles/lake-promenade.png");
 
   CreateConstantObjects(tachyon, state);
 

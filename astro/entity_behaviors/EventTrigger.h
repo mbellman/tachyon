@@ -40,6 +40,17 @@ namespace astro {
 
           GameEvents::StartEvent(tachyon, state, entity.unique_name);
         }
+
+        // @hack @temporary
+        if (
+          !entity.did_activate &&
+          player_distance < 4000.f &&
+          state.wand_hold_factor == 1.f
+        ) {
+          Sfx::PlaySound(SFX_BIRD_CALL_1, 0.3f);
+
+          entity.did_activate = true;
+        }
       }
     }
   };

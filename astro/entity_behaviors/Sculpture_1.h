@@ -122,7 +122,7 @@ namespace astro {
           Sync(stand, entity);
 
           stand.color = color;
-          stand.material = tVec4f(roughness, 1.f, 0, 0.4f);
+          stand.material = tVec4f(roughness, 1.f, 0, 0.6f);
 
           commit(stand);
         }
@@ -146,12 +146,12 @@ namespace astro {
           wheel1.scale = entity.scale * 0.5f;
           wheel1.rotation = entity.orientation * Quaternion::fromAxisAngle(rotation_axis, entity.accumulation_value);
           wheel1.color = color;
-          wheel1.material = tVec4f(roughness, 1.f, 0, 0.4f);
+          wheel1.material = tVec4f(roughness, 1.f, 0, 0.6f);
 
           wheel2.scale = entity.scale * 0.3f;
           wheel2.rotation = entity.orientation * Quaternion::fromAxisAngle(rotation_axis, -entity.accumulation_value * 0.7f);
           wheel2.color = color;
-          wheel2.material = tVec4f(roughness, 1.f, 0, 0.4f);
+          wheel2.material = tVec4f(roughness, 1.f, 0, 0.6f);
 
           // Disrepair
           float time_until_end = entity.astro_end_time - state.astro_time;

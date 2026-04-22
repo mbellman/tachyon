@@ -517,7 +517,9 @@ namespace astro {
       tUIElement* future_age_title = nullptr;
       tUIElement* present_age_title = nullptr;
       tUIElement* past_age_title = nullptr;
+
       tUIElement* divination_woodrealm_title = nullptr;
+      tUIElement* lake_promenade_title = nullptr;
 
       float titles_alpha = 1.f;
     } ui;

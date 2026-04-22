@@ -34,6 +34,8 @@ namespace astro {
 
       auto& meshes = state.meshes;
 
+      const float lifetime = 80.f;
+
       float petals_emissivity = state.is_nighttime ? 0.8f : 0.2f;
       float light_power = state.is_nighttime ? 1.f : 0.f;
 
@@ -47,6 +49,10 @@ namespace astro {
         if (abs(entity.position.x - state.player_position.x) > 20000.f) continue;
         if (abs(entity.position.z - state.player_position.z) > 20000.f) continue;
 
+        float life_progress = GetLivingEntityProgress(state, entity, lifetime);
+
+        if (life_progress == 0.f || life_progress == 1.f) continue;
+
         // Stems
         {
           auto& stems = use_instance(meshes.bellflower_stems);
@@ -54,7 +60,7 @@ namespace astro {
           Sync(stems, entity);
 
           stems.color = tVec3f(0.2f, 0.6f, 0.3f);
-          stems.material = tVec4f(1.f, 0, 0, 0.4f);
+          stems.material = tVec4f(1.f, 0, 0, 0.6f);
 
           commit(stems);
         }

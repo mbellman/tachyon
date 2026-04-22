@@ -4,9 +4,9 @@
 
 namespace astro {
   behavior LeafShrub {
-    static tVec3f GetPlantColor(const float life_progress) {
+    static tVec3f GetPlantColor(const tVec3f& entity_color, const float life_progress) {
       const tVec3f sprouting_color = tVec3f(0.2f, 1.f, 0.2f);
-      const tVec3f leaves_color = tVec3f(0.07f, 0.14f, 0.07f);
+      const tVec3f leaves_color = entity_color;
       const tVec3f wilting_color = tVec3f(0.4f, 0.2f, 0.1f);
 
       if (life_progress < 0.5f) {
@@ -85,7 +85,7 @@ namespace astro {
         if (abs(state.player_position.z - entity.position.z) > 20000.f) continue;
 
         float life_progress = GetLivingEntityProgress(state, entity, lifetime);
-        tVec3f plant_color = GetPlantColor(life_progress);
+        tVec3f plant_color = GetPlantColor(entity.tint, life_progress);
 
         // Plant
         {
