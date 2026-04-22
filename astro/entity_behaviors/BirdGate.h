@@ -1,6 +1,7 @@
 #pragma once
 
 #include "astro/entity_behaviors/behavior.h"
+#include "astro/astrolabe.h"
 
 namespace astro {
   behavior BirdGate {

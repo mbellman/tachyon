@@ -234,7 +234,9 @@ static void RemoveExpiredAmbientParticles(Tachyon* tachyon, State& state) {
   }
 }
 
-static void SpawnNewAmbientParticles(Tachyon* tachyon, State& state) {
+static void SpawnNighttimeParticles(Tachyon* tachyon, State& state) {
+  if (!state.is_nighttime) return;
+
   // Bellflower particles
   {
     for_entities(state.bellflowers) {
@@ -286,7 +288,7 @@ void Particles::HandleParticles(Tachyon* tachyon, State& state) {
   HandleAstroParticles(tachyon, state);
   HandleSculptureParticles(tachyon, state);
 
-  SpawnNewAmbientParticles(tachyon, state);
+  SpawnNighttimeParticles(tachyon, state);
   UpdateAllAmbientParticles(tachyon, state);
   RemoveExpiredAmbientParticles(tachyon, state);
 }

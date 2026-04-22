@@ -134,7 +134,7 @@ namespace astro {
               state.player_velocity = tVec3f(0.f);
 
               if (state.astro_time >= entity.astro_end_time) {
-                UISystem::ShowBlockingDialogue(tachyon, state, "The gate closed - though the mill stopped turning long ago.");
+                UISystem::ShowBlockingDialogue(tachyon, state, "The gate was closed; though the mill stopped turning long ago.");
               } else {
                 entity.astro_activation_time = state.astro_time;
                 entity.game_activation_time = get_scene_time();

@@ -43,8 +43,6 @@ namespace astro {
       // @todo growth
       for_entities(state.bellflowers) {
         auto& entity = state.bellflowers[i];
-        // float life_progress = GetLivingEntityProgress(state, entity, lifetime);
-        // float growth = sqrtf(sinf(life_progress * t_PI));
 
         if (abs(entity.position.x - state.player_position.x) > 20000.f) continue;
         if (abs(entity.position.z - state.player_position.z) > 20000.f) continue;
@@ -68,7 +66,7 @@ namespace astro {
           Sync(petals, entity);
 
           petals.color = tVec4f(1.f, 0.6f, 0.5f, petals_emissivity);
-          petals.material = tVec4f(1.f, 0, 0.2f, 1.f);
+          petals.material = tVec4f(0.4f, 0, 0.2f, 1.f);
 
           commit(petals);
         }
@@ -87,6 +85,7 @@ namespace astro {
           light.glow_power = 0.f;
 
           if (
+            !state.is_nighttime ||
             abs(entity.position.x - state.player_position.x) > 20000.f ||
             abs(entity.position.z - state.player_position.z) > 20000.f
           ) {
