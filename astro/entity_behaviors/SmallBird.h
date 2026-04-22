@@ -44,9 +44,9 @@ namespace astro {
       // Randomly trigger a turn action whenever the bird's "mood" ""changes""
       {
         const float mood_durations[] = {
-          2.5f,
-          2.75f,
-          3.f
+          2.4f,
+          2.8f,
+          3.2f
         };
 
         float mood_duration = mood_durations[int(entity.id) % 3];

@@ -34,8 +34,8 @@ namespace astro {
 
       auto& meshes = state.meshes;
 
-      float petals_emissivity = state.is_nighttime ? 0.8f : 0.4f;
-      float light_power = state.is_nighttime ? 1.f : 0.1f;
+      float petals_emissivity = state.is_nighttime ? 0.8f : 0.2f;
+      float light_power = state.is_nighttime ? 1.f : 0.f;
 
       reset_instances(meshes.bellflower_stems);
       reset_instances(meshes.bellflower_petals);
@@ -65,7 +65,7 @@ namespace astro {
 
           Sync(petals, entity);
 
-          petals.color = tVec4f(1.f, 0.6f, 0.5f, petals_emissivity);
+          petals.color = tVec4f(0.7f, 0.8f, 1.f, petals_emissivity);
           petals.material = tVec4f(0.4f, 0, 0.2f, 1.f);
 
           commit(petals);
@@ -85,7 +85,6 @@ namespace astro {
           light.glow_power = 0.f;
 
           if (
-            !state.is_nighttime ||
             abs(entity.position.x - state.player_position.x) > 20000.f ||
             abs(entity.position.z - state.player_position.z) > 20000.f
           ) {
