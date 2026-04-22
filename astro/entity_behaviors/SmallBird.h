@@ -5,8 +5,19 @@
 
 namespace astro {
   behavior SmallBird {
-    static bool DidFlyAway(GameEntity& entity) {
+    static bool StartedFlyingAway(GameEntity& entity) {
       return entity.did_activate;
+    }
+
+    static void FlyAway(GameEntity& entity,  const State& state) {
+      tVec3f player_to_entity_xz = (entity.visible_position - state.player_position).xz().unit();
+
+      entity.visible_position += player_to_entity_xz * 15000.f * state.dt;
+      entity.visible_position.y += 4000.f * state.dt;
+
+      Quaternion away_rotation = Quaternion::FromDirection(player_to_entity_xz, tVec3f(0, 1.f, 0));
+
+      entity.visible_rotation = Quaternion::nlerp(entity.visible_rotation, away_rotation, 20.f * state.dt);
     }
 
     static void HandleIdleBehavior(Tachyon* tachyon, GameEntity& entity) {
@@ -115,12 +126,8 @@ namespace astro {
 
         float player_distance = tVec3f::distance(state.player_position, entity.visible_position);
 
-        if (DidFlyAway(entity)) {
-          // @todo factor
-          tVec3f player_to_entity_xz = (entity.visible_position - state.player_position).xz().unit();
-
-          entity.visible_position += player_to_entity_xz * 15000.f * state.dt;
-          entity.visible_position.y += 4000.f * state.dt;
+        if (StartedFlyingAway(entity)) {
+          FlyAway(entity, state);
         } else if (player_distance < 6000.f && state.astro_turn_speed == 0.f) {
           StartFlyingAway(entity, get_scene_time());
         } else {
@@ -144,7 +151,7 @@ namespace astro {
 
           // If we haven't initialized the head object, or otherwise if the bird flies away,
           // sync it with the entity's visible attributes
-          if (head.scale.x < entity.visible_scale.x || DidFlyAway(entity)) {
+          if (head.scale.x < entity.visible_scale.x || StartedFlyingAway(entity)) {
             SyncVisible(head, entity);
 
           // Otherwise, randomly swivel the head
