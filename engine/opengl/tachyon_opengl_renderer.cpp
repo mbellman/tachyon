@@ -1343,8 +1343,12 @@ static void RenderSunbeams(Tachyon* tachyon) {
   auto& shader = renderer.shaders.sunbeam_mesh;
   auto& locations = renderer.shaders.locations.sunbeam_mesh;
 
-  glDepthMask(false);
+  renderer.g_buffer.copyDepth(0, tachyon->window_width, tachyon->window_height);
+
   glEnable(GL_BLEND);
+  glDepthMask(GL_FALSE);
+  glEnable(GL_CULL_FACE);
+  glEnable(GL_DEPTH_TEST);
 
   glUseProgram(shader.program);
   SetShaderMat4f(locations.view_projection_matrix, ctx.view_projection_matrix);
@@ -1354,8 +1358,10 @@ static void RenderSunbeams(Tachyon* tachyon) {
 
   RenderMeshesByType(tachyon, SUNBEAM_MESH);
 
-  glDepthMask(true);
+  glDepthMask(GL_TRUE);
   glDisable(GL_BLEND);
+  glDisable(GL_CULL_FACE);
+  glDisable(GL_DEPTH_TEST);
 }
 
 static void RenderUIElements(Tachyon* tachyon) {

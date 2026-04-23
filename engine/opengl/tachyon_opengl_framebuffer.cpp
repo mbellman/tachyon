@@ -134,6 +134,18 @@ void OpenGLFrameBuffer::shareDepthStencilAttachment(const OpenGLFrameBuffer& tar
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, depthStencilTextureId, 0);
 }
 
+void OpenGLFrameBuffer::copyDepth(const GLuint target_fbo, uint32 target_width, uint32 target_height) {
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, this->fbo);
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, target_fbo);
+
+  glBlitFramebuffer(
+      0, 0, width, height,
+      0, 0, target_width, target_height,
+      GL_DEPTH_BUFFER_BIT,
+      GL_NEAREST
+  );
+}
+
 void OpenGLFrameBuffer::write() {
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
   glViewport(0, 0, width, height);

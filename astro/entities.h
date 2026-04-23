@@ -597,7 +597,7 @@ namespace astro {
 
     { SUNBEAM, {
       .name = "Sunbeam",
-      .scale = tVec3f(1200.f, 4000.f, 1200.f),
+      .scale = tVec3f(3000.f, 8000.f, 3000.f),
       .tint = tVec3f(1.f)
     } },
 

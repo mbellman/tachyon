@@ -1200,6 +1200,10 @@ static tVec3f GetSpawnPosition(Tachyon* tachyon, State& state) {
       return placer.position + tVec3f(0, 3000.f, 0);
     }
 
+    if (entity_type == SUNBEAM) {
+      return placer.position + tVec3f(0, 6000.f, 0);
+    }
+
     // @hack Spawn above ground
     if (entity_type == SHRUB || entity_type == OAK_TREE || entity_type == LILAC_BUSH) {
       auto& defaults = GetEntityDefaults(entity_type);

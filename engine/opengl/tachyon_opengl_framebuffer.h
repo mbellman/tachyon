@@ -43,6 +43,7 @@ public:
   void read(uint32 offset = 0);
   void setSize(uint32 width, uint32 height);
   void shareDepthStencilAttachment(const OpenGLFrameBuffer& target);
+  void copyDepth(const GLuint target_fbo, uint32 target_width, uint32 target_height);
   void write();
   void writeToAttachment(uint32 attachment);
 
