@@ -200,6 +200,8 @@ struct tOpenGLShaders {
   tOpenGLShader volumetric_mesh;
   tOpenGLShader fire_mesh;
   tOpenGLShader ion_thruster_mesh;
+  tOpenGLShader sunbeam_mesh;
+  tOpenGLShader item_mesh;
   tOpenGLShader wireframe_mesh;
   tOpenGLShader water_mesh;
   tOpenGLShader post;

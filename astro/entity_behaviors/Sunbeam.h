@@ -10,6 +10,8 @@ namespace astro {
 
       mesh(meshes.sunbeam_placeholder).shadow_cascade_ceiling = 0;
       mesh(meshes.sunbeam).shadow_cascade_ceiling = 0;
+
+      mesh(meshes.sunbeam).type = ION_THRUSTER_MESH;
     }
 
     getMeshes() {
@@ -28,6 +30,9 @@ namespace astro {
       auto& scene = tachyon->scene;
       auto& meshes = state.meshes;
 
+      tVec3f rotation_axis = tVec3f::cross(tVec3f(0, -1.f, 0), scene.primary_light_direction);
+      float rotation_angle = acos(tVec3f::dot(tVec3f(0, -1.f, 0), scene.primary_light_direction));
+
       reset_instances(meshes.sunbeam);
 
       for_entities(state.sunbeams) {
@@ -40,10 +45,7 @@ namespace astro {
 
         Sync(sunbeam, entity);
 
-        sunbeam.rotation = (
-          Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI) *
-          Quaternion::FromDirection(scene.primary_light_direction, tVec3f(0, 1.f, 0))
-        );
+        sunbeam.rotation = Quaternion::fromAxisAngle(rotation_axis, rotation_angle);
 
         commit(sunbeam);
       }
