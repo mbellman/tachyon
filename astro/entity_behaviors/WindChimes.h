@@ -130,7 +130,7 @@ namespace astro {
                   // @todo rename did_take_action
                   entity.is_astro_synced = true;
                 } else {
-                  UISystem::ShowBlockingDialogue(tachyon, state, "You have nothing handy to perform repair.");
+                  UISystem::ShowBlockingDialogue(tachyon, state, "Nothing handy to repair it with.");
                 }
               }
             } else if (Items::HasItem(state, MAGIC_WAND)) {

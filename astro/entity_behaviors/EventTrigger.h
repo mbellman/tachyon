@@ -35,7 +35,7 @@ namespace astro {
 
         float player_distance = tVec3f::distance(state.player_position, entity.position);
 
-        if (player_distance < 2000.f) {
+        if (player_distance < 2000.f && entity.unique_name != "tutorial_bird") {
           entity.did_activate = true;
 
           GameEvents::StartEvent(tachyon, state, entity.unique_name);
@@ -43,6 +43,7 @@ namespace astro {
 
         // @hack @temporary
         if (
+          entity.unique_name == "tutorial_bird" &&
           !entity.did_activate &&
           player_distance < 4000.f &&
           state.wand_hold_factor == 1.f
