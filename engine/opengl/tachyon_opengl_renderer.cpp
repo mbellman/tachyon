@@ -1090,7 +1090,7 @@ static void RenderGlobalLighting(Tachyon* tachyon) {
   RenderScreenQuad(tachyon);
 }
 
-static void RenderPostMeshes(Tachyon* tachyon) {
+static void RenderTransparentMeshesBeforePostEffects(Tachyon* tachyon) {
   auto& scene = tachyon->scene;
   auto& renderer = get_renderer();
   auto& ctx = renderer.ctx;
@@ -1300,7 +1300,7 @@ static void RenderPointLights(Tachyon* tachyon) {
   }
 }
 
-static void RenderPost(Tachyon* tachyon) {
+static void RenderPostEffects(Tachyon* tachyon) {
   auto& renderer = get_renderer();
   auto& shader = renderer.shaders.post;
   auto& locations = renderer.shaders.locations.post;
@@ -1334,6 +1334,28 @@ static void RenderPost(Tachyon* tachyon) {
   SetShaderFloat(locations.dialogue_overlay_opacity, fx.dialogue_overlay_opacity);
 
   RenderScreenQuad(tachyon);
+}
+
+static void RenderSunbeams(Tachyon* tachyon) {
+  auto& renderer = get_renderer();
+  auto& ctx = renderer.ctx;
+  auto& scene = tachyon->scene;
+  auto& shader = renderer.shaders.sunbeam_mesh;
+  auto& locations = renderer.shaders.locations.sunbeam_mesh;
+
+  glDepthMask(false);
+  glEnable(GL_BLEND);
+
+  glUseProgram(shader.program);
+  SetShaderMat4f(locations.view_projection_matrix, ctx.view_projection_matrix);
+  SetShaderVec3f(locations.transform_origin, scene.transform_origin);
+  SetShaderVec3f(locations.camera_position, ctx.camera_position);
+  SetShaderFloat(locations.scene_time, scene.scene_time);
+
+  RenderMeshesByType(tachyon, SUNBEAM_MESH);
+
+  glDepthMask(true);
+  glDisable(GL_BLEND);
 }
 
 static void RenderUIElements(Tachyon* tachyon) {
@@ -1538,7 +1560,7 @@ void Tachyon_OpenGL_RenderScene(Tachyon* tachyon) {
     glEnable(GL_BLEND);
     glBlendFuncSeparatei(0, GL_ONE, GL_ONE, GL_ONE, GL_ONE);
 
-    RenderPostMeshes(tachyon);
+    RenderTransparentMeshesBeforePostEffects(tachyon);
 
     if (!tachyon->use_high_visibility_mode) {
       RenderPointLights(tachyon);
@@ -1546,7 +1568,16 @@ void Tachyon_OpenGL_RenderScene(Tachyon* tachyon) {
 
     glDisable(GL_BLEND);
 
-    RenderPost(tachyon);
+    RenderPostEffects(tachyon);
+
+    // Special treatment for sunbeams: these are rendered after post effects,
+    // as we want them composited upon the image after any post-processing
+    // relating to color has taken place. Otherwise they cause obvious
+    // discontinuities in color-based post effects.
+    if (HasObjectsOfMeshType(tachyon, SUNBEAM_MESH)) {
+      RenderSunbeams(tachyon);
+    }
+
     RenderUIElements(tachyon);
   }
 

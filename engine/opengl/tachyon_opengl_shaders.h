@@ -134,6 +134,13 @@ struct tUniformLocations {
     view_projection_matrix,
     transform_origin,
     camera_position,
+    scene_time
+  ) sunbeam_mesh;
+
+  uniform_locations(
+    view_projection_matrix,
+    transform_origin,
+    camera_position,
     primary_light_direction,
     previous_color_and_depth,
     in_normal_and_depth,
@@ -201,7 +208,7 @@ struct tOpenGLShaders {
   tOpenGLShader fire_mesh;
   tOpenGLShader ion_thruster_mesh;
   tOpenGLShader sunbeam_mesh;
-  tOpenGLShader item_mesh;
+  tOpenGLShader sparkle_mesh;
   tOpenGLShader wireframe_mesh;
   tOpenGLShader water_mesh;
   tOpenGLShader post;

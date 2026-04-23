@@ -174,6 +174,11 @@ static void StoreShaderUniforms(tOpenGLShaders& shaders) {
   store_shader_uniform(ion_thruster_mesh, transform_origin);
   store_shader_uniform(ion_thruster_mesh, scene_time);
 
+  store_shader_uniform(sunbeam_mesh, view_projection_matrix);
+  store_shader_uniform(sunbeam_mesh, transform_origin);
+  store_shader_uniform(sunbeam_mesh, camera_position);
+  store_shader_uniform(sunbeam_mesh, scene_time);
+
   store_shader_uniform(water_mesh, view_projection_matrix);
   store_shader_uniform(water_mesh, transform_origin);
   store_shader_uniform(water_mesh, camera_position);
@@ -221,7 +226,7 @@ static void StoreShaderUniforms(tOpenGLShaders& shaders) {
   store_shader_uniform(debug_view, inverse_view_matrix);
 }
 
-static void InitVertexFragmentShader(tOpenGLShader& shader, const char* vertex_path, const char* fragment_path) {
+static void LoadVertexFragmentShader(tOpenGLShader& shader, const char* vertex_path, const char* fragment_path) {
   shader.program = glCreateProgram();
 
   shader.attachments.push_back(
@@ -242,79 +247,85 @@ static void InitVertexGeometryFragmentShader(tOpenGLShader& shader, const char* 
 }
 
 void Tachyon_OpenGL_InitShaders(tOpenGLShaders& shaders) {
-  InitVertexFragmentShader(
+  LoadVertexFragmentShader(
     shaders.main_geometry,
     "./engine/opengl/shaders/main_geometry.vert.glsl",
     "./engine/opengl/shaders/main_geometry.frag.glsl"
   );
 
-  InitVertexFragmentShader(
+  LoadVertexFragmentShader(
     shaders.skinned_mesh,
     "./engine/opengl/shaders/skinned_mesh.vert.glsl",
     "./engine/opengl/shaders/skinned_mesh.frag.glsl"
   );
 
-  InitVertexFragmentShader(
+  LoadVertexFragmentShader(
     shaders.shadow_map,
     "./engine/opengl/shaders/shadow_map.vert.glsl",
     "./engine/opengl/shaders/shadow_map.frag.glsl"
   );
 
-  InitVertexFragmentShader(
+  LoadVertexFragmentShader(
     shaders.skinned_shadow_mesh,
     "./engine/opengl/shaders/skinned_shadow_mesh.vert.glsl",
     "./engine/opengl/shaders/shadow_map.frag.glsl"
   );
 
-  InitVertexFragmentShader(
+  LoadVertexFragmentShader(
     shaders.surface,
     "./engine/opengl/shaders/screen_quad.vert.glsl",
     "./engine/opengl/shaders/surface.frag.glsl"
   );
 
-  InitVertexFragmentShader(
+  LoadVertexFragmentShader(
     shaders.global_lighting,
     "./engine/opengl/shaders/screen_quad.vert.glsl",
     "./engine/opengl/shaders/global_lighting.frag.glsl"
   );
 
-  InitVertexFragmentShader(
+  LoadVertexFragmentShader(
     shaders.point_lights,
     "./engine/opengl/shaders/point_lights.vert.glsl",
     "./engine/opengl/shaders/point_lights.frag.glsl"
   );
 
-  InitVertexFragmentShader(
+  LoadVertexFragmentShader(
     shaders.wireframe_mesh,
     "./engine/opengl/shaders/main_geometry.vert.glsl",
     "./engine/opengl/shaders/wireframe_mesh.frag.glsl"
   );
 
-  InitVertexFragmentShader(
+  LoadVertexFragmentShader(
     shaders.volumetric_mesh,
     "./engine/opengl/shaders/post_geometry.vert.glsl",
     "./engine/opengl/shaders/volumetric_mesh.frag.glsl"
   );
 
-  InitVertexFragmentShader(
+  LoadVertexFragmentShader(
     shaders.fire_mesh,
     "./engine/opengl/shaders/post_geometry.vert.glsl",
     "./engine/opengl/shaders/fire_mesh.frag.glsl"
   );
 
-  InitVertexFragmentShader(
+  LoadVertexFragmentShader(
     shaders.ion_thruster_mesh,
     "./engine/opengl/shaders/post_geometry.vert.glsl",
     "./engine/opengl/shaders/ion_thruster_mesh.frag.glsl"
   );
 
-  InitVertexFragmentShader(
+  LoadVertexFragmentShader(
+    shaders.sunbeam_mesh,
+    "./engine/opengl/shaders/post_geometry.vert.glsl",
+    "./engine/opengl/shaders/sunbeam_mesh.frag.glsl"
+  );
+
+  LoadVertexFragmentShader(
     shaders.water_mesh,
     "./engine/opengl/shaders/post_geometry.vert.glsl",
     "./engine/opengl/shaders/water_mesh.frag.glsl"
   );
 
-  InitVertexFragmentShader(
+  LoadVertexFragmentShader(
     shaders.post,
     "./engine/opengl/shaders/screen_quad.vert.glsl",
     "./engine/opengl/shaders/post.frag.glsl"
@@ -322,7 +333,7 @@ void Tachyon_OpenGL_InitShaders(tOpenGLShaders& shaders) {
 
   // @todo dev mode only
   {
-    InitVertexFragmentShader(
+    LoadVertexFragmentShader(
       shaders.debug_view,
       "./engine/opengl/shaders/screen_quad.vert.glsl",
       "./engine/opengl/shaders/debug_view.frag.glsl"

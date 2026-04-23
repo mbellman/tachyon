@@ -5,13 +5,14 @@
 namespace astro {
   behavior Sunbeam {
     addMeshes() {
-      meshes.sunbeam_placeholder = MODEL_MESH("./astro/3d_models/cylinder.obj", 500);
-      meshes.sunbeam = MODEL_MESH("./astro/3d_models/cylinder.obj", 500);
+      meshes.sunbeam_placeholder = MODEL_MESH("./astro/3d_models/sunbeam.obj", 500);
+      meshes.sunbeam = MODEL_MESH("./astro/3d_models/sunbeam.obj", 500);
 
       mesh(meshes.sunbeam_placeholder).shadow_cascade_ceiling = 0;
       mesh(meshes.sunbeam).shadow_cascade_ceiling = 0;
 
-      mesh(meshes.sunbeam).type = ION_THRUSTER_MESH;
+      mesh(meshes.sunbeam_placeholder).type = SUNBEAM_MESH;
+      mesh(meshes.sunbeam).type = SUNBEAM_MESH;
     }
 
     getMeshes() {

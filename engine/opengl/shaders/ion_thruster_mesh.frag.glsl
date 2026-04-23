@@ -48,29 +48,5 @@ void main() {
   out_color.rgb *= out_color.w;
   out_color.rgb *= out_color.w;
 
-  // @temporary
-  // @todo move to its own shader
-  {
-    vec3 N = normalize(fragNormal);
-
-    float distance_from_top = distance(fragPosition, topPosition);
-    float phase_rotation = sin(4.0 * acos(dot(N, vec3(0, 0, 1))));
-    float phase_alpha = 0.003 * distance_from_top - 2.0 * scene_time + phase_rotation;
-    float phase = 0.8 + 0.2 * sin(phase_alpha);
-
-    vec3 light_color = vec3(1.0, 0.7, 0.2);
-    float oscillation_alpha = 1.5 * scene_time;
-    float oscillation = 0.8 + 0.2 * sin(oscillation_alpha);
-    vec3 beam_color = light_color * oscillation * phase;
-
-    float top_falloff = clamp(1.0 - distance_from_top / 5000.0, 0, 1);
-    float edge_falloff = dot(N, vec3(0, 0, 1));
-    float alpha = clamp(top_falloff * edge_falloff, 0, 1);
-
-    out_color.rgb = mix(vec3(0), beam_color, alpha);
-
-    // out_color.rgb = vec3(phase);
-  }
-
   out_color_and_depth = vec4(out_color.rgb, 0.0);
 }
