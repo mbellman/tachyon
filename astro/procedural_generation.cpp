@@ -516,7 +516,7 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
 
       // @todo factor
       for (auto& segment : local_dirt_path_segments) {
-        if (CollisionSystem::IsPointOnPlane(blade.position, segment.plane)) {
+        if (CollisionSystem::IsPointOnPlane(blade.position, segment.base_plane)) {
           blade.dirt_path_segment_index = segment.index;
 
           break;
@@ -525,7 +525,7 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
 
       // @todo factor
       for (auto& segment : local_stone_path_segments) {
-        if (CollisionSystem::IsPointOnPlane(blade.position, segment.plane)) {
+        if (CollisionSystem::IsPointOnPlane(blade.position, segment.base_plane)) {
           blade.stone_path_segment_index = segment.index;
 
           break;
@@ -656,7 +656,7 @@ static void UpdateSmallGrass(Tachyon* tachyon, State& state) {
         if (blade.dirt_path_segment_index > -1) {
           auto& segment = state.dirt_path_segments[blade.dirt_path_segment_index];
 
-          if (CollisionSystem::IsPointOnPlane(blade.position, segment.plane)) {
+          if (CollisionSystem::IsPointOnPlane(blade.position, segment.visible_plane)) {
             remove_blade_if_active(blade);
 
             continue;
@@ -667,7 +667,7 @@ static void UpdateSmallGrass(Tachyon* tachyon, State& state) {
         if (blade.stone_path_segment_index > -1) {
           auto& segment = state.stone_path_segments[blade.stone_path_segment_index];
 
-          if (CollisionSystem::IsPointOnPlane(blade.position, segment.plane)) {
+          if (CollisionSystem::IsPointOnPlane(blade.position, segment.visible_plane)) {
             remove_blade_if_active(blade);
 
             continue;
@@ -1163,7 +1163,7 @@ static void UpdateDirtPaths(Tachyon* tachyon, State& state) {
       commit(small_rock);
     }
 
-    segment.plane = CollisionSystem::CreatePlane(path.position, path.scale, path.rotation);
+    segment.visible_plane = CollisionSystem::CreatePlane(path.position, path.scale, path.rotation);
 
     commit(path);
   }
@@ -1330,7 +1330,7 @@ static void UpdateStonePaths(Tachyon* tachyon, State& state) {
       }
     }
 
-    segment.plane = CollisionSystem::CreatePlane(path.position, path.scale, path.rotation);
+    segment.visible_plane = CollisionSystem::CreatePlane(path.position, path.scale, path.rotation);
 
     commit(path);
   }

@@ -192,7 +192,8 @@ void PathGeneration::GeneratePaths(Tachyon* tachyon, State& state, const std::ve
             segment.entity_index_a = entity_index_a;
             segment.entity_index_b = entity_index_b;
             segment.object = path;
-            segment.plane = CollisionSystem::CreatePlane(path.position, path.scale, path.rotation);
+            segment.base_plane = CollisionSystem::CreatePlane(path.position, path.scale, path.rotation);
+            segment.visible_plane = CollisionSystem::CreatePlane(path.position, path.scale, path.rotation);
 
             segments.push_back(segment);
           }

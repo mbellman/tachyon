@@ -195,7 +195,8 @@ namespace astro {
     uint16 entity_index_a = 0;
     uint16 entity_index_b = 0;
     tObject object;
-    Plane plane;
+    Plane base_plane;
+    Plane visible_plane;
   };
 
   /**
