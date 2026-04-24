@@ -1,4 +1,5 @@
 #include "astro/dynamic_fauna.h"
+#include "astro/entity_behaviors/behavior.h"
 #include "engine/tachyon_random.h"
 
 using namespace astro;
@@ -167,8 +168,46 @@ static void HandleButterflies(Tachyon* tachyon, State& state) {
   }
 }
 
+/**
+ * ----------
+ * Tiny birds
+ * ----------
+ */
+static void SpawnTinyBird(Tachyon* tachyon, State& state) {
+  state.last_tiny_bird_spawn_time = get_scene_time();
+
+  console_log("Spawn!");
+
+  // @todo
+}
+
+static void HandleTinyBirds(Tachyon* tachyon, State& state) {
+  float player_speed = state.player_velocity.magnitude();
+  float last_spawn_time = time_since(state.last_tiny_bird_spawn_time);
+
+  for_entities(state.bird_spawns) {
+    auto& entity = state.bird_spawns[i];
+
+    if (!IsDuringActiveTime(entity, state)) continue;
+    if (!IsInRangeX(entity, state, 20000.f)) continue;
+    if (!IsInRangeZ(entity, state, 20000.f)) continue;
+
+    auto proximity = GetEntityProximity(entity, state);
+
+    if (
+      (player_speed < 50.f && last_spawn_time > 4.f) ||
+      (proximity.distance > 10000.f && last_spawn_time > 4.f)
+    ) {
+      SpawnTinyBird(tachyon, state);
+
+      continue;
+    }
+  }
+}
+
 void DynamicFauna::HandleBehavior(Tachyon* tachyon, State& state) {
   profile("DynamicFauna::HandleBehavior()");
 
   HandleButterflies(tachyon, state);
+  HandleTinyBirds(tachyon, state);
 }

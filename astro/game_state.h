@@ -44,6 +44,11 @@ namespace astro {
       // Dynamic fauna meshes
       butterfly_left_wing,
       butterfly_right_wing,
+      tiny_bird_head,
+      tiny_bird_body,
+      tiny_bird_wings,
+      tiny_bird_left_wing,
+      tiny_bird_right_wing,
 
       // Clothing + Armor meshes
       lesser_helmet,
@@ -314,6 +319,25 @@ namespace astro {
     float last_state_change_time = 0.f;
   };
 
+  struct TinyBird {
+    tVec3f position;
+    tVec3f rotation;
+
+    float timer = 0.f;
+
+    float last_head_turn_time = 0.f;
+    float last_jump_time = 0.f;
+    float last_fly_away_time = 0.f;
+
+    enum State {
+      IDLING,
+      TURN_AROUND,
+      JUMP_FORWARD,
+      FLY_DOWN,
+      FLY_UP
+    } state;
+  };
+
   /**
    * ----------------------------
    * Animation
@@ -479,6 +503,8 @@ namespace astro {
 
     // Dynamic fauna
     std::vector<Butterfly> butterflies;
+    std::vector<TinyBird> tiny_birds;
+    float last_tiny_bird_spawn_time = 0.f;
 
     // Particles
     std::vector<AmbientParticle> ambient_particles;

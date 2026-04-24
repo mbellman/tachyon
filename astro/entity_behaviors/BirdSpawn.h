@@ -20,11 +20,7 @@ namespace astro {
     }
 
     timeEvolve() {
-      for_entities(state.bird_spawns) {
-        auto& entity = state.bird_spawns[i];
-
-        // @todo
-      }
+      // @see dynamic_fauna.cpp -> HandleTinyBirds()
     }
   };
 }

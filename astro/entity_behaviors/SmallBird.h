@@ -92,12 +92,15 @@ namespace astro {
     }
 
     addMeshes() {
+      // Allow up to 500 placeholders
       meshes.small_bird_placeholder = MODEL_MESH("./astro/3d_models/small_bird/placeholder.obj", 500);
-      meshes.small_bird_body = MODEL_MESH("./astro/3d_models/small_bird/body.obj", 500);
-      meshes.small_bird_head = MODEL_MESH("./astro/3d_models/small_bird/head.obj", 500);
-      meshes.small_bird_wings = MODEL_MESH("./astro/3d_models/small_bird/wings.obj", 500);
-      meshes.small_bird_left_wing = MODEL_MESH("./astro/3d_models/small_bird/left_wing.obj", 500);
-      meshes.small_bird_right_wing = MODEL_MESH("./astro/3d_models/small_bird/right_wing.obj", 500);
+
+      // Allow up to 100 on-screen instances
+      meshes.small_bird_body = MODEL_MESH("./astro/3d_models/small_bird/body.obj", 100);
+      meshes.small_bird_head = MODEL_MESH("./astro/3d_models/small_bird/head.obj", 100);
+      meshes.small_bird_wings = MODEL_MESH("./astro/3d_models/small_bird/wings.obj", 100);
+      meshes.small_bird_left_wing = MODEL_MESH("./astro/3d_models/small_bird/left_wing.obj", 100);
+      meshes.small_bird_right_wing = MODEL_MESH("./astro/3d_models/small_bird/right_wing.obj", 100);
 
       mesh(meshes.small_bird_placeholder).shadow_cascade_ceiling = 1;
       mesh(meshes.small_bird_body).shadow_cascade_ceiling = 1;
