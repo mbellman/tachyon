@@ -88,7 +88,26 @@ static void HandleActiveAnimation(Tachyon* tachyon, State& state) {
     if (state.wand_hold_factor == 1.f) {
       Animation::AwaitNextAnimation(player_animation, &animations.player_run_wand);
     } else {
-      Animation::AwaitNextAnimation(player_animation, &animations.player_run);
+      if (
+        player_animation.current_animation == &animations.player_idle_wand &&
+        player_animation.next_animation == &animations.player_idle
+      ) {
+        // Special case for lowering the wand while idle, and immediately
+        // starting a run action. Ordinarily, this would cause us to wait
+        // for the transition from wand idle -> idle before then starting
+        // the run animation, causing awkward gliding behavior while still
+        // using the idle animation. Instead, we "cancel" and immediately
+        // start transitioning to the run animation.
+        //
+        // @todo factor this into an animation cancel method (?)
+        float current_blend = player_animation.next_animation_blend_alpha;
+
+        Animation::SetNextAnimation(player_animation, &animations.player_run);
+
+        player_animation.next_animation_blend_alpha = current_blend;
+      } else {
+        Animation::AwaitNextAnimation(player_animation, &animations.player_run);
+      }
     }
   }
 
