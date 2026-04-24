@@ -1,4 +1,5 @@
 #include "astro/dynamic_fauna.h"
+#include "astro/collision_system.h"
 #include "astro/entity_behaviors/behavior.h"
 #include "engine/tachyon_random.h"
 
@@ -180,6 +181,8 @@ static void SpawnTinyBird(Tachyon* tachyon, State& state, const GameEntity& spaw
   bird.position = spawn_entity.position;
   bird.position.x += Tachyon_GetRandom(-4000.f, 4000.f);
   bird.position.z += Tachyon_GetRandom(-4000.f, 4000.f);
+  bird.position.y = CollisionSystem::QueryGroundHeight(state, bird.position.x, bird.position.z);
+  bird.position.y += 300.f;
 
   bird.rotation = Quaternion(1.f, 0, 0, 0);
 
@@ -217,13 +220,38 @@ static void HandleTinyBirdSpawningBehavior(Tachyon* tachyon, State& state) {
 static void HandleTinyBird(Tachyon* tachyon, State& state, TinyBird& bird) {
   auto& meshes = state.meshes;
 
-  auto& body = use_instance(meshes.tiny_bird_body);
+  // Body
+  {
+    auto& body = use_instance(meshes.tiny_bird_body);
 
-  body.position = bird.position;
-  body.rotation = bird.rotation;
-  body.scale = tVec3f(600.f);
+    body.position = bird.position;
+    body.rotation = bird.rotation;
+    body.scale = tVec3f(750.f);
 
-  commit(body);
+    commit(body);
+  }
+
+  // Head
+  {
+    auto& head = use_instance(meshes.tiny_bird_head);
+
+    head.position = bird.position;
+    head.rotation = bird.rotation;
+    head.scale = tVec3f(750.f);
+
+    commit(head);
+  }
+
+  // Wings
+  {
+    auto& wings = use_instance(meshes.tiny_bird_wings);
+
+    wings.position = bird.position;
+    wings.rotation = bird.rotation;
+    wings.scale = tVec3f(750.f);
+
+    commit(wings);
+  }
 }
 
 static void HandleTinyBirds(Tachyon* tachyon, State& state) {
