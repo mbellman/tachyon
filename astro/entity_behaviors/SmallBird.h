@@ -220,7 +220,6 @@ namespace astro {
 
         // Wings (flying away)
         if (IsFlyingAway(entity)) {
-          float flying_alpha = time_since(entity.game_activation_time) / 0.25f;
           float flap_rate = 35.f;
           float angle = sinf(flap_rate * get_scene_time());
 
