@@ -55,6 +55,17 @@ static void CreateConstantObjects(Tachyon* tachyon, State& state) {
     }
   }
 
+  // Dynamic fauna meshes
+  {
+    for_range(1, 50) {
+      create(meshes.tiny_bird_head);
+      create(meshes.tiny_bird_body);
+      create(meshes.tiny_bird_wings);
+      create(meshes.tiny_bird_left_wing);
+      create(meshes.tiny_bird_right_wing);
+    }
+  }
+
   for (uint16 i = 0; i < 200; i++) {
     create(meshes.tree_mushroom);
   }
@@ -235,6 +246,8 @@ static void HandleInGameDevHotkeys(Tachyon* tachyon, State& state) {
 
         SmallBird::Reset(entity);
       }
+
+      state.tiny_birds.clear();
 
       for_entities(state.sculpture_1s) {
         auto& entity = state.sculpture_1s[i];

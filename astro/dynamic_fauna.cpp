@@ -173,15 +173,22 @@ static void HandleButterflies(Tachyon* tachyon, State& state) {
  * Tiny birds
  * ----------
  */
-static void SpawnTinyBird(Tachyon* tachyon, State& state) {
+static void SpawnTinyBird(Tachyon* tachyon, State& state, const GameEntity& spawn_entity) {
   state.last_tiny_bird_spawn_time = get_scene_time();
 
-  console_log("Spawn!");
+  TinyBird bird;
+  bird.position = spawn_entity.position;
+  bird.position.x += Tachyon_GetRandom(-4000.f, 4000.f);
+  bird.position.z += Tachyon_GetRandom(-4000.f, 4000.f);
 
-  // @todo
+  bird.rotation = Quaternion(1.f, 0, 0, 0);
+
+  state.tiny_birds.push_back(bird);
+
+  console_log("Done!");
 }
 
-static void HandleTinyBirds(Tachyon* tachyon, State& state) {
+static void HandleTinyBirdSpawningBehavior(Tachyon* tachyon, State& state) {
   float player_speed = state.player_velocity.magnitude();
   float last_spawn_time = time_since(state.last_tiny_bird_spawn_time);
 
@@ -191,17 +198,46 @@ static void HandleTinyBirds(Tachyon* tachyon, State& state) {
     if (!IsDuringActiveTime(entity, state)) continue;
     if (!IsInRangeX(entity, state, 20000.f)) continue;
     if (!IsInRangeZ(entity, state, 20000.f)) continue;
+    if (state.tiny_birds.size() >= 10) break;
 
     auto proximity = GetEntityProximity(entity, state);
 
     if (
-      (player_speed < 50.f && last_spawn_time > 4.f) ||
+      (player_speed < 50.f && last_spawn_time > 5.5f) ||
       (proximity.distance > 10000.f && last_spawn_time > 4.f)
     ) {
-      SpawnTinyBird(tachyon, state);
+      SpawnTinyBird(tachyon, state, entity);
 
       continue;
     }
+  }
+}
+
+static void HandleTinyBird(Tachyon* tachyon, State& state, TinyBird& bird) {
+  auto& meshes = state.meshes;
+
+  auto& body = use_instance(meshes.tiny_bird_body);
+
+  body.position = bird.position;
+  body.rotation = bird.rotation;
+  body.scale = tVec3f(600.f);
+
+  commit(body);
+}
+
+static void HandleTinyBirds(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
+  HandleTinyBirdSpawningBehavior(tachyon, state);
+
+  reset_instances(meshes.tiny_bird_head);
+  reset_instances(meshes.tiny_bird_body);
+  reset_instances(meshes.tiny_bird_wings);
+  reset_instances(meshes.tiny_bird_left_wing);
+  reset_instances(meshes.tiny_bird_right_wing);
+
+  for (auto& bird : state.tiny_birds) {
+    HandleTinyBird(tachyon, state, bird);
   }
 }
 

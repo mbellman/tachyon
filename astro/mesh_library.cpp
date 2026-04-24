@@ -198,8 +198,8 @@ static void AddFaunaMeshes(Tachyon* tachyon, State& state) {
   meshes.butterfly_left_wing = MODEL_MESH("./astro/3d_models/fauna/butterfly_left_wing.obj", 10);
   meshes.butterfly_right_wing = MODEL_MESH("./astro/3d_models/fauna/butterfly_right_wing.obj", 10);
 
-  meshes.tiny_bird_body = MODEL_MESH("./astro/3d_models/small_bird/body.obj", 50);
   meshes.tiny_bird_head = MODEL_MESH("./astro/3d_models/small_bird/head.obj", 50);
+  meshes.tiny_bird_body = MODEL_MESH("./astro/3d_models/small_bird/body.obj", 50);
   meshes.tiny_bird_wings = MODEL_MESH("./astro/3d_models/small_bird/wings.obj", 50);
   meshes.tiny_bird_left_wing = MODEL_MESH("./astro/3d_models/small_bird/left_wing.obj", 50);
   meshes.tiny_bird_right_wing = MODEL_MESH("./astro/3d_models/small_bird/right_wing.obj", 50);
