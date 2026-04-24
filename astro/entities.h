@@ -61,7 +61,8 @@ namespace astro {
     MAGIC_GATE,
     MOOD_LIGHT,
     BIRD_GATE,
-    SUNBEAM
+    SUNBEAM,
+    BIRD_SPAWN
   };
 
   /**
@@ -117,7 +118,8 @@ namespace astro {
     MAGIC_GATE,
     MOOD_LIGHT,
     BIRD_GATE,
-    SUNBEAM
+    SUNBEAM,
+    BIRD_SPAWN
   };
 
   /**
@@ -477,6 +479,9 @@ namespace astro {
       small_bird_left_wing,
       small_bird_right_wing,
 
+      // BIRD_SPAWN
+      bird_spawn_placeholder,
+
       // SUNBEAM
       sunbeam_placeholder,
       sunbeam
@@ -503,6 +508,7 @@ namespace astro {
     EntityList vantage_spots;
     EntityList dirt_path_nodes;
     EntityList stone_path_nodes;
+    EntityList bird_spawns;
 
     EntityList shrubs;
     EntityList leaf_shrubs;
@@ -611,6 +617,12 @@ namespace astro {
       .name = "Vantage Spot",
       .scale = tVec3f(1500.f),
       .tint = tVec3f(1., 0.1f, 0.2f)
+    } },
+
+    { BIRD_SPAWN, {
+      .name = "Bird Spawn",
+      .scale = tVec3f(1500.f),
+      .tint = tVec3f(0.5f)
     } },
 
     // @unused

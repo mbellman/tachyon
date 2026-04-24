@@ -4,6 +4,7 @@
 #include "astro/entity_behaviors/Bandit.h"
 #include "astro/entity_behaviors/BellFlower.h"
 #include "astro/entity_behaviors/BirdGate.h"
+#include "astro/entity_behaviors/BirdSpawn.h"
 #include "astro/entity_behaviors/ChestnutTree.h"
 #include "astro/entity_behaviors/DirtPathNode.h"
 #include "astro/entity_behaviors/EventTrigger.h"
@@ -83,6 +84,7 @@ using namespace astro;
   dispatch_macro(SUNBEAM, Sunbeam);\
   dispatch_macro(EVENT_TRIGGER, EventTrigger);\
   dispatch_macro(VANTAGE_SPOT, VantageSpot);\
+  dispatch_macro(BIRD_SPAWN, BirdSpawn);\
   dispatch_macro(ITEM_PICKUP, ItemPickup);\
   dispatch_macro(LESSER_GUARD, LesserGuard);\
   dispatch_macro(LOW_GUARD, LowGuard);\
@@ -135,6 +137,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
     dispatch_GetEntityContainer(SUNBEAM, state.sunbeams);
     dispatch_GetEntityContainer(EVENT_TRIGGER, state.event_triggers);
     dispatch_GetEntityContainer(VANTAGE_SPOT, state.vantage_spots);
+    dispatch_GetEntityContainer(BIRD_SPAWN, state.bird_spawns);
     dispatch_GetEntityContainer(LESSER_GUARD, state.lesser_guards);
     dispatch_GetEntityContainer(LOW_GUARD, state.low_guards);
     dispatch_GetEntityContainer(FAERIE, state.faeries);
