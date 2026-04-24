@@ -497,10 +497,10 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
 
         // Autumn-ish?
         // const static tColor colors[] = {
-        //   tVec4f(0.5f, 0.3f, 0.1f, 0.1f),
-        //   tVec4f(0.6f, 0.4f, 0.1f, 0.1f),
-        //   tVec4f(0.4f, 0.3f, 0.1f, 0.1f),
-        //   tVec4f(0.5f, 0.4f, 0.1f, 0.1f)
+        //   tVec4f(0.3f, 0.5f, 0.1f, 0.1f),
+        //   tVec4f(0.4f, 0.6f, 0.1f, 0.1f),
+        //   tVec4f(0.3f, 0.4f, 0.1f, 0.1f),
+        //   tVec4f(0.2f, 0.3f, 0.1f, 0.1f)
         // };
 
         const float variance_strength = 0.0004f;
