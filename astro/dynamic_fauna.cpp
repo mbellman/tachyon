@@ -184,13 +184,13 @@ static void SpawnTinyBird(Tachyon* tachyon, State& state, const GameEntity& spaw
   bird.rotation = Quaternion(1.f, 0, 0, 0);
 
   state.tiny_birds.push_back(bird);
-
-  console_log("Done!");
 }
 
 static void HandleTinyBirdSpawningBehavior(Tachyon* tachyon, State& state) {
   float player_speed = state.player_velocity.magnitude();
   float last_spawn_time = time_since(state.last_tiny_bird_spawn_time);
+
+  if (last_spawn_time < 5.f) return;
 
   for_entities(state.bird_spawns) {
     auto& entity = state.bird_spawns[i];
@@ -200,15 +200,16 @@ static void HandleTinyBirdSpawningBehavior(Tachyon* tachyon, State& state) {
     if (!IsInRangeZ(entity, state, 20000.f)) continue;
     if (state.tiny_birds.size() >= 10) break;
 
+    // Coin flip for whether this entity gets to spawn any birds
+    if (Tachyon_GetRandom() > 0.5f) continue;
+
     auto proximity = GetEntityProximity(entity, state);
 
     if (
-      (player_speed < 50.f && last_spawn_time > 5.5f) ||
-      (proximity.distance > 10000.f && last_spawn_time > 4.f)
+      proximity.distance > 10000.f ||
+      (proximity.distance < 10000.f && player_speed < 200.f)
     ) {
       SpawnTinyBird(tachyon, state, entity);
-
-      continue;
     }
   }
 }
@@ -236,8 +237,25 @@ static void HandleTinyBirds(Tachyon* tachyon, State& state) {
   reset_instances(meshes.tiny_bird_left_wing);
   reset_instances(meshes.tiny_bird_right_wing);
 
-  for (auto& bird : state.tiny_birds) {
+  auto& birds = state.tiny_birds;
+
+  if (birds.size() == 0) return;
+
+  // Behavior
+  for (auto& bird : birds) {
     HandleTinyBird(tachyon, state, bird);
+  }
+
+  // Despawn tiny birds out of range
+  for (int i = birds.size() - 1; i >= 0; i--) {
+    auto& bird = birds[i];
+
+    if (
+      abs(bird.position.x - state.player_position.x) > 25000.f ||
+      abs(bird.position.z - state.player_position.z) > 25000.f
+    ) {
+      birds.erase(birds.begin() + i);
+    }
   }
 }
 
