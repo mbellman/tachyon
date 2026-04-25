@@ -540,8 +540,9 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
 }
 
 static void HandleWandStrike(Tachyon* tachyon, State& state) {
-  Magic::HandleWandAction(tachyon, state);
   Combat::HandleWandStrikeWindow(tachyon, state);
+  // @deprecated
+  Magic::HandleWandAction(tachyon, state);
 }
 
 static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotation, tMat4f& player_rotation_matrix) {

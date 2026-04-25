@@ -151,209 +151,19 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
 // @disabled
 // @todo remove
 static void HandleAstroControls(Tachyon* tachyon, State& state) {
-  const float astro_travel_rate = 0.8f;
-  const float astro_slowdown_rate = 3.f;
-
-  const float max_astro_time = Astrolabe::GetMaxAstroTime(state);
-  const float min_astro_time = Astrolabe::GetMinAstroTime(state);
-  const float max_turn_speed = Astrolabe::GetMaxTurnSpeed();
-
-  float previous_astro_turn_speed = state.astro_turn_speed;
-
-  bool started_turning = (
-    (tachyon->left_trigger > 0.f && tachyon->right_trigger == 0.f && state.last_frame_left_trigger == 0.f) ||
-    (tachyon->right_trigger > 0.f && tachyon->left_trigger == 0.f && state.last_frame_right_trigger == 0.f)
-  );
-
-  state.last_frame_left_trigger = tachyon->left_trigger;
-  state.last_frame_right_trigger = tachyon->right_trigger;
-
-  bool stopped_turning = false;
-
-  // Track the initial time when we start turning
-  // so we can determine when to start slowing down
-  // before hitting min/max time
-  if (started_turning) {
-    state.astro_time_at_start_of_turn = state.astro_time;
-    state.game_time_at_start_of_turn = get_scene_time();
-    state.astro_particle_spawn_position = state.player_position;
-    state.is_astrolabe_stopped = false;
-
-    if (state.has_target) {
-      // Force deselection of the current target
-      Targeting::DeselectCurrentTarget(tachyon, state);
-
-      // Zero out player velocity to prevent changing the facing direction,
-      // e.g. if we were backwalking away from the enemy when we started
-      // the astro turn, and our velocity vector would otherwise swing us
-      // around awkwardly
-      state.player_velocity = tVec3f(0.f);
-    }
+  if (did_press_key(tKey::NUM_1)) {
+    state.astro_time = astro_time_periods.future;
+    state.target_astro_time = state.astro_time;
   }
 
-  // Handle reverse/forward turn actions
-  state.astro_turn_speed -= tachyon->left_trigger * astro_travel_rate * state.dt;
-  state.astro_turn_speed += tachyon->right_trigger * astro_travel_rate * state.dt;
-
-  // Prevent time changes past max time
-  if (state.astro_time >= max_astro_time && state.astro_turn_speed > 0.f) {
-    state.astro_turn_speed = 0.f;
-
-    if (state.astro_time_at_start_of_turn >= -1.f) {
-      UISystem::ShowDialogue(tachyon, state, "The astrolabe's mechanism resists.");
-
-      state.game_time_at_start_of_turn = 0.f;
-
-      if (started_turning) {
-        Sfx::PlaySound(SFX_ASTRO_DISABLED, 0.8f);
-      }
-    }
+  if (did_press_key(tKey::NUM_2)) {
+    state.astro_time = astro_time_periods.present;
+    state.target_astro_time = state.astro_time;
   }
 
-  // Prevent time changes before min time
-  if (state.astro_time <= min_astro_time && state.astro_turn_speed < 0.f) {
-    state.astro_turn_speed = 0.f;
-
-    if (state.astro_time_at_start_of_turn <= min_astro_time + 1.f) {
-      UISystem::ShowDialogue(tachyon, state, "The astrolabe's mechanism resists.");
-
-      state.game_time_at_start_of_turn = 0.f;
-
-      if (started_turning) {
-        Sfx::PlaySound(SFX_ASTRO_DISABLED, 0.8f);
-      }
-    }
-  }
-
-  // Slow down toward max time
-  if (state.astro_turn_speed > 0.f) {
-    float slowdown_threshold = max_astro_time - (max_astro_time - state.astro_time_at_start_of_turn) * 0.2f;
-
-    if (slowdown_threshold < max_astro_time - 10.f) {
-      // Enforce a limit on how far away the slowdown threshold is
-      // from the stopping value
-      slowdown_threshold = max_astro_time - 10.f;
-    }
-
-    if (slowdown_threshold > max_astro_time - 8.f) {
-      slowdown_threshold = max_astro_time - 8.f;
-    }
-
-    if (state.astro_time > slowdown_threshold) {
-      float threshold_distance = abs(slowdown_threshold - state.astro_time);
-      float threshold_to_limit = max_astro_time - slowdown_threshold;
-      float slowdown_factor = 20.f * powf(threshold_distance / threshold_to_limit, 2.f);
-
-      state.astro_turn_speed *= 1.f - slowdown_factor * state.dt;
-
-      if (abs(max_astro_time - state.astro_time) < 2.f) {
-        UISystem::ShowDialogue(tachyon, state, "The astrolabe stopped turning.");
-
-        stopped_turning = true;
-      }
-    }
-  }
-
-  // Slow down toward min time
-  if (state.astro_turn_speed < 0.f) {
-    float slowdown_threshold = min_astro_time + abs(state.astro_time_at_start_of_turn - min_astro_time) * 0.2f;
-
-    if (slowdown_threshold > min_astro_time + 10.f) {
-      // Enforce a limit on how far away the slowdown threshold is
-      // from the stopping value
-      slowdown_threshold = min_astro_time + 10.f;
-    }
-
-    if (slowdown_threshold < min_astro_time + 8.f) {
-      slowdown_threshold = min_astro_time + 8.f;
-    }
-
-    if (state.astro_time < slowdown_threshold) {
-      float threshold_distance = abs(slowdown_threshold - state.astro_time);
-      float threshold_to_limit = abs(min_astro_time - slowdown_threshold);
-      float slowdown_factor = 20.f * powf(threshold_distance / threshold_to_limit, 2.f);
-
-      state.astro_turn_speed *= 1.f - slowdown_factor * state.dt;
-
-      if (
-        state.astro_time_at_start_of_turn > min_astro_time + 1.f &&
-        abs(state.astro_time - min_astro_time) < 2.f
-      ) {
-        UISystem::ShowDialogue(tachyon, state, "The astrolabe stopped turning.");
-
-        stopped_turning = true;
-      }
-    }
-  }
-
-  // Advance (or reverse) astro time
-  state.astro_time += state.astro_turn_speed * 100.f * state.dt;
-
-  // Clamp to min/max astro time
-  if (state.astro_time > max_astro_time) state.astro_time = max_astro_time;
-  if (state.astro_time < min_astro_time) state.astro_time = min_astro_time;
-
-  if (tachyon->left_trigger == 0.f && tachyon->right_trigger == 0.f) {
-    // Reduce turn rate gradually
-    state.astro_turn_speed *= 1.f - astro_slowdown_rate * state.dt;
-
-    // Stop turning at a low enough speed
-    if (abs(state.astro_turn_speed) < 0.01f) {
-      state.astro_turn_speed = 0.f;
-    }
-  }
-  else if (state.astro_turn_speed > max_turn_speed) {
-    // Cap forward speed
-    state.astro_turn_speed = max_turn_speed;
-  }
-  else if (state.astro_turn_speed < -max_turn_speed) {
-    // Cap reverse speed
-    state.astro_turn_speed = -max_turn_speed;
-  }
-
-  // Check for stopped astro turns
-  if (
-    // Turning against min/max astro time
-    (started_turning && state.astro_turn_speed == 0.f) ||
-
-    // Turning slowed down below a given threshold. The threshold
-    // is a bit high (0.1) so that the "stopped" sound begins playing
-    // sooner, rather than waiting for full deceleration to 0.
-    (
-      (abs(previous_astro_turn_speed) >= 0.1f && abs(state.astro_turn_speed) < 0.1f) &&
-      (tachyon->left_trigger == 0.f || state.astro_time <= min_astro_time) &&
-      (tachyon->right_trigger == 0.f || state.astro_time >= max_astro_time)
-    ) ||
-
-    // Turn speed is 0, but not set in state as stopped. If we merely
-    // tap the trigger buttons, we may not speed up enough to hit the
-    // above 0.1 threshold.
-    (state.astro_turn_speed == 0.f && !state.is_astrolabe_stopped)
-  ) {
-    stopped_turning = true;
-  }
-
-  // Sound effects
-  {
-    if (stopped_turning && !state.is_astrolabe_stopped) {
-      Sfx::FadeOutSound(SFX_ASTRO_TRAVEL, 2000);
-
-      if (state.is_astro_traveling) {
-        Sfx::PlaySound(SFX_ASTRO_END, 1.f);
-      }
-
-      state.is_astrolabe_stopped = true;
-      state.is_astro_traveling = false;
-      state.time_warp_end_radius = 0.f;
-    }
-    else if (started_turning) {
-      Sfx::FadeOutSound(SFX_ASTRO_END, 500);
-      Sfx::PlaySound(SFX_ASTRO_TRAVEL, 0.8f);
-
-      state.is_astrolabe_stopped = false;
-      state.is_astro_traveling = true;
-      state.time_warp_start_radius = 0.f;
-    }
+  if (did_press_key(tKey::NUM_3)) {
+    state.astro_time = astro_time_periods.past;
+    state.target_astro_time = state.astro_time;
   }
 }
 
@@ -501,7 +311,7 @@ void ControlSystem::HandleControls(Tachyon* tachyon, State& state) {
     state.player_hp > 0.f
   ) {
     HandlePlayerMovementControls(tachyon, state);
-    // HandleAstroControls(tachyon, state);
+    HandleAstroControls(tachyon, state); // @temporary
     HandleDayNightControls(tachyon, state);
     HandleWandControls(tachyon, state);
     HandleTargetingControls(tachyon, state);

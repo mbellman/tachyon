@@ -11,7 +11,7 @@ namespace astro {
       SFX_SCULPTURE_ACTIVATE_4
     };
 
-    static void HandleWandAction(Tachyon* tachyon, State& state, GameEntity& entity) {
+    static void Activate(Tachyon* tachyon, State& state, GameEntity& entity) {
       entity.did_activate = true;
       entity.game_activation_time = get_scene_time();
 
@@ -38,13 +38,13 @@ namespace astro {
       // Charge the light
       auto& light = *get_point_light(entity.light_id);
 
-      light.power += state.dt;
+      light.power += 2.f * state.dt;
 
       if (light.power >= 1.5f) {
         light.power = 1.5f;
 
         if (!entity.did_activate) {
-          HandleWandAction(tachyon, state, entity);
+          Activate(tachyon, state, entity);
         }
       }
     }

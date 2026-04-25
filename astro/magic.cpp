@@ -70,6 +70,7 @@ static bool CanPerformWandAction(Tachyon* tachyon, State& state) {
   return true;
 }
 
+// @deprecated
 void Magic::HandleWandAction(Tachyon* tachyon, State& state) {
   if (!CanPerformWandAction(tachyon, state)) return;
 
@@ -91,9 +92,6 @@ void Magic::HandleWandAction(Tachyon* tachyon, State& state) {
   switch (entity.type) {
     case LAMPPOST:
       Lamppost::HandleWandAction(tachyon, state, entity);
-      break;
-    case SCULPTURE_1:
-      Sculpture_1::HandleWandAction(tachyon, state, entity);
       break;
   }
 }

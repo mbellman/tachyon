@@ -97,6 +97,7 @@ static void HandleAstroParticles(Tachyon* tachyon, State& state) {
   }
 }
 
+// @todo move to Sculpture_1.h (?)
 static void HandleSculptureParticles(Tachyon* tachyon, State& state) {
   profile("  HandleSculptureParticles()");
 
@@ -135,6 +136,8 @@ static void HandleSculptureParticles(Tachyon* tachyon, State& state) {
           float glow_power = sinf(alpha * t_PI);
           if (glow_power < 0.f) glow_power = 0.f;
           glow_power = sqrtf(glow_power);
+
+          glow_power = 1.f - glow_power;
 
           // Form a light path between the two entities (including y offset)
           light.position = tVec3f::lerp(

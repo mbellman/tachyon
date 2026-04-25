@@ -36,7 +36,7 @@ namespace astro {
 
         if (!IsDuringActiveTime(entity, state)) {
           // Hide light when it isn't the entity's active time
-          if (state.astro_turn_speed != 0.f && entity.light_id != -1) {
+          if (entity.light_id != -1) {
             auto& light = *get_point_light(entity.light_id);
 
             light.power = 0.f;

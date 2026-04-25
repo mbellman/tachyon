@@ -1345,6 +1345,8 @@ static void RenderSunbeams(Tachyon* tachyon) {
 
   renderer.g_buffer.copyDepth(0, tachyon->window_width, tachyon->window_height);
 
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
   glEnable(GL_BLEND);
   glDepthMask(GL_FALSE);
   glEnable(GL_CULL_FACE);
