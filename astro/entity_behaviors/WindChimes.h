@@ -113,8 +113,8 @@ namespace astro {
           auto proximity = GetEntityProximity(entity, state);
 
           if (
-            proximity.distance < 5000.f &&
-            proximity.facing_dot > 0.f &&
+            proximity.distance < 4000.f &&
+            proximity.facing_dot > 0.2f &&
             player_speed < 500.f
           ) {
             if (is_dismantled) {

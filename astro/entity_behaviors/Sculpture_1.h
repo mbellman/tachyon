@@ -38,10 +38,10 @@ namespace astro {
       // Charge the light
       auto& light = *get_point_light(entity.light_id);
 
-      light.power += 0.5f * state.dt;
+      light.power += state.dt;
 
-      if (light.power >= 1.f) {
-        light.power = 1.f;
+      if (light.power >= 1.5f) {
+        light.power = 1.5f;
 
         if (!entity.did_activate) {
           HandleWandAction(tachyon, state, entity);
@@ -50,16 +50,17 @@ namespace astro {
     }
 
     addMeshes() {
-      meshes.sculpture_1_placeholder = MODEL_MESH("./astro/3d_models/sculpture_1/placeholder.obj", 100);
-      meshes.sculpture_1_stand = MODEL_MESH("./astro/3d_models/sculpture_1/stand.obj", 100);
-      meshes.sculpture_1_wheel = MODEL_MESH("./astro/3d_models/sculpture_1/wheel.obj", 200);
+      meshes.sculpture_1_placeholder = MODEL_MESH("./astro/3d_models/sculpture_1/placeholder.obj", 200);
+      meshes.sculpture_1_stand = MODEL_MESH("./astro/3d_models/sculpture_1/stand.obj", 200);
+      meshes.sculpture_1_wheel = MODEL_MESH("./astro/3d_models/sculpture_1/wheel.obj", 600);
     }
 
     getMeshes() {
       return_meshes({
         meshes.sculpture_1_stand,
 
-        // Each sculpture instance has two spinning wheels
+        // Each sculpture instance has three spinning wheels
+        meshes.sculpture_1_wheel,
         meshes.sculpture_1_wheel,
         meshes.sculpture_1_wheel
       });
@@ -122,36 +123,47 @@ namespace astro {
           Sync(stand, entity);
 
           stand.color = color;
-          stand.material = tVec4f(roughness, 1.f, 0, 0.6f);
+          stand.material = tVec4f(roughness, 1.f, 0, 0.2f);
 
           commit(stand);
         }
 
         // Wheels
         {
-          const tVec3f rotation_axis = tVec3f(0, 0, 1.f);
+          const tVec3f rotation_axis = tVec3f(0, 1.f, 0);
 
           // Constant rotation
           entity.accumulation_value += state.dt + astro_rotation_speed;
 
           auto& wheel1 = use_instance(meshes.sculpture_1_wheel);
           auto& wheel2 = use_instance(meshes.sculpture_1_wheel);
+          auto& wheel3 = use_instance(meshes.sculpture_1_wheel);
 
           Sync(wheel1, entity);
           Sync(wheel2, entity);
+          Sync(wheel3, entity);
 
-          wheel1.position = UnitEntityToWorldPosition(entity, tVec3f(0, 1.5f, 0.15f));
-          wheel2.position = UnitEntityToWorldPosition(entity, tVec3f(0, 1.5f, 0.2f));
+          // Large wheel
+          wheel1.position = UnitEntityToWorldPosition(entity, tVec3f(0, 1.3f, 0.f));
 
           wheel1.scale = entity.scale * 0.5f;
           wheel1.rotation = entity.orientation * Quaternion::fromAxisAngle(rotation_axis, entity.accumulation_value);
           wheel1.color = color;
-          wheel1.material = tVec4f(roughness, 1.f, 0, 0.6f);
+          wheel1.material = tVec4f(roughness, 1.f, 0, 0.8f);
+
+          // Small wheels
+          wheel2.position = UnitEntityToWorldPosition(entity, tVec3f(0, 1.5f, 0.f));
+          wheel3.position = UnitEntityToWorldPosition(entity, tVec3f(0, 1.f, 0.f));
 
           wheel2.scale = entity.scale * 0.3f;
-          wheel2.rotation = entity.orientation * Quaternion::fromAxisAngle(rotation_axis, -entity.accumulation_value * 0.7f);
+          wheel2.rotation = entity.orientation * Quaternion::fromAxisAngle(rotation_axis, -entity.accumulation_value * 0.75f);
           wheel2.color = color;
           wheel2.material = tVec4f(roughness, 1.f, 0, 0.6f);
+
+          wheel3.scale = entity.scale * 0.3f;
+          wheel3.rotation = entity.orientation * Quaternion::fromAxisAngle(rotation_axis, -entity.accumulation_value * 0.5f);
+          wheel3.color = color;
+          wheel3.material = tVec4f(roughness, 1.f, 0, 0.6f);
 
           // Disrepair
           float time_until_end = entity.astro_end_time - state.astro_time;
@@ -165,7 +177,6 @@ namespace astro {
 
             if (time_until_end == 0.f) {
               wheel1.position = UnitEntityToWorldPosition(entity, tVec3f(-0.4f, 0.05f, 0.3f));
-              wheel1.rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), t_HALF_PI);
             }
           }
 
@@ -173,16 +184,18 @@ namespace astro {
           {
             if (time_until_end < 20.f) {
               wheel2.rotation = entity.orientation;
+              wheel3.rotation = entity.orientation;
             }
 
             if (time_until_end < 15.f) {
               wheel2.position = UnitEntityToWorldPosition(entity, tVec3f(0.5f, 0.05f, 0.2f));
-              wheel2.rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), t_HALF_PI);
+              wheel3.position = UnitEntityToWorldPosition(entity, tVec3f(-0.25f, 0.05f, 0.2f));
             }
           }
 
           commit(wheel1);
           commit(wheel2);
+          commit(wheel3);
         }
 
         // Wand effects
@@ -227,7 +240,7 @@ namespace astro {
           }
 
           if (entity.did_activate) {
-            light.power = 1.f;
+            light.power = 1.5f;
           }
 
           // Kill the light if past end time
@@ -235,10 +248,10 @@ namespace astro {
             light.power = 0.f;
           }
 
-          light.position = UnitEntityToWorldPosition(entity, tVec3f(0, 1.5f, 0.25f));
+          light.position = UnitEntityToWorldPosition(entity, tVec3f(0, 1.3f, 0.f));
           light.color = tVec3f::lerp(default_color, activated_color, light.power);
           light.radius = light.power * 2000.f;
-          light.glow_power = 2.f;
+          light.glow_power = light.power * 3.f;
         }
 
         // Collision
