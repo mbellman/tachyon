@@ -939,6 +939,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
     if (did_press_key(tKey::E)) {
       if (state.is_level_editor_open) {
         LevelEditor::CloseLevelEditor(tachyon, state);
+        Environment::Init(tachyon, state);
       } else {
         LevelEditor::OpenLevelEditor(tachyon, state);
       }
