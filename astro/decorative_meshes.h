@@ -39,6 +39,12 @@ namespace astro {
         .default_color = tVec3f(0.8f)
       },
       {
+        .mesh_index = meshes.rock_step,
+        .mesh_name = "rock_step",
+        .default_scale = tVec3f(500.f),
+        .default_color = tVec3f(0.8f)
+      },
+      {
         .mesh_index = meshes.river_edge,
         .mesh_name = "river_edge",
         .default_scale = tVec3f(1000.f),

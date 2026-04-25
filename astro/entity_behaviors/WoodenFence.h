@@ -62,7 +62,7 @@ namespace astro {
             auto& post = objects(meshes.wooden_fence_post)[post_index++];
 
             post.position = entity.position;
-            post.position += x_offset * (float(index) - 2.f) * 900.f;
+            post.position += x_offset * (float(index) - 2.f) * entity.scale.x * 0.45f;
             post.position.y += entity.scale.y * 0.75f;
             post.position.y -= fmodf(abs(post.position.x), 200.f);
 

@@ -40,6 +40,7 @@ uint16 DataLoader::MeshIndexToId(State& state, uint16 mesh_index) {
     { meshes.river_edge, 5 },
     { meshes.rock_2, 6 },
     { meshes.stairs_floor, 7 },
+    { meshes.rock_step, 8 },
 
     // Facades
     { meshes.facade_sg_castle, 30 }
@@ -60,6 +61,7 @@ uint16 DataLoader::MeshIdToIndex(State& state, uint16 mesh_id) {
     { 5, meshes.river_edge },
     { 6, meshes.rock_2 },
     { 7, meshes.stairs_floor },
+    { 8, meshes.rock_step },
 
     // Facades
     { 30, meshes.facade_sg_castle }

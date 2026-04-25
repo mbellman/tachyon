@@ -40,6 +40,7 @@ static void AddDecorativeMeshes(Tachyon* tachyon, State& state) {
   meshes.flat_ground   = PLANE_MESH(1000);
   meshes.rock_1        = MODEL_MESH("./astro/3d_models/rock_1.obj", 5000);
   meshes.rock_2        = MODEL_MESH("./astro/3d_models/rock_2.obj", 5000);
+  meshes.rock_step     = MODEL_MESH("./astro/3d_models/rock_step.obj", 1000);
   meshes.river_edge    = MODEL_MESH("./astro/3d_models/river_edge.obj", 5000);
   meshes.ground_1      = MODEL_MESH("./astro/3d_models/ground_1.obj", 5000);
   meshes.lookout_tower = MODEL_MESH("./astro/3d_models/decoratives/lookout_tower.obj", 100);
@@ -50,6 +51,8 @@ static void AddDecorativeMeshes(Tachyon* tachyon, State& state) {
   mesh(meshes.rock_1).texture = "./astro/textures/rock_1.png";
   mesh(meshes.rock_2).shadow_cascade_ceiling = 2;
   mesh(meshes.rock_2).texture = "./astro/textures/rock_2.png";
+  mesh(meshes.rock_step).shadow_cascade_ceiling = 1;
+  mesh(meshes.rock_step).texture = "./astro/textures/rock_2.png";
   mesh(meshes.river_edge).shadow_cascade_ceiling = 2;
   mesh(meshes.ground_1).shadow_cascade_ceiling = 2;
   mesh(meshes.stairs_floor).shadow_cascade_ceiling = 2;
