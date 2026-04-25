@@ -178,15 +178,19 @@ static void SpawnTinyBird(Tachyon* tachyon, State& state, const GameEntity& spaw
   state.last_tiny_bird_spawn_time = get_scene_time();
 
   TinyBird bird;
+
   bird.position = spawn_entity.position;
   bird.position.x += Tachyon_GetRandom(-4000.f, 4000.f);
   bird.position.z += Tachyon_GetRandom(-4000.f, 4000.f);
   bird.position.y = CollisionSystem::QueryGroundHeight(state, bird.position.x, bird.position.z);
   bird.position.y += 400.f;
+  bird.target_position = bird.position;
 
+  // @todo make random
   bird.rotation = Quaternion(1.f, 0, 0, 0);
 
   bird.state = TinyBird::IDLING;
+  bird.last_jump_time = get_scene_time();
 
   state.tiny_birds.push_back(bird);
 }
@@ -218,9 +222,64 @@ static void HandleTinyBirdSpawningBehavior(Tachyon* tachyon, State& state, const
   }
 }
 
+// @todo refactor with SmallBird.h
+static void HandleTinyBirdIdling(Tachyon* tachyon, TinyBird& bird) {
+  float scene_time = get_scene_time();
+
+  // Randomly trigger a turn action whenever the bird's "mood" ""changes""
+  {
+    // Cycle between a few different durations to add variance to turn timings
+    const float mood_durations[] = {
+      0.8f,
+      2.5f,
+      2.f,
+      5.4f,
+      3.2f
+    };
+
+    int duration_cycle = int(bird.timer);
+    float mood_duration = mood_durations[duration_cycle % 5];
+
+    if (time_since(bird.last_jump_time) > mood_duration) {
+      bird.last_jump_time = get_scene_time();
+
+      bird.target_position = bird.position;
+    }
+  }
+
+  // Turning behavior; do a little jump and turn smoothly to a new angle
+  {
+    float time_since_turn = time_since(bird.last_jump_time);
+
+    if (bird.last_jump_time != 0.f && time_since_turn < 0.2f) {
+      float alpha = time_since_turn / 0.2f;
+
+      bird.position.y = bird.target_position.y + 250.f * sinf(alpha * t_PI);
+
+      // Pick a "random" turn angle based on the last mood change time
+      float angle = t_PI * sinf(2.123f * bird.last_jump_time);
+      Quaternion new_rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), angle);
+
+      bird.rotation = Quaternion::nlerp(bird.rotation, new_rotation, alpha);
+    } else {
+      bird.position.y = bird.target_position.y;
+    }
+  }
+}
+
+static void HandleTinyBirdFlyingAway(TinyBird& bird, const tVec3f& direction, const float dt) {
+  Quaternion away_rotation = Quaternion::FromDirection(direction, tVec3f(0, 1.f, 0));
+
+  bird.position += direction * 15000.f * dt;
+  bird.position.y += 7000.f * dt;
+  bird.rotation = Quaternion::nlerp(bird.rotation, away_rotation, 20.f * dt);
+}
+
 static void HandleTinyBird(Tachyon* tachyon, State& state, TinyBird& bird, const float player_speed) {
   auto& meshes = state.meshes;
   const tVec3f bird_color = tVec3f(0.3f, 0.2f, 0.1f);
+  const tVec3f body_color = tVec3f(0.3f);
+  const tVec3f wing_color = tVec3f(0.2f, 0.14f, 0.07f);
 
   bird.timer += state.dt;
 
@@ -245,16 +304,14 @@ static void HandleTinyBird(Tachyon* tachyon, State& state, TinyBird& bird, const
 
   // Per-state behavior
   {
+    if (bird.state == TinyBird::IDLING) {
+      HandleTinyBirdIdling(tachyon, bird);
+    }
+
     if (bird.state == TinyBird::FLY_UP) {
-      // @todo factor
-      tVec3f away_direction = player_to_bird.xz().unit();
+      tVec3f fly_direction = player_to_bird.xz().unit();
 
-      bird.position += away_direction * 15000.f * state.dt;
-      bird.position.y += 5000.f * state.dt;
-
-      Quaternion away_rotation = Quaternion::FromDirection(away_direction, tVec3f(0, 1.f, 0));
-
-      bird.rotation = Quaternion::nlerp(bird.rotation, away_rotation, 20.f * state.dt);
+      HandleTinyBirdFlyingAway(bird, fly_direction, state.dt);
     }
   }
 
@@ -265,7 +322,8 @@ static void HandleTinyBird(Tachyon* tachyon, State& state, TinyBird& bird, const
     body.position = bird.position;
     body.rotation = bird.rotation;
     body.scale = tVec3f(750.f);
-    body.color = bird_color;
+    body.color = body_color;
+    body.material = tVec4f(0.8f, 0, 0, 0.6f);
 
     commit(body);
   }
@@ -278,6 +336,7 @@ static void HandleTinyBird(Tachyon* tachyon, State& state, TinyBird& bird, const
     head.rotation = bird.rotation;
     head.scale = tVec3f(750.f);
     head.color = bird_color;
+    head.material = tVec4f(0.8f, 0, 0, 0.6f);
 
     // Head turning
     // @todo factor
@@ -317,7 +376,8 @@ static void HandleTinyBird(Tachyon* tachyon, State& state, TinyBird& bird, const
     wings.position = bird.position;
     wings.rotation = bird.rotation;
     wings.scale = tVec3f(750.f);
-    wings.color = bird_color;
+    wings.color = wing_color;
+    wings.material = tVec4f(0.8f, 0, 0, 0.6f);
 
     commit(wings);
 
@@ -333,7 +393,7 @@ static void HandleTinyBird(Tachyon* tachyon, State& state, TinyBird& bird, const
       left_wing.position = bird.position;
       left_wing.rotation = bird.rotation * Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), -angle);
       left_wing.scale = tVec3f(750.f);
-      left_wing.color = bird_color;
+      left_wing.color = wing_color;
       left_wing.material = tVec4f(0.8f, 0, 0, 0.6f);
 
       commit(left_wing);
@@ -346,7 +406,7 @@ static void HandleTinyBird(Tachyon* tachyon, State& state, TinyBird& bird, const
       right_wing.position = bird.position;
       right_wing.rotation = bird.rotation * Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), angle);
       right_wing.scale = tVec3f(750.f);
-      right_wing.color = bird_color;
+      right_wing.color = wing_color;
       right_wing.material = tVec4f(0.8f, 0, 0, 0.6f);
 
       commit(right_wing);
