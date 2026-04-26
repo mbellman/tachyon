@@ -19,8 +19,13 @@ static void ReserveAnimationPoseData(tSkeletonAnimation& skeleton_animation) {
   }
 }
 
+static float GetMaxSeekTime(tSkeletonAnimation& animation) {
+  return (float) animation.frames.size();
+}
+
 static void EvaluateAnimation(tSkeletonAnimation& animation, const float seek_time) {
   float blend_alpha = fmodf(seek_time, 1.f);
+  float t = seek_time;
 
   // @temporary @todo Do this when loading the animations for the first time
   ReserveAnimationPoseData(animation);
@@ -29,9 +34,21 @@ static void EvaluateAnimation(tSkeletonAnimation& animation, const float seek_ti
     // Special treatment for 2-frame animations: alternate between
     // both frames using an ease-in-out transition
     blend_alpha = Tachyon_EaseInOutf(blend_alpha);
+  } else {
+    // @unfinished
+    float max_time = GetMaxSeekTime(animation);
+    t = fmodf(seek_time, max_time);
+    t = t / max_time;
+
+    if (t < 0.5f) t = 0.5f * Tachyon_EaseInOutSinef(t * 2.f);
+    else          t = 0.5f + 0.5f * Tachyon_EaseInOutSinef((t - 0.5f) * 2.f);
+
+    t *= max_time;
+
+    blend_alpha = fmodf(t, 1.f);
   }
 
-  int32 current_frame_index = int(seek_time) % animation.frames.size();
+  int32 current_frame_index = int(t) % animation.frames.size();
   int32 next_frame_index = (current_frame_index + 1) % animation.frames.size();
 
   auto& current_frame = animation.frames[current_frame_index];
@@ -46,10 +63,6 @@ static void EvaluateAnimation(tSkeletonAnimation& animation, const float seek_ti
 
     // @todo blend translations (+ scale??)
   }
-}
-
-static float GetMaxSeekTime(tSkeletonAnimation& animation) {
-  return (float)animation.frames.size();
 }
 
 void Animation::AccumulateTime(tSkinnedMeshAnimation& mesh_animation, const float animation_speed, const float blend_rate, const float dt) {

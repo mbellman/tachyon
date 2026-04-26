@@ -23,6 +23,7 @@ float Tachyon_EaseOutQuad(float t) {
   return 1.f - (1.f - t) * (1.f - t);
 }
 
+// @todo rename EaseInOutQuad
 float Tachyon_EaseInOutf(float t) {
   if (t < 0.5f) {
     return 2.f * t * t;
@@ -31,6 +32,11 @@ float Tachyon_EaseInOutf(float t) {
   t -= 0.5f;
 
   return 2.f * t * (1.f - t) + 0.5f;
+}
+
+// @todo rename EaseInOut
+float Tachyon_EaseInOutSinef(float t) {
+  return 3.f * t * t - 2.f * t * t * t;
 }
 
 /**
