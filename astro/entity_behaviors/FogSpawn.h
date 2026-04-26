@@ -33,8 +33,8 @@ namespace astro {
 
         tFogVolume volume;
         volume.position = entity.position;
-        volume.radius = 30000.f;
-        volume.thickness = 1.f;
+        volume.radius = 30000.f; // @todo make configurable
+        volume.thickness = entity.scale.x / 1500.f;
 
         if (state.is_nighttime) {
           volume.color = tVec3f(0.2f, 0.3f, 0.7f);
