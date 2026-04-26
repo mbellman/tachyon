@@ -183,7 +183,21 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
     return 1.5f;
   }
 
-  return 4.f;
+  if (
+    PlayerCharacter::IsRunning(tachyon, state) &&
+    player_animation.current_animation != &animations.player_run
+  ) {
+    return 8.f;
+  }
+
+  if (
+    player_animation.current_animation == &animations.player_idle &&
+    player_animation.next_animation == &animations.player_run
+  ) {
+    return 3.5f;
+  }
+
+  return 2.f;
 }
 
 static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {

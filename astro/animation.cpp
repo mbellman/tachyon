@@ -104,7 +104,8 @@ void Animation::UpdatePose(tSkinnedMeshAnimation& mesh_animation) {
   {
     auto& active_pose = mesh_animation.active_pose;
     // @todo make blend type configurable
-    float blend_alpha = Tachyon_EaseInOutf(mesh_animation.next_animation_blend_alpha);
+    float blend_alpha = mesh_animation.next_animation_blend_alpha;
+    // float blend_alpha = Tachyon_EaseInOutf(mesh_animation.next_animation_blend_alpha);
 
     // Compute the active pose rotation by blending between the current/next animations
     // @optimize if the current and next animations are identical, this is unnecessary
