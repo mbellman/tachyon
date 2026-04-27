@@ -6,6 +6,7 @@
 
 using namespace astro;
 
+// @todo move to PlayerCharacter.h
 constexpr static float PLAYER_RADIUS = 600.f;
 constexpr static float PLAYER_HEIGHT = 1500.f;
 

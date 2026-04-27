@@ -289,6 +289,7 @@ static void ShowDebugPlayerSkeleton(Tachyon* tachyon, State& state, Quaternion& 
   }
 }
 
+// @todo replace with auto-jump actions
 static void HandleAutoHop(State& state) {
   float jump_height = state.current_ground_y + 500.f;
   float alpha = 10.f * state.dt;
@@ -479,8 +480,6 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
     auto& pants = skinned_mesh(meshes.player_pants);
     auto& boots = skinned_mesh(meshes.player_boots);
     auto& belt = skinned_mesh(meshes.player_belt);
-
-    auto& head_bone = active_pose.bones[0];
 
     hood.position = body_position;
     hood.rotation = body_rotation;
@@ -948,11 +947,12 @@ static void UpdateLantern(Tachyon* tachyon, State& state, const Quaternion& play
 void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
   profile("UpdatePlayer()");
 
+  float player_speed = state.player_velocity.magnitude();
+  float speed_ratio = player_speed / PlayerCharacter::MAX_RUN_SPEED;
+
   // Update facing direction and tilt
   // @todo factor
   {
-    float player_speed = state.player_velocity.magnitude();
-    float speed_ratio = player_speed / PlayerCharacter::MAX_RUN_SPEED;
     tVec3f desired_facing_direction = state.player_facing_direction;
     float turn_speed = Tachyon_Lerpf(2.f, 10.f, speed_ratio);
     float tilt = 0.f;
@@ -999,6 +999,16 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
   );
 
   tMat4f player_rotation_matrix = player_rotation.toMatrix4f();
+
+  // Shift the player left or right relative to the tilt angle,
+  // improving foot positioning stability by approximating the
+  // planted foot as a pivot. This isn't completely precise,
+  // but is more visually (and kinematically) consistent.
+  {
+    tVec3f player_left = tVec3f::cross(state.player_facing_direction, tVec3f(0, 1.f, 0)).invert();
+
+    state.player_position += player_left * speed_ratio * 10000.f * state.tilt_angle * state.dt;
+  }
 
   UpdatePlayerHeadTurnAngle(tachyon, state);
   UpdatePlayerModel(tachyon, state, player_rotation, player_rotation_matrix);
