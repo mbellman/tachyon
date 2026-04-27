@@ -45,7 +45,7 @@ static void EvaluateAnimation(tSkeletonAnimation& animation, const float seek_ti
     t = t / max_time;
 
     // Allow for smoother time curves as opposed to tracking progress linearly
-    float smoothing = 0.25f;
+    float smoothing = 0.5f;
     if (t < 0.5f) t = 0.5f * Curve(t * 2.f, smoothing);
     else          t = 0.5f + 0.5f * Curve((t - 0.5f) * 2.f, smoothing);
 
