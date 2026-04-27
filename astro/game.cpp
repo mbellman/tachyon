@@ -401,7 +401,7 @@ static void HandleSnow(Tachyon* tachyon, State& state) {
 static void HandleWalkSounds(Tachyon* tachyon, State& state) {
   // @todo use velocity
   bool is_running = is_key_held(tKey::CONTROLLER_A);
-  float distance_threshold = is_running ? 2400.f : 1400.f;
+  float distance_threshold = is_running ? 2650.f : 1400.f;
   float last_sound_distance = state.movement_distance - state.last_walk_sound_movement_distance;
 
   if (last_sound_distance > distance_threshold) {

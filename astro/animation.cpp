@@ -23,6 +23,10 @@ static float GetMaxSeekTime(tSkeletonAnimation& animation) {
   return (float) animation.frames.size();
 }
 
+static float Curve(const float t, const float k) {
+  return t + k * (3.f * t * t - 2.f * t * t * t - t);
+}
+
 static void EvaluateAnimation(tSkeletonAnimation& animation, const float seek_time) {
   float blend_alpha = fmodf(seek_time, 1.f);
   float t = seek_time;
@@ -35,16 +39,20 @@ static void EvaluateAnimation(tSkeletonAnimation& animation, const float seek_ti
     // both frames using an ease-in-out transition
     blend_alpha = Tachyon_EaseInOutf(blend_alpha);
   } else {
-    // @unfinished
+    // Determine seek time / max time ratio
     float max_time = GetMaxSeekTime(animation);
     t = fmodf(seek_time, max_time);
     t = t / max_time;
 
-    if (t < 0.5f) t = 0.5f * Tachyon_EaseInOutSinef(t * 2.f);
-    else          t = 0.5f + 0.5f * Tachyon_EaseInOutSinef((t - 0.5f) * 2.f);
+    // Allow for smoother time curves as opposed to tracking progress linearly
+    float smoothing = 0.25f;
+    if (t < 0.5f) t = 0.5f * Curve(t * 2.f, smoothing);
+    else          t = 0.5f + 0.5f * Curve((t - 0.5f) * 2.f, smoothing);
 
+    // Scale back up to the max time to resolve our adjusted seek time
     t *= max_time;
 
+    // Determine blend between the current/next keyframes
     blend_alpha = fmodf(t, 1.f);
   }
 
