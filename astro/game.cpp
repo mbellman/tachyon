@@ -399,12 +399,21 @@ static void HandleSnow(Tachyon* tachyon, State& state) {
 
 // @todo 3d positioned sfx
 static void HandleWalkSounds(Tachyon* tachyon, State& state) {
-  // @todo use velocity
-  bool is_running = is_key_held(tKey::CONTROLLER_A);
-  float distance_threshold = is_running ? 2650.f : 1400.f;
-  float last_sound_distance = state.movement_distance - state.last_walk_sound_movement_distance;
+  float player_speed = state.player_velocity.magnitude();
 
-  if (last_sound_distance > distance_threshold) {
+  if (player_speed < 50.f || time_since(state.last_walk_sound_time) < 0.2f) {
+    // Don't play walk sounds if we're not moving fast enough,
+    // or if we just played one of the sounds
+    return;
+  }
+
+  bool is_running = player_speed > PlayerCharacter::MAX_COMBAT_WALK_SPEED;
+  int step_frame_1 = 1; // Left foot
+  int step_frame_2 = 5; // Right foot
+  float seek_time = state.player_mesh_animation.seek_time;
+  int current_frame = (int) fmodf(seek_time, 8.f);
+
+  if (current_frame == step_frame_1 || current_frame == step_frame_2) {
     auto cycle = state.walk_cycle++;
     float volume = is_running ? 0.1f : 0.05f;
 
@@ -420,7 +429,7 @@ static void HandleWalkSounds(Tachyon* tachyon, State& state) {
       state.walk_cycle = 0;
     }
 
-    state.last_walk_sound_movement_distance = state.movement_distance;
+    state.last_walk_sound_time = get_scene_time();
   }
 }
 

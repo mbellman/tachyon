@@ -991,6 +991,20 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
     state.player_mesh_animation.torso_turn_angle = 4.f * state.tilt_angle;
   }
 
+  // Shift the player left or right relative to the tilt angle,
+  // improving foot positioning stability by approximating the
+  // planted foot as a pivot. This isn't completely precise,
+  // but is more visually (and kinematically) consistent.
+  //
+  // @todo planted foot rotation
+  {
+    if (time_since(state.last_quick_turn_time) > 0.6f) {
+      tVec3f player_left = tVec3f::cross(state.player_facing_direction, tVec3f(0, 1.f, 0)).invert();
+
+      state.player_position += player_left * speed_ratio * 15000.f * state.tilt_angle * state.dt;
+    }
+  }
+
   Quaternion player_rotation = (
     // Rotate according to facing direction
     Quaternion::FromDirection(state.player_facing_direction, tVec3f(0, 1.f, 0)) *
@@ -999,16 +1013,6 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
   );
 
   tMat4f player_rotation_matrix = player_rotation.toMatrix4f();
-
-  // Shift the player left or right relative to the tilt angle,
-  // improving foot positioning stability by approximating the
-  // planted foot as a pivot. This isn't completely precise,
-  // but is more visually (and kinematically) consistent.
-  {
-    tVec3f player_left = tVec3f::cross(state.player_facing_direction, tVec3f(0, 1.f, 0)).invert();
-
-    state.player_position += player_left * speed_ratio * 10000.f * state.tilt_angle * state.dt;
-  }
 
   UpdatePlayerHeadTurnAngle(tachyon, state);
   UpdatePlayerModel(tachyon, state, player_rotation, player_rotation_matrix);

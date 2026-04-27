@@ -416,7 +416,7 @@ namespace astro {
 
     float previous_move_delta = 0.f;
     float movement_distance = 0.f;
-    float last_walk_sound_movement_distance = 0.f;
+    float last_walk_sound_time = 0.f;
     uint8 walk_cycle = 0;
 
     float fall_velocity = 0.f;
