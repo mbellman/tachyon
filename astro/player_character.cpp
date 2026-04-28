@@ -416,6 +416,26 @@ static void UpdatePlayerHeadTurnAngle(Tachyon* tachyon, State& state) {
   turn_angle = Tachyon_Lerpf(turn_angle, 0.f, 4.f * state.dt);
 }
 
+static void UpdateSatchel(Tachyon* tachyon, State& state, const tVec3f& body_position, const Quaternion& player_rotation, const tMat4f& player_rotation_matrix) {
+  auto& torso_bone = state.player_mesh_animation.active_pose.bones[8];
+  auto& satchel = objects(state.meshes.player_satchel)[0];
+
+  tVec3f offset = tVec3f(0, 0.2f, -0.45f);
+  Quaternion rotation = player_rotation * torso_bone.rotation;
+  tMat4f rotation_matrix = rotation.toMatrix4f();
+
+  satchel.position = body_position + rotation_matrix * (torso_bone.translation * tVec3f(1500.f));
+  satchel.position += rotation_matrix * (offset * 1500.f);
+
+  satchel.scale = tVec3f(1500.f);
+  satchel.rotation = rotation;
+
+  satchel.color = tVec3f(0.3f, 0.14f, 0.07f);
+  satchel.material = tVec4f(0.8f, 0, 0, 0.2f);
+
+  commit(satchel);
+}
+
 static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player_rotation, tMat4f& player_rotation_matrix) {
   auto& meshes = state.meshes;
 
@@ -471,6 +491,9 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
     commit(head);
   }
 
+  // Satchel
+  UpdateSatchel(tachyon, state, body_position, player_rotation, player_rotation_matrix);
+
   // Clothing
   {
     auto& hood = skinned_mesh(meshes.player_hood);
@@ -500,7 +523,7 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
     trim.position = body_position;
     trim.rotation = body_rotation;
     trim.scale = body_scale;
-    trim.color = tVec3f(0.6, 0.4f, 0.2f);
+    trim.color = tVec3f(0.6f, 0.4f, 0.2f);
     trim.material = tVec4f(0.3f, 1.f, 0, 0);
     trim.shadow_cascade_ceiling = 0;
     trim.current_pose = &active_pose;

@@ -361,8 +361,9 @@ void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
 
   // @todo factor
   {
-    meshes.player_head = MODEL_MESH("./astro/3d_models/characters/player_head.obj", 1);
-    meshes.player_wand = MODEL_MESH("./astro/3d_models/characters/player_wand.obj", 1);
+    meshes.player_head =    MODEL_MESH("./astro/3d_models/characters/player_head.obj", 1);
+    meshes.player_wand =    MODEL_MESH("./astro/3d_models/characters/player_wand.obj", 1);
+    meshes.player_satchel = MODEL_MESH("./astro/3d_models/characters/player_satchel.obj", 1);
     meshes.player_lantern = SPHERE_MESH(1, 8);
 
     mesh(meshes.player_head).shadow_cascade_ceiling = 2;
