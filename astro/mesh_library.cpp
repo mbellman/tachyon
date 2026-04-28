@@ -368,6 +368,7 @@ void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
 
     mesh(meshes.player_head).shadow_cascade_ceiling = 2;
     mesh(meshes.player_wand).shadow_cascade_ceiling = 2;
+    mesh(meshes.player_satchel).shadow_cascade_ceiling = 1;
     mesh(meshes.player_lantern).shadow_cascade_ceiling = 0;
   }
 

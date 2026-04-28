@@ -415,19 +415,30 @@ static void UpdatePlayerHeadTurnAngle(Tachyon* tachyon, State& state) {
   turn_angle = Tachyon_Lerpf(turn_angle, 0.f, 4.f * state.dt);
 }
 
-static void UpdateSatchel(Tachyon* tachyon, State& state, const tVec3f& body_position, const Quaternion& player_rotation, const tMat4f& player_rotation_matrix) {
-  auto& torso_bone = state.player_mesh_animation.active_pose.bones[8];
+static void UpdateSatchel(Tachyon* tachyon, State& state, const tVec3f& body_position, const Quaternion& player_rotation) {
+  float speed_ratio = state.player_velocity.magnitude() / PlayerCharacter::MAX_RUN_SPEED;
+  auto& player_animation = state.player_mesh_animation;
+  auto& torso_bone = player_animation.active_pose.bones[8];
   auto& satchel = objects(state.meshes.player_satchel)[0];
 
-  tVec3f offset = tVec3f(0, 0.2f, -0.45f);
+  tVec3f offset = tVec3f(0.f, 0.25f, -0.325f);
   Quaternion rotation = player_rotation * torso_bone.rotation;
   tMat4f rotation_matrix = rotation.toMatrix4f();
 
   satchel.position = body_position + rotation_matrix * (torso_bone.translation * tVec3f(1500.f));
   satchel.position += rotation_matrix * (offset * 1500.f);
 
+  float bounce_t = player_animation.seek_time;
+  if (bounce_t < 0.f) bounce_t += 8.f;
+  float bounce_alpha = t_TAU * fmodf(bounce_t, 8.f) / 8.f;
+  float bounce_angle = 0.6f * speed_ratio * speed_ratio * abs(sinf(bounce_alpha));
+  Quaternion bounce_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), bounce_angle);
+
+  float swing_angle = 0.15f * speed_ratio * cosf(bounce_alpha) + 3.f * state.tilt_angle;
+  Quaternion swing_rotation = Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), swing_angle);
+
   satchel.scale = tVec3f(1500.f);
-  satchel.rotation = rotation;
+  satchel.rotation = rotation * bounce_rotation * swing_rotation;
 
   satchel.color = 0x1110;
   satchel.material = tVec4f(0.8f, 0, 0, 0.2f);
@@ -491,7 +502,9 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
   }
 
   // Satchel
-  UpdateSatchel(tachyon, state, body_position, player_rotation, player_rotation_matrix);
+  {
+    UpdateSatchel(tachyon, state, body_position, player_rotation);
+  }
 
   // Clothing
   {
@@ -538,7 +551,7 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
     pants.position = body_position;
     pants.rotation = body_rotation;
     pants.scale = body_scale;
-    pants.color = tVec3f(0.4f, 0.2f, 0.1f);
+    pants.color = tVec3f(0.6f, 0.4f, 0.2f);
     pants.material = tVec4f(1.f, 0, 0, 0.1f);
     pants.shadow_cascade_ceiling = 2;
     pants.current_pose = &active_pose;
