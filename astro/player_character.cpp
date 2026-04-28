@@ -313,9 +313,8 @@ static void HandleRunOscillation(Tachyon* tachyon, State& state, tVec3f& body_po
   if (state.run_oscillation > 1.f) state.run_oscillation = 1.f;
 
   float run_bounce_height = 250.f * state.run_oscillation;
-  float run_cycle_time = fmodf(state.player_mesh_animation.seek_time + 1.5f, 8.f) / 8.f;
+  float run_cycle_time = fmodf(state.player_mesh_animation.seek_time + 0.5f, 8.f) / 8.f;
   float run_bounce = sqrtf(0.5f + 0.5f * sinf(run_cycle_time * 2.f * t_TAU));
-
 
   body_position.y += run_bounce_height * run_bounce;
 }
@@ -430,7 +429,7 @@ static void UpdateSatchel(Tachyon* tachyon, State& state, const tVec3f& body_pos
   satchel.scale = tVec3f(1500.f);
   satchel.rotation = rotation;
 
-  satchel.color = tVec3f(0.3f, 0.14f, 0.07f);
+  satchel.color = 0x1110;
   satchel.material = tVec4f(0.8f, 0, 0, 0.2f);
 
   commit(satchel);
@@ -555,7 +554,7 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
     belt.position = body_position;
     belt.rotation = body_rotation;
     belt.scale = body_scale;
-    belt.color = tVec3f(0.4f, 0.2f, 0.1f);
+    belt.color = 0x2110;
     belt.material = tVec4f(0.8f, 0, 0, 0.2f);
     belt.shadow_cascade_ceiling = 0;
     belt.current_pose = &active_pose;
