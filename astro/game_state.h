@@ -31,6 +31,7 @@ namespace astro {
       player_head,
       player_wand,
       player_satchel,
+      player_blanket,
       player_lantern,
 
       // Animation bone debugging

@@ -364,11 +364,13 @@ void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
     meshes.player_head =    MODEL_MESH("./astro/3d_models/characters/player_head.obj", 1);
     meshes.player_wand =    MODEL_MESH("./astro/3d_models/characters/player_wand.obj", 1);
     meshes.player_satchel = MODEL_MESH("./astro/3d_models/characters/player_satchel.obj", 1);
+    meshes.player_blanket = MODEL_MESH("./astro/3d_models/characters/player_blanket.obj", 1);
     meshes.player_lantern = SPHERE_MESH(1, 8);
 
     mesh(meshes.player_head).shadow_cascade_ceiling = 2;
     mesh(meshes.player_wand).shadow_cascade_ceiling = 2;
     mesh(meshes.player_satchel).shadow_cascade_ceiling = 1;
+    mesh(meshes.player_blanket).shadow_cascade_ceiling = 1;
     mesh(meshes.player_lantern).shadow_cascade_ceiling = 0;
   }
 

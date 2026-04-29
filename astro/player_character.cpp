@@ -312,7 +312,7 @@ static void HandleRunOscillation(Tachyon* tachyon, State& state, tVec3f& body_po
   if (state.run_oscillation < 0.f) state.run_oscillation = 0.f;
   if (state.run_oscillation > 1.f) state.run_oscillation = 1.f;
 
-  float run_bounce_height = 250.f * state.run_oscillation;
+  float run_bounce_height = 300.f * state.run_oscillation;
   float run_cycle_time = fmodf(state.player_mesh_animation.seek_time + 0.5f, 8.f) / 8.f;
   float run_bounce = sqrtf(0.5f + 0.5f * sinf(run_cycle_time * 2.f * t_TAU));
 
@@ -415,18 +415,44 @@ static void UpdatePlayerHeadTurnAngle(Tachyon* tachyon, State& state) {
   turn_angle = Tachyon_Lerpf(turn_angle, 0.f, 4.f * state.dt);
 }
 
+static void UpdateBlanket(Tachyon* tachyon, State& state, const tVec3f& body_position, const Quaternion& player_rotation) {
+  float speed_ratio = state.player_velocity.magnitude() / PlayerCharacter::MAX_RUN_SPEED;
+  auto& player_animation = state.player_mesh_animation;
+  auto& torso_bone = player_animation.active_pose.bones[8];
+  auto& blanket = objects(state.meshes.player_blanket)[0];
+
+  float bounce_t = player_animation.seek_time;
+  if (bounce_t < 0.f) bounce_t += 8.f;
+  float bounce_alpha = t_TAU * fmodf(bounce_t, 8.f) / 8.f;
+  float bounce_angle = 0.6f * speed_ratio * speed_ratio * abs(sinf(bounce_alpha));
+  Quaternion bounce_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), bounce_angle);
+
+  float swing_angle = 0.35f * speed_ratio * cosf(bounce_alpha);
+  Quaternion swing_rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), swing_angle);
+
+  Quaternion tilt_rotation = Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), -0.5f);
+
+  tVec3f offset = tVec3f(0.f, 0.35f + bounce_angle * 0.1f, -0.48f);
+  Quaternion base_rotation = player_rotation * torso_bone.rotation;
+  tMat4f base_rotation_matrix = base_rotation.toMatrix4f();
+
+  blanket.position = body_position + base_rotation_matrix * (torso_bone.translation * tVec3f(1500.f));
+  blanket.position += base_rotation_matrix * (offset * 1500.f);
+
+  blanket.scale = tVec3f(1500.f);
+  blanket.rotation = base_rotation * bounce_rotation * swing_rotation * tilt_rotation;
+
+  blanket.color = 0x2220;
+  blanket.material = tVec4f(1.f, 0, 0, 0.5f);
+
+  commit(blanket);
+}
+
 static void UpdateSatchel(Tachyon* tachyon, State& state, const tVec3f& body_position, const Quaternion& player_rotation) {
   float speed_ratio = state.player_velocity.magnitude() / PlayerCharacter::MAX_RUN_SPEED;
   auto& player_animation = state.player_mesh_animation;
   auto& torso_bone = player_animation.active_pose.bones[8];
   auto& satchel = objects(state.meshes.player_satchel)[0];
-
-  tVec3f offset = tVec3f(0.f, 0.25f, -0.325f);
-  Quaternion rotation = player_rotation * torso_bone.rotation;
-  tMat4f rotation_matrix = rotation.toMatrix4f();
-
-  satchel.position = body_position + rotation_matrix * (torso_bone.translation * tVec3f(1500.f));
-  satchel.position += rotation_matrix * (offset * 1500.f);
 
   float bounce_t = player_animation.seek_time;
   if (bounce_t < 0.f) bounce_t += 8.f;
@@ -436,6 +462,13 @@ static void UpdateSatchel(Tachyon* tachyon, State& state, const tVec3f& body_pos
 
   float swing_angle = 0.15f * speed_ratio * cosf(bounce_alpha) + 3.f * state.tilt_angle;
   Quaternion swing_rotation = Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), swing_angle);
+
+  tVec3f offset = tVec3f(0.f, 0.25f + bounce_angle * 0.1f, -0.325f);
+  Quaternion rotation = player_rotation * torso_bone.rotation;
+  tMat4f rotation_matrix = rotation.toMatrix4f();
+
+  satchel.position = body_position + rotation_matrix * (torso_bone.translation * tVec3f(1500.f));
+  satchel.position += rotation_matrix * (offset * 1500.f);
 
   satchel.scale = tVec3f(1500.f);
   satchel.rotation = rotation * bounce_rotation * swing_rotation;
@@ -501,8 +534,9 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
     commit(head);
   }
 
-  // Satchel
+  // Luggage
   {
+    UpdateBlanket(tachyon, state, body_position, player_rotation);
     UpdateSatchel(tachyon, state, body_position, player_rotation);
   }
 

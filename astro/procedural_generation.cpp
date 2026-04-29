@@ -697,6 +697,7 @@ static void UpdateSmallGrass(Tachyon* tachyon, State& state) {
       grass.position = blade.position;
       grass.scale = blade.scale;
       grass.color = blade.color;
+      grass.color.rgba |= 0x0002;
       grass.material = tVec4f(0.5f, 0, 0.15f, 0.8f);
 
       // Time evolution

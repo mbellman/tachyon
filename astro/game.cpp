@@ -37,6 +37,7 @@ static void CreateConstantObjects(Tachyon* tachyon, State& state) {
   create(meshes.player_head);
   create(meshes.player_wand);
   create(meshes.player_satchel);
+  create(meshes.player_blanket);
   create(meshes.player_lantern);
 
   create(meshes.water_plane);
@@ -195,6 +196,16 @@ static void HandleInGameDevHotkeys(Tachyon* tachyon, State& state) {
       state.use_slow_motion = false;
 
       show_overlay_message("Slow motion OFF");
+    }
+
+    if (did_press_key(tKey::CONTROLLER_B)) {
+      state.use_slow_motion = !state.use_slow_motion;
+
+      if (state.use_slow_motion) {
+        show_overlay_message("Slow motion ON");
+      } else {
+        show_overlay_message("Slow motion OFF");
+      }
     }
   }
 
@@ -409,8 +420,8 @@ static void HandleWalkSounds(Tachyon* tachyon, State& state) {
   }
 
   bool is_running = player_speed > PlayerCharacter::MAX_COMBAT_WALK_SPEED;
-  int step_frame_1 = 1; // Left foot
-  int step_frame_2 = 5; // Right foot
+  int step_frame_1 = 2; // Left foot
+  int step_frame_2 = 6; // Right foot
   float seek_time = state.player_mesh_animation.seek_time;
   int current_frame = (int) fmodf(seek_time, 8.f);
 
