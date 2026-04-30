@@ -91,6 +91,17 @@ namespace astro {
         if (abs(state.player_position.z - entity.position.z) > 20000.f) continue;
 
         float life_progress = Tachyon_InverseLerp(entity.astro_start_time, entity.astro_end_time, state.astro_time);
+
+        if (life_progress == 0.f) {
+          if (entity.light_id != -1) {
+            auto& light = *get_point_light(entity.light_id);
+
+            light.power = 0.f;
+          }
+
+          continue;
+        };
+
         float decay_alpha = powf(life_progress, 3.f);
         tVec3f color = tVec3f::lerp(start_color, end_color, decay_alpha);
 
@@ -102,7 +113,7 @@ namespace astro {
           auto proximity = GetEntityProximity(entity, state);
 
           if (
-            proximity.distance < 6000.f &&
+            proximity.distance < 5000.f &&
             proximity.facing_dot > 0.f &&
             IsDuringActiveTime(entity, state) &&
             Items::HasItem(state, MAGIC_WAND)
@@ -110,7 +121,7 @@ namespace astro {
             // @todo factor
             state.wand_sense_factor = Tachyon_Lerpf(state.wand_sense_factor, 1.f, 5.f * state.dt);
 
-            if (state.wand_hold_factor > 0.5f) {
+            if (state.wand_hold_factor > 0.f) {
               Charge(tachyon, state, entity);
             }
           }
@@ -233,7 +244,7 @@ namespace astro {
 
           // If we haven't fully activated the sculpture (e.g. while charging),
           // and if we've stopped charging it, let its power dwindle
-          if (!entity.did_activate && state.wand_hold_factor < 0.5f) {
+          if (!entity.did_activate && state.wand_hold_factor < 0.1f) {
             light.power -= 0.5f * state.dt;
 
             if (light.power < minimum_power) light.power = minimum_power;

@@ -167,27 +167,28 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
     return 10.f;
   }
 
-  // Blend more slowly into wand holding actions
+  // Blend faster if we're not currently in the running animation while running
+  if (
+    PlayerCharacter::IsRunning(tachyon, state) &&
+    (player_animation.current_animation != &animations.player_run && player_animation.current_animation != &animations.player_run_wand)
+  ) {
+    return 10.f;
+  }
+
+  // Blend into wand holding actions
   if (
     !HasCurrentWandAnimation(state) &&
     HasNextWandAnimation(state)
   ) {
-    return 1.5f;
+    return 3.f;
   }
 
-  // Blend more slowly out of wand holding actions
+  // Blend out of wand holding actions
   if (
     HasCurrentWandAnimation(state) &&
     !HasNextWandAnimation(state)
   ) {
-    return 1.5f;
-  }
-
-  if (
-    PlayerCharacter::IsRunning(tachyon, state) &&
-    player_animation.current_animation != &animations.player_run
-  ) {
-    return 8.f;
+    return 3.f;
   }
 
   if (
