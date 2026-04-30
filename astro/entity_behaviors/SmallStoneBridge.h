@@ -63,8 +63,6 @@ namespace astro {
         commit(base);
         commit(columns);
       }
-
-      Tachyon_UseLodByDistance(tachyon, meshes.small_stone_bridge_columns, 30000.f);
     }
   };
 }
