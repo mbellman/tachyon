@@ -108,7 +108,7 @@ void Animation::AccumulateTime(tSkinnedMeshAnimation& mesh_animation, const floa
   }
 }
 
-void Animation::UpdatePose(tSkinnedMeshAnimation& mesh_animation) {
+void Animation::UpdatePose(tSkinnedMeshAnimation& mesh_animation, const AnimationBlendType blend_type) {
   tSkeletonAnimation& current_animation = *mesh_animation.current_animation;
   tSkeletonAnimation& next_animation = *mesh_animation.next_animation;
 
@@ -124,9 +124,11 @@ void Animation::UpdatePose(tSkinnedMeshAnimation& mesh_animation) {
   // Update the active pose based on the blended result of the current/next animations
   {
     auto& active_pose = mesh_animation.active_pose;
-    // @todo make blend type configurable
-    float blend_alpha = mesh_animation.next_animation_blend_alpha;
-    // float blend_alpha = Tachyon_EaseInOutf(mesh_animation.next_animation_blend_alpha);
+    float blend_alpha;
+
+    if (blend_type == BLEND_LINEAR)           blend_alpha = mesh_animation.next_animation_blend_alpha;
+    else if (blend_type == BLEND_EASE_IN_OUT) blend_alpha = Tachyon_EaseInOutf(mesh_animation.next_animation_blend_alpha);
+    else                                      blend_alpha = mesh_animation.next_animation_blend_alpha;
 
     // Compute the active pose rotation by blending between the current/next animations
     // @optimize if the current and next animations are identical, this is unnecessary

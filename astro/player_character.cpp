@@ -175,22 +175,6 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
     return 10.f;
   }
 
-  // Blend into wand holding actions
-  if (
-    !HasCurrentWandAnimation(state) &&
-    HasNextWandAnimation(state)
-  ) {
-    return 3.f;
-  }
-
-  // Blend out of wand holding actions
-  if (
-    HasCurrentWandAnimation(state) &&
-    !HasNextWandAnimation(state)
-  ) {
-    return 3.f;
-  }
-
   if (
     player_animation.current_animation == &animations.player_idle &&
     player_animation.next_animation == &animations.player_run
@@ -199,6 +183,14 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
   }
 
   return 2.f;
+}
+
+static AnimationBlendType GetAnimationBlendType(State& state) {
+  if (HasCurrentWandAnimation(state) != HasNextWandAnimation(state)) {
+    return BLEND_EASE_IN_OUT;
+  }
+
+  return BLEND_LINEAR;
 }
 
 static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
@@ -212,6 +204,7 @@ static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
   bool moving_forward = tVec3f::dot(state.player_velocity, state.player_facing_direction) >= 0.f;
   float animation_speed = GetAnimationSpeed(tachyon, state);
   float blend_rate = GetAnimationBlendRate(tachyon, state);
+  auto blend_type = GetAnimationBlendType(state);
 
   if (!moving_forward) {
     animation_speed *= -1.f;
@@ -238,7 +231,7 @@ static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
   }
 
   Animation::AccumulateTime(state.player_mesh_animation, animation_speed, blend_rate, state.dt);
-  Animation::UpdatePose(state.player_mesh_animation);
+  Animation::UpdatePose(state.player_mesh_animation, blend_type);
   Animation::UpdateBoneMatrices(state.player_mesh_animation);
 }
 

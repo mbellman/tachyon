@@ -21,7 +21,7 @@ bool IsEnemyHit(Tachyon* tachyon, GameEntity& entity) {
 
 static void UpdateAnimation(tSkinnedMeshAnimation& animation, const float speed, const float dt) {
   Animation::AccumulateTime(animation, speed, 3.f, dt);
-  Animation::UpdatePose(animation);
+  Animation::UpdatePose(animation, BLEND_LINEAR);
   Animation::UpdateBoneMatrices(animation);
 }
 
