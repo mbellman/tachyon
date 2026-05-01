@@ -1,263 +1,321 @@
 export default [
   {
     type: "SHRUB",
-    name: "Shrub",
     scale: [ 800.0 ],
     color: [ 0.1, 0.3, 0.1 ]
   },
 
   {
     type: "OAK_TREE",
-    name: "Oak Tree"
+    scale: [ 2000.0 ],
+    color: [ 0.15, 0.3, 0.1 ]
   },
 
   {
     type: "WILLOW_TREE",
-    name: "Willow Tree"
+    scale: [ 2000.0 ],
+    color: [ 1.0, 0.6, 0.3 ]
   },
 
   {
     type: "SMALL_STONE_BRIDGE",
-    name: "Small Stone Bridge"
+    scale: [ 3000.0 ],
+    color: [ 0.6 ]
   },
 
   {
     type: "WOODEN_GATE_DOOR",
-    name: "Wooden Gate Door"
+    scale: [ 3500.0 ],
+    color: [ 1.0, 0.6, 0.2 ]
   },
 
   {
     type: "RIVER_LOG",
-    name: "River Log"
+    scale: [ 3000.0 ],
+    color: [ 1.0, 0.5, 0.1 ]
   },
 
   {
     type: "LOW_GUARD",
-    name: "Low Guard"
+    scale: [ 600.0, 1500.0, 600.0 ],
+    color: [ 0.7 ]
   },
 
   {
     type: "BANDIT",
-    name: "Bandit"
+    scale: [ 600.0, 1500.0, 600.0 ],
+    color: [ 0.2 ]
   },
 
   {
     type: "STONE_WALL",
-    name: "Stone Wall"
+    scale: [ 3500.0 ],
+    color: [ 0.5 ]
   },
 
   {
     type: "FLOWER_BUSH",
-    name: "Flower Bush"
+    scale: [ 2000.0 ],
+    color: [ 0.2, 0.6, 0.3 ]
   },
 
   {
     type: "ITEM_PICKUP",
-    name: "Item Pickup"
+    scale: [ 1000.0 ],
+    color: [ 0.3, 0.6, 1.0 ]
   },
 
   {
     type: "GLOW_FLOWER",
-    name: "Glow Flower"
+    scale: [ 600.0 ],
+    color: [ 0.2, 0.4, 1.0 ]
   },
 
   {
     type: "DIRT_PATH_NODE",
-    name: "Dirt Path Node"
+    scale: [ 1000.0 ],
+    color: [ 1.0 , 0.4, 0.1 ]
   },
 
   {
     type: "HOUSE",
-    name: "House"
+    scale: [ 4000.0 ],
+    color: [ 1.0 ]
   },
 
   {
     type: "GATE",
-    name: "Gate"
+    scale: [ 4000.0 ],
+    color: [ 0.4 ]
   },
 
   {
     type: "LILAC_BUSH",
-    name: "Lilac Bush"
+    scale: [ 800.0 ],
+    color: [ 1.0, 0.4, 1.0 ]
   },
 
   {
     type: "LIGHT_POST",
-    name: "Light Post"
+    scale: [ 1500.0 ],
+    color: [ 0.4 ]
   },
 
   {
     type: "WOODEN_FENCE",
-    name: "Wooden Fence"
+    scale: [ 2000.0 ],
+    color: [ 1.0, 0.8, 0.4 ]
   },
 
   {
     type: "ALTAR",
-    name: "Altar"
+    scale: [ 2500.0 ],
+    color: [ 0.6 ]
   },
 
   {
     type: "MUSHROOM",
-    name: "Mushroom"
+    scale: [ 3000.0 ],
+    color: [ 0.2, 1.0, 0.4 ]
   },
 
   {
     type: "LAMPPOST",
-    name: "Lamp Post"
+    scale: [ 2500.0 ],
+    color: [ 1.0, 0.6, 0.4 ]
   },
 
   {
     type: "FOG_SPAWN",
-    name: "Fog Spawn"
+    scale: [ 1500.0 ],
+    color: [ 0.8 ]
   },
 
   {
     type: "WIND_CHIMES",
-    name: "Wind Chimes"
+    scale: [ 1000.0 ],
+    color: [ 1.0 ]
   },
 
   {
     type: "WATER_WHEEL",
-    name: "Water Wheel"
+    scale: [ 4000.0 ],
+    color: [ 1.0 ]
   },
 
   {
     type: "CHESTNUT_TREE",
-    name: "Chestnut Tree"
+    scale: [ 2000.0 ],
+    color: [ 0.3, 0.15, 0.1 ]
   },
 
   {
     type: "NPC",
-    name: "NPC"
+    scale: [ 1500.0 ],
+    color: [ 1.0 ]
   },
 
   {
     type: "LESSER_GUARD",
-    name: "Lesser Guard"
+    scale: [ 600.0, 1500.0, 600.0 ],
+    color: [ 1.0, 0.8, 0.2 ]
   },
 
   {
     type: "STONE_PATH_NODE",
-    name: "Stone Path Node"
+    scale: [ 1000.0 ],
+    color: [ 0.5 ]
   },
 
   {
     type: "SCULPTURE_1",
-    name: "Sculpture 1"
+    scale: [ 2500.0 ],
+    color: [ 1.0 ]
   },
 
   {
     type: "WOODEN_BRIDGE",
-    name: "Wooden Bridge"
+    scale: [ 3000.0 ],
+    color: [ 0.6 ]
   },
 
   {
     type: "LILY_PAD",
-    name: "Lily Pad"
+    scale: [ 500.0 ],
+    color: [ 0.3, 0.7, 0.1 ]
   },
 
   {
     type: "BELLFLOWER",
-    name: "Bellflower"
+    scale: [ 1200.0 ],
+    color: [ 1.0, 0.6, 0.5 ]
   },
 
   {
     type: "STARFLOWER",
-    name: "Starflower"
+    scale: [ 1500.0 ],
+    color: [ 1.0, 0.6, 0.5 ]
   },
 
   {
     type: "FLAG",
-    name: "Flag"
+    scale: [ 2000.0 ],
+    color: [ 1.0 ]
   },
 
   {
     type: "ROSE_BUSH",
-    name: "Rose Bush"
+    scale: [ 800.0 ],
+    color: [ 1.0, 0.2, 0.1 ]
   },
 
   {
     type: "TALL_GRASS",
-    name: "Tall Grass"
+    scale: [ 2000.0 ],
+    color: [ 0.1, 0.3, 0.1 ]
   },
 
   {
     type: "TULIP_PLANT",
-    name: "Tulip Plant"
+    scale: [ 1000.0 ],
+    color: [ 0.2, 0.6, 0.3 ]
   },
 
   {
     type: "TALL_WEEDS",
-    name: "Tall Weeds"
+    scale: [ 2500.0 ],
+    color: [ 0.1, 0.3, 0.1 ]
   },
 
   {
     type: "EVENT_TRIGGER",
-    name: "Event Trigger"
+    scale: [ 1500.0 ],
+    color: [ 0.2, 0.3, 1.0 ]
   },
 
   {
     type: "FAERIE",
-    name: "Faerie"
+    scale: [ 750.0 ],
+    color: [ 1.0 ]
   },
 
   {
     type: "VANTAGE_SPOT",
-    name: "Vantage Spot"
+    scale: [ 1500.0 ],
+    color: [ 1.0, 0.1, 0.2 ]
   },
 
   {
     type: "SMALL_BIRD",
-    name: "Small Bird"
+    scale: [ 1000.0 ],
+    color: [ 0.6 ]
   },
 
   {
     type: "LEAF_SHRUB",
-    name: "Leaf Shrub"
+    scale: [ 800.0 ],
+    color: [ 0.07, 0.14, 0.07 ]
   },
 
   {
     type: "LAMP",
-    name: "Lamp"
+    scale: [ 1000.0 ],
+    color: [ 1.0, 0.6, 0.4 ]
   },
 
   {
     type: "MAGIC_GATE",
-    name: "Magic Gate"
+    scale: [ 4000.0 ],
+    color: [ 0.6 ]
   },
 
   {
     type: "MOOD_LIGHT",
-    name: "Mood Light"
+    scale: [ 500.0 ],
+    color: [ 1.0 ]
   },
 
   {
     type: "BIRD_GATE",
-    name: "Bird Gate"
+    scale: [ 4000.0 ],
+    color: [ 1.0 ]
   },
 
   {
     type: "SUNBEAM",
-    name: "Sunbeam"
+    scale: [ 3000.0, 8000.0, 3000.0 ],
+    color: [ 1.0 ]
   },
 
   {
     type: "BIRD_SPAWN",
-    name: "Bird Spawn"
+    scale: [ 1500.0 ],
+    color: [ 0.5 ]
   },
 
   {
     type: "IRON_GATE",
-    name: "Iron Gate"
+    scale: [ 5000.0 ],
+    color: [ 1.0 ]
   },
 
   {
     type: "CASTLE_TOWER",
-    name: "Castle Tower"
+    meshes: [
+      "castle_tower_placeholder",
+      "castle_tower"
+    ],
+    scale: [ 4000.0 ],
+    color: [ 0.6 ]
   },
 
   {
     type: "CASTLE_RAMPART",
-    name: "Castle Rampart"
+    meshes: [
+      "castle_rampart_placeholder",
+      "castle_rampart"
+    ],
+    scale: [ 4000.0 ],
+    color: [ 0.6 ]
   }
 ];
