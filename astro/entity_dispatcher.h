@@ -9,6 +9,8 @@
 
 #define for_all_entity_types() for (auto type : entity_types)
 
+#define for_all_entity_types_ordered() for (auto type : ordered_entity_types)
+
 namespace astro {
   namespace EntityDispatcher {
     std::vector<GameEntity>& GetEntityContainer(State& state, EntityType type);

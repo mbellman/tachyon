@@ -131,6 +131,30 @@ static inline std::string ColorToString(const tVec3f& color) {
 
 /**
  * ----------------------------
+ * Gets default parameters for an entity.
+ * ----------------------------
+ */
+static const EntityDefaults& GetEntityDefaults(EntityType entity_type) {
+  if (entity_defaults_map.find(entity_type) != entity_defaults_map.end()) {
+    return entity_defaults_map.at(entity_type);
+  }
+
+  return missing_entity_defaults;
+}
+
+/**
+ * ----------------------------
+ * Gets default spawn parameters for a decorative object.
+ * ----------------------------
+ */
+static DecorativeMesh& GetDecorativeMeshDefaults(State& state, uint16 mesh_index) {
+  auto& decorative_meshes = GetDecorativeMeshes(state);
+
+  return decorative_meshes[editor.current_decorative_mesh_index];
+}
+
+/**
+ * ----------------------------
  * Serialization helpers for different data types.
  * ----------------------------
  */
@@ -171,8 +195,6 @@ static inline std::string Serialize(tColor& color) {
  */
 std::string SerializeEntity(const GameEntity& entity) {
   return (
-    "@" +
-    std::to_string(entity.type) + "," +
     Serialize(entity.position) + "," +
     Serialize(entity.scale) + "," +
     Serialize(entity.orientation) + "," +
@@ -213,13 +235,20 @@ void SaveLevelData(Tachyon* tachyon, State& state) {
 
   std::string level_data = "";
 
-  for_all_entity_types() {
+  for_all_entity_types_ordered() {
+    auto& entity_defaults = GetEntityDefaults(type);
+
+    level_data += "@" + entity_defaults.name + "\n";
+
     for_entities_of_type(type) {
       auto& entity = entities[i];
 
       level_data += SerializeEntity(entity) + "\n";
     }
   }
+
+  // Delimiter between entities and static decorative mesh objects
+  level_data += "====\n";
 
   for (auto& decorative : GetDecorativeMeshes(state)) {
     auto& objects = objects(decorative.mesh_index);
@@ -236,31 +265,7 @@ void SaveLevelData(Tachyon* tachyon, State& state) {
     }
   }
 
-  Tachyon_WriteFileContents("./astro/level_data/level.txt", level_data);
-}
-
-/**
- * ----------------------------
- * Gets default parameters for an entity.
- * ----------------------------
- */
-static const EntityDefaults& GetEntityDefaults(EntityType entity_type) {
-  if (entity_defaults_map.find(entity_type) != entity_defaults_map.end()) {
-    return entity_defaults_map.at(entity_type);
-  }
-
-  return missing_entity_defaults;
-}
-
-/**
- * ----------------------------
- * Gets default spawn parameters for a decorative object.
- * ----------------------------
- */
-static DecorativeMesh& GetDecorativeMeshDefaults(State& state, uint16 mesh_index) {
-  auto& decorative_meshes = GetDecorativeMeshes(state);
-
-  return decorative_meshes[editor.current_decorative_mesh_index];
+  Tachyon_WriteFileContents("./astro/level_data/overworld.txt", level_data);
 }
 
 /**

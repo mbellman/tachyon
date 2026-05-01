@@ -28,6 +28,16 @@ static std::vector<std::string> SplitString(const std::string& str, const std::s
   return values;
 }
 
+static EntityType EntityNameToType(const std::string& entity_name) {
+  for (auto& [entity_type, entity_defaults] : entity_defaults_map) {
+    if (entity_defaults.name == entity_name) {
+      return entity_type;
+    }
+  }
+
+  return UNSPECIFIED;
+}
+
 // @todo move to decorative_meshes.h
 uint16 DataLoader::MeshIndexToId(State& state, uint16 mesh_index) {
   auto& meshes = state.meshes;
@@ -77,8 +87,10 @@ uint16 DataLoader::MeshIdToIndex(State& state, uint16 mesh_id) {
 void DataLoader::LoadLevelData(Tachyon* tachyon, State& state) {
   log_time("LoadLevelData()");
 
-  auto level_data = Tachyon_GetFileContents("./astro/level_data/level.txt");
+  auto level_data = Tachyon_GetFileContents("./astro/level_data/overworld.txt");
   auto lines = SplitString(level_data, "\n");  // @allocation
+
+  EntityType current_entity_type = UNSPECIFIED;
 
   #define parsef(i) stof(parts[i])
   #define parse_bool(i) (i == "1")
@@ -86,45 +98,11 @@ void DataLoader::LoadLevelData(Tachyon* tachyon, State& state) {
   #define parse_quaternion(i1, i2, i3, i4) Quaternion(parsef(i1), parsef(i2), parsef(i3), parsef(i4))
 
   for (auto& line : lines) {
-    if (line[0] == '@') {
-      // Entity
-      auto parts = SplitString(line, ",");  // @allocation
-      // @todo use constant IDs which map to entity types
-      EntityType entity_type = (EntityType)stoi(parts[0].substr(1));
-      GameEntity entity = EntityManager::CreateNewEntity(state, entity_type);
+    if (line.size() == 0) continue;  // Empty line
+    if (line[0] == '=') continue;    // Demarcation line
 
-      entity.position = parse_vec3f(1, 2, 3);
-      entity.scale = parse_vec3f(4, 5, 6);
-      entity.orientation = parse_quaternion(7, 8, 9, 10);
-      entity.tint = parse_vec3f(11, 12, 13);
-      entity.astro_start_time = parsef(14);
-      entity.astro_end_time = parsef(15);
-
-      entity.item_pickup_name = parts[16];
-      entity.unique_name = parts[17];
-      entity.associated_entity_name = parts[18];
-      entity.requires_action = parse_bool(parts[19]);
-
-      // @temporary
-      // @todo move this elsewhere
-      if (entity_type == LAMPPOST && !entity.requires_action) {
-        entity.did_activate = true;
-      }
-
-      // Set base visible position + rotation; scale is astro time-dependent
-      entity.visible_position = entity.position;
-      entity.visible_rotation = entity.orientation;
-
-      EntityManager::SaveNewEntity(state, entity);
-
-      auto& mesh_ids = EntityDispatcher::GetMeshes(state, entity.type);
-
-      for (auto mesh_id : mesh_ids) {
-        create(mesh_id);
-      }
-    }
-    else if (line[0] == '$') {
-      // Object
+    // Object
+    if (line[0] == '$') {
       auto parts = SplitString(line, ",");  // @allocation
       uint16 mesh_id = stoi(parts[0].substr(1));
       auto mesh_index = MeshIdToIndex(state, mesh_id);
@@ -161,6 +139,46 @@ void DataLoader::LoadLevelData(Tachyon* tachyon, State& state) {
       }
 
       commit(object);
+
+    // Entity name specifier; update current entity type
+    } else if (line[0] == '@') {
+      std::string entity_name = line.substr(1);
+      current_entity_type = EntityNameToType(entity_name);
+
+    // Entity data
+    } else if (current_entity_type != UNSPECIFIED) {
+      auto parts = SplitString(line, ",");  // @allocation
+      GameEntity entity = EntityManager::CreateNewEntity(state, current_entity_type);
+
+      entity.position = parse_vec3f(0, 1, 2);
+      entity.scale = parse_vec3f(3, 4, 5);
+      entity.orientation = parse_quaternion(6, 7, 8, 9);
+      entity.tint = parse_vec3f(10, 11, 12);
+      entity.astro_start_time = parsef(13);
+      entity.astro_end_time = parsef(14);
+
+      entity.item_pickup_name = parts[15];
+      entity.unique_name = parts[16];
+      entity.associated_entity_name = parts[17];
+      entity.requires_action = parse_bool(parts[18]);
+
+      // @temporary
+      // @todo move this elsewhere
+      if (current_entity_type == LAMPPOST && !entity.requires_action) {
+        entity.did_activate = true;
+      }
+
+      // Set base visible position + rotation; scale is astro time-dependent
+      entity.visible_position = entity.position;
+      entity.visible_rotation = entity.orientation;
+
+      EntityManager::SaveNewEntity(state, entity);
+
+      auto& mesh_ids = EntityDispatcher::GetMeshes(state, entity.type);
+
+      for (auto mesh_id : mesh_ids) {
+        create(mesh_id);
+      }
     }
   }
 

@@ -124,6 +124,59 @@ namespace astro {
     IRON_GATE
   };
 
+  static std::vector<EntityType> ordered_entity_types = {
+    ALTAR,
+    BANDIT,
+    BELLFLOWER,
+    BIRD_GATE,
+    BIRD_SPAWN,
+    CHESTNUT_TREE,
+    DIRT_PATH_NODE,
+    EVENT_TRIGGER,
+    FAERIE,
+    FLAG,
+    FLOWER_BUSH,
+    FOG_SPAWN,
+    GATE,
+    GLOW_FLOWER,
+    HOUSE,
+    IRON_GATE,
+    ITEM_PICKUP,
+    LAMP,
+    LAMPPOST,
+    LEAF_SHRUB,
+    LESSER_GUARD,
+    LIGHT_POST,
+    LILAC_BUSH,
+    LILY_PAD,
+    LOW_GUARD,
+    MAGIC_GATE,
+    MOOD_LIGHT,
+    MUSHROOM,
+    NPC,
+    OAK_TREE,
+    RIVER_LOG,
+    ROSE_BUSH,
+    SCULPTURE_1,
+    SHRUB,
+    SMALL_BIRD,
+    SMALL_STONE_BRIDGE,
+    STARFLOWER,
+    STONE_PATH_NODE,
+    STONE_WALL,
+    SUNBEAM,
+    TALL_GRASS,
+    TALL_WEEDS,
+    TULIP_PLANT,
+    VANTAGE_SPOT,
+    WATER_WHEEL,
+    WILLOW_TREE,
+    WIND_CHIMES,
+    WOODEN_BRIDGE,
+    WOODEN_FENCE,
+    WOODEN_GATE_DOOR
+  };
+
   /**
    * ----------------------------
    * Entity identifier; used for lookup.
@@ -850,7 +903,7 @@ namespace astro {
     } },
 
     { NPC, {
-      .name = "NPC",
+      .name = "Npc",
       .scale = tVec3f(1500.f),
       .tint = tVec3f(1.f)
     } },
