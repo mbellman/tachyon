@@ -22,7 +22,6 @@ namespace astro {
     LOW_GUARD,
     BANDIT,
     STONE_WALL,
-    DIRT_PATH, // @unused
     FLOWER_BUSH,
     ITEM_PICKUP,
     GLOW_FLOWER,
@@ -72,59 +71,6 @@ namespace astro {
    * ----------------------------
    */
   static std::vector<EntityType> entity_types = {
-    SHRUB,
-    OAK_TREE,
-    WILLOW_TREE,
-    SMALL_STONE_BRIDGE,
-    WOODEN_BRIDGE,
-    WOODEN_GATE_DOOR,
-    RIVER_LOG,
-    LOW_GUARD,
-    BANDIT,
-    STONE_WALL,
-    FLOWER_BUSH,
-    LILY_PAD,
-    BELLFLOWER,
-    STARFLOWER,
-    ITEM_PICKUP,
-    GLOW_FLOWER,
-    DIRT_PATH_NODE,
-    STONE_PATH_NODE,
-    HOUSE,
-    GATE,
-    FLAG,
-    LILAC_BUSH,
-    ROSE_BUSH,
-    LIGHT_POST,
-    WOODEN_FENCE,
-    ALTAR,
-    MUSHROOM,
-    LAMPPOST,
-    FOG_SPAWN,
-    WIND_CHIMES,
-    SCULPTURE_1,
-    WATER_WHEEL,
-    CHESTNUT_TREE,
-    NPC,
-    LESSER_GUARD,
-    TALL_GRASS,
-    TULIP_PLANT,
-    TALL_WEEDS,
-    EVENT_TRIGGER,
-    FAERIE,
-    VANTAGE_SPOT,
-    SMALL_BIRD,
-    LEAF_SHRUB,
-    LAMP,
-    MAGIC_GATE,
-    MOOD_LIGHT,
-    BIRD_GATE,
-    SUNBEAM,
-    BIRD_SPAWN,
-    IRON_GATE
-  };
-
-  static std::vector<EntityType> ordered_entity_types = {
     ALTAR,
     BANDIT,
     BELLFLOWER,
@@ -376,12 +322,6 @@ namespace astro {
       // STONE_WALL
       stone_wall_placeholder,
       stone_wall,
-
-      // DIRT_PATH
-      // @unused
-      // @todo remove
-      dirt_path_placeholder,
-      dirt_path,
 
       // FLOWER_BUSH
       flower_bush_placeholder,
@@ -683,13 +623,6 @@ namespace astro {
       .name = "Bird Spawn",
       .scale = tVec3f(1500.f),
       .tint = tVec3f(0.5f)
-    } },
-
-    // @unused
-    { DIRT_PATH, {
-      .name = "Dirt Path",
-      .scale = tVec3f(2000.f, 1.f, 2000.f),
-      .tint = tVec3f(0.7f, 0.3f, 0.1f)
     } },
 
     { DIRT_PATH_NODE, {

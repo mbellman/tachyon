@@ -235,7 +235,7 @@ void SaveLevelData(Tachyon* tachyon, State& state) {
 
   std::string level_data = "";
 
-  for_all_entity_types_ordered() {
+  for_all_entity_types() {
     auto& entity_defaults = GetEntityDefaults(type);
 
     level_data += "@" + entity_defaults.name + "\n";
