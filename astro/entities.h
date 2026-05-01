@@ -62,7 +62,8 @@ namespace astro {
     MOOD_LIGHT,
     BIRD_GATE,
     SUNBEAM,
-    BIRD_SPAWN
+    BIRD_SPAWN,
+    IRON_GATE,
   };
 
   /**
@@ -119,7 +120,8 @@ namespace astro {
     MOOD_LIGHT,
     BIRD_GATE,
     SUNBEAM,
-    BIRD_SPAWN
+    BIRD_SPAWN,
+    IRON_GATE
   };
 
   /**
@@ -244,6 +246,10 @@ namespace astro {
    */
   struct EntityMeshIds {
     uint16
+      // IRON_GATE
+      iron_gate_placeholder,
+      iron_gate_side,
+
       // SHRUB
       shrub_placeholder,
       shrub_bottom,
@@ -533,6 +539,7 @@ namespace astro {
     EntityList stone_walls;
     EntityList wooden_gate_doors;
     EntityList gates;
+    EntityList iron_gates;
     EntityList magic_gates;
     EntityList bird_gates;
     EntityList flags;
@@ -579,7 +586,7 @@ namespace astro {
 
     { SCULPTURE_1, {
       .name = "Sculpture 1",
-      .scale = tVec3f(3000.f),
+      .scale = tVec3f(2500.f),
       .tint = tVec3f(1.f)
     } },
 
@@ -762,6 +769,12 @@ namespace astro {
       .name = "Gate",
       .scale = tVec3f(4000.f),
       .tint = tVec3f(0.4f)
+    } },
+
+    { IRON_GATE, {
+      .name = "Iron Gate",
+      .scale = tVec3f(5000.f),
+      .tint = tVec3f(1.f)
     } },
 
     { MAGIC_GATE, {
