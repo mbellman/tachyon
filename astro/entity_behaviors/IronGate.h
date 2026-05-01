@@ -54,6 +54,9 @@ namespace astro {
           right_gate.rotation *= Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI);
           right_gate.material = tVec4f(0.3f, 1.f, 0, 0);
 
+          // right_gate.color = 0xCC5F;
+          // right_gate.material = tVec4f(0.f, 1.f, 1.f, 1.f);
+
           commit(right_gate);
         }
 

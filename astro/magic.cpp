@@ -2,7 +2,7 @@
 #include "astro/entity_manager.h"
 #include "astro/entity_dispatcher.h"
 #include "astro/entity_behaviors/Lamppost.h"
-#include "astro/entity_behaviors/Sculpture_1.h"
+#include "astro/entity_behaviors/Sculpture1.h"
 
 using namespace astro;
 

@@ -534,9 +534,6 @@
     <ClInclude Include="astro\bgm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="astro\entity_behaviors\Lilac_Bush.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="astro\entity_behaviors\LightPost.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -583,9 +580,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="astro\entity_behaviors\StonePathNode.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="astro\entity_behaviors\Sculpture_1.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="astro\entity_behaviors\WoodenBridge.h">
@@ -670,6 +664,24 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="astro\environment.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\entity_behaviors\BirdSpawn.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\entity_behaviors\BirdGate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\entity_behaviors\Sunbeam.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\entity_behaviors\IronGate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\entity_behaviors\LilacBush.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\entity_behaviors\Sculpture1.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
