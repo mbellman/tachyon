@@ -3,7 +3,7 @@
 #include "astro/entity_behaviors/behavior.h"
 
 namespace astro {
-  behavior Sculpture_1 {
+  behavior Sculpture1 {
     static auto activation_sounds = {
       SFX_SCULPTURE_ACTIVATE_1,
       SFX_SCULPTURE_ACTIVATE_2,

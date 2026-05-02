@@ -2,9 +2,11 @@
 
 #include "astro/entity_behaviors/Altar.h"
 #include "astro/entity_behaviors/Bandit.h"
-#include "astro/entity_behaviors/BellFlower.h"
+#include "astro/entity_behaviors/Bellflower.h"
 #include "astro/entity_behaviors/BirdGate.h"
 #include "astro/entity_behaviors/BirdSpawn.h"
+#include "astro/entity_behaviors/CastleRampart.h"
+#include "astro/entity_behaviors/CastleTower.h"
 #include "astro/entity_behaviors/ChestnutTree.h"
 #include "astro/entity_behaviors/DirtPathNode.h"
 #include "astro/entity_behaviors/EventTrigger.h"
@@ -20,10 +22,10 @@
 #include "astro/entity_behaviors/Lamp.h"
 #include "astro/entity_behaviors/Lamppost.h"
 #include "astro/entity_behaviors/LeafShrub.h"
+#include "astro/entity_behaviors/LesserGuard.h"
 #include "astro/entity_behaviors/LightPost.h"
 #include "astro/entity_behaviors/LilacBush.h"
 #include "astro/entity_behaviors/LilyPad.h"
-#include "astro/entity_behaviors/LesserGuard.h"
 #include "astro/entity_behaviors/LowGuard.h"
 #include "astro/entity_behaviors/MagicGate.h"
 #include "astro/entity_behaviors/MoodLight.h"
@@ -36,7 +38,7 @@
 #include "astro/entity_behaviors/Shrub.h"
 #include "astro/entity_behaviors/SmallBird.h"
 #include "astro/entity_behaviors/SmallStoneBridge.h"
-#include "astro/entity_behaviors/StarFlower.h"
+#include "astro/entity_behaviors/Starflower.h"
 #include "astro/entity_behaviors/StonePathNode.h"
 #include "astro/entity_behaviors/StoneWall.h"
 #include "astro/entity_behaviors/Sunbeam.h"
@@ -47,8 +49,8 @@
 #include "astro/entity_behaviors/WaterWheel.h"
 #include "astro/entity_behaviors/WillowTree.h"
 #include "astro/entity_behaviors/WindChimes.h"
-#include "astro/entity_behaviors/WoodenFence.h"
 #include "astro/entity_behaviors/WoodenBridge.h"
+#include "astro/entity_behaviors/WoodenFence.h"
 #include "astro/entity_behaviors/WoodenGateDoor.h"
 
 using namespace astro;
@@ -76,106 +78,110 @@ using namespace astro;
     break\
 
 #define create_dispatch_cases(dispatch_macro)\
+  dispatch_macro(ALTAR, Altar);\
   dispatch_macro(BANDIT, Bandit);\
-  dispatch_macro(CHESTNUT_TREE, ChestnutTree);\
-  dispatch_macro(STONE_PATH_NODE, StonePathNode);\
-  dispatch_macro(DIRT_PATH_NODE, DirtPathNode);\
-  dispatch_macro(FOG_SPAWN, FogSpawn);\
-  dispatch_macro(MOOD_LIGHT, MoodLight);\
-  dispatch_macro(SUNBEAM, Sunbeam);\
-  dispatch_macro(EVENT_TRIGGER, EventTrigger);\
-  dispatch_macro(VANTAGE_SPOT, VantageSpot);\
-  dispatch_macro(BIRD_SPAWN, BirdSpawn);\
-  dispatch_macro(ITEM_PICKUP, ItemPickup);\
-  dispatch_macro(LESSER_GUARD, LesserGuard);\
-  dispatch_macro(LOW_GUARD, LowGuard);\
-  dispatch_macro(FAERIE, Faerie);\
-  dispatch_macro(SMALL_BIRD, SmallBird);\
-  dispatch_macro(OAK_TREE, OakTree);\
-  dispatch_macro(RIVER_LOG, RiverLog);\
-  dispatch_macro(SHRUB, Shrub);\
-  dispatch_macro(LEAF_SHRUB, LeafShrub);\
-  dispatch_macro(TALL_GRASS, TallGrass);\
-  dispatch_macro(TALL_WEEDS, TallWeeds);\
-  dispatch_macro(FLOWER_BUSH, FlowerBush);\
-  dispatch_macro(TULIP_PLANT, TulipPlant);\
-  dispatch_macro(LILAC_BUSH, LilacBush);\
-  dispatch_macro(ROSE_BUSH, RoseBush);\
-  dispatch_macro(BELLFLOWER, BellFlower);\
-  dispatch_macro(STARFLOWER, StarFlower);\
-  dispatch_macro(LILY_PAD, LilyPad);\
-  dispatch_macro(MUSHROOM, Mushroom);\
-  dispatch_macro(GLOW_FLOWER, GlowFlower);\
-  dispatch_macro(SMALL_STONE_BRIDGE, SmallStoneBridge);\
-  dispatch_macro(STONE_WALL, StoneWall);\
-  dispatch_macro(GATE, Gate);\
-  dispatch_macro(IRON_GATE, IronGate);\
-  dispatch_macro(MAGIC_GATE, MagicGate);\
+  dispatch_macro(BELLFLOWER, Bellflower);\
   dispatch_macro(BIRD_GATE, BirdGate);\
+  dispatch_macro(BIRD_SPAWN, BirdSpawn);\
+  dispatch_macro(CASTLE_RAMPART, CastleRampart);\
+  dispatch_macro(CASTLE_TOWER, CastleTower);\
+  dispatch_macro(CHESTNUT_TREE, ChestnutTree);\
+  dispatch_macro(DIRT_PATH_NODE, DirtPathNode);\
+  dispatch_macro(EVENT_TRIGGER, EventTrigger);\
+  dispatch_macro(FAERIE, Faerie);\
   dispatch_macro(FLAG, Flag);\
-  dispatch_macro(LIGHT_POST, LightPost);\
+  dispatch_macro(FLOWER_BUSH, FlowerBush);\
+  dispatch_macro(FOG_SPAWN, FogSpawn);\
+  dispatch_macro(GATE, Gate);\
+  dispatch_macro(GLOW_FLOWER, GlowFlower);\
+  dispatch_macro(HOUSE, House);\
+  dispatch_macro(IRON_GATE, IronGate);\
+  dispatch_macro(ITEM_PICKUP, ItemPickup);\
   dispatch_macro(LAMP, Lamp);\
   dispatch_macro(LAMPPOST, Lamppost);\
-  dispatch_macro(WIND_CHIMES, WindChimes);\
-  dispatch_macro(SCULPTURE_1, Sculpture_1);\
-  dispatch_macro(ALTAR, Altar);\
-  dispatch_macro(HOUSE, House);\
+  dispatch_macro(LEAF_SHRUB, LeafShrub);\
+  dispatch_macro(LESSER_GUARD, LesserGuard);\
+  dispatch_macro(LIGHT_POST, LightPost);\
+  dispatch_macro(LILAC_BUSH, LilacBush);\
+  dispatch_macro(LILY_PAD, LilyPad);\
+  dispatch_macro(LOW_GUARD, LowGuard);\
+  dispatch_macro(MAGIC_GATE, MagicGate);\
+  dispatch_macro(MOOD_LIGHT, MoodLight);\
+  dispatch_macro(MUSHROOM, Mushroom);\
   dispatch_macro(NPC, Npc);\
+  dispatch_macro(OAK_TREE, OakTree);\
+  dispatch_macro(RIVER_LOG, RiverLog);\
+  dispatch_macro(ROSE_BUSH, RoseBush);\
+  dispatch_macro(SCULPTURE_1, Sculpture1);\
+  dispatch_macro(SHRUB, Shrub);\
+  dispatch_macro(SMALL_BIRD, SmallBird);\
+  dispatch_macro(SMALL_STONE_BRIDGE, SmallStoneBridge);\
+  dispatch_macro(STARFLOWER, Starflower);\
+  dispatch_macro(STONE_PATH_NODE, StonePathNode);\
+  dispatch_macro(STONE_WALL, StoneWall);\
+  dispatch_macro(SUNBEAM, Sunbeam);\
+  dispatch_macro(TALL_GRASS, TallGrass);\
+  dispatch_macro(TALL_WEEDS, TallWeeds);\
+  dispatch_macro(TULIP_PLANT, TulipPlant);\
+  dispatch_macro(VANTAGE_SPOT, VantageSpot);\
   dispatch_macro(WATER_WHEEL, WaterWheel);\
   dispatch_macro(WILLOW_TREE, WillowTree);\
+  dispatch_macro(WIND_CHIMES, WindChimes);\
   dispatch_macro(WOODEN_BRIDGE, WoodenBridge);\
   dispatch_macro(WOODEN_FENCE, WoodenFence);\
   dispatch_macro(WOODEN_GATE_DOOR, WoodenGateDoor);
 
 std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, EntityType type) {
   switch (type) {
+    dispatch_GetEntityContainer(ALTAR, state.altars);
     dispatch_GetEntityContainer(BANDIT, state.bandits);
-    dispatch_GetEntityContainer(CHESTNUT_TREE, state.chestnut_trees);
-    dispatch_GetEntityContainer(STONE_PATH_NODE, state.stone_path_nodes);
-    dispatch_GetEntityContainer(DIRT_PATH_NODE, state.dirt_path_nodes);
-    dispatch_GetEntityContainer(ITEM_PICKUP, state.item_pickups);
-    dispatch_GetEntityContainer(FOG_SPAWN, state.fog_spawns);
-    dispatch_GetEntityContainer(MOOD_LIGHT, state.mood_lights);
-    dispatch_GetEntityContainer(SUNBEAM, state.sunbeams);
-    dispatch_GetEntityContainer(EVENT_TRIGGER, state.event_triggers);
-    dispatch_GetEntityContainer(VANTAGE_SPOT, state.vantage_spots);
+    dispatch_GetEntityContainer(BELLFLOWER, state.bellflowers);
+    dispatch_GetEntityContainer(BIRD_GATE, state.bird_gates);
     dispatch_GetEntityContainer(BIRD_SPAWN, state.bird_spawns);
-    dispatch_GetEntityContainer(LESSER_GUARD, state.lesser_guards);
-    dispatch_GetEntityContainer(LOW_GUARD, state.low_guards);
+    dispatch_GetEntityContainer(CASTLE_RAMPART, state.castle_ramparts);
+    dispatch_GetEntityContainer(CASTLE_TOWER, state.castle_towers);
+    dispatch_GetEntityContainer(CHESTNUT_TREE, state.chestnut_trees);
+    dispatch_GetEntityContainer(DIRT_PATH_NODE, state.dirt_path_nodes);
+    dispatch_GetEntityContainer(EVENT_TRIGGER, state.event_triggers);
     dispatch_GetEntityContainer(FAERIE, state.faeries);
-    dispatch_GetEntityContainer(SMALL_BIRD, state.small_birds);
+    dispatch_GetEntityContainer(FLAG, state.flags);
+    dispatch_GetEntityContainer(FLOWER_BUSH, state.flower_bushes);
+    dispatch_GetEntityContainer(FOG_SPAWN, state.fog_spawns);
+    dispatch_GetEntityContainer(GATE, state.gates);
+    dispatch_GetEntityContainer(GLOW_FLOWER, state.glow_flowers);
+    dispatch_GetEntityContainer(HOUSE, state.houses);
+    dispatch_GetEntityContainer(IRON_GATE, state.iron_gates);
+    dispatch_GetEntityContainer(ITEM_PICKUP, state.item_pickups);
+    dispatch_GetEntityContainer(LAMP, state.lamps);
+    dispatch_GetEntityContainer(LAMPPOST, state.lampposts);
+    dispatch_GetEntityContainer(LEAF_SHRUB, state.leaf_shrubs);
+    dispatch_GetEntityContainer(LESSER_GUARD, state.lesser_guards);
+    dispatch_GetEntityContainer(LIGHT_POST, state.light_posts);
+    dispatch_GetEntityContainer(LILAC_BUSH, state.lilac_bushes);
+    dispatch_GetEntityContainer(LILY_PAD, state.lily_pads);
+    dispatch_GetEntityContainer(LOW_GUARD, state.low_guards);
+    dispatch_GetEntityContainer(MAGIC_GATE, state.magic_gates);
+    dispatch_GetEntityContainer(MOOD_LIGHT, state.mood_lights);
+    dispatch_GetEntityContainer(MUSHROOM, state.mushrooms);
+    dispatch_GetEntityContainer(NPC, state.npcs);
     dispatch_GetEntityContainer(OAK_TREE, state.oak_trees);
     dispatch_GetEntityContainer(RIVER_LOG, state.river_logs);
+    dispatch_GetEntityContainer(ROSE_BUSH, state.rose_bushes);
+    dispatch_GetEntityContainer(SCULPTURE_1, state.sculpture_1s);
     dispatch_GetEntityContainer(SHRUB, state.shrubs);
-    dispatch_GetEntityContainer(LEAF_SHRUB, state.leaf_shrubs);
+    dispatch_GetEntityContainer(SMALL_BIRD, state.small_birds);
+    dispatch_GetEntityContainer(SMALL_STONE_BRIDGE, state.small_stone_bridges);
+    dispatch_GetEntityContainer(STARFLOWER, state.starflowers);
+    dispatch_GetEntityContainer(STONE_PATH_NODE, state.stone_path_nodes);
+    dispatch_GetEntityContainer(STONE_WALL, state.stone_walls);
+    dispatch_GetEntityContainer(SUNBEAM, state.sunbeams);
     dispatch_GetEntityContainer(TALL_GRASS, state.tall_grasses);
     dispatch_GetEntityContainer(TALL_WEEDS, state.tall_weeds);
-    dispatch_GetEntityContainer(FLOWER_BUSH, state.flower_bushes);
     dispatch_GetEntityContainer(TULIP_PLANT, state.tulip_plants);
-    dispatch_GetEntityContainer(LILAC_BUSH, state.lilac_bushes);
-    dispatch_GetEntityContainer(ROSE_BUSH, state.rose_bushes);
-    dispatch_GetEntityContainer(BELLFLOWER, state.bellflowers);
-    dispatch_GetEntityContainer(STARFLOWER, state.starflowers);
-    dispatch_GetEntityContainer(LILY_PAD, state.lily_pads);
-    dispatch_GetEntityContainer(MUSHROOM, state.mushrooms);
-    dispatch_GetEntityContainer(GLOW_FLOWER, state.glow_flowers);
-    dispatch_GetEntityContainer(SMALL_STONE_BRIDGE, state.small_stone_bridges);
-    dispatch_GetEntityContainer(STONE_WALL, state.stone_walls);
-    dispatch_GetEntityContainer(GATE, state.gates);
-    dispatch_GetEntityContainer(IRON_GATE, state.iron_gates);
-    dispatch_GetEntityContainer(MAGIC_GATE, state.magic_gates);
-    dispatch_GetEntityContainer(BIRD_GATE, state.bird_gates);
-    dispatch_GetEntityContainer(FLAG, state.flags);
-    dispatch_GetEntityContainer(LIGHT_POST, state.light_posts);
-    dispatch_GetEntityContainer(LAMPPOST, state.lampposts);
-    dispatch_GetEntityContainer(LAMP, state.lamps);
-    dispatch_GetEntityContainer(WIND_CHIMES, state.wind_chimes);
-    dispatch_GetEntityContainer(SCULPTURE_1, state.sculpture_1s);
-    dispatch_GetEntityContainer(ALTAR, state.altars);
-    dispatch_GetEntityContainer(HOUSE, state.houses);
-    dispatch_GetEntityContainer(NPC, state.npcs);
+    dispatch_GetEntityContainer(VANTAGE_SPOT, state.vantage_spots);
     dispatch_GetEntityContainer(WATER_WHEEL, state.water_wheels);
     dispatch_GetEntityContainer(WILLOW_TREE, state.willow_trees);
+    dispatch_GetEntityContainer(WIND_CHIMES, state.wind_chimes);
     dispatch_GetEntityContainer(WOODEN_BRIDGE, state.wooden_bridges);
     dispatch_GetEntityContainer(WOODEN_FENCE, state.wooden_fences);
     dispatch_GetEntityContainer(WOODEN_GATE_DOOR, state.wooden_gate_doors);

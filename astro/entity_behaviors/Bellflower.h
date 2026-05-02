@@ -3,7 +3,7 @@
 #include "astro/entity_behaviors/behavior.h"
 
 namespace astro {
-  behavior BellFlower {
+  behavior Bellflower {
     addMeshes() {
       meshes.bellflower_placeholder = MODEL_MESH("./astro/3d_models/bellflower/placeholder.obj", 500);
       meshes.bellflower_stems = MODEL_MESH("./astro/3d_models/bellflower/stems.obj", 500);

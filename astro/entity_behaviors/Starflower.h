@@ -3,7 +3,7 @@
 #include "astro/entity_behaviors/behavior.h"
 
 namespace astro {
-  behavior StarFlower {
+  behavior Starflower {
     addMeshes() {
       meshes.starflower_placeholder = MODEL_MESH("./astro/3d_models/starflower/placeholder.obj", 500);
       meshes.starflower_leaves = MODEL_MESH("./astro/3d_models/starflower/leaves.obj", 500);
