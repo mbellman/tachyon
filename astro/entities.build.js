@@ -3,6 +3,19 @@ import fs from "fs";
 import entities from "./entities.meta.js";
 
 /**
+ * -----------------------------------------------------------
+ *
+ * Defines a series of helper functions and codegen scripts
+ * for patching entity metadata into the game's source code.
+ *
+ * Wherever formatting/indentation seems questionable, this is
+ * intentional, as we want the generated code to have certain
+ * indentation features.
+ *
+ * -----------------------------------------------------------
+ */
+
+/**
  * @param {string} entity_type
  */
 function convertTypeToName(entity_type) {
@@ -27,12 +40,13 @@ function createDefaultBehaviorFileContents(entity) {
 namespace astro {
   behavior ${name} {
     addMeshes() {
-      meshes.${placeholderMeshName} = CUBE(500);
+      meshes.${placeholderMeshName} = CUBE_MESH(500);
+      ${nonPlaceholderMeshNames.map(meshName => `meshes.${meshName} = CUBE_MESH(500);`).join("\n      ")}
     }
 
     getMeshes() {
       return_meshes({
-        ${nonPlaceholderMeshNames.join(",\n        ")}
+        ${nonPlaceholderMeshNames.map(meshName => `meshes.${meshName}`).join(",\n        ")}
       });
     }
 
@@ -80,8 +94,6 @@ function createEntityTypesListValues(entities) {
 }
 
 function createEntityMeshesString(entities) {
-  // Indentation/formatting here is awkward to read,
-  // but is intentional in how it generates output
   return `
     uint16
     ${entities.map(entity => `
@@ -167,19 +179,50 @@ function addEntityDefaultsMap(entitiesFileContents, entities) {
   );
 }
 
-function addEntityBehaviorIncludes(dispatcherFileContents, entities) {
-  const includePaths = entities.map(entity => {
+function addEntityIncludes(dispatcherFileContents, entities) {
+  const includes = entities.map(entity => {
     const name = convertTypeToName(entity.type);
     const filename = name.replace(/ /g, "") + ".h";
+    const includePath = `astro/entity_behaviors/${filename}`;
 
-    return `astro/entity_behaviors/${filename}`;
-  });
+    return `#include "${includePath}"`;
+  }).join("\n");
 
   return replaceFileContents(
     dispatcherFileContents,
     "#include \"astro/entity_dispatcher.h\"",
-    `\n\n${includePaths.map(includePath => `#include "${includePath}"`).join("\n")}\n\n`,
+    `\n\n${includes}\n\n`,
     "using namespace astro;"
+  );
+}
+
+function addEntityDispatchCases(dispatcherFileContents, entities) {
+  const dispatches = entities.map(entity => {
+    const namespaceName = convertTypeToName(entity.type).replace(/ /g, "");
+
+    return `  dispatch_macro(${entity.type}, ${namespaceName});`;
+  }).join("\\\n");
+
+  return replaceFileContents(
+    dispatcherFileContents,
+    "#define create_dispatch_cases(dispatch_macro)\\",
+    `\n${dispatches}\n\n`,
+    "std::vector<GameEntity>"
+  );
+}
+
+function addEntityListDispatchCases(dispatcherFileContents, entities) {
+  const dispatches = `
+  switch (type) {
+${entities.map(entity => `    dispatch_GetEntityContainer(${entity.type}, state.${entity.list});`).join("\n")}
+
+    `;
+
+  return replaceFileContents(
+    dispatcherFileContents,
+    "EntityDispatcher::GetEntityContainer(State& state, EntityType type) {",
+    dispatches,
+    "default:"
   );
 }
 
@@ -197,7 +240,9 @@ function addEntityBehaviorIncludes(dispatcherFileContents, entities) {
   entitiesFileContents = addEntityDefaultsMap(entitiesFileContents, sortedEntities);
 
   let dispatcherFileContents = fs.readFileSync(dispatcherFilePath).toString();
-  dispatcherFileContents = addEntityBehaviorIncludes(dispatcherFileContents, entities);
+  dispatcherFileContents = addEntityIncludes(dispatcherFileContents, entities);
+  dispatcherFileContents = addEntityDispatchCases(dispatcherFileContents, entities);
+  dispatcherFileContents = addEntityListDispatchCases(dispatcherFileContents, entities);
 
   fs.writeFileSync(entitiesFilePath, entitiesFileContents);
   fs.writeFileSync(dispatcherFilePath, dispatcherFileContents);
@@ -209,13 +254,12 @@ function addEntityBehaviorIncludes(dispatcherFileContents, entities) {
     const behaviorFilePath = path.resolve(`./astro/entity_behaviors/${filename}`);
 
     if (!fs.existsSync(behaviorFilePath) && !fs.existsSync(modelsFolderPath)) {
-      // @temporary
       console.log(`Registering entity: ${entity.type} (${name})`);
 
-      // const behaviorFileContents = createDefaultBehaviorFileContents(entity);
+      const behaviorFileContents = createDefaultBehaviorFileContents(entity);
 
-      // fs.mkdirSync(modelsFolderPath);
-      // fs.writeFileSync(behaviorFilePath, behaviorFileContents);
+      fs.mkdirSync(modelsFolderPath);
+      fs.writeFileSync(behaviorFilePath, behaviorFileContents);
     }
   }
 }
