@@ -868,6 +868,9 @@ static void StopEditingEntityProperties(Tachyon* tachyon) {
   editor.is_editing_entity_properties = false;
   editor.editing_entity_step = 0;
   editor.edited_entity_property_value = "";
+
+  // Restore engine hotkeys
+  tachyon->hotkeys_enabled = true;
 }
 
 /**
@@ -922,7 +925,10 @@ static void HandleEntityPropertiesEditor(Tachyon* tachyon, State& state) {
         auto& live_placeholder = *get_live_object(editor.current_selectable.placeholder);
 
         live_placeholder.color = entity->tint;
-        live_placeholder.color.rgba |= 0x000F;
+
+        if (editor.current_selectable.entity_record.type == MOOD_LIGHT) {
+          live_placeholder.color.rgba |= 0x000F;
+        }
       }
 
       StopEditingEntityProperties(tachyon);
@@ -1442,7 +1448,7 @@ static void HandleCurrentSelectedRotateActions(Tachyon* tachyon, State& state) {
  * Handler for manipulating selected objects or entities with the mouse.
  * ----------------------------
  */
-static void HandleCurrentSelectedActions(Tachyon* tachyon, State& state) {
+static void HandleCurrentSelectedMouseActions(Tachyon* tachyon, State& state) {
   if (tachyon->mouse_delta_x == 0 && tachyon->mouse_delta_y == 0) {
     return;
   }
@@ -1752,73 +1758,86 @@ static void RepositionPlayer(Tachyon* tachyon, State& state) {
 
 /**
  * ----------------------------
+ * Handlers for various mouse actions/hotkeys.
+ * ----------------------------
+ */
+static void HandlePlacementAndSelectionActions(Tachyon* tachyon, State& state) {
+  if (editor.is_in_placement_mode) {
+    // Clicking to place entities or objects
+    if (editor.is_placing_entity) {
+      PlaceNewEntity(tachyon, state);
+    } else {
+      PlaceNewDecorativeObject(tachyon, state);
+    }
+  } else {
+    // Clicking to make a selection
+    MaybeMakeSelection(tachyon, state);
+  }
+}
+
+static void HandleSelectedMouseDownActions() {
+  editor.starting_selected_position = editor.current_selectable.placeholder.position;
+  editor.move_action_delta = tVec3f(0.f);
+}
+
+static void ToggleHighContrastMode(Tachyon* tachyon) {
+  tachyon->use_high_visibility_mode = !tachyon->use_high_visibility_mode;
+
+  if (tachyon->use_high_visibility_mode) {
+    show_overlay_message("Lighting disabled");
+  } else {
+    show_overlay_message("Lighting enabled");
+  }
+}
+
+static void ToggleFogVolumes(Tachyon* tachyon) {
+  editor.show_fog_volumes = !editor.show_fog_volumes;
+
+  if (editor.show_fog_volumes) {
+    show_overlay_message("Fog volumes enabled");
+  } else {
+    show_overlay_message("Fog volumes disabled");
+  }
+}
+
+static void ToggleUniformScaling() {
+  editor.use_uniform_scaling = !editor.use_uniform_scaling;
+}
+
+/**
+ * ----------------------------
  * Handles inputs while the editor is open.
  * ----------------------------
  */
 static void HandleEditorActions(Tachyon* tachyon, State& state) {
   if (did_left_click_down() && !editor.is_anything_selected) {
-    if (editor.is_in_placement_mode) {
-      // Clicking to place entities or objects
-      if (editor.is_placing_entity) {
-        PlaceNewEntity(tachyon, state);
-      } else {
-        PlaceNewDecorativeObject(tachyon, state);
-      }
-    } else {
-      // Clicking to make a selection
-      MaybeMakeSelection(tachyon, state);
-    }
+    HandlePlacementAndSelectionActions(tachyon, state);
   }
 
-  // Toggling higher contrast lighting
-  // @todo improve or remove this feature
   if (did_press_key(tKey::CONTROL)) {
-    tachyon->use_high_visibility_mode = !tachyon->use_high_visibility_mode;
-
-    if (tachyon->use_high_visibility_mode) {
-      show_overlay_message("Lighting disabled");
-    } else {
-      show_overlay_message("Lighting enabled");
-    }
+    ToggleHighContrastMode(tachyon);
   }
 
-  // Toggling fog volumes
   if (did_press_key(tKey::F) && tachyon->hotkeys_enabled) {
-    editor.show_fog_volumes = !editor.show_fog_volumes;
-
-    if (editor.show_fog_volumes) {
-      show_overlay_message("Fog volumes enabled");
-    } else {
-      show_overlay_message("Fog volumes disabled");
-    }
+    ToggleFogVolumes(tachyon);
   }
 
-  // Toggling non-selected plant visibility
-  if (
-    did_press_key(tKey::H) &&
-    !editor.is_editing_entity_properties
-  ) {
+  if (did_press_key(tKey::H) && tachyon->hotkeys_enabled) {
     ToggleNonSelectedPlants(tachyon, state);
   }
 
   if (editor.is_anything_selected) {
-    // Selected object/entity actions
+    bool is_entity_selected = editor.current_selectable.is_entity;
 
     if (did_left_click_down()) {
-      // Start tracking move delta
-      // @todo factor
-      editor.starting_selected_position = editor.current_selectable.placeholder.position;
-      editor.move_action_delta = tVec3f(0.f);
+      HandleSelectedMouseDownActions();
     }
 
     if (is_left_mouse_held_down()) {
-      HandleCurrentSelectedActions(tachyon, state);
+      HandleCurrentSelectedMouseActions(tachyon, state);
     }
 
-    if (
-      did_press_key(tKey::BACKSPACE) &&
-      !editor.is_editing_entity_properties
-    ) {
+    if (did_press_key(tKey::BACKSPACE) && tachyon->hotkeys_enabled) {
       DeleteSelected(tachyon, state);
     }
 
@@ -1834,38 +1853,23 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
       CycleGizmoAction(tachyon, state, -1);
     }
 
-    if (
-      did_press_key(tKey::ENTER) &&
-      editor.current_selectable.is_entity &&
-      !editor.is_editing_entity_properties
-    ) {
+    if (did_press_key(tKey::Q) && editor.current_gizmo_action == SCALE) {
+      ToggleUniformScaling();
+    }
+
+    if (did_press_key(tKey::ENTER) && is_entity_selected && tachyon->hotkeys_enabled) {
       StartEditingEntityProperties(tachyon);
     }
     else if (editor.is_editing_entity_properties) {
       HandleEntityPropertiesEditor(tachyon, state);
     }
 
-    if (
-      did_press_key(tKey::Q) &&
-      editor.current_gizmo_action == SCALE
-    ) {
-      editor.use_uniform_scaling = !editor.use_uniform_scaling;
-    }
-
-    if (
-      did_press_key(tKey::C) &&
-      editor.current_selectable.is_entity &&
-      !editor.is_editing_entity_properties
-    ) {
+    if (did_press_key(tKey::C) && is_entity_selected && tachyon->hotkeys_enabled) {
       CopySelectedEntityProperties(state);
       show_overlay_message("Copied astro times");
     }
 
-    if (
-      did_press_key(tKey::P) &&
-      editor.current_selectable.is_entity &&
-      !editor.is_editing_entity_properties
-    ) {
+    if (did_press_key(tKey::P) && is_entity_selected && tachyon->hotkeys_enabled) {
       PasteCopiedEntityProperties(state);
       show_overlay_message("Pasted astro times");
     }
