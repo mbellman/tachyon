@@ -61,33 +61,148 @@ function createFloatString(value) {
 function createVec3fString(values) {
   const floatValues = values.map(createFloatString);
 
-  return `tVec3f( ${floatValues.join(", ")} )`;
+  return `tVec3f(${floatValues.join(", ")})`;
 }
 
-function createEntityDefaults(entity) {
+function createEntityTypeEnumValues(entities) {
+  return `
+    UNSPECIFIED = -1,
+    ${entities.map(entity => entity.type).join(",\n    ")}
+  `;
+}
+
+function createEntityTypesListValues(entities) {
+  const sortedTypes = [...entities].sort((a, b) => a.type < b.type ? -1 : 1);
+
+  return `
+    ${sortedTypes.map(entity => entity.type).join(",\n    ")}
+  `;
+}
+
+function createEntityMeshesString(entities) {
+  // Indentation/formatting here is awkward to read,
+  // but is intentional in how it generates output
+  return `
+    uint16
+    ${entities.map(entity => `
+      // ${entity.type}
+      ${entity.meshes.join(",\n      ")}`)
+    .join(",\n      ")}
+    ;
+  `;
+}
+
+function createEntityArraysString(entities) {
+  return "\n" + entities.map(entity => {
+    return `    EntityList ${entity.list};`
+  }).join("\n") + "\n  ";
+}
+
+function createEntityDefaultsString(entity) {
   return `
     { ${entity.type}, {
       .name = "${convertTypeToName(entity.type)}",
       .scale = ${createVec3fString(entity.scale)},
       .tint = ${createVec3fString(entity.color)}
-    },
+    } },
   `;
 }
 
 function createEntityDefaultsMapString(entities) {
-  return entities.map(createEntityDefaults).join("\n");
+  return entities.map(createEntityDefaultsString).join("");
+}
+
+function replaceFileContents(fileContents, startSpecifier, replacementText, endSpecifier) {
+  const startPosition = fileContents.indexOf(startSpecifier) + startSpecifier.length;
+  const endPosition = fileContents.indexOf(endSpecifier, startPosition);
+
+  const head = fileContents.substring(0, startPosition);
+  const tail = fileContents.substring(endPosition);
+
+  return head + replacementText + tail;
+}
+
+function addEntityTypesEnum(entitiesFileContents, entities) {
+  return replaceFileContents(
+    entitiesFileContents,
+    "enum EntityType {",
+    createEntityTypeEnumValues(entities),
+    "};"
+  );
+}
+
+function addEntityTypesList(entitiesFileContents, entities) {
+  return replaceFileContents(
+    entitiesFileContents,
+    "static std::vector<EntityType> entity_types = {",
+    createEntityTypesListValues(entities),
+    "};"
+  );
+}
+
+function addEntityMeshes(entitiesFileContents, entities) {
+  return replaceFileContents(
+    entitiesFileContents,
+    "struct EntityMeshIds {",
+    createEntityMeshesString(entities),
+    "};"
+  );
+}
+
+function addEntityArrays(entitiesFileContents, entities) {
+  return replaceFileContents(
+    entitiesFileContents,
+    "struct EntityContainers {",
+    createEntityArraysString(entities),
+    "};"
+  );
+}
+
+function addEntityDefaultsMap(entitiesFileContents, entities) {
+  return replaceFileContents(
+    entitiesFileContents,
+    "static std::map<EntityType, EntityDefaults> entity_defaults_map = {",
+    createEntityDefaultsMapString(entities),
+    "};"
+  );
+}
+
+function addEntityBehaviorIncludes(dispatcherFileContents, entities) {
+  const includePaths = entities.map(entity => {
+    const name = convertTypeToName(entity.type);
+    const filename = name.replace(/ /g, "") + ".h";
+
+    return `astro/entity_behaviors/${filename}`;
+  });
+
+  return replaceFileContents(
+    dispatcherFileContents,
+    "#include \"astro/entity_dispatcher.h\"",
+    `\n\n${includePaths.map(includePath => `#include "${includePath}"`).join("\n")}\n\n`,
+    "using namespace astro;"
+  );
 }
 
 // Build step
 {
-  const entitiesSourceFilePath = path.resolve("./astro/entities.h");
-  const entitiesSourceFileContents = fs.readFileSync(entitiesSourceFilePath).toString();
-  const entityDefaultsMapString = createEntityDefaultsMapString(entities);
+  const entitiesFilePath = path.resolve("./astro/entities.h");
+  const dispatcherFilePath = path.resolve("./astro/entity_dispatcher.cpp");
+  const sortedEntities = entities.sort((a, b) => a.type < b.type ? -1 : 1);
 
-  // console.log(entitiesSourceFileContents);
-  // console.log(entityDefaultsMapString);
+  let entitiesFileContents = fs.readFileSync(entitiesFilePath).toString();
+  entitiesFileContents = addEntityTypesEnum(entitiesFileContents, sortedEntities);
+  entitiesFileContents = addEntityTypesList(entitiesFileContents, sortedEntities);
+  entitiesFileContents = addEntityMeshes(entitiesFileContents, sortedEntities);
+  entitiesFileContents = addEntityArrays(entitiesFileContents, sortedEntities);
+  entitiesFileContents = addEntityDefaultsMap(entitiesFileContents, sortedEntities);
 
-  for (const entity of entities) {
+  let dispatcherFileContents = fs.readFileSync(dispatcherFilePath).toString();
+  dispatcherFileContents = addEntityBehaviorIncludes(dispatcherFileContents, entities);
+
+  fs.writeFileSync(entitiesFilePath, entitiesFileContents);
+  fs.writeFileSync(dispatcherFilePath, dispatcherFileContents);
+
+  for (const entity of sortedEntities) {
     const name = convertTypeToName(entity.type);
     const filename = name.replace(/ /g, "") + ".h";
     const modelsFolderPath = path.resolve(`./astro/3d_models/${entity.type.toLowerCase()}`);

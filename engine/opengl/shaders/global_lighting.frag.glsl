@@ -166,15 +166,18 @@ vec3 GetDirectionalLightRadiance(
   // float light_factor = NdotL * (1.0 - shadow_factor);
   float light_factor = NdotL * ((1.0 - shadow_factor) + 4.0 * pow(1.0 - NdotV, 6.0));
 
-  float sD = DistributionGGX(NdotH, roughness);
-  float sG = GeometryGGX(NdotH, roughness, metalness);
+  float D = DistributionGGX(NdotH, roughness);
+  float G = GeometryGGX(NdotH, roughness, metalness);
 
-  float Sp = (sD + sG) * 1.5 * light_factor;
+  // @todo remove the 1.5 hack factor here and
+  // do color grading/correction/brightening elsewhere,
+  // assuming that's something we actually want!
+  float brdf = (D + G) * 1.5 * light_factor;
   float C = Clearcoat(NdotH, NdotV, clearcoat) * light_factor;
   // @todo pass the additional terms into Subsurface()
   float Sc = Subsurface(NdotV, subsurface) * (light_factor + 0.05) * (1.0 - metalness * 0.5);
 
-  return light_color * (albedo * Sp + C + albedo * albedo * Sc) / PI;
+  return light_color * (albedo * brdf + C + albedo * albedo * Sc) / PI;
 }
 
 const mat4[] light_matrices = {

@@ -591,10 +591,10 @@
     <ClInclude Include="astro\particles.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="astro\entity_behaviors\BellFlower.h">
+    <ClInclude Include="astro\entity_behaviors\Bellflower.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="astro\entity_behaviors\StarFlower.h">
+    <ClInclude Include="astro\entity_behaviors\Starflower.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="astro\entity_behaviors\Flag.h">
