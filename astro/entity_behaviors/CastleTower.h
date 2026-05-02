@@ -6,8 +6,8 @@
 namespace astro {
   behavior CastleTower {
     addMeshes() {
-      meshes.castle_tower_placeholder = CUBE_MESH(500);
-      meshes.castle_tower = CUBE_MESH(500);
+      meshes.castle_tower_placeholder = MODEL_MESH("./astro/3d_models/castle_tower/placeholder.obj", 500);
+      meshes.castle_tower = MODEL_MESH("./astro/3d_models/castle_tower/tower.obj", 500);
     }
 
     getMeshes() {
@@ -21,8 +21,19 @@ namespace astro {
     }
 
     timeEvolve() {
-      // @todo
+      auto& meshes = state.meshes;
+
+      reset_instances(meshes.castle_tower);
+
+      for_entities(state.castle_towers) {
+        auto& entity = state.castle_towers[i];
+
+        auto& tower = use_instance(meshes.castle_tower);
+
+        Sync(tower, entity);
+
+        commit(tower);
+      }
     }
   };
 }
-  

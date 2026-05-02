@@ -594,5 +594,16 @@ export default [
     ],
     scale: [ 4000.0 ],
     color: [ 0.6 ]
+  },
+
+  {
+    type: "CASTLE_STEEPLE",
+    list: "castle_steeples",
+    meshes: [
+      "castle_steeple_placeholder",
+      "castle_steeple"
+    ],
+    scale: [ 4000.0 ],
+    color: [ 0.6 ]
   }
 ];
