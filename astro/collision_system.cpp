@@ -307,6 +307,33 @@ static void HandleWoodenBridgeCollisions(Tachyon* tachyon, State& state) {
   }
 }
 
+static void HandleCastleTowerCollisions(Tachyon* tachyon, State& state) {
+  float player_body_y = state.player_position.y + PLAYER_HEIGHT;
+
+  for (auto& entity : state.castle_towers) {
+    float tower_top_y = entity.position.y + entity.scale.y;
+
+    if (tower_top_y > player_body_y) {
+      // Act as a wall
+
+      // @todo
+    } else {
+      // Allow movement on top of the tower
+      auto tower_plane = CollisionSystem::CreatePlane(entity.position, entity.scale * tVec3f(0.6f, 1.f, 0.6f), entity.orientation);
+
+      if (CollisionSystem::IsPointOnPlane(state.player_position, tower_plane)) {
+        float player_y = tower_top_y + PLAYER_HEIGHT;
+
+        AllowPlayerMovement(state, player_y, tower_plane);
+
+        state.is_on_solid_platform = true;
+
+        break;
+      }
+    }
+  }
+}
+
 static void HandleAltarCollisions(Tachyon* tachyon, State& state) {
   tVec3f player_xz = state.player_position.xz();
 
@@ -639,6 +666,7 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   // Resolve collisions with irregularly-shaped entities
   HandleSmallStoneBridgeCollisions(tachyon, state);
   HandleWoodenBridgeCollisions(tachyon, state);
+  HandleCastleTowerCollisions(tachyon, state);
   HandleAltarCollisions(tachyon, state);
   HandleWaterWheelCollisions(tachyon, state);
   HandleSlopeCollisions(tachyon, state);
