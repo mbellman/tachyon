@@ -219,15 +219,20 @@ static void HandleSlopeCollisions(Tachyon* tachyon, State& state) {
     if (CollisionSystem::IsPointOnPlane(player_xz, slope_plane)) {
       // Figure out how far along the slope the player is,
       // and set their height accordingly
+      //
+      // @todo the slope runs along the object-space x axis,
+      // which is counterintuitive. It should be z, ideally.
       tVec3f slope_to_player = state.player_position - slope.position;
       tVec3f player_position_in_slope_space = slope.rotation.toMatrix4f().inverse() * slope_to_player;
       float progress_along_slope = 0.5f * (1.f - player_position_in_slope_space.x / slope.scale.x);
       float slope_bottom_y = slope_plane.p1.y + PLAYER_HEIGHT;
       float player_y = slope_bottom_y + progress_along_slope * slope.scale.y;
+      float slope_dot = tVec3f::dot(state.player_facing_direction, slope.rotation.getLeftDirection());
 
       AllowPlayerMovement(state, player_y, slope_plane);
 
       state.is_on_solid_platform = true;
+      state.is_moving_down_slope = slope_dot < -0.f;
     }
   }
 }
@@ -313,7 +318,8 @@ static void HandleCastleTowerCollisions(Tachyon* tachyon, State& state) {
   for (auto& entity : state.castle_towers) {
     float tower_top_y = entity.position.y + entity.scale.y;
 
-    if (tower_top_y > player_body_y) {
+    // if (tower_top_y > player_body_y) {
+    if (entity.position.y > player_body_y) { // @temporary
       // Act as a wall
 
       // @todo
@@ -539,10 +545,10 @@ float CollisionSystem::QueryGroundHeight(State& state, const float x, const floa
 void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   profile("HandleCollisions()");
 
-  // Assume we're not on solid ground/platforms until
-  // such collisions determines otherwise
+  // Assume these conditions are false unless otherwise determined
   state.is_on_solid_ground = false;
   state.is_on_solid_platform = false;
+  state.is_moving_down_slope = false;
 
   // If we later resolve a radius collision, this is useful
   // to know in the context of resolving plane collisions

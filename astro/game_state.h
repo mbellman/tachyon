@@ -420,6 +420,7 @@ namespace astro {
     float last_wind_chimes_action_time = 0.f;
     bool is_on_solid_ground = false;
     bool is_on_solid_platform = false;
+    bool is_moving_down_slope = false;
     bool did_resolve_radius_collision = false;
     int32 last_used_wind_chimes_id = -1;
 

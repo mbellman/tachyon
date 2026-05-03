@@ -51,7 +51,7 @@ static bool HasNextWandAnimation(State& state) {
   );
 }
 
-static void HandleActiveAnimation(Tachyon* tachyon, State& state) {
+static void UpdateActiveAnimation(Tachyon* tachyon, State& state) {
   auto& player_animation = state.player_mesh_animation;
   auto& animations = state.animations;
 
@@ -155,7 +155,7 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
   auto& player_animation = state.player_mesh_animation;
   auto& animations = state.animations;
 
-  // If our current or pending animation involves holding the wand,
+  // If our current and pending animation involves holding the wand,
   // but we're not longer holding it, speed up the current blend
   // so we transition out of the idle/walk/run-with-wand animation
   // more quickly.
@@ -169,10 +169,12 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
 
   // Blend faster if we're not currently in the running animation while running
   if (
-    PlayerCharacter::IsRunning(tachyon, state) &&
-    (player_animation.current_animation != &animations.player_run && player_animation.current_animation != &animations.player_run_wand)
+    PlayerCharacter::IsRunning(tachyon, state) && (
+      player_animation.current_animation != &animations.player_run &&
+      player_animation.current_animation != &animations.player_run_wand
+    )
   ) {
-    return 10.f;
+    return 6.f;
   }
 
   if (
@@ -199,7 +201,7 @@ static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
   auto& player_animation = state.player_mesh_animation;
   auto& animations = state.animations;
 
-  HandleActiveAnimation(tachyon, state);
+  UpdateActiveAnimation(tachyon, state);
 
   bool moving_forward = tVec3f::dot(state.player_velocity, state.player_facing_direction) >= 0.f;
   float animation_speed = GetAnimationSpeed(tachyon, state);
@@ -487,10 +489,10 @@ static void UpdateFlasks(Tachyon* tachyon, State& state, const tVec3f& body_posi
     float swing_angle = 0.75f * speed_ratio* sinf(get_scene_time() * 10.f);
     Quaternion swing_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), swing_angle);
 
-    flask.position = body_position + player_rotation.toMatrix4f() * tVec3f(625.f, 200.f, 0.f);
+    flask.position = body_position + player_rotation.toMatrix4f() * tVec3f(600.f, 200.f, 0.f);
     flask.rotation = player_rotation * swing_rotation * side_swing_rotation;
-    flask.scale = tVec3f(1500.f);
-    flask.color.rgba = 0x611A;
+    flask.scale = tVec3f(1750.f);
+    flask.color.rgba = 0x622F;
     flask.material = tVec4f(0.2f, 0, 1.f, 0.5f);
 
     commit(flask);
@@ -506,7 +508,7 @@ static void UpdateFlasks(Tachyon* tachyon, State& state, const tVec3f& body_posi
     flask.position = body_position + player_rotation.toMatrix4f() * tVec3f(610.f, 250.f, -200.f);
     flask.rotation = player_rotation * swing_rotation * side_swing_rotation;
     flask.scale = tVec3f(1500.f);
-    flask.color.rgba = 0x428F;
+    flask.color.rgba = 0x648F;
     flask.material = tVec4f(0.2f, 0, 1.f, 0.5f);
 
     commit(flask);

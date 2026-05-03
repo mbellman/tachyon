@@ -88,6 +88,7 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
     // In HandleSpeedDampening(), we actually perform hard speed limiting
     // and slowdown behavior.
     float controlled_speed_limit =
+      state.is_moving_down_slope ? PlayerCharacter::MAX_RUN_SPEED_DOWN_SLOPES :
       is_running ? PlayerCharacter::MAX_RUN_SPEED :
       state.has_target ? PlayerCharacter::MAX_COMBAT_WALK_SPEED :
       PlayerCharacter::MAX_WALK_SPEED;
