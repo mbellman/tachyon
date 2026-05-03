@@ -1303,6 +1303,20 @@ static void PlaceNewEntity(Tachyon* tachyon, State& state) {
 
 /**
  * ----------------------------
+ * Sets the current entity rotation based on its placeholder object.
+ * ----------------------------
+ */
+static void SyncEntityRotation(State& state) {
+  // Find and sync the rotation of the original entity
+  auto& placeholder = editor.current_selectable.placeholder;
+  auto* entity = EntityManager::FindEntity(state, editor.current_selectable.entity_record);
+
+  entity->orientation = placeholder.rotation;
+  entity->visible_rotation = placeholder.rotation;
+}
+
+/**
+ * ----------------------------
  * Handler for moving selected objects around.
  * ----------------------------
  */
@@ -1430,11 +1444,7 @@ static void HandleCurrentSelectedRotateActions(Tachyon* tachyon, State& state) {
   // @optimize We don't need to do this every time the object is moved!
   // It would be perfectly acceptable to do this on deselection.
   if (editor.current_selectable.is_entity) {
-    // Find and sync the rotation of the original entity
-    auto* entity = EntityManager::FindEntity(state, editor.current_selectable.entity_record);
-
-    entity->orientation = placeholder.rotation;
-    entity->visible_rotation = placeholder.rotation;
+    SyncEntityRotation(state);
   }
 
   commit(placeholder);
@@ -1458,6 +1468,60 @@ static void HandleCurrentSelectedMouseActions(Tachyon* tachyon, State& state) {
   }
   else if (editor.current_gizmo_action == ROTATE) {
     HandleCurrentSelectedRotateActions(tachyon, state);
+  }
+}
+
+/**
+ * ----------------------------
+ * Handler for left arrow actions on selected objects/entities.
+ * ----------------------------
+ */
+static void HandleCurrentSelectedLeftArrowAction(Tachyon* tachyon, State& state) {
+  if (editor.current_gizmo_action == ROTATE) {
+    auto& placeholder = editor.current_selectable.placeholder;
+
+    placeholder.rotation *= Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -t_HALF_PI);
+
+    commit(placeholder);
+
+    if (editor.current_selectable.is_entity) {
+      SyncEntityRotation(state);
+    }
+  }
+
+  else if (editor.current_gizmo_action == POSITION) {
+    // @todo
+  }
+
+  else if (editor.current_gizmo_action == SCALE) {
+    // @todo
+  }
+}
+
+/**
+ * ----------------------------
+ * Handler for right arrow actions on selected objects/entities.
+ * ----------------------------
+ */
+static void HandleCurrentSelectedRightArrowAction(Tachyon* tachyon, State& state) {
+  if (editor.current_gizmo_action == ROTATE) {
+    auto& placeholder = editor.current_selectable.placeholder;
+
+    placeholder.rotation *= Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_HALF_PI);
+
+    commit(placeholder);
+
+    if (editor.current_selectable.is_entity) {
+      SyncEntityRotation(state);
+    }
+  }
+
+  else if (editor.current_gizmo_action == POSITION) {
+    // @todo
+  }
+
+  else if (editor.current_gizmo_action == SCALE) {
+    // @todo
   }
 }
 
@@ -1869,6 +1933,14 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
     if (did_press_key(tKey::P) && is_entity_selected && tachyon->hotkeys_enabled) {
       PasteCopiedEntityProperties(state);
       show_overlay_message("Pasted astro times");
+    }
+
+    if (did_press_key(tKey::ARROW_LEFT)) {
+      HandleCurrentSelectedLeftArrowAction(tachyon, state);
+    }
+
+    if (did_press_key(tKey::ARROW_RIGHT)) {
+      HandleCurrentSelectedRightArrowAction(tachyon, state);
     }
   } else {
     // Free actions
