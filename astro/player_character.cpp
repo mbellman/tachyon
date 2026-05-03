@@ -475,16 +475,23 @@ static void UpdateSatchel(Tachyon* tachyon, State& state, const tVec3f& body_pos
 
 static void UpdateFlasks(Tachyon* tachyon, State& state, const tVec3f& body_position, const Quaternion& player_rotation) {
   auto& meshes = state.meshes;
+  auto& player_animation = state.player_mesh_animation;
+
+  float speed_ratio = state.player_velocity.magnitude() / PlayerCharacter::MAX_RUN_SPEED;
+  Quaternion side_swing_rotation = Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), 4.f * state.tilt_angle);
 
   // Flask 1
   {
     auto& flask = objects(meshes.player_flask)[0];
 
-    Quaternion rotation = player_rotation;
+    float swing_angle = 0.75f * speed_ratio* sinf(get_scene_time() * 10.f);
+    Quaternion swing_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), swing_angle);
 
-    flask.position = body_position + rotation.toMatrix4f() * tVec3f(650.f, 250.f, -200.f);
-    flask.rotation = player_rotation;
+    flask.position = body_position + player_rotation.toMatrix4f() * tVec3f(625.f, 200.f, 0.f);
+    flask.rotation = player_rotation * swing_rotation * side_swing_rotation;
     flask.scale = tVec3f(1500.f);
+    flask.color.rgba = 0x611A;
+    flask.material = tVec4f(0.2f, 0, 1.f, 0.5f);
 
     commit(flask);
   }
@@ -493,11 +500,14 @@ static void UpdateFlasks(Tachyon* tachyon, State& state, const tVec3f& body_posi
   {
     auto& flask = objects(meshes.player_flask)[1];
 
-    Quaternion rotation = player_rotation;
+    float swing_angle = 0.6f * speed_ratio * sinf(get_scene_time() * 10.f - 1.25f);
+    Quaternion swing_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), swing_angle);
 
-    flask.position = body_position + rotation.toMatrix4f() * tVec3f(650.f, 200.f, 0.f);
-    flask.rotation = player_rotation;
+    flask.position = body_position + player_rotation.toMatrix4f() * tVec3f(610.f, 250.f, -200.f);
+    flask.rotation = player_rotation * swing_rotation * side_swing_rotation;
     flask.scale = tVec3f(1500.f);
+    flask.color.rgba = 0x428F;
+    flask.material = tVec4f(0.2f, 0, 1.f, 0.5f);
 
     commit(flask);
   }

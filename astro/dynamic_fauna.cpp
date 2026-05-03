@@ -270,7 +270,7 @@ static void HandleTinyBirdIdling(Tachyon* tachyon, TinyBird& bird) {
 static void HandleTinyBirdFlyingAway(TinyBird& bird, const tVec3f& direction, const float dt) {
   Quaternion away_rotation = Quaternion::FromDirection(direction, tVec3f(0, 1.f, 0));
 
-  bird.position += direction * 15000.f * dt;
+  bird.position += direction * 13000.f * dt;
   bird.position.y += 7000.f * dt;
   bird.rotation = Quaternion::nlerp(bird.rotation, away_rotation, 20.f * dt);
 }
