@@ -473,6 +473,36 @@ static void UpdateSatchel(Tachyon* tachyon, State& state, const tVec3f& body_pos
   commit(satchel);
 }
 
+static void UpdateFlasks(Tachyon* tachyon, State& state, const tVec3f& body_position, const Quaternion& player_rotation) {
+  auto& meshes = state.meshes;
+
+  // Flask 1
+  {
+    auto& flask = objects(meshes.player_flask)[0];
+
+    Quaternion rotation = player_rotation;
+
+    flask.position = body_position + rotation.toMatrix4f() * tVec3f(650.f, 250.f, -200.f);
+    flask.rotation = player_rotation;
+    flask.scale = tVec3f(1500.f);
+
+    commit(flask);
+  }
+
+  // Flask 2
+  {
+    auto& flask = objects(meshes.player_flask)[1];
+
+    Quaternion rotation = player_rotation;
+
+    flask.position = body_position + rotation.toMatrix4f() * tVec3f(650.f, 200.f, 0.f);
+    flask.rotation = player_rotation;
+    flask.scale = tVec3f(1500.f);
+
+    commit(flask);
+  }
+}
+
 static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player_rotation, tMat4f& player_rotation_matrix) {
   auto& meshes = state.meshes;
 
@@ -528,10 +558,11 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
     commit(head);
   }
 
-  // Luggage
+  // Attachments
   {
     UpdateBlanket(tachyon, state, body_position, player_rotation);
     UpdateSatchel(tachyon, state, body_position, player_rotation);
+    UpdateFlasks(tachyon, state, body_position, player_rotation);
   }
 
   // Clothing
