@@ -868,9 +868,6 @@ static void StopEditingEntityProperties(Tachyon* tachyon) {
   editor.is_editing_entity_properties = false;
   editor.editing_entity_step = 0;
   editor.edited_entity_property_value = "";
-
-  // Restore engine hotkeys
-  tachyon->hotkeys_enabled = true;
 }
 
 /**
@@ -1857,7 +1854,7 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
       ToggleUniformScaling();
     }
 
-    if (did_press_key(tKey::ENTER) && is_entity_selected && tachyon->hotkeys_enabled) {
+    if (did_press_key(tKey::ENTER) && is_entity_selected && !editor.is_editing_entity_properties) {
       StartEditingEntityProperties(tachyon);
     }
     else if (editor.is_editing_entity_properties) {
