@@ -37,6 +37,8 @@ struct LevelEditorState {
 
   float copied_astro_start_time = 0.f;
   float copied_astro_end_time = 0.f;
+  tVec3f copied_scale = tVec3f(1000.f);
+  Quaternion copied_rotation = Quaternion(1.f, 0, 0, 0);
 
   bool is_anything_selected = false;
   bool is_in_placement_mode = false;
@@ -1733,7 +1735,7 @@ static void DeleteSelected(Tachyon* tachyon, State& state) {
  * Copies the start/end time for the selected entity.
  * ----------------------------
  */
-static void CopySelectedEntityProperties(State& state) {
+static void CopySelectedEntityAstroTimes(State& state) {
   auto& selected = editor.current_selectable;
   auto& entity = *EntityManager::FindEntity(state, selected.entity_record);
 
@@ -1746,12 +1748,43 @@ static void CopySelectedEntityProperties(State& state) {
  * "Pastes" the copied start/end time "onto" the selected entity.
  * ----------------------------
  */
-static void PasteCopiedEntityProperties(State& state) {
+static void PasteCopiedEntityAstroTimes(State& state) {
   auto& selected = editor.current_selectable;
   auto& entity = *EntityManager::FindEntity(state, selected.entity_record);
 
   entity.astro_start_time = editor.copied_astro_start_time;
   entity.astro_end_time = editor.copied_astro_end_time;
+}
+
+/**
+ * ----------------------------
+ * Copies the rotation for the selected entity.
+ * ----------------------------
+ */
+static void CopySelectedEntityRotation(State& state) {
+  auto& selected = editor.current_selectable;
+  auto& entity = *EntityManager::FindEntity(state, selected.entity_record);
+
+  editor.copied_rotation = entity.orientation;
+}
+
+/**
+ * ----------------------------
+ * "Pastes" the copied rotation "onto" the selected entity.
+ * ----------------------------
+ */
+static void PasteCopiedEntityRotation(Tachyon* tachyon, State& state) {
+  auto& selected = editor.current_selectable;
+  auto& entity = *EntityManager::FindEntity(state, selected.entity_record);
+
+  entity.orientation = editor.copied_rotation;
+  entity.visible_rotation = editor.copied_rotation;
+
+  selected.placeholder.rotation = editor.copied_rotation;
+
+  commit(selected.placeholder);
+
+  show_overlay_message("Pasted rotation");
 }
 
 /**
@@ -1926,13 +1959,22 @@ static void HandleEditorActions(Tachyon* tachyon, State& state) {
     }
 
     if (did_press_key(tKey::C) && is_entity_selected && tachyon->hotkeys_enabled) {
-      CopySelectedEntityProperties(state);
+      CopySelectedEntityAstroTimes(state);
       show_overlay_message("Copied astro times");
     }
 
     if (did_press_key(tKey::P) && is_entity_selected && tachyon->hotkeys_enabled) {
-      PasteCopiedEntityProperties(state);
+      PasteCopiedEntityAstroTimes(state);
       show_overlay_message("Pasted astro times");
+    }
+
+    if (did_press_key(tKey::R) && !is_key_held(tKey::SHIFT) && is_entity_selected && tachyon->hotkeys_enabled) {
+      CopySelectedEntityRotation(state);
+      show_overlay_message("Copied rotation");
+    }
+
+    if (did_press_key(tKey::R) && is_key_held(tKey::SHIFT) && is_entity_selected && tachyon->hotkeys_enabled) {
+      PasteCopiedEntityRotation(tachyon, state);
     }
 
     if (did_press_key(tKey::ARROW_LEFT)) {

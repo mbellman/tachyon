@@ -8,7 +8,7 @@
 #include "engine/tachyon_types.h"
 #include "astro/entities.h"
 
-#define MAX_ANIMATED_PEOPLE 5
+#define MAX_ANIMATED_PEOPLE 10
 
 // @todo pass entity variable name
 #define for_entities(array) for (uint16 i = 0; i < (uint16)array.size(); i++)
