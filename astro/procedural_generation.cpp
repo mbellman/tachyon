@@ -481,10 +481,10 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
       {
         // @todo past
         const static tColor colors[] = {
-          tVec4f(0.2f, 0.5f, 0.1f, 0.1f),
-          tVec4f(0.3f, 0.6f, 0.1f, 0.1f),
           tVec4f(0.2f, 0.4f, 0.1f, 0.1f),
-          tVec4f(0.1f, 0.3f, 0.1f, 0.1f)
+          tVec4f(0.2f, 0.5f, 0.1f, 0.1f),
+          tVec4f(0.1f, 0.3f, 0.1f, 0.1f),
+          tVec4f(0.1f, 0.2f, 0.1f, 0.2f)
         };
 
         // @todo present
@@ -1089,7 +1089,6 @@ static void UpdateDirtPaths(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
   auto& player_position = state.player_position;
 
-  const tVec3f solid_ground_color = tVec3f(0.3f, 0.5f, 0.1f);
   // @todo change by area/world position
   tVec3f path_color = tVec3f(1.f, 0.8f, 0.4f);
 
@@ -1120,20 +1119,16 @@ static void UpdateDirtPaths(Tachyon* tachyon, State& state) {
     // Reduce the size/conspicuousness of the path
     // as we approach its starting time
     if (age < 40.f && astro_start_time != 0.f) {
-      const tVec3f ground_color = solid_ground_color;
       float alpha = age / 40.f;
 
-      // path.color = tVec3f::lerp(ground_color, path_color, alpha);
       path.position.y = Tachyon_Lerpf(ground_y, path.position.y, alpha);
       path.scale.x *= alpha;
     }
 
     // Erode the path toward its end time
     if (remaining_time < 40.f && astro_end_time != 0.f) {
-      const tVec3f ground_color = solid_ground_color;
       float alpha = remaining_time / 40.f;
 
-      // path.color = tVec3f::lerp(ground_color, path_color, alpha);
       path.position.y = Tachyon_Lerpf(ground_y, path.position.y, alpha);
       path.scale.x *= alpha;
     }

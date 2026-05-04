@@ -46,7 +46,7 @@ namespace astro {
         tVec3f(1.f, 0.3f, 0.5f)
       };
 
-      const tVec3f leaves_color = tVec3f(0.4f, 0.8f, 0.2f);
+      const tVec3f leaves_color = tVec3f(0.2f, 0.6f, 0.2f);
       const tVec3f wilted_color = tVec3f(0.1f, 0, 0);
 
       reset_instances(meshes.tulip_plant_leaves);

@@ -138,6 +138,10 @@ void DataLoader::LoadLevelData(Tachyon* tachyon, State& state) {
         object.material = tVec4f(1., 0, 0, 0);
       }
 
+      if (mesh_index == state.meshes.stairs_floor) {
+        object.material = tVec4f(1., 0, 0, 0);
+      }
+
       commit(object);
 
     // Entity name specifier; update current entity type
