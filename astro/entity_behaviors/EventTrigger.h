@@ -34,8 +34,9 @@ namespace astro {
         if (!IsDuringActiveTime(entity, state)) continue;
 
         float player_distance = tVec3f::distance(state.player_position, entity.position);
+        float event_radius = 2000.f * (entity.scale.x / 1500.f);
 
-        if (player_distance < 2000.f && entity.unique_name != "tutorial_bird") {
+        if (player_distance < event_radius && entity.unique_name != "tutorial_bird") {
           entity.did_activate = true;
 
           GameEvents::StartEvent(tachyon, state, entity.unique_name);
