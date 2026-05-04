@@ -493,7 +493,7 @@ static void UpdateFlasks(Tachyon* tachyon, State& state, const tVec3f& body_posi
     flask.position = body_position + player_rotation_matrix * offset;
     flask.rotation = player_rotation * swing_rotation * side_swing_rotation;
     flask.scale = tVec3f(1750.f);
-    flask.color.rgba = 0x622F;
+    flask.color.rgba = 0xA448;
     flask.material = tVec4f(0.2f, 0, 1.f, 0.5f);
 
     commit(flask);
@@ -510,7 +510,7 @@ static void UpdateFlasks(Tachyon* tachyon, State& state, const tVec3f& body_posi
     flask.position = body_position + player_rotation_matrix * offset;
     flask.rotation = player_rotation * swing_rotation * side_swing_rotation;
     flask.scale = tVec3f(1500.f);
-    flask.color.rgba = 0x648F;
+    flask.color.rgba = 0x64A8;
     flask.material = tVec4f(0.2f, 0, 1.f, 0.5f);
 
     commit(flask);
