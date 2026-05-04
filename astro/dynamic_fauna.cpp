@@ -179,17 +179,24 @@ static void SpawnTinyBird(Tachyon* tachyon, State& state, const GameEntity& spaw
 
   TinyBird bird;
 
-  bird.position = spawn_entity.position;
-  bird.position.x += Tachyon_GetRandom(-4000.f, 4000.f);
-  bird.position.z += Tachyon_GetRandom(-4000.f, 4000.f);
-  bird.position.y = CollisionSystem::QueryGroundHeight(state, bird.position.x, bird.position.z);
-  bird.position.y += 400.f;
-  bird.target_position = bird.position;
+  // Determine target position
+  tVec3f target_position = spawn_entity.position;
+  target_position.x += Tachyon_GetRandom(-4000.f, 4000.f);
+  target_position.z += Tachyon_GetRandom(-4000.f, 4000.f);
+  target_position.y = CollisionSystem::QueryGroundHeight(state, target_position.x, target_position.z);
+  target_position.y += 400.f;
+
+  bird.target_position = target_position;
+
+  // Start offscreen and fly in
+  tVec3f offset = tVec3f(20000.f, target_position.y + 15000.f, 0.f);
+
+  bird.position = target_position + offset;
 
   // @todo make random
   bird.rotation = Quaternion(1.f, 0, 0, 0);
 
-  bird.state = TinyBird::IDLING;
+  bird.state = TinyBird::FLY_DOWN;
   bird.last_jump_time = get_scene_time();
 
   state.tiny_birds.push_back(bird);
@@ -267,6 +274,22 @@ static void HandleTinyBirdIdling(Tachyon* tachyon, TinyBird& bird) {
   }
 }
 
+static void HandleTinyBirdFlyingDown(TinyBird& bird, const tVec3f& direction, const float dt) {
+  Quaternion rotation = Quaternion::FromDirection(direction, tVec3f(0, 1.f, 0));
+  float distance = (bird.target_position - bird.position).magnitude();
+  float distance_ratio = distance / 20000.f;
+  float speed = Tachyon_Lerpf(5000.f, 13000.f, distance_ratio);
+
+  bird.position += direction * speed * dt;
+  bird.position.y = bird.target_position.y + 15000.f * distance_ratio;
+  bird.rotation = Quaternion::nlerp(bird.rotation, rotation, 20.f * dt);
+
+  if (distance < 100.f) {
+    bird.position = bird.target_position;
+    bird.state = TinyBird::IDLING;
+  }
+}
+
 static void HandleTinyBirdFlyingAway(TinyBird& bird, const tVec3f& direction, const float dt) {
   Quaternion away_rotation = Quaternion::FromDirection(direction, tVec3f(0, 1.f, 0));
 
@@ -308,7 +331,13 @@ static void HandleTinyBird(Tachyon* tachyon, State& state, TinyBird& bird, const
       HandleTinyBirdIdling(tachyon, bird);
     }
 
-    if (bird.state == TinyBird::FLY_UP) {
+    else if (bird.state == TinyBird::FLY_DOWN) {
+      tVec3f fly_direction = (bird.target_position - bird.position).xz().unit();
+
+      HandleTinyBirdFlyingDown(bird, fly_direction, state.dt);
+    }
+
+    else if (bird.state == TinyBird::FLY_UP) {
       tVec3f fly_direction = player_to_bird.xz().unit();
 
       HandleTinyBirdFlyingAway(bird, fly_direction, state.dt);
