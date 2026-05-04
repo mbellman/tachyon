@@ -475,7 +475,7 @@ static void UpdateSatchel(Tachyon* tachyon, State& state, const tVec3f& body_pos
   commit(satchel);
 }
 
-static void UpdateFlasks(Tachyon* tachyon, State& state, const tVec3f& body_position, const Quaternion& player_rotation) {
+static void UpdateFlasks(Tachyon* tachyon, State& state, const tVec3f& body_position, const Quaternion& player_rotation, const tMat4f& player_rotation_matrix) {
   auto& meshes = state.meshes;
   auto& player_animation = state.player_mesh_animation;
 
@@ -488,8 +488,9 @@ static void UpdateFlasks(Tachyon* tachyon, State& state, const tVec3f& body_posi
 
     float swing_angle = 0.75f * speed_ratio* sinf(get_scene_time() * 10.f);
     Quaternion swing_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), swing_angle);
+    tVec3f offset = tVec3f(600.f, 200.f + 50.f * swing_angle, 0.f);
 
-    flask.position = body_position + player_rotation.toMatrix4f() * tVec3f(600.f, 200.f, 0.f);
+    flask.position = body_position + player_rotation_matrix * offset;
     flask.rotation = player_rotation * swing_rotation * side_swing_rotation;
     flask.scale = tVec3f(1750.f);
     flask.color.rgba = 0x622F;
@@ -504,8 +505,9 @@ static void UpdateFlasks(Tachyon* tachyon, State& state, const tVec3f& body_posi
 
     float swing_angle = 0.6f * speed_ratio * sinf(get_scene_time() * 10.f - 1.25f);
     Quaternion swing_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), swing_angle);
+    tVec3f offset = tVec3f(610.f, 250.f + 50.f * swing_angle, -200.f);
 
-    flask.position = body_position + player_rotation.toMatrix4f() * tVec3f(610.f, 250.f, -200.f);
+    flask.position = body_position + player_rotation_matrix * offset;
     flask.rotation = player_rotation * swing_rotation * side_swing_rotation;
     flask.scale = tVec3f(1500.f);
     flask.color.rgba = 0x648F;
@@ -574,7 +576,7 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
   {
     UpdateBlanket(tachyon, state, body_position, player_rotation);
     UpdateSatchel(tachyon, state, body_position, player_rotation);
-    UpdateFlasks(tachyon, state, body_position, player_rotation);
+    UpdateFlasks(tachyon, state, body_position, player_rotation, player_rotation_matrix);
   }
 
   // Clothing
