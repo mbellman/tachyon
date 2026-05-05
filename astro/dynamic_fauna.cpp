@@ -474,7 +474,8 @@ static void HandleTinyBirds(Tachyon* tachyon, State& state) {
 
     if (
       abs(bird.position.x - state.player_position.x) > 25000.f ||
-      abs(bird.position.z - state.player_position.z) > 25000.f
+      abs(bird.position.z - state.player_position.z) > 25000.f ||
+      state.astro_turn_speed != 0.f
     ) {
       birds.erase(birds.begin() + i);
     }

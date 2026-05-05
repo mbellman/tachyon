@@ -25,7 +25,11 @@ namespace astro {
 
         bool is_active = IsDuringActiveTime(entity, state);
 
-        if (!is_active) continue;
+        if (!is_active || state.astro_turn_speed != 0.f) {
+          entity.visible_rotation = entity.orientation;
+
+          continue;
+        }
 
         // Interaction
         {
