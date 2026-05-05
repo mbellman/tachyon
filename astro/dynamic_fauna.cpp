@@ -175,9 +175,9 @@ static void HandleButterflies(Tachyon* tachyon, State& state) {
  * ----------
  */
 static void SpawnTinyBird(Tachyon* tachyon, State& state, const GameEntity& spawn_entity) {
-  state.last_tiny_bird_spawn_time = get_scene_time();
+  float scene_time = get_scene_time();
 
-  TinyBird bird;
+  state.last_tiny_bird_spawn_time = scene_time;
 
   // Determine target position
   tVec3f target_position = spawn_entity.position;
@@ -186,10 +186,13 @@ static void SpawnTinyBird(Tachyon* tachyon, State& state, const GameEntity& spaw
   target_position.y = CollisionSystem::QueryGroundHeight(state, target_position.x, target_position.z);
   target_position.y += 400.f;
 
+  TinyBird bird;
   bird.target_position = target_position;
 
-  // Start offscreen and fly in
-  tVec3f offset = tVec3f(20000.f, target_position.y + 15000.f, 0.f);
+  // Pick a starting offset from which to fly in
+  float x = 12000.f * sinf(scene_time);
+  float z = 12000.f * cosf(scene_time);
+  tVec3f offset = tVec3f(x, target_position.y + 15000.f, z);
 
   bird.position = target_position + offset;
 
@@ -197,7 +200,7 @@ static void SpawnTinyBird(Tachyon* tachyon, State& state, const GameEntity& spaw
   bird.rotation = Quaternion(1.f, 0, 0, 0);
 
   bird.state = TinyBird::FLY_DOWN;
-  bird.last_jump_time = get_scene_time();
+  bird.last_jump_time = scene_time;
 
   state.tiny_birds.push_back(bird);
 }
@@ -206,6 +209,7 @@ static void HandleTinyBirdSpawningBehavior(Tachyon* tachyon, State& state, const
   float last_spawn_time = time_since(state.last_tiny_bird_spawn_time);
 
   if (last_spawn_time < 5.3f) return;
+  if (abs(state.astro_turn_speed) != 0.f) return;
 
   for_entities(state.bird_spawns) {
     auto& entity = state.bird_spawns[i];

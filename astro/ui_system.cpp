@@ -244,9 +244,10 @@ void UISystem::UpdateHUD(Tachyon* tachyon, State& state) {
   // Current location
   {
     // @todo make dynamic
-    tUIElement* location_title = state.ui.lake_promenade_title;
+    // tUIElement* current_location_title = state.ui.lake_promenade_title;
+    tUIElement* current_location_title = state.ui.divination_woodrealm_title;
 
-    Tachyon_DrawUIElement(tachyon, location_title, {
+    Tachyon_DrawUIElement(tachyon, current_location_title, {
       .screen_x = int32(float(tachyon->window_width) * 0.155f),
       .screen_y = tachyon->window_height - 110,
       .centered = false,
