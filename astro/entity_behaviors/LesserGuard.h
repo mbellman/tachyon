@@ -165,8 +165,11 @@ namespace astro {
         float alerted_speed = PlayerCharacter::GetHumanEnemyAlertedSpeed(state);
 
         bool can_notice_player = (
-          tVec3f::dot(GetFacingDirection(entity), player_direction) > 0.2f ||
-          (player_distance < 4000.f && state.player_velocity.magnitude() > alerted_speed)
+          tVec3f::dot(GetFacingDirection(entity), player_direction) > 0.2f || (
+            player_distance < 4000.f &&
+            abs(state.player_position.y - entity.visible_position.y) < 5000.f &&
+            state.player_velocity.magnitude() > alerted_speed
+          )
         );
 
         // Collision handling

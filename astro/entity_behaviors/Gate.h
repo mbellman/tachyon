@@ -45,10 +45,6 @@ namespace astro {
         if (abs(state.player_position.x - entity.position.x) > 25000.f) continue;
         if (abs(state.player_position.z - entity.position.z) > 25000.f) continue;
 
-        tVec3f player_to_interaction_position = entity.position.xz() - state.player_position.xz();
-        float distance_from_interaction_position = player_to_interaction_position.magnitude();
-        tVec3f interaction_direction = player_to_interaction_position / distance_from_interaction_position;
-
         auto& body = use_instance(meshes.gate_body);
         auto& door_left = use_instance(meshes.gate_left_door);
         auto& door_right = use_instance(meshes.gate_right_door);
@@ -77,6 +73,11 @@ namespace astro {
           state.astro_time >= entity.astro_activation_time
         );
 
+        tVec3f player_to_entity_xz = entity.position.xz() - state.player_position.xz();
+        float player_to_entity_xz_distance = player_to_entity_xz.magnitude();
+        float player_to_entity_y_distance = abs(state.player_position.y - entity.position.y);
+        tVec3f interaction_direction = player_to_entity_xz / player_to_entity_xz_distance;
+
         if (is_open) {
           float time_since_opened = time_since(entity.game_activation_time);
 
@@ -104,7 +105,8 @@ namespace astro {
           }
         } else if (
           abs(state.astro_turn_speed) < 0.1f &&
-          distance_from_interaction_position < 3000.f &&
+          player_to_entity_xz_distance < 3000.f &&
+          player_to_entity_y_distance < 4000.f &&
           tVec3f::dot(state.player_facing_direction, interaction_direction) > 0.5f
         ) {
           bool has_gate_key = Items::HasItem(state, GATE_KEY);
