@@ -39,6 +39,7 @@
 #include "astro/entity_behaviors/RoseBush.h"
 #include "astro/entity_behaviors/Sculpture1.h"
 #include "astro/entity_behaviors/Shrub.h"
+#include "astro/entity_behaviors/Signpost.h"
 #include "astro/entity_behaviors/SmallBird.h"
 #include "astro/entity_behaviors/SmallStoneBridge.h"
 #include "astro/entity_behaviors/Starflower.h"
@@ -120,6 +121,7 @@ using namespace astro;
   dispatch_macro(ROSE_BUSH, RoseBush);\
   dispatch_macro(SCULPTURE_1, Sculpture1);\
   dispatch_macro(SHRUB, Shrub);\
+  dispatch_macro(SIGNPOST, Signpost);\
   dispatch_macro(SMALL_BIRD, SmallBird);\
   dispatch_macro(SMALL_STONE_BRIDGE, SmallStoneBridge);\
   dispatch_macro(STARFLOWER, Starflower);\
@@ -178,6 +180,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
     dispatch_GetEntityContainer(ROSE_BUSH, state.rose_bushes);
     dispatch_GetEntityContainer(SCULPTURE_1, state.sculpture_1s);
     dispatch_GetEntityContainer(SHRUB, state.shrubs);
+    dispatch_GetEntityContainer(SIGNPOST, state.signposts);
     dispatch_GetEntityContainer(SMALL_BIRD, state.small_birds);
     dispatch_GetEntityContainer(SMALL_STONE_BRIDGE, state.small_stone_bridges);
     dispatch_GetEntityContainer(STARFLOWER, state.starflowers);

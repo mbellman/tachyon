@@ -52,6 +52,7 @@ namespace astro {
     ROSE_BUSH,
     SCULPTURE_1,
     SHRUB,
+    SIGNPOST,
     SMALL_BIRD,
     SMALL_STONE_BRIDGE,
     STARFLOWER,
@@ -115,6 +116,7 @@ namespace astro {
     ROSE_BUSH,
     SCULPTURE_1,
     SHRUB,
+    SIGNPOST,
     SMALL_BIRD,
     SMALL_STONE_BRIDGE,
     STARFLOWER,
@@ -438,6 +440,10 @@ namespace astro {
       shrub_middle,
       shrub_top,
 
+      // SIGNPOST
+      signpost_placeholder,
+      signpost,
+
       // SMALL_BIRD
       small_bird_placeholder,
       small_bird_body,
@@ -564,6 +570,7 @@ namespace astro {
     EntityList rose_bushes;
     EntityList sculpture_1s;
     EntityList shrubs;
+    EntityList signposts;
     EntityList small_birds;
     EntityList small_stone_bridges;
     EntityList starflowers;
@@ -833,6 +840,12 @@ namespace astro {
       .name = "Shrub",
       .scale = tVec3f(800.f),
       .tint = tVec3f(0.1f, 0.3f, 0.1f)
+    } },
+
+    { SIGNPOST, {
+      .name = "Signpost",
+      .scale = tVec3f(1000.f),
+      .tint = tVec3f(0.8f, 0.5f, 0.3f)
     } },
 
     { SMALL_BIRD, {

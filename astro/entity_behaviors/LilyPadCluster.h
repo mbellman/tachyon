@@ -31,6 +31,9 @@ namespace astro {
       reset_instances(meshes.lily_pad_cluster);
 
       for (auto& entity : state.lily_pad_clusters) {
+        if (abs(state.player_position.x - entity.position.x) > 25000.f) continue;
+        if (abs(state.player_position.z - entity.position.z) > 25000.f) continue;
+
         auto& cluster = use_instance(meshes.lily_pad_cluster);
 
         Sync(cluster, entity);

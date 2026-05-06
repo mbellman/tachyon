@@ -627,5 +627,16 @@ export default [
     ],
     scale: [ 1000.0 ],
     color: [ 0.3, 0.7, 0.1 ]
+  },
+
+  {
+    type: "SIGNPOST",
+    list: "signposts",
+    meshes: [
+      "signpost_placeholder",
+      "signpost"
+    ],
+    scale: [ 1250.0 ],
+    color: [ 0.8, 0.5, 0.3 ]
   }
 ];

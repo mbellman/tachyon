@@ -43,13 +43,13 @@ namespace astro {
         base.position = entity.position;
         base.scale = entity.scale;
         base.rotation = entity.orientation;
-        base.color = tVec3f(0.6f, 0.5f, 0.4f);
+        base.color = tVec3f(0.4f);
         base.material = tVec4f(0.6f, 0, 0, 0);
 
         columns.position = entity.position;
         columns.scale = entity.scale;
         columns.rotation = entity.orientation;
-        columns.color = tVec3f(0.6f, 0.5f, 0.4f);
+        columns.color = tVec3f(0.4f);
         columns.material = tVec4f(1.f, 0, 0, 0);
 
         if (age < 8.f) base.scale = tVec3f(0.f);
