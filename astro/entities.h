@@ -16,6 +16,7 @@ namespace astro {
     ALTAR,
     BANDIT,
     BELLFLOWER,
+    BIRCH_TREE,
     BIRD_GATE,
     BIRD_SPAWN,
     CASTLE_RAMPART,
@@ -77,6 +78,7 @@ namespace astro {
     ALTAR,
     BANDIT,
     BELLFLOWER,
+    BIRCH_TREE,
     BIRD_GATE,
     BIRD_SPAWN,
     CASTLE_RAMPART,
@@ -251,79 +253,83 @@ namespace astro {
    */
   struct EntityMeshIds {
     uint16
-    
+
       // ALTAR
       altar_placeholder,
       altar_base,
       altar_statue,
-      
+
       // BANDIT
       bandit_placeholder,
       bandit,
-      
+
       // BELLFLOWER
       bellflower_placeholder,
       bellflower_stems,
       bellflower_petals,
-      
+
+      // BIRCH_TREE
+      birch_tree_placeholder,
+      birch_tree_trunk,
+
       // BIRD_GATE
       bird_gate_placeholder,
       bird_gate,
-      
+
       // BIRD_SPAWN
       bird_spawn_placeholder,
-      
+
       // CASTLE_RAMPART
       castle_rampart_placeholder,
       castle_rampart,
-      
+
       // CASTLE_STEEPLE
       castle_steeple_placeholder,
       castle_steeple,
-      
+
       // CASTLE_TOWER
       castle_tower_placeholder,
       castle_tower,
-      
+
       // CHESTNUT_TREE
       chestnut_tree_placeholder,
       chestnut_tree_trunk,
       chestnut_tree_leaves,
-      
+
       // DIRT_PATH_NODE
       dirt_path_node_placeholder,
-      
+
       // EVENT_TRIGGER
       event_trigger_placeholder,
-      
+
       // FAERIE
       faerie_placeholder,
       faerie_left_wing,
       faerie_right_wing,
-      
+
       // FLAG
       flag_placeholder,
       flag_pole,
       flag_banner,
-      
+
       // FLOWER_BUSH
       flower_bush_placeholder,
       flower_bush_leaves,
-      
+
       // FOG_SPAWN
       fog_spawn_placeholder,
-      
+
       // GATE
       gate_placeholder,
       gate_body,
       gate_left_door,
       gate_right_door,
       gate_lock,
-      
+
       // GLOW_FLOWER
       glow_flower_placeholder,
       glow_flower_petals,
-      
+
       // HOUSE
       house_placeholder,
       house_body,
@@ -332,72 +338,72 @@ namespace astro {
       house_window_panes,
       house_roof,
       house_chimney,
-      
+
       // IRON_GATE
       iron_gate_placeholder,
       iron_gate_side,
-      
+
       // ITEM_PICKUP
       item_pickup_placeholder,
       item_pickup,
-      
+
       // LAMP
       lamp_placeholder,
       lamp_frame,
       lamp_light,
-      
+
       // LAMPPOST
       lamppost_placeholder,
       lamppost_stand,
       lamppost_frame,
       lamppost_lamp,
-      
+
       // LEAF_SHRUB
       leaf_shrub_placeholder,
       leaf_shrub_plant,
-      
+
       // LESSER_GUARD
       lesser_guard_placeholder,
       lesser_guard_shield,
       lesser_guard_sword,
-      
+
       // LIGHT_POST
       light_post_placeholder,
       light_post_pillar,
       light_post_lamp,
-      
+
       // LILAC_BUSH
       lilac_placeholder,
       lilac_leaves,
       lilac_flower,
-      
+
       // LILY_PAD
       lily_pad_placeholder,
       lily_pad,
-      
+
       // LOW_GUARD
       low_guard_placeholder,
       low_guard_body,
       low_guard_shield,
       low_guard_spear,
-      
+
       // MAGIC_GATE
       magic_gate_placeholder,
       magic_gate,
       magic_gate_barrier,
-      
+
       // MOOD_LIGHT
       mood_light_placeholder,
-      
+
       // MUSHROOM
       mushroom_placeholder,
       mushroom_body,
       mushroom_spots,
-      
+
       // NPC
       npc_placeholder,
       npc,
-      
+
       // OAK_TREE
       oak_tree_placeholder,
       oak_tree_roots,
@@ -405,27 +411,27 @@ namespace astro {
       oak_tree_branches,
       oak_tree_leaves,
       oak_tree_leaves_facade,
-      
+
       // RIVER_LOG
       river_log_placeholder,
       river_log,
-      
+
       // ROSE_BUSH
       rose_bush_placeholder,
       rose_bush_leaves,
       rose_bush_flower,
-      
+
       // SCULPTURE_1
       sculpture_1_placeholder,
       sculpture_1_stand,
       sculpture_1_wheel,
-      
+
       // SHRUB
       shrub_placeholder,
       shrub_bottom,
       shrub_middle,
       shrub_top,
-      
+
       // SMALL_BIRD
       small_bird_placeholder,
       small_bird_body,
@@ -433,72 +439,72 @@ namespace astro {
       small_bird_wings,
       small_bird_left_wing,
       small_bird_right_wing,
-      
+
       // SMALL_STONE_BRIDGE
       small_stone_bridge_placeholder,
       small_stone_bridge_columns,
       small_stone_bridge_base,
-      
+
       // STARFLOWER
       starflower_placeholder,
       starflower_leaves,
       starflower_petals,
-      
+
       // STONE_PATH_NODE
       stone_path_node_placeholder,
-      
+
       // STONE_WALL
       stone_wall_placeholder,
       stone_wall,
-      
+
       // SUNBEAM
       sunbeam_placeholder,
       sunbeam,
-      
+
       // TALL_GRASS
       tall_grass_placeholder,
       tall_grass,
-      
+
       // TALL_WEEDS
       tall_weeds_placeholder,
       tall_weeds,
-      
+
       // TULIP_PLANT
       tulip_plant_placeholder,
       tulip_plant_leaves,
       tulip_plant_stalk,
       tulip_plant_bulb,
-      
+
       // VANTAGE_SPOT
       vantage_spot_placeholder,
-      
+
       // WATER_WHEEL
       water_wheel_placeholder,
       water_wheel,
       water_wheel_platform,
-      
+
       // WILLOW_TREE
       willow_tree_placeholder,
       willow_tree_trunk,
       willow_tree_branches,
       willow_tree_leaves,
-      
+
       // WIND_CHIMES
       wind_chimes_placeholder,
       wind_chimes_stand,
       wind_chimes_pivot,
       wind_chimes_hook,
       wind_chimes_hook_2,
-      
+
       // WOODEN_BRIDGE
       wooden_bridge_placeholder,
       wooden_bridge_platform,
-      
+
       // WOODEN_FENCE
       wooden_fence_placeholder,
       wooden_fence_post,
       wooden_fence_beam,
-      
+
       // WOODEN_GATE_DOOR
       wooden_gate_door_placeholder,
       wooden_gate_door
@@ -516,6 +522,7 @@ namespace astro {
     EntityList altars;
     EntityList bandits;
     EntityList bellflowers;
+    EntityList birch_trees;
     EntityList bird_gates;
     EntityList bird_spawns;
     EntityList castle_ramparts;
@@ -592,313 +599,319 @@ namespace astro {
       .scale = tVec3f(2500.f),
       .tint = tVec3f(0.6f)
     } },
-  
+
     { BANDIT, {
       .name = "Bandit",
       .scale = tVec3f(600.f, 1500.f, 600.f),
       .tint = tVec3f(0.2f)
     } },
-  
+
     { BELLFLOWER, {
       .name = "Bellflower",
       .scale = tVec3f(1200.f),
       .tint = tVec3f(1.f, 0.6f, 0.5f)
     } },
-  
+
+    { BIRCH_TREE, {
+      .name = "Birch Tree",
+      .scale = tVec3f(2000.f),
+      .tint = tVec3f(0.7f, 0.6f, 0.6f)
+    } },
+
     { BIRD_GATE, {
       .name = "Bird Gate",
       .scale = tVec3f(4000.f),
       .tint = tVec3f(1.f)
     } },
-  
+
     { BIRD_SPAWN, {
       .name = "Bird Spawn",
       .scale = tVec3f(1500.f),
       .tint = tVec3f(0.5f)
     } },
-  
+
     { CASTLE_RAMPART, {
       .name = "Castle Rampart",
       .scale = tVec3f(4000.f),
       .tint = tVec3f(0.6f)
     } },
-  
+
     { CASTLE_STEEPLE, {
       .name = "Castle Steeple",
       .scale = tVec3f(4000.f),
       .tint = tVec3f(0.6f)
     } },
-  
+
     { CASTLE_TOWER, {
       .name = "Castle Tower",
       .scale = tVec3f(4000.f),
       .tint = tVec3f(0.6f)
     } },
-  
+
     { CHESTNUT_TREE, {
       .name = "Chestnut Tree",
       .scale = tVec3f(2000.f),
       .tint = tVec3f(0.3f, 0.15f, 0.1f)
     } },
-  
+
     { DIRT_PATH_NODE, {
       .name = "Dirt Path Node",
       .scale = tVec3f(1000.f),
       .tint = tVec3f(1.f, 0.4f, 0.1f)
     } },
-  
+
     { EVENT_TRIGGER, {
       .name = "Event Trigger",
       .scale = tVec3f(1500.f),
       .tint = tVec3f(0.2f, 0.3f, 1.f)
     } },
-  
+
     { FAERIE, {
       .name = "Faerie",
       .scale = tVec3f(750.f),
       .tint = tVec3f(1.f)
     } },
-  
+
     { FLAG, {
       .name = "Flag",
       .scale = tVec3f(2000.f),
       .tint = tVec3f(1.f)
     } },
-  
+
     { FLOWER_BUSH, {
       .name = "Flower Bush",
       .scale = tVec3f(2000.f),
       .tint = tVec3f(0.2f, 0.6f, 0.3f)
     } },
-  
+
     { FOG_SPAWN, {
       .name = "Fog Spawn",
       .scale = tVec3f(1500.f),
       .tint = tVec3f(0.8f)
     } },
-  
+
     { GATE, {
       .name = "Gate",
       .scale = tVec3f(4000.f),
       .tint = tVec3f(0.4f)
     } },
-  
+
     { GLOW_FLOWER, {
       .name = "Glow Flower",
       .scale = tVec3f(600.f),
       .tint = tVec3f(0.2f, 0.4f, 1.f)
     } },
-  
+
     { HOUSE, {
       .name = "House",
       .scale = tVec3f(4000.f),
       .tint = tVec3f(1.f)
     } },
-  
+
     { IRON_GATE, {
       .name = "Iron Gate",
       .scale = tVec3f(5000.f),
       .tint = tVec3f(1.f)
     } },
-  
+
     { ITEM_PICKUP, {
       .name = "Item Pickup",
       .scale = tVec3f(1000.f),
       .tint = tVec3f(0.3f, 0.6f, 1.f)
     } },
-  
+
     { LAMP, {
       .name = "Lamp",
       .scale = tVec3f(1000.f),
       .tint = tVec3f(1.f, 0.6f, 0.4f)
     } },
-  
+
     { LAMPPOST, {
       .name = "Lamppost",
       .scale = tVec3f(2500.f),
       .tint = tVec3f(1.f, 0.6f, 0.4f)
     } },
-  
+
     { LEAF_SHRUB, {
       .name = "Leaf Shrub",
       .scale = tVec3f(800.f),
       .tint = tVec3f(0.07f, 0.14f, 0.07f)
     } },
-  
+
     { LESSER_GUARD, {
       .name = "Lesser Guard",
       .scale = tVec3f(600.f, 1500.f, 600.f),
       .tint = tVec3f(1.f, 0.8f, 0.2f)
     } },
-  
+
     { LIGHT_POST, {
       .name = "Light Post",
       .scale = tVec3f(1500.f),
       .tint = tVec3f(0.4f)
     } },
-  
+
     { LILAC_BUSH, {
       .name = "Lilac Bush",
       .scale = tVec3f(800.f),
       .tint = tVec3f(1.f, 0.4f, 1.f)
     } },
-  
+
     { LILY_PAD, {
       .name = "Lily Pad",
       .scale = tVec3f(500.f),
       .tint = tVec3f(0.3f, 0.7f, 0.1f)
     } },
-  
+
     { LOW_GUARD, {
       .name = "Low Guard",
       .scale = tVec3f(600.f, 1500.f, 600.f),
       .tint = tVec3f(0.7f)
     } },
-  
+
     { MAGIC_GATE, {
       .name = "Magic Gate",
       .scale = tVec3f(4000.f),
       .tint = tVec3f(0.6f)
     } },
-  
+
     { MOOD_LIGHT, {
       .name = "Mood Light",
       .scale = tVec3f(500.f),
       .tint = tVec3f(1.f)
     } },
-  
+
     { MUSHROOM, {
       .name = "Mushroom",
       .scale = tVec3f(3000.f),
       .tint = tVec3f(0.2f, 1.f, 0.4f)
     } },
-  
+
     { NPC, {
       .name = "Npc",
       .scale = tVec3f(1500.f),
       .tint = tVec3f(1.f)
     } },
-  
+
     { OAK_TREE, {
       .name = "Oak Tree",
       .scale = tVec3f(2000.f),
       .tint = tVec3f(0.15f, 0.3f, 0.1f)
     } },
-  
+
     { RIVER_LOG, {
       .name = "River Log",
       .scale = tVec3f(3000.f),
       .tint = tVec3f(1.f, 0.5f, 0.1f)
     } },
-  
+
     { ROSE_BUSH, {
       .name = "Rose Bush",
       .scale = tVec3f(800.f),
       .tint = tVec3f(1.f, 0.2f, 0.1f)
     } },
-  
+
     { SCULPTURE_1, {
       .name = "Sculpture 1",
       .scale = tVec3f(2500.f),
       .tint = tVec3f(1.f)
     } },
-  
+
     { SHRUB, {
       .name = "Shrub",
       .scale = tVec3f(800.f),
       .tint = tVec3f(0.1f, 0.3f, 0.1f)
     } },
-  
+
     { SMALL_BIRD, {
       .name = "Small Bird",
       .scale = tVec3f(1000.f),
       .tint = tVec3f(0.6f)
     } },
-  
+
     { SMALL_STONE_BRIDGE, {
       .name = "Small Stone Bridge",
       .scale = tVec3f(3000.f),
       .tint = tVec3f(0.6f)
     } },
-  
+
     { STARFLOWER, {
       .name = "Starflower",
       .scale = tVec3f(1500.f),
       .tint = tVec3f(1.f, 0.6f, 0.5f)
     } },
-  
+
     { STONE_PATH_NODE, {
       .name = "Stone Path Node",
       .scale = tVec3f(1000.f),
       .tint = tVec3f(0.5f)
     } },
-  
+
     { STONE_WALL, {
       .name = "Stone Wall",
       .scale = tVec3f(3500.f),
       .tint = tVec3f(0.5f)
     } },
-  
+
     { SUNBEAM, {
       .name = "Sunbeam",
       .scale = tVec3f(3000.f, 8000.f, 3000.f),
       .tint = tVec3f(1.f)
     } },
-  
+
     { TALL_GRASS, {
       .name = "Tall Grass",
       .scale = tVec3f(2000.f),
       .tint = tVec3f(0.1f, 0.3f, 0.1f)
     } },
-  
+
     { TALL_WEEDS, {
       .name = "Tall Weeds",
       .scale = tVec3f(2500.f),
       .tint = tVec3f(0.1f, 0.3f, 0.1f)
     } },
-  
+
     { TULIP_PLANT, {
       .name = "Tulip Plant",
       .scale = tVec3f(1000.f),
       .tint = tVec3f(0.2f, 0.6f, 0.3f)
     } },
-  
+
     { VANTAGE_SPOT, {
       .name = "Vantage Spot",
       .scale = tVec3f(1500.f),
       .tint = tVec3f(1.f, 0.1f, 0.2f)
     } },
-  
+
     { WATER_WHEEL, {
       .name = "Water Wheel",
       .scale = tVec3f(4000.f),
       .tint = tVec3f(1.f)
     } },
-  
+
     { WILLOW_TREE, {
       .name = "Willow Tree",
       .scale = tVec3f(2000.f),
       .tint = tVec3f(1.f, 0.6f, 0.3f)
     } },
-  
+
     { WIND_CHIMES, {
       .name = "Wind Chimes",
       .scale = tVec3f(1000.f),
       .tint = tVec3f(1.f)
     } },
-  
+
     { WOODEN_BRIDGE, {
       .name = "Wooden Bridge",
       .scale = tVec3f(3000.f),
       .tint = tVec3f(0.6f)
     } },
-  
+
     { WOODEN_FENCE, {
       .name = "Wooden Fence",
       .scale = tVec3f(2000.f),
       .tint = tVec3f(1.f, 0.8f, 0.4f)
     } },
-  
+
     { WOODEN_GATE_DOOR, {
       .name = "Wooden Gate Door",
       .scale = tVec3f(3500.f),

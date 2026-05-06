@@ -3,6 +3,7 @@
 #include "astro/entity_behaviors/Altar.h"
 #include "astro/entity_behaviors/Bandit.h"
 #include "astro/entity_behaviors/Bellflower.h"
+#include "astro/entity_behaviors/BirchTree.h"
 #include "astro/entity_behaviors/BirdGate.h"
 #include "astro/entity_behaviors/BirdSpawn.h"
 #include "astro/entity_behaviors/CastleRampart.h"
@@ -82,6 +83,7 @@ using namespace astro;
   dispatch_macro(ALTAR, Altar);\
   dispatch_macro(BANDIT, Bandit);\
   dispatch_macro(BELLFLOWER, Bellflower);\
+  dispatch_macro(BIRCH_TREE, BirchTree);\
   dispatch_macro(BIRD_GATE, BirdGate);\
   dispatch_macro(BIRD_SPAWN, BirdSpawn);\
   dispatch_macro(CASTLE_RAMPART, CastleRampart);\
@@ -138,6 +140,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
     dispatch_GetEntityContainer(ALTAR, state.altars);
     dispatch_GetEntityContainer(BANDIT, state.bandits);
     dispatch_GetEntityContainer(BELLFLOWER, state.bellflowers);
+    dispatch_GetEntityContainer(BIRCH_TREE, state.birch_trees);
     dispatch_GetEntityContainer(BIRD_GATE, state.bird_gates);
     dispatch_GetEntityContainer(BIRD_SPAWN, state.bird_spawns);
     dispatch_GetEntityContainer(CASTLE_RAMPART, state.castle_ramparts);

@@ -605,5 +605,16 @@ export default [
     ],
     scale: [ 4000.0 ],
     color: [ 0.6 ]
+  },
+
+  {
+    type: "BIRCH_TREE",
+    list: "birch_trees",
+    meshes: [
+      "birch_tree_placeholder",
+      "birch_tree_trunk"
+    ],
+    scale: [ 2000.0 ],
+    color: [ 0.7, 0.6, 0.6 ]
   }
 ];
