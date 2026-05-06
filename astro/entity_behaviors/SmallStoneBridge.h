@@ -44,7 +44,7 @@ namespace astro {
         base.scale = entity.scale;
         base.rotation = entity.orientation;
         base.color = tVec3f(0.6f, 0.5f, 0.4f);
-        base.material = tVec4f(1.f, 0, 0, 0);
+        base.material = tVec4f(0.6f, 0, 0, 0);
 
         columns.position = entity.position;
         columns.scale = entity.scale;

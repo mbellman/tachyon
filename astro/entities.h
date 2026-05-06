@@ -41,6 +41,7 @@ namespace astro {
     LIGHT_POST,
     LILAC_BUSH,
     LILY_PAD,
+    LILY_PAD_CLUSTER,
     LOW_GUARD,
     MAGIC_GATE,
     MOOD_LIGHT,
@@ -103,6 +104,7 @@ namespace astro {
     LIGHT_POST,
     LILAC_BUSH,
     LILY_PAD,
+    LILY_PAD_CLUSTER,
     LOW_GUARD,
     MAGIC_GATE,
     MOOD_LIGHT,
@@ -381,6 +383,10 @@ namespace astro {
       lily_pad_placeholder,
       lily_pad,
 
+      // LILY_PAD_CLUSTER
+      lily_pad_cluster_placeholder,
+      lily_pad_cluster,
+
       // LOW_GUARD
       low_guard_placeholder,
       low_guard_body,
@@ -547,6 +553,7 @@ namespace astro {
     EntityList light_posts;
     EntityList lilac_bushes;
     EntityList lily_pads;
+    EntityList lily_pad_clusters;
     EntityList low_guards;
     EntityList magic_gates;
     EntityList mood_lights;
@@ -759,6 +766,12 @@ namespace astro {
     { LILY_PAD, {
       .name = "Lily Pad",
       .scale = tVec3f(500.f),
+      .tint = tVec3f(0.3f, 0.7f, 0.1f)
+    } },
+
+    { LILY_PAD_CLUSTER, {
+      .name = "Lily Pad Cluster",
+      .scale = tVec3f(1000.f),
       .tint = tVec3f(0.3f, 0.7f, 0.1f)
     } },
 

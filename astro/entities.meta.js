@@ -616,5 +616,16 @@ export default [
     ],
     scale: [ 2000.0 ],
     color: [ 0.7, 0.6, 0.6 ]
+  },
+
+  {
+    type: "LILY_PAD_CLUSTER",
+    list: "lily_pad_clusters",
+    meshes: [
+      "lily_pad_cluster_placeholder",
+      "lily_pad_cluster"
+    ],
+    scale: [ 1000.0 ],
+    color: [ 0.3, 0.7, 0.1 ]
   }
 ];

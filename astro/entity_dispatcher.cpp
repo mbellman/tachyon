@@ -28,6 +28,7 @@
 #include "astro/entity_behaviors/LightPost.h"
 #include "astro/entity_behaviors/LilacBush.h"
 #include "astro/entity_behaviors/LilyPad.h"
+#include "astro/entity_behaviors/LilyPadCluster.h"
 #include "astro/entity_behaviors/LowGuard.h"
 #include "astro/entity_behaviors/MagicGate.h"
 #include "astro/entity_behaviors/MoodLight.h"
@@ -108,6 +109,7 @@ using namespace astro;
   dispatch_macro(LIGHT_POST, LightPost);\
   dispatch_macro(LILAC_BUSH, LilacBush);\
   dispatch_macro(LILY_PAD, LilyPad);\
+  dispatch_macro(LILY_PAD_CLUSTER, LilyPadCluster);\
   dispatch_macro(LOW_GUARD, LowGuard);\
   dispatch_macro(MAGIC_GATE, MagicGate);\
   dispatch_macro(MOOD_LIGHT, MoodLight);\
@@ -165,6 +167,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
     dispatch_GetEntityContainer(LIGHT_POST, state.light_posts);
     dispatch_GetEntityContainer(LILAC_BUSH, state.lilac_bushes);
     dispatch_GetEntityContainer(LILY_PAD, state.lily_pads);
+    dispatch_GetEntityContainer(LILY_PAD_CLUSTER, state.lily_pad_clusters);
     dispatch_GetEntityContainer(LOW_GUARD, state.low_guards);
     dispatch_GetEntityContainer(MAGIC_GATE, state.magic_gates);
     dispatch_GetEntityContainer(MOOD_LIGHT, state.mood_lights);
