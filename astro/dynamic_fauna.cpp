@@ -482,9 +482,40 @@ static void HandleTinyBirds(Tachyon* tachyon, State& state) {
   }
 }
 
+/**
+ * ----------
+ * Tiny birds
+ * ----------
+ */
+static void HandleDucks(Tachyon* tachyon, State& state) {
+  float scene_time = get_scene_time();
+  auto& meshes = state.meshes;
+
+  reset_instances(meshes.duck_body);
+
+  for (auto& entity : state.duck_spawns) {
+    if (!IsDuringActiveTime(entity, state)) continue;
+
+    // @temporary
+    // @todo proper movement
+    auto& body = use_instance(meshes.duck_body);
+
+    body.position = entity.position;
+    body.position.x += 1000.f * sinf(scene_time);
+    body.position.z += 1000.f * cosf(scene_time);
+    body.position.y = CollisionSystem::QueryGroundHeight(state, body.position.x, body.position.z);
+
+    body.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), scene_time + t_HALF_PI);
+    body.scale = 500.f;
+
+    commit(body);
+  }
+}
+
 void DynamicFauna::HandleBehavior(Tachyon* tachyon, State& state) {
   profile("DynamicFauna::HandleBehavior()");
 
   HandleButterflies(tachyon, state);
   HandleTinyBirds(tachyon, state);
+  HandleDucks(tachyon, state);
 }

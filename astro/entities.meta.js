@@ -640,5 +640,15 @@ export default [
     ],
     scale: [ 1250.0 ],
     color: [ 0.8, 0.5, 0.3 ]
+  },
+
+  {
+    type: "DUCK_SPAWN",
+    list: "duck_spawns",
+    meshes: [
+      "duck_spawn_placeholder"
+    ],
+    scale: [ 2000.0 ],
+    color: [ 1.0, 0.7, 0.0 ]
   }
 ];

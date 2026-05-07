@@ -11,6 +11,7 @@
 #include "astro/entity_behaviors/CastleTower.h"
 #include "astro/entity_behaviors/ChestnutTree.h"
 #include "astro/entity_behaviors/DirtPathNode.h"
+#include "astro/entity_behaviors/DuckSpawn.h"
 #include "astro/entity_behaviors/EventTrigger.h"
 #include "astro/entity_behaviors/Faerie.h"
 #include "astro/entity_behaviors/Flag.h"
@@ -93,6 +94,7 @@ using namespace astro;
   dispatch_macro(CASTLE_TOWER, CastleTower);\
   dispatch_macro(CHESTNUT_TREE, ChestnutTree);\
   dispatch_macro(DIRT_PATH_NODE, DirtPathNode);\
+  dispatch_macro(DUCK_SPAWN, DuckSpawn);\
   dispatch_macro(EVENT_TRIGGER, EventTrigger);\
   dispatch_macro(FAERIE, Faerie);\
   dispatch_macro(FLAG, Flag);\
@@ -152,6 +154,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
     dispatch_GetEntityContainer(CASTLE_TOWER, state.castle_towers);
     dispatch_GetEntityContainer(CHESTNUT_TREE, state.chestnut_trees);
     dispatch_GetEntityContainer(DIRT_PATH_NODE, state.dirt_path_nodes);
+    dispatch_GetEntityContainer(DUCK_SPAWN, state.duck_spawns);
     dispatch_GetEntityContainer(EVENT_TRIGGER, state.event_triggers);
     dispatch_GetEntityContainer(FAERIE, state.faeries);
     dispatch_GetEntityContainer(FLAG, state.flags);

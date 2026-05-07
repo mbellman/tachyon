@@ -1098,8 +1098,8 @@ static void UpdateDirtPaths(Tachyon* tachyon, State& state) {
   for (auto& segment : state.dirt_path_segments) {
     auto& position = segment.base_position;
 
-    if (abs(position.x - player_position.x) > 18000.f) continue;
-    if (abs(position.z - player_position.z) > 22000.f) continue;
+    if (abs(position.x - player_position.x) > 20000.f) continue;
+    if (abs(position.z - player_position.z) > 25000.f) continue;
 
     auto& entity_a = state.dirt_path_nodes[segment.entity_index_a];
     auto& entity_b = state.dirt_path_nodes[segment.entity_index_b];
@@ -1241,8 +1241,8 @@ static void UpdateStonePaths(Tachyon* tachyon, State& state) {
   for (auto& segment : state.stone_path_segments) {
     auto& position = segment.base_position;
 
-    if (abs(position.x - player_position.x) > 18000.f) continue;
-    if (abs(position.z - player_position.z) > 22000.f) continue;
+    if (abs(position.x - player_position.x) > 20000.f) continue;
+    if (abs(position.z - player_position.z) > 25000.f) continue;
 
     auto& entity_a = state.stone_path_nodes[segment.entity_index_a];
     auto& entity_b = state.stone_path_nodes[segment.entity_index_b];

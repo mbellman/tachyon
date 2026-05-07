@@ -70,7 +70,7 @@ static void CreateConstantObjects(Tachyon* tachyon, State& state) {
       create(meshes.tiny_bird_right_wing);
 
       // Ducks
-      // create(meshes.duck_body);
+      create(meshes.duck_body);
     }
   }
 

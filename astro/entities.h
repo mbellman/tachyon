@@ -24,6 +24,7 @@ namespace astro {
     CASTLE_TOWER,
     CHESTNUT_TREE,
     DIRT_PATH_NODE,
+    DUCK_SPAWN,
     EVENT_TRIGGER,
     FAERIE,
     FLAG,
@@ -88,6 +89,7 @@ namespace astro {
     CASTLE_TOWER,
     CHESTNUT_TREE,
     DIRT_PATH_NODE,
+    DUCK_SPAWN,
     EVENT_TRIGGER,
     FAERIE,
     FLAG,
@@ -304,6 +306,9 @@ namespace astro {
 
       // DIRT_PATH_NODE
       dirt_path_node_placeholder,
+
+      // DUCK_SPAWN
+      duck_spawn_placeholder,
 
       // EVENT_TRIGGER
       event_trigger_placeholder,
@@ -544,6 +549,7 @@ namespace astro {
     EntityList castle_towers;
     EntityList chestnut_trees;
     EntityList dirt_path_nodes;
+    EntityList duck_spawns;
     EntityList event_triggers;
     EntityList faeries;
     EntityList flags;
@@ -674,6 +680,12 @@ namespace astro {
       .name = "Dirt Path Node",
       .scale = tVec3f(1000.f),
       .tint = tVec3f(1.f, 0.4f, 0.1f)
+    } },
+
+    { DUCK_SPAWN, {
+      .name = "Duck Spawn",
+      .scale = tVec3f(2000.f),
+      .tint = tVec3f(1.f, 0.7f, 0.f)
     } },
 
     { EVENT_TRIGGER, {
