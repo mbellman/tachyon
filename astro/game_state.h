@@ -58,6 +58,7 @@ namespace astro {
       tiny_bird_wings,
       tiny_bird_left_wing,
       tiny_bird_right_wing,
+      duck_body,
 
       // Clothing + Armor meshes
       lesser_helmet,

@@ -62,11 +62,15 @@ static void CreateConstantObjects(Tachyon* tachyon, State& state) {
   // Dynamic fauna meshes
   {
     for_range(1, 50) {
+      // Tiny birds
       create(meshes.tiny_bird_head);
       create(meshes.tiny_bird_body);
       create(meshes.tiny_bird_wings);
       create(meshes.tiny_bird_left_wing);
       create(meshes.tiny_bird_right_wing);
+
+      // Ducks
+      // create(meshes.duck_body);
     }
   }
 
