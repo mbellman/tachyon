@@ -42,7 +42,7 @@ namespace astro {
         auto& entity = state.tall_grasses[i];
 
         if (abs(state.player_position.x - entity.position.x) > 20000.f) continue;
-        if (abs(state.player_position.z - entity.position.z) > 20000.f) continue;
+        if (abs(state.player_position.z - entity.position.z) > 25000.f) continue;
 
         auto& grass = use_instance(meshes.tall_grass);
 

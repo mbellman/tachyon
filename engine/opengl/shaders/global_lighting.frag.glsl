@@ -801,7 +801,7 @@ void main() {
 
     // Apply a glancing angle highlight opposite to the primary light direction
     {
-      out_color += 0.5 * albedo * pow(NdotL, 2.0) * pow(1.0 - NdotV, 2.0);
+      out_color += 0.25 * albedo * pow(NdotL, 2.0) * pow(1.0 - NdotV, 2.0);
     }
 
     // Apply SSAO

@@ -275,6 +275,8 @@ namespace astro {
       // BIRCH_TREE
       birch_tree_placeholder,
       birch_tree_trunk,
+      birch_tree_roots,
+      birch_tree_leaves,
 
       // BIRD_GATE
       bird_gate_placeholder,
@@ -844,7 +846,7 @@ namespace astro {
 
     { SIGNPOST, {
       .name = "Signpost",
-      .scale = tVec3f(1000.f),
+      .scale = tVec3f(1250.f),
       .tint = tVec3f(0.8f, 0.5f, 0.3f)
     } },
 

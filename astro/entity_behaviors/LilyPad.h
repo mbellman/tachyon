@@ -53,7 +53,7 @@ namespace astro {
           pad.scale *= scale_alpha;
 
           pad.color = default_color;
-          pad.material = tVec4f(0.4f, 0, 0, 0.4f);
+          pad.material = tVec4f(0.5f, 0, 1.f, 0.4f);
 
           commit(pad);
         }
