@@ -41,24 +41,6 @@ float GetWorldDepth(float depth, float near, float far) {
   return 2.0 * near * far / (far + near - clip_depth * (far - near));
 }
 
-// @todo nighttime color
-vec3 GetSkyColor(vec3 sky_direction, float sun_glare_factor) {
-  float DdotU = max(0.0, dot(sky_direction, vec3(0, 1.0, 0)));
-  float up_dot = 0.5 + 0.5 * DdotU;
-
-  // return vec3(0, 0, 0.5) * (1.0 - DdotU);
-
-  return normalize(vec3(
-    sqrt(1.0 - up_dot),
-    0.2,
-    pow(up_dot, 2.0)
-  ));
-}
-
-vec3 GetReflectionColor(vec3 R) {
-  return GetSkyColor(R, 0.0);
-}
-
 //
 // Description : GLSL 2D simplex noise function
 //      Author : Ian McEwan, Ashima Arts
@@ -130,6 +112,45 @@ float simplex_noise(vec2 v) {
     g.x  = a0.x  * x0.x  + h.x  * x0.y;
     g.yz = a0.yz * vec2(x1.x,x2.x) + h.yz * vec2(x1.y,x2.y);
     return 130.0 * dot(m, g);
+}
+
+vec3 GetSparklesColor(vec3 sky_direction) {
+  float stars_x = atan(sky_direction.x, sky_direction.z) + 3.141592;
+  float stars_y = atan(length(sky_direction.xz), sky_direction.y);
+
+  float stars_noise =
+    simplex_noise(vec2(stars_x, stars_y) * 100.0) *
+    simplex_noise(vec2(stars_x, stars_y) * 60.0);
+
+  stars_noise = clamp(stars_noise, 0.0, 1.0);
+  stars_noise = pow(stars_noise, 10.0) * 10.0;
+  vec3 stars_color = vec3(stars_noise, stars_noise, 0);
+
+  vec3 sky_color = stars_color;
+
+  sky_color.x = clamp(sky_color.x, 0.0, 1.0);
+  sky_color.y = clamp(sky_color.y, 0.0, 1.0);
+  sky_color.z = clamp(sky_color.z, 0.0, 1.0);
+
+  return sky_color;
+}
+
+// @todo nighttime color
+vec3 GetSkyColor(vec3 sky_direction) {
+  float DdotU = max(0.0, dot(sky_direction, vec3(0, 1.0, 0)));
+  float up_dot = 0.5 + 0.5 * DdotU;
+
+  // return vec3(0, 0, 0.5) * (1.0 - DdotU);
+
+  return normalize(vec3(
+    sqrt(1.0 - up_dot),
+    0.2,
+    pow(up_dot, 2.0)
+  ));
+}
+
+vec3 GetReflectionColor(vec3 R) {
+  return GetSkyColor(R);
 }
 
 vec2 GetScreenUvs(vec2 screen_coordinates) {
@@ -303,8 +324,9 @@ void main() {
 
   vec3 out_color = vec3(0.0);
 
-  const vec3 base_water_color = vec3(0, 0.1, 0.3);
-  const vec3 base_underwater_color = vec3(0.3, 0.5, 0.8);
+  const vec3 base_water_color = vec3(0, 0.01, 0.3);
+  const vec3 base_underwater_color = vec3(0.5, 0.5, 1.0);
+  const float depth_limit = 500.0;
 
   // Shadow term
   float shadow = GetPrimaryLightShadowFactor(fragPosition - N * 500.0 * vec3(1, 0.2, 1));
@@ -321,7 +343,6 @@ void main() {
 
     vec2 sample_uv = GetScreenUvs(sample_coordinates);
 
-    const float depth_limit = 500.0;
     float water_surface_z = GetWorldDepth(gl_FragCoord.z, Z_NEAR, Z_FAR);
     float sample_z = texture(in_normal_and_depth, sample_uv).w;
     sample_z = GetWorldDepth(sample_z, Z_NEAR, Z_FAR);
@@ -345,13 +366,16 @@ void main() {
     reflection_color += GetReflectionColor(R);
 
     // Light reflection
-    reflection_color += 5.0 * vec3(1.0, 1.0, 0.6) * pow(RdotL, 5.0);
+    reflection_color += 5.0 * vec3(1.0, 0.9, 0.5) * pow(RdotL, 5.0);
     // reflection_color += 5.0 * vec3(0.7, 0.4, 1.0) * pow(RdotL, 5.0);
 
     // Apply ambient reflections
     float fresnel_factor = pow(max(0.0, dot(R, -V)), 2.0);
 
     out_color = mix(out_color, reflection_color, fresnel_factor);
+
+    vec3 sR = reflect(D, normalize(N * N));
+    out_color += GetSparklesColor(sR);
 
     if (shadow < 1.0 || !enable_shadows) {
       // Highlights
