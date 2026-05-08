@@ -859,7 +859,7 @@ namespace astro {
     { SIGNPOST, {
       .name = "Signpost",
       .scale = tVec3f(1250.f),
-      .tint = tVec3f(0.8f, 0.5f, 0.3f)
+      .tint = tVec3f(1.f, 0.8f, 0.4f)
     } },
 
     { SMALL_BIRD, {

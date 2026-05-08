@@ -639,7 +639,7 @@ export default [
       "signpost"
     ],
     scale: [ 1250.0 ],
-    color: [ 0.8, 0.5, 0.3 ]
+    color: [ 1.0, 0.8, 0.4 ]
   },
 
   {

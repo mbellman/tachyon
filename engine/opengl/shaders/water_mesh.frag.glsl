@@ -385,7 +385,7 @@ void main() {
 
   // Shadows
   if (enable_shadows) {
-    out_color = mix(out_color, base_water_color, shadow * 0.8);
+    out_color = mix(out_color, base_water_color, shadow * 0.5);
   }
 
   // @todo fog

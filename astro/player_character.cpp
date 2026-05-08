@@ -85,7 +85,7 @@ static void UpdateActiveAnimation(Tachyon* tachyon, State& state) {
 
   // Running
   else if (PlayerCharacter::IsRunning(tachyon, state)) {
-    if (state.wand_hold_factor == 1.f) {
+    if (state.is_holding_up_wand) {
       Animation::AwaitNextAnimation(player_animation, &animations.player_run_wand);
     } else {
       if (
@@ -113,7 +113,7 @@ static void UpdateActiveAnimation(Tachyon* tachyon, State& state) {
 
   // Walking
   else if (state.previous_move_delta > 5.f || is_doing_quick_turn || has_target_and_is_moving) {
-    if (state.wand_hold_factor == 1.f) {
+    if (state.is_holding_up_wand) {
       Animation::AwaitNextAnimation(player_animation, &animations.player_walk_wand);
     } else {
       Animation::AwaitNextAnimation(player_animation, &animations.player_walk);
@@ -122,7 +122,7 @@ static void UpdateActiveAnimation(Tachyon* tachyon, State& state) {
 
   // Idling
   else {
-    if (state.wand_hold_factor == 1.f) {
+    if (state.is_holding_up_wand) {
       Animation::AwaitNextAnimation(player_animation, &animations.player_idle_wand);
     } else {
       Animation::AwaitNextAnimation(player_animation, &animations.player_idle);
@@ -155,16 +155,27 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
   auto& player_animation = state.player_mesh_animation;
   auto& animations = state.animations;
 
-  // If our current and pending animation involves holding the wand,
+  // If our current and pending animation involves holding up the wand,
   // but we're not longer holding it, speed up the current blend
   // so we transition out of the idle/walk/run-with-wand animation
   // more quickly.
   if (
-    state.wand_hold_factor < 1.f &&
+    !state.is_holding_up_wand &&
     HasCurrentWandAnimation(state) &&
     HasNextWandAnimation(state)
   ) {
     return 10.f;
+  }
+
+  // If our current and pending animations don't involve holding the wand,
+  // but we're trying to hold it up, speed up the current blend so we can
+  // get there faster.
+  if (
+    state.is_holding_up_wand &&
+    !HasCurrentWandAnimation(state) &&
+    !HasNextWandAnimation(state)
+  ) {
+    return 5.f;
   }
 
   // Blend faster if we're not currently in the running animation while running
@@ -671,6 +682,8 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
   auto& active_pose = state.player_mesh_animation.active_pose;
   auto& wand = objects(state.meshes.player_wand)[0];
   tVec3f player_body_position = skinned_mesh(state.meshes.player_robes).position;
+  bool has_current_wand_animation = HasCurrentWandAnimation(state);
+  bool has_next_wand_animation = HasNextWandAnimation(state);
 
   tVec3f offset = player_rotation_matrix * tVec3f(-1.f, 0, 0);
 
@@ -688,7 +701,7 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
     Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI)
   );
 
-  if (state.wand_hold_factor > 0.f) {
+  if (has_current_wand_animation || has_next_wand_animation) {
     float swing_alpha = 0.002f * state.movement_distance + 2.5f * get_scene_time();
     float adjusted_pitch = 0.6f + 0.1f * sinf(swing_alpha);
 
@@ -701,7 +714,17 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
       Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), 0.6f)
     );
 
-    held_wand_rotation = Quaternion::slerp(held_wand_rotation, adjusted_rotation, state.wand_hold_factor);
+    float alpha = (
+      !has_current_wand_animation && has_next_wand_animation
+        // Taking the wand out
+        ? state.player_mesh_animation.next_animation_blend_alpha :
+      has_current_wand_animation && !has_next_wand_animation
+        // Putting the wand down
+        ? 1.f - state.player_mesh_animation.next_animation_blend_alpha :
+      1.f
+    );
+
+    held_wand_rotation = Quaternion::slerp(held_wand_rotation, adjusted_rotation, alpha);
   }
 
   if (state.player_hp > 0.f) {
@@ -908,17 +931,21 @@ static void UpdateWandLights(Tachyon* tachyon, State& state) {
     }
 
     // Glow when holding up the wand
+    // @todo fade in/out
     {
-      main_light_power += 5.f * state.wand_hold_factor;
-      main_light_power += 2.f * state.wand_hold_factor * oscillating_alpha;
+      if (state.is_holding_up_wand) {
+        main_light_power += 5.f + 2.f * oscillating_alpha;
+      }
     }
 
     // Glow when close to interactibles ("wand sense")
     {
-      float alpha = state.wand_sense_factor * (1.f - state.wand_hold_factor);
+      if (!state.is_holding_up_wand) {
+      float alpha = state.wand_sense_factor;
 
       main_light_power += 4.f * alpha;
       light_color = tVec3f::lerp(light_color, tVec3f(1.f), alpha);
+      }
     }
 
     // Glow during wind chimes actions
