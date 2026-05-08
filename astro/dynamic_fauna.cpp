@@ -1,4 +1,5 @@
 #include "astro/dynamic_fauna.h"
+#include "astro/entity_manager.h"
 #include "astro/collision_system.h"
 #include "astro/entity_behaviors/behavior.h"
 #include "engine/tachyon_random.h"
@@ -487,28 +488,78 @@ static void HandleTinyBirds(Tachyon* tachyon, State& state) {
  * Tiny birds
  * ----------
  */
+static tVec3f GetNewDuckTargetPosition(State& state, Duck& duck) {
+  float offset_x = Tachyon_GetRandom(-2000.f, 2000.f);
+  float offset_z = Tachyon_GetRandom(-2000.f, 2000.f);
+
+  // @todo account for spawn entities being deleted + delete associated ducks
+  GameEntity& spawn_entity = *EntityManager::FindEntity(state, duck.spawn_entity_record);
+
+  tVec3f new_target_position = spawn_entity.position;
+  // @todo use local water plane position
+  new_target_position.y = -3000.f;
+  new_target_position.x += offset_x;
+  new_target_position.z += offset_z;
+
+  return new_target_position;
+}
+
+static void HandleDuck(Tachyon* tachyon, State& state, Duck& duck) {
+  auto& meshes = state.meshes;
+
+  // Picking a new target position
+  {
+    if (time_since(duck.last_target_time) > 3.f) {
+      duck.target_position = GetNewDuckTargetPosition(state, duck);
+      duck.last_target_time = get_scene_time();
+    }
+  }
+
+  // Update position
+  {
+    tVec3f target_direction = (duck.target_position - duck.position).unit();
+    Quaternion target_rotation = Quaternion::FromDirection(target_direction, tVec3f(0, 1.f, 0));
+
+    duck.position = tVec3f::lerp(duck.position, duck.target_position, state.dt);
+    duck.rotation = Quaternion::slerp(duck.rotation, target_rotation, state.dt);
+  }
+
+  // Body
+  {
+    auto& body = use_instance(meshes.duck_body);
+
+    body.position = duck.position;
+    body.rotation = duck.rotation;
+    body.scale = tVec3f(500.f);
+
+    commit(body);
+  }
+}
+
 static void HandleDucks(Tachyon* tachyon, State& state) {
   float scene_time = get_scene_time();
   auto& meshes = state.meshes;
 
   reset_instances(meshes.duck_body);
 
-  for (auto& entity : state.duck_spawns) {
-    if (!IsDuringActiveTime(entity, state)) continue;
+  // @todo spawn ducks in and out as we move around the map
+  if (state.ducks.size() == 0) {
+    for (auto& entity : state.duck_spawns) {
+      Duck duck;
+      duck.spawn_entity_record = GetRecord(entity);
 
-    // @temporary
-    // @todo proper movement
-    auto& body = use_instance(meshes.duck_body);
+      duck.position = entity.position;
+      // @todo use local water plane position
+      duck.position.y = -3000.f;
+      duck.target_position = GetNewDuckTargetPosition(state, duck);
+      duck.rotation = Quaternion(1.f, 0, 0, 0);
 
-    body.position = entity.position;
-    body.position.x += 1000.f * sinf(scene_time);
-    body.position.z += 1000.f * cosf(scene_time);
-    body.position.y = CollisionSystem::QueryGroundHeight(state, body.position.x, body.position.z);
+      state.ducks.push_back(duck);
+    }
+  }
 
-    body.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), scene_time + t_HALF_PI);
-    body.scale = 500.f;
-
-    commit(body);
+  for (auto& duck : state.ducks) {
+    HandleDuck(tachyon, state, duck);
   }
 }
 

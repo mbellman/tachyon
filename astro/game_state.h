@@ -350,6 +350,16 @@ namespace astro {
     } state;
   };
 
+  struct Duck {
+    tVec3f position;
+    tVec3f target_position;
+    Quaternion rotation;
+
+    float last_target_time = 0.f;
+
+    EntityRecord spawn_entity_record;
+  };
+
   /**
    * ----------------------------
    * Animation
@@ -517,6 +527,7 @@ namespace astro {
     // Dynamic fauna
     std::vector<Butterfly> butterflies;
     std::vector<TinyBird> tiny_birds;
+    std::vector<Duck> ducks;
     float last_tiny_bird_spawn_time = 0.f;
 
     // Particles

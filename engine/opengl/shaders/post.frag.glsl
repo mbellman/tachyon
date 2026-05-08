@@ -141,6 +141,7 @@ BilinearSample GetBilinearTextureSample( sampler2D sam, vec2 uv ) {
   ivec2 i = ivec2( floor( st ) );
   vec2  w = fract( st );
 
+  // @todo fix wrapping texture reads
   vec4 a = texelFetch( sam, (i+ivec2(0,0)), 0 );
   vec4 b = texelFetch( sam, (i+ivec2(1,0)), 0 );
   vec4 c = texelFetch( sam, (i+ivec2(0,1)), 0 );
