@@ -121,7 +121,7 @@ namespace astro {
             // @todo factor
             state.wand_sense_factor = Tachyon_Lerpf(state.wand_sense_factor, 1.f, 5.f * state.dt);
 
-            if (state.wand_hold_factor > 0.f) {
+            if (state.is_holding_up_wand) {
               Charge(tachyon, state, entity);
             }
           }
@@ -244,7 +244,7 @@ namespace astro {
 
           // If we haven't fully activated the sculpture (e.g. while charging),
           // and if we've stopped charging it, let its power dwindle
-          if (!entity.did_activate && state.wand_hold_factor < 0.1f) {
+          if (!entity.did_activate && !state.is_holding_up_wand) {
             light.power -= 0.5f * state.dt;
 
             if (light.power < minimum_power) light.power = minimum_power;

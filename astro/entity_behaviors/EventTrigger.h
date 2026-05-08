@@ -47,7 +47,7 @@ namespace astro {
           entity.unique_name == "tutorial_bird" &&
           !entity.did_activate &&
           player_distance < 4000.f &&
-          state.wand_hold_factor == 1.f
+          state.is_holding_up_wand
         ) {
           Sfx::PlaySound(SFX_BIRD_CALL_1, 0.3f);
 

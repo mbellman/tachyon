@@ -32,7 +32,8 @@ namespace astro {
 
         Sync(signpost, entity);
 
-        signpost.material = tVec4f(0.4f, 0, 0, 0.4f);
+        signpost.color = tVec3f(1.f, 0.8f, 0.4f);
+        signpost.material = tVec4f(0.8f, 0, 0, 0.6f);
 
         commit(signpost);
       }

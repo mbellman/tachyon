@@ -209,12 +209,10 @@ static void HandleWandControls(Tachyon* tachyon, State& state) {
 
   // Holding Square
   if (has_wand && is_key_held(tKey::CONTROLLER_X) && state.targetable_entities.size() == 0) {
-    state.wand_hold_factor += 4.f * state.dt;
-
-    if (state.wand_hold_factor > 1.f) state.wand_hold_factor = 1.f;
+    state.is_holding_up_wand = true;
 
     if (
-      state.wand_hold_factor > 0.5f &&
+      state.is_holding_up_wand &&
       time_since(state.last_wand_light_pulse_time) > 4.f
     ) {
       state.last_wand_light_pulse_time = get_scene_time();
@@ -222,9 +220,7 @@ static void HandleWandControls(Tachyon* tachyon, State& state) {
       Sfx::PlaySound(SFX_LIGHT_PULSE, 0.8f);
     }
   } else {
-    state.wand_hold_factor -= 4.f * state.dt;
-
-    if (state.wand_hold_factor < 0.f) state.wand_hold_factor = 0.f;
+    state.is_holding_up_wand = false;
   }
 
   // Triangle

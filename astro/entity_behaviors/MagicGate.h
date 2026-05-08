@@ -56,7 +56,7 @@ namespace astro {
             // @todo factor
             state.wand_sense_factor = Tachyon_Lerpf(state.wand_sense_factor, 1.f, 5.f * state.dt);
 
-            if (state.wand_hold_factor > 0.5f) {
+            if (state.is_holding_up_wand) {
               fade_out += 0.5f * state.dt;
 
               if (fade_out > 1.f) fade_out = 1.f;
