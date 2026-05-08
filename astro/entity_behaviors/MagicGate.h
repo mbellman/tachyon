@@ -53,8 +53,7 @@ namespace astro {
             proximity.facing_dot > 0.f &&
             Items::HasItem(state, MAGIC_WAND)
           ) {
-            // @todo factor
-            state.wand_sense_factor = Tachyon_Lerpf(state.wand_sense_factor, 1.f, 5.f * state.dt);
+            TriggerWandSense(state);
 
             if (state.is_holding_up_wand) {
               fade_out += 0.5f * state.dt;

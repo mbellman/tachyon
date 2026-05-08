@@ -134,8 +134,7 @@ namespace astro {
                 }
               }
             } else if (Items::HasItem(state, MAGIC_WAND)) {
-              // @todo factor
-              state.wand_sense_factor = Tachyon_Lerpf(state.wand_sense_factor, 1.f, 5.f * state.dt);
+              TriggerWandSense(state);
 
               if (state.is_holding_up_wand) {
                 HandleActivationBehavior(tachyon, state, entity);

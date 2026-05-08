@@ -229,11 +229,6 @@ namespace astro {
     return entity.visible_rotation.getDirection().invert();
   }
 
-  struct EntityProximity {
-    float distance;
-    float facing_dot;
-  };
-
   static bool IsInRangeX(const GameEntity& entity, const State& state, const float range) {
     return abs(state.player_position.x - entity.visible_position.x) < range;
   }
@@ -241,6 +236,23 @@ namespace astro {
   static bool IsInRangeZ(const GameEntity& entity, const State& state, const float range) {
     return abs(state.player_position.z - entity.visible_position.z) < range;
   }
+
+  static void TriggerWandSense(State& state) {
+    float previous_wand_sense = state.wand_sense_factor;
+
+    state.wand_sense_factor = Tachyon_Lerpf(state.wand_sense_factor, 1.f, 5.f * state.dt);
+
+    if (previous_wand_sense < 0.1f && state.wand_sense_factor > 0.1f) {
+      // @temporary
+      // @todo replace sound
+      Sfx::PlaySound(SFX_ASTRO_END, 0.5f);
+    }
+  }
+
+  struct EntityProximity {
+    float distance;
+    float facing_dot;
+  };
 
   static EntityProximity GetEntityProximity(GameEntity& entity, const State& state) {
     tVec3f player_to_entity = entity.position - state.player_position;
