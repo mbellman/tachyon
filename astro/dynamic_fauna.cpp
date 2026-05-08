@@ -507,21 +507,17 @@ static tVec3f GetNewDuckTargetPosition(State& state, Duck& duck) {
 static void HandleDuck(Tachyon* tachyon, State& state, Duck& duck) {
   auto& meshes = state.meshes;
 
-  // Picking a new target position
-  {
-    if (time_since(duck.last_target_time) > 3.f) {
-      duck.target_position = GetNewDuckTargetPosition(state, duck);
-      duck.last_target_time = get_scene_time();
-    }
-  }
-
   // Update position
   {
     tVec3f target_direction = (duck.target_position - duck.position).unit();
     Quaternion target_rotation = Quaternion::FromDirection(target_direction, tVec3f(0, 1.f, 0));
 
-    duck.position = tVec3f::lerp(duck.position, duck.target_position, state.dt);
-    duck.rotation = Quaternion::slerp(duck.rotation, target_rotation, state.dt);
+    duck.rotation = Quaternion::slerp(duck.rotation, target_rotation, 0.5f * state.dt);
+    duck.position += duck.rotation.getDirection().invert() * 200.f * state.dt;
+
+    if (tVec3f::distance(duck.position, duck.target_position) < 500.f) {
+      duck.target_position = GetNewDuckTargetPosition(state, duck);
+    }
   }
 
   // Body
