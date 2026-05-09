@@ -678,12 +678,31 @@ static void HandleWandStrike(Tachyon* tachyon, State& state) {
   Magic::HandleWandAction(tachyon, state);
 }
 
+static bool IsWandHoldAnimationActive(State& state) {
+  return HasCurrentWandAnimation(state) || HasNextWandAnimation(state);
+}
+
+static float GetWandHoldFactor(State& state) {
+  bool has_current_wand_animation = HasCurrentWandAnimation(state);
+  bool has_next_wand_animation = HasNextWandAnimation(state);
+
+  return (
+    !has_current_wand_animation && !has_next_wand_animation
+      ? 0.f :
+    !has_current_wand_animation && has_next_wand_animation
+      // Taking the wand out
+      ? state.player_mesh_animation.next_animation_blend_alpha :
+    has_current_wand_animation && !has_next_wand_animation
+      // Putting the wand down
+      ? 1.f - state.player_mesh_animation.next_animation_blend_alpha :
+    1.f
+  );
+}
+
 static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotation, tMat4f& player_rotation_matrix) {
   auto& active_pose = state.player_mesh_animation.active_pose;
   auto& wand = objects(state.meshes.player_wand)[0];
   tVec3f player_body_position = skinned_mesh(state.meshes.player_robes).position;
-  bool has_current_wand_animation = HasCurrentWandAnimation(state);
-  bool has_next_wand_animation = HasNextWandAnimation(state);
 
   tVec3f offset = player_rotation_matrix * tVec3f(-1.f, 0, 0);
 
@@ -701,7 +720,7 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
     Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI)
   );
 
-  if (has_current_wand_animation || has_next_wand_animation) {
+  if (IsWandHoldAnimationActive(state)) {
     float swing_alpha = 0.002f * state.movement_distance + 2.5f * get_scene_time();
     float adjusted_pitch = 0.6f + 0.1f * sinf(swing_alpha);
 
@@ -714,15 +733,7 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
       Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), 0.6f)
     );
 
-    float alpha = (
-      !has_current_wand_animation && has_next_wand_animation
-        // Taking the wand out
-        ? state.player_mesh_animation.next_animation_blend_alpha :
-      has_current_wand_animation && !has_next_wand_animation
-        // Putting the wand down
-        ? 1.f - state.player_mesh_animation.next_animation_blend_alpha :
-      1.f
-    );
+    float alpha = GetWandHoldFactor(state);
 
     held_wand_rotation = Quaternion::slerp(held_wand_rotation, adjusted_rotation, alpha);
   }
@@ -931,10 +942,11 @@ static void UpdateWandLights(Tachyon* tachyon, State& state) {
     }
 
     // Glow when holding up the wand
-    // @todo fade in/out
     {
-      if (state.is_holding_up_wand) {
-        main_light_power += 5.f + 2.f * oscillating_alpha;
+      if (IsWandHoldAnimationActive(state)) {
+        float alpha = GetWandHoldFactor(state);
+
+        main_light_power += alpha * (5.f + 2.f * oscillating_alpha);
       }
     }
 
