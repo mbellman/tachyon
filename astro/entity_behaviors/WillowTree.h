@@ -11,7 +11,7 @@ namespace astro {
       meshes.willow_tree_leaves = MODEL_MESH("./astro/3d_models/willow_tree/leaves.obj", 500);
 
       mesh(meshes.willow_tree_trunk).shadow_cascade_ceiling = 2;
-      mesh(meshes.willow_tree_trunk).use_disocclusion = true;
+      mesh(meshes.willow_tree_trunk).use_disocclusion = false;
 
       mesh(meshes.willow_tree_branches).shadow_cascade_ceiling = 2;
       mesh(meshes.willow_tree_branches).use_disocclusion = true;
@@ -40,7 +40,7 @@ namespace astro {
 
       const tVec3f wood_color = tVec3f(0.1f, 0.f, 0.f);
       const tVec3f aged_wood_color = tVec3f(0.2f, 0.2f, 0.2f);
-      const tVec3f leaves_color = tVec3f(0.5f, 0.7f, 0.1f);
+      const tVec3f leaves_color = tVec3f(0.6f, 0.8f, 0.1f);
       const tVec3f aged_leaves_color = tVec3f(0.4f, 0.5f, 0.3f);
 
       float alpha = Tachyon_InverseLerp(astro_time_periods.past, astro_time_periods.present, state.astro_time);
@@ -109,7 +109,7 @@ namespace astro {
 
           leaves.position.y += entity.visible_scale.y * 0.15f;
           leaves.scale = entity.scale * growth_factor;
-          leaves.color = tVec4f(current_leaves_color, 0.3f);
+          leaves.color = tVec4f(current_leaves_color, 0.4f);
           leaves.material = tVec4f(0.8f, 0, 0, 1.f);
 
           commit(leaves);

@@ -16,6 +16,7 @@ namespace astro {
       mesh(meshes.birch_tree_leaves).shadow_cascade_ceiling = 2;
 
       mesh(meshes.birch_tree_leaves).type = FOLIAGE_MESH;
+      mesh(meshes.birch_tree_leaves).use_disocclusion = true;
     }
 
     getMeshes() {
