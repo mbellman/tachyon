@@ -603,7 +603,7 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
     hood.position = body_position;
     hood.rotation = body_rotation;
     hood.scale = body_scale;
-    hood.color = tVec3f(0.1f, 0.2f, 0.6f);
+    hood.color = tVec4f(0.2f, 0.3f, 0.7f, 0.2f);
     hood.material = tVec4f(1.f, 0, 0, 0.2f);
     hood.shadow_cascade_ceiling = 2;
     hood.current_pose = &active_pose;
@@ -611,7 +611,7 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
     robes.position = body_position;
     robes.rotation = body_rotation;
     robes.scale = body_scale;
-    robes.color = tVec3f(0.3f, 0.4f, 0.6f);
+    robes.color = tVec4f(0.3f, 0.4f, 0.6f, 0.2f);
     robes.material = tVec4f(1.f, 0, 0, 0.2f);
     robes.shadow_cascade_ceiling = 2;
     robes.current_pose = &active_pose;

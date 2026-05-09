@@ -114,8 +114,7 @@ namespace astro {
 
           if (
             proximity.distance < 5000.f &&
-            proximity.facing_dot > 0.2f &&
-            player_speed < 500.f
+            proximity.facing_dot > 0.2f
           ) {
             if (is_dismantled) {
               UISystem::ShowTransientDialogue(tachyon, state, "[X] Repair");
@@ -136,7 +135,7 @@ namespace astro {
             } else if (Items::HasItem(state, MAGIC_WAND)) {
               TriggerWandSense(state);
 
-              if (state.is_holding_up_wand) {
+              if (state.is_holding_up_wand && player_speed < 500.f) {
                 HandleActivationBehavior(tachyon, state, entity);
               }
             }

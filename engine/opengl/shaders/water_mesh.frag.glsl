@@ -324,7 +324,8 @@ void main() {
 
   vec3 out_color = vec3(0.0);
 
-  const vec3 base_water_color = vec3(0, 0.01, 0.3);
+  const vec3 base_water_color = vec3(0.0, 0.1, 0.3);
+  const vec3 dark_water_color = vec3(0.0, 0.0, 0.2);
   const vec3 base_underwater_color = vec3(0.5, 0.5, 1.0);
   const float depth_limit = 500.0;
 
@@ -385,7 +386,7 @@ void main() {
 
   // Shadows
   if (enable_shadows) {
-    out_color = mix(out_color, base_water_color, shadow * 0.5);
+    out_color = mix(out_color, dark_water_color, shadow * 0.5);
   }
 
   // @todo fog
