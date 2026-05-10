@@ -59,6 +59,8 @@ namespace astro {
       tiny_bird_left_wing,
       tiny_bird_right_wing,
       duck_body,
+      duck_head,
+      duck_beak,
 
       // Clothing + Armor meshes
       lesser_helmet,
@@ -354,8 +356,7 @@ namespace astro {
     tVec3f position;
     tVec3f target_position;
     Quaternion rotation;
-
-    float last_target_time = 0.f;
+    Quaternion head_rotation;
 
     EntityRecord spawn_entity_record;
   };

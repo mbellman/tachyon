@@ -507,12 +507,13 @@ static tVec3f GetNewDuckTargetPosition(State& state, Duck& duck) {
 static void HandleDuck(Tachyon* tachyon, State& state, Duck& duck) {
   auto& meshes = state.meshes;
 
-  // Update position
+  // Update rotation/position
   {
     tVec3f target_direction = (duck.target_position - duck.position).unit();
     Quaternion target_rotation = Quaternion::FromDirection(target_direction, tVec3f(0, 1.f, 0));
 
     duck.rotation = Quaternion::slerp(duck.rotation, target_rotation, 0.5f * state.dt);
+    duck.head_rotation = Quaternion::slerp(duck.head_rotation, target_rotation, state.dt);
     duck.position += duck.rotation.getDirection().invert() * 200.f * state.dt;
 
     if (tVec3f::distance(duck.position, duck.target_position) < 500.f) {
@@ -526,9 +527,35 @@ static void HandleDuck(Tachyon* tachyon, State& state, Duck& duck) {
 
     body.position = duck.position;
     body.rotation = duck.rotation;
+    body.material = tVec4f(0.5f, 0, 0, 0.2f);
     body.scale = tVec3f(500.f);
 
     commit(body);
+  }
+
+  // Head
+  {
+    auto& head = use_instance(meshes.duck_head);
+
+    head.position = duck.position + duck.rotation.toMatrix4f() * tVec3f(0, 0, 650.f);
+    head.rotation = duck.head_rotation;
+    head.color = tVec3f(0.1f, 0.5f, 0.3f);
+    head.material = tVec4f(0.5f, 0.5f, 0, 0.2f);
+    head.scale = tVec3f(500.f);
+
+    commit(head);
+  }
+
+  // Beak
+  {
+    auto& beak = use_instance(meshes.duck_beak);
+
+    beak.position = duck.position + duck.rotation.toMatrix4f() * tVec3f(0, 0, 650.f);
+    beak.rotation = duck.head_rotation;
+    beak.color = tVec3f(1.f, 0.7f, 0.3f);
+    beak.scale = tVec3f(500.f);
+
+    commit(beak);
   }
 }
 
@@ -537,6 +564,8 @@ static void HandleDucks(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   reset_instances(meshes.duck_body);
+  reset_instances(meshes.duck_head);
+  reset_instances(meshes.duck_beak);
 
   // @todo spawn ducks in and out as we move around the map
   if (state.ducks.size() == 0) {
@@ -549,6 +578,7 @@ static void HandleDucks(Tachyon* tachyon, State& state) {
       duck.position.y = -3000.f;
       duck.target_position = GetNewDuckTargetPosition(state, duck);
       duck.rotation = Quaternion(1.f, 0, 0, 0);
+      duck.head_rotation = Quaternion(1.f, 0, 0, 0);
 
       state.ducks.push_back(duck);
     }
