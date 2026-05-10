@@ -359,6 +359,8 @@ void main() {
 
     float water_color_alpha = simplex_noise(vec2(wx * 0.0001, wz * 0.0001));
     if (water_color_alpha < 0.0) water_color_alpha = 0.0;
+    water_color_alpha *= pow(1.0 - flattening_alpha, 0.2);
+
     vec3 water_color = mix(base_water_color, green_water_color, water_color_alpha);
 
     out_color = mix(water_color, water_color * 2.5, underwater_visibility);

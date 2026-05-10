@@ -504,6 +504,15 @@ static tVec3f GetNewDuckTargetPosition(State& state, Duck& duck) {
   return new_target_position;
 }
 
+static float GetRotationSpeed(const float time_since_target) {
+  float speed = time_since_target / 1.f;
+  if (speed < 0.f) speed = 0.f;
+  if (speed > 1.f) speed = 1.f;
+  speed *= 0.5f;
+
+  return speed;
+}
+
 static void HandleDuck(Tachyon* tachyon, State& state, Duck& duck) {
   auto& meshes = state.meshes;
 
@@ -511,13 +520,19 @@ static void HandleDuck(Tachyon* tachyon, State& state, Duck& duck) {
   {
     tVec3f target_direction = (duck.target_position - duck.position).unit();
     Quaternion target_rotation = Quaternion::FromDirection(target_direction, tVec3f(0, 1.f, 0));
+    float body_rotation_speed = GetRotationSpeed(time_since(duck.last_target_time) - 0.75f);
+    float head_rotation_speed = GetRotationSpeed(time_since(duck.last_target_time));
 
-    duck.rotation = Quaternion::slerp(duck.rotation, target_rotation, 0.5f * state.dt);
-    duck.head_rotation = Quaternion::slerp(duck.head_rotation, target_rotation, state.dt);
+    if (time_since(duck.last_target_time) > 1.f) {
+      duck.rotation = Quaternion::slerp(duck.rotation, target_rotation, body_rotation_speed * state.dt);
+    }
+
+    duck.head_rotation = Quaternion::slerp(duck.head_rotation, target_rotation, head_rotation_speed * state.dt);
     duck.position += duck.rotation.getDirection().invert() * 200.f * state.dt;
 
     if (tVec3f::distance(duck.position, duck.target_position) < 500.f) {
       duck.target_position = GetNewDuckTargetPosition(state, duck);
+      duck.last_target_time = get_scene_time();
     }
   }
 
