@@ -76,6 +76,12 @@ namespace astro {
         .default_scale = tVec3f(2000.f, 1500.f, 2000.f),
         .default_color = tVec3f(0.2f, 0.5f, 0.1f)
       },
+      {
+        .mesh_index = meshes.rock_stair,
+        .mesh_name = "rock_stair",
+        .default_scale = tVec3f(500.f),
+        .default_color = tVec3f(0.6f)
+      },
 
       // Facades
       {

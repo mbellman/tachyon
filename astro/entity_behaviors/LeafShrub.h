@@ -82,7 +82,7 @@ namespace astro {
         auto& entity = state.leaf_shrubs[i];
 
         if (abs(state.player_position.x - entity.position.x) > 20000.f) continue;
-        if (abs(state.player_position.z - entity.position.z) > 20000.f) continue;
+        if (abs(state.player_position.z - entity.position.z) > 25000.f) continue;
 
         float life_progress = GetLivingEntityProgress(state, entity, lifetime);
         tVec3f plant_color = GetPlantColor(entity.tint, life_progress);

@@ -107,6 +107,7 @@ namespace astro {
       rock_1,
       rock_2,
       rock_step,
+      rock_stair,
       river_edge,
       ground_1,
       lookout_tower,

@@ -56,6 +56,11 @@ namespace astro {
 
           Sync(frame, entity);
 
+          // @temporary
+          if (entity.unique_name == "swing_lamp") {
+            frame.rotation *= Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 0.3f * sinf(get_scene_time()));
+          }
+
           frame.color = tVec3f(0.2f);
           frame.material = tVec4f(0.1f, 1.f, 0, 0);
 

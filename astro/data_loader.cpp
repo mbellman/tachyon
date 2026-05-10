@@ -51,6 +51,7 @@ uint16 DataLoader::MeshIndexToId(State& state, uint16 mesh_index) {
     { meshes.rock_2, 6 },
     { meshes.stairs_floor, 7 },
     { meshes.rock_step, 8 },
+    { meshes.rock_stair, 9 },
 
     // Facades
     { meshes.facade_sg_castle, 30 }
@@ -72,6 +73,7 @@ uint16 DataLoader::MeshIdToIndex(State& state, uint16 mesh_id) {
     { 6, meshes.rock_2 },
     { 7, meshes.stairs_floor },
     { 8, meshes.rock_step },
+    { 9, meshes.rock_stair },
 
     // Facades
     { 30, meshes.facade_sg_castle }
@@ -123,6 +125,13 @@ void DataLoader::LoadLevelData(Tachyon* tachyon, State& state) {
       // @todo set mesh material properties
       if (mesh_index == state.meshes.rock_1 || mesh_index == state.meshes.rock_2) {
         object.material = tVec4f(0.6f, 0.2f, 0, 0);
+      }
+
+      // @temporary
+      // @todo set mesh material properties
+      if (mesh_index == state.meshes.rock_stair) {
+        object.color = tVec3f(0.5f);
+        object.material = tVec4f(0.8f, 0, 0, 0);
       }
 
       // @temporary
