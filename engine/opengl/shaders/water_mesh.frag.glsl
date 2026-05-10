@@ -277,6 +277,7 @@ void main() {
   float small_wave = sin(fragPosition.z * 0.001 + fragPosition.x * 0.001 + ripple_speed.x + ripple_speed.y);
 
   // Directional waves
+  N.z += 0.25 * sin(fragPosition.z * 0.002 - fragPosition.x * 0.001 + water_speed.x + water_speed.y + big_wave);
   N.z += 0.25 * sin(fragPosition.z * 0.001 - fragPosition.x * 0.001 + water_speed.x + water_speed.y + big_wave);
   N.x += 0.25 * cos(fragPosition.z * 0.0025 - fragPosition.x * 0.001 + water_speed.x + water_speed.y + small_wave);
 
@@ -325,6 +326,7 @@ void main() {
   vec3 out_color = vec3(0.0);
 
   const vec3 base_water_color = vec3(0.0, 0.1, 0.3);
+  const vec3 green_water_color = vec3(0.1, 0.4, 0.4);
   const vec3 dark_water_color = vec3(0.0, 0.0, 0.2);
   const vec3 base_underwater_color = vec3(0.5, 0.5, 1.0);
   const float depth_limit = 500.0;
@@ -355,7 +357,11 @@ void main() {
     // Prevent objects above the water from being sampled
     if (sample_z < water_surface_z) underwater_visibility = 0.0;
 
-    out_color = mix(base_water_color, base_underwater_color, underwater_visibility);
+    float water_color_alpha = simplex_noise(vec2(wx * 0.0001, wz * 0.0001));
+    if (water_color_alpha < 0.0) water_color_alpha = 0.0;
+    vec3 water_color = mix(base_water_color, green_water_color, water_color_alpha);
+
+    out_color = mix(water_color, water_color * 2.5, underwater_visibility);
   }
 
   // Reflect sky + primary light

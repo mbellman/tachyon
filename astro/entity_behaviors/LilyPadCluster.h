@@ -53,10 +53,11 @@ namespace astro {
         // Flower
         {
           auto& flower = use_instance(meshes.lily_pad_flower);
+          float angle = fmodf(entity.position.x, t_TAU);
 
           Sync(flower, entity);
 
-          flower.scale *= 0.15f;
+          flower.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), angle);
           flower.color = tVec4f(1.f, 0.7f, 0.8f, 0.1f);
           flower.material = tVec4f(1.f, 0, 0, 1.f);
 

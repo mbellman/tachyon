@@ -1034,8 +1034,8 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
         middle.position = flower.position;
         middle.scale = flower.scale;
         middle.rotation = flower.rotation;
-        middle.color = tVec3f(0.9f, 0.5f, 0.2f);
-        middle.material = tVec4f(1.f, 0, 0, 0.5f);
+        middle.color = tVec3f(1.f, 0.8f, 0.2f);
+        middle.material = tVec4f(1.f, 0, 0, 1.f);
 
         commit(middle);
       }
