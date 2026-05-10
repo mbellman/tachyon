@@ -542,10 +542,36 @@ static void HandleDuck(Tachyon* tachyon, State& state, Duck& duck) {
 
     body.position = duck.position;
     body.rotation = duck.rotation;
-    body.material = tVec4f(0.5f, 0, 0, 0.2f);
+    body.material = tVec4f(0.7f, 0, 0, 0.2f);
     body.scale = tVec3f(500.f);
 
     commit(body);
+  }
+
+  // Neck
+  {
+    auto& neck = use_instance(meshes.duck_neck);
+
+    neck.position = duck.position;
+    neck.rotation = duck.rotation;
+    neck.color = tVec3f(0.4f, 0.2f, 0.1f);
+    neck.material = tVec4f(0.8f, 0, 0, 0.2f);
+    neck.scale = tVec3f(500.f);
+
+    commit(neck);
+  }
+
+  // Wings
+  {
+    auto& wings = use_instance(meshes.duck_wings);
+
+    wings.position = duck.position;
+    wings.rotation = duck.rotation;
+    wings.color = tVec3f(0.7f, 0.5f, 0.4f);
+    wings.material = tVec4f(0.6f, 0.5f, 0, 0.4f);
+    wings.scale = tVec3f(500.f);
+
+    commit(wings);
   }
 
   // Head
@@ -579,6 +605,8 @@ static void HandleDucks(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   reset_instances(meshes.duck_body);
+  reset_instances(meshes.duck_neck);
+  reset_instances(meshes.duck_wings);
   reset_instances(meshes.duck_head);
   reset_instances(meshes.duck_beak);
 

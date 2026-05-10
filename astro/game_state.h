@@ -59,6 +59,8 @@ namespace astro {
       tiny_bird_left_wing,
       tiny_bird_right_wing,
       duck_body,
+      duck_neck,
+      duck_wings,
       duck_head,
       duck_beak,
 

@@ -208,6 +208,8 @@ static void AddFaunaMeshes(Tachyon* tachyon, State& state) {
   meshes.tiny_bird_right_wing = MODEL_MESH("./astro/3d_models/small_bird/right_wing.obj", 50);
 
   meshes.duck_body = MODEL_MESH("./astro/3d_models/fauna/duck_body.obj", 50);
+  meshes.duck_neck = MODEL_MESH("./astro/3d_models/fauna/duck_neck.obj", 50);
+  meshes.duck_wings = MODEL_MESH("./astro/3d_models/fauna/duck_wings.obj", 50);
   meshes.duck_head = MODEL_MESH("./astro/3d_models/fauna/duck_head.obj", 50);
   meshes.duck_beak = MODEL_MESH("./astro/3d_models/fauna/duck_beak.obj", 50);
 
@@ -221,6 +223,8 @@ static void AddFaunaMeshes(Tachyon* tachyon, State& state) {
   mesh(meshes.tiny_bird_right_wing).shadow_cascade_ceiling = 1;
 
   mesh(meshes.duck_body).shadow_cascade_ceiling = 2;
+  mesh(meshes.duck_neck).shadow_cascade_ceiling = 2;
+  mesh(meshes.duck_wings).shadow_cascade_ceiling = 2;
   mesh(meshes.duck_head).shadow_cascade_ceiling = 2;
   mesh(meshes.duck_beak).shadow_cascade_ceiling = 2;
 }
