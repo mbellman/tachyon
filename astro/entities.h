@@ -395,6 +395,7 @@ namespace astro {
       // LILY_PAD_CLUSTER
       lily_pad_cluster_placeholder,
       lily_pad_cluster,
+      lily_pad_flower,
 
       // LOW_GUARD
       low_guard_placeholder,

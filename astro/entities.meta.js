@@ -625,7 +625,8 @@ export default [
     list: "lily_pad_clusters",
     meshes: [
       "lily_pad_cluster_placeholder",
-      "lily_pad_cluster"
+      "lily_pad_cluster",
+      "lily_pad_flower"
     ],
     scale: [ 1000.0 ],
     color: [ 0.3, 0.7, 0.1 ]

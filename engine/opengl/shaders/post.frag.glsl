@@ -265,7 +265,7 @@ void main() {
       const float max_blur = 2.0;
 
       float depth = color_and_depth.w;
-      float adjusted_depth = pow(depth, 50.0);
+      float adjusted_depth = pow(depth, 70.0);
       float blur = max_blur * smoothstep(0.2, 0.3, adjusted_depth);
 
       const vec2[] offsets = {
