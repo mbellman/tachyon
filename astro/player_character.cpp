@@ -189,8 +189,15 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
   }
 
   if (
-    player_animation.current_animation == &animations.player_idle &&
-    player_animation.next_animation == &animations.player_run
+    (
+      player_animation.current_animation == &animations.player_idle ||
+      player_animation.current_animation == &animations.player_idle_wand
+    ) && (
+      player_animation.next_animation == &animations.player_walk ||
+      player_animation.next_animation == &animations.player_walk_wand ||
+      player_animation.next_animation == &animations.player_run ||
+      player_animation.next_animation == &animations.player_run_wand
+    )
   ) {
     return 3.5f;
   }

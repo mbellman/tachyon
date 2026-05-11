@@ -326,7 +326,6 @@ void main() {
   vec3 out_color = vec3(0.0);
 
   const vec3 base_water_color = vec3(0.0, 0.1, 0.3);
-  const vec3 green_water_color = vec3(0.1, 0.4, 0.4);
   const vec3 dark_water_color = vec3(0.0, 0.0, 0.2);
   const vec3 base_underwater_color = vec3(0.5, 0.5, 1.0);
   const float depth_limit = 500.0;
@@ -357,13 +356,7 @@ void main() {
     // Prevent objects above the water from being sampled
     if (sample_z < water_surface_z) underwater_visibility = 0.0;
 
-    float water_color_alpha = simplex_noise(vec2(wx * 0.0001, wz * 0.0001));
-    if (water_color_alpha < 0.0) water_color_alpha = 0.0;
-    water_color_alpha *= pow(1.0 - flattening_alpha, 0.2);
-
-    vec3 water_color = mix(base_water_color, green_water_color, water_color_alpha);
-
-    out_color = mix(water_color, water_color * 2.5, underwater_visibility);
+    out_color = mix(base_water_color, base_water_color * 2.5, underwater_visibility);
   }
 
   // Reflect sky + primary light
