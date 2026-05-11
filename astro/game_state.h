@@ -526,8 +526,10 @@ namespace astro {
     float last_wand_light_time = 0.f;
     float last_wand_strike_time = 0.f;
     float last_wand_light_pulse_time = 0.f;
+    float last_wand_hint_time = 0.f;
     float wand_sense_factor = 0.f;
     bool is_holding_up_wand = false;
+    int32 wand_hint_light_id = -1;
 
     // Dynamic fauna
     std::vector<Butterfly> butterflies;

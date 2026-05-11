@@ -176,6 +176,27 @@ static void HandleDayNightControls(Tachyon* tachyon, State& state) {
   }
 }
 
+// @todo move elsewhere
+static void HandleWandHints(Tachyon* tachyon, State& state) {
+  for (auto& entity : state.npcs) {
+    float player_distance = tVec3f::distance(entity.position, state.player_position);
+
+    if (entity.astro_start_time > state.astro_time && player_distance < 7500.f) {
+      Sfx::PlaySound(SFX_WAND_HINT, 1.f);
+
+      state.last_wand_hint_time = get_scene_time();
+
+      if (state.wand_hint_light_id == -1) {
+        state.wand_hint_light_id = create_point_light();
+      }
+
+      auto& hint_light = *get_point_light(state.wand_hint_light_id);
+
+      hint_light.position = entity.position;
+    }
+  }
+}
+
 static void HandleWandControls(Tachyon* tachyon, State& state) {
   if (abs(state.astro_turn_speed) != 0.f) return;
 
@@ -192,7 +213,7 @@ static void HandleWandControls(Tachyon* tachyon, State& state) {
 
   // Pressing Square
   if (has_wand && did_press_key(tKey::CONTROLLER_X)) {
-    if ( state.targetable_entities.size() > 0) {
+    if (state.targetable_entities.size() > 0) {
       if (Items::HasItem(state, ITEM_HOMING_SPELL)) {
         // @todo magic weapons
         SpellSystem::CastHoming(tachyon, state);
@@ -211,16 +232,29 @@ static void HandleWandControls(Tachyon* tachyon, State& state) {
   if (has_wand && is_key_held(tKey::CONTROLLER_X) && state.targetable_entities.size() == 0) {
     state.is_holding_up_wand = true;
 
-    if (
-      state.is_holding_up_wand &&
-      time_since(state.last_wand_light_pulse_time) > 4.f
-    ) {
+    if (time_since(state.last_wand_light_pulse_time) > 4.f) {
       state.last_wand_light_pulse_time = get_scene_time();
+      state.last_wand_hint_time = get_scene_time();
 
       Sfx::PlaySound(SFX_LIGHT_PULSE, 0.8f);
+
+      HandleWandHints(tachyon, state);
     }
   } else {
     state.is_holding_up_wand = false;
+  }
+
+  // @temporary
+  if (time_since(state.last_wand_hint_time) < t_PI && state.wand_hint_light_id != -1) {
+    auto& hint_light = *get_point_light(state.wand_hint_light_id);
+    float alpha = sinf(time_since(state.last_wand_hint_time));
+
+    hint_light.power = alpha;
+    hint_light.glow_power = alpha;
+    hint_light.color = tVec3f(1.f, 0.6f, 0.4f);
+    hint_light.radius = 6000.f * alpha;
+
+    hint_light.position.y += 500.f * sinf(get_scene_time()) * state.dt;
   }
 
   // Triangle

@@ -202,7 +202,7 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
     return 3.5f;
   }
 
-  return 2.f;
+  return 3.f;
 }
 
 static AnimationBlendType GetAnimationBlendType(State& state) {

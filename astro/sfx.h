@@ -10,6 +10,7 @@ namespace astro {
     SFX_ASTRO_DISABLED,
 
     SFX_LIGHT_PULSE,
+    SFX_WAND_HINT,
 
     SFX_GROUND_WALK_1,
     SFX_GROUND_WALK_2,
