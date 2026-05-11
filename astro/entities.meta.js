@@ -568,7 +568,8 @@ export default [
     list: "iron_gates",
     meshes: [
       "iron_gate_placeholder",
-      "iron_gate_side"
+      "iron_gate_side",
+      "iron_gate_wall"
     ],
     scale: [ 5000.0 ],
     color: [ 1.0 ]

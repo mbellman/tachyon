@@ -353,6 +353,7 @@ namespace astro {
       // IRON_GATE
       iron_gate_placeholder,
       iron_gate_side,
+      iron_gate_wall,
 
       // ITEM_PICKUP
       item_pickup_placeholder,

@@ -7,13 +7,20 @@ namespace astro {
     addMeshes() {
       meshes.iron_gate_placeholder = MODEL_MESH("./astro/3d_models/iron_gate/placeholder.obj", 100);
       meshes.iron_gate_side = MODEL_MESH("./astro/3d_models/iron_gate/gate.obj", 200);
+      meshes.iron_gate_wall = MODEL_MESH("./astro/3d_models/iron_gate/wall.obj", 100);
+
+      mesh(meshes.iron_gate_side).shadow_cascade_ceiling = 2;
+      mesh(meshes.iron_gate_wall).shadow_cascade_ceiling = 2;
     }
 
     getMeshes() {
       return_meshes({
         // Add each side of the gate
         meshes.iron_gate_side,
-        meshes.iron_gate_side
+        meshes.iron_gate_side,
+
+        // Wall
+        meshes.iron_gate_wall
       });
     }
 
@@ -25,6 +32,7 @@ namespace astro {
       auto& meshes = state.meshes;
 
       reset_instances(meshes.iron_gate_side);
+      reset_instances(meshes.iron_gate_wall);
 
       for_entities(state.iron_gates) {
         auto& entity = state.iron_gates[i];
@@ -58,6 +66,18 @@ namespace astro {
           // right_gate.material = tVec4f(0.f, 1.f, 1.f, 1.f);
 
           commit(right_gate);
+        }
+
+        // Wall
+        {
+          auto& wall = use_instance(meshes.iron_gate_wall);
+
+          Sync(wall, entity);
+
+          wall.color = tVec3f(0.5f);
+          wall.material = tVec4f(0.8f, 0, 0, 0);
+
+          commit(wall);
         }
 
         // Collision
