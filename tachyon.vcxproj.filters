@@ -684,6 +684,27 @@
     <ClInclude Include="astro\entity_behaviors\Sculpture1.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="astro\wand_abilities.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\entity_behaviors\LilyPadCluster.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\entity_behaviors\DuckSpawn.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\entity_behaviors\CastleTower.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\entity_behaviors\CastleRampart.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\entity_behaviors\CastleSteeple.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\entity_behaviors\BirchTree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -897,6 +918,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="astro\environment.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="astro\wand_abilities.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

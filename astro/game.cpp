@@ -25,6 +25,7 @@
 #include "astro/targeting.h"
 #include "astro/time_evolution.h"
 #include "astro/ui_system.h"
+#include "astro/wand_abilities.h"
 
 // @todo dev_tools.cpp
 #include "astro/entity_behaviors/SmallBird.h"
@@ -536,7 +537,7 @@ static void HandleMusicLevels(Tachyon* tachyon, State& state) {
       BGM::FadeCurrentMusicVolumeTo(0.f, 1000);
     }
     else {
-      BGM::FadeCurrentMusicVolumeTo(0.4f, 3000);
+      BGM::FadeCurrentMusicVolumeTo(0.5f, 3000);
     }
   }
 }
@@ -559,7 +560,7 @@ static void HandleCurrentAreaMusic(Tachyon* tachyon, State& state) {
   tVec3f village_position = tVec3f(232000.f, 0, 106000.f);
 
   if (IsPlayerNearUsableWindChimes(state)) {
-    BGM::LoopMusic(BGM_WIND_CHIMES, 0.4f);
+    BGM::LoopMusic(BGM_WIND_CHIMES, 0.5f);
   }
   else if (state.astro_time >= astro_time_periods.present) {
     // @temporary
@@ -568,10 +569,10 @@ static void HandleCurrentAreaMusic(Tachyon* tachyon, State& state) {
   }
   // @temporary
   else if (tVec3f::distance(state.player_position, village_position) < 40000.f) {
-    BGM::LoopMusic(VILLAGE_1, 0.4f);
+    BGM::LoopMusic(VILLAGE_1, 0.5f);
   }
   else if (state.bgm_start_time != -1.f) {
-    BGM::LoopMusic(DIVINATION_WOODREALM, 0.4f);
+    BGM::LoopMusic(DIVINATION_WOODREALM, 0.5f);
   }
 }
 
@@ -994,6 +995,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   Targeting::HandleTargets(tachyon, state);
   ControlSystem::HandleControls(tachyon, state);
   CollisionSystem::HandleCollisions(tachyon, state);
+  WandAbilities::HandleWandAbilities(tachyon, state);
   SpellSystem::HandleSpells(tachyon, state);
   UISystem::HandleDialogue(tachyon, state);
   Particles::HandleParticles(tachyon, state);
