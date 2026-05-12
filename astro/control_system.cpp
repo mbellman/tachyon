@@ -279,7 +279,8 @@ static void HandleSpeedDampening(Tachyon* tachyon, State& state) {
     state.player_velocity *= 1.f - 6.f * state.dt;
   }
   else {
-    state.player_velocity *= 1.f - 2.f * state.dt;
+    // Standard slowdown
+    state.player_velocity *= 1.f - 2.75f * state.dt;
   }
 
   float speed = state.player_velocity.magnitude();

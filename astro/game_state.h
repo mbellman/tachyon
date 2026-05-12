@@ -23,6 +23,7 @@
 
 #define time_since(t) (tachyon->scene.scene_time - t)
 #define get_scene_time() tachyon->scene.scene_time
+#define is_moving_left_stick() (tachyon->left_stick.x != 0.f || tachyon->left_stick.y != 0.f)
 
 namespace astro {
   /**

@@ -112,7 +112,7 @@ static void UpdateActiveAnimation(Tachyon* tachyon, State& state) {
   }
 
   // Walking
-  else if (state.previous_move_delta > 5.f || is_doing_quick_turn || has_target_and_is_moving) {
+  else if (state.previous_move_delta > 10.f || is_doing_quick_turn || has_target_and_is_moving) {
     if (state.is_holding_up_wand) {
       Animation::AwaitNextAnimation(player_animation, &animations.player_walk_wand);
     } else {
@@ -202,7 +202,7 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
     return 3.5f;
   }
 
-  return 3.f;
+  return 2.f;
 }
 
 static AnimationBlendType GetAnimationBlendType(State& state) {
