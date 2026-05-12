@@ -537,7 +537,7 @@ static void HandleMusicLevels(Tachyon* tachyon, State& state) {
       BGM::FadeCurrentMusicVolumeTo(0.f, 1000);
     }
     else {
-      BGM::FadeCurrentMusicVolumeTo(0.5f, 3000);
+      BGM::FadeCurrentMusicVolumeTo(0.4f, 3000);
     }
   }
 }
@@ -560,7 +560,7 @@ static void HandleCurrentAreaMusic(Tachyon* tachyon, State& state) {
   tVec3f village_position = tVec3f(232000.f, 0, 106000.f);
 
   if (IsPlayerNearUsableWindChimes(state)) {
-    BGM::LoopMusic(BGM_WIND_CHIMES, 0.5f);
+    BGM::LoopMusic(BGM_WIND_CHIMES, 0.4f);
   }
   else if (state.astro_time >= astro_time_periods.present) {
     // @temporary
@@ -569,10 +569,10 @@ static void HandleCurrentAreaMusic(Tachyon* tachyon, State& state) {
   }
   // @temporary
   else if (tVec3f::distance(state.player_position, village_position) < 40000.f) {
-    BGM::LoopMusic(VILLAGE_1, 0.5f);
+    BGM::LoopMusic(VILLAGE_1, 0.4f);
   }
   else if (state.bgm_start_time != -1.f) {
-    BGM::LoopMusic(DIVINATION_WOODREALM, 0.5f);
+    BGM::LoopMusic(DIVINATION_WOODREALM, 0.4f);
   }
 }
 
