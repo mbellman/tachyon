@@ -35,6 +35,17 @@ void WandAbilities::CheckForHints(Tachyon* tachyon, State& state) {
       ShowWandHint(tachyon, state, entity.position);
     }
   }
+
+  for (auto& entity : state.low_guards) {
+    float player_distance = tVec3f::distance(entity.position, state.player_position);
+
+    if (
+      entity.astro_start_time > state.astro_time &&
+      player_distance < 7500.f
+    ) {
+      ShowWandHint(tachyon, state, entity.position);
+    }
+  }
 }
 
 void WandAbilities::HandleWandAbilities(Tachyon* tachyon, State& state) {

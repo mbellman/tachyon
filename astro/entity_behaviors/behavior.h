@@ -93,7 +93,7 @@ namespace astro {
 
   // @todo allow a tweening factor
   static void FacePlayer(GameEntity& entity, State& state) {
-    tVec3f entity_to_player = state.player_position - entity.visible_position;
+    tVec3f entity_to_player = (state.player_position - entity.visible_position).xz();
     Quaternion facing_direction = Quaternion::FromDirection(entity_to_player.unit(), tVec3f(0, 1.f, 0));
 
     // @todo use nlerp
