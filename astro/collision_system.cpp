@@ -284,6 +284,7 @@ static void HandleSmallStoneBridgeCollisions(Tachyon* tachyon, State& state) {
       AllowPlayerMovement(state, player_y, bridge_plane);
 
       state.is_on_solid_platform = true;
+      state.is_on_stone_surface = true;
 
       break;
     }
@@ -306,6 +307,7 @@ static void HandleWoodenBridgeCollisions(Tachyon* tachyon, State& state) {
       AllowPlayerMovement(state, player_y, bridge_plane);
 
       state.is_on_solid_platform = true;
+      state.is_on_wood_surface = true;
 
       break;
     }
@@ -549,6 +551,8 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   state.is_on_solid_ground = false;
   state.is_on_solid_platform = false;
   state.is_moving_down_slope = false;
+  state.is_on_wood_surface = false;
+  state.is_on_stone_surface = false;
 
   // If we later resolve a radius collision, this is useful
   // to know in the context of resolving plane collisions

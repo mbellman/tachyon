@@ -441,13 +441,25 @@ static void HandleWalkSounds(Tachyon* tachyon, State& state) {
     float volume = is_running ? 0.1f : 0.05f;
 
     if (cycle == 0) {
-      Sfx::PlaySound(SFX_GROUND_WALK_1, volume);
+      if (state.is_on_wood_surface) {
+        Sfx::PlaySound(SFX_WOOD_WALK_1, volume);
+      } else {
+        Sfx::PlaySound(SFX_GROUND_WALK_1, volume);
+      }
     }
     else if (cycle == 1) {
-      Sfx::PlaySound(SFX_GROUND_WALK_2, volume);
+      if (state.is_on_wood_surface) {
+        Sfx::PlaySound(SFX_WOOD_WALK_2, volume);
+      } else {
+        Sfx::PlaySound(SFX_GROUND_WALK_2, volume);
+      }
     }
     else if (cycle == 2) {
-      Sfx::PlaySound(SFX_GROUND_WALK_3, volume);
+      if (state.is_on_wood_surface) {
+        Sfx::PlaySound(SFX_WOOD_WALK_3, volume);
+      } else {
+        Sfx::PlaySound(SFX_GROUND_WALK_3, volume);
+      }
 
       state.walk_cycle = 0;
     }

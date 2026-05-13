@@ -222,13 +222,21 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
       player_animation.current_animation != &animations.player_run_wand
     )
   ) {
-    return 6.f;
+    return 5.f;
   }
 
   // Blend faster out of idle
   if (
     IsAnyIdleAnimation(player_animation.current_animation, state) &&
     !IsAnyIdleAnimation(player_animation.next_animation, state)
+  ) {
+    return 3.5f;
+  }
+
+  // Blend faster into idle
+  if (
+    !IsAnyIdleAnimation(player_animation.current_animation, state) &&
+    IsAnyIdleAnimation(player_animation.next_animation, state)
   ) {
     return 3.5f;
   }

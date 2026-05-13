@@ -280,7 +280,7 @@ static void HandleSpeedDampening(Tachyon* tachyon, State& state) {
   }
   else {
     // Standard slowdown
-    state.player_velocity *= 1.f - 2.75f * state.dt;
+    state.player_velocity *= 1.f - 3.5f * state.dt;
   }
 
   float speed = state.player_velocity.magnitude();
@@ -290,6 +290,10 @@ static void HandleSpeedDampening(Tachyon* tachyon, State& state) {
     tVec3f unit_velocity = state.player_velocity / speed;
 
     state.player_velocity = unit_velocity * speed_limit;
+  }
+
+  if (speed < 50.f && !is_moving_left_stick()) {
+    state.player_velocity = tVec3f(0.f);
   }
 }
 

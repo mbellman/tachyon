@@ -438,6 +438,8 @@ namespace astro {
     bool is_on_solid_ground = false;
     bool is_on_solid_platform = false;
     bool is_moving_down_slope = false;
+    bool is_on_wood_surface = false;
+    bool is_on_stone_surface = false;
     bool did_resolve_radius_collision = false;
     int32 last_used_wind_chimes_id = -1;
 
