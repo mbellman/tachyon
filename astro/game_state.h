@@ -454,7 +454,9 @@ namespace astro {
     // Animations
     struct SkeletonAnimations {
       tSkeletonAnimation player_idle;
+      tSkeletonAnimation player_idle_2;
       tSkeletonAnimation player_idle_wand;
+      tSkeletonAnimation player_idle_wand_2;
       tSkeletonAnimation player_walk;
       tSkeletonAnimation player_walk_wand;
       tSkeletonAnimation player_run;
@@ -465,6 +467,8 @@ namespace astro {
       tSkeletonAnimation person_talking;
       tSkeletonAnimation person_hit_front;
     } animations;
+
+    uint8 player_idle_stance = 1;
 
     tSkinnedMeshAnimation player_mesh_animation;
     ReservedSkinnedMesh person_skinned_meshes[MAX_ANIMATED_PEOPLE];

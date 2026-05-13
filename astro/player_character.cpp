@@ -55,7 +55,8 @@ static bool IsNormalIdleAnimation(tSkeletonAnimation* animation, const State& st
   auto& animations = state.animations;
 
   return (
-    animation == &animations.player_idle
+    animation == &animations.player_idle ||
+    animation == &animations.player_idle_2
   );
 }
 
@@ -142,21 +143,30 @@ static void UpdateActiveAnimation(Tachyon* tachyon, State& state) {
 
   // Idling
   else {
-    if (player_animation.next_animation == &animations.player_walk) {
+
+    // Just before we switch to the idle animation, determine where we are
+    // in our walk cycle, and decide on an idle stance based on that. The two
+    // idle stances use opposite foot positioning, which are alternately picked
+    // to reduce foot sliding from walk -> idle.
+    if (
+      player_animation.next_animation == &animations.player_walk ||
+      player_animation.next_animation == &animations.player_walk_wand
+    ) {
       float seek_time = fmodf(player_animation.seek_time, 8.f);
 
       if (seek_time < 1.5f || seek_time > 6.5f) {
-        console_log("Idle 2?");
-        console_log(seek_time);
+        state.player_idle_stance = 2;
       } else {
-        console_log("Idle 1?");
-        console_log(seek_time);
+        state.player_idle_stance = 1;
       }
     }
+
     if (state.is_holding_up_wand) {
       Animation::AwaitNextAnimation(player_animation, &animations.player_idle_wand);
-    } else {
+    } else if (state.player_idle_stance == 1) {
       Animation::AwaitNextAnimation(player_animation, &animations.player_idle);
+    } else if (state.player_idle_stance == 2) {
+      Animation::AwaitNextAnimation(player_animation, &animations.player_idle_2);
     }
   }
 }
@@ -164,11 +174,7 @@ static void UpdateActiveAnimation(Tachyon* tachyon, State& state) {
 static float GetAnimationSpeed(Tachyon* tachyon, State& state) {
   bool is_astro_traveling = state.astro_turn_speed != 0.f;
   bool is_hit = state.last_damage_time != 0.f && time_since(state.last_damage_time) < 1.f;
-
-  bool is_idle = (
-    state.player_mesh_animation.next_animation == &state.animations.player_idle ||
-    state.player_mesh_animation.next_animation == &state.animations.player_idle_wand
-  );
+  bool is_idle = IsAnyIdleAnimation(state.player_mesh_animation.next_animation, state);
 
   if (is_astro_traveling) return 0.65f;
   if (is_hit) return 7.f;

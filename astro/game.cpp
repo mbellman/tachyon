@@ -804,6 +804,13 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
 
     state.animations.player_idle.name = "PLAYER_IDLE";
 
+    state.animations.player_idle_2.frames = {
+      GltfLoader("./astro/3d_skeleton_animations/player_idle_2/idle_1.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_idle_2/idle_2.gltf").skeleton
+    };
+
+    state.animations.player_idle_2.name = "PLAYER_IDLE_2";
+
     state.animations.player_idle_wand.frames = {
       GltfLoader("./astro/3d_skeleton_animations/player_idle_wand/idle_1.gltf").skeleton,
       GltfLoader("./astro/3d_skeleton_animations/player_idle_wand/idle_2.gltf").skeleton
