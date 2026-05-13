@@ -51,6 +51,26 @@ static bool HasNextWandAnimation(State& state) {
   );
 }
 
+static bool IsNormalIdleAnimation(tSkeletonAnimation* animation, const State& state) {
+  auto& animations = state.animations;
+
+  return (
+    animation == &animations.player_idle
+  );
+}
+
+static bool IsWandIdleAnimation(tSkeletonAnimation* animation, const State& state) {
+  auto& animations = state.animations;
+
+  return (
+    animation == &animations.player_idle_wand
+  );
+}
+
+static bool IsAnyIdleAnimation(tSkeletonAnimation* animation, const State& state) {
+  return IsNormalIdleAnimation(animation, state) || IsWandIdleAnimation(animation, state);
+}
+
 static void UpdateActiveAnimation(Tachyon* tachyon, State& state) {
   auto& player_animation = state.player_mesh_animation;
   auto& animations = state.animations;
@@ -89,8 +109,8 @@ static void UpdateActiveAnimation(Tachyon* tachyon, State& state) {
       Animation::AwaitNextAnimation(player_animation, &animations.player_run_wand);
     } else {
       if (
-        player_animation.current_animation == &animations.player_idle_wand &&
-        player_animation.next_animation == &animations.player_idle
+        IsWandIdleAnimation(player_animation.current_animation, state) &&
+        IsNormalIdleAnimation(player_animation.next_animation, state)
       ) {
         // Special case for lowering the wand while idle, and immediately
         // starting a run action. Ordinarily, this would cause us to wait
@@ -122,6 +142,17 @@ static void UpdateActiveAnimation(Tachyon* tachyon, State& state) {
 
   // Idling
   else {
+    if (player_animation.next_animation == &animations.player_walk) {
+      float seek_time = fmodf(player_animation.seek_time, 8.f);
+
+      if (seek_time < 1.5f || seek_time > 6.5f) {
+        console_log("Idle 2?");
+        console_log(seek_time);
+      } else {
+        console_log("Idle 1?");
+        console_log(seek_time);
+      }
+    }
     if (state.is_holding_up_wand) {
       Animation::AwaitNextAnimation(player_animation, &animations.player_idle_wand);
     } else {
@@ -188,16 +219,10 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
     return 6.f;
   }
 
+  // Blend faster out of idle
   if (
-    (
-      player_animation.current_animation == &animations.player_idle ||
-      player_animation.current_animation == &animations.player_idle_wand
-    ) && (
-      player_animation.next_animation == &animations.player_walk ||
-      player_animation.next_animation == &animations.player_walk_wand ||
-      player_animation.next_animation == &animations.player_run ||
-      player_animation.next_animation == &animations.player_run_wand
-    )
+    IsAnyIdleAnimation(player_animation.current_animation, state) &&
+    !IsAnyIdleAnimation(player_animation.next_animation, state)
   ) {
     return 3.5f;
   }
