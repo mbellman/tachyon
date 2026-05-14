@@ -581,7 +581,7 @@ static void HandleDuck(Tachyon* tachyon, State& state, Duck& duck) {
     head.position = duck.position + duck.rotation.toMatrix4f() * tVec3f(0, 0, 650.f);
     head.rotation = duck.head_rotation;
     head.color = tVec3f(0.1f, 0.5f, 0.3f);
-    head.material = tVec4f(0.5f, 0.5f, 0, 0.2f);
+    head.material = tVec4f(0.5f, 1.f, 0, 0.2f);
     head.scale = tVec3f(500.f);
 
     commit(head);

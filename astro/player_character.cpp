@@ -17,8 +17,18 @@ constexpr static float ATTACK_WIND_UP_DURATION = 0.3f;
 constexpr static float ATTACK_SWING_DURATION = 0.2f;
 constexpr static float ATTACK_WIND_DOWN_DURATION = 0.6f;
 constexpr static float ATTACK_DURATION = ATTACK_WIND_UP_DURATION + ATTACK_SWING_DURATION + ATTACK_WIND_DOWN_DURATION;
-
 constexpr static float AUTO_HOP_DURATION = 0.3f;
+
+static std::vector<float> run_bounce_curve = {
+  0.f,
+  0.5f,
+  0.9f,
+  1.f,
+  0.95f,
+  0.7f,
+  0.4f,
+  0.f
+};
 
 static inline float GetAngleBetween(const float a1, const float a2) {
   float angle = a1 - a2;
@@ -350,6 +360,19 @@ static void HandleAutoHop(State& state) {
   state.player_position.y = Tachyon_Lerpf(state.player_position.y, jump_height, alpha);
 }
 
+// @todo move elsewhere
+static float SampleCurve(const std::vector<float>& curve, const float t) {
+  float seek_time = t * float(curve.size());
+  int start_frame = (int) seek_time;
+  int end_frame = start_frame + 1;
+
+  float a = curve[start_frame % 8];
+  float b = curve[end_frame % 8];
+  float alpha = fmodf(seek_time, 1.f);
+
+  return Tachyon_Lerpf(a, b, alpha);
+}
+
 static void HandleRunOscillation(Tachyon* tachyon, State& state, tVec3f& body_position) {
   if (
     is_key_held(tKey::CONTROLLER_A) &&
@@ -367,7 +390,7 @@ static void HandleRunOscillation(Tachyon* tachyon, State& state, tVec3f& body_po
 
   float run_bounce_height = 300.f * state.run_oscillation;
   float run_cycle_time = fmodf(state.player_mesh_animation.seek_time + 1.f, 8.f) / 8.f;
-  float run_bounce = sqrtf(0.5f + 0.5f * sinf(run_cycle_time * 2.f * t_TAU));
+  float run_bounce = SampleCurve(run_bounce_curve, run_cycle_time * 2.f);
 
   body_position.y += run_bounce_height * run_bounce;
 }
