@@ -20,14 +20,14 @@ constexpr static float ATTACK_DURATION = ATTACK_WIND_UP_DURATION + ATTACK_SWING_
 constexpr static float AUTO_HOP_DURATION = 0.3f;
 
 static std::vector<float> run_bounce_curve = {
-  0.f,
-  0.5f,
+  0.6f,
   0.9f,
   1.f,
-  0.95f,
-  0.7f,
+  0.8f,
   0.4f,
-  0.f
+  -0.2f,
+  -0.1f,
+  0.1f
 };
 
 static inline float GetAngleBetween(const float a1, const float a2) {
