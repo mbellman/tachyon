@@ -19,6 +19,8 @@ constexpr static float ATTACK_WIND_DOWN_DURATION = 0.6f;
 constexpr static float ATTACK_DURATION = ATTACK_WIND_UP_DURATION + ATTACK_SWING_DURATION + ATTACK_WIND_DOWN_DURATION;
 constexpr static float AUTO_HOP_DURATION = 0.3f;
 
+constexpr static float RUN_BOUNCE_HEIGHT = 275.f;
+
 static std::vector<float> run_bounce_curve = {
   0.6f,
   0.9f,
@@ -388,7 +390,7 @@ static void HandleRunOscillation(Tachyon* tachyon, State& state, tVec3f& body_po
   if (state.run_oscillation < 0.f) state.run_oscillation = 0.f;
   if (state.run_oscillation > 1.f) state.run_oscillation = 1.f;
 
-  float run_bounce_height = 300.f * state.run_oscillation;
+  float run_bounce_height = RUN_BOUNCE_HEIGHT * state.run_oscillation;
   float run_cycle_time = fmodf(state.player_mesh_animation.seek_time + 1.f, 8.f) / 8.f;
   float run_bounce = SampleCurve(run_bounce_curve, run_cycle_time * 2.f);
 

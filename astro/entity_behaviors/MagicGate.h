@@ -47,6 +47,7 @@ namespace astro {
         // Interaction
         {
           auto proximity = GetEntityProximity(entity, state);
+          bool was_previously_activated = entity.did_activate;
 
           if (
             proximity.distance < 7500.f &&
@@ -56,18 +57,30 @@ namespace astro {
             TriggerWandSense(state);
 
             if (state.is_holding_up_wand) {
-              fade_out += 0.5f * state.dt;
+              // Lower the barrier
+              fade_out += state.dt;
+              entity.did_activate = true;
 
               if (fade_out > 1.f) fade_out = 1.f;
             } else {
-              fade_out -= 0.5f * state.dt;
+              // Re-raise the barrier
+              fade_out -= state.dt;
+              entity.did_activate = false;
 
               if (fade_out < 0.f) fade_out = 0.f;
             }
           } else {
-            fade_out -= 0.5f * state.dt;
+            // Re-raise the barrier
+            fade_out -= state.dt;
+            entity.did_activate = false;
 
             if (fade_out < 0.f) fade_out = 0.f;
+          }
+
+          if (was_previously_activated && !entity.did_activate) {
+            Sfx::PlaySound(SFX_MAGIC_GATE_CLOSE, 0.5f);
+          } else if (!was_previously_activated && entity.did_activate) {
+            Sfx::PlaySound(SFX_MAGIC_GATE_OPEN, 0.5f);
           }
         }
 

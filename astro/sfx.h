@@ -57,6 +57,9 @@ namespace astro {
 
     SFX_GATE_OPEN,
 
+    SFX_MAGIC_GATE_OPEN,
+    SFX_MAGIC_GATE_CLOSE,
+
     SFX_SPELL_STUN,
 
     SFX_LIGHT_POST_ACTIVATE,
