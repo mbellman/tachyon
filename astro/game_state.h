@@ -404,6 +404,26 @@ namespace astro {
 
   /**
    * ----------------------------
+   * Locations
+   * ----------------------------
+   */
+  enum Location {
+    TUTORIAL,
+    DIVINATION_WOODREALM,
+    DIVINATION_RIVERWAY,
+    DIVINATION_LAKE_PROMENADE,
+    PROVENANCE_WOODREALM_WEST,
+    PROVENANCE_WOODREALM_EAST,
+    VILLAGE_1,
+    FOREST_1,
+    FAERIE_FOREST,
+    STARGAZING_HILL,
+    OLD_WOOD,
+    LONELY_FARMHOUSE
+  };
+
+  /**
+   * ----------------------------
    * Game state
    * ----------------------------
    */
@@ -452,6 +472,8 @@ namespace astro {
     float current_ground_y = 0.f;
     float run_oscillation = 0.f;
     float tilt_angle = 0.f;
+
+    Location current_location = Location::TUTORIAL;
 
     // Animations
     struct SkeletonAnimations {

@@ -5,9 +5,9 @@ namespace astro {
     MUSIC_NONE = -1,
     BGM_STORY,
     BGM_WIND_CHIMES,
-    DIVINATION_WOODREALM,
+    BGM_DIVINATION_WOODREALM,
     // @todo rename
-    VILLAGE_1
+    BGM_VILLAGE_1
   };
 
   namespace BGM {
