@@ -1,6 +1,7 @@
 #include "astro/entity_dispatcher.h"
 
 #include "astro/entity_behaviors/Altar.h"
+#include "astro/entity_behaviors/AreaChange.h"
 #include "astro/entity_behaviors/Bandit.h"
 #include "astro/entity_behaviors/Bellflower.h"
 #include "astro/entity_behaviors/BirchTree.h"
@@ -84,6 +85,7 @@ using namespace astro;
 
 #define create_dispatch_cases(dispatch_macro)\
   dispatch_macro(ALTAR, Altar);\
+  dispatch_macro(AREA_CHANGE, AreaChange);\
   dispatch_macro(BANDIT, Bandit);\
   dispatch_macro(BELLFLOWER, Bellflower);\
   dispatch_macro(BIRCH_TREE, BirchTree);\
@@ -144,6 +146,7 @@ using namespace astro;
 std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, EntityType type) {
   switch (type) {
     dispatch_GetEntityContainer(ALTAR, state.altars);
+    dispatch_GetEntityContainer(AREA_CHANGE, state.area_changes);
     dispatch_GetEntityContainer(BANDIT, state.bandits);
     dispatch_GetEntityContainer(BELLFLOWER, state.bellflowers);
     dispatch_GetEntityContainer(BIRCH_TREE, state.birch_trees);

@@ -14,6 +14,7 @@ namespace astro {
   enum EntityType {
     UNSPECIFIED = -1,
     ALTAR,
+    AREA_CHANGE,
     BANDIT,
     BELLFLOWER,
     BIRCH_TREE,
@@ -79,6 +80,7 @@ namespace astro {
    */
   static std::vector<EntityType> entity_types = {
     ALTAR,
+    AREA_CHANGE,
     BANDIT,
     BELLFLOWER,
     BIRCH_TREE,
@@ -264,6 +266,9 @@ namespace astro {
       altar_placeholder,
       altar_base,
       altar_statue,
+
+      // AREA_CHANGE
+      area_change_placeholder,
 
       // BANDIT
       bandit_placeholder,
@@ -541,6 +546,7 @@ namespace astro {
 
   struct EntityContainers {
     EntityList altars;
+    EntityList area_changes;
     EntityList bandits;
     EntityList bellflowers;
     EntityList birch_trees;
@@ -622,6 +628,12 @@ namespace astro {
       .name = "Altar",
       .scale = tVec3f(2500.f),
       .tint = tVec3f(0.6f)
+    } },
+
+    { AREA_CHANGE, {
+      .name = "Area Change",
+      .scale = tVec3f(2000.f),
+      .tint = tVec3f(1.f, 0.5f, 1.f)
     } },
 
     { BANDIT, {

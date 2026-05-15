@@ -652,5 +652,15 @@ export default [
     ],
     scale: [ 2000.0 ],
     color: [ 1.0, 0.7, 0.0 ]
+  },
+
+  {
+    type: "AREA_CHANGE",
+    list: "area_changes",
+    meshes: [
+      "area_change_placeholder"
+    ],
+    scale: [ 2000.0 ],
+    color: [ 1.0, 0.5, 1.0 ]
   }
 ];
