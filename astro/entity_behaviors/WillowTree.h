@@ -57,6 +57,13 @@ namespace astro {
         if (abs(state.player_position.x - entity.position.x) > 25000.f) continue;
         if (abs(state.player_position.z - entity.position.z) > 25000.f) continue;
 
+        if (
+          entity.unique_name.starts_with("tutorial") &&
+          state.current_location != Location::TUTORIAL
+        ) {
+          continue;
+        }
+
         float life_progress = GetLivingEntityProgress(state, entity, lifetime);
         float growth_factor = 0.f;
 

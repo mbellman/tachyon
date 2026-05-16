@@ -86,6 +86,13 @@ namespace astro {
 
         if (!state.use_vantage_camera && !is_in_range) continue;
 
+        if (
+          entity.unique_name.starts_with("tutorial") &&
+          state.current_location != Location::TUTORIAL
+        ) {
+          continue;
+        }
+
         float life_progress = GetLivingEntityProgress(state, entity, lifetime);
         float growth_factor = 0.f;
 
