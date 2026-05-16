@@ -474,6 +474,7 @@ namespace astro {
     float tilt_angle = 0.f;
 
     Location current_location = Location::TUTORIAL;
+    float last_area_change_time = 0.f;
 
     // Animations
     struct SkeletonAnimations {

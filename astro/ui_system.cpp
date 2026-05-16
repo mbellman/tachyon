@@ -59,6 +59,22 @@ static void InitiateDialogueSet(State& state, DialogueSet& dialogue_set) {
   dialogue_set.invoked = true;
 }
 
+static tUIElement* GetCurrentLocationTitleGraphic(const State& state) {
+  auto& ui = state.ui;
+
+  // @todo expand on the options here
+  switch (state.current_location) {
+    case Location::TUTORIAL:
+    case Location::DIVINATION_WOODREALM:
+      return ui.divination_woodrealm_title;
+    case Location::DIVINATION_RIVERWAY:
+    case Location::DIVINATION_LAKE_PROMENADE:
+      return ui.lake_promenade_title;
+    default:
+      return nullptr;
+  }
+}
+
 void UISystem::StartDialogueSet(State& state, const std::string& set_name) {
   if (!MapHasKey(state.npc_dialogue, set_name)) {
     // @todo dev mode only
@@ -196,7 +212,7 @@ void UISystem::UpdateHUD(Tachyon* tachyon, State& state) {
   float player_speed = state.player_velocity.magnitude();
 
   if (
-    player_speed > 1.f ||
+    (player_speed > 1.f && time_since(state.last_area_change_time) > 4.f) ||
     state.astro_turn_speed != 0.f ||
     state.targetable_entities.size() > 0 ||
     state.dialogue_message != ""
@@ -243,15 +259,15 @@ void UISystem::UpdateHUD(Tachyon* tachyon, State& state) {
 
   // Current location
   {
-    // @todo make dynamic
-    // tUIElement* current_location_title = state.ui.lake_promenade_title;
-    tUIElement* current_location_title = state.ui.divination_woodrealm_title;
+    tUIElement* current_location_title = GetCurrentLocationTitleGraphic(state);
 
-    Tachyon_DrawUIElement(tachyon, current_location_title, {
-      .screen_x = int32(float(tachyon->window_width) * 0.155f),
-      .screen_y = tachyon->window_height - 110,
-      .centered = false,
-      .alpha = state.ui.titles_alpha
-    });
+    if (current_location_title != nullptr) {
+      Tachyon_DrawUIElement(tachyon, current_location_title, {
+        .screen_x = int32(float(tachyon->window_width) * 0.155f),
+        .screen_y = tachyon->window_height - 110,
+        .centered = false,
+        .alpha = state.ui.titles_alpha
+      });
+    }
   }
 }

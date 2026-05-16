@@ -27,9 +27,24 @@ namespace astro {
         auto plane = CollisionSystem::CreatePlane(entity.position, entity.scale, entity.orientation);
 
         if (CollisionSystem::IsPointOnPlane(state.player_position, plane)) {
-          console_log("Area change!");
+          Location previous_location = state.current_location;
 
-          // @todo
+          // Match area change entity names to locations
+          if (entity.unique_name == "tutorial") {
+            state.current_location = Location::TUTORIAL;
+          }
+          else if (entity.unique_name == "divination_woodrealm") {
+            state.current_location = Location::DIVINATION_WOODREALM;
+          }
+          else if (entity.unique_name == "riverway") {
+            state.current_location = Location::DIVINATION_RIVERWAY;
+          }
+
+          if (state.current_location != previous_location) {
+            state.last_area_change_time = get_scene_time();
+
+            Sfx::PlaySound(SFX_AREA_CHANGE, 0.5f);
+          }
         }
       }
     }
