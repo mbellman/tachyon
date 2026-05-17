@@ -20,6 +20,7 @@
 #include "astro/entity_behaviors/FogSpawn.h"
 #include "astro/entity_behaviors/Gate.h"
 #include "astro/entity_behaviors/GlowFlower.h"
+#include "astro/entity_behaviors/GroundFlowerPatch.h"
 #include "astro/entity_behaviors/House.h"
 #include "astro/entity_behaviors/IronGate.h"
 #include "astro/entity_behaviors/ItemPickup.h"
@@ -104,6 +105,7 @@ using namespace astro;
   dispatch_macro(FOG_SPAWN, FogSpawn);\
   dispatch_macro(GATE, Gate);\
   dispatch_macro(GLOW_FLOWER, GlowFlower);\
+  dispatch_macro(GROUND_FLOWER_PATCH, GroundFlowerPatch);\
   dispatch_macro(HOUSE, House);\
   dispatch_macro(IRON_GATE, IronGate);\
   dispatch_macro(ITEM_PICKUP, ItemPickup);\
@@ -165,6 +167,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
     dispatch_GetEntityContainer(FOG_SPAWN, state.fog_spawns);
     dispatch_GetEntityContainer(GATE, state.gates);
     dispatch_GetEntityContainer(GLOW_FLOWER, state.glow_flowers);
+    dispatch_GetEntityContainer(GROUND_FLOWER_PATCH, state.ground_flower_patches);
     dispatch_GetEntityContainer(HOUSE, state.houses);
     dispatch_GetEntityContainer(IRON_GATE, state.iron_gates);
     dispatch_GetEntityContainer(ITEM_PICKUP, state.item_pickups);

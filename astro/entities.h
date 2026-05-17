@@ -33,6 +33,7 @@ namespace astro {
     FOG_SPAWN,
     GATE,
     GLOW_FLOWER,
+    GROUND_FLOWER_PATCH,
     HOUSE,
     IRON_GATE,
     ITEM_PICKUP,
@@ -99,6 +100,7 @@ namespace astro {
     FOG_SPAWN,
     GATE,
     GLOW_FLOWER,
+    GROUND_FLOWER_PATCH,
     HOUSE,
     IRON_GATE,
     ITEM_PICKUP,
@@ -346,6 +348,10 @@ namespace astro {
       glow_flower_placeholder,
       glow_flower_petals,
 
+      // GROUND_FLOWER_PATCH
+      ground_flower_patch_placeholder,
+      ground_flower_patch,
+
       // HOUSE
       house_placeholder,
       house_body,
@@ -565,6 +571,7 @@ namespace astro {
     EntityList fog_spawns;
     EntityList gates;
     EntityList glow_flowers;
+    EntityList ground_flower_patches;
     EntityList houses;
     EntityList iron_gates;
     EntityList item_pickups;
@@ -742,6 +749,12 @@ namespace astro {
       .name = "Glow Flower",
       .scale = tVec3f(600.f),
       .tint = tVec3f(0.2f, 0.4f, 1.f)
+    } },
+
+    { GROUND_FLOWER_PATCH, {
+      .name = "Ground Flower Patch",
+      .scale = tVec3f(2000.f),
+      .tint = tVec3f(1.f)
     } },
 
     { HOUSE, {

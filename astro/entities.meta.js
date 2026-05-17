@@ -662,5 +662,16 @@ export default [
     ],
     scale: [ 2000.0 ],
     color: [ 1.0, 0.5, 1.0 ]
+  },
+
+  {
+    type: "GROUND_FLOWER_PATCH",
+    list: "ground_flower_patches",
+    meshes: [
+      "ground_flower_patch_placeholder",
+      "ground_flower_patch"
+    ],
+    scale: [ 2000.0 ],
+    color: [ 1.0 ]
   }
 ];

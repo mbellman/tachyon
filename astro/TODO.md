@@ -36,6 +36,7 @@ tutorial:
 * sunbeam fading
 
 features/fixes:
+* look at wand hints + light pillars
 * guidance (small stone bridges, slopes)
 * reset ducks with R
 * don't UpdateTreeFlowers() if we're far back enough in time
