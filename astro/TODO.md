@@ -56,7 +56,6 @@ features/fixes:
 * wand collision improvements
 * ending conversations early/event dialogue when moving
 * post-event dialogue
-* pressing X when walking off from an NPC
 * yes/no dialogue
 * being parried (? - later enemies)
 * health bar + potions
