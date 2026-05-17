@@ -696,7 +696,7 @@ static void RespawnPlayer(Tachyon* tachyon, State& state) {
 
   // Reset camera
   state.camera_shift = tVec3f(0, 0, 1800.f);
-  tachyon->scene.camera.position = spawn_position + tVec3f(0.f, 11000.f, 10800.f);
+  tachyon->scene.camera.position = spawn_position + tVec3f(0.f, 11000.f, 8500.f) + state.camera_shift;
 
   // @temporary
   state.dismissed_blocking_dialogue = true;

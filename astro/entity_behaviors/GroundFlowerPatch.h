@@ -40,6 +40,8 @@ namespace astro {
 
           Sync(patch, entity);
 
+          patch.material = tVec4f(0.8f, 0, 0, 0.5f);
+
           commit(patch);
         }
       }

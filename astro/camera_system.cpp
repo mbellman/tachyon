@@ -183,7 +183,7 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state) {
 
   new_camera_position += state.camera_shift;
   new_camera_position.y += 11000.f;
-  new_camera_position.z += 9000.f;
+  new_camera_position.z += 8500.f;
 
   // Limit camera distance to avoid making out-of-view culling obvious
   {

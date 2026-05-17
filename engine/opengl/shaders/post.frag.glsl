@@ -417,7 +417,7 @@ void main() {
         if (line_y % 4 == 0 || line_y % 4 == 1) {
           post_color *= (1.0 - compared * compared);
         } else {
-          post_color *= 1.15;
+          post_color *= 1.2;
         }
       }
     }
