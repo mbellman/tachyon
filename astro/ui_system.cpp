@@ -75,6 +75,17 @@ static tUIElement* GetCurrentLocationTitleGraphic(const State& state) {
   }
 }
 
+static tUIElement* GetSubStoryTitleGraphic(const State& state) {
+  auto& ui = state.ui;
+
+  switch (state.current_substory) {
+    case SUBSTORY_SEEKER_STARGAZER:
+      return state.ui.seeker_stargazer_title;
+    default:
+      return nullptr;
+  }
+}
+
 void UISystem::StartDialogueSet(State& state, const std::string& set_name) {
   if (!MapHasKey(state.npc_dialogue, set_name)) {
     // @todo dev mode only
@@ -267,6 +278,25 @@ void UISystem::UpdateHUD(Tachyon* tachyon, State& state) {
         .screen_y = tachyon->window_height - 110,
         .centered = false,
         .alpha = state.ui.titles_alpha
+      });
+    }
+  }
+
+  // Sub-story intro titles
+  {
+    tUIElement* title_graphic = GetSubStoryTitleGraphic(state);
+
+    if (
+      title_graphic != nullptr &&
+      time_since(state.last_substory_title_time) < 8.f
+    ) {
+      float alpha = time_since(state.last_substory_title_time) / 8.f;
+      alpha = Tachyon_EaseInOutf(sinf(alpha * t_PI));
+
+      Tachyon_DrawUIElement(tachyon, title_graphic, {
+        .screen_x = tachyon->window_width / 2,
+        .screen_y = tachyon->window_height / 2,
+        .alpha = alpha
       });
     }
   }

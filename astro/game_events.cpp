@@ -121,6 +121,17 @@ static void StartBridgeOpenEvent(Tachyon* tachyon, State& state) {
 
 /**
  * ------------------
+ * Event: Bridge Open
+ * ------------------
+ */
+static void StartSeekerStargazerEvent(Tachyon* tachyon, State& state) {
+  // @todo factor
+  state.current_substory = SUBSTORY_SEEKER_STARGAZER;
+  state.last_substory_title_time = get_scene_time();
+}
+
+/**
+ * ------------------
  */
 
 void GameEvents::StartEvent(Tachyon* tachyon, State& state, const std::string& event_trigger) {
@@ -128,6 +139,9 @@ void GameEvents::StartEvent(Tachyon* tachyon, State& state, const std::string& e
   check_event_trigger("village_gate", StartVillageGateOpenEvent);
   check_event_trigger("river_wheel", StartRiverWheelEvent);
   check_event_trigger("bridge_open", StartBridgeOpenEvent);
+
+  // Sub-story titles
+  check_event_trigger("seeker_stargazer", StartSeekerStargazerEvent);
 
   // @todo dev mode only
   {

@@ -424,6 +424,16 @@ namespace astro {
 
   /**
    * ----------------------------
+   * Locations
+   * ----------------------------
+   */
+  enum SubStory {
+    SUBSTORY_UNSPECIFIED = -1,
+    SUBSTORY_SEEKER_STARGAZER
+  };
+
+  /**
+   * ----------------------------
    * Game state
    * ----------------------------
    */
@@ -473,8 +483,13 @@ namespace astro {
     float run_oscillation = 0.f;
     float tilt_angle = 0.f;
 
+    // Location
     Location current_location = Location::TUTORIAL;
     float last_area_change_time = 0.f;
+
+    // Sub-stories
+    SubStory current_substory = SUBSTORY_UNSPECIFIED;
+    float last_substory_title_time = 0.f;
 
     // Animations
     struct SkeletonAnimations {
@@ -608,6 +623,8 @@ namespace astro {
 
       tUIElement* divination_woodrealm_title = nullptr;
       tUIElement* lake_promenade_title = nullptr;
+
+      tUIElement* seeker_stargazer_title = nullptr;
 
       float titles_alpha = 1.f;
     } ui;
