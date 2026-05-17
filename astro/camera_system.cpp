@@ -36,8 +36,10 @@ static void UpdateCameraNearEntities(State& state, tVec3f& new_camera_position) 
   UpdateCameraNearInertEntities(state, state.gates, new_camera_position, 10000.f, tVec3f(0, 2000.f, 3000.f));
   UpdateCameraNearInertEntities(state, state.water_wheels, new_camera_position, 20000.f, tVec3f(0, 3000.f, 5000.f));
 
-  UpdateCameraNearLiveEntities(state, state.lesser_guards, new_camera_position, 20000.f, tVec3f(0, 500.f, 200.f));
-  UpdateCameraNearLiveEntities(state, state.low_guards, new_camera_position, 20000.f, tVec3f(0, 500.f, 200.f));
+  if (!state.enemies_disabled) {
+    UpdateCameraNearLiveEntities(state, state.lesser_guards, new_camera_position, 20000.f, tVec3f(0, 500.f, 200.f));
+    UpdateCameraNearLiveEntities(state, state.low_guards, new_camera_position, 20000.f, tVec3f(0, 500.f, 200.f));
+  }
 }
 
 static void UpdateEventCamera(Tachyon* tachyon, State& state, tVec3f& new_camera_position) {

@@ -273,6 +273,10 @@ namespace astro {
       reset_instances(meshes.lesser_guard_shield);
       reset_instances(meshes.lesser_guard_sword);
 
+      if (state.enemies_disabled) {
+        return;
+      }
+
       for_entities(state.lesser_guards) {
         auto& entity = state.lesser_guards[i];
         bool is_active = IsDuringActiveTime(entity, state);

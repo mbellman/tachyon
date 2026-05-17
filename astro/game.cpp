@@ -301,6 +301,7 @@ static void HandleInGameDevHotkeys(Tachyon* tachyon, State& state) {
   }
 
   // Acquiring/unacquiring all items
+  // @todo make this work properly
   {
     if (did_press_key(tKey::I)) {
       if (Items::HasItem(state, MAGIC_WAND)) {
@@ -336,6 +337,19 @@ static void HandleInGameDevHotkeys(Tachyon* tachyon, State& state) {
         fx.enable_ssao = true;
 
         show_overlay_message("Shadows and SSAO enabled");
+      }
+    }
+  }
+
+  // Enemy toggling
+  {
+    if (did_press_key(tKey::BACKSPACE)) {
+      state.enemies_disabled = !state.enemies_disabled;
+
+      if (state.enemies_disabled) {
+        show_overlay_message("Disabled enemies");
+      } else {
+        show_overlay_message("Re-enabled enemies");
       }
     }
   }

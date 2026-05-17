@@ -79,6 +79,10 @@ static void HandleLesserGuardAnimations(Tachyon* tachyon, State& state, int32& u
 
   reset_instances(meshes.lesser_helmet);
 
+  if (state.enemies_disabled) {
+    return;
+  }
+
   for_entities(state.lesser_guards) {
     auto& entity = state.lesser_guards[i];
 
@@ -144,6 +148,10 @@ static void HandleLesserGuardAnimations(Tachyon* tachyon, State& state, int32& u
 static void HandleLowGuardAnimations(Tachyon* tachyon, State& state, int32& usage_counter) {
   auto& meshes = state.meshes;
   auto& animations = state.animations;
+
+  if (state.enemies_disabled) {
+    return;
+  }
 
   for_entities(state.low_guards) {
     auto& entity = state.low_guards[i];

@@ -109,10 +109,12 @@ static void TrackTargetableEntities(State& state, const std::vector<GameEntity>&
 static void TrackAllTargetableEntities(Tachyon* tachyon, State& state) {
   state.targetable_entities.clear();
 
-  TrackTargetableEntities(state, state.lesser_guards);
-  TrackTargetableEntities(state, state.low_guards);
-  TrackTargetableEntities(state, state.bandits);
-  TrackTargetableEntities(state, state.faeries);
+  if (!state.enemies_disabled) {
+    TrackTargetableEntities(state, state.lesser_guards);
+    TrackTargetableEntities(state, state.low_guards);
+    TrackTargetableEntities(state, state.bandits);
+    TrackTargetableEntities(state, state.faeries);
+  }
 
   // If the current target entity is not found
   // in the list of targetable entities, deselect it
