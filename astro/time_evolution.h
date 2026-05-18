@@ -7,7 +7,7 @@
 namespace astro {
   namespace TimeEvolution {
     void StartAstroTraveling(Tachyon* tachyon, State& state, const float target_time);
-    void HandleAstroTravel(State& state);
+    void HandleAstroTravel(Tachyon* tachyon, State& state);
     void UpdateAstroTime(Tachyon* tachyon, State& state);
   }
 }

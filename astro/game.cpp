@@ -1027,7 +1027,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   // @todo dev mode only
   HandleInGameDevHotkeys(tachyon, state);
 
-  TimeEvolution::HandleAstroTravel(state);
+  TimeEvolution::HandleAstroTravel(tachyon, state);
   GameEvents::HandleEvents(tachyon, state);
   Targeting::HandleTargets(tachyon, state);
   ControlSystem::HandleControls(tachyon, state);

@@ -104,7 +104,7 @@ void TimeEvolution::StartAstroTraveling(Tachyon* tachyon, State& state, const fl
   Sfx::PlaySound(SFX_ASTRO_TRAVEL, 0.8f);
 }
 
-void TimeEvolution::HandleAstroTravel(State& state) {
+void TimeEvolution::HandleAstroTravel(Tachyon* tachyon, State& state) {
   const float astro_travel_rate = 0.8f;
   const float max_astro_turn_speed = Astrolabe::GetMaxTurnSpeed();
 
@@ -149,6 +149,11 @@ void TimeEvolution::HandleAstroTravel(State& state) {
   if (state.astro_turn_speed != 0.f) {
     // Update astro time
     state.astro_time += state.astro_turn_speed * 100.f * state.dt;
+
+    // Hack: while astro traveling, reset the cooldown for spawning new tiny birds.
+    // For bird spawns near wind chimes, we don't want tiny birds flying in as soon
+    // as we stop astro traveling.
+    state.last_tiny_bird_spawn_time = get_scene_time();
   }
 
   if (state.astro_turn_speed > 0.f && state.astro_time > state.target_astro_time) {
