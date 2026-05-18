@@ -274,6 +274,11 @@ static void AddSkinnedPlayerMeshes(Tachyon* tachyon, State& state) {
     rest_pose
   );
 
+  tSkinnedMesh player_vambraces = Tachyon_LoadSkinnedMesh(
+    "./astro/3d_models/characters/player_vambraces.skin",
+    rest_pose
+  );
+
   tSkinnedMesh player_trim = Tachyon_LoadSkinnedMesh(
     "./astro/3d_models/characters/player_trim.skin",
     rest_pose
@@ -301,6 +306,7 @@ static void AddSkinnedPlayerMeshes(Tachyon* tachyon, State& state) {
 
   meshes.player_hood = Tachyon_AddSkinnedMesh(tachyon, player_hood);
   meshes.player_robes = Tachyon_AddSkinnedMesh(tachyon, player_robes);
+  meshes.player_vambraces = Tachyon_AddSkinnedMesh(tachyon, player_vambraces);
   meshes.player_trim = Tachyon_AddSkinnedMesh(tachyon, player_trim);
   meshes.player_shirt = Tachyon_AddSkinnedMesh(tachyon, player_shirt);
   meshes.player_pants = Tachyon_AddSkinnedMesh(tachyon, player_pants);
