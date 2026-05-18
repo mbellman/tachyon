@@ -415,10 +415,10 @@ static void HandleCombatJumpMotions(Tachyon* tachyon, State& state, tVec3f& body
 }
 
 // @todo refactor to allow NPCs/enemies to turn their own heads
-static bool TurnPlayerHeadTowardEntity(State& state, const GameEntity& entity, const float facing_angle) {
-  tVec3f player_to_entity = entity.visible_position - state.player_position;
-  float entity_direction_angle = atan2f(player_to_entity.z, player_to_entity.x);
-  float turn = GetAngleBetween(entity_direction_angle, facing_angle);
+static bool TurnPlayerHeadTowardPosition(State& state, const tVec3f& position, const float facing_angle) {
+  tVec3f player_to_position = position - state.player_position;
+  float position_direction_angle = atan2f(player_to_position.z, player_to_position.x);
+  float turn = GetAngleBetween(position_direction_angle, facing_angle);
 
   if (abs(turn) > 1.8f) {
     return false;
@@ -442,7 +442,7 @@ static void TurnPlayerHeadToward(State& state, const std::vector<GameEntity>& en
 
     if (entity_distance > 7500.f) continue;
 
-    if (TurnPlayerHeadTowardEntity(state, entity, facing_angle)) {
+    if (TurnPlayerHeadTowardPosition(state, entity.visible_position, facing_angle)) {
       break;
     }
   }
@@ -455,21 +455,37 @@ static void UpdatePlayerHeadTurnAngle(Tachyon* tachyon, State& state) {
     // Turn head toward active target
     auto& entity = *EntityManager::FindEntity(state, state.target_entity);
 
-    TurnPlayerHeadTowardEntity(state, entity, player_facing_angle);
+    TurnPlayerHeadTowardPosition(state, entity.visible_position, player_facing_angle);
   }
   else if (state.preview_target_entity_record.type != UNSPECIFIED) {
     // Turn head toward preview target
     auto& entity = *EntityManager::FindEntity(state, state.preview_target_entity_record);
 
-    TurnPlayerHeadTowardEntity(state, entity, player_facing_angle);
+    TurnPlayerHeadTowardPosition(state, entity.visible_position, player_facing_angle);
   }
   else {
     // Turn head toward key entities when not targeting anything
     TurnPlayerHeadToward(state, state.sculpture_1s, player_facing_angle);
     TurnPlayerHeadToward(state, state.npcs, player_facing_angle);
-    TurnPlayerHeadToward(state, state.low_guards, player_facing_angle);
-    TurnPlayerHeadToward(state, state.lesser_guards, player_facing_angle);
     TurnPlayerHeadToward(state, state.wind_chimes, player_facing_angle);
+    TurnPlayerHeadToward(state, state.light_posts, player_facing_angle);
+
+    // Turn head toward enemies
+    if (!state.enemies_disabled) {
+      TurnPlayerHeadToward(state, state.low_guards, player_facing_angle);
+      TurnPlayerHeadToward(state, state.lesser_guards, player_facing_angle);
+    }
+
+    // Turn head toward wand hints
+    if (
+      state.wand_hint_light_id != -1 &&
+      time_since(state.last_wand_hint_time) < 4.f
+    ) {
+      auto& light = *get_point_light(state.wand_hint_light_id);
+      tVec3f wand_hint_position = light.position;
+
+      TurnPlayerHeadTowardPosition(state, wand_hint_position, player_facing_angle);
+    }
   }
 
   // Turn head when we do quick turns, or based on tilt,
