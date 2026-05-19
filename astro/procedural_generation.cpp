@@ -1054,6 +1054,67 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
 
 /**
  * ----------------------------
+ * Water flows
+ * ----------------------------
+ */
+static inline float GetWaterFlowDelta(GameEntity& from_node, GameEntity& to_node) {
+  float dx = abs(from_node.position.x - to_node.position.x);
+  float dz = abs(from_node.position.z - to_node.position.z);
+
+  return dx + dz;
+}
+
+static void AdvanceWaterFlow(State& state, WaterFlow& flow, GameEntity& from_node) {
+  tVec3f previous_flow_position = flow.flow_positions.back();
+
+  flow.flow_positions.push_back(from_node.position);
+
+  for (auto& to_node : state.water_flow_nodes) {
+    // Skip self
+    if (IsSameEntity(from_node, to_node)) continue;
+
+    // Skip flow start nodes
+    if (to_node.requires_action) continue;
+
+    // Don't re-include the node before the one we just added
+    if (to_node.position == previous_flow_position) continue;
+
+    if (GetWaterFlowDelta(from_node, to_node) < 12000.f) {
+      AdvanceWaterFlow(state, flow, to_node);
+
+      break;
+    }
+  }
+}
+
+static void GenerateWaterFlows(Tachyon* tachyon, State& state) {
+  log_time("GenerateWaterFlows()");
+
+  state.water_flows.clear();
+
+  for (auto& from_node : state.water_flow_nodes) {
+    if (from_node.requires_action) {
+      // Create our starting node
+      WaterFlow flow;
+      flow.flow_positions.push_back(from_node.position);
+
+      for (auto& to_node : state.water_flow_nodes) {
+        if (IsSameEntity(from_node, to_node)) continue;
+
+        if (GetWaterFlowDelta(from_node, to_node) < 12000.f) {
+          AdvanceWaterFlow(state, flow, to_node);
+
+          break;
+        }
+      }
+
+      state.water_flows.push_back(flow);
+    }
+  }
+}
+
+/**
+ * ----------------------------
  * Dirt paths
  * ----------------------------
  */
@@ -1340,6 +1401,7 @@ void ProceduralBehavior::Generation::RebuildSimpleProceduralObjects(Tachyon* tac
   GenerateDirtPaths(tachyon, state);
   GenerateStonePaths(tachyon, state);
   GenerateBushFlowers(tachyon, state);
+  GenerateWaterFlows(tachyon, state);
 }
 
 void ProceduralBehavior::Generation::RebuildAllProceduralObjects(Tachyon* tachyon, State& state) {
