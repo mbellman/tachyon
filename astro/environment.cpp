@@ -37,6 +37,25 @@ static void InitStrayLeaves(Tachyon* tachyon, State& state) {
   }
 }
 
+static void InitGlowParticles(Tachyon* tachyon, State& state) {
+  if (state.glow_particle_light_ids.size() == 0) {
+    for_range(1, 30) {
+      state.glow_particle_light_ids.push_back(create_point_light());
+    }
+  }
+
+  float player_x = state.player_position.x;
+  float player_z = state.player_position.z;
+
+  for (auto light_id : state.glow_particle_light_ids) {
+    auto& light = *get_point_light(light_id);
+
+    light.position.x = Tachyon_GetRandom(player_x - 15000.f, player_x + 15000.f);
+    light.position.y = state.player_position.y + Tachyon_GetRandom(2000.f, 5000.f);
+    light.position.z = Tachyon_GetRandom(player_z - 12000.f, player_z + 12000.f);
+  }
+}
+
 static void HandleStrayLeaves(Tachyon* tachyon, State& state) {
   profile("HandleStrayLeaves()");
 
@@ -99,7 +118,7 @@ static void HandleStrayLeaves(Tachyon* tachyon, State& state) {
       float player_z = state.player_position.z;
 
       leaf.position.x = state.player_position.x - 15000.f;
-      leaf.position.y = state.player_position.y + Tachyon_GetRandom(3000.f, 8000.f);
+      leaf.position.y = state.player_position.y + Tachyon_GetRandom(1000.f, 3000.f);
       leaf.position.z = Tachyon_GetRandom(player_z - 12000.f, player_z + 12000.f);
     }
 
@@ -161,11 +180,58 @@ void HandleDustMotes(Tachyon* tachyon, State& state) {
   }
 }
 
+static void HandleGlowParticles(Tachyon* tachyon, State& state) {
+  profile("HandleGlowParticles()");
+
+  float scene_time = get_scene_time();
+
+  for (auto light_id : state.glow_particle_light_ids) {
+    auto& light = *get_point_light(light_id);
+
+    if (light.position.z - state.player_position.z > 15000.f) {
+      // Move lights into view as we move north
+      light.position.z = state.player_position.z - 15000.f;
+      light.position.y = state.player_position.y + Tachyon_GetRandom(1000.f, 3000.f);
+    }
+
+    if (state.player_position.z - light.position.z > 15000.f) {
+      // Move lights into view as we move south
+      light.position.z = state.player_position.z + 15000.f;
+      light.position.y = state.player_position.y + Tachyon_GetRandom(1000.f, 3000.f);
+    }
+
+    if (state.player_position.x - light.position.x > 16000.f) {
+      // Move lights into view as we move east
+      light.position.x = state.player_position.x + 14000.f;
+      light.position.y = state.player_position.y + Tachyon_GetRandom(1000.f, 3000.f);
+    }
+
+    if (light.position.x - state.player_position.x > 15000.f) {
+      // Move lights into view as we move west
+      light.position.x = state.player_position.x - 15000.f;
+      light.position.y = state.player_position.y + Tachyon_GetRandom(1000.f, 3000.f);
+    }
+
+    // Oscillation
+    float t = scene_time + float(light_id);
+
+    light.position.y += 500.f * sinf(t * 0.5f) * state.dt;
+    light.glow_power = 1.f + sinf(t * 0.65f);
+
+    // Static properties
+    light.radius = 1000.f;
+    light.power = light.glow_power * 0.5f;
+    light.color = tVec3f(1.f, 0.5f, 0.2f);
+  }
+}
+
 void Environment::Init(Tachyon* tachyon, State& state) {
   InitStrayLeaves(tachyon, state);
+  InitGlowParticles(tachyon, state);
 }
 
 void Environment::HandleEnvironment(Tachyon* tachyon, State& state) {
   HandleStrayLeaves(tachyon, state);
   HandleDustMotes(tachyon, state);
+  HandleGlowParticles(tachyon, state);
 }

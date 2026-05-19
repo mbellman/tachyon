@@ -169,8 +169,8 @@ static inline void RemoveFromArray(std::vector<T>& array, uint32 index) {
   array.erase(array.begin() + index);
 }
 
-static bool EntityHasAmbientParticle(State& state, const GameEntity& entity) {
-  for (auto& particle : state.ambient_particles) {
+static bool EntityHasFlowerParticle(State& state, const GameEntity& entity) {
+  for (auto& particle : state.flower_particles) {
     if (particle.spawning_entity_id == entity.id) {
       return true;
     }
@@ -179,16 +179,16 @@ static bool EntityHasAmbientParticle(State& state, const GameEntity& entity) {
   return false;
 }
 
-static void SpawnAmbientParticle(Tachyon* tachyon, State& state, const GameEntity& spawning_entity) {
+static void SpawnFlowerParticles(Tachyon* tachyon, State& state, const GameEntity& spawning_entity) {
   // Create + add particle
-  AmbientParticle particle;
+  FlowerParticle particle;
   particle.spawn_time = get_scene_time();
   particle.lifetime = Tachyon_GetRandom(3.f, 4.f);
   particle.spawn_position = spawning_entity.position;
   particle.light_id = create_point_light();
   particle.spawning_entity_id = spawning_entity.id;
 
-  state.ambient_particles.push_back(particle);
+  state.flower_particles.push_back(particle);
 
   // Initialize light
   auto& light = *get_point_light(particle.light_id);
@@ -200,7 +200,7 @@ static void SpawnAmbientParticle(Tachyon* tachyon, State& state, const GameEntit
   light.color = particle.color;
 }
 
-static void UpdateAmbientParticle(Tachyon* tachyon, State& state, AmbientParticle& particle) {
+static void UpdateFlowerParticle(Tachyon* tachyon, State& state, FlowerParticle& particle) {
   auto& light = *get_point_light(particle.light_id);
 
   float alpha = time_since(particle.spawn_time) / particle.lifetime;
@@ -225,14 +225,14 @@ static void UpdateAmbientParticle(Tachyon* tachyon, State& state, AmbientParticl
   light.radius = 500.f + 500.f * light.power;
 }
 
-static void RemoveExpiredAmbientParticles(Tachyon* tachyon, State& state) {
-  for (size_t i = 0; i < state.ambient_particles.size(); i++) {
-    auto& particle = state.ambient_particles[i];
+static void RemoveExpiredFlowerParticles(Tachyon* tachyon, State& state) {
+  for (size_t i = 0; i < state.flower_particles.size(); i++) {
+    auto& particle = state.flower_particles[i];
 
     if (time_since(particle.spawn_time) > particle.lifetime) {
       remove_point_light(particle.light_id);
 
-      RemoveFromArray(state.ambient_particles, i);
+      RemoveFromArray(state.flower_particles, i);
     }
   }
 }
@@ -248,8 +248,8 @@ static void SpawnNighttimeParticles(Tachyon* tachyon, State& state) {
       if (abs(entity.position.x - state.player_position.x) > 20000.f) continue;
       if (abs(entity.position.z - state.player_position.z) > 20000.f) continue;
 
-      if (!EntityHasAmbientParticle(state, entity)) {
-        SpawnAmbientParticle(tachyon, state, entity);
+      if (!EntityHasFlowerParticle(state, entity)) {
+        SpawnFlowerParticles(tachyon, state, entity);
       }
     }
   }
@@ -262,16 +262,16 @@ static void SpawnNighttimeParticles(Tachyon* tachyon, State& state) {
       if (abs(entity.position.x - state.player_position.x) > 20000.f) continue;
       if (abs(entity.position.z - state.player_position.z) > 20000.f) continue;
 
-      if (!EntityHasAmbientParticle(state, entity)) {
-        SpawnAmbientParticle(tachyon, state, entity);
+      if (!EntityHasFlowerParticle(state, entity)) {
+        SpawnFlowerParticles(tachyon, state, entity);
       }
     }
   }
 }
 
-static void UpdateAllAmbientParticles(Tachyon* tachyon, State& state) {
-  for (auto& particle : state.ambient_particles) {
-    UpdateAmbientParticle(tachyon, state, particle);
+static void UpdateAllFlowerParticles(Tachyon* tachyon, State& state) {
+  for (auto& particle : state.flower_particles) {
+    UpdateFlowerParticle(tachyon, state, particle);
   }
 }
 
@@ -292,6 +292,6 @@ void Particles::HandleParticles(Tachyon* tachyon, State& state) {
   HandleSculptureParticles(tachyon, state);
 
   SpawnNighttimeParticles(tachyon, state);
-  UpdateAllAmbientParticles(tachyon, state);
-  RemoveExpiredAmbientParticles(tachyon, state);
+  UpdateAllFlowerParticles(tachyon, state);
+  RemoveExpiredFlowerParticles(tachyon, state);
 }

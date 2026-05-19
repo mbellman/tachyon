@@ -279,13 +279,13 @@ namespace astro {
     int32 light_id = -1;
   };
 
-  enum AmbientParticleType {
+  enum FlowerParticleType {
     PARTICLE_RISING,
     PARTICLE_FLOATING,
     PARTICLE_FADING_OUT
   };
 
-  struct AmbientParticle {
+  struct FlowerParticle {
     float spawn_time = 0.f;
     float lifetime = 1.f;
     float radius = 500.f;
@@ -293,7 +293,7 @@ namespace astro {
     tVec3f color = tVec3f(1.f);
     int32 light_id = -1;
     int32 spawning_entity_id = -1;
-    AmbientParticleType type = PARTICLE_RISING;
+    FlowerParticleType type = PARTICLE_RISING;
   };
 
   /**
@@ -584,8 +584,9 @@ namespace astro {
     float last_tiny_bird_spawn_time = 0.f;
 
     // Particles
-    std::vector<AmbientParticle> ambient_particles;
+    std::vector<FlowerParticle> flower_particles;
     std::vector<int32> sculpture_particles;
+    std::vector<int32> glow_particle_light_ids;
 
     // Magic
     Spells spells;
