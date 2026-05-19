@@ -4,7 +4,7 @@
 
 namespace astro {
   namespace PlayerCharacter {
-    const static float MAX_RUN_SPEED = 1500.f;
+    const static float MAX_RUN_SPEED = 1600.f;
     const static float MAX_RUN_SPEED_DOWN_SLOPES = 1350.f;
     const static float MAX_COMBAT_WALK_SPEED = 800.f;
     const static float MAX_WALK_SPEED = 550.f;

@@ -172,7 +172,13 @@ namespace astro {
       reset_instances(meshes.low_guard_shield);
       reset_instances(meshes.low_guard_spear);
 
+      // For held items
+      // @todo refactor the enemy item holding system
       reset_instances(meshes.item_gate_key);
+
+      if (state.enemies_disabled) {
+        return;
+      }
 
       for_entities(state.low_guards) {
         auto& entity = state.low_guards[i];

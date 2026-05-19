@@ -245,17 +245,19 @@ static void HandleGlowParticles(Tachyon* tachyon, State& state) {
     if (distance_alpha > 1.f) distance_alpha = 1.f;
 
     if (distance < 7500.f) {
+      const float move_away_speed = 4000.f;
       float move_alpha = 1.f - distance_alpha;
       float unit_dx = dx / distance;
       float unit_dz = dz / distance;
 
-      light.position.x += unit_dx * 5000.f * move_alpha * state.dt;
-      light.position.z += unit_dz * 5000.f * move_alpha * state.dt;
+      light.position.x += unit_dx * move_away_speed * move_alpha * state.dt;
+      light.position.z += unit_dz * move_away_speed * move_alpha * state.dt;
     }
 
     // Oscillation
     float t = scene_time + float(light_id);
 
+    light.position.x += 200.f * cosf(t * 0.55f) * state.dt;
     light.position.y += 500.f * sinf(t * 0.5f) * state.dt;
     light.glow_power = fade_alpha * (1.f + sinf(t * 0.65f));
     light.power = light.glow_power;
