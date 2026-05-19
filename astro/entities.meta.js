@@ -673,5 +673,15 @@ export default [
     ],
     scale: [ 2000.0 ],
     color: [ 1.0 ]
+  },
+
+  {
+    type: "WATER_FLOW_NODE",
+    list: "water_flow_nodes",
+    meshes: [
+      "water_flow_node_placeholder"
+    ],
+    scale: [ 1000.0 ],
+    color: [ 0.1, 0.2, 1.0 ]
   }
 ];

@@ -66,6 +66,7 @@ namespace astro {
     TALL_WEEDS,
     TULIP_PLANT,
     VANTAGE_SPOT,
+    WATER_FLOW_NODE,
     WATER_WHEEL,
     WILLOW_TREE,
     WIND_CHIMES,
@@ -133,6 +134,7 @@ namespace astro {
     TALL_WEEDS,
     TULIP_PLANT,
     VANTAGE_SPOT,
+    WATER_FLOW_NODE,
     WATER_WHEEL,
     WILLOW_TREE,
     WIND_CHIMES,
@@ -510,6 +512,9 @@ namespace astro {
       // VANTAGE_SPOT
       vantage_spot_placeholder,
 
+      // WATER_FLOW_NODE
+      water_flow_node_placeholder,
+
       // WATER_WHEEL
       water_wheel_placeholder,
       water_wheel,
@@ -604,6 +609,7 @@ namespace astro {
     EntityList tall_weeds;
     EntityList tulip_plants;
     EntityList vantage_spots;
+    EntityList water_flow_nodes;
     EntityList water_wheels;
     EntityList willow_trees;
     EntityList wind_chimes;
@@ -947,6 +953,12 @@ namespace astro {
       .name = "Vantage Spot",
       .scale = tVec3f(1500.f),
       .tint = tVec3f(1.f, 0.1f, 0.2f)
+    } },
+
+    { WATER_FLOW_NODE, {
+      .name = "Water Flow Node",
+      .scale = tVec3f(1000.f),
+      .tint = tVec3f(0.1f, 0.2f, 1.f)
     } },
 
     { WATER_WHEEL, {

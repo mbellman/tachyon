@@ -298,6 +298,15 @@ namespace astro {
 
   /**
    * ----------------------------
+   * Water flows
+   * ----------------------------
+   */
+  struct WaterFlow {
+    std::vector<tVec3f> flow_positions;
+  };
+
+  /**
+   * ----------------------------
    * Events
    * ----------------------------
    */
@@ -587,6 +596,9 @@ namespace astro {
     std::vector<FlowerParticle> flower_particles;
     std::vector<int32> sculpture_particles;
     std::vector<int32> glow_particle_light_ids;
+
+    // Water flows
+    std::vector<WaterFlow> water_flows;
 
     // Magic
     Spells spells;
