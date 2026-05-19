@@ -34,6 +34,7 @@ entities:
 tutorial:
 * fog fading
 * sunbeam fading
+* crows near second wind chime
 
 features/fixes:
 * reading signposts
@@ -68,6 +69,7 @@ bugs:
 * only play light post sounds near them + associated entities
 
 editor/dev stuff:
+* toggle light discs with L
 * editor: active / total counter
 * freecam mode in-game (dev)
 

@@ -184,43 +184,86 @@ static void HandleGlowParticles(Tachyon* tachyon, State& state) {
   profile("HandleGlowParticles()");
 
   float scene_time = get_scene_time();
+  float player_x = state.player_position.x;
+  float player_z = state.player_position.z;
+
+  // Determine whether we want glow particles to be visible
+  bool is_valid_spawn_location = (
+    state.current_location == Location::DIVINATION_WOODREALM ||
+    state.current_location == Location::DIVINATION_RIVERWAY
+  );
+
+  // Fade particles in/out when we transition from valid <-> invalid areas
+  float fade_alpha = time_since(state.last_area_change_time) / 4.f;
+  if (fade_alpha > 1.f) fade_alpha = 1.f;
+
+  if (!is_valid_spawn_location) {
+    if (state.last_area_change_time == 0.f) {
+      fade_alpha = 0.f;
+    } else {
+      fade_alpha = 1.f - fade_alpha;
+    }
+  }
 
   for (auto light_id : state.glow_particle_light_ids) {
     auto& light = *get_point_light(light_id);
 
-    if (light.position.z - state.player_position.z > 15000.f) {
-      // Move lights into view as we move north
-      light.position.z = state.player_position.z - 15000.f;
+    if (light.position.z - player_z > 15000.f) {
+      // "Respawn" to the north
+      light.position.x = Tachyon_GetRandom(player_x - 15000.f, player_x + 15000.f);
       light.position.y = state.player_position.y + Tachyon_GetRandom(1000.f, 3000.f);
+      light.position.z = player_z - 15000.f;
     }
 
-    if (state.player_position.z - light.position.z > 15000.f) {
-      // Move lights into view as we move south
-      light.position.z = state.player_position.z + 15000.f;
+    if (player_z - light.position.z > 15000.f) {
+      // "Respawn" to the south
+      light.position.x = Tachyon_GetRandom(player_x - 15000.f, player_x + 15000.f);
       light.position.y = state.player_position.y + Tachyon_GetRandom(1000.f, 3000.f);
+      light.position.z = player_z + 15000.f;
     }
 
-    if (state.player_position.x - light.position.x > 16000.f) {
-      // Move lights into view as we move east
-      light.position.x = state.player_position.x + 14000.f;
+    if (player_x - light.position.x > 16000.f) {
+      // "Respawn" to the east
+      light.position.x = player_x + 14000.f;
       light.position.y = state.player_position.y + Tachyon_GetRandom(1000.f, 3000.f);
+      light.position.z = Tachyon_GetRandom(player_z - 12000.f, player_z + 12000.f);
     }
 
-    if (light.position.x - state.player_position.x > 15000.f) {
-      // Move lights into view as we move west
-      light.position.x = state.player_position.x - 15000.f;
+    if (light.position.x - player_x > 15000.f) {
+      // "Respawn" to the west
+      light.position.x = player_x - 15000.f;
       light.position.y = state.player_position.y + Tachyon_GetRandom(1000.f, 3000.f);
+      light.position.z = Tachyon_GetRandom(player_z - 12000.f, player_z + 12000.f);
+    }
+
+    // Move glow particles away from the player as we approach them
+    float dx = light.position.x - player_x;
+    float dz = light.position.z - player_z;
+    float distance = sqrtf(dx*dx + dz*dz);
+
+    float distance_alpha = distance / 7500.f;
+    if (distance_alpha > 1.f) distance_alpha = 1.f;
+
+    if (distance < 7500.f) {
+      float move_alpha = 1.f - distance_alpha;
+      float unit_dx = dx / distance;
+      float unit_dz = dz / distance;
+
+      light.position.x += unit_dx * 5000.f * move_alpha * state.dt;
+      light.position.z += unit_dz * 5000.f * move_alpha * state.dt;
     }
 
     // Oscillation
     float t = scene_time + float(light_id);
 
     light.position.y += 500.f * sinf(t * 0.5f) * state.dt;
-    light.glow_power = 1.f + sinf(t * 0.65f);
+    light.glow_power = fade_alpha * (1.f + sinf(t * 0.65f));
+    light.power = light.glow_power;
+
+    // Size variation
+    light.radius = 1000.f - 500.f * (1.f - distance_alpha);
 
     // Static properties
-    light.radius = 1000.f;
-    light.power = light.glow_power * 0.5f;
     light.color = tVec3f(1.f, 0.5f, 0.2f);
   }
 }
