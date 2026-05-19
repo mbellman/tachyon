@@ -222,9 +222,9 @@ static void HandleGlowParticles(Tachyon* tachyon, State& state) {
       light.position.z = player_z + 15000.f;
     }
 
-    if (player_x - light.position.x > 16000.f) {
+    if (player_x - light.position.x > 15000.f) {
       // "Respawn" to the east
-      light.position.x = player_x + 14000.f;
+      light.position.x = player_x + 15000.f;
       light.position.y = state.player_position.y + Tachyon_GetRandom(1000.f, 3000.f);
       light.position.z = Tachyon_GetRandom(player_z - 12000.f, player_z + 12000.f);
     }

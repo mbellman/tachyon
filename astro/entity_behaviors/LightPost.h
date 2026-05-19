@@ -87,6 +87,8 @@ namespace astro {
         time_since_casting_stun > activation_delay
       );
 
+      reset_instances(meshes.light_post_pillar);
+
       for_entities(state.light_posts) {
         auto& entity = state.light_posts[i];
         float player_distance = tVec3f::distance(state.player_position, entity.position);
@@ -177,8 +179,8 @@ namespace astro {
         }
 
         // Pillar
-        {
-          auto& pillar = objects(meshes.light_post_pillar)[i];
+        if (IsInRangeX(entity, state, 18000.f) && IsInRangeZ(entity, state, 18000.f)) {
+          auto& pillar = use_instance(meshes.light_post_pillar);
 
           pillar.position = entity.position;
           pillar.scale = entity.scale;
