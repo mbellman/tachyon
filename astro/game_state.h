@@ -50,6 +50,7 @@ namespace astro {
       snow_particle,
       stray_leaf,
       dust_mote,
+      water_flow_leaf,
 
       // Dynamic fauna meshes
       butterfly_left_wing,
@@ -303,6 +304,12 @@ namespace astro {
    */
   struct WaterFlow {
     std::vector<tVec3f> flow_positions;
+  };
+
+  struct WaterFlowLeaf {
+    WaterFlow* source_flow = nullptr;
+    tObject object;
+    float progress = 0.f;
   };
 
   /**
@@ -599,6 +606,7 @@ namespace astro {
 
     // Water flows
     std::vector<WaterFlow> water_flows;
+    std::vector<WaterFlowLeaf> water_flow_leaves;
 
     // Magic
     Spells spells;

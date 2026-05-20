@@ -270,6 +270,40 @@ static void HandleGlowParticles(Tachyon* tachyon, State& state) {
   }
 }
 
+// @todo move elsewhere
+static tVec3f SampleCurve(const std::vector<tVec3f>& curve, const float t) {
+  int max = (int) curve.size();
+  float seek_time = t * float(max);
+  int start_frame = (int) seek_time;
+  int end_frame = start_frame + 1;
+
+  tVec3f a = curve[start_frame % max];
+  tVec3f b = curve[end_frame % max];
+  float alpha = fmodf(seek_time, 1.f);
+
+  return tVec3f::lerp(a, b, alpha);
+}
+
+static void HandleWaterFlowLeaves(Tachyon* tachyon, State& state) {
+  profile("HandleWaterFlowLeaves()");
+
+  for (auto& leaf : state.water_flow_leaves) {
+    auto& flow = *leaf.source_flow;
+    auto& object = leaf.object;
+
+    leaf.progress += 0.02f * state.dt;
+    if (leaf.progress >= 1.f) leaf.progress = 0.f;
+
+    object.position = SampleCurve(flow.flow_positions, leaf.progress);
+    object.position.y = -2900.f;
+    object.scale = tVec3f(350.f);
+    object.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 100.f * leaf.progress);
+    object.color = tVec3f(0.7f, 0.8f, 0.3f);
+
+    commit(object);
+  }
+}
+
 void Environment::Init(Tachyon* tachyon, State& state) {
   InitStrayLeaves(tachyon, state);
   InitGlowParticles(tachyon, state);
@@ -279,4 +313,5 @@ void Environment::HandleEnvironment(Tachyon* tachyon, State& state) {
   HandleStrayLeaves(tachyon, state);
   HandleDustMotes(tachyon, state);
   HandleGlowParticles(tachyon, state);
+  HandleWaterFlowLeaves(tachyon, state);
 }

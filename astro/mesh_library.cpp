@@ -400,12 +400,14 @@ void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
   meshes.snow_particle = MODEL_MESH("./astro/3d_models/snow.obj", 100);
   meshes.stray_leaf = MODEL_MESH("./astro/3d_models/stray_leaf.obj", 30);
   meshes.dust_mote = SPHERE_MESH(1000, 6);
+  meshes.water_flow_leaf = MODEL_MESH("./astro/3d_models/stray_leaf.obj", 30);
 
   mesh(meshes.water_plane).type = WATER_MESH;
   mesh(meshes.water_plane).shadow_cascade_ceiling = 0;
 
   mesh(meshes.snow_particle).shadow_cascade_ceiling = 0;
   mesh(meshes.stray_leaf).shadow_cascade_ceiling = 0;
+  mesh(meshes.water_flow_leaf).shadow_cascade_ceiling = 0;
 
   // @temporary @todo use GLOW_PARTICLE_MESH once it exists
   mesh(meshes.dust_mote).type = VOLUMETRIC_MESH;

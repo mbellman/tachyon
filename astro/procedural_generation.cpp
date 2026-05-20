@@ -1111,6 +1111,28 @@ static void GenerateWaterFlows(Tachyon* tachyon, State& state) {
       state.water_flows.push_back(flow);
     }
   }
+
+  // Distribute leaves
+  {
+    auto& meshes = state.meshes;
+
+    state.water_flow_leaves.clear();
+
+    reset_instances(meshes.water_flow_leaf);
+
+    for (auto& flow : state.water_flows) {
+      if (count_used_instances(meshes.water_flow_leaf) == 30) break;
+
+      for_range(1, 10) {
+        WaterFlowLeaf leaf;
+        leaf.source_flow = &flow;
+        leaf.object = use_instance(meshes.water_flow_leaf);
+        leaf.progress = Tachyon_GetRandom();
+
+        state.water_flow_leaves.push_back(leaf);
+      }
+    }
+  }
 }
 
 /**
