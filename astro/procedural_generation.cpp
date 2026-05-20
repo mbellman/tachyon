@@ -1118,15 +1118,15 @@ static void GenerateWaterFlows(Tachyon* tachyon, State& state) {
 
     state.water_flow_leaves.clear();
 
-    reset_instances(meshes.water_flow_leaf);
+    reset_instances(meshes.river_leaf);
 
     for (auto& flow : state.water_flows) {
-      if (count_used_instances(meshes.water_flow_leaf) == 30) break;
+      if (count_used_instances(meshes.river_leaf) == 500) break;
 
-      for_range(1, 10) {
+      for_range(1, 25) {
         WaterFlowLeaf leaf;
         leaf.source_flow = &flow;
-        leaf.object = use_instance(meshes.water_flow_leaf);
+        leaf.object = use_instance(meshes.river_leaf);
         leaf.progress = Tachyon_GetRandom();
 
         state.water_flow_leaves.push_back(leaf);

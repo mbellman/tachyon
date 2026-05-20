@@ -2,6 +2,10 @@
 
 uniform vec3 camera_position;
 uniform vec3 primary_light_direction;
+uniform mat4 projection_matrix;
+uniform mat4 view_matrix;
+uniform mat4 inverse_projection_matrix;
+uniform mat4 inverse_view_matrix;
 uniform float time;
 
 uniform sampler2D previous_color_and_depth;
@@ -30,6 +34,7 @@ layout (location = 0) out vec4 out_color_and_depth;
 
 const float Z_NEAR = 500.0;
 const float Z_FAR = 100000000.0;
+const vec2 RESOLUTION = vec2(2560.0, 1440.0);
 
 /**
  * Maps a nonlinear [0, 1] depth value to a linearized
@@ -39,6 +44,34 @@ float GetWorldDepth(float depth, float near, float far) {
   float clip_depth = 2.0 * depth - 1.0;
 
   return 2.0 * near * far / (far + near - clip_depth * (far - near));
+}
+
+/**
+ * Reconstructs a fragment's world position from depth,
+ * using the inverse projection/view matrices to transform
+ * the fragment coordinates back into world space.
+ */
+vec3 GetWorldPosition(float depth, vec2 frag_uv, mat4 inverse_projection, mat4 inverse_view) {
+  float z = depth * 2.0 - 1.0;
+  vec4 clip = vec4(frag_uv * 2.0 - 1.0, z, 1.0);
+  vec4 view_position = inverse_projection * clip;
+
+  view_position /= view_position.w;
+
+  vec4 world_position = inverse_view * view_position;
+
+  return world_position.xyz;
+}
+
+/**
+ * Returns the 2D screen coordinates, normalized to the range
+ * [0.0, 1.0], corresponding to a point in view space.
+ */
+vec2 GetScreenCoordinates(vec3 view_position, mat4 projection_matrix) {
+  vec4 projection = projection_matrix * vec4(view_position, 1.0);
+  vec3 clip = projection.xyz / projection.w;
+
+  return clip.xy * 0.5 + 0.5;
 }
 
 //
@@ -285,13 +318,13 @@ void main() {
   float wz = fragPosition.z;
 
   // Medium-turbulence
-  N.xz += 0.2 * vec2(simplex_noise(vec2(
+  N.xz += 0.4 * vec2(simplex_noise(vec2(
     water_speed.x * 0.5 + wx * 0.0005,
     water_speed.y * 0.5 + wz * 0.0005
   )));
 
   // Micro-turbulence
-  N.xz += 0.08 * vec2(simplex_noise(vec2(
+  N.xz += 0.1 * vec2(simplex_noise(vec2(
     water_speed.x * 0.75 + wx * 0.0025,
     water_speed.y * 0.75 + wz * 0.0025
   )));
@@ -325,10 +358,47 @@ void main() {
 
   vec3 out_color = vec3(0.0);
 
-  const vec3 base_water_color = vec3(0.0, 0.1, 0.3);
+  const vec3 base_water_color = vec3(0.0, 0.2, 0.4);
   const vec3 dark_water_color = vec3(0.0, 0.0, 0.2);
-  const vec3 base_underwater_color = vec3(0.5, 0.5, 1.0);
+  const vec3 foam_color = vec3(0.4, 0.6, 1.0);
   const float depth_limit = 500.0;
+
+  out_color = base_water_color;
+
+  // Reflections
+  // @temporary
+  // @todo use proper planar reflections
+  {
+    vec2 sample_coordinates = gl_FragCoord.xy;
+    sample_coordinates.y += 15.0 + 5.0 * sin(fragPosition.x * 0.001 + time);
+
+    vec2 sample_uv = GetScreenUvs(sample_coordinates);
+    float sample_z = texture(in_normal_and_depth, sample_uv).w;
+
+    if (sample_z < 1.0 && sample_z > gl_FragCoord.z) {
+      vec3 world_position = GetWorldPosition(sample_z, sample_uv, inverse_projection_matrix, inverse_view_matrix);
+
+      if (world_position.y > -3000.0) {
+        out_color *= 0.5;
+      }
+    }
+
+    vec3 r = fragPosition + 500.0 * reflect(D, N);
+    r = (view_matrix * vec4(r, 1.0)).xyz;
+    vec2 reflection_uv = GetScreenCoordinates(r, projection_matrix);
+    float rz = texture(in_normal_and_depth, reflection_uv).w;
+
+    if (rz < 1.0) {
+      vec3 world_position = GetWorldPosition(rz, reflection_uv, inverse_projection_matrix, inverse_view_matrix);
+      float delta = length(fragPosition - world_position);
+      float falloff = min(1.0, delta / 1400.0);
+      falloff *= falloff;
+      falloff *= falloff;
+      falloff *= falloff;
+
+      out_color *= 0.7 + 0.3 * falloff;
+    }
+  }
 
   // Shadow term
   float shadow = GetPrimaryLightShadowFactor(fragPosition - N * 500.0 * vec3(1, 0.2, 1));
@@ -356,7 +426,7 @@ void main() {
     // Prevent objects above the water from being sampled
     if (sample_z < water_surface_z) underwater_visibility = 0.0;
 
-    out_color = mix(base_water_color, base_water_color * 2.5, underwater_visibility);
+    out_color = mix(out_color, foam_color, underwater_visibility);
   }
 
   // Reflect sky + primary light
@@ -365,7 +435,7 @@ void main() {
     vec3 reflection_color = vec3(0);
 
     // Sky reflection
-    reflection_color += GetReflectionColor(R);
+    reflection_color += mix(base_water_color, GetReflectionColor(R), 0.5);
 
     // Light reflection
     reflection_color += 5.0 * vec3(1.0, 0.9, 0.5) * pow(RdotL, 5.0);

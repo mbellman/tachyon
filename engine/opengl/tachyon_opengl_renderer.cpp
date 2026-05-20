@@ -1148,6 +1148,10 @@ static void RenderTransparentMeshesBeforePostEffects(Tachyon* tachyon) {
     SetShaderVec3f(locations.primary_light_direction, scene.primary_light_direction);
     SetShaderInt(locations.previous_color_and_depth, ACCUMULATION_COLOR_AND_DEPTH);
     SetShaderInt(locations.in_normal_and_depth, G_BUFFER_NORMALS_AND_DEPTH);
+    SetShaderMat4f(locations.projection_matrix, ctx.projection_matrix);
+    SetShaderMat4f(locations.view_matrix, ctx.view_matrix);
+    SetShaderMat4f(locations.inverse_projection_matrix, ctx.inverse_projection_matrix);
+    SetShaderMat4f(locations.inverse_view_matrix, ctx.inverse_view_matrix);
     SetShaderInt(locations.in_shadow_map_cascade_1, DIRECTIONAL_SHADOW_MAP_CASCADE_1);
     SetShaderInt(locations.in_shadow_map_cascade_2, DIRECTIONAL_SHADOW_MAP_CASCADE_2);
     SetShaderInt(locations.in_shadow_map_cascade_3, DIRECTIONAL_SHADOW_MAP_CASCADE_3);

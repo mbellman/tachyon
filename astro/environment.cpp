@@ -271,6 +271,7 @@ static void HandleGlowParticles(Tachyon* tachyon, State& state) {
 }
 
 // @todo move elsewhere
+// @todo allow spline sampling
 static tVec3f SampleCurve(const std::vector<tVec3f>& curve, const float t) {
   int max = (int) curve.size();
   float seek_time = t * float(max);
@@ -291,14 +292,21 @@ static void HandleWaterFlowLeaves(Tachyon* tachyon, State& state) {
     auto& flow = *leaf.source_flow;
     auto& object = leaf.object;
 
-    leaf.progress += 0.02f * state.dt;
+    leaf.progress += 0.01f * state.dt;
     if (leaf.progress >= 1.f) leaf.progress = 0.f;
 
+    float hash = float(object.object_id);
+    float t = get_scene_time() + hash;
+    float scale = 150.f + 150.f * fmodf(hash / 6.f, 1.f);
+    float angle = 100.f * leaf.progress + hash;
+
     object.position = SampleCurve(flow.flow_positions, leaf.progress);
-    object.position.y = -2900.f;
+    object.position.y = -2915.f;
+    object.position.z += 250.f * sinf(t);
     object.scale = tVec3f(350.f);
-    object.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 100.f * leaf.progress);
-    object.color = tVec3f(0.7f, 0.8f, 0.3f);
+    object.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), angle);
+    object.color = tVec3f(0.3f, 0.4f, 0.1f);
+    object.material = tVec4f(0.8f, 0, 0, 0.2f);
 
     commit(object);
   }

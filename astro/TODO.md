@@ -35,9 +35,15 @@ tutorial:
 * fog fading
 * sunbeam fading
 * crows near second wind chime
+* magic gate improvements/collision
 
 features/fixes:
+* glow particles alpha reset on area change
 * reading signposts
+* light pillars sound when using normal wand raising
+* more tiny bird variance
+* iron gate collision
+* ladders
 * guidance (small stone bridges, slopes)
 * reset ducks with R
 * don't UpdateTreeFlowers() if we're far back enough in time

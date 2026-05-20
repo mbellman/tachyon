@@ -60,7 +60,7 @@ static void CreateConstantObjects(Tachyon* tachyon, State& state) {
     }
 
     for_range(1, 30) {
-      create(meshes.water_flow_leaf);
+      create(meshes.river_leaf);
     }
   }
 

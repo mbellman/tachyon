@@ -185,6 +185,10 @@ static void StoreShaderUniforms(tOpenGLShaders& shaders) {
   store_shader_uniform(water_mesh, primary_light_direction);
   store_shader_uniform(water_mesh, previous_color_and_depth);
   store_shader_uniform(water_mesh, in_normal_and_depth);
+  store_shader_uniform(water_mesh, projection_matrix);
+  store_shader_uniform(water_mesh, view_matrix);
+  store_shader_uniform(water_mesh, inverse_projection_matrix);
+  store_shader_uniform(water_mesh, inverse_view_matrix);
   store_shader_uniform(water_mesh, in_shadow_map_cascade_1);
   store_shader_uniform(water_mesh, in_shadow_map_cascade_2);
   store_shader_uniform(water_mesh, in_shadow_map_cascade_3);
