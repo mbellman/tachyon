@@ -254,7 +254,6 @@ static void HandleTinyBirdIdling(Tachyon* tachyon, TinyBird& bird) {
 
     if (time_since(bird.last_jump_time) > mood_duration) {
       bird.last_jump_time = get_scene_time();
-
       bird.target_position = bird.position;
     }
   }

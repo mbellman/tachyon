@@ -303,7 +303,7 @@ static void HandleWaterFlowLeaves(Tachyon* tachyon, State& state) {
     object.position.z += 250.f * sinf(t);
     object.scale = tVec3f(350.f);
     object.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), angle);
-    object.color = tVec3f(0.3f, 0.4f, 0.1f);
+    object.color = tVec3f(0.5f, 0.4f, 0.1f);
     object.material = tVec4f(0.8f, 0, 0, 0.2f);
 
     commit(object);

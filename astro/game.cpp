@@ -59,7 +59,7 @@ static void CreateConstantObjects(Tachyon* tachyon, State& state) {
       create(meshes.dust_mote);
     }
 
-    for_range(1, 30) {
+    for_range(1, 500) {
       create(meshes.river_leaf);
     }
   }
@@ -537,6 +537,8 @@ static bool IsPlayerNearUsableWindChimes(State& state) {
   return false;
 }
 
+const static float BGM_VOLUME = 0.5f;
+
 static void HandleMusicLevels(Tachyon* tachyon, State& state) {
   bool is_in_stealth_mode = IsInStealthMode(state);
 
@@ -567,7 +569,7 @@ static void HandleMusicLevels(Tachyon* tachyon, State& state) {
       BGM::FadeCurrentMusicVolumeTo(0.f, 1000);
     }
     else {
-      BGM::FadeCurrentMusicVolumeTo(0.4f, 3000);
+      BGM::FadeCurrentMusicVolumeTo(BGM_VOLUME, 3000);
     }
   }
 }
@@ -590,7 +592,7 @@ static void HandleCurrentAreaMusic(Tachyon* tachyon, State& state) {
   tVec3f village_position = tVec3f(232000.f, 0, 106000.f);
 
   if (IsPlayerNearUsableWindChimes(state)) {
-    BGM::LoopMusic(BGM_WIND_CHIMES, 0.4f);
+    BGM::LoopMusic(BGM_WIND_CHIMES, BGM_VOLUME);
   }
   else if (state.astro_time >= astro_time_periods.present) {
     // @temporary
@@ -599,10 +601,10 @@ static void HandleCurrentAreaMusic(Tachyon* tachyon, State& state) {
   }
   // @temporary
   else if (tVec3f::distance(state.player_position, village_position) < 40000.f) {
-    BGM::LoopMusic(BGM_VILLAGE_1, 0.4f);
+    BGM::LoopMusic(BGM_VILLAGE_1, BGM_VOLUME);
   }
   else if (state.bgm_start_time != -1.f) {
-    BGM::LoopMusic(BGM_DIVINATION_WOODREALM, 0.4f);
+    BGM::LoopMusic(BGM_DIVINATION_WOODREALM, BGM_VOLUME);
   }
 }
 
