@@ -38,7 +38,6 @@ tutorial:
 * magic gate improvements/collision
 
 features/fixes:
-* glow particles alpha reset on area change
 * reading signposts
 * light pillars sound when using normal wand raising
 * more tiny bird variance

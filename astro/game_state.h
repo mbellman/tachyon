@@ -21,6 +21,9 @@
 
 #define for_range(__low, __high) for (int i = __low; i <= __high; i++)
 
+#define clamp_to_0(__value) if (__value < 0.f) __value = 0.f
+#define clamp_to_1(__value) if (__value > 1.f) __value = 1.f
+
 #define time_since(t) (tachyon->scene.scene_time - t)
 #define get_scene_time() tachyon->scene.scene_time
 #define is_moving_left_stick() (tachyon->left_stick.x != 0.f || tachyon->left_stick.y != 0.f)
@@ -603,6 +606,7 @@ namespace astro {
     std::vector<FlowerParticle> flower_particles;
     std::vector<int32> sculpture_particles;
     std::vector<int32> glow_particle_light_ids;
+    float glow_particles_alpha = 0.f;
 
     // Water flows
     std::vector<WaterFlow> water_flows;

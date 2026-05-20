@@ -194,16 +194,14 @@ static void HandleGlowParticles(Tachyon* tachyon, State& state) {
   );
 
   // Fade particles in/out when we transition from valid <-> invalid areas
-  float fade_alpha = time_since(state.last_area_change_time) / 4.f;
-  if (fade_alpha > 1.f) fade_alpha = 1.f;
-
-  if (!is_valid_spawn_location) {
-    if (state.last_area_change_time == 0.f) {
-      fade_alpha = 0.f;
-    } else {
-      fade_alpha = 1.f - fade_alpha;
-    }
+  if (is_valid_spawn_location) {
+    state.glow_particles_alpha += 0.25f * state.dt;
+  } else {
+    state.glow_particles_alpha -= 0.25 * state.dt;
   }
+
+  clamp_to_0(state.glow_particles_alpha);
+  clamp_to_1(state.glow_particles_alpha);
 
   for (auto light_id : state.glow_particle_light_ids) {
     auto& light = *get_point_light(light_id);
@@ -259,7 +257,7 @@ static void HandleGlowParticles(Tachyon* tachyon, State& state) {
 
     light.position.x += 200.f * cosf(t * 0.55f) * state.dt;
     light.position.y += 500.f * sinf(t * 0.5f) * state.dt;
-    light.glow_power = fade_alpha * (1.f + sinf(t * 0.65f));
+    light.glow_power = state.glow_particles_alpha * (1.f + sinf(t * 0.65f));
     light.power = light.glow_power;
 
     // Size variation
