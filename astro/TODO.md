@@ -34,13 +34,15 @@ entities:
 tutorial:
 * fog fading
 * sunbeam fading
+* tutorial-only fog entities
 * crows near second wind chime
 * magic gate improvements/collision
 
 features/fixes:
-* light pillars sound when using normal wand raising
 * more tiny bird variance
 * tiny birds hopping forward
+* stone walking sounds
+* light pillars sound when using normal wand raising
 * iron gate collision
 * ladders
 * guidance (small stone bridges, slopes)

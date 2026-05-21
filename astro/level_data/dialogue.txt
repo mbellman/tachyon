@@ -4,6 +4,15 @@
 @sign_trail_south
 ← Divination Riverway
 
+@sign_riverway_bridges
+← Riverway West; Divination Trail →
+
+@sign_riverway_south
+← Provenance Woodrealm
+
+@sign_riverway_crossing
+← Divination Lake Terrace
+
 // ----------------------
 // NPCs
 // ----------------------

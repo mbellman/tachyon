@@ -31,7 +31,11 @@ namespace astro {
 
         auto proximity = GetEntityProximity(entity, state);
 
-        if (proximity.distance < 4000.f && proximity.facing_dot > 0.5f) {
+        if (
+          proximity.distance < 4000.f &&
+          proximity.facing_dot > 0.5f &&
+          !is_moving_left_stick()
+        ) {
           UISystem::ShowTransientDialogue(tachyon, state, "[X] Read");
 
           if (

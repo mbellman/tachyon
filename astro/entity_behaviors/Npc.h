@@ -40,8 +40,8 @@ namespace astro {
           // Readying/initiating dialogue
           if (
             player_distance < 4000.f &&
-            !is_moving_left_stick() &&
-            facing_dot > 0.2f
+            facing_dot > 0.2f &&
+            !is_moving_left_stick()
           ) {
             UISystem::ShowTransientDialogue(tachyon, state, "[X] Speak");
 
