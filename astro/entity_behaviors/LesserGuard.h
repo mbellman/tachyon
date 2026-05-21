@@ -11,9 +11,11 @@
 namespace astro {
   behavior LesserGuard {
     const static float WIND_UP_DURATION = 1.f;
+    const static float SHORT_WIND_UP_DURATION = 0.5f;
     const static float STAB_DURATION = 0.1f;
     const static float WIND_DOWN_DURATION = 0.8f;
     const static float ATTACK_DURATION = WIND_UP_DURATION + STAB_DURATION + WIND_DOWN_DURATION;
+    const static float COUNTERATTACK_DURATION = SHORT_WIND_UP_DURATION + STAB_DURATION + WIND_DOWN_DURATION;
     const static float BLOCK_DURATION = 1.f;
     const static float BREAK_DURATION = 2.f;
 
@@ -257,6 +259,18 @@ namespace astro {
           ) {
             // Start an attack
             enemy.last_attack_start_time = get_scene_time();
+            enemy.is_counterattacking = false;
+          }
+
+          if (
+            player_distance < 8000.f &&
+            time_since(state.last_wand_bounce_time) < 1.f &&
+            time_since(enemy.last_break_time) > 2.f &&
+            time_since(enemy.last_attack_start_time) > 1.f
+          ) {
+            // Start an attack
+            enemy.last_attack_start_time = get_scene_time();
+            enemy.is_counterattacking = true;
           }
         }
       } else {
@@ -384,18 +398,26 @@ namespace astro {
           {
             float time_since_starting_attack = time_since(entity.enemy_state.last_attack_start_time);
 
+            float attack_duration = entity.enemy_state.is_counterattacking
+              ? COUNTERATTACK_DURATION
+              : ATTACK_DURATION;
+
+            float wind_up_duration = entity.enemy_state.is_counterattacking
+              ? SHORT_WIND_UP_DURATION
+              : WIND_UP_DURATION;
+
             if (
               entity.enemy_state.mood == ENEMY_AGITATED &&
-              time_since_starting_attack < ATTACK_DURATION
+              time_since_starting_attack < attack_duration
             ) {
-              float alpha = time_since_starting_attack / ATTACK_DURATION;
+              float alpha = time_since_starting_attack / attack_duration;
 
               tVec3f enemy_direction = GetFacingDirection(entity);
               tVec3f enemy_right = tVec3f::cross(enemy_direction, tVec3f(0, 1.f, 0));
 
               // Animation steps
               AnimationStep s1;
-              s1.duration = WIND_UP_DURATION;
+              s1.duration = wind_up_duration;
               s1.offset = tVec3f(0.f);
               s1.rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), 0.f);
 
@@ -425,11 +447,12 @@ namespace astro {
 
               // Player hit detection
               if (
-                time_since_starting_attack > WIND_UP_DURATION &&
-                time_since_starting_attack < (WIND_UP_DURATION + STAB_DURATION)
+                time_since_starting_attack > wind_up_duration &&
+                time_since_starting_attack < (wind_up_duration + STAB_DURATION)
               ) {
                 tVec3f sword_tip_position = UnitObjectToWorldPosition(sword, tVec3f(0, 2.5f, 0));
-                float sword_tip_distance = tVec3f::distance(state.player_position, sword_tip_position);
+                tVec3f player_center = state.player_position + tVec3f(0, 1500.f, 0);
+                float sword_tip_distance = tVec3f::distance(player_center, sword_tip_position);
 
                 entity.enemy_state.last_attack_action_time = get_scene_time();
 

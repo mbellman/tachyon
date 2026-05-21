@@ -131,7 +131,7 @@ static void HandleLesserGuardWandStrike(Tachyon* tachyon, State& state, GameEnti
         }
       } else {
         // Enemy knockback from wand bounce
-        enemy.speed = -6000.f;
+        enemy.speed = -3000.f;
 
         PlayerCharacter::GetKnockedBack(state, 500.f);
 
@@ -222,7 +222,7 @@ void Combat::HandleWandSwing(Tachyon* tachyon, State& state) {
       bool can_enemy_cancel_attack_to_block = time_since(enemy.last_attack_start_time) < attack_without_blocking_duration;
 
       if (
-        enemy_distance < 5000.f &&
+        enemy_distance < 7000.f &&
         enemy.health > 0.f &&
         !is_enemy_broken &&
         // Block when not attacking, or if the current attack can be cancelled
