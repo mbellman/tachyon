@@ -295,13 +295,13 @@ static void HandleWaterFlowLeaves(Tachyon* tachyon, State& state) {
 
     float hash = float(object.object_id);
     float t = get_scene_time() + hash;
-    float scale = 150.f + 150.f * fmodf(hash / 6.f, 1.f);
+    float scale = 200.f + 150.f * fmodf(hash / 6.f, 1.f);
     float angle = 100.f * leaf.progress + hash;
 
     object.position = SampleCurve(flow.flow_positions, leaf.progress);
     object.position.y = -2915.f;
     object.position.z += 250.f * sinf(t);
-    object.scale = tVec3f(350.f);
+    object.scale = tVec3f(scale);
     object.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), angle);
     object.color = tVec3f(0.5f, 0.4f, 0.1f);
     object.material = tVec4f(0.8f, 0, 0, 0.2f);

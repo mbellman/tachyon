@@ -24,18 +24,35 @@ namespace astro {
 
       reset_instances(meshes.signpost);
 
+      // @todo astro time check
       for (auto& entity : state.signposts) {
         if (abs(state.player_position.x - entity.position.x) > 25000.f) continue;
         if (abs(state.player_position.z - entity.position.z) > 25000.f) continue;
 
-        auto& signpost = use_instance(meshes.signpost);
+        auto proximity = GetEntityProximity(entity, state);
 
-        Sync(signpost, entity);
+        if (proximity.distance < 4000.f && proximity.facing_dot > 0.5f) {
+          UISystem::ShowTransientDialogue(tachyon, state, "[X] Read");
 
-        signpost.color = tVec3f(1.f, 0.8f, 0.4f);
-        signpost.material = tVec4f(0.8f, 0, 0, 0.6f);
+          if (
+            did_press_key(tKey::CONTROLLER_A) &&
+            !state.has_blocking_dialogue
+          ) {
+            // @todo
+          }
+        }
 
-        commit(signpost);
+        // Signpost
+        {
+          auto& signpost = use_instance(meshes.signpost);
+
+          Sync(signpost, entity);
+
+          signpost.color = tVec3f(1.f, 0.8f, 0.4f);
+          signpost.material = tVec4f(0.8f, 0, 0, 0.6f);
+
+          commit(signpost);
+        }
       }
     }
   };
