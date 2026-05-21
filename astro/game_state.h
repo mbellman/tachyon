@@ -629,7 +629,7 @@ namespace astro {
     float last_dialogue_sound_time = 0.f;
     bool has_blocking_dialogue = false;
     bool dismissed_blocking_dialogue = false;
-    std::unordered_map<std::string, DialogueSet> npc_dialogue;
+    std::unordered_map<std::string, DialogueSet> dialogue_map;
     std::string current_dialogue_set = "";
     int32 current_dialogue_step = 0;
 

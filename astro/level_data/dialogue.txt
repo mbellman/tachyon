@@ -1,3 +1,17 @@
+// ----------------------
+// Signs
+// ----------------------
+@sign_trail_south
+← Divination Riverway
+
+// ----------------------
+// NPCs
+// ----------------------
+
+// ----------------------
+// Lake girl
+// ----------------------
+
 @lake_girl
 Oh, my! I'm frightfully sorry, I...
 You're not...you're not one of...?

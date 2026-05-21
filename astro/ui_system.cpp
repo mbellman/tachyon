@@ -13,7 +13,7 @@ static void CompleteCurrentDialogueSet(State& state) {
 }
 
 static void HandleCurrentDialogueSet(Tachyon* tachyon, State& state) {
-  auto& dialogue_set = state.npc_dialogue[state.current_dialogue_set];
+  auto& dialogue_set = state.dialogue_map[state.current_dialogue_set];
 
   // Handle advancing dialogue
   if (did_press_key(tKey::CONTROLLER_A)) {
@@ -87,14 +87,14 @@ static tUIElement* GetSubStoryTitleGraphic(const State& state) {
 }
 
 void UISystem::StartDialogueSet(State& state, const std::string& set_name) {
-  if (!MapHasKey(state.npc_dialogue, set_name)) {
+  if (!MapHasKey(state.dialogue_map, set_name)) {
     // @todo dev mode only
     console_log("Dialogue set '" + set_name + "' not found.");
 
     return;
   }
 
-  auto& dialogue_set = state.npc_dialogue[set_name];
+  auto& dialogue_set = state.dialogue_map[set_name];
 
   state.current_dialogue_set = set_name;
 
@@ -104,7 +104,7 @@ void UISystem::StartDialogueSet(State& state, const std::string& set_name) {
     // using additional "+" qualifiers for the secondary set names.
     std::string secondary_set_name = set_name + "+";
 
-    if (MapHasKey(state.npc_dialogue, secondary_set_name)) {
+    if (MapHasKey(state.dialogue_map, secondary_set_name)) {
       // If there is a follow-up dialogue set available after having
       // invoked the dialogue first, use that instead
       UISystem::StartDialogueSet(state, secondary_set_name);
@@ -113,7 +113,7 @@ void UISystem::StartDialogueSet(State& state, const std::string& set_name) {
     }
   }
 
-  InitiateDialogueSet(state, state.npc_dialogue[set_name]);
+  InitiateDialogueSet(state, state.dialogue_map[set_name]);
 }
 
 void UISystem::ShowDialogue(Tachyon* tachyon, State& state, const std::string& message, const float duration) {

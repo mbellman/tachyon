@@ -962,7 +962,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
   // @todo ui.cpp
   {
     state.debug_text = Tachyon_CreateUIText("./fonts/CascadiaMonoNF.ttf", 19);
-    state.debug_text_large = Tachyon_CreateUIText("./fonts/OpenSans-Regular.ttf", 32);
+    state.debug_text_large = Tachyon_CreateUIText("./fonts/GoogleSans-Regular.ttf", 32);
 
     state.ui.future_age_title = Tachyon_CreateUIElement("./astro/textures/titles/future-age.png");
     state.ui.present_age_title = Tachyon_CreateUIElement("./astro/textures/titles/present-age.png");

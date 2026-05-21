@@ -38,9 +38,9 @@ tutorial:
 * magic gate improvements/collision
 
 features/fixes:
-* reading signposts
 * light pillars sound when using normal wand raising
 * more tiny bird variance
+* tiny birds hopping forward
 * iron gate collision
 * ladders
 * guidance (small stone bridges, slopes)

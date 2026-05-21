@@ -202,32 +202,32 @@ void DataLoader::LoadLevelData(Tachyon* tachyon, State& state) {
 }
 
 void DataLoader::LoadNpcDialogue(Tachyon* tachyon, State& state) {
-  auto level_data = Tachyon_GetFileContents("./astro/level_data/npc_dialogue.txt");
-  auto lines = SplitString(level_data, "\n");  // @allocation
+  auto dialogue_data = Tachyon_GetFileContents("./astro/level_data/dialogue.txt");
+  auto lines = SplitString(dialogue_data, "\n");  // @allocation
 
-  std::string current_npc_name = "";
+  std::string current_dialogue_set_name = "";
 
   for (auto& line : lines) {
     if (line.size() == 0) continue;
     if (line.starts_with("//")) continue;
 
     if (line[0] == '@') {
-      // NPC or other dialogue trigger
+      // Dialogue trigger name (NPCs, signs, etc.)
       DialogueSet dialogue;
 
       if (line[1] == '@') {
         // Dialogue set with lines selected at random
         dialogue.random = true;
 
-        current_npc_name = line.substr(2);
+        current_dialogue_set_name = line.substr(2);
       } else {
-        current_npc_name = line.substr(1);
+        current_dialogue_set_name = line.substr(1);
       }
 
-      state.npc_dialogue[current_npc_name] = dialogue;
+      state.dialogue_map[current_dialogue_set_name] = dialogue;
     } else {
       // Dialogue lines
-      auto& dialogue_set = state.npc_dialogue[current_npc_name];
+      auto& dialogue_set = state.dialogue_map[current_dialogue_set_name];
 
       if (line.starts_with("+")) {
         // Lines starting with "+" should only be read the first time

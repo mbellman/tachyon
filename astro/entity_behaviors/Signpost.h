@@ -38,7 +38,10 @@ namespace astro {
             did_press_key(tKey::CONTROLLER_A) &&
             !state.has_blocking_dialogue
           ) {
-            // @todo
+            // Reset player speed
+            state.player_velocity = tVec3f(0.f);
+
+            UISystem::StartDialogueSet(state, entity.unique_name);
           }
         }
 

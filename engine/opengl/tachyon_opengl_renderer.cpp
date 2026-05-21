@@ -341,7 +341,7 @@ static void RenderSurface(Tachyon* tachyon, SDL_Surface* surface, int32 x, int32
 }
 
 static void RenderText(Tachyon* tachyon, TTF_Font* font, const char* message, int32 x, int32 y, uint32 wrap_width, const tVec4f& color, const tVec4f& background) {
-  SDL_Surface* text = TTF_RenderText_Blended_Wrapped(font, message, { 255, 255, 255 }, wrap_width);
+  SDL_Surface* text = TTF_RenderUTF8_Blended_Wrapped(font, message, { 255, 255, 255 }, wrap_width);
 
   RenderSurface(tachyon, text, x, y, text->w, text->h, 0.f, color, background);
 
@@ -349,7 +349,7 @@ static void RenderText(Tachyon* tachyon, TTF_Font* font, const char* message, in
 }
 
 static void RenderTextCentered(Tachyon* tachyon, TTF_Font* font, const char* message, int32 x, int32 y, uint32 wrap_width, const tVec4f& color, const tVec4f& background) {
-  SDL_Surface* text = TTF_RenderText_Blended_Wrapped(font, message, { 255, 255, 255 }, wrap_width);
+  SDL_Surface* text = TTF_RenderUTF8_Blended_Wrapped(font, message, { 255, 255, 255 }, wrap_width);
 
   RenderSurface(tachyon, text, x - text->w / 2, y - text->h / 2, text->w, text->h, 0.f, color, background);
 
@@ -1384,7 +1384,7 @@ static void RenderUIElements(Tachyon* tachyon) {
       auto& string = command.options.string;
       SDL_Color color = { 255, 255, 255 };
 
-      surface = TTF_RenderText_Blended_Wrapped(text.font, string.c_str(), color, tachyon->window_width);
+      surface = TTF_RenderUTF8_Blended_Wrapped(text.font, string.c_str(), color, tachyon->window_width);
     }
 
     if (surface == nullptr) {
