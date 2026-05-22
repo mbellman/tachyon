@@ -39,11 +39,13 @@ tutorial:
 * magic gate improvements/collision
 
 features/fixes:
+* iron gate collision
+* bird gate collision
+* signpost collision
 * more tiny bird variance
 * tiny birds hopping forward
 * stone walking sounds
 * light pillars sound when using normal wand raising
-* iron gate collision
 * ladders
 * guidance (small stone bridges, slopes)
 * reset ducks with R

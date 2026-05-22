@@ -197,7 +197,7 @@ static void HandleGlowParticles(Tachyon* tachyon, State& state) {
   if (is_valid_spawn_location) {
     state.glow_particles_alpha += 0.25f * state.dt;
   } else {
-    state.glow_particles_alpha -= 0.25 * state.dt;
+    state.glow_particles_alpha -= 0.25f * state.dt;
   }
 
   clamp_to_0(state.glow_particles_alpha);

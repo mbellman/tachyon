@@ -116,7 +116,6 @@ static void HandleLesserGuardAnimations(Tachyon* tachyon, State& state, int32& u
     if (!IsDuringActiveTime(entity, state)) continue;
 
     auto& skin = state.person_skinned_meshes[usage_counter++];
-    // auto& person = skinned_mesh(skin.mesh_index);
     auto& shirt = skinned_mesh(skin.shirt_mesh_index);
 
     if (skin.animation.current_animation == nullptr) {
@@ -132,10 +131,9 @@ static void HandleLesserGuardAnimations(Tachyon* tachyon, State& state, int32& u
     }
 
     UpdateAnimation(skin.animation, active_animation.speed, state.dt);
-    // SyncSkinnedMesh(person, entity, skin.animation);
     SyncSkinnedMesh(shirt, entity, skin.animation);
 
-    shirt.color = tVec3f(0.5f, 0.8f, 0.7f);
+    shirt.color = tVec4f(0.5f, 0.8f, 0.7f, 0.2f);
     shirt.material = tVec4f(0.8f, 0, 0, 0.4f);
 
     tVec3f body_position = entity.visible_position;
@@ -218,7 +216,7 @@ static void HandleLowGuardAnimations(Tachyon* tachyon, State& state, int32& usag
     if (!IsDuringActiveTime(entity, state)) continue;
 
     auto& skin = state.person_skinned_meshes[usage_counter++];
-    auto& person = skinned_mesh(skin.mesh_index);
+    auto& body = skinned_mesh(skin.body_mesh_index);
 
     if (skin.animation.current_animation == nullptr) {
       skin.animation.current_animation = &animations.player_run;
@@ -234,9 +232,9 @@ static void HandleLowGuardAnimations(Tachyon* tachyon, State& state, int32& usag
     }
 
     UpdateAnimation(skin.animation, active_animation.speed, state.dt);
-    SyncSkinnedMesh(person, entity, skin.animation);
+    SyncSkinnedMesh(body, entity, skin.animation);
 
-    commit(person);
+    commit(body);
 
     // Armor parts
     // @todo
@@ -260,7 +258,7 @@ static void HandleNPCAnimations(Tachyon* tachyon, State& state, int32& usage_cou
     if (!IsDuringActiveTime(entity, state)) continue;
 
     auto& skin = state.person_skinned_meshes[usage_counter++];
-    auto& person = skinned_mesh(skin.mesh_index);
+    auto& body = skinned_mesh(skin.body_mesh_index);
 
     if (skin.animation.current_animation == nullptr) {
       skin.animation.current_animation = &animations.person_idle;
@@ -280,9 +278,9 @@ static void HandleNPCAnimations(Tachyon* tachyon, State& state, int32& usage_cou
     }
 
     UpdateAnimation(skin.animation, animation_speed, state.dt);
-    SyncSkinnedMesh(person, entity, skin.animation);
+    SyncSkinnedMesh(body, entity, skin.animation);
 
-    commit(person);
+    commit(body);
   }
 }
 
@@ -291,13 +289,14 @@ void AnimatedEntities::UpdateAnimatedEntities(Tachyon* tachyon, State& state) {
 
   auto& animations = state.animations;
 
-  // Disable all animated entity meshes upfront
+  // Disable all animated entity meshes first. We'll re-enable
+  // them on-demand as entities come into view.
   for_range(0, MAX_ANIMATED_PEOPLE - 1) {
     auto& skin = state.person_skinned_meshes[i];
-    auto& person = skinned_mesh(skin.mesh_index);
+    auto& body = skinned_mesh(skin.body_mesh_index);
     auto& shirt = skinned_mesh(skin.shirt_mesh_index);
 
-    person.disabled = true;
+    body.disabled = true;
     shirt.disabled = true;
   }
 

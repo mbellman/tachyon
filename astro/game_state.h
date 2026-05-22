@@ -419,7 +419,7 @@ namespace astro {
    * ----------------------------
    */
   struct ReservedSkinnedMesh {
-    int32 mesh_index = -1;
+    int32 body_mesh_index = -1;
     int32 shirt_mesh_index = -1;
     int32 pants_mesh_index = -1;
     tSkinnedMeshAnimation animation;

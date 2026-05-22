@@ -327,8 +327,9 @@ static void AddSkinnedPersonMeshes(Tachyon* tachyon, State& state) {
     rest_pose_skeleton.bone_matrices.push_back(inverse_bind_matrix);
   }
 
-  tSkinnedMesh person = Tachyon_LoadSkinnedMesh(
-    "./astro/3d_models/characters/person.skin",
+  // Load skinned meshes
+  tSkinnedMesh body = Tachyon_LoadSkinnedMesh(
+    "./astro/3d_models/characters/body.skin",
     rest_pose_skeleton
   );
 
@@ -342,9 +343,9 @@ static void AddSkinnedPersonMeshes(Tachyon* tachyon, State& state) {
 
     skin.animation.rest_pose = rest_pose_skeleton;
 
-    // Load meshes
+    // Add meshes
     {
-      skin.mesh_index = Tachyon_AddSkinnedMesh(tachyon, person);
+      skin.body_mesh_index = Tachyon_AddSkinnedMesh(tachyon, body);
       skin.shirt_mesh_index = Tachyon_AddSkinnedMesh(tachyon, shirt);
     }
   }
