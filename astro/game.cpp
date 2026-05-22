@@ -702,15 +702,22 @@ static void RespawnPlayer(Tachyon* tachyon, State& state) {
   state.player_hp = 100.f;
   state.last_spawn_time = get_scene_time();
 
+  // Reset previous player positions tracking
   state.previous_player_positions.clear();
 
   RecordPreviousPlayerPosition(state);
 
   // Reset camera
-  state.camera_shift = tVec3f(0, 0, 1800.f);
-  tachyon->scene.camera.position = spawn_position + tVec3f(0.f, 11000.f, 8500.f) + state.camera_shift;
+  state.camera_tracking_position = state.player_position;
+  state.camera_offset_position = state.player_facing_direction * 1500.f;
 
-  // @temporary
+  // @todo factor
+  tachyon->scene.camera.position =
+    state.camera_tracking_position +
+    state.camera_offset_position +
+    tVec3f(0.f, 11000.f, 8500.f);
+
+  // @todo factor
   state.dismissed_blocking_dialogue = true;
   state.has_blocking_dialogue = false;
   state.dialogue_start_time = 0.f;

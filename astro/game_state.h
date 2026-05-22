@@ -555,7 +555,8 @@ namespace astro {
     std::vector<EntityRecord> targetable_entities;
 
     // Camera attributes
-    tVec3f camera_shift;
+    tVec3f camera_tracking_position;
+    tVec3f camera_offset_position;
     bool use_zoomed_out_camera = false;
     float camera_angle = 0.9f;
     float camera_blend_speed = 0.f;

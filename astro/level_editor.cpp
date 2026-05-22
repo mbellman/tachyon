@@ -1847,6 +1847,8 @@ static void RepositionPlayer(Tachyon* tachyon, State& state) {
 
   player.position = state.player_position;
 
+  state.camera_tracking_position = state.player_position;
+
   commit(player);
 }
 
