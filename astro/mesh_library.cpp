@@ -327,19 +327,25 @@ static void AddSkinnedPersonMeshes(Tachyon* tachyon, State& state) {
     rest_pose_skeleton.bone_matrices.push_back(inverse_bind_matrix);
   }
 
+  tSkinnedMesh person = Tachyon_LoadSkinnedMesh(
+    "./astro/3d_models/characters/person.skin",
+    rest_pose_skeleton
+  );
+
+  tSkinnedMesh shirt = Tachyon_LoadSkinnedMesh(
+    "./astro/3d_models/characters/shirt.skin",
+    rest_pose_skeleton
+  );
+
   for_range(0, MAX_ANIMATED_PEOPLE - 1) {
     auto& skin = state.person_skinned_meshes[i];
 
     skin.animation.rest_pose = rest_pose_skeleton;
 
-    // Load and add the mesh
+    // Load meshes
     {
-      tSkinnedMesh person = Tachyon_LoadSkinnedMesh(
-        "./astro/3d_models/characters/person.skin",
-        skin.animation.rest_pose
-      );
-
       skin.mesh_index = Tachyon_AddSkinnedMesh(tachyon, person);
+      skin.shirt_mesh_index = Tachyon_AddSkinnedMesh(tachyon, shirt);
     }
   }
 }
@@ -348,8 +354,10 @@ static void AddClothingAndArmorMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   meshes.lesser_helmet = MODEL_MESH("./astro/3d_models/clothing_and_armor/lesser_helmet.obj", 10);
+  meshes.lesser_vambrace = MODEL_MESH("./astro/3d_models/clothing_and_armor/lesser_vambrace.obj", 20);
 
   mesh(meshes.lesser_helmet).shadow_cascade_ceiling = 2;
+  mesh(meshes.lesser_vambrace).shadow_cascade_ceiling = 2;
 }
 
 static void AddEditorMeshes(Tachyon* tachyon, State& state) {

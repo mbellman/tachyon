@@ -34,17 +34,41 @@ static void SyncSkinnedMesh(tSkinnedMesh& mesh, GameEntity& entity, tSkinnedMesh
   mesh.current_pose = &animation.active_pose;
 }
 
-static void AttachToHead(Tachyon* tachyon, tObject& object, ReservedSkinnedMesh& skin) {
-  auto& person = skinned_mesh(skin.mesh_index);
+static void AttachToHead(tObject& object, ReservedSkinnedMesh& skin, const tVec3f& body_position, const Quaternion& body_rotation) {
   auto& head_bone = skin.animation.active_pose.bones[0];
+  tVec3f scale = tVec3f(1500.f);
 
   tVec3f head_offset;
-  head_offset += head_bone.translation * person.scale;
-  head_offset += head_bone.rotation.toMatrix4f() * tVec3f(0, person.scale.y * 0.35f, 0);
+  head_offset += head_bone.translation * scale;
+  head_offset += head_bone.rotation.toMatrix4f() * tVec3f(0, scale.y * 0.35f, 0);
 
-  object.position = person.position + person.rotation.toMatrix4f() * head_offset;
-  object.rotation = person.rotation * head_bone.rotation;
-  object.scale = person.scale;
+  object.position = body_position + body_rotation.toMatrix4f() * head_offset;
+  object.rotation = body_rotation * head_bone.rotation;
+  object.scale = scale;
+}
+
+static void AttachToRightArm(tObject& object, ReservedSkinnedMesh& skin, const tVec3f& body_position, const Quaternion& body_rotation) {
+  auto& bone = skin.animation.active_pose.bones[5];
+  tVec3f scale = tVec3f(1500.f);
+
+  tVec3f offset;
+  offset += bone.translation * scale;
+
+  object.position = body_position + body_rotation.toMatrix4f() * offset;
+  object.rotation = body_rotation * bone.rotation;
+  object.scale = scale;
+}
+
+static void AttachToLeftArm(tObject& object, ReservedSkinnedMesh& skin, const tVec3f& body_position, const Quaternion& body_rotation) {
+  auto& bone = skin.animation.active_pose.bones[2];
+  tVec3f scale = tVec3f(1500.f);
+
+  tVec3f offset;
+  offset += bone.translation * scale;
+
+  object.position = body_position + body_rotation.toMatrix4f() * offset;
+  object.rotation = body_rotation * bone.rotation;
+  object.scale = scale;
 }
 
 /**
@@ -78,6 +102,7 @@ static void HandleLesserGuardAnimations(Tachyon* tachyon, State& state, int32& u
   auto& animations = state.animations;
 
   reset_instances(meshes.lesser_helmet);
+  reset_instances(meshes.lesser_vambrace);
 
   if (state.enemies_disabled) {
     return;
@@ -91,7 +116,8 @@ static void HandleLesserGuardAnimations(Tachyon* tachyon, State& state, int32& u
     if (!IsDuringActiveTime(entity, state)) continue;
 
     auto& skin = state.person_skinned_meshes[usage_counter++];
-    auto& person = skinned_mesh(skin.mesh_index);
+    // auto& person = skinned_mesh(skin.mesh_index);
+    auto& shirt = skinned_mesh(skin.shirt_mesh_index);
 
     if (skin.animation.current_animation == nullptr) {
       skin.animation.current_animation = &animations.player_run;
@@ -106,37 +132,68 @@ static void HandleLesserGuardAnimations(Tachyon* tachyon, State& state, int32& u
     }
 
     UpdateAnimation(skin.animation, active_animation.speed, state.dt);
-    SyncSkinnedMesh(person, entity, skin.animation);
+    // SyncSkinnedMesh(person, entity, skin.animation);
+    SyncSkinnedMesh(shirt, entity, skin.animation);
+
+    shirt.color = tVec3f(0.5f, 0.8f, 0.7f);
+    shirt.material = tVec4f(0.8f, 0, 0, 0.4f);
+
+    tVec3f body_position = entity.visible_position;
+    Quaternion body_rotation = entity.visible_rotation;
 
     // @todo factor
     if (entity.enemy_state.last_death_time != 0.f) {
       float death_alpha = 2.f * time_since(entity.enemy_state.last_death_time);
       if (death_alpha > 1.f) death_alpha = 1.f;
 
-      Quaternion death_rotation = entity.visible_rotation * (
+      Quaternion death_rotation = body_rotation * (
         Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -t_HALF_PI)
       );
 
-      person.rotation = Quaternion::slerp(entity.visible_rotation, death_rotation, death_alpha);
+      body_rotation = Quaternion::slerp(body_rotation, death_rotation, death_alpha);
 
-      person.position = tVec3f::lerp(
-        entity.visible_position,
-        entity.visible_position - tVec3f(0, 1200.f, 0),
+      body_position = tVec3f::lerp(
+        body_position,
+        body_position - tVec3f(0, 1200.f, 0),
         death_alpha
       );
     }
 
-    commit(person);
+    shirt.position = body_position;
+    shirt.rotation = body_rotation;
 
-    // Armor parts
-    auto& helmet = use_instance(meshes.lesser_helmet);
+    // commit(person);
+    commit(shirt);
 
-    helmet.color = tVec3f(0.7f, 0.4f, 0.1f);
-    helmet.material = tVec4f(0.5f, 0, 0, 0.2f);
+    // Helmet
+    {
+      auto& helmet = use_instance(meshes.lesser_helmet);
 
-    AttachToHead(tachyon, helmet, skin);
+      helmet.color = tVec3f(0.7f, 0.4f, 0.1f);
+      helmet.material = tVec4f(0.5f, 0, 0, 0.2f);
 
-    commit(helmet);
+      AttachToHead(helmet, skin, body_position, body_rotation);
+
+      commit(helmet);
+    }
+
+    // Vambraces
+    {
+      auto& left_vambrace = use_instance(meshes.lesser_vambrace);
+      auto& right_vambrace = use_instance(meshes.lesser_vambrace);
+
+      left_vambrace.color = tVec3f(0.7f, 0.4f, 0.1f);
+      left_vambrace.material = tVec4f(0.5f, 0, 0, 0.2f);
+
+      right_vambrace.color = tVec3f(0.7f, 0.4f, 0.1f);
+      right_vambrace.material = tVec4f(0.5f, 0, 0, 0.2f);
+
+      AttachToLeftArm(left_vambrace, skin, body_position, body_rotation);
+      AttachToRightArm(right_vambrace, skin, body_position, body_rotation);
+
+      commit(left_vambrace);
+      commit(right_vambrace);
+    }
   }
 }
 
@@ -238,8 +295,10 @@ void AnimatedEntities::UpdateAnimatedEntities(Tachyon* tachyon, State& state) {
   for_range(0, MAX_ANIMATED_PEOPLE - 1) {
     auto& skin = state.person_skinned_meshes[i];
     auto& person = skinned_mesh(skin.mesh_index);
+    auto& shirt = skinned_mesh(skin.shirt_mesh_index);
 
     person.disabled = true;
+    shirt.disabled = true;
   }
 
   // Use animated meshes on-demand based on proximity to entities

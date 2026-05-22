@@ -71,6 +71,7 @@ namespace astro {
 
       // Clothing + Armor meshes
       lesser_helmet,
+      lesser_vambrace,
 
       // Procedural meshes
       grass, // @todo rename ground_1_grass
@@ -419,6 +420,8 @@ namespace astro {
    */
   struct ReservedSkinnedMesh {
     int32 mesh_index = -1;
+    int32 shirt_mesh_index = -1;
+    int32 pants_mesh_index = -1;
     tSkinnedMeshAnimation animation;
   };
 

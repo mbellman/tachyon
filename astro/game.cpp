@@ -100,8 +100,14 @@ static void CreateConstantObjects(Tachyon* tachyon, State& state) {
   }
 
   // Clothing + armor
-  for_range(1, 10) {
-    create(meshes.lesser_helmet);
+  {
+    for_range(1, 10) {
+      create(meshes.lesser_helmet);
+    }
+
+    for_range(1, 20) {
+      create(meshes.lesser_vambrace);
+    }
   }
 
   create(meshes.astrolabe_rear);
