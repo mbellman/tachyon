@@ -34,8 +34,8 @@ static void SyncSkinnedMesh(tSkinnedMesh& mesh, GameEntity& entity, tSkinnedMesh
   mesh.current_pose = &animation.active_pose;
 }
 
-static void AttachToHead(tObject& object, ReservedSkinnedMesh& skin, const tVec3f& body_position, const Quaternion& body_rotation) {
-  auto& head_bone = skin.animation.active_pose.bones[0];
+static void AttachToHead(tObject& object, SkinnedPerson& person, const tVec3f& body_position, const Quaternion& body_rotation) {
+  auto& head_bone = person.animation.active_pose.bones[0];
   tVec3f scale = tVec3f(1500.f);
 
   tVec3f head_offset;
@@ -47,8 +47,8 @@ static void AttachToHead(tObject& object, ReservedSkinnedMesh& skin, const tVec3
   object.scale = scale;
 }
 
-static void AttachToRightArm(tObject& object, ReservedSkinnedMesh& skin, const tVec3f& body_position, const Quaternion& body_rotation) {
-  auto& bone = skin.animation.active_pose.bones[5];
+static void AttachToRightArm(tObject& object, SkinnedPerson& person, const tVec3f& body_position, const Quaternion& body_rotation) {
+  auto& bone = person.animation.active_pose.bones[5];
   tVec3f scale = tVec3f(1500.f);
 
   tVec3f offset;
@@ -59,8 +59,8 @@ static void AttachToRightArm(tObject& object, ReservedSkinnedMesh& skin, const t
   object.scale = scale;
 }
 
-static void AttachToLeftArm(tObject& object, ReservedSkinnedMesh& skin, const tVec3f& body_position, const Quaternion& body_rotation) {
-  auto& bone = skin.animation.active_pose.bones[2];
+static void AttachToLeftArm(tObject& object, SkinnedPerson& person, const tVec3f& body_position, const Quaternion& body_rotation) {
+  auto& bone = person.animation.active_pose.bones[2];
   tVec3f scale = tVec3f(1500.f);
 
   tVec3f offset;
@@ -115,23 +115,23 @@ static void HandleLesserGuardAnimations(Tachyon* tachyon, State& state, int32& u
     if (abs(state.player_position.z - entity.visible_position.z) > 15000.f) continue;
     if (!IsDuringActiveTime(entity, state)) continue;
 
-    auto& skin = state.person_skinned_meshes[usage_counter++];
-    auto& shirt = skinned_mesh(skin.shirt_mesh_index);
+    auto& person = state.skinned_people[usage_counter++];
+    auto& shirt = skinned_mesh(person.shirt_mesh_index);
 
-    if (skin.animation.current_animation == nullptr) {
-      skin.animation.current_animation = &animations.player_run;
+    if (person.animation.current_animation == nullptr) {
+      person.animation.current_animation = &animations.player_run;
     }
 
     auto active_animation = GetLesserGuardActiveAnimation(tachyon, state, entity);
 
     if (active_animation.immediate) {
-      Animation::StartNextAnimation(skin.animation, active_animation.animation);
+      Animation::StartNextAnimation(person.animation, active_animation.animation);
     } else {
-      Animation::AwaitNextAnimation(skin.animation, active_animation.animation);
+      Animation::AwaitNextAnimation(person.animation, active_animation.animation);
     }
 
-    UpdateAnimation(skin.animation, active_animation.speed, state.dt);
-    SyncSkinnedMesh(shirt, entity, skin.animation);
+    UpdateAnimation(person.animation, active_animation.speed, state.dt);
+    SyncSkinnedMesh(shirt, entity, person.animation);
 
     shirt.color = tVec4f(0.5f, 0.8f, 0.7f, 0.2f);
     shirt.material = tVec4f(0.8f, 0, 0, 0.4f);
@@ -160,7 +160,6 @@ static void HandleLesserGuardAnimations(Tachyon* tachyon, State& state, int32& u
     shirt.position = body_position;
     shirt.rotation = body_rotation;
 
-    // commit(person);
     commit(shirt);
 
     // Helmet
@@ -170,7 +169,7 @@ static void HandleLesserGuardAnimations(Tachyon* tachyon, State& state, int32& u
       helmet.color = tVec3f(0.7f, 0.4f, 0.1f);
       helmet.material = tVec4f(0.5f, 0, 0, 0.2f);
 
-      AttachToHead(helmet, skin, body_position, body_rotation);
+      AttachToHead(helmet, person, body_position, body_rotation);
 
       commit(helmet);
     }
@@ -186,8 +185,8 @@ static void HandleLesserGuardAnimations(Tachyon* tachyon, State& state, int32& u
       right_vambrace.color = tVec3f(0.7f, 0.4f, 0.1f);
       right_vambrace.material = tVec4f(0.5f, 0, 0, 0.2f);
 
-      AttachToLeftArm(left_vambrace, skin, body_position, body_rotation);
-      AttachToRightArm(right_vambrace, skin, body_position, body_rotation);
+      AttachToLeftArm(left_vambrace, person, body_position, body_rotation);
+      AttachToRightArm(right_vambrace, person, body_position, body_rotation);
 
       commit(left_vambrace);
       commit(right_vambrace);
@@ -215,24 +214,24 @@ static void HandleLowGuardAnimations(Tachyon* tachyon, State& state, int32& usag
     if (abs(state.player_position.z - entity.visible_position.z) > 25000.f) continue;
     if (!IsDuringActiveTime(entity, state)) continue;
 
-    auto& skin = state.person_skinned_meshes[usage_counter++];
-    auto& body = skinned_mesh(skin.body_mesh_index);
+    auto& person = state.skinned_people[usage_counter++];
+    auto& body = skinned_mesh(person.body_mesh_index);
 
-    if (skin.animation.current_animation == nullptr) {
-      skin.animation.current_animation = &animations.player_run;
+    if (person.animation.current_animation == nullptr) {
+      person.animation.current_animation = &animations.player_run;
     }
 
     // @temporary
     auto active_animation = GetLesserGuardActiveAnimation(tachyon, state, entity);
 
     if (active_animation.immediate) {
-      Animation::StartNextAnimation(skin.animation, active_animation.animation);
+      Animation::StartNextAnimation(person.animation, active_animation.animation);
     } else {
-      Animation::AwaitNextAnimation(skin.animation, active_animation.animation);
+      Animation::AwaitNextAnimation(person.animation, active_animation.animation);
     }
 
-    UpdateAnimation(skin.animation, active_animation.speed, state.dt);
-    SyncSkinnedMesh(body, entity, skin.animation);
+    UpdateAnimation(person.animation, active_animation.speed, state.dt);
+    SyncSkinnedMesh(body, entity, person.animation);
 
     commit(body);
 
@@ -257,28 +256,28 @@ static void HandleNPCAnimations(Tachyon* tachyon, State& state, int32& usage_cou
     if (abs(state.player_position.z - entity.visible_position.z) > 15000.f) continue;
     if (!IsDuringActiveTime(entity, state)) continue;
 
-    auto& skin = state.person_skinned_meshes[usage_counter++];
-    auto& body = skinned_mesh(skin.body_mesh_index);
+    auto& person = state.skinned_people[usage_counter++];
+    auto& body = skinned_mesh(person.body_mesh_index);
 
-    if (skin.animation.current_animation == nullptr) {
-      skin.animation.current_animation = &animations.person_idle;
+    if (person.animation.current_animation == nullptr) {
+      person.animation.current_animation = &animations.person_idle;
     }
 
     float animation_speed;
 
     // @todo improve determinant for current talking npc
     if (state.current_dialogue_set == entity.unique_name) {
-      Animation::SetNextAnimation(skin.animation, &animations.person_talking);
+      Animation::SetNextAnimation(person.animation, &animations.person_talking);
 
       animation_speed = 1.75f;
     } else {
-      Animation::SetNextAnimation(skin.animation, &animations.person_idle);
+      Animation::SetNextAnimation(person.animation, &animations.person_idle);
 
       animation_speed = 0.75f;
     }
 
-    UpdateAnimation(skin.animation, animation_speed, state.dt);
-    SyncSkinnedMesh(body, entity, skin.animation);
+    UpdateAnimation(person.animation, animation_speed, state.dt);
+    SyncSkinnedMesh(body, entity, person.animation);
 
     commit(body);
   }
@@ -292,9 +291,9 @@ void AnimatedEntities::UpdateAnimatedEntities(Tachyon* tachyon, State& state) {
   // Disable all animated entity meshes first. We'll re-enable
   // them on-demand as entities come into view.
   for_range(0, MAX_ANIMATED_PEOPLE - 1) {
-    auto& skin = state.person_skinned_meshes[i];
-    auto& body = skinned_mesh(skin.body_mesh_index);
-    auto& shirt = skinned_mesh(skin.shirt_mesh_index);
+    auto& person = state.skinned_people[i];
+    auto& body = skinned_mesh(person.body_mesh_index);
+    auto& shirt = skinned_mesh(person.shirt_mesh_index);
 
     body.disabled = true;
     shirt.disabled = true;

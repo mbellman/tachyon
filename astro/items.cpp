@@ -14,7 +14,7 @@ static std::map<std::string, ItemType> item_map = {
 
 static std::map<ItemType, std::string> collect_item_text_map = {
   { GATE_KEY, "Grabbed the gate key." },
-  { MAGIC_WAND, "Retrieved the alchemist's wand." },
+  { MAGIC_WAND, "Retrieved the augur's wand." },
   { CHIME_PARTS, "Found a peculiar metal fixture." }
 };
 

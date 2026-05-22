@@ -339,14 +339,14 @@ static void AddSkinnedPersonMeshes(Tachyon* tachyon, State& state) {
   );
 
   for_range(0, MAX_ANIMATED_PEOPLE - 1) {
-    auto& skin = state.person_skinned_meshes[i];
+    auto& person = state.skinned_people[i];
 
-    skin.animation.rest_pose = rest_pose_skeleton;
+    person.animation.rest_pose = rest_pose_skeleton;
 
     // Add meshes
     {
-      skin.body_mesh_index = Tachyon_AddSkinnedMesh(tachyon, body);
-      skin.shirt_mesh_index = Tachyon_AddSkinnedMesh(tachyon, shirt);
+      person.body_mesh_index = Tachyon_AddSkinnedMesh(tachyon, body);
+      person.shirt_mesh_index = Tachyon_AddSkinnedMesh(tachyon, shirt);
     }
   }
 }

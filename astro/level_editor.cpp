@@ -2195,9 +2195,9 @@ void LevelEditor::OpenLevelEditor(Tachyon* tachyon, State& state) {
 
   // Disable all animated entity meshes
   for_range(0, MAX_ANIMATED_PEOPLE - 1) {
-    auto& skin = state.person_skinned_meshes[i];
-    auto& body = skinned_mesh(skin.body_mesh_index);
-    auto& shirt = skinned_mesh(skin.shirt_mesh_index);
+    auto& person = state.skinned_people[i];
+    auto& body = skinned_mesh(person.body_mesh_index);
+    auto& shirt = skinned_mesh(person.shirt_mesh_index);
 
     body.disabled = true;
     shirt.disabled = true;

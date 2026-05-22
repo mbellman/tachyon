@@ -956,11 +956,11 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
     };
 
     for_range(0, MAX_ANIMATED_PEOPLE - 1) {
-      auto& skin = state.person_skinned_meshes[i];
+      auto& person = state.skinned_people[i];
 
       // @todo factor
       for (auto& bone : state.animations.person_idle.frames[0].bones) {
-        skin.animation.active_pose.bones.push_back(bone);
+        person.animation.active_pose.bones.push_back(bone);
       }
     }
   }

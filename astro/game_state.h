@@ -418,7 +418,7 @@ namespace astro {
    * NPC/enemy skinned meshes
    * ----------------------------
    */
-  struct ReservedSkinnedMesh {
+  struct SkinnedPerson {
     int32 body_mesh_index = -1;
     int32 shirt_mesh_index = -1;
     int32 pants_mesh_index = -1;
@@ -534,7 +534,7 @@ namespace astro {
     uint8 player_idle_stance = 1;
 
     tSkinnedMeshAnimation player_mesh_animation;
-    ReservedSkinnedMesh person_skinned_meshes[MAX_ANIMATED_PEOPLE];
+    SkinnedPerson skinned_people[MAX_ANIMATED_PEOPLE];
     int32 total_animated_people = 0;
 
     // Large-scale generated elements
