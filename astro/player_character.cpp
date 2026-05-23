@@ -376,13 +376,18 @@ static float SampleCurve(const std::vector<float>& curve, const float t) {
 }
 
 static void HandleRunOscillation(Tachyon* tachyon, State& state, tVec3f& body_position) {
-  if (
+  if (state.did_jump_off_ledge) {
+    // Reduce run oscillation when jumping off ledges
+    state.run_oscillation -= 5.f * state.dt;
+  }
+  else if (
     is_key_held(tKey::CONTROLLER_A) &&
     state.player_velocity.magnitude() > 500.f
   ) {
     // Pick up run oscillation with speed
     state.run_oscillation += 5.f * state.dt;
-  } else {
+  }
+  else {
     // Reduce run oscillation as we slow down
     state.run_oscillation -= 3.f * state.dt;
   }
@@ -625,6 +630,19 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
       time_since(state.last_auto_hop_time) < AUTO_HOP_DURATION
     ) {
       HandleAutoHop(state);
+    }
+  }
+
+  // Ledge jump actions
+  {
+    if (state.did_jump_off_ledge) {
+      float time_since_jump = time_since(state.last_ledge_jump_time);
+
+      if (time_since_jump < 0.2f) {
+        float alpha = time_since_jump / 0.2f;
+
+        state.player_position.y += 6000.f * state.dt * (1.f - alpha);
+      }
     }
   }
 

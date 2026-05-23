@@ -480,6 +480,7 @@ namespace astro {
     float last_wand_action_time = 0.f;
     float last_wand_bounce_time = 0.f;
     float last_auto_hop_time = 0.f;
+    float last_ledge_jump_time = 0.f;
     float last_death_time = 0.f;
     float last_spawn_time = 0.f;
     float last_dodge_time = 0.f;
@@ -494,6 +495,7 @@ namespace astro {
     bool is_on_wood_surface = false;
     bool is_on_stone_surface = false;
     bool did_resolve_radius_collision = false;
+    bool did_jump_off_ledge = false;
     int32 last_used_wind_chimes_id = -1;
 
     float previous_move_delta = 0.f;

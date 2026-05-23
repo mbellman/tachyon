@@ -697,7 +697,22 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   // Falling behavior
   // @todo factor
   {
-    if (time_since(state.last_auto_hop_time) > 0.3f) {
+    if (
+      state.player_position.y > state.current_ground_y + 1000.f &&
+      !state.did_jump_off_ledge
+    ) {
+      state.did_jump_off_ledge = true;
+      state.last_ledge_jump_time = get_scene_time();
+    }
+
+    if (state.player_position.y == state.current_ground_y) {
+      state.did_jump_off_ledge = false;
+    }
+
+    if (
+      time_since(state.last_auto_hop_time) > 0.3f &&
+      time_since(state.last_ledge_jump_time) > 0.2f
+    ) {
       if (state.player_position.y - state.current_ground_y > 100.f) {
         state.fall_velocity += 50000.f * state.dt;
       }
