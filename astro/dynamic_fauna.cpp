@@ -255,7 +255,7 @@ static void HandleTinyBirdIdling(Tachyon* tachyon, TinyBird& bird) {
     float mood_duration = mood_durations[duration_cycle % 5];
 
     if (time_since(bird.last_jump_time) > mood_duration) {
-      bool jump_forward = Tachyon_GetRandom() < 0.25f;
+      bool jump_forward = Tachyon_GetRandom() < 0.35f;
 
       bird.last_jump_time = get_scene_time();
 
@@ -265,7 +265,8 @@ static void HandleTinyBirdIdling(Tachyon* tachyon, TinyBird& bird) {
         tVec3f forward_direction = bird.rotation.getDirection().invert();
 
         bird.state = TinyBird::JUMP_FORWARD;
-        bird.target_position = bird.position + forward_direction * 1000.f;
+        bird.jump_start_position = bird.position;
+        bird.target_position = bird.position + forward_direction * 750.f;
       } else {
         // Jump in place
         bird.target_position = bird.position;
@@ -310,7 +311,7 @@ static void HandleTinyBirdFlyingDown(TinyBird& bird, const tVec3f& direction, co
 }
 
 static void HandleTinyBirdJumpingForward(Tachyon* tachyon, TinyBird& bird) {
-  float jump_alpha = time_since(bird.last_jump_time) / 0.5f;
+  float jump_alpha = time_since(bird.last_jump_time) / 0.2f;
 
   if (jump_alpha >= 1.f) {
     // Finish jump
@@ -319,12 +320,9 @@ static void HandleTinyBirdJumpingForward(Tachyon* tachyon, TinyBird& bird) {
     jump_alpha = 1.f;
   }
 
-  // @todo improve jump arc
-  float move_alpha = powf(jump_alpha, 4.f);
-
-  bird.position.x = Tachyon_Lerpf(bird.position.x, bird.target_position.x, move_alpha);
-  bird.position.y = bird.target_position.y + 300.f * abs(sinf(jump_alpha * t_TAU));
-  bird.position.z = Tachyon_Lerpf(bird.position.z, bird.target_position.z, move_alpha);
+  bird.position.x = Tachyon_Lerpf(bird.jump_start_position.x, bird.target_position.x, jump_alpha);
+  bird.position.y = bird.target_position.y + 300.f * sinf(jump_alpha * t_PI);
+  bird.position.z = Tachyon_Lerpf(bird.jump_start_position.z, bird.target_position.z, jump_alpha);
 }
 
 static void HandleTinyBirdFlyingAway(TinyBird& bird, const tVec3f& direction, const float dt) {

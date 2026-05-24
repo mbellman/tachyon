@@ -359,6 +359,7 @@ namespace astro {
 
   struct TinyBird {
     tVec3f position;
+    tVec3f jump_start_position;
     tVec3f target_position;
     Quaternion rotation;
 
