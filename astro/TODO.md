@@ -39,7 +39,6 @@ tutorial:
 * magic gate improvements/collision
 
 features/fixes:
-* iron gate collision
 * bird gate collision
 * signpost collision
 * more tiny bird variance

@@ -568,9 +568,9 @@ tObject& Tachyon_CreateObject(Tachyon* tachyon, uint16 mesh_index) {
 
   if (group.total_active >= group.total) {
     // @todo show the mesh name + limit
-    printf("[Tachyon_CreateObject] Fatal Error: Too many objects created for mesh %d\n", mesh_index);
+    printf("[Tachyon_CreateObject] Fatal Error: Too many objects created for mesh %d (max %d)\n", mesh_index, group.total);
 
-    // @todo SDL_ShowSimpleMessageBox(...);
+    throw new std::exception("Error");
 
     exit(0);
   }

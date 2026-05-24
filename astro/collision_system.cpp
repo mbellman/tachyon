@@ -117,11 +117,19 @@ static bool ResolveClippingIntoPlane(State& state, const Plane& plane) {
 
       // Reset position
       state.player_position = state.last_solid_ground_position;
-      // Add rebound to mitigate any accidental clipping in
-      state.player_position += rebound_direction * 0.1f;
-      // Slide along the egde to conserve movement
-      state.player_position += corrected_direction * corrected_speed;
+
+      // If we haven't resolved an earlier plane collision, which
+      // represents a new "source of truth" for position resolution,
+      // push the player out/slide along the edge of this plane
+      if (!state.did_resolve_plane_collision) {
+        // Add rebound to mitigate any accidental clipping in
+        state.player_position += rebound_direction * 0.1f;
+        // Slide along the egde to conserve movement
+        state.player_position += corrected_direction * corrected_speed;
+      }
     }
+
+    state.did_resolve_plane_collision = true;
 
     // Resolved collision
     return true;
@@ -257,7 +265,7 @@ static void HandleSmallStoneBridgeCollisions(Tachyon* tachyon, State& state) {
 
     tMat4f entity_rotation_matrix = entity.orientation.toMatrix4f();
 
-    // Edge collision
+    // Edge/wall collision
     tVec3f edge_1_center = entity.position + entity_rotation_matrix * (tVec3f(0, 0, 0.5f) * entity.scale);
     tVec3f edge_2_center = entity.position + entity_rotation_matrix * (tVec3f(0, 0, -0.5f) * entity.scale);
     tVec3f edge_scale = entity.scale * tVec3f(1.1f, 0, 0.2f);
@@ -311,6 +319,18 @@ static void HandleWoodenBridgeCollisions(Tachyon* tachyon, State& state) {
 
       break;
     }
+  }
+}
+
+static void HandleIronGateCollisions(Tachyon* tachyon, State& state) {
+  for (auto& entity : state.iron_gates) {
+    auto gate_plane = CollisionSystem::CreatePlane(
+      entity.position,
+      entity.scale * tVec3f(1.f, 1.f, 0.35f),
+      entity.orientation
+    );
+
+    ResolveClippingIntoPlane(state, gate_plane);
   }
 }
 
@@ -554,9 +574,10 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   state.is_on_wood_surface = false;
   state.is_on_stone_surface = false;
 
-  // If we later resolve a radius collision, this is useful
-  // to know in the context of resolving plane collisions
+  // If we later resolve radius/plane collisions, this is useful
+  // to know in the context of resolving other kinds of collisions
   state.did_resolve_radius_collision = false;
+  state.did_resolve_plane_collision = false;
 
   for (auto& entity : state.shrubs) {
     if (entity.visible_scale.y < 500.f) continue;
@@ -672,6 +693,7 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   HandleGateCollisions(tachyon, state);
   HandleWoodenFenceCollisions(tachyon, state);
   HandleHouseCollisions(tachyon, state);
+  HandleIronGateCollisions(tachyon, state);
 
   // Resolve collisions with irregularly-shaped entities
   HandleSmallStoneBridgeCollisions(tachyon, state);

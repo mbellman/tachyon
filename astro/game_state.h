@@ -496,6 +496,7 @@ namespace astro {
     bool is_on_wood_surface = false;
     bool is_on_stone_surface = false;
     bool did_resolve_radius_collision = false;
+    bool did_resolve_plane_collision = false;
     bool did_jump_off_ledge = false;
     int32 last_used_wind_chimes_id = -1;
 
