@@ -43,7 +43,6 @@ features/fixes:
 * bird gate collision
 * signpost collision
 * more tiny bird variance
-* tiny birds hopping forward
 * stone walking sounds
 * light pillars sound when using normal wand raising
 * ladders

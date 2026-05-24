@@ -230,6 +230,8 @@ static void HandleTinyBirdSpawningBehavior(Tachyon* tachyon, State& state, const
       (proximity.distance < 10000.f && player_speed < 200.f)
     ) {
       SpawnTinyBird(tachyon, state, entity);
+
+      break;
     }
   }
 }
@@ -253,17 +255,30 @@ static void HandleTinyBirdIdling(Tachyon* tachyon, TinyBird& bird) {
     float mood_duration = mood_durations[duration_cycle % 5];
 
     if (time_since(bird.last_jump_time) > mood_duration) {
+      bool jump_forward = Tachyon_GetRandom() < 0.25f;
+
       bird.last_jump_time = get_scene_time();
-      bird.target_position = bird.position;
+
+      if (jump_forward) {
+        // Forward hop
+        // @todo fix inversion hack
+        tVec3f forward_direction = bird.rotation.getDirection().invert();
+
+        bird.state = TinyBird::JUMP_FORWARD;
+        bird.target_position = bird.position + forward_direction * 1000.f;
+      } else {
+        // Jump in place
+        bird.target_position = bird.position;
+      }
     }
   }
 
   // Turning behavior; do a little jump and turn smoothly to a new angle
   {
-    float time_since_turn = time_since(bird.last_jump_time);
+    float time_since_jump = time_since(bird.last_jump_time);
 
-    if (bird.last_jump_time != 0.f && time_since_turn < 0.2f) {
-      float alpha = time_since_turn / 0.2f;
+    if (bird.last_jump_time != 0.f && time_since_jump < 0.2f) {
+      float alpha = time_since_jump / 0.2f;
 
       bird.position.y = bird.target_position.y + 250.f * sinf(alpha * t_PI);
 
@@ -292,6 +307,24 @@ static void HandleTinyBirdFlyingDown(TinyBird& bird, const tVec3f& direction, co
     bird.position = bird.target_position;
     bird.state = TinyBird::IDLING;
   }
+}
+
+static void HandleTinyBirdJumpingForward(Tachyon* tachyon, TinyBird& bird) {
+  float jump_alpha = time_since(bird.last_jump_time) / 0.5f;
+
+  if (jump_alpha >= 1.f) {
+    // Finish jump
+    bird.state = TinyBird::IDLING;
+
+    jump_alpha = 1.f;
+  }
+
+  // @todo improve jump arc
+  float move_alpha = powf(jump_alpha, 4.f);
+
+  bird.position.x = Tachyon_Lerpf(bird.position.x, bird.target_position.x, move_alpha);
+  bird.position.y = bird.target_position.y + 300.f * abs(sinf(jump_alpha * t_TAU));
+  bird.position.z = Tachyon_Lerpf(bird.position.z, bird.target_position.z, move_alpha);
 }
 
 static void HandleTinyBirdFlyingAway(TinyBird& bird, const tVec3f& direction, const float dt) {
@@ -333,6 +366,10 @@ static void HandleTinyBird(Tachyon* tachyon, State& state, TinyBird& bird, const
   {
     if (bird.state == TinyBird::IDLING) {
       HandleTinyBirdIdling(tachyon, bird);
+    }
+
+    else if (bird.state == TinyBird::JUMP_FORWARD) {
+      HandleTinyBirdJumpingForward(tachyon, bird);
     }
 
     else if (bird.state == TinyBird::FLY_DOWN) {
@@ -484,7 +521,7 @@ static void HandleTinyBirds(Tachyon* tachyon, State& state) {
 
 /**
  * ----------
- * Tiny birds
+ * Ducks
  * ----------
  */
 static tVec3f GetNewDuckTargetPosition(State& state, Duck& duck) {
