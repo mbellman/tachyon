@@ -36,6 +36,19 @@ namespace astro {
         volume.radius = 30000.f; // @todo make configurable
         volume.thickness = entity.scale.x / 1500.f;
 
+        if (!state.is_level_editor_open) {
+          // Allow fog to "fade in" from its astro start time,
+          // as well as "fade out" when we travel back prior
+          // to its start time
+          float astro_time_thickness_factor = Tachyon_InverseLerp(
+            entity.astro_start_time,
+            entity.astro_start_time + 30.f,
+            state.astro_time
+          );
+
+          volume.thickness *= astro_time_thickness_factor;
+        }
+
         if (state.is_nighttime) {
           volume.color = tVec3f(0.2f, 0.3f, 0.7f);
         } else {
