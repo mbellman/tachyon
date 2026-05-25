@@ -45,13 +45,26 @@ namespace astro {
         // @todo fade out inactive sunbeams
         if (!IsDuringActiveTime(entity, state)) continue;
 
-        auto& sunbeam = use_instance(meshes.sunbeam);
+        // Sunbeam
+        {
+          float start_time = entity.astro_start_time;
+          float end_time = entity.astro_end_time;
 
-        Sync(sunbeam, entity);
+          // Fade the sunbeam in and out as we approach its start/end times
+          float intensity = (
+            Tachyon_InverseLerp(start_time, start_time + 20.f, state.astro_time) *
+            (1.f - Tachyon_InverseLerp(end_time - 20.f, end_time, state.astro_time))
+          );
 
-        sunbeam.rotation = Quaternion::fromAxisAngle(rotation_axis, rotation_angle);
+          auto& sunbeam = use_instance(meshes.sunbeam);
 
-        commit(sunbeam);
+          Sync(sunbeam, entity);
+
+          sunbeam.color = tVec4f(1.f, 0.7f, 0.2f, intensity);
+          sunbeam.rotation = Quaternion::fromAxisAngle(rotation_axis, rotation_angle);
+
+          commit(sunbeam);
+        }
       }
     }
   }

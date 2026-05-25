@@ -32,7 +32,6 @@ entities:
 * cattails
 
 tutorial:
-* sunbeam fading
 * tutorial-only fog entities
 * crows near second wind chime
 * magic gate improvements/collision

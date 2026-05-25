@@ -26,8 +26,8 @@ vec4 UnpackColor(uvec4 surface) {
 }
 
 void main() {
-  // @todo base on the object color
-  vec3 sunbeam_color = vec3(1.0, 0.7, 0.2);
+  vec4 sunbeam_color = UnpackColor(fragSurface);
+  float intensity = sunbeam_color.w;
 
   vec3 camera_to_fragment = fragPosition - camera_position;
   float camera_distance = length(camera_to_fragment);
@@ -59,8 +59,9 @@ void main() {
     distance_falloff *
     oscillation *
     vertical_phase *
-    horizontal_phase
+    horizontal_phase *
+    intensity
   );
 
-  out_color = mix(vec3(0), sunbeam_color, alpha);
+  out_color = mix(vec3(0), sunbeam_color.rgb, alpha);
 }

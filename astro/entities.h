@@ -929,7 +929,7 @@ namespace astro {
     { SUNBEAM, {
       .name = "Sunbeam",
       .scale = tVec3f(3000.f, 8000.f, 3000.f),
-      .tint = tVec3f(1.f)
+      .tint = tVec3f(1.f, 0.7f, 0.2f)
     } },
 
     { TALL_GRASS, {

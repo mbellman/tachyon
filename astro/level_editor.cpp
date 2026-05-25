@@ -925,7 +925,10 @@ static void HandleEntityPropertiesEditor(Tachyon* tachyon, State& state) {
 
         live_placeholder.color = entity->tint;
 
-        if (editor.current_selectable.entity_record.type == MOOD_LIGHT) {
+        if (
+          editor.current_selectable.entity_record.type == MOOD_LIGHT ||
+          editor.current_selectable.entity_record.type == SUNBEAM
+        ) {
           live_placeholder.color.rgba |= 0x000F;
         }
       }
@@ -1008,7 +1011,10 @@ static void MakeSelection(Tachyon* tachyon, State& state, Selectable& selectable
 
   // @hack
   if (selectable.is_entity) {
-    if (selectable.entity_record.type == MOOD_LIGHT) {
+    if (
+      selectable.entity_record.type == MOOD_LIGHT ||
+      selectable.entity_record.type == SUNBEAM
+    ) {
       placeholder.color.rgba |= 0x000F;
     }
   }
@@ -1124,6 +1130,11 @@ static void SyncEntityPlaceholder(tObject& placeholder, const GameEntity& entity
   placeholder.scale = entity.scale;
   placeholder.rotation = entity.orientation;
   placeholder.color = entity.tint;
+
+  // @hack
+  if (entity.type == SUNBEAM) {
+    placeholder.color = tVec4f(1.f, 0.7f, 0.2f, 1.f);
+  }
 }
 
 /**
@@ -1159,7 +1170,7 @@ static void SpawnEntityPlaceholder(Tachyon* tachyon, State& state, GameEntity& e
   TrackSelectableEntity(entity, placeholder);
 
   // @temporary
-  // @todo allow
+  // @todo allow custom entity placeholder modifiers
   if (entity.type == MOOD_LIGHT) {
     placeholder.color.rgba |= 0x000F;
     placeholder.material = tVec4f(1.f, 0, 0, 1.f);
