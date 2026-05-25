@@ -334,6 +334,43 @@ static void HandleIronGateCollisions(Tachyon* tachyon, State& state) {
   }
 }
 
+static void HandleBirdGateCollisions(Tachyon* tachyon, State& state) {
+  for (auto& entity : state.bird_gates) {
+    bool is_open = entity.did_activate;
+
+    if (is_open) {
+      tVec3f left_door_position = UnitEntityToWorldPosition(entity, tVec3f(0.7f, 0.f, -0.35f));
+      tVec3f right_door_position = UnitEntityToWorldPosition(entity, tVec3f(0.7f, 0.f, 0.35f));
+
+      Quaternion left_door_rotation = entity.orientation * Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 1.2f);
+      Quaternion right_door_rotation = entity.orientation * Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -1.2f);
+
+      auto left_door_plane = CollisionSystem::CreatePlane(
+        left_door_position,
+        entity.scale * tVec3f(0.2f, 1.f, 0.5f),
+        left_door_rotation
+      );
+
+      auto right_door_plane = CollisionSystem::CreatePlane(
+        right_door_position,
+        entity.scale * tVec3f(0.2f, 1.f, 0.5f),
+        right_door_rotation
+      );
+
+      ResolveClippingIntoPlane(state, left_door_plane);
+      ResolveClippingIntoPlane(state, right_door_plane);
+    } else {
+      auto gate_plane = CollisionSystem::CreatePlane(
+        entity.position,
+        entity.scale * tVec3f(0.2f, 1.f, 1.f),
+        entity.orientation
+      );
+
+      ResolveClippingIntoPlane(state, gate_plane);
+    }
+  }
+}
+
 static void HandleCastleTowerCollisions(Tachyon* tachyon, State& state) {
   float player_body_y = state.player_position.y + PLAYER_HEIGHT;
 
@@ -694,6 +731,7 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   HandleWoodenFenceCollisions(tachyon, state);
   HandleHouseCollisions(tachyon, state);
   HandleIronGateCollisions(tachyon, state);
+  HandleBirdGateCollisions(tachyon, state);
 
   // Resolve collisions with irregularly-shaped entities
   HandleSmallStoneBridgeCollisions(tachyon, state);

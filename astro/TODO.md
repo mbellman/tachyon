@@ -39,7 +39,6 @@ tutorial:
 * magic gate improvements/collision
 
 features/fixes:
-* bird gate collision
 * signpost collision
 * more tiny bird variance
 * stone walking sounds
