@@ -128,6 +128,10 @@ static void CreateConstantObjects(Tachyon* tachyon, State& state) {
     for (uint16 i = 0; i < 100; i++) {
       create(meshes.debug_skeleton_bone);
     }
+
+    for_range(1, 100) {
+      create(meshes.debug_collision_point);
+    }
   }
 }
 

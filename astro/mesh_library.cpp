@@ -380,7 +380,8 @@ static void AddEditorMeshes(Tachyon* tachyon, State& state) {
 static void AddDebugMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
-  meshes.debug_skeleton_bone = CUBE_MESH(1000);
+  meshes.debug_skeleton_bone = CUBE_MESH(100);
+  meshes.debug_collision_point = CUBE_MESH(100);
 }
 
 void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {

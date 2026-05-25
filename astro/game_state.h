@@ -48,6 +48,9 @@ namespace astro {
       // Animation bone debugging
       debug_skeleton_bone,
 
+      // Collision debugging
+      debug_collision_point,
+
       // Static environment meshes
       water_plane,
       snow_particle,

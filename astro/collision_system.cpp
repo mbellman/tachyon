@@ -10,6 +10,36 @@ using namespace astro;
 constexpr static float PLAYER_RADIUS = 600.f;
 constexpr static float PLAYER_HEIGHT = 1500.f;
 
+// @todo improve this to show a collision volume
+static void ShowDebugPlane(Tachyon* tachyon, State& state, const Plane& plane) {
+  auto& meshes = state.meshes;
+
+  auto& p1 = use_instance(meshes.debug_collision_point);
+  auto& p2 = use_instance(meshes.debug_collision_point);
+  auto& p3 = use_instance(meshes.debug_collision_point);
+  auto& p4 = use_instance(meshes.debug_collision_point);
+
+  p1.position = plane.p1;
+  p2.position = plane.p2;
+  p3.position = plane.p3;
+  p4.position = plane.p4;
+
+  p1.scale = tVec3f(50.f, 3000.f, 50.f);
+  p2.scale = tVec3f(50.f, 3000.f, 50.f);
+  p3.scale = tVec3f(50.f, 3000.f, 50.f);
+  p4.scale = tVec3f(50.f, 3000.f, 50.f);
+
+  p1.color = tVec3f(0, 0, 1.f);
+  p2.color = tVec3f(0, 0, 1.f);
+  p3.color = tVec3f(0, 0, 1.f);
+  p4.color = tVec3f(0, 0, 1.f);
+
+  commit(p1);
+  commit(p2);
+  commit(p3);
+  commit(p4);
+}
+
 static inline bool IsPointInsideEdge(const tVec3f& point, const tVec3f& e1, const tVec3f& e2) {
   return (
     (e2.x - e1.x) * (point.z - e1.z) -
@@ -603,6 +633,11 @@ float CollisionSystem::QueryGroundHeight(State& state, const float x, const floa
 
 void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   profile("HandleCollisions()");
+
+  // @todo dev mode only
+  {
+    reset_instances(state.meshes.debug_collision_point);
+  }
 
   // Assume these conditions are false unless otherwise determined
   state.is_on_solid_ground = false;
