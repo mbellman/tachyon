@@ -7,6 +7,11 @@ and the (80)
 _____ (156 + 140)
 
 art:
+* stone paths
+* low guard armor
+* lesser guard armor completion
+* npc clothes/hair etc.
+* bellflowers
 * wooden bridge
 * water wheel
 * gates (round 2)
@@ -41,6 +46,7 @@ features/fixes:
 * stone walking sounds
 * light pillars sound when using normal wand raising
 * ladders
+* health bar + potions
 * guidance (small stone bridges, slopes)
 * reset ducks with R
 * don't UpdateTreeFlowers() if we're far back enough in time
@@ -62,7 +68,6 @@ features/fixes:
 * post-event dialogue
 * yes/no dialogue
 * being parried (? - later enemies)
-* health bar + potions
 * enemies walk over dead/passed out enemies
 * climbable vines
 * 3d sounds
