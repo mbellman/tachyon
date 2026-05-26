@@ -203,6 +203,8 @@ static void HandleLowGuardAnimations(Tachyon* tachyon, State& state, int32& usag
   auto& meshes = state.meshes;
   auto& animations = state.animations;
 
+  reset_instances(meshes.low_helmet);
+
   if (state.enemies_disabled) {
     return;
   }
@@ -215,7 +217,7 @@ static void HandleLowGuardAnimations(Tachyon* tachyon, State& state, int32& usag
     if (!IsDuringActiveTime(entity, state)) continue;
 
     auto& person = state.skinned_people[usage_counter++];
-    auto& body = skinned_mesh(person.body_mesh_index);
+    auto& mail = skinned_mesh(person.shirt_mesh_index);
 
     if (person.animation.current_animation == nullptr) {
       person.animation.current_animation = &animations.player_run;
@@ -231,12 +233,27 @@ static void HandleLowGuardAnimations(Tachyon* tachyon, State& state, int32& usag
     }
 
     UpdateAnimation(person.animation, active_animation.speed, state.dt);
-    SyncSkinnedMesh(body, entity, person.animation);
+    SyncSkinnedMesh(mail, entity, person.animation);
 
-    commit(body);
+    mail.color = tVec3f(0.7f);
+    mail.material = tVec4f(0.5f, 1.f, 0, 0.4f);
 
-    // Armor parts
-    // @todo
+    tVec3f body_position = entity.visible_position;
+    Quaternion body_rotation = entity.visible_rotation;
+
+    commit(mail);
+
+    // Helmet
+    {
+      auto& helmet = use_instance(meshes.low_helmet);
+
+      helmet.color = tVec3f(0.7f);
+      helmet.material = tVec4f(0.3f, 1.f, 0, 0.2f);
+
+      AttachToHead(helmet, person, body_position, body_rotation);
+
+      commit(helmet);
+    }
   }
 }
 

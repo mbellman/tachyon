@@ -357,8 +357,12 @@ static void AddClothingAndArmorMeshes(Tachyon* tachyon, State& state) {
   meshes.lesser_helmet = MODEL_MESH("./astro/3d_models/clothing_and_armor/lesser_helmet.obj", 10);
   meshes.lesser_vambrace = MODEL_MESH("./astro/3d_models/clothing_and_armor/lesser_vambrace.obj", 20);
 
+  meshes.low_helmet = MODEL_MESH("./astro/3d_models/clothing_and_armor/low_helmet.obj", 10);
+
   mesh(meshes.lesser_helmet).shadow_cascade_ceiling = 2;
   mesh(meshes.lesser_vambrace).shadow_cascade_ceiling = 2;
+
+  mesh(meshes.low_helmet).shadow_cascade_ceiling = 2;
 }
 
 static void AddEditorMeshes(Tachyon* tachyon, State& state) {

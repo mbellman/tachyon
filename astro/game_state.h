@@ -75,6 +75,7 @@ namespace astro {
       // Clothing + Armor meshes
       lesser_helmet,
       lesser_vambrace,
+      low_helmet,
 
       // Procedural meshes
       grass, // @todo rename ground_1_grass
@@ -675,5 +676,6 @@ namespace astro {
     bool show_game_stats = false;
     bool use_slow_motion = false;
     bool enemies_disabled = false;
+    bool is_rebuilding_procedural_objects = false;
   };
 }
