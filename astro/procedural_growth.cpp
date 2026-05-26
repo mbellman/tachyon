@@ -208,9 +208,9 @@ static void UpdateTreeFlowers(Tachyon* tachyon, State& state) {
 
   // Varying scales
   const static float scales[] = {
-    400.f,
+    320.f,
     200.f,
-    275.f
+    250.f
   };
 
   // Varying growth start times

@@ -28,8 +28,20 @@ namespace astro {
       for_entities(state.fog_spawns) {
         auto& entity = state.fog_spawns[i];
 
+        // Culling (only when the level editor is not open,
+        // as we want to be able to see all fog spawn volumes
+        // in the editor)
         // @todo check for editor in dev mode only
-        if (!state.is_level_editor_open && !IsDuringActiveTime(entity, state)) continue;
+        if (!state.is_level_editor_open) {
+          if (!IsDuringActiveTime(entity, state)) continue;
+
+          if (
+            entity.unique_name.starts_with("tutorial") &&
+            state.current_location != Location::TUTORIAL
+          ) {
+            continue;
+          }
+        }
 
         tFogVolume volume;
         volume.position = entity.position;
