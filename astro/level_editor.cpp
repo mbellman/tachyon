@@ -1065,6 +1065,7 @@ static void DeselectCurrent(Tachyon* tachyon, State& state) {
     tachyon->hotkeys_enabled = true;
   }
 
+  // @todo factor
   if (
     placeholder.mesh_index == meshes.flat_ground ||
     placeholder.mesh_index == meshes.ground_1 ||
@@ -1709,9 +1710,26 @@ static void RemoveLastObject(Tachyon* tachyon, uint16 mesh_index) {
  * ----------------------------
  */
 static void DeleteSelected(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
   auto& selected = editor.current_selectable;
 
   remove_object(selected.placeholder);
+
+  // @todo factor
+  if (
+    selected.placeholder.mesh_index == meshes.flat_ground ||
+    selected.placeholder.mesh_index == meshes.ground_1 ||
+    selected.placeholder.mesh_index == meshes.dirt_path_node_placeholder ||
+    selected.placeholder.mesh_index == meshes.stone_path_node_placeholder ||
+    selected.placeholder.mesh_index == meshes.altar_placeholder ||
+    selected.placeholder.mesh_index == meshes.wind_chimes_placeholder
+  ) {
+    // After manipulating ground or path-related objects,
+    // or any objects which affect procedural ground foliage,
+    // ensure that we do a full procedural rebuild upon
+    // closing the editor.
+    editor.should_rebuild_all_procedural_objects = true;
+  }
 
   if (selected.is_entity) {
     ForgetSelectableEntity(selected.entity_record.id);
@@ -2332,6 +2350,8 @@ void LevelEditor::CloseLevelEditor(Tachyon* tachyon, State& state) {
   CollisionSystem::RebuildFlatGroundPlanes(tachyon, state);
 
   if (editor.should_rebuild_all_procedural_objects) {
+    state.is_rebuilding_procedural_objects = true;
+
     // Offload the procedural rebuild work to another thread
     std::thread builder_thread([tachyon, &state]() {
       ProceduralBehavior::Generation::RebuildAllProceduralObjects(tachyon, state);

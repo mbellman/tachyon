@@ -377,7 +377,7 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
   auto altar_planes = GetEntityPlanes(state.altars, tVec3f(1.9f, 1.f, 0.6f));
   auto wind_chime_planes = GetEntityPlanes(state.wind_chimes, tVec3f(0.8f, 1.f, 1.4f));
 
-  // Reset objects/chunks/etc.
+  // Reset grass objects/chunks etc.
   {
     remove_all(meshes.small_grass);
 
@@ -552,30 +552,6 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
 
 static void UpdateSmallGrassObjectByTime(tObject& grass, float astro_time) {
   const static float growth_rate = 0.7f;
-
-  // // @todo past
-  // const static tColor colors[] = {
-  //   tVec4f(0.2f, 0.5f, 0.1f, 0.2f),
-  //   tVec4f(0.3f, 0.6f, 0.1f, 0.2f),
-  //   tVec4f(0.2f, 0.4f, 0.1f, 0.2f),
-  //   tVec4f(0.1f, 0.4f, 0.1f, 0.2f)
-  // };
-
-  // // @todo present
-  // // const static tColor colors[] = {
-  // //   tVec4f(0.1f, 0.4f, 0.1f, 0.1f),
-  // //   tVec4f(0.2f, 0.5f, 0.1f, 0.1f),
-  // //   tVec4f(0.1f, 0.3f, 0.1f, 0.1f),
-  // //   tVec4f(0.2f, 0.4f, 0.1f, 0.1f)
-  // // };
-
-  // // Autumn-ish?
-  // // const static tColor colors[] = {
-  // //   tVec4f(0.5f, 0.3f, 0.1f, 0.1f),
-  // //   tVec4f(0.6f, 0.4f, 0.1f, 0.1f),
-  // //   tVec4f(0.4f, 0.3f, 0.1f, 0.1f),
-  // //   tVec4f(0.5f, 0.4f, 0.1f, 0.1f)
-  // // };
 
   float x = grass.position.x;
   float z = grass.position.z;
@@ -1266,6 +1242,8 @@ static void GenerateStonePaths(Tachyon* tachyon, State& state) {
     create(meshes.path_stone);
   }
 
+  reset_instances(meshes.path_stone);
+
   // Generate path segment objects
   remove_all(meshes.stone_path);
 
@@ -1371,7 +1349,7 @@ static void UpdateStonePaths(Tachyon* tachyon, State& state) {
       path.scale = tVec3f(0.f);
     }
 
-    // Generate path stones
+    // Show path stones
     // @todo make stones gradually appear/disappear with time
     // @todo weathering and aging with time
     {
@@ -1419,17 +1397,21 @@ void ProceduralBehavior::Generation::RebuildSimpleProceduralObjects(Tachyon* tac
 }
 
 void ProceduralBehavior::Generation::RebuildAllProceduralObjects(Tachyon* tachyon, State& state) {
-  // @todo clear grass to avoid crashes during update while we rebuild paths
-
   RebuildSimpleProceduralObjects(tachyon, state);
 
   GenerateGround1Plants(tachyon, state);
   GenerateSmallGrass(tachyon, state);
   GenerateGroundFlowers(tachyon, state);
+
+  state.is_rebuilding_procedural_objects = false;
 }
 
 void ProceduralBehavior::Generation::UpdateProceduralObjects(Tachyon* tachyon, State& state) {
   profile("UpdateProceduralObjects()");
+
+  if (state.is_rebuilding_procedural_objects) {
+    return;
+  }
 
   UpdateDirtPaths(tachyon, state);
   UpdateStonePaths(tachyon, state);
