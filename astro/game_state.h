@@ -435,6 +435,7 @@ namespace astro {
    * ----------------------------
    */
   enum Location {
+    LOCATION_UNSPECIFIED = -1,
     TUTORIAL,
     DIVINATION_WOODREALM,
     DIVINATION_RIVERWAY,
@@ -515,6 +516,7 @@ namespace astro {
 
     // Location
     Location current_location = Location::TUTORIAL;
+    Location last_wind_chimes_location = Location::TUTORIAL;
     float last_area_change_time = 0.f;
 
     // Sub-stories

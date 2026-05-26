@@ -5,7 +5,7 @@
 
 namespace astro {
   behavior WindChimes {
-    static void Activate(Tachyon* tachyon, State& state, GameEntity& entity) {
+    static void ActivateWindChimes(Tachyon* tachyon, State& state, GameEntity& entity) {
       float scene_time = get_scene_time();
 
       entity.did_activate = true;
@@ -14,6 +14,7 @@ namespace astro {
       state.astro_particle_spawn_position = entity.position;
       state.last_wind_chimes_action_time = scene_time;
       state.last_used_wind_chimes_id = entity.id;
+      state.last_wind_chimes_location = state.current_location;
 
       // @temporary
       // @todo have different wind chimes for different time ranges
@@ -39,16 +40,16 @@ namespace astro {
       }
     }
 
-    static void StartActivating(Tachyon* tachyon, State& state, GameEntity& entity) {
+    static void StartActivatingWindChimes(Tachyon* tachyon, State& state, GameEntity& entity) {
       entity.accumulation_value += state.dt;
 
       // @todo tune this + play a lead-in sound effect
       if (entity.accumulation_value > 0.5f) {
-        Activate(tachyon, state, entity);
+        ActivateWindChimes(tachyon, state, entity);
       }
     }
 
-    static void HandleActivationBehavior(Tachyon* tachyon, State& state, GameEntity& entity) {
+    static void HandleHoldingWand(Tachyon* tachyon, State& state, GameEntity& entity) {
       // Allow us to start activating the wind chimes if:
       if (
         // We're not astro traveling
@@ -58,7 +59,7 @@ namespace astro {
         // The entity has not activated yet, or it has been long enough since last time
         (entity.game_activation_time == -1.f || time_since(entity.game_activation_time) > 5.f)
       ) {
-        StartActivating(tachyon, state, entity);
+        StartActivatingWindChimes(tachyon, state, entity);
       } else {
         // Not currently activating! Run the accumulation value back down.
         entity.accumulation_value -= state.dt;
@@ -136,7 +137,7 @@ namespace astro {
               TriggerWandSense(state);
 
               if (state.is_holding_up_wand && player_speed < 500.f) {
-                HandleActivationBehavior(tachyon, state, entity);
+                HandleHoldingWand(tachyon, state, entity);
               }
             }
           }

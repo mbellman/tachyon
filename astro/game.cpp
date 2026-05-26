@@ -705,6 +705,7 @@ static void RespawnPlayer(Tachyon* tachyon, State& state) {
   state.player_velocity = tVec3f(0.f);
   state.player_hp = 100.f;
   state.last_spawn_time = get_scene_time();
+  state.current_location = state.last_wind_chimes_location;
 
   // Reset previous player positions tracking
   state.previous_player_positions.clear();
