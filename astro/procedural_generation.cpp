@@ -414,7 +414,6 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
     }
   }
 
-  // Add blades to each chunk in parallel
   for_range(0, int(state.grass_chunks.size() - 1)) {
     auto& chunk = state.grass_chunks[i];
 
@@ -1289,8 +1288,7 @@ static void UpdateStonePaths(Tachyon* tachyon, State& state) {
   const tVec3f solid_ground_color = tVec3f(0.3f, 0.5f, 0.1f);
   tVec3f path_color = tVec3f(0.2f, 0.3f, 0.2f);
 
-  // @todo reset_instances() + use_instance()
-  uint16 total_path_stones = 0;
+  reset_instances(meshes.path_stone);
 
   Quaternion rotations[] = {
     Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 0.f),
@@ -1383,14 +1381,12 @@ static void UpdateStonePaths(Tachyon* tachyon, State& state) {
 
         uint16 stones_per_segment = uint16(7.f * construction_alpha);
 
-        uint16 start = total_path_stones;
-        uint16 end = total_path_stones + stones_per_segment;
         int step = 0;
 
         tMat4f rotation_matrix = path.rotation.toMatrix4f();
 
-        for (uint16 i = start; i < end; i++) {
-          auto& stone = objects(meshes.path_stone)[i];
+        for (uint16 i = 0; i < stones_per_segment; i++) {
+          auto& stone = use_instance(meshes.path_stone);
           // int iteration = int(abs(path.position.x + path.position.z) + step++);
           int y_iteration = int(abs(2.f * path.position.x + path.position.z));
           int rotation_iteration = int(abs(path.position.x + 2.f * path.position.z));
@@ -1404,8 +1400,6 @@ static void UpdateStonePaths(Tachyon* tachyon, State& state) {
 
           commit(stone);
         }
-
-        total_path_stones = end;
       }
     }
 
@@ -1413,8 +1407,6 @@ static void UpdateStonePaths(Tachyon* tachyon, State& state) {
 
     commit(path);
   }
-
-  mesh(meshes.path_stone).lod_1.instance_count = total_path_stones;
 }
 
 /* ---------------------------- */
@@ -1427,6 +1419,8 @@ void ProceduralBehavior::Generation::RebuildSimpleProceduralObjects(Tachyon* tac
 }
 
 void ProceduralBehavior::Generation::RebuildAllProceduralObjects(Tachyon* tachyon, State& state) {
+  // @todo clear grass to avoid crashes during update while we rebuild paths
+
   RebuildSimpleProceduralObjects(tachyon, state);
 
   GenerateGround1Plants(tachyon, state);

@@ -27,11 +27,10 @@
 int main(int argc, char* argv[]) {
   auto* tachyon = Tachyon_Init();
 
-  Tachyon_SpawnWindow(tachyon, "Birdy Adventure", 1536, 850);
-
   astro::State state;
   astro::InitGame(tachyon, state);
 
+  Tachyon_SpawnWindow(tachyon, "Birdy Adventure", 1536, 850);
   Tachyon_UseRenderBackend(tachyon, TachyonRenderBackend::OPENGL);
 
   Tachyon_RunMainLoop({

@@ -28,6 +28,7 @@ namespace astro {
       for (auto& entity : state.signposts) {
         if (abs(state.player_position.x - entity.position.x) > 25000.f) continue;
         if (abs(state.player_position.z - entity.position.z) > 25000.f) continue;
+        if (!IsDuringActiveTime(entity, state)) continue;
 
         auto proximity = GetEntityProximity(entity, state);
 
