@@ -553,7 +553,7 @@ export default [
       "sunbeam"
     ],
     scale: [ 3000.0, 8000.0, 3000.0 ],
-    color: [ 1.0 ]
+    color: [ 1.0, 0.7, 0.2 ]
   },
 
   {
@@ -684,5 +684,15 @@ export default [
     ],
     scale: [ 1000.0 ],
     color: [ 0.1, 0.2, 1.0 ]
+  },
+
+  {
+    type: "CAMERA_CONTROLLER",
+    list: "camera_controllers",
+    meshes: [
+      "camera_controller_placeholder"
+    ],
+    scale: [ 1000.0 ],
+    color: [ 0.2 ]
   }
 ];

@@ -1,0 +1,11 @@
+@trail_camera
+
+@village_outskirts_camera
+
+@village_camera
+
+@village_south_camera
+
+@astral_wood_camera
+
+@old_wood_camera
