@@ -108,6 +108,7 @@ static void CreateConstantObjects(Tachyon* tachyon, State& state) {
 
     for_range(1, 20) {
       create(meshes.lesser_vambrace);
+      create(meshes.shoulder_plate);
     }
   }
 

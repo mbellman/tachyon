@@ -47,8 +47,36 @@ static void AttachToHead(tObject& object, SkinnedPerson& person, const tVec3f& b
   object.scale = scale;
 }
 
+static void AttachToRightShoulder(tObject& object, SkinnedPerson& person, const tVec3f& body_position, const Quaternion& body_rotation) {
+  auto& bone = person.animation.active_pose.bones[7];
+  tVec3f scale = tVec3f(1500.f);
+
+  tVec3f offset;
+  offset += bone.translation * scale;
+
+  // @hack rotate the object back to the right-side-up position,
+  // above the shoulder bone
+  Quaternion orientation_flip = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_PI);
+
+  object.position = body_position + body_rotation.toMatrix4f() * offset;
+  object.rotation = body_rotation * bone.rotation * orientation_flip;
+  object.scale = scale;
+}
+
 static void AttachToRightArm(tObject& object, SkinnedPerson& person, const tVec3f& body_position, const Quaternion& body_rotation) {
   auto& bone = person.animation.active_pose.bones[5];
+  tVec3f scale = tVec3f(1500.f);
+
+  tVec3f offset;
+  offset += bone.translation * scale;
+
+  object.position = body_position + body_rotation.toMatrix4f() * offset;
+  object.rotation = body_rotation * bone.rotation;
+  object.scale = scale;
+}
+
+static void AttachToLeftShoulder(tObject& object, SkinnedPerson& person, const tVec3f& body_position, const Quaternion& body_rotation) {
+  auto& bone = person.animation.active_pose.bones[4];
   tVec3f scale = tVec3f(1500.f);
 
   tVec3f offset;
@@ -116,9 +144,6 @@ static AnimationParams GetLesserGuardAnimationParams(Tachyon* tachyon, State& st
 static void HandleAnimatedLesserGuards(Tachyon* tachyon, State& state, int32& usage_counter) {
   auto& meshes = state.meshes;
   auto& animations = state.animations;
-
-  reset_instances(meshes.lesser_helmet);
-  reset_instances(meshes.lesser_vambrace);
 
   if (state.enemies_disabled) {
     return;
@@ -213,8 +238,6 @@ static void HandleAnimatedLowGuards(Tachyon* tachyon, State& state, int32& usage
   auto& meshes = state.meshes;
   auto& animations = state.animations;
 
-  reset_instances(meshes.low_helmet);
-
   if (state.enemies_disabled) {
     return;
   }
@@ -257,6 +280,24 @@ static void HandleAnimatedLowGuards(Tachyon* tachyon, State& state, int32& usage
       AttachToHead(helmet, person, body_position, body_rotation);
 
       commit(helmet);
+    }
+
+    // Shoulder plates
+    {
+      auto& left_plate = use_instance(meshes.shoulder_plate);
+      auto& right_plate = use_instance(meshes.shoulder_plate);
+
+      left_plate.color = tVec3f(1.f);
+      left_plate.material = tVec4f(0.3f, 1.f, 0, 0.2f);
+
+      right_plate.color = tVec3f(1.f);
+      right_plate.material = tVec4f(0.3f, 1.f, 0, 0.2f);
+
+      AttachToLeftShoulder(left_plate, person, body_position, body_rotation);
+      AttachToRightShoulder(right_plate, person, body_position, body_rotation);
+
+      commit(left_plate);
+      commit(right_plate);
     }
 
     // Vambraces
@@ -326,6 +367,7 @@ static void HandleAnimatedNPCs(Tachyon* tachyon, State& state, int32& usage_coun
 void AnimatedEntities::UpdateAnimatedEntities(Tachyon* tachyon, State& state) {
   profile("UpdateAnimatedEntities()");
 
+  auto& meshes = state.meshes;
   auto& animations = state.animations;
 
   // Disable all animated entity meshes first. We'll re-enable
@@ -338,6 +380,11 @@ void AnimatedEntities::UpdateAnimatedEntities(Tachyon* tachyon, State& state) {
     body.disabled = true;
     shirt.disabled = true;
   }
+
+  reset_instances(meshes.lesser_helmet);
+  reset_instances(meshes.lesser_vambrace);
+  reset_instances(meshes.low_helmet);
+  reset_instances(meshes.shoulder_plate);
 
   // Use animated meshes on-demand based on proximity to entities
   int32 usage_counter = 0;

@@ -76,6 +76,7 @@ namespace astro {
       lesser_helmet,
       lesser_vambrace,
       low_helmet,
+      shoulder_plate,
 
       // Procedural meshes
       grass, // @todo rename ground_1_grass
