@@ -13,6 +13,9 @@
 @sign_riverway_crossing
 ← Divination Lake Terrace
 
+@sign_village
+← Astral Woodrealm; Old Divination Wood →
+
 // ----------------------
 // NPCs
 // ----------------------

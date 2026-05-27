@@ -160,6 +160,7 @@ export default [
       "house_door",
       "house_window_panes",
       "house_roof",
+      "house_tiles",
       "house_chimney"
     ],
     scale: [ 4000.0 ],

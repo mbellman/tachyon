@@ -362,6 +362,7 @@ namespace astro {
       house_door,
       house_window_panes,
       house_roof,
+      house_tiles,
       house_chimney,
 
       // IRON_GATE

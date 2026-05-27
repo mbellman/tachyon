@@ -11,7 +11,16 @@ namespace astro {
       meshes.house_door = MODEL_MESH("./astro/3d_models/house/door.obj", 500);
       meshes.house_window_panes = MODEL_MESH("./astro/3d_models/house/window_panes.obj", 500);
       meshes.house_roof = MODEL_MESH("./astro/3d_models/house/roof.obj", 500);
+      meshes.house_tiles = MODEL_MESH("./astro/3d_models/house/tiles.obj", 500);
       meshes.house_chimney = MODEL_MESH("./astro/3d_models/house/chimney.obj", 500);
+
+      mesh(meshes.house_body).shadow_cascade_ceiling = 2;
+      mesh(meshes.house_frame).shadow_cascade_ceiling = 2;
+      mesh(meshes.house_door).shadow_cascade_ceiling = 2;
+      mesh(meshes.house_window_panes).shadow_cascade_ceiling = 2;
+      mesh(meshes.house_roof).shadow_cascade_ceiling = 2;
+      mesh(meshes.house_tiles).shadow_cascade_ceiling = 2;
+      mesh(meshes.house_chimney).shadow_cascade_ceiling = 2;
     }
 
     getMeshes() {
@@ -21,6 +30,7 @@ namespace astro {
         meshes.house_door,
         meshes.house_window_panes,
         meshes.house_roof,
+        meshes.house_tiles,
         meshes.house_chimney
       });
     }
@@ -40,6 +50,7 @@ namespace astro {
       reset_instances(meshes.house_door);
       reset_instances(meshes.house_window_panes);
       reset_instances(meshes.house_roof);
+      reset_instances(meshes.house_tiles);
       reset_instances(meshes.house_chimney);
 
       for_entities(state.houses) {
@@ -69,6 +80,7 @@ namespace astro {
         auto& door = use_instance(meshes.house_door);
         auto& window_panes = use_instance(meshes.house_window_panes);
         auto& roof = use_instance(meshes.house_roof);
+        auto& tiles = use_instance(meshes.house_tiles);
         auto& chimney = use_instance(meshes.house_chimney);
 
         Sync(body, entity);
@@ -76,6 +88,7 @@ namespace astro {
         Sync(door, entity);
         Sync(window_panes, entity);
         Sync(roof, entity);
+        Sync(tiles, entity);
         Sync(chimney, entity);
 
         body.color = tVec3f(1.f, 0.9f, 0.8f);
@@ -83,19 +96,22 @@ namespace astro {
         door.color = tVec3f(0.5f, 0.3f, 0.2f);
         window_panes.color = tVec4f(1.f, 0.8f, 0.6f, 1.f);
         roof.color = tVec3f(0.8f, 0.1f, 0.1f);
+        tiles.color = tVec3f(0.9f, 0.2f, 0.2f);
         chimney.color = tVec3f(0.6f);
 
         frame.material = tVec4f(1.f, 0, 0, 0.2f);
         door.material = tVec4f(1.f, 0, 0, 0.1f);
+        tiles.material = tVec4f(1.f, 0, 0, 0.2f);
 
         commit(body);
         commit(frame);
         commit(door);
         commit(window_panes);
         commit(roof);
+        commit(tiles);
         commit(chimney);
 
-        // Lights
+        // Window light
         {
           if (entity.light_id == -1) {
             entity.light_id = create_point_light();
