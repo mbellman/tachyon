@@ -4,7 +4,7 @@
 
 using namespace astro;
 
-struct ActiveAnimation {
+struct AnimationParams {
   tSkeletonAnimation* animation;
   float speed;
   bool immediate = false;
@@ -71,12 +71,28 @@ static void AttachToLeftArm(tObject& object, SkinnedPerson& person, const tVec3f
   object.scale = scale;
 }
 
+static void HandleAnimatedPerson(State& state, SkinnedPerson& person, AnimationParams& params) {
+  auto& animations = state.animations;
+
+  if (person.animation.current_animation == nullptr) {
+    person.animation.current_animation = &animations.player_run;
+  }
+
+  if (params.immediate) {
+    Animation::StartNextAnimation(person.animation, params.animation);
+  } else {
+    Animation::AwaitNextAnimation(person.animation, params.animation);
+  }
+
+  UpdateAnimation(person.animation, params.speed, state.dt);
+}
+
 /**
  * -------------
  * Lesser guards
  * -------------
  */
-static ActiveAnimation GetLesserGuardActiveAnimation(Tachyon* tachyon, State& state, GameEntity& entity) {
+static AnimationParams GetLesserGuardAnimationParams(Tachyon* tachyon, State& state, GameEntity& entity) {
   auto& enemy = entity.enemy_state;
 
   if (time_since(enemy.last_damage_time) < 1.f) {
@@ -97,7 +113,7 @@ static ActiveAnimation GetLesserGuardActiveAnimation(Tachyon* tachyon, State& st
   }
 }
 
-static void HandleLesserGuardAnimations(Tachyon* tachyon, State& state, int32& usage_counter) {
+static void HandleAnimatedLesserGuards(Tachyon* tachyon, State& state, int32& usage_counter) {
   auto& meshes = state.meshes;
   auto& animations = state.animations;
 
@@ -116,29 +132,14 @@ static void HandleLesserGuardAnimations(Tachyon* tachyon, State& state, int32& u
     if (!IsDuringActiveTime(entity, state)) continue;
 
     auto& person = state.skinned_people[usage_counter++];
-    auto& shirt = skinned_mesh(person.shirt_mesh_index);
+    auto animation_params = GetLesserGuardAnimationParams(tachyon, state, entity);
 
-    if (person.animation.current_animation == nullptr) {
-      person.animation.current_animation = &animations.player_run;
-    }
-
-    auto active_animation = GetLesserGuardActiveAnimation(tachyon, state, entity);
-
-    if (active_animation.immediate) {
-      Animation::StartNextAnimation(person.animation, active_animation.animation);
-    } else {
-      Animation::AwaitNextAnimation(person.animation, active_animation.animation);
-    }
-
-    UpdateAnimation(person.animation, active_animation.speed, state.dt);
-    SyncSkinnedMesh(shirt, entity, person.animation);
-
-    shirt.color = tVec4f(0.5f, 0.8f, 0.7f, 0.2f);
-    shirt.material = tVec4f(0.8f, 0, 0, 0.4f);
+    HandleAnimatedPerson(state, person, animation_params);
 
     tVec3f body_position = entity.visible_position;
     Quaternion body_rotation = entity.visible_rotation;
 
+    // Death animation
     // @todo factor
     if (entity.enemy_state.last_death_time != 0.f) {
       float death_alpha = 2.f * time_since(entity.enemy_state.last_death_time);
@@ -157,10 +158,19 @@ static void HandleLesserGuardAnimations(Tachyon* tachyon, State& state, int32& u
       );
     }
 
-    shirt.position = body_position;
-    shirt.rotation = body_rotation;
+    // Shirt
+    {
+      auto& shirt = skinned_mesh(person.shirt_mesh_index);
 
-    commit(shirt);
+      SyncSkinnedMesh(shirt, entity, person.animation);
+
+      shirt.position = body_position;
+      shirt.rotation = body_rotation;
+      shirt.color = tVec4f(0.5f, 0.8f, 0.7f, 0.2f);
+      shirt.material = tVec4f(0.8f, 0, 0, 0.4f);
+
+      commit(shirt);
+    }
 
     // Helmet
     {
@@ -199,7 +209,7 @@ static void HandleLesserGuardAnimations(Tachyon* tachyon, State& state, int32& u
  * Low guards
  * ----------
  */
-static void HandleLowGuardAnimations(Tachyon* tachyon, State& state, int32& usage_counter) {
+static void HandleAnimatedLowGuards(Tachyon* tachyon, State& state, int32& usage_counter) {
   auto& meshes = state.meshes;
   auto& animations = state.animations;
 
@@ -217,42 +227,55 @@ static void HandleLowGuardAnimations(Tachyon* tachyon, State& state, int32& usag
     if (!IsDuringActiveTime(entity, state)) continue;
 
     auto& person = state.skinned_people[usage_counter++];
-    auto& mail = skinned_mesh(person.shirt_mesh_index);
+    // @todo GetLowGuardAnimationParams
+    auto animation_params = GetLesserGuardAnimationParams(tachyon, state, entity);
 
-    if (person.animation.current_animation == nullptr) {
-      person.animation.current_animation = &animations.player_run;
-    }
-
-    // @temporary
-    auto active_animation = GetLesserGuardActiveAnimation(tachyon, state, entity);
-
-    if (active_animation.immediate) {
-      Animation::StartNextAnimation(person.animation, active_animation.animation);
-    } else {
-      Animation::AwaitNextAnimation(person.animation, active_animation.animation);
-    }
-
-    UpdateAnimation(person.animation, active_animation.speed, state.dt);
-    SyncSkinnedMesh(mail, entity, person.animation);
-
-    mail.color = tVec3f(0.7f);
-    mail.material = tVec4f(0.5f, 1.f, 0, 0.4f);
+    HandleAnimatedPerson(state, person, animation_params);
 
     tVec3f body_position = entity.visible_position;
     Quaternion body_rotation = entity.visible_rotation;
 
-    commit(mail);
+    // Mail
+    {
+      auto& mail = skinned_mesh(person.shirt_mesh_index);
+
+      SyncSkinnedMesh(mail, entity, person.animation);
+
+      mail.color = tVec3f(0.5f);
+      mail.material = tVec4f(0.5f, 1.f, 0, 0.4f);
+
+      commit(mail);
+    }
 
     // Helmet
     {
       auto& helmet = use_instance(meshes.low_helmet);
 
-      helmet.color = tVec3f(0.7f);
+      helmet.color = tVec3f(1.f);
       helmet.material = tVec4f(0.3f, 1.f, 0, 0.2f);
 
       AttachToHead(helmet, person, body_position, body_rotation);
 
       commit(helmet);
+    }
+
+    // Vambraces
+    {
+      // @todo low_vambrace
+      auto& left_vambrace = use_instance(meshes.lesser_vambrace);
+      auto& right_vambrace = use_instance(meshes.lesser_vambrace);
+
+      left_vambrace.color = tVec3f(1.f);
+      left_vambrace.material = tVec4f(0.3f, 1.f, 0, 0.2f);
+
+      right_vambrace.color = tVec3f(1.f);
+      right_vambrace.material = tVec4f(0.3f, 1.f, 0, 0.2f);
+
+      AttachToLeftArm(left_vambrace, person, body_position, body_rotation);
+      AttachToRightArm(right_vambrace, person, body_position, body_rotation);
+
+      commit(left_vambrace);
+      commit(right_vambrace);
     }
   }
 }
@@ -262,7 +285,7 @@ static void HandleLowGuardAnimations(Tachyon* tachyon, State& state, int32& usag
  * NPCs
  * ----
  */
-static void HandleNPCAnimations(Tachyon* tachyon, State& state, int32& usage_counter) {
+static void HandleAnimatedNPCs(Tachyon* tachyon, State& state, int32& usage_counter) {
   auto& meshes = state.meshes;
   auto& animations = state.animations;
 
@@ -319,7 +342,7 @@ void AnimatedEntities::UpdateAnimatedEntities(Tachyon* tachyon, State& state) {
   // Use animated meshes on-demand based on proximity to entities
   int32 usage_counter = 0;
 
-  HandleLesserGuardAnimations(tachyon, state, usage_counter);
-  HandleLowGuardAnimations(tachyon, state, usage_counter);
-  HandleNPCAnimations(tachyon, state, usage_counter);
+  HandleAnimatedLesserGuards(tachyon, state, usage_counter);
+  HandleAnimatedLowGuards(tachyon, state, usage_counter);
+  HandleAnimatedNPCs(tachyon, state, usage_counter);
 }
