@@ -25,6 +25,10 @@ music
 time evolution:
 * tall weeds improvements
 * leaf bush + rose bush leaves improvements
+* fences
+* duck spawns
+* lily pad clusters
+* chestnut tree leaves
 
 entities:
 * castle wall

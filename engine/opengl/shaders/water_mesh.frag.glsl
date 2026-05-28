@@ -359,8 +359,10 @@ void main() {
   vec3 out_color = vec3(0.0);
 
   const vec3 base_water_color = vec3(0.0, 0.2, 0.4);
+  // const vec3 base_water_color = vec3(0.0, 0.01, 0.1);
   const vec3 dark_water_color = vec3(0.0, 0.0, 0.2);
   const vec3 foam_color = vec3(0.4, 0.6, 1.0);
+  // const vec3 foam_color = vec3(0.8);
   const float depth_limit = 500.0;
 
   out_color = base_water_color;
@@ -438,7 +440,7 @@ void main() {
     reflection_color += mix(base_water_color, GetReflectionColor(R), 0.5);
 
     // Light reflection
-    reflection_color += 5.0 * vec3(1.0, 0.9, 0.5) * pow(RdotL, 5.0);
+    reflection_color += 2.0 * vec3(1.0, 0.9, 0.5) * pow(RdotL, 5.0);
     // reflection_color += 5.0 * vec3(0.7, 0.4, 1.0) * pow(RdotL, 5.0);
 
     // Apply ambient reflections
