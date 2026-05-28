@@ -242,3 +242,25 @@ void DataLoader::LoadNpcDialogue(Tachyon* tachyon, State& state) {
     }
   }
 }
+
+void DataLoader::LoadCameraData(Tachyon* tachyon, State& state) {
+  auto camera_data = Tachyon_GetFileContents("./astro/level_data/cameras.txt");
+  auto lines = SplitString(camera_data, "\n");  // @allocation
+
+  std::string current_camera_name = "";
+
+  for (auto& line : lines) {
+    if (line.size() == 0) continue;
+    if (line.starts_with("//")) continue;
+
+    if (line[0] == '@') {
+      // Camera name
+      current_camera_name = line.substr(1);
+    } else {
+      CameraState camera_state;
+      camera_state.height_adjustment = stof(line);
+
+      state.camera_state_map[current_camera_name] = camera_state;
+    }
+  }
+}

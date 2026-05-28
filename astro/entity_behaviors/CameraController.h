@@ -37,9 +37,14 @@ namespace astro {
         }
       }
 
-      // @temporary
       if (closest_camera_name != "") {
-        console_log(closest_camera_name);
+        auto& states = state.camera_state_map;
+
+        if (states.find(closest_camera_name) != states.end()) {
+          auto& camera_state = states.at(closest_camera_name);
+
+          state.target_camera_height_adjustment = camera_state.height_adjustment;
+        }
       }
     }
   };

@@ -998,6 +998,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
 
   DataLoader::LoadLevelData(tachyon, state);
   DataLoader::LoadNpcDialogue(tachyon, state);
+  DataLoader::LoadCameraData(tachyon, state);
   CollisionSystem::RebuildFlatGroundPlanes(tachyon, state);
   Items::SpawnItemObjects(tachyon, state);
   ProceduralBehavior::Generation::RebuildAllProceduralObjects(tachyon, state);

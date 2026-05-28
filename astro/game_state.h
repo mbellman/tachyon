@@ -280,6 +280,15 @@ namespace astro {
 
   /**
    * ----------------------------
+   * Camera controller states
+   * ----------------------------
+   */
+  struct CameraState {
+    float height_adjustment = 0.f;
+  };
+
+  /**
+   * ----------------------------
    * Particles
    * ----------------------------
    */
@@ -571,6 +580,9 @@ namespace astro {
     bool use_zoomed_out_camera = false;
     float camera_angle = 0.9f;
     float camera_blend_speed = 0.f;
+    float camera_height_adjustment = 0.f;
+    float target_camera_height_adjustment = 0.f;
+    std::unordered_map<std::string, CameraState> camera_state_map;
 
     // Vantage camera mode
     bool use_vantage_camera = false;
@@ -582,7 +594,7 @@ namespace astro {
     // this will be updated accordingly.
     float vantage_camera_change_time = -1.f;
 
-    float water_level = -1800.f;
+    float water_level = -1800.f; // @deprecated
 
     // Astro properties
     float astro_time = 76.f;

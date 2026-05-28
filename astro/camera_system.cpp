@@ -81,16 +81,14 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state) {
   new_camera_position.y += 11000.f;
   new_camera_position.z += 8500.f;
 
-  // Limit camera distance to avoid making out-of-view culling obvious
-  {
-    if (new_camera_position.y - state.player_position.y > 13000.f) {
-      new_camera_position.y = state.player_position.y + 13000.f;
-    }
+  state.camera_height_adjustment = Tachyon_Lerpf(
+    state.camera_height_adjustment,
+    state.target_camera_height_adjustment,
+    0.5f * state.dt
+  );
 
-    if (new_camera_position.z - state.player_position.z > 12000.f) {
-      new_camera_position.z = state.player_position.z + 12000.f;
-    }
-  }
+  new_camera_position.y += state.camera_height_adjustment;
+  new_camera_position.z += state.camera_height_adjustment;
 
   // @temporary
   // @todo dev mode only
