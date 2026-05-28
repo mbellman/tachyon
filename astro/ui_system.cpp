@@ -288,9 +288,9 @@ void UISystem::UpdateHUD(Tachyon* tachyon, State& state) {
 
     if (
       title_graphic != nullptr &&
-      time_since(state.last_substory_title_time) < 8.f
+      time_since(state.last_substory_title_time) < 6.f
     ) {
-      float alpha = time_since(state.last_substory_title_time) / 8.f;
+      float alpha = time_since(state.last_substory_title_time) / 6.f;
       alpha = Tachyon_EaseInOutf(sinf(alpha * t_PI));
 
       Tachyon_DrawUIElement(tachyon, title_graphic, {

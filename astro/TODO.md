@@ -43,7 +43,10 @@ tutorial:
 features/fixes:
 * signpost collision
 * more tiny bird variance
+* tiny birds flying down near you while running/in combat
 * stone walking sounds
+* walk sounds playing when idle, running against a wall
+* water color changes with time
 * light pillars sound when using normal wand raising
 * ladders
 * health bar + potions
@@ -56,6 +59,7 @@ features/fixes:
 * targeting angle vs. distance
 * enemy animations (seek time consistency)
 * don't face new enemy until attack finishes
+* only play light post sounds near them + associated entities
 * framerate (swap interval) on 60hz monitors
 * crouching
 * bgm entities
@@ -72,9 +76,6 @@ features/fixes:
 * climbable vines
 * 3d sounds
 * enemy startled state
-
-bugs:
-* only play light post sounds near them + associated entities
 
 editor/dev stuff:
 * toggle light discs with L
