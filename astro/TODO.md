@@ -47,7 +47,6 @@ tutorial:
 features/fixes:
 * signpost collision
 * more tiny bird variance
-* tiny birds flying down near you while running/in combat
 * stone walking sounds
 * walk sounds playing when idle, running against a wall
 * water color changes with time

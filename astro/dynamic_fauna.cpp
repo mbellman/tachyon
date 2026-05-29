@@ -2,6 +2,7 @@
 #include "astro/entity_manager.h"
 #include "astro/collision_system.h"
 #include "astro/entity_behaviors/behavior.h"
+#include "astro/targeting.h"
 #include "engine/tachyon_random.h"
 
 using namespace astro;
@@ -215,10 +216,11 @@ static void HandleTinyBirdSpawningBehavior(Tachyon* tachyon, State& state, const
   for_entities(state.bird_spawns) {
     auto& entity = state.bird_spawns[i];
 
+    if (state.tiny_birds.size() >= 10) break;
     if (!IsDuringActiveTime(entity, state)) continue;
     if (!IsInRangeX(entity, state, 20000.f)) continue;
     if (!IsInRangeZ(entity, state, 20000.f)) continue;
-    if (state.tiny_birds.size() >= 10) break;
+    if (Targeting::IsInCombatMode(state)) continue;
 
     // Coin flip for whether this entity gets to spawn any birds
     if (Tachyon_GetRandom() > 0.5f) continue;
@@ -226,8 +228,8 @@ static void HandleTinyBirdSpawningBehavior(Tachyon* tachyon, State& state, const
     auto proximity = GetEntityProximity(entity, state);
 
     if (
-      proximity.distance > 10000.f ||
-      (proximity.distance < 10000.f && player_speed < 200.f)
+      proximity.distance > 15000.f ||
+      (proximity.distance < 15000.f && player_speed < 200.f)
     ) {
       SpawnTinyBird(tachyon, state, entity);
 

@@ -16,7 +16,6 @@ namespace astro {
       // @todo CLOTH_MESH
       mesh(meshes.flag_banner).type = FOLIAGE_MESH;
       mesh(meshes.flag_banner).shadow_cascade_ceiling = 2;
-      mesh(meshes.flag_banner).use_disocclusion = true;
     }
 
     getMeshes() {
