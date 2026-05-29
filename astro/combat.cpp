@@ -78,7 +78,7 @@ static void HandleLowGuardWandStrike(Tachyon* tachyon, State& state, GameEntity&
   if (is_player_doing_break_attack) {
     enemy.speed = -4000.f;
   } else {
-    enemy.speed = -2000.f;
+    enemy.speed = -3000.f;
   }
 
   PlayerCharacter::GetKnockedBack(state, 1000.f);

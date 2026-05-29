@@ -1,5 +1,5 @@
 @trail_camera
-0.0
+1000.0
 
 @village_outskirts_camera
 2000.0
@@ -8,10 +8,10 @@
 3000.0
 
 @village_south_camera
-0.0
+500.0
 
 @astral_wood_camera
-0.0
+500.0
 
 @old_wood_camera
-0.0
+1000.0

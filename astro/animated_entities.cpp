@@ -1,6 +1,8 @@
 #include "astro/animated_entities.h"
 #include "astro/animation.h"
 #include "astro/entity_behaviors/behavior.h"
+#include "astro/entity_behaviors/LesserGuard.h"
+#include "astro/entity_behaviors/LowGuard.h"
 
 using namespace astro;
 
@@ -130,6 +132,10 @@ static AnimationParams GetLesserGuardAnimationParams(Tachyon* tachyon, State& st
     // @todo break animation
     return { &state.animations.person_hit_front, 5.f, true };
   }
+  else if (time_since(enemy.last_attack_start_time) < LesserGuard::ATTACK_DURATION) {
+    // @temporary
+    return { &state.animations.player_swing_wand, 3.f, true };
+  }
   else if (enemy.speed > 2500.f) {
     return { &state.animations.player_run, 10.f };
   }
@@ -234,6 +240,31 @@ static void HandleAnimatedLesserGuards(Tachyon* tachyon, State& state, int32& us
  * Low guards
  * ----------
  */
+static AnimationParams GetLowGuardAnimationParams(Tachyon* tachyon, State& state, GameEntity& entity) {
+  auto& enemy = entity.enemy_state;
+
+  if (time_since(enemy.last_damage_time) < 1.f) {
+    return { &state.animations.person_hit_front, 5.f, true };
+  }
+  else if (time_since(enemy.last_break_time) < 1.f) {
+    // @todo break animation
+    return { &state.animations.person_hit_front, 5.f, true };
+  }
+  else if (time_since(enemy.last_attack_start_time) < LowGuard::ATTACK_DURATION) {
+    // @temporary
+    return { &state.animations.player_swing_wand, 4.f, true };
+  }
+  else if (enemy.speed > 2500.f) {
+    return { &state.animations.player_run, 10.f };
+  }
+  else if (enemy.speed > 500.f) {
+    return { &state.animations.player_walk, 10.f };
+  }
+  else {
+    return { &state.animations.person_idle, 1.f };
+  }
+}
+
 static void HandleAnimatedLowGuards(Tachyon* tachyon, State& state, int32& usage_counter) {
   auto& meshes = state.meshes;
   auto& animations = state.animations;
@@ -250,8 +281,7 @@ static void HandleAnimatedLowGuards(Tachyon* tachyon, State& state, int32& usage
     if (!IsDuringActiveTime(entity, state)) continue;
 
     auto& person = state.skinned_people[usage_counter++];
-    // @todo GetLowGuardAnimationParams
-    auto animation_params = GetLesserGuardAnimationParams(tachyon, state, entity);
+    auto animation_params = GetLowGuardAnimationParams(tachyon, state, entity);
 
     HandleAnimatedPerson(state, person, animation_params);
 

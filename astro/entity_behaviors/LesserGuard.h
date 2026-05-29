@@ -144,8 +144,8 @@ namespace astro {
       float player_distance = entity_to_player.magnitude();
       auto& enemy = entity.enemy_state;
 
-      if (state.player_hp <= 0.f) {
-        // Slow down if the player dies
+      if (state.player_hp <= 0.f || player_distance >= 10000.f) {
+        // Slow down if the player dies, or is too far away
         enemy.speed *= 1.f - 2.f * state.dt;
 
         return;
