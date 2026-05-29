@@ -64,8 +64,12 @@ Oh, wonderful! Just wonderful. I - I am in your debt.
 May fortune favor you! I thank you most kindly.
 
 // ----------------------
-// Riverway bridge guy
+// Riverway
 // ----------------------
+
+@riverway_merchant
+Ah, traveler! Come hither.
+At ease, at ease! Shuffle off thy grave expression.
 
 @riverway_bridge_guy
 +Psst! You there! Thy furtive, robed venturer, thou!

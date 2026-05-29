@@ -31,6 +31,7 @@ time evolution:
 * chestnut tree leaves
 
 entities:
+* tall birch
 * castle wall
 * castle column
 * big mushrooms
@@ -45,13 +46,14 @@ tutorial:
 * magic gate improvements/collision
 
 features/fixes:
+* river leaf respawning
+* ladders
 * signpost collision
 * more tiny bird variance
 * stone walking sounds
 * walk sounds playing when idle, running against a wall
 * water color changes with time
 * light pillars sound when using normal wand raising
-* ladders
 * health bar + potions
 * guidance (small stone bridges, slopes)
 * reset ducks with R

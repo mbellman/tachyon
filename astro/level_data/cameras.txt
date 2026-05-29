@@ -1,6 +1,12 @@
 @trail_camera
 1000.0
 
+@riverway_camera
+1000.0
+
+@riverway_nook_camera
+2000.0
+
 @village_outskirts_camera
 2000.0
 

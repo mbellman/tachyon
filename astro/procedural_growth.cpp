@@ -1,5 +1,6 @@
 #include "astro/procedural_growth.h"
 #include "astro/astrolabe.h"
+#include "astro/entity_behaviors/behavior.h"
 
 using namespace astro;
 
@@ -208,9 +209,9 @@ static void UpdateTreeFlowers(Tachyon* tachyon, State& state) {
 
   // Varying scales
   const static float scales[] = {
-    320.f,
-    200.f,
-    250.f
+    250.f,
+    150.f,
+    200.f
   };
 
   // Varying growth start times
@@ -266,7 +267,7 @@ static void UpdateTreeFlowers(Tachyon* tachyon, State& state) {
         if (growth_factor < 0.f) growth_factor = 0.f;
 
         float max_scale = scales[j % 3];
-        float scale = max_scale * (1.f - 1.f / expf(3.5f * growth_factor));
+        float scale = max_scale * Grow(3.5f * growth_factor);
 
         flower.scale = tVec3f(
           scale,

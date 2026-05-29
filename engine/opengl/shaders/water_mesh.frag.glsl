@@ -440,7 +440,7 @@ void main() {
     reflection_color += mix(base_water_color, GetReflectionColor(R), 0.5);
 
     // Light reflection
-    reflection_color += 2.0 * vec3(1.0, 0.9, 0.5) * pow(RdotL, 5.0);
+    reflection_color += 5.0 * vec3(1.0, 0.9, 0.5) * pow(RdotL, 5.0);
     // reflection_color += 5.0 * vec3(0.7, 0.4, 1.0) * pow(RdotL, 5.0);
 
     // Apply ambient reflections
