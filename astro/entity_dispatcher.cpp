@@ -25,6 +25,7 @@
 #include "astro/entity_behaviors/House.h"
 #include "astro/entity_behaviors/IronGate.h"
 #include "astro/entity_behaviors/ItemPickup.h"
+#include "astro/entity_behaviors/Ladder.h"
 #include "astro/entity_behaviors/Lamp.h"
 #include "astro/entity_behaviors/Lamppost.h"
 #include "astro/entity_behaviors/LeafShrub.h"
@@ -112,6 +113,7 @@ using namespace astro;
   dispatch_macro(HOUSE, House);\
   dispatch_macro(IRON_GATE, IronGate);\
   dispatch_macro(ITEM_PICKUP, ItemPickup);\
+  dispatch_macro(LADDER, Ladder);\
   dispatch_macro(LAMP, Lamp);\
   dispatch_macro(LAMPPOST, Lamppost);\
   dispatch_macro(LEAF_SHRUB, LeafShrub);\
@@ -176,6 +178,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
     dispatch_GetEntityContainer(HOUSE, state.houses);
     dispatch_GetEntityContainer(IRON_GATE, state.iron_gates);
     dispatch_GetEntityContainer(ITEM_PICKUP, state.item_pickups);
+    dispatch_GetEntityContainer(LADDER, state.ladders);
     dispatch_GetEntityContainer(LAMP, state.lamps);
     dispatch_GetEntityContainer(LAMPPOST, state.lampposts);
     dispatch_GetEntityContainer(LEAF_SHRUB, state.leaf_shrubs);

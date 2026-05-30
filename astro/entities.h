@@ -38,6 +38,7 @@ namespace astro {
     HOUSE,
     IRON_GATE,
     ITEM_PICKUP,
+    LADDER,
     LAMP,
     LAMPPOST,
     LEAF_SHRUB,
@@ -107,6 +108,7 @@ namespace astro {
     HOUSE,
     IRON_GATE,
     ITEM_PICKUP,
+    LADDER,
     LAMP,
     LAMPPOST,
     LEAF_SHRUB,
@@ -379,6 +381,10 @@ namespace astro {
       item_pickup_placeholder,
       item_pickup,
 
+      // LADDER
+      ladder_placeholder,
+      ladder,
+
       // LAMP
       lamp_placeholder,
       lamp_frame,
@@ -588,6 +594,7 @@ namespace astro {
     EntityList houses;
     EntityList iron_gates;
     EntityList item_pickups;
+    EntityList ladders;
     EntityList lamps;
     EntityList lampposts;
     EntityList leaf_shrubs;
@@ -793,6 +800,12 @@ namespace astro {
       .name = "Item Pickup",
       .scale = tVec3f(1000.f),
       .tint = tVec3f(0.3f, 0.6f, 1.f)
+    } },
+
+    { LADDER, {
+      .name = "Ladder",
+      .scale = tVec3f(1000.f),
+      .tint = tVec3f(0.6f)
     } },
 
     { LAMP, {

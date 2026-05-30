@@ -694,5 +694,16 @@ export default [
     ],
     scale: [ 1000.0 ],
     color: [ 0.2 ]
+  },
+
+  {
+    type: "LADDER",
+    list: "ladders",
+    meshes: [
+      "ladder_placeholder",
+      "ladder"
+    ],
+    scale: [ 1000.0 ],
+    color: [ 0.6 ]
   }
 ];
