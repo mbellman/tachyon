@@ -71,7 +71,9 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
     // Dodge actions
     time_since(state.last_dodge_time) < dodge_cooldown_time ||
     // Target jump actions
-    time_since(state.last_target_jump_time) < target_jump_cooldown_time
+    time_since(state.last_target_jump_time) < target_jump_cooldown_time ||
+    // Climbing off ladders
+    PlayerCharacter::IsClimbingOffLadder(tachyon, state)
   ) {
     return;
   }

@@ -497,6 +497,7 @@ namespace astro {
     float last_wand_bounce_time = 0.f;
     float last_auto_hop_time = 0.f;
     float last_ledge_jump_time = 0.f;
+    float last_off_ladder_time = 0.f;
     float last_death_time = 0.f;
     float last_spawn_time = 0.f;
     float last_dodge_time = 0.f;
