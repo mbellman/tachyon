@@ -28,6 +28,11 @@ namespace astro {
         if (!IsInRangeX(entity, state, 20000.f)) continue;
         if (!IsInRangeZ(entity, state, 20000.f)) continue;
 
+        // Collision
+        entity.visible_position = entity.position;
+        entity.visible_scale = entity.scale;
+        entity.visible_rotation = entity.orientation;
+
         // Ladder
         {
           auto& ladder = use_instance(meshes.ladder);

@@ -290,20 +290,44 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
       float ladder_top_y = entity.position.y + entity.scale.y + 1250.f;
       float ladder_bottom_y = entity.position.y - entity.scale.y;
 
-      bool is_off_top = state.player_position.y > ladder_top_y;
-      bool is_off_bottom = state.player_position.y < (ladder_bottom_y + 1000.f);
+      bool did_climb_off_top = state.player_position.y > ladder_top_y;
+      bool did_climb_off_bottom = state.player_position.y < (ladder_bottom_y + 1000.f);
 
-      if (is_off_top) {
-        state.player_velocity = state.player_facing_direction * 1500.f;
+      tVec3f climbing_position_xz = UnitEntityToWorldPosition(entity, tVec3f(0.6f, 0, 0)).xz();
+
+      if (did_climb_off_top) {
+        tVec3f off_direction = (entity.position.xz() - climbing_position_xz).unit();
+
+        state.player_velocity = off_direction * 1500.f;
         state.last_off_ladder_time = scene_time;
       }
-      else if (is_off_bottom) {
-        tVec3f off_direction = (state.player_position.xz() - entity.position.xz()).unit();
+      else if (did_climb_off_bottom) {
+        tVec3f off_direction = (climbing_position_xz - entity.position.xz()).unit();
 
         state.player_velocity = off_direction * 1500.f;
         state.last_off_ladder_time = scene_time;
       }
       else {
+        float alpha = 5.f * state.dt;
+
+        // Blend into the climbing position
+        state.player_position.x = Tachyon_Lerpf(state.player_position.x, climbing_position_xz.x, alpha);
+        state.player_position.z = Tachyon_Lerpf(state.player_position.z, climbing_position_xz.z, alpha);
+
+        // Blend into the ladder-facing direction
+        //
+        // @todo It's a bit awkward to influence facing direction here,
+        // as that's not really a collision-related consideration. Maybe
+        // that should be done in PlayerCharacter::UpdatePlayer() in a
+        // ladder-specific case.
+        tVec3f desired_facing_direction = (entity.position.xz() - climbing_position_xz).unit();
+
+        state.player_facing_direction = tVec3f::slerp(
+          state.player_facing_direction,
+          desired_facing_direction,
+          alpha
+        );
+
         state.is_on_ladder = true;
 
         break;
