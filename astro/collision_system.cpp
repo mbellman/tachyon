@@ -403,6 +403,7 @@ static void HandleBirdGateCollisions(Tachyon* tachyon, State& state) {
 
 static void HandleCastleTowerCollisions(Tachyon* tachyon, State& state) {
   float player_body_y = state.player_position.y + PLAYER_HEIGHT;
+  float highest_y = -FLT_MAX;
 
   for (auto& entity : state.castle_towers) {
     float tower_top_y = entity.position.y + entity.scale.y;
@@ -412,18 +413,18 @@ static void HandleCastleTowerCollisions(Tachyon* tachyon, State& state) {
       // Act as a wall
 
       // @todo
-    } else {
+    } else if (tower_top_y > highest_y) {
       // Allow movement on top of the tower
       auto tower_plane = CollisionSystem::CreatePlane(entity.position, entity.scale * tVec3f(0.6f, 1.f, 0.6f), entity.orientation);
 
       if (CollisionSystem::IsPointOnPlane(state.player_position, tower_plane)) {
         float player_y = tower_top_y + PLAYER_HEIGHT;
 
+        highest_y = tower_top_y;
+
         AllowPlayerMovement(state, player_y, tower_plane);
 
         state.is_on_solid_platform = true;
-
-        break;
       }
     }
   }
