@@ -275,6 +275,20 @@ static void HandleSlopeCollisions(Tachyon* tachyon, State& state) {
   }
 }
 
+// @todo handle climbing off ladders
+static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
+  for (auto& entity : state.ladders) {
+    float dx = abs(state.player_position.x - entity.position.x);
+    float dz = abs(state.player_position.z - entity.position.z);
+
+    if (!state.is_on_ladder && dx < 750.f && dz < 750.f) {
+      state.is_on_ladder = true;
+
+      break;
+    }
+  }
+}
+
 static void HandleFlatGroundCollisions(Tachyon* tachyon, State& state) {
   profile("HandleFlatGroundCollisions()");
 
@@ -646,11 +660,22 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   state.is_moving_down_slope = false;
   state.is_on_wood_surface = false;
   state.is_on_stone_surface = false;
+  state.is_on_ladder = false;
 
   // If we later resolve radius/plane collisions, this is useful
   // to know in the context of resolving other kinds of collisions
   state.did_resolve_radius_collision = false;
   state.did_resolve_plane_collision = false;
+
+  // Resolve collisions with climbable entities before anything else
+  HandleLadderCollisions(tachyon, state);
+
+  // While on ladders, skip normal collision checks
+  if (state.is_on_ladder) {
+    state.current_ground_y = state.player_position.y;
+
+    return;
+  }
 
   for (auto& entity : state.shrubs) {
     if (entity.visible_scale.y < 500.f) continue;

@@ -47,7 +47,6 @@ tutorial:
 
 features/fixes:
 * river leaf respawning
-* ladders
 * signpost collision
 * more tiny bird variance
 * stone walking sounds

@@ -24,8 +24,10 @@ namespace astro {
 
       reset_instances(meshes.ladder);
 
-      // @todo culling
       for (auto& entity : state.ladders) {
+        if (!IsInRangeX(entity, state, 20000.f)) continue;
+        if (!IsInRangeZ(entity, state, 20000.f)) continue;
+
         // Ladder
         {
           auto& ladder = use_instance(meshes.ladder);
@@ -34,6 +36,8 @@ namespace astro {
 
           commit(ladder);
         }
+
+        // @todo procedural rung generation
       }
     }
   };

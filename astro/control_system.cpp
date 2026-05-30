@@ -76,6 +76,15 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
     return;
   }
 
+  // Ladder controls
+  {
+    if (state.is_on_ladder) {
+      state.player_position.y += -tachyon->left_stick.y * 2500.f * state.dt;
+
+      return;
+    }
+  }
+
   // Directional movement
   {
     bool is_running = is_key_held(tKey::CONTROLLER_A) || is_key_held(tKey::SHIFT);
@@ -269,7 +278,10 @@ static void HandleSpeedDampening(Tachyon* tachyon, State& state) {
   bool is_target_jumping = time_since(state.last_target_jump_time) < target_jump_cooldown_time;
   bool is_doing_wind_chimes_action = time_since(state.last_wind_chimes_action_time) < 4.f;
 
-  if (is_target_jumping) {
+  if (state.is_on_ladder) {
+    state.player_velocity *= 1.f - 20.f * state.dt;
+  }
+  else if (is_target_jumping) {
     state.player_velocity *= 1.f - 2.f * state.dt;
   }
   else if (is_dodging) {
