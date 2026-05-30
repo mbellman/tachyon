@@ -7,11 +7,12 @@ and the (80)
 _____ (156 + 140)
 
 art:
+* bellflower revision
+* oak + birch tree leaves revision
 * stone paths
 * low guard armor
 * lesser guard armor completion
 * npc clothes/hair etc.
-* bellflowers
 * wooden bridge
 * water wheel
 * gates (round 2)

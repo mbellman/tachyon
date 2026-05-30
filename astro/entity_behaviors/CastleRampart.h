@@ -28,11 +28,13 @@ namespace astro {
       for_entities(state.castle_ramparts) {
         auto& entity = state.castle_ramparts[i];
 
-        auto& tower = use_instance(meshes.castle_rampart);
+        auto& rampart = use_instance(meshes.castle_rampart);
 
-        Sync(tower, entity);
+        Sync(rampart, entity);
 
-        commit(tower);
+        rampart.material = tVec4f(0.6f, 0, 0, 1.f);
+
+        commit(rampart);
       }
     }
   };

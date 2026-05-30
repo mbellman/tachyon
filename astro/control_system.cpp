@@ -81,7 +81,13 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
   // Ladder controls
   {
     if (state.is_on_ladder) {
-      state.player_position.y += -tachyon->left_stick.y * 2500.f * state.dt;
+      float climb_direction = (
+        tachyon->left_stick.y < 0.f ? 1.f :
+        tachyon->left_stick.y > 0.f ? -1.f :
+        0.f
+      );
+
+      state.player_position.y += climb_direction * 2500.f * state.dt;
 
       return;
     }

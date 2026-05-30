@@ -28,11 +28,13 @@ namespace astro {
       for_entities(state.castle_steeples) {
         auto& entity = state.castle_steeples[i];
 
-        auto& tower = use_instance(meshes.castle_steeple);
+        auto& steeple = use_instance(meshes.castle_steeple);
 
-        Sync(tower, entity);
+        Sync(steeple, entity);
 
-        commit(tower);
+        steeple.material = tVec4f(0.6f, 0, 0, 1.f);
+
+        commit(steeple);
       }
     }
   };

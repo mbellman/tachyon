@@ -438,6 +438,18 @@ static void HandleBirdGateCollisions(Tachyon* tachyon, State& state) {
   }
 }
 
+static void HandleCastleRampartCollisions(Tachyon* tachyon, State& state) {
+  for (auto& entity : state.castle_ramparts) {
+    auto rampart_plane = CollisionSystem::CreatePlane(
+      entity.position,
+      entity.scale * tVec3f(0.2f, 1.f, 0.75f),
+      entity.orientation
+    );
+
+    ResolveClippingIntoPlane(state, rampart_plane);
+  }
+}
+
 static void HandleCastleTowerCollisions(Tachyon* tachyon, State& state) {
   float player_body_y = state.player_position.y + PLAYER_HEIGHT;
   float highest_y = -FLT_MAX;
@@ -816,6 +828,7 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   HandleHouseCollisions(tachyon, state);
   HandleIronGateCollisions(tachyon, state);
   HandleBirdGateCollisions(tachyon, state);
+  HandleCastleRampartCollisions(tachyon, state);
 
   // Resolve collisions with irregularly-shaped entities
   HandleSmallStoneBridgeCollisions(tachyon, state);
