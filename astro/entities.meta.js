@@ -705,5 +705,17 @@ export default [
     ],
     scale: [ 1000.0 ],
     color: [ 0.6 ]
+  },
+
+  {
+    type: "TALL_BIRCH",
+    list: "tall_birches",
+    meshes: [
+      "tall_birch_placeholder",
+      "tall_birch_trunk",
+      "tall_birch_leaves"
+    ],
+    scale: [ 2500.0 ],
+    color: [ 1.0 ]
   }
 ];

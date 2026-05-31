@@ -93,8 +93,8 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state) {
   // @temporary
   // @todo dev mode only
   if (state.use_zoomed_out_camera) {
-    new_camera_position.y += 10000.f;
-    new_camera_position.z += 10000.f;
+    new_camera_position.y += 15000.f;
+    new_camera_position.z += 15000.f;
   }
 
   // Vantage camera

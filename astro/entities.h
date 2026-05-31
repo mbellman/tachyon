@@ -64,6 +64,7 @@ namespace astro {
     STONE_PATH_NODE,
     STONE_WALL,
     SUNBEAM,
+    TALL_BIRCH,
     TALL_GRASS,
     TALL_WEEDS,
     TULIP_PLANT,
@@ -134,6 +135,7 @@ namespace astro {
     STONE_PATH_NODE,
     STONE_WALL,
     SUNBEAM,
+    TALL_BIRCH,
     TALL_GRASS,
     TALL_WEEDS,
     TULIP_PLANT,
@@ -508,6 +510,11 @@ namespace astro {
       sunbeam_placeholder,
       sunbeam,
 
+      // TALL_BIRCH
+      tall_birch_placeholder,
+      tall_birch_trunk,
+      tall_birch_leaves,
+
       // TALL_GRASS
       tall_grass_placeholder,
       tall_grass,
@@ -620,6 +627,7 @@ namespace astro {
     EntityList stone_path_nodes;
     EntityList stone_walls;
     EntityList sunbeams;
+    EntityList tall_birches;
     EntityList tall_grasses;
     EntityList tall_weeds;
     EntityList tulip_plants;
@@ -956,6 +964,12 @@ namespace astro {
       .name = "Sunbeam",
       .scale = tVec3f(3000.f, 8000.f, 3000.f),
       .tint = tVec3f(1.f, 0.7f, 0.2f)
+    } },
+
+    { TALL_BIRCH, {
+      .name = "Tall Birch",
+      .scale = tVec3f(2500.f),
+      .tint = tVec3f(1.f)
     } },
 
     { TALL_GRASS, {

@@ -72,7 +72,6 @@ void main() {
     const float wind_strength = 300.0;
     const float wind_speed = 2.0;
 
-    float model_y = model_space_position.y;
     float vertex_y = vertexPosition.y;
 
     // Calculate wind
@@ -100,10 +99,16 @@ void main() {
     const float wind_strength = 20.0;
     const float wind_speed = 1.5;
 
-    float alpha = 2.0 * scene_time + (world_space_position.z + world_space_position.y) * 0.002;
+    float alpha = 2.0 * scene_time + (world_space_position.z + world_space_position.y) * 0.0015;
 
-    world_space_position.x += wind_strength * sin(wind_speed * alpha);
-    world_space_position.z += wind_strength * cos(1.3 * wind_speed * alpha);
+    float core_intensity = min(1.5, 0.2 + length(vertexPosition.xz));
+
+    float S = sin(wind_speed * alpha);
+    float C = cos(1.3 * wind_speed * alpha);
+
+    world_space_position.x += wind_strength * core_intensity * S;
+    // world_space_position.y += wind_strength * core_intensity * S;
+    world_space_position.z += wind_strength * core_intensity * C;
 
     // @todo refactor
     float foliage_mover_factor = distance(foliage_mover_position, world_space_position) / 2000.0;

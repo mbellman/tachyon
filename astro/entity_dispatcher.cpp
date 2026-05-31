@@ -51,6 +51,7 @@
 #include "astro/entity_behaviors/StonePathNode.h"
 #include "astro/entity_behaviors/StoneWall.h"
 #include "astro/entity_behaviors/Sunbeam.h"
+#include "astro/entity_behaviors/TallBirch.h"
 #include "astro/entity_behaviors/TallGrass.h"
 #include "astro/entity_behaviors/TallWeeds.h"
 #include "astro/entity_behaviors/TulipPlant.h"
@@ -139,6 +140,7 @@ using namespace astro;
   dispatch_macro(STONE_PATH_NODE, StonePathNode);\
   dispatch_macro(STONE_WALL, StoneWall);\
   dispatch_macro(SUNBEAM, Sunbeam);\
+  dispatch_macro(TALL_BIRCH, TallBirch);\
   dispatch_macro(TALL_GRASS, TallGrass);\
   dispatch_macro(TALL_WEEDS, TallWeeds);\
   dispatch_macro(TULIP_PLANT, TulipPlant);\
@@ -204,6 +206,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
     dispatch_GetEntityContainer(STONE_PATH_NODE, state.stone_path_nodes);
     dispatch_GetEntityContainer(STONE_WALL, state.stone_walls);
     dispatch_GetEntityContainer(SUNBEAM, state.sunbeams);
+    dispatch_GetEntityContainer(TALL_BIRCH, state.tall_birches);
     dispatch_GetEntityContainer(TALL_GRASS, state.tall_grasses);
     dispatch_GetEntityContainer(TALL_WEEDS, state.tall_weeds);
     dispatch_GetEntityContainer(TULIP_PLANT, state.tulip_plants);

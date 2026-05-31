@@ -32,7 +32,6 @@ time evolution:
 * chestnut tree leaves
 
 entities:
-* tall birch
 * castle wall
 * castle column
 * big mushrooms
