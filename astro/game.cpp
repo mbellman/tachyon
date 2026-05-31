@@ -99,6 +99,10 @@ static void CreateConstantObjects(Tachyon* tachyon, State& state) {
     create(meshes.tree_flower);
   }
 
+  for_range(1, 100) {
+    create(meshes.ladder_rung);
+  }
+
   // Clothing + armor
   {
     for_range(1, 10) {

@@ -195,6 +195,13 @@ static void AddProceduralMeshes(Tachyon* tachyon, State& state) {
     mesh(meshes.stone_path).shadow_cascade_ceiling = 0;
     mesh(meshes.path_stone).shadow_cascade_ceiling = 0;
   }
+
+  // Ladder rungs
+  {
+    meshes.ladder_rung = MODEL_MESH("./astro/3d_models/ladder/rung.obj", 100);
+
+    mesh(meshes.ladder_rung).shadow_cascade_ceiling = 2;
+  }
 }
 
 static void AddFaunaMeshes(Tachyon* tachyon, State& state) {
