@@ -101,7 +101,8 @@ void main() {
 
     float alpha = 2.0 * scene_time + (world_space_position.z + world_space_position.y) * 0.0015;
 
-    float core_intensity = min(1.5, 0.2 + length(vertexPosition.xz));
+    float max_intensity = 2.0;
+    float core_intensity = min(max_intensity, 0.2 + length(vertexPosition.xz));
 
     float S = sin(wind_speed * alpha);
     float C = cos(1.3 * wind_speed * alpha);
