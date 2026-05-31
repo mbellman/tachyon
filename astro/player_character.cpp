@@ -842,7 +842,7 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
 
   tVec3f offset = player_rotation_matrix * tVec3f(-1.f, 0, 0);
 
-  wand.scale = state.is_on_ladder ? tVec3f(0.f) : tVec3f(800.f);
+  wand.scale = state.is_on_ladder || PlayerCharacter::IsClimbingOffLadder(tachyon, state) ? tVec3f(0.f) : tVec3f(800.f);
   wand.color = tVec3f(1.f, 0.6f, 0.2f);
   wand.material = tVec4f(1.f, 0, 0, 0.4f);
 
@@ -1123,6 +1123,11 @@ static void UpdateWandLights(Tachyon* tachyon, State& state) {
       main_light_power += 3.f * (1.f - alpha);
     }
 
+    // Disable when climbing/climbing off ladders
+    if (state.is_on_ladder || PlayerCharacter::IsClimbingOffLadder(tachyon, state)) {
+      main_light_power = 0.f;
+    }
+
     main_light.position = wand_end_position;
     main_light.color = light_color;
     main_light.radius = 500.f + main_light_power * 500.f;
@@ -1135,8 +1140,13 @@ static void UpdateWandLights(Tachyon* tachyon, State& state) {
     bool spawn_new_lights = false;
 
     if (
-      (state.last_wand_swing_time != 0.f && time_since_last_wand_swing < 0.75f) ||
-      state.previous_move_delta > 5.f
+      (
+        !state.is_on_ladder &&
+        !PlayerCharacter::IsClimbingOffLadder(tachyon, state)
+      ) && (
+        (state.last_wand_swing_time != 0.f && time_since_last_wand_swing < 0.75f) ||
+        state.previous_move_delta > 5.f
+      )
     ) {
       spawn_new_lights = true;
     }
@@ -1330,6 +1340,7 @@ bool PlayerCharacter::IsRunning(Tachyon* tachyon, State& state) {
   return (
     is_key_held(tKey::CONTROLLER_A) &&
     state.previous_move_delta > 0.f &&
+    !PlayerCharacter::IsClimbingOffLadder(tachyon, state) &&
     (abs(tachyon->left_stick.x) > 0.1f || abs(tachyon->left_stick.y) > 0.1f)
   );
 }

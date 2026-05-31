@@ -502,6 +502,44 @@ static void HandleWalkSounds(Tachyon* tachyon, State& state) {
   }
 }
 
+static void HandleClimbingSounds(Tachyon* tachyon, State& state) {
+  // Don't play climbing sounds if:
+  if (
+    // We're not on a ladder
+    !state.is_on_ladder ||
+    // We just played a sound
+    time_since(state.last_walk_sound_time) < 0.2f ||
+    // We're not moving
+    !is_moving_left_stick()
+  ) {
+    return;
+  }
+
+  int step_frame_1 = 0; // Left foot
+  int step_frame_2 = 4; // Right foot
+  float seek_time = state.player_mesh_animation.seek_time;
+  int current_frame = (int) fmodf(seek_time, 8.f);
+
+  if (current_frame == step_frame_1 || current_frame == step_frame_2) {
+    auto cycle = state.walk_cycle++;
+    float volume = 0.5f;
+
+    if (cycle == 0) {
+      Sfx::PlaySound(SFX_LADDER_WALK_1, volume);
+    }
+    else if (cycle == 1) {
+      Sfx::PlaySound(SFX_LADDER_WALK_2, volume);
+    }
+    else if (cycle == 2) {
+      Sfx::PlaySound(SFX_LADDER_WALK_3, volume);
+
+      state.walk_cycle = 0;
+    }
+
+    state.last_walk_sound_time = get_scene_time();
+  }
+}
+
 // @todo move to Targeting::
 static bool IsInStealthMode(State& state) {
   const float stealth_distance_limit = 8000.f;
@@ -1086,6 +1124,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   HandleFog(tachyon, state);
   HandleSnow(tachyon, state);
   HandleWalkSounds(tachyon, state);
+  HandleClimbingSounds(tachyon, state);
   HandleCurrentAreaMusic(tachyon, state);
   HandleMusicLevels(tachyon, state);
 
