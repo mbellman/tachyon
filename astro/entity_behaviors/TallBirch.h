@@ -58,8 +58,8 @@ namespace astro {
 
           Sync(leaves, entity);
 
-          leaves.color = tVec4f(0.5f, 0.6f, 0.1f, 0.2f);
-          leaves.material = tVec4f(0.8f, 0, 0, 1.f);
+          leaves.color = tVec4f(0.6f, 0.8f, 0.1f, 0.6f);
+          leaves.material = tVec4f(1.f, 0, 0, 1.f);
 
           commit(leaves);
         }
