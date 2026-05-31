@@ -116,6 +116,11 @@ static void UpdateActiveAnimation(Tachyon* tachyon, State& state) {
     Animation::AwaitNextAnimation(player_animation, &animations.player_idle_wand);
   }
 
+  // Climbing
+  else if (state.is_on_ladder) {
+    Animation::AwaitNextAnimation(player_animation, &animations.player_climb);
+  }
+
   // Running
   else if (PlayerCharacter::IsRunning(tachyon, state)) {
     if (state.is_holding_up_wand) {
@@ -191,6 +196,10 @@ static float GetAnimationSpeed(Tachyon* tachyon, State& state) {
   if (is_astro_traveling) return 0.65f;
   if (is_hit) return 7.f;
   if (is_idle) return 0.8f;
+
+  if (state.is_on_ladder) {
+    return is_moving_left_stick() ? 8.f : 0.f;
+  }
 
   float player_speed = state.player_velocity.magnitude();
   float max_walk_speed = state.has_target ? PlayerCharacter::MAX_COMBAT_WALK_SPEED : PlayerCharacter::MAX_WALK_SPEED;
@@ -278,6 +287,11 @@ static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
   auto blend_type = GetAnimationBlendType(state);
 
   if (!moving_forward) {
+    animation_speed *= -1.f;
+  }
+
+  // When climbing down a ladder, play the animation in reverse
+  if (state.is_on_ladder && tachyon->left_stick.y > 0.f) {
     animation_speed *= -1.f;
   }
 
@@ -828,7 +842,7 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
 
   tVec3f offset = player_rotation_matrix * tVec3f(-1.f, 0, 0);
 
-  wand.scale = tVec3f(800.f);
+  wand.scale = state.is_on_ladder ? tVec3f(0.f) : tVec3f(800.f);
   wand.color = tVec3f(1.f, 0.6f, 0.2f);
   wand.material = tVec4f(1.f, 0, 0, 0.4f);
 

@@ -926,6 +926,19 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
 
     state.animations.player_run_wand.name = "PLAYER_RUN_WAND";
 
+    state.animations.player_climb.frames = {
+      GltfLoader("./astro/3d_skeleton_animations/player_climb/climb_1.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_climb/climb_2.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_climb/climb_3.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_climb/climb_4.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_climb/climb_5.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_climb/climb_6.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_climb/climb_7.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_climb/climb_8.gltf").skeleton
+    };
+
+    state.animations.player_climb.name = "PLAYER_CLIMB";
+
     state.animations.player_swing_wand.frames = {
       GltfLoader("./astro/3d_skeleton_animations/player_swing_wand/swing_1.gltf").skeleton,
       GltfLoader("./astro/3d_skeleton_animations/player_swing_wand/swing_2.gltf").skeleton,

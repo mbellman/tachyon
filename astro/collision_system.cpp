@@ -286,14 +286,14 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
     float dx = abs(state.player_position.x - entity.position.x);
     float dz = abs(state.player_position.z - entity.position.z);
 
-    if (dx < 750.f && dz < 750.f) {
+    if (dx < 850.f && dz < 850.f) {
       float ladder_top_y = entity.position.y + entity.scale.y + 1250.f;
       float ladder_bottom_y = entity.position.y - entity.scale.y;
 
       bool did_climb_off_top = state.player_position.y > ladder_top_y;
       bool did_climb_off_bottom = state.player_position.y < (ladder_bottom_y + 1000.f);
 
-      tVec3f climbing_position_xz = UnitEntityToWorldPosition(entity, tVec3f(0.6f, 0, 0)).xz();
+      tVec3f climbing_position_xz = UnitEntityToWorldPosition(entity, tVec3f(0.8f, 0, 0)).xz();
 
       if (did_climb_off_top) {
         tVec3f off_direction = (entity.position.xz() - climbing_position_xz).unit();
