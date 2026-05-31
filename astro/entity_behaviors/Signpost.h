@@ -37,16 +37,12 @@ namespace astro {
           proximity.facing_dot > 0.5f &&
           !is_moving_left_stick()
         ) {
-          UISystem::ShowTransientDialogue(tachyon, state, "[X] Read");
+          auto& dialogue = state.dialogue_map;
 
-          if (
-            did_press_key(tKey::CONTROLLER_A) &&
-            !state.has_blocking_dialogue
-          ) {
-            // Reset player speed
-            state.player_velocity = tVec3f(0.f);
+          if (dialogue.find(entity.unique_name) != dialogue.end()) {
+            auto& sign_text = dialogue.at(entity.unique_name).lines[0];
 
-            UISystem::StartDialogueSet(state, entity.unique_name);
+            UISystem::ShowTransientDialogue(tachyon, state, sign_text);
           }
         }
 
