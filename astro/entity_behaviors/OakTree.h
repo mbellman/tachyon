@@ -81,7 +81,7 @@ namespace astro {
         bool is_in_range = (
           abs(state.player_position.x - entity.position.x) < 30000.f &&
           entity.position.z - state.player_position.z < 12000.f &&
-          state.player_position.z - entity.position.z < 30000.f
+          state.player_position.z - entity.position.z < 32000.f
         );
 
         if (!state.use_vantage_camera && !is_in_range) continue;

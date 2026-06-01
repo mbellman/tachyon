@@ -2245,6 +2245,7 @@ void LevelEditor::OpenLevelEditor(Tachyon* tachyon, State& state) {
   fx.accumulation_blur_factor = 0.f;
   fx.astro_time_warp_start_radius = 0.f;
   fx.astro_time_warp_end_radius = 0.f;
+  fx.haze_intensity = 0.f;
   // @temporary
   fx.enable_shadows = false;
   fx.enable_ssao = false;
