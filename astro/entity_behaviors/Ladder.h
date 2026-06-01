@@ -47,7 +47,7 @@ namespace astro {
 
         // Rungs
         {
-          int total_rungs = (int) (2.f * entity.scale.y) / 600.f;
+          int total_rungs = (int) ((2.f * entity.scale.y) / 600.f);
           float start_y = entity.position.y - entity.scale.y;
 
           for_range(1, total_rungs) {

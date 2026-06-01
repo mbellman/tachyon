@@ -159,7 +159,7 @@ static void UpdateActiveAnimation(Tachyon* tachyon, State& state) {
 
   // Walking
   else if (
-    time_since(state.last_off_ladder_time) > 1.f && (
+    time_since(state.last_off_ladder_time) > 0.9f && (
       state.previous_move_delta > 10.f ||
       is_doing_quick_turn ||
       has_target_and_is_moving
@@ -192,10 +192,10 @@ static void UpdateActiveAnimation(Tachyon* tachyon, State& state) {
       }
     }
 
-    // If we just climbed off a ladder, default to stance 1,
+    // If we just climbed off a ladder, default to stance 2,
     // which better matches the animation
     if (PlayerCharacter::IsClimbingOffLadder(tachyon, state)) {
-      state.player_idle_stance = 1;
+      state.player_idle_stance = 2;
     }
 
     if (state.is_holding_up_wand) {

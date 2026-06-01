@@ -46,7 +46,6 @@ tutorial:
 * magic gate improvements/collision
 
 features/fixes:
-* river leaf respawning
 * signpost collision
 * more tiny bird variance
 * stone walking sounds

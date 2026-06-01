@@ -289,7 +289,10 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
     float dx = abs(state.player_position.x - entity.position.x);
     float dz = abs(state.player_position.z - entity.position.z);
 
-    if (dx < 1000.f && dz < 1000.f) {
+    tVec3f player_to_entity = (entity.position - state.player_position).xz().unit();
+    float facing_dot = tVec3f::dot(state.player_facing_direction, player_to_entity);
+
+    if (dx < 1000.f && dz < 1000.f && facing_dot > 0.f) {
       float ladder_top_y = entity.position.y + entity.scale.y - 1500.f;
       float ladder_bottom_y = entity.position.y - entity.scale.y;
 
@@ -301,7 +304,7 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
       if (did_climb_off_top) {
         tVec3f off_direction = (entity.position.xz() - climbing_position_xz).unit();
 
-        state.player_velocity = off_direction * 3000.f;
+        state.player_velocity = off_direction * 2000.f;
         state.player_velocity.y = 3800.f;
         state.last_off_ladder_time = scene_time;
       }

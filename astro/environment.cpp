@@ -86,8 +86,11 @@ static void HandleStrayLeaves(Tachyon* tachyon, State& state) {
     float t = scene_time + float(leaf.object_id);
 
     leaf.position.x += movement_speed * state.dt;
+    leaf.position.z += -movement_speed * 0.15f * state.dt;
+
     leaf.position.y += 1000.f * sinf(t) * state.dt;
     leaf.position.z += 500.f * cosf(t) * state.dt;
+
     leaf.scale = tVec3f(150.f * scale_factor);
 
     leaf.rotation *= (
@@ -261,7 +264,7 @@ static void HandleGlowParticles(Tachyon* tachyon, State& state) {
     light.power = light.glow_power;
 
     // Size variation
-    light.radius = 1000.f - 500.f * (1.f - distance_alpha);
+    light.radius = 900.f - 500.f * (1.f - distance_alpha);
 
     // Static properties
     light.color = tVec3f(1.f, 0.5f, 0.2f);
@@ -275,6 +278,10 @@ static tVec3f SampleCurve(const std::vector<tVec3f>& curve, const float t) {
   float seek_time = t * float(max);
   int start_frame = (int) seek_time;
   int end_frame = start_frame + 1;
+
+  if (end_frame == max) {
+    end_frame = start_frame;
+  }
 
   tVec3f a = curve[start_frame % max];
   tVec3f b = curve[end_frame % max];
@@ -294,13 +301,13 @@ static void HandleWaterFlowLeaves(Tachyon* tachyon, State& state) {
     if (leaf.progress >= 1.f) leaf.progress = 0.f;
 
     float hash = float(object.object_id);
-    float t = get_scene_time() + hash;
+    float t = 0.5f * get_scene_time() + hash;
     float scale = 200.f + 150.f * fmodf(hash / 6.f, 1.f);
     float angle = 100.f * leaf.progress + hash;
 
     object.position = SampleCurve(flow.flow_positions, leaf.progress);
     object.position.y = -2915.f;
-    object.position.z += 250.f * sinf(t);
+    object.position.x += 500.f * sinf(t);
     object.scale = tVec3f(scale);
     object.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), angle);
     object.color = tVec3f(0.5f, 0.4f, 0.1f);
