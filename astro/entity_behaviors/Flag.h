@@ -8,6 +8,7 @@ namespace astro {
       meshes.flag_placeholder = MODEL_MESH("./astro/3d_models/flag/placeholder.obj", 500);
       meshes.flag_pole = MODEL_MESH("./astro/3d_models/flag/pole.obj", 500);
       meshes.flag_banner = MODEL_MESH("./astro/3d_models/flag/banner.obj", 500);
+      meshes.flag_trim = MODEL_MESH("./astro/3d_models/flag/trim.obj", 500);
 
       mesh(meshes.flag_placeholder).shadow_cascade_ceiling = 3;
       mesh(meshes.flag_pole).shadow_cascade_ceiling = 2;
@@ -16,12 +17,16 @@ namespace astro {
       // @todo CLOTH_MESH
       mesh(meshes.flag_banner).type = FOLIAGE_MESH;
       mesh(meshes.flag_banner).shadow_cascade_ceiling = 2;
+
+      mesh(meshes.flag_trim).type = FOLIAGE_MESH;
+      mesh(meshes.flag_trim).shadow_cascade_ceiling = 2;
     }
 
     getMeshes() {
       return_meshes({
         meshes.flag_pole,
-        meshes.flag_banner
+        meshes.flag_banner,
+        meshes.flag_trim
       });
     }
 
@@ -34,6 +39,7 @@ namespace astro {
 
       reset_instances(meshes.flag_pole);
       reset_instances(meshes.flag_banner);
+      reset_instances(meshes.flag_trim);
 
       for_entities(state.flags) {
         auto& entity = state.flags[i];
@@ -66,12 +72,26 @@ namespace astro {
 
           Sync(banner, entity);
 
-          banner.color = tVec4f(0.8f, 0.6f, 1.f, 0.3f);
+          banner.color = tVec4f(0.8f, 0.6f, 1.f, 0.5f);
           banner.material = tVec4f(0.7f, 1.f, 0, 1.f);
 
           if (age < 6.f) banner.scale = tVec3f(0.f);
 
           commit(banner);
+        }
+
+        // Trim
+        {
+          auto& trim = use_instance(meshes.flag_trim);
+
+          Sync(trim, entity);
+
+          trim.color = tVec3f(0.8f, 0.5f, 0.2f);
+          trim.material = tVec4f(0.1f, 1.f, 0, 0);
+
+          if (age < 6.f) trim.scale = tVec3f(0.f);
+
+          commit(trim);
         }
       }
     }

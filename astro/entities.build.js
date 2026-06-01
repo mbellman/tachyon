@@ -89,17 +89,17 @@ function createEntityTypesListValues(entities) {
   const sortedTypes = [...entities].sort((a, b) => a.type < b.type ? -1 : 1);
 
   return `
-    ${sortedTypes.map(entity => entity.type).join(",\n    ")}
+${sortedTypes.map(entity => `    ${entity.type}`).join(",\n")}
   `;
 }
 
 function createEntityMeshesString(entities) {
   return `
     uint16
-    ${entities.map(entity => `
+${entities.map(entity => `
       // ${entity.type}
-      ${entity.meshes.join(",\n      ")}`)
-    .join(",\n      ")}
+${entity.meshes.map(name => `      ${name}`).join(",\n")}`)
+    .join(",\n")}
     ;
   `;
 }
@@ -117,7 +117,7 @@ function createEntityDefaultsString(entity) {
       .scale = ${createVec3fString(entity.scale)},
       .tint = ${createVec3fString(entity.color)}
     } },
-  `;
+`;
 }
 
 function createEntityDefaultsMapString(entities) {
@@ -175,7 +175,7 @@ function addEntityDefaultsMap(entitiesFileContents, entities) {
     entitiesFileContents,
     "static std::map<EntityType, EntityDefaults> entity_defaults_map = {",
     createEntityDefaultsMapString(entities),
-    "};"
+    "  };"
   );
 }
 

@@ -341,6 +341,7 @@ namespace astro {
       flag_placeholder,
       flag_pole,
       flag_banner,
+      flag_trim,
 
       // FLOWER_BUSH
       flower_bush_placeholder,

@@ -395,7 +395,8 @@ export default [
     meshes: [
       "flag_placeholder",
       "flag_pole",
-      "flag_banner"
+      "flag_banner",
+      "flag_trim"
     ],
     scale: [ 2000.0 ],
     color: [ 1.0 ]
