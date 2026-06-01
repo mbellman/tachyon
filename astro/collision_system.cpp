@@ -282,6 +282,9 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
     return;
   }
 
+  bool is_left_stick_up = tachyon->left_stick.y < 0.f;
+  bool is_left_stick_down = tachyon->left_stick.y > 0.f;
+
   for (auto& entity : state.ladders) {
     float dx = abs(state.player_position.x - entity.position.x);
     float dz = abs(state.player_position.z - entity.position.z);
@@ -290,8 +293,8 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
       float ladder_top_y = entity.position.y + entity.scale.y + 1250.f;
       float ladder_bottom_y = entity.position.y - entity.scale.y;
 
-      bool did_climb_off_top = state.player_position.y > ladder_top_y;
-      bool did_climb_off_bottom = state.player_position.y < (ladder_bottom_y + 1000.f);
+      bool did_climb_off_top = is_left_stick_up && state.player_position.y > ladder_top_y;
+      bool did_climb_off_bottom = is_left_stick_down && state.player_position.y < (ladder_bottom_y + 1000.f);
 
       tVec3f climbing_position_xz = UnitEntityToWorldPosition(entity, tVec3f(0.95f, 0, 0)).xz();
 

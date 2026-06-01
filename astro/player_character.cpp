@@ -156,7 +156,7 @@ static void UpdateActiveAnimation(Tachyon* tachyon, State& state) {
 
   // Walking
   else if (
-    time_since(state.last_off_ladder_time) > 1.f && (
+    time_since(state.last_off_ladder_time) > 0.6f && (
       state.previous_move_delta > 10.f ||
       is_doing_quick_turn ||
       has_target_and_is_moving
@@ -307,12 +307,11 @@ static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
   float blend_rate = GetAnimationBlendRate(tachyon, state);
   auto blend_type = GetAnimationBlendType(state);
 
-  if (!moving_forward) {
-    animation_speed *= -1.f;
-  }
-
-  // When climbing down a ladder, play the animation in reverse
-  if (state.is_on_ladder && tachyon->left_stick.y > 0.f) {
+  // When moving backward, or climbing down a ladder, play the animation in reverse
+  if (
+    !moving_forward ||
+    state.is_on_ladder && tachyon->left_stick.y > 0.f
+  ) {
     animation_speed *= -1.f;
   }
 
