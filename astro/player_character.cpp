@@ -117,7 +117,10 @@ static void UpdateActiveAnimation(Tachyon* tachyon, State& state) {
   }
 
   // Climbing off (up)
-  else if (time_since(state.last_off_ladder_time) < 0.25f) {
+  else if (
+    state.last_off_ladder_time != 0.f &&
+    time_since(state.last_off_ladder_time) < 0.25f
+  ) {
     Animation::StartNextAnimation(player_animation, &animations.player_climb_up);
   }
 
@@ -156,7 +159,7 @@ static void UpdateActiveAnimation(Tachyon* tachyon, State& state) {
 
   // Walking
   else if (
-    time_since(state.last_off_ladder_time) > 0.6f && (
+    time_since(state.last_off_ladder_time) > 1.f && (
       state.previous_move_delta > 10.f ||
       is_doing_quick_turn ||
       has_target_and_is_moving
@@ -191,7 +194,7 @@ static void UpdateActiveAnimation(Tachyon* tachyon, State& state) {
 
     // If we just climbed off a ladder, default to stance 1,
     // which better matches the animation
-    if (time_since(state.last_off_ladder_time) < 1.f) {
+    if (PlayerCharacter::IsClimbingOffLadder(tachyon, state)) {
       state.player_idle_stance = 1;
     }
 
@@ -862,7 +865,7 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
 
   tVec3f offset = player_rotation_matrix * tVec3f(-1.f, 0, 0);
 
-  wand.scale = state.is_on_ladder || PlayerCharacter::IsClimbingOffLadder(tachyon, state) ? tVec3f(0.f) : tVec3f(800.f);
+  wand.scale = state.is_on_ladder || time_since(state.last_off_ladder_time) < 0.4f ? tVec3f(0.f) : tVec3f(800.f);
   wand.color = tVec3f(1.f, 0.6f, 0.2f);
   wand.material = tVec4f(1.f, 0, 0, 0.4f);
 
@@ -1282,7 +1285,7 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
     }
     else if (state.player_hp > 0.f && player_speed > 0.01f && !state.is_on_ladder) {
       // Without a target, use our velocity vector to influence facing direction
-      desired_facing_direction = state.player_velocity.unit();
+      desired_facing_direction = state.player_velocity.xz().unit();
     }
 
     // When astro turning, don't change our facing direction at all,
@@ -1366,7 +1369,10 @@ bool PlayerCharacter::IsRunning(Tachyon* tachyon, State& state) {
 }
 
 bool PlayerCharacter::IsClimbingOffLadder(Tachyon* tachyon, State& state) {
-  return time_since(state.last_off_ladder_time) < 0.4f;
+  return (
+    state.last_off_ladder_time != 0.f &&
+    time_since(state.last_off_ladder_time) < 0.8f
+  );
 }
 
 float PlayerCharacter::GetHumanEnemyAlertedSpeed(const State& state) {

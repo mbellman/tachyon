@@ -290,11 +290,12 @@ static void HandleSpeedDampening(Tachyon* tachyon, State& state) {
   bool is_dodging = time_since(state.last_dodge_time) < dodge_cooldown_time;
   bool is_target_jumping = time_since(state.last_target_jump_time) < target_jump_cooldown_time;
   bool is_doing_wind_chimes_action = time_since(state.last_wind_chimes_action_time) < 4.f;
+  bool is_climbing_off_ladder = PlayerCharacter::IsClimbingOffLadder(tachyon, state);
 
   if (state.is_on_ladder) {
     state.player_velocity *= 1.f - 20.f * state.dt;
   }
-  if (PlayerCharacter::IsClimbingOffLadder(tachyon, state)) {
+  if (is_climbing_off_ladder) {
     state.player_velocity *= 1.f - 6.f * state.dt;
   }
   else if (is_target_jumping) {
@@ -314,7 +315,7 @@ static void HandleSpeedDampening(Tachyon* tachyon, State& state) {
   float speed = state.player_velocity.magnitude();
   float speed_limit = PlayerCharacter::MAX_RUN_SPEED;
 
-  if (speed > speed_limit && !is_dodging && !is_target_jumping) {
+  if (speed > speed_limit && !is_dodging && !is_target_jumping && !is_climbing_off_ladder) {
     tVec3f unit_velocity = state.player_velocity / speed;
 
     state.player_velocity = unit_velocity * speed_limit;

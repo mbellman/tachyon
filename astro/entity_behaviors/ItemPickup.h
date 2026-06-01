@@ -42,7 +42,7 @@ namespace astro {
         if (
           proximity.distance < 3000.f &&
           proximity.facing_dot > 0.f &&
-          player_speed < 200.f
+          player_speed < PlayerCharacter::MAX_WALK_SPEED
         ) {
           UISystem::ShowTransientDialogue(tachyon, state, "[X] Pick up");
 
