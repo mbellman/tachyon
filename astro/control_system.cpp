@@ -294,6 +294,9 @@ static void HandleSpeedDampening(Tachyon* tachyon, State& state) {
   if (state.is_on_ladder) {
     state.player_velocity *= 1.f - 20.f * state.dt;
   }
+  if (PlayerCharacter::IsClimbingOffLadder(tachyon, state)) {
+    state.player_velocity *= 1.f - 6.f * state.dt;
+  }
   else if (is_target_jumping) {
     state.player_velocity *= 1.f - 2.f * state.dt;
   }

@@ -116,6 +116,11 @@ static void UpdateActiveAnimation(Tachyon* tachyon, State& state) {
     Animation::AwaitNextAnimation(player_animation, &animations.player_idle_wand);
   }
 
+  // Climbing off (up)
+  else if (time_since(state.last_off_ladder_time) < 0.25f) {
+    Animation::StartNextAnimation(player_animation, &animations.player_climb_up);
+  }
+
   // Climbing
   else if (state.is_on_ladder) {
     Animation::AwaitNextAnimation(player_animation, &animations.player_climb);
@@ -150,7 +155,13 @@ static void UpdateActiveAnimation(Tachyon* tachyon, State& state) {
   }
 
   // Walking
-  else if (state.previous_move_delta > 10.f || is_doing_quick_turn || has_target_and_is_moving) {
+  else if (
+    time_since(state.last_off_ladder_time) > 1.f && (
+      state.previous_move_delta > 10.f ||
+      is_doing_quick_turn ||
+      has_target_and_is_moving
+    )
+  ) {
     if (state.is_holding_up_wand) {
       Animation::AwaitNextAnimation(player_animation, &animations.player_walk_wand);
     } else {
@@ -178,6 +189,12 @@ static void UpdateActiveAnimation(Tachyon* tachyon, State& state) {
       }
     }
 
+    // If we just climbed off a ladder, default to stance 1,
+    // which better matches the animation
+    if (time_since(state.last_off_ladder_time) < 1.f) {
+      state.player_idle_stance = 1;
+    }
+
     if (state.is_holding_up_wand) {
       Animation::AwaitNextAnimation(player_animation, &animations.player_idle_wand);
     } else if (state.player_idle_stance == 1) {
@@ -199,6 +216,10 @@ static float GetAnimationSpeed(Tachyon* tachyon, State& state) {
 
   if (state.is_on_ladder) {
     return is_moving_left_stick() ? 8.f : 0.f;
+  }
+
+  if (PlayerCharacter::IsClimbingOffLadder(tachyon, state)) {
+    return 8.f;
   }
 
   float player_speed = state.player_velocity.magnitude();
