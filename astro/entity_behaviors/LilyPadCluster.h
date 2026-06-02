@@ -11,11 +11,12 @@ namespace astro {
       meshes.lily_pad_flower = MODEL_MESH("./astro/3d_models/lily_pad_cluster/flower.obj", 500);
 
       mesh(meshes.lily_pad_cluster_placeholder).shadow_cascade_ceiling = 0;
-      mesh(meshes.lily_pad_cluster).shadow_cascade_ceiling = 0;
-      mesh(meshes.lily_pad_flower).shadow_cascade_ceiling = 2;
+
+      mesh(meshes.lily_pad_flower).type = GRASS_MESH;
+      mesh(meshes.lily_pad_flower).shadow_cascade_ceiling = 1;
 
       mesh(meshes.lily_pad_cluster).type = FOLIAGE_MESH;
-      mesh(meshes.lily_pad_flower).type = FOLIAGE_MESH;
+      mesh(meshes.lily_pad_cluster).shadow_cascade_ceiling = 0;
     }
 
     getMeshes() {

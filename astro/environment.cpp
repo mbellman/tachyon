@@ -56,8 +56,8 @@ static void InitGlowParticles(Tachyon* tachyon, State& state) {
   }
 }
 
-static void HandleStrayLeaves(Tachyon* tachyon, State& state) {
-  profile("HandleStrayLeaves()");
+static void HandleBlowingLeaves(Tachyon* tachyon, State& state) {
+  profile("HandleBlowingLeaves()");
 
   const static float speeds[] = {
     2800.f,
@@ -290,8 +290,8 @@ static tVec3f SampleCurve(const std::vector<tVec3f>& curve, const float t) {
   return tVec3f::lerp(a, b, alpha);
 }
 
-static void HandleWaterFlowLeaves(Tachyon* tachyon, State& state) {
-  profile("HandleWaterFlowLeaves()");
+static void HandleRiverLeaves(Tachyon* tachyon, State& state) {
+  profile("HandleRiverLeaves()");
 
   for (auto& leaf : state.water_flow_leaves) {
     auto& flow = *leaf.source_flow;
@@ -323,8 +323,8 @@ void Environment::Init(Tachyon* tachyon, State& state) {
 }
 
 void Environment::HandleEnvironment(Tachyon* tachyon, State& state) {
-  HandleStrayLeaves(tachyon, state);
+  HandleBlowingLeaves(tachyon, state);
   HandleDustMotes(tachyon, state);
   HandleGlowParticles(tachyon, state);
-  HandleWaterFlowLeaves(tachyon, state);
+  HandleRiverLeaves(tachyon, state);
 }

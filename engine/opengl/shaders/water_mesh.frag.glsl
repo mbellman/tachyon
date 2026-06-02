@@ -173,8 +173,8 @@ vec3 GetSkyColor(vec3 sky_direction, float sun_glare_factor) {
   float DdotU = max(0.0, dot(sky_direction, vec3(0, 1.0, 0)));
   float up_dot = 0.6 + 0.4 * DdotU;
 
-  vec3 horizon_color = vec3(1.0, 0.0, 0);
-  vec3 sky_color = vec3(0.5, 0.7, 1.0);
+  vec3 horizon_color = vec3(1.0, 0.2, 0.0);
+  vec3 sky_color = vec3(0.2, 0.3, 1.0);
 
   return mix(horizon_color, sky_color, up_dot * up_dot);
 }
@@ -321,7 +321,7 @@ void main() {
   )));
 
   // Micro-turbulence
-  N.xz += 0.1 * vec2(simplex_noise(vec2(
+  N.xz += 0.15 * vec2(simplex_noise(vec2(
     water_speed.x * 0.75 + wx * 0.0025,
     water_speed.y * 0.75 + wz * 0.0025
   )));

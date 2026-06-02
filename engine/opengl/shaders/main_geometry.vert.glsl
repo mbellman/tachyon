@@ -104,7 +104,7 @@ void main() {
 
     float alpha = 2.0 * scene_time + (world_space_position.z + world_space_position.y) * 0.0015;
 
-    float min_intensity = is_flag_banner ? 0.0 : 0.2;
+    float min_intensity = is_flag_banner ? 0.0 : 0.5;
     float max_intensity = 2.0;
     float core_intensity = clamp(length(vertexPosition.xz), min_intensity, max_intensity);
 
