@@ -20,7 +20,7 @@ namespace astro {
     }
 
     timeEvolve() {
-      profile("Ladder:TimeEvolve()");
+      profile("  Ladder:TimeEvolve()");
 
       auto& meshes = state.meshes;
 

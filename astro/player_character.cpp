@@ -116,12 +116,16 @@ static void UpdateActiveAnimation(Tachyon* tachyon, State& state) {
     Animation::AwaitNextAnimation(player_animation, &animations.player_idle_wand);
   }
 
-  // Climbing off (up)
+  // Climbing off
   else if (
     state.last_off_ladder_time != 0.f &&
     time_since(state.last_off_ladder_time) < 0.25f
   ) {
-    Animation::StartNextAnimation(player_animation, &animations.player_climb_up);
+    if (state.did_climb_down) {
+      Animation::StartNextAnimation(player_animation, &animations.player_climb_down);
+    } else {
+      Animation::StartNextAnimation(player_animation, &animations.player_climb_up);
+    }
   }
 
   // Climbing
@@ -310,9 +314,9 @@ static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
   float blend_rate = GetAnimationBlendRate(tachyon, state);
   auto blend_type = GetAnimationBlendType(state);
 
-  // When moving backward, or climbing down a ladder, play the animation in reverse
+  // When manually moving backward, or climbing down a ladder, play the animation in reverse
   if (
-    !moving_forward ||
+    (!moving_forward && !PlayerCharacter::IsClimbingOffLadder(tachyon, state)) ||
     state.is_on_ladder && tachyon->left_stick.y > 0.f
   ) {
     animation_speed *= -1.f;
@@ -633,7 +637,7 @@ static void UpdateFlasks(Tachyon* tachyon, State& state, const tVec3f& body_posi
     flask.position = body_position + player_rotation_matrix * offset;
     flask.rotation = player_rotation * swing_rotation * side_swing_rotation;
     flask.scale = tVec3f(1750.f);
-    flask.color.rgba = 0xA448;
+    flask.color.rgba = 0xA444;
     flask.material = tVec4f(0.2f, 0, 1.f, 0.5f);
 
     commit(flask);
@@ -650,7 +654,7 @@ static void UpdateFlasks(Tachyon* tachyon, State& state, const tVec3f& body_posi
     flask.position = body_position + player_rotation_matrix * offset;
     flask.rotation = player_rotation * swing_rotation * side_swing_rotation;
     flask.scale = tVec3f(1500.f);
-    flask.color.rgba = 0x64A8;
+    flask.color.rgba = 0x64A4;
     flask.material = tVec4f(0.2f, 0, 1.f, 0.5f);
 
     commit(flask);
@@ -1283,7 +1287,12 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
 
       desired_facing_direction = (target.visible_position - state.player_position).xz().unit();
     }
-    else if (state.player_hp > 0.f && player_speed > 0.01f && !state.is_on_ladder) {
+    else if (
+      state.player_hp > 0.f &&
+      player_speed > 0.01f &&
+      !state.is_on_ladder &&
+      !PlayerCharacter::IsClimbingOffLadder(tachyon, state)
+    ) {
       // Without a target, use our velocity vector to influence facing direction
       desired_facing_direction = state.player_velocity.xz().unit();
     }

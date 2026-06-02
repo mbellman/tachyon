@@ -274,7 +274,7 @@ vec3 GetAmbientFresnel(float NdotV) {
   return vec3(pow(1.0 - NdotV, 5.0)) * sky_light_color * 0.2;
 }
 
-vec3 GetAmbientFresnel2(float NdotV, float sheen) {
+vec3 GetSheenFresnel(float NdotV, float sheen) {
   return vec3(pow(1.0 - NdotV, 4.0)) * sky_light_color * sheen;
 }
 
@@ -658,7 +658,6 @@ void main() {
   float clearcoat = material.clearcoat;
   float subsurface = material.subsurface;
 
-  roughness = mix(roughness, 0.0, pow(sheen, 0.5));
   subsurface = mix(subsurface, 2.0, sheen);
 
   if (roughness < 0.05) roughness = 0.05;
@@ -781,7 +780,7 @@ void main() {
   }
 
   out_color += GetAmbientFresnel(NdotV);
-  out_color += GetAmbientFresnel2(NdotV, sheen);
+  out_color += GetSheenFresnel(NdotV, sheen);
 
   if (frag_normal_and_depth.w >= 1.0) out_color = vec3(0);
 

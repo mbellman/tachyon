@@ -475,21 +475,21 @@ static void HandleWalkSounds(Tachyon* tachyon, State& state) {
     float volume = is_running ? 0.1f : 0.05f;
 
     if (cycle == 0) {
-      if (state.is_on_wood_surface) {
+      if (state.is_on_wood_surface || state.is_on_stone_surface) {
         Sfx::PlaySound(SFX_WOOD_WALK_1, volume);
       } else {
         Sfx::PlaySound(SFX_GROUND_WALK_1, volume);
       }
     }
     else if (cycle == 1) {
-      if (state.is_on_wood_surface) {
+      if (state.is_on_wood_surface || state.is_on_stone_surface) {
         Sfx::PlaySound(SFX_WOOD_WALK_2, volume);
       } else {
         Sfx::PlaySound(SFX_GROUND_WALK_2, volume);
       }
     }
     else if (cycle == 2) {
-      if (state.is_on_wood_surface) {
+      if (state.is_on_wood_surface || state.is_on_stone_surface) {
         Sfx::PlaySound(SFX_WOOD_WALK_3, volume);
       } else {
         Sfx::PlaySound(SFX_GROUND_WALK_3, volume);
@@ -989,6 +989,19 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
     };
 
     state.animations.player_climb_up.name = "PLAYER_CLIMB_UP";
+
+    state.animations.player_climb_down.frames = {
+      GltfLoader("./astro/3d_skeleton_animations/player_climb_down/climb_down_1.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_climb_down/climb_down_2.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_climb_down/climb_down_3.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_climb_down/climb_down_4.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_climb_down/climb_down_5.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_climb_down/climb_down_6.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_climb_down/climb_down_7.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_climb_down/climb_down_8.gltf").skeleton
+    };
+
+    state.animations.player_climb_down.name = "PLAYER_CLIMB_DOWN";
 
     state.animations.player_swing_wand.frames = {
       GltfLoader("./astro/3d_skeleton_animations/player_swing_wand/swing_1.gltf").skeleton,

@@ -294,10 +294,10 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
 
     if (dx < 1000.f && dz < 1000.f && facing_dot > 0.f) {
       float ladder_top_y = entity.position.y + entity.scale.y - 1500.f;
-      float ladder_bottom_y = entity.position.y - entity.scale.y;
+      float ladder_bottom_y = entity.position.y - entity.scale.y + 2500.f;
 
       bool did_climb_off_top = is_left_stick_up && state.player_position.y > ladder_top_y;
-      bool did_climb_off_bottom = is_left_stick_down && state.player_position.y < (ladder_bottom_y + 1000.f);
+      bool did_climb_off_bottom = is_left_stick_down && state.player_position.y < ladder_bottom_y;
 
       tVec3f climbing_position_xz = UnitEntityToWorldPosition(entity, tVec3f(0.95f, 0, 0)).xz();
 
@@ -307,12 +307,14 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
         state.player_velocity = off_direction * 2000.f;
         state.player_velocity.y = 3800.f;
         state.last_off_ladder_time = scene_time;
+        state.did_climb_down = false;
       }
       else if (did_climb_off_bottom) {
         tVec3f off_direction = (climbing_position_xz - entity.position.xz()).unit();
 
-        state.player_velocity = off_direction * 1500.f;
+        state.player_velocity = off_direction * 1000.f;
         state.last_off_ladder_time = scene_time;
+        state.did_climb_down = true;
       }
       else {
         float alpha = 5.f * state.dt;
@@ -320,6 +322,10 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
         // Blend into the climbing position
         state.player_position.x = Tachyon_Lerpf(state.player_position.x, climbing_position_xz.x, alpha);
         state.player_position.z = Tachyon_Lerpf(state.player_position.z, climbing_position_xz.z, alpha);
+
+        if (state.player_position.y > ladder_top_y) {
+          state.player_position.y = Tachyon_Lerpf(state.player_position.y, ladder_top_y, 1.5f * state.dt);
+        }
 
         // Blend into the ladder-facing direction
         //
@@ -505,6 +511,7 @@ static void HandleCastleTowerCollisions(Tachyon* tachyon, State& state) {
         AllowPlayerMovement(state, player_y, tower_plane);
 
         state.is_on_solid_platform = true;
+        state.is_on_stone_surface = true;
       }
     }
   }
@@ -885,7 +892,16 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   // Climbing-off behavior
   {
     if (PlayerCharacter::IsClimbingOffLadder(tachyon, state)) {
-      state.fall_velocity = 0.f;
+      if (
+        state.player_position.y > state.current_ground_y &&
+        state.did_climb_down
+      ) {
+        state.fall_velocity += 20000.f * state.dt;
+      } else {
+        state.fall_velocity = 0.f;
+      }
+
+      state.player_position.y -= state.fall_velocity * state.dt;
 
       return;
     }

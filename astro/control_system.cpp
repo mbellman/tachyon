@@ -92,6 +92,10 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
 
       float speed = 3500.f * (0.5f + 0.5f * sinf(alpha));
 
+      if (climb_direction == -1.f && is_key_held(tKey::CONTROLLER_A)) {
+        speed = 8000.f;
+      }
+
       state.player_position.y += climb_direction * speed * state.dt;
 
       return;
