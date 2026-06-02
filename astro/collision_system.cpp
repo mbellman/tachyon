@@ -316,8 +316,8 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
       if (did_climb_off_top) {
         tVec3f off_direction = (entity.position.xz() - climbing_position_xz).unit();
 
-        state.player_velocity = off_direction * 1200.f;
-        state.player_velocity.y = 2500.f;
+        state.player_velocity = off_direction * 2000.f;
+        state.player_velocity.y = 3800.f;
         state.last_off_ladder_time = scene_time;
         state.did_climb_down = false;
       }

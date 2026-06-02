@@ -306,7 +306,7 @@ static void HandleSpeedDampening(Tachyon* tachyon, State& state) {
     if (state.did_climb_down) {
       state.player_velocity *= 1.f - 6.f * state.dt;
     } else {
-      state.player_velocity *= 1.f - 4.f * state.dt;
+      state.player_velocity *= 1.f - 6.f * state.dt;
     }
   }
   else if (is_target_jumping) {
