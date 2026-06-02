@@ -472,11 +472,16 @@ static void HandleWalkSounds(Tachyon* tachyon, State& state) {
 
   if (current_frame == step_frame_1 || current_frame == step_frame_2) {
     auto cycle = state.walk_cycle++;
+
     float volume = (
       is_running ? 0.1f :
       PlayerCharacter::IsClimbingOffLadder(tachyon, state) ? 0.2f :
       0.05f
     );
+
+    if (state.is_on_stone_surface) {
+      volume *= 2.f;
+    }
 
     if (cycle == 0) {
       if (state.is_on_wood_surface) {
@@ -532,7 +537,7 @@ static void HandleClimbingSounds(Tachyon* tachyon, State& state) {
 
   if (current_frame == step_frame_1 || current_frame == step_frame_2) {
     auto cycle = state.walk_cycle++;
-    float volume = 0.5f;
+    float volume = state.is_starting_climb_down ? 1.25f : 0.75f;
 
     if (cycle == 0) {
       Sfx::PlaySound(SFX_LADDER_WALK_1, volume);

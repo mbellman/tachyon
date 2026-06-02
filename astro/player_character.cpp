@@ -84,6 +84,15 @@ static bool IsAnyIdleAnimation(tSkeletonAnimation* animation, const State& state
   return IsNormalIdleAnimation(animation, state) || IsWandIdleAnimation(animation, state);
 }
 
+static bool IsWalkAnimation(tSkeletonAnimation* animation, const State& state) {
+  auto& animations = state.animations;
+
+  return (
+    animation == &animations.player_walk ||
+    animation == &animations.player_walk_wand
+  );
+}
+
 static void UpdateActiveAnimation(Tachyon* tachyon, State& state) {
   auto& player_animation = state.player_mesh_animation;
   auto& animations = state.animations;
@@ -130,7 +139,11 @@ static void UpdateActiveAnimation(Tachyon* tachyon, State& state) {
 
   // Climbing
   else if (state.is_on_ladder) {
-    Animation::AwaitNextAnimation(player_animation, &animations.player_climb);
+    if (state.is_starting_climb_down) {
+      Animation::StartNextAnimation(player_animation, &animations.player_climb_up);
+    } else {
+      Animation::AwaitNextAnimation(player_animation, &animations.player_climb);
+    }
   }
 
   // Running
@@ -163,7 +176,10 @@ static void UpdateActiveAnimation(Tachyon* tachyon, State& state) {
 
   // Walking
   else if (
-    time_since(state.last_off_ladder_time) > 0.8f && (
+    (
+      time_since(state.last_off_ladder_time) > 1.5f ||
+      is_moving_left_stick()
+    ) && (
       state.previous_move_delta > 10.f ||
       is_doing_quick_turn ||
       has_target_and_is_moving
@@ -222,7 +238,7 @@ static float GetAnimationSpeed(Tachyon* tachyon, State& state) {
   if (is_idle) return 0.8f;
 
   if (state.is_on_ladder) {
-    return is_moving_left_stick() ? 8.f : 0.f;
+    return is_moving_left_stick() || state.is_starting_climb_down ? 8.f : 0.f;
   }
 
   if (PlayerCharacter::IsClimbingOffLadder(tachyon, state)) {
@@ -274,9 +290,15 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
     return 5.f;
   }
 
+  // Special case for blending into idle when climbing down
+  // off a climbable wall. Use a slightly slower blend so we
+  // transition into idle more naturally, mitigating awkward
+  // foot shuffling behavior.
   if (
+    !state.is_on_ladder &&
     state.last_off_ladder_time != 0.f &&
-    time_since(state.last_off_ladder_time) < 1.5f
+    time_since(state.last_off_ladder_time) < 1.5f &&
+    state.did_climb_down
   ) {
     return 2.f;
   }
@@ -324,7 +346,8 @@ static void UpdatePlayerSkeleton(Tachyon* tachyon, State& state) {
   // When manually moving backward, or climbing down a ladder, play the animation in reverse
   if (
     (!moving_forward && !PlayerCharacter::IsClimbingOffLadder(tachyon, state)) ||
-    state.is_on_ladder && tachyon->left_stick.y > 0.f
+    (state.is_on_ladder && tachyon->left_stick.y > 0.f) ||
+    state.is_starting_climb_down
   ) {
     animation_speed *= -1.f;
   }
@@ -1349,6 +1372,16 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
     state.tilt_angle = Tachyon_Lerpf(state.tilt_angle, tilt, 5.f * state.dt);
 
     state.player_mesh_animation.torso_turn_angle = 4.f * state.tilt_angle;
+
+    if (
+      IsWalkAnimation(state.player_mesh_animation.current_animation, state) ||
+      IsWalkAnimation(state.player_mesh_animation.next_animation, state)
+    ) {
+      float t = fmodf(state.player_mesh_animation.seek_time + 3.5f, 8.f) / 8.f;
+      float alpha = t * t_TAU;
+
+      state.player_mesh_animation.torso_turn_angle += 0.2f * speed_ratio * sinf(alpha);
+    }
   }
 
   // Shift the player left or right relative to the tilt angle,

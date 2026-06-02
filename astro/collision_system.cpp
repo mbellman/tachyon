@@ -270,6 +270,7 @@ static void HandleSlopeCollisions(Tachyon* tachyon, State& state) {
       AllowPlayerMovement(state, player_y, slope_plane);
 
       state.is_on_solid_platform = true;
+      state.is_on_stone_surface = true;
       state.is_moving_down_slope = slope_dot < -0.f;
     }
   }
@@ -335,7 +336,11 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
         state.player_position.z = Tachyon_Lerpf(state.player_position.z, climbing_position_xz.z, alpha);
 
         if (state.player_position.y > ladder_top_y) {
-          state.player_position.y = Tachyon_Lerpf(state.player_position.y, ladder_top_y, 3.f * state.dt);
+          // Climbing down until we're below the ladder top y
+          state.is_starting_climb_down = true;
+          state.player_position.y -= 3000.f * state.dt;
+        } else {
+          state.is_starting_climb_down = false;
         }
 
         // Blend into the ladder-facing direction
