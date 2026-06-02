@@ -24,7 +24,6 @@ static std::map<Sound, const char*> sound_file_map = {
   { SFX_WOOD_WALK_2, "./astro/audio/sfx_wood_walk_2.wav" },
   { SFX_WOOD_WALK_3, "./astro/audio/sfx_wood_walk_3.wav" },
 
-  // @todo add sound files
   { SFX_STONE_WALK_1, "./astro/audio/sfx_stone_walk_1.wav" },
   { SFX_STONE_WALK_2, "./astro/audio/sfx_stone_walk_2.wav" },
   { SFX_STONE_WALK_3, "./astro/audio/sfx_stone_walk_3.wav" },

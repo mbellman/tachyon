@@ -323,7 +323,8 @@ void main() {
       float gold_haze_factor = 2.0 * haze_intensity * smoothstep(0.65, 0.9, depth_factor);
 
       vec3 fog_color = vec3(0.2, 0.4, 0.5);
-      vec3 gold_haze_color = 2.0 * vec3(1.0, 0.9, 0.5);
+      vec3 gold_haze_color = 2.0 * vec3(1.0, 0.8, 0.5);
+      // vec3 gold_haze_color = 2.0 * vec3(1.0, 0.6, 0.5);
 
       post_color = mix(post_color, fog_color, fog_factor);
       post_color = mix(post_color, gold_haze_color, gold_haze_factor);

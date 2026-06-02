@@ -234,7 +234,7 @@ static float GetAnimationSpeed(Tachyon* tachyon, State& state) {
   float speed_ratio = player_speed / PlayerCharacter::MAX_RUN_SPEED;
   bool is_running = player_speed > max_walk_speed;
 
-  return (is_running ? 11.5f : 13.f) * sqrtf(speed_ratio);
+  return (is_running ? 11.5f : 13.5f) * sqrtf(speed_ratio);
 }
 
 static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
@@ -574,11 +574,20 @@ static float GetSwingIntensity(Tachyon* tachyon, State& state, const float off_l
     swing_intensity += 1.f - alpha;
   }
 
+  if (state.is_on_ladder) {
+    float t = fmodf(state.player_mesh_animation.seek_time, 8.f) / 8.f;
+    float alpha = 2.f * t * t_TAU;
+
+    float speed = 3500.f * (0.5f + 0.5f * sinf(alpha));
+
+    swing_intensity = speed / 3500.f;
+  }
+
   return swing_intensity;
 }
 
 static void UpdateBlanket(Tachyon* tachyon, State& state, const tVec3f& body_position, const Quaternion& player_rotation) {
-  float swing_intensity = GetSwingIntensity(tachyon, state, 0.8f);
+  float swing_intensity = GetSwingIntensity(tachyon, state, 1.5f);
   auto& player_animation = state.player_mesh_animation;
   auto& torso_bone = player_animation.active_pose.bones[8];
   auto& blanket = objects(state.meshes.player_blanket)[0];
@@ -611,7 +620,7 @@ static void UpdateBlanket(Tachyon* tachyon, State& state, const tVec3f& body_pos
 }
 
 static void UpdateSatchel(Tachyon* tachyon, State& state, const tVec3f& body_position, const Quaternion& player_rotation) {
-  float swing_intensity = GetSwingIntensity(tachyon, state, 0.8f);
+  float swing_intensity = GetSwingIntensity(tachyon, state, 1.5f);
   auto& player_animation = state.player_mesh_animation;
   auto& torso_bone = player_animation.active_pose.bones[8];
   auto& satchel = objects(state.meshes.player_satchel)[0];
