@@ -119,7 +119,7 @@ static void UpdateActiveAnimation(Tachyon* tachyon, State& state) {
   // Climbing off
   else if (
     state.last_off_ladder_time != 0.f &&
-    time_since(state.last_off_ladder_time) < 0.25f
+    time_since(state.last_off_ladder_time) < 0.5f
   ) {
     if (state.did_climb_down) {
       Animation::StartNextAnimation(player_animation, &animations.player_climb_down);
@@ -163,7 +163,7 @@ static void UpdateActiveAnimation(Tachyon* tachyon, State& state) {
 
   // Walking
   else if (
-    time_since(state.last_off_ladder_time) > 0.9f && (
+    time_since(state.last_off_ladder_time) > 0.8f && (
       state.previous_move_delta > 10.f ||
       is_doing_quick_turn ||
       has_target_and_is_moving
@@ -226,7 +226,7 @@ static float GetAnimationSpeed(Tachyon* tachyon, State& state) {
   }
 
   if (PlayerCharacter::IsClimbingOffLadder(tachyon, state)) {
-    return 8.f;
+    return state.did_climb_down ? 7.f : 8.f;
   }
 
   float player_speed = state.player_velocity.magnitude();
@@ -272,6 +272,13 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
     )
   ) {
     return 5.f;
+  }
+
+  if (
+    state.last_off_ladder_time != 0.f &&
+    time_since(state.last_off_ladder_time) < 1.5f
+  ) {
+    return 2.f;
   }
 
   // Blend faster out of idle
@@ -555,8 +562,23 @@ static void UpdatePlayerHeadTurnAngle(Tachyon* tachyon, State& state) {
   turn_angle = Tachyon_Lerpf(turn_angle, 0.f, 4.f * state.dt);
 }
 
+static float GetSwingIntensity(Tachyon* tachyon, State& state, const float off_ladder_duration) {
+  float swing_intensity = state.player_velocity.magnitude() / PlayerCharacter::MAX_RUN_SPEED;
+
+  if (
+    state.last_off_ladder_time != 0.f &&
+    time_since(state.last_off_ladder_time) < off_ladder_duration
+  ) {
+    float alpha = time_since(state.last_off_ladder_time) / off_ladder_duration;
+
+    swing_intensity += 1.f - alpha;
+  }
+
+  return swing_intensity;
+}
+
 static void UpdateBlanket(Tachyon* tachyon, State& state, const tVec3f& body_position, const Quaternion& player_rotation) {
-  float speed_ratio = state.player_velocity.magnitude() / PlayerCharacter::MAX_RUN_SPEED;
+  float swing_intensity = GetSwingIntensity(tachyon, state, 0.8f);
   auto& player_animation = state.player_mesh_animation;
   auto& torso_bone = player_animation.active_pose.bones[8];
   auto& blanket = objects(state.meshes.player_blanket)[0];
@@ -564,10 +586,10 @@ static void UpdateBlanket(Tachyon* tachyon, State& state, const tVec3f& body_pos
   float bounce_t = player_animation.seek_time;
   if (bounce_t < 0.f) bounce_t += 8.f;
   float bounce_alpha = t_TAU * fmodf(bounce_t, 8.f) / 8.f;
-  float bounce_angle = 0.6f * speed_ratio * speed_ratio * abs(sinf(bounce_alpha));
+  float bounce_angle = 0.6f * swing_intensity * swing_intensity * abs(sinf(bounce_alpha));
   Quaternion bounce_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), bounce_angle);
 
-  float swing_angle = 0.35f * speed_ratio * cosf(bounce_alpha);
+  float swing_angle = 0.35f * swing_intensity * cosf(bounce_alpha);
   Quaternion swing_rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), swing_angle);
 
   Quaternion tilt_rotation = Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), -0.5f);
@@ -589,7 +611,7 @@ static void UpdateBlanket(Tachyon* tachyon, State& state, const tVec3f& body_pos
 }
 
 static void UpdateSatchel(Tachyon* tachyon, State& state, const tVec3f& body_position, const Quaternion& player_rotation) {
-  float speed_ratio = state.player_velocity.magnitude() / PlayerCharacter::MAX_RUN_SPEED;
+  float swing_intensity = GetSwingIntensity(tachyon, state, 0.8f);
   auto& player_animation = state.player_mesh_animation;
   auto& torso_bone = player_animation.active_pose.bones[8];
   auto& satchel = objects(state.meshes.player_satchel)[0];
@@ -597,10 +619,10 @@ static void UpdateSatchel(Tachyon* tachyon, State& state, const tVec3f& body_pos
   float bounce_t = player_animation.seek_time;
   if (bounce_t < 0.f) bounce_t += 8.f;
   float bounce_alpha = t_TAU * fmodf(bounce_t, 8.f) / 8.f;
-  float bounce_angle = 0.6f * speed_ratio * speed_ratio * abs(sinf(bounce_alpha));
+  float bounce_angle = 0.6f * swing_intensity * swing_intensity * abs(sinf(bounce_alpha));
   Quaternion bounce_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), bounce_angle);
 
-  float swing_angle = 0.15f * speed_ratio * cosf(bounce_alpha) + 3.f * state.tilt_angle;
+  float swing_angle = 0.15f * swing_intensity * cosf(bounce_alpha) + 3.f * state.tilt_angle;
   Quaternion swing_rotation = Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), swing_angle);
 
   tVec3f offset = tVec3f(0.f, 0.25f + bounce_angle * 0.1f, -0.325f);
@@ -623,14 +645,14 @@ static void UpdateFlasks(Tachyon* tachyon, State& state, const tVec3f& body_posi
   auto& meshes = state.meshes;
   auto& player_animation = state.player_mesh_animation;
 
-  float speed_ratio = state.player_velocity.magnitude() / PlayerCharacter::MAX_RUN_SPEED;
+  float swing_intensity = GetSwingIntensity(tachyon, state, 2.f);
   Quaternion side_swing_rotation = Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), 4.f * state.tilt_angle);
 
   // Flask 1
   {
     auto& flask = objects(meshes.player_flask)[0];
 
-    float swing_angle = 0.75f * speed_ratio* sinf(get_scene_time() * 10.f);
+    float swing_angle = 0.75f * swing_intensity * sinf(get_scene_time() * 10.f);
     Quaternion swing_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), swing_angle);
     tVec3f offset = tVec3f(600.f, 200.f + 50.f * swing_angle, 0.f);
 
@@ -647,7 +669,7 @@ static void UpdateFlasks(Tachyon* tachyon, State& state, const tVec3f& body_posi
   {
     auto& flask = objects(meshes.player_flask)[1];
 
-    float swing_angle = 0.6f * speed_ratio * sinf(get_scene_time() * 10.f - 1.25f);
+    float swing_angle = 0.6f * swing_intensity * sinf(get_scene_time() * 10.f - 1.25f);
     Quaternion swing_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), swing_angle);
     tVec3f offset = tVec3f(610.f, 250.f + 50.f * swing_angle, -200.f);
 

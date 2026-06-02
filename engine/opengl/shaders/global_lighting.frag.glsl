@@ -275,7 +275,8 @@ vec3 GetAmbientFresnel(float NdotV) {
 }
 
 vec3 GetSheenFresnel(float NdotV, float sheen) {
-  return vec3(pow(1.0 - NdotV, 4.0)) * sky_light_color * sheen;
+  // @todo sheen_color
+  return vec3(pow(1.0 - NdotV, 8.0)) * vec3(1, 0.5, 0.2) * sheen;
 }
 
 vec4 UnpackColor(uvec4 surface) {

@@ -292,7 +292,7 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
     tVec3f player_to_entity = (entity.position - state.player_position).xz().unit();
     float facing_dot = tVec3f::dot(state.player_facing_direction, player_to_entity);
 
-    if (dx < 1000.f && dz < 1000.f && facing_dot > 0.f) {
+    if (dx < 1000.f && dz < 1000.f && facing_dot > -0.5f) {
       float ladder_top_y = entity.position.y + entity.scale.y - 1500.f;
       float ladder_bottom_y = entity.position.y - entity.scale.y + 2500.f;
 
@@ -304,8 +304,8 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
       if (did_climb_off_top) {
         tVec3f off_direction = (entity.position.xz() - climbing_position_xz).unit();
 
-        state.player_velocity = off_direction * 2000.f;
-        state.player_velocity.y = 3800.f;
+        state.player_velocity = off_direction * 1200.f;
+        state.player_velocity.y = 2450.f;
         state.last_off_ladder_time = scene_time;
         state.did_climb_down = false;
       }
@@ -892,12 +892,22 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   // Climbing-off behavior
   {
     if (PlayerCharacter::IsClimbingOffLadder(tachyon, state)) {
-      if (
-        state.player_position.y > state.current_ground_y &&
-        state.did_climb_down
-      ) {
-        state.fall_velocity += 20000.f * state.dt;
+      if (state.did_climb_down) {
+        if (state.player_position.y > state.current_ground_y) {
+          // Jumping off/falling
+          state.fall_velocity += 20000.f * state.dt;
+        } else {
+          // Hit the ground; blend into the current ground y position
+          state.player_position.y = Tachyon_Lerpf(
+            state.player_position.y,
+            state.current_ground_y,
+            2.f * state.dt
+          );
+
+          state.fall_velocity = 0.f;
+        }
       } else {
+        // Climbing up; no falling involved
         state.fall_velocity = 0.f;
       }
 
