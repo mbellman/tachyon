@@ -66,34 +66,8 @@ static bool HasNextWandAnimation(State& state) {
   );
 }
 
-static bool IsNormalIdleAnimation(tSkeletonAnimation* animation, const State& state) {
-  auto& animations = state.animations;
-
-  return (
-    animation == &animations.player_idle ||
-    animation == &animations.player_idle_2
-  );
-}
-
-static bool IsWandIdleAnimation(tSkeletonAnimation* animation, const State& state) {
-  auto& animations = state.animations;
-
-  return (
-    animation == &animations.player_idle_wand
-  );
-}
-
-static bool IsAnyIdleAnimation(tSkeletonAnimation* animation, const State& state) {
-  return IsNormalIdleAnimation(animation, state) || IsWandIdleAnimation(animation, state);
-}
-
-static bool IsWalkAnimation(tSkeletonAnimation* animation, const State& state) {
-  auto& animations = state.animations;
-
-  return (
-    animation == &animations.player_walk ||
-    animation == &animations.player_walk_wand
-  );
+static bool IsWandHoldAnimationActive(State& state) {
+  return HasCurrentWandAnimation(state) || HasNextWandAnimation(state);
 }
 
 // @todo debug mode only
@@ -480,10 +454,6 @@ static void HandleWandStrike(Tachyon* tachyon, State& state) {
   Combat::HandleWandStrikeWindow(tachyon, state);
   // @deprecated
   Magic::HandleWandAction(tachyon, state);
-}
-
-static bool IsWandHoldAnimationActive(State& state) {
-  return HasCurrentWandAnimation(state) || HasNextWandAnimation(state);
 }
 
 static float GetWandHoldFactor(State& state) {
@@ -903,15 +873,13 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
 
     state.player_mesh_animation.torso_turn_angle = 4.f * state.tilt_angle;
 
-    if (
-      IsWalkAnimation(state.player_mesh_animation.current_animation, state) ||
-      IsWalkAnimation(state.player_mesh_animation.next_animation, state)
-    ) {
-      float t = fmodf(state.player_mesh_animation.seek_time + 3.5f, 8.f) / 8.f;
-      float alpha = t * t_TAU;
+    // Swing the torso while walking
+    // @todo refactor/clean up
+    float t = fmodf(state.player_mesh_animation.seek_time + 3.f, 8.f) / 8.f;
+    float alpha = t * t_TAU;
+    float r = sinf(speed_ratio * t_PI);
 
-      state.player_mesh_animation.torso_turn_angle += 0.2f * speed_ratio * sinf(alpha);
-    }
+    state.player_mesh_animation.torso_turn_angle += 0.1f * r * sinf(alpha);
   }
 
   // Shift the player left or right relative to the tilt angle,
