@@ -483,6 +483,14 @@ namespace astro {
     float dt = 0.f;
 
     // Player attributes
+    struct Player {
+      Quaternion rotation;
+      tMat4f rotation_matrix;
+
+      Quaternion visual_rotation;
+      tVec3f visual_position;
+    } player;
+
     tVec3f player_position;
     std::vector<tVec3f> previous_player_positions;
     tVec3f last_solid_ground_position;

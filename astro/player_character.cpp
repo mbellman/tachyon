@@ -98,7 +98,7 @@ static bool IsWalkAnimation(tSkeletonAnimation* animation, const State& state) {
 
 // @todo debug mode only
 // @todo factor to allow any skeleton pose to be visualized
-static void ShowDebugPlayerSkeleton(Tachyon* tachyon, State& state, Quaternion& player_rotation, tMat4f& player_rotation_matrix) {
+static void ShowDebugPlayerSkeleton(Tachyon* tachyon, State& state) {
   profile("ShowDebugPlayerSkeleton()");
 
   auto& camera = tachyon->scene.camera;
@@ -130,10 +130,10 @@ static void ShowDebugPlayerSkeleton(Tachyon* tachyon, State& state, Quaternion& 
     // @todo compute properly
     float bone_length = 10.f;
 
-    debug_bone.position = base_position + player_rotation_matrix * (bone_translation * tVec3f(75.f));
+    debug_bone.position = base_position + state.player.rotation_matrix * (bone_translation * tVec3f(75.f));
     debug_bone.scale = tVec3f(0.5f, bone_length, 0.5f);
     debug_bone.color = tVec4f(0.2f, 0.8f, 1.f, 1.f);
-    debug_bone.rotation = player_rotation * bone_rotation;
+    debug_bone.rotation = state.player.rotation * bone_rotation;
 
     // Show leaf bones in a different color
     if (bone.child_bone_indexes.size() == 0) {
@@ -165,7 +165,7 @@ static float SampleCurve(const std::vector<float>& curve, const float t) {
   return Tachyon_Lerpf(a, b, alpha);
 }
 
-static void HandleRunOscillation(Tachyon* tachyon, State& state, tVec3f& body_position) {
+static void HandleRunOscillation(Tachyon* tachyon, State& state) {
   if (state.did_jump_off_ledge) {
     // Reduce run oscillation when jumping off ledges
     state.run_oscillation -= 5.f * state.dt;
@@ -189,23 +189,23 @@ static void HandleRunOscillation(Tachyon* tachyon, State& state, tVec3f& body_po
   float run_cycle_time = fmodf(state.player_mesh_animation.seek_time + 1.f, 8.f) / 8.f;
   float run_bounce = SampleCurve(run_bounce_curve, run_cycle_time * 2.f);
 
-  body_position.y += run_bounce_height * run_bounce;
+  state.player.visual_position.y += run_bounce_height * run_bounce;
 }
 
-static void HandleCombatJumpMotions(Tachyon* tachyon, State& state, tVec3f& body_position) {
+static void HandleCombatJumpMotions(Tachyon* tachyon, State& state) {
   float time_since_last_dodge = time_since(state.last_dodge_time);
   float time_since_last_target_jump = time_since(state.last_target_jump_time);
 
   if (state.last_dodge_time != 0.f && time_since_last_dodge < 0.25f) {
     float alpha = time_since_last_dodge / 0.25f;
 
-    body_position.y += 200.f * sinf(alpha * t_PI);
+    state.player.visual_position.y += 200.f * sinf(alpha * t_PI);
   }
 
   if (state.last_target_jump_time != 0.f && time_since_last_target_jump < 0.3f) {
     float alpha = time_since_last_target_jump / 0.3f;
 
-    body_position.y += 600.f * sinf(alpha * t_PI);
+    state.player.visual_position.y += 600.f * sinf(alpha * t_PI);
   }
 }
 
@@ -304,138 +304,9 @@ static void UpdatePlayerHeadTurnAngle(Tachyon* tachyon, State& state) {
   turn_angle = Tachyon_Lerpf(turn_angle, 0.f, 4.f * state.dt);
 }
 
-static float GetSwingIntensity(Tachyon* tachyon, State& state, const float off_ladder_duration) {
-  float swing_intensity = state.player_velocity.magnitude() / PlayerCharacter::MAX_RUN_SPEED;
-
-  if (
-    state.last_off_ladder_time != 0.f &&
-    time_since(state.last_off_ladder_time) < off_ladder_duration
-  ) {
-    float alpha = time_since(state.last_off_ladder_time) / off_ladder_duration;
-
-    swing_intensity += 1.f - alpha;
-  }
-
-  if (state.is_on_ladder) {
-    float t = fmodf(state.player_mesh_animation.seek_time, 8.f) / 8.f;
-    float alpha = 2.f * t * t_TAU;
-
-    float speed = 3500.f * (0.5f + 0.5f * sinf(alpha));
-
-    swing_intensity = speed / 3500.f;
-  }
-
-  return swing_intensity;
-}
-
-static void UpdateBlanket(Tachyon* tachyon, State& state, const tVec3f& body_position, const Quaternion& player_rotation) {
-  float swing_intensity = GetSwingIntensity(tachyon, state, 1.5f);
-  auto& player_animation = state.player_mesh_animation;
-  auto& torso_bone = player_animation.active_pose.bones[8];
-  auto& blanket = objects(state.meshes.player_blanket)[0];
-
-  float bounce_t = player_animation.seek_time;
-  if (bounce_t < 0.f) bounce_t += 8.f;
-  float bounce_alpha = t_TAU * fmodf(bounce_t, 8.f) / 8.f;
-  float bounce_angle = 0.6f * swing_intensity * swing_intensity * abs(sinf(bounce_alpha));
-  Quaternion bounce_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), bounce_angle);
-
-  float swing_angle = 0.35f * swing_intensity * cosf(bounce_alpha);
-  Quaternion swing_rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), swing_angle);
-
-  Quaternion tilt_rotation = Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), -0.5f);
-
-  tVec3f offset = tVec3f(0.f, 0.35f + bounce_angle * 0.1f, -0.48f);
-  Quaternion base_rotation = player_rotation * torso_bone.rotation;
-  tMat4f base_rotation_matrix = base_rotation.toMatrix4f();
-
-  blanket.position = body_position + base_rotation_matrix * (torso_bone.translation * tVec3f(1500.f));
-  blanket.position += base_rotation_matrix * (offset * 1500.f);
-
-  blanket.scale = tVec3f(1500.f);
-  blanket.rotation = base_rotation * bounce_rotation * swing_rotation * tilt_rotation;
-
-  blanket.color = 0x2220;
-  blanket.material = tVec4f(1.f, 0, 0, 0.5f);
-
-  commit(blanket);
-}
-
-static void UpdateSatchel(Tachyon* tachyon, State& state, const tVec3f& body_position, const Quaternion& player_rotation) {
-  float swing_intensity = GetSwingIntensity(tachyon, state, 1.5f);
-  auto& player_animation = state.player_mesh_animation;
-  auto& torso_bone = player_animation.active_pose.bones[8];
-  auto& satchel = objects(state.meshes.player_satchel)[0];
-
-  float bounce_t = player_animation.seek_time;
-  if (bounce_t < 0.f) bounce_t += 8.f;
-  float bounce_alpha = t_TAU * fmodf(bounce_t, 8.f) / 8.f;
-  float bounce_angle = 0.6f * swing_intensity * swing_intensity * abs(sinf(bounce_alpha));
-  Quaternion bounce_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), bounce_angle);
-
-  float swing_angle = 0.15f * swing_intensity * cosf(bounce_alpha) + 3.f * state.tilt_angle;
-  Quaternion swing_rotation = Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), swing_angle);
-
-  tVec3f offset = tVec3f(0.f, 0.25f + bounce_angle * 0.1f, -0.325f);
-  Quaternion rotation = player_rotation * torso_bone.rotation;
-  tMat4f rotation_matrix = rotation.toMatrix4f();
-
-  satchel.position = body_position + rotation_matrix * (torso_bone.translation * tVec3f(1500.f));
-  satchel.position += rotation_matrix * (offset * 1500.f);
-
-  satchel.scale = tVec3f(1500.f);
-  satchel.rotation = rotation * bounce_rotation * swing_rotation;
-
-  satchel.color = 0x1110;
-  satchel.material = tVec4f(0.8f, 0, 0, 0.2f);
-
-  commit(satchel);
-}
-
-static void UpdateFlasks(Tachyon* tachyon, State& state, const tVec3f& body_position, const Quaternion& player_rotation, const tMat4f& player_rotation_matrix) {
+static void UpdatePlayerModel(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
-  auto& player_animation = state.player_mesh_animation;
-
-  float swing_intensity = GetSwingIntensity(tachyon, state, 2.f);
-  Quaternion side_swing_rotation = Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), 4.f * state.tilt_angle);
-
-  // Flask 1
-  {
-    auto& flask = objects(meshes.player_flask)[0];
-
-    float swing_angle = 0.75f * swing_intensity * sinf(get_scene_time() * 10.f);
-    Quaternion swing_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), swing_angle);
-    tVec3f offset = tVec3f(600.f, 200.f + 50.f * swing_angle, 0.f);
-
-    flask.position = body_position + player_rotation_matrix * offset;
-    flask.rotation = player_rotation * swing_rotation * side_swing_rotation;
-    flask.scale = tVec3f(1750.f);
-    flask.color.rgba = 0xA444;
-    flask.material = tVec4f(0.2f, 0, 1.f, 0.5f);
-
-    commit(flask);
-  }
-
-  // Flask 2
-  {
-    auto& flask = objects(meshes.player_flask)[1];
-
-    float swing_angle = 0.6f * swing_intensity * sinf(get_scene_time() * 10.f - 1.25f);
-    Quaternion swing_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), swing_angle);
-    tVec3f offset = tVec3f(610.f, 250.f + 50.f * swing_angle, -200.f);
-
-    flask.position = body_position + player_rotation_matrix * offset;
-    flask.rotation = player_rotation * swing_rotation * side_swing_rotation;
-    flask.scale = tVec3f(1500.f);
-    flask.color.rgba = 0x64A4;
-    flask.material = tVec4f(0.2f, 0, 1.f, 0.5f);
-
-    commit(flask);
-  }
-}
-
-static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player_rotation, tMat4f& player_rotation_matrix) {
-  auto& meshes = state.meshes;
+  auto& player = state.player;
 
   // Auto-hop actions
   {
@@ -461,29 +332,33 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
   }
 
   tVec3f body_scale = tVec3f(1500.f);
-  Quaternion body_rotation = player_rotation;
-  tVec3f body_position = state.player_position;
+
+  player.visual_position = state.player_position;
+  player.visual_rotation = player.rotation;
 
   if (state.player_hp > 0.f) {
-    HandleRunOscillation(tachyon, state, body_position);
-    HandleCombatJumpMotions(tachyon, state, body_position);
+    HandleRunOscillation(tachyon, state);
+    HandleCombatJumpMotions(tachyon, state);
   } else {
     // Player death
+    // @todo factor
     float death_alpha = 2.f * time_since(state.last_death_time);
     if (death_alpha > 1.f) death_alpha = 1.f;
 
     // @temporary
+    // @todo Animation? This honestly isn't too bad for now.
     tVec3f death_rotation_axis = tVec3f(1.f, 0, 0);
-    Quaternion death_rotation = player_rotation * Quaternion::fromAxisAngle(death_rotation_axis, -t_HALF_PI);
+    Quaternion death_rotation = player.rotation * Quaternion::fromAxisAngle(death_rotation_axis, -t_HALF_PI);
 
     state.player_position += state.player_velocity * (1.f - death_alpha) * state.dt;
     state.player_position.y = Tachyon_Lerpf(state.player_position.y, state.current_ground_y - 1100.f, death_alpha);
 
-    body_position = state.player_position;
-    body_rotation = Quaternion::slerp(body_rotation, death_rotation, death_alpha);
+    player.visual_position = state.player_position;
+    player.visual_rotation = Quaternion::slerp(player.visual_rotation, death_rotation, death_alpha);
   }
 
   PlayerAnimation::Update(tachyon, state);
+  PlayerAttachments::Update(tachyon, state);
 
   auto& active_pose = state.player_mesh_animation.active_pose;
 
@@ -492,21 +367,14 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
     auto& head = objects(meshes.player_head)[0];
     auto& head_bone = active_pose.bones[0];
 
-    head.position = body_position + body_rotation.toMatrix4f() * (head_bone.translation * 1200.f);
-    head.rotation = body_rotation * head_bone.rotation;
+    head.position = player.visual_position + player.visual_rotation.toMatrix4f() * (head_bone.translation * 1200.f);
+    head.rotation = player.visual_rotation * head_bone.rotation;
     // @hack @todo fix the head model size
     head.scale = tVec3f(1300.f);
     head.color = tVec3f(0, 0, 0.1f);
     head.material = tVec4f(1.f, 0, 0, 0);
 
     commit(head);
-  }
-
-  // Attachments
-  {
-    UpdateBlanket(tachyon, state, body_position, player_rotation);
-    UpdateSatchel(tachyon, state, body_position, player_rotation);
-    UpdateFlasks(tachyon, state, body_position, player_rotation, player_rotation_matrix);
   }
 
   // Clothing
@@ -520,8 +388,8 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
     auto& boots = skinned_mesh(meshes.player_boots);
     auto& belt = skinned_mesh(meshes.player_belt);
 
-    hood.position = body_position;
-    hood.rotation = body_rotation;
+    hood.position = player.visual_position;
+    hood.rotation = player.visual_rotation;
     hood.scale = body_scale;
     hood.color = tVec4f(0.2f, 0.3f, 0.7f, 0.2f);
     hood.material = tVec4f(1.f, 0, 0, 0.2f);
@@ -530,8 +398,8 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
 
     commit(hood);
 
-    robes.position = body_position;
-    robes.rotation = body_rotation;
+    robes.position = player.visual_position;
+    robes.rotation = player.visual_rotation;
     robes.scale = body_scale;
     robes.color = tVec4f(0.3f, 0.4f, 0.6f, 0.2f);
     robes.material = tVec4f(1.f, 0, 0, 0.2f);
@@ -540,8 +408,8 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
 
     commit(robes);
 
-    vambraces.position = body_position;
-    vambraces.rotation = body_rotation;
+    vambraces.position = player.visual_position;
+    vambraces.rotation = player.visual_rotation;
     vambraces.scale = body_scale;
     vambraces.color = 0x3220;
     vambraces.material = tVec4f(0.6f, 0, 0, 0.2f);
@@ -550,8 +418,8 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
 
     commit(vambraces);
 
-    trim.position = body_position;
-    trim.rotation = body_rotation;
+    trim.position = player.visual_position;
+    trim.rotation = player.visual_rotation;
     trim.scale = body_scale;
     trim.color = tVec3f(0.6f, 0.4f, 0.2f);
     trim.material = tVec4f(0.3f, 1.f, 0, 0);
@@ -560,8 +428,8 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
 
     commit(trim);
 
-    shirt.position = body_position;
-    shirt.rotation = body_rotation;
+    shirt.position = player.visual_position;
+    shirt.rotation = player.visual_rotation;
     shirt.scale = body_scale;
     shirt.color = tVec3f(0.3f, 0.1f, 0.3f);
     shirt.material = tVec4f(1.f, 0, 0, 0.1f);
@@ -570,8 +438,8 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
 
     commit(shirt);
 
-    pants.position = body_position;
-    pants.rotation = body_rotation;
+    pants.position = player.visual_position;
+    pants.rotation = player.visual_rotation;
     pants.scale = body_scale;
     pants.color = tVec3f(0.6f, 0.4f, 0.2f);
     pants.material = tVec4f(1.f, 0, 0, 0.1f);
@@ -580,8 +448,8 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
 
     commit(pants);
 
-    boots.position = body_position;
-    boots.rotation = body_rotation;
+    boots.position = player.visual_position;
+    boots.rotation = player.visual_rotation;
     boots.scale = body_scale;
     boots.color = tVec3f(0.1f, 0.1f, 0.1f);
     boots.material = tVec4f(1.f, 0, 0, 0);
@@ -590,8 +458,8 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
 
     commit(boots);
 
-    belt.position = body_position;
-    belt.rotation = body_rotation;
+    belt.position = player.visual_position;
+    belt.rotation = player.visual_rotation;
     belt.scale = body_scale;
     belt.color = 0x2110;
     belt.material = tVec4f(0.8f, 0, 0, 0.2f);
@@ -602,7 +470,7 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state, Quaternion& player
   }
 
   if (state.show_game_stats) {
-    ShowDebugPlayerSkeleton(tachyon, state, player_rotation, player_rotation_matrix);
+    ShowDebugPlayerSkeleton(tachyon, state);
   } else {
     reset_instances(meshes.debug_skeleton_bone);
   }
@@ -635,12 +503,12 @@ static float GetWandHoldFactor(State& state) {
   );
 }
 
-static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotation, tMat4f& player_rotation_matrix) {
+static void UpdateWand(Tachyon* tachyon, State& state) {
   auto& active_pose = state.player_mesh_animation.active_pose;
   auto& wand = objects(state.meshes.player_wand)[0];
   tVec3f player_body_position = skinned_mesh(state.meshes.player_robes).position;
 
-  tVec3f offset = player_rotation_matrix * tVec3f(-1.f, 0, 0);
+  tVec3f offset = state.player.rotation_matrix * tVec3f(-1.f, 0, 0);
 
   wand.scale = state.is_on_ladder || time_since(state.last_off_ladder_time) < 0.4f ? tVec3f(0.f) : tVec3f(800.f);
   wand.color = tVec3f(1.f, 0.6f, 0.2f);
@@ -681,8 +549,8 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
     tVec3f position = right_hand.translation;
     position += right_hand.rotation.toMatrix4f() * tVec3f(-0.f, 0.35f, 0);
 
-    wand.rotation = player_rotation * held_wand_rotation;
-    wand.position = player_body_position + player_rotation_matrix * (position * 1500.f);
+    wand.rotation = state.player.rotation * held_wand_rotation;
+    wand.position = player_body_position + state.player.rotation_matrix * (position * 1500.f);
     wand.position -= wand.rotation.toMatrix4f() * tVec3f(0, 200.f, 0);
   }
 
@@ -743,7 +611,7 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
       // Sample the animation
       TransformState sample = SimpleAnimation::Sample(swing_animation, time_since_last_swing);
       // wand.position += sample.offset;
-      wand.rotation = player_rotation * sample.rotation;
+      wand.rotation = state.player.rotation * sample.rotation;
 
       if (
         time_since_last_swing > s1.duration &&
@@ -787,7 +655,7 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
         // Sample and apply the animation
         TransformState sample = SimpleAnimation::Sample(bounce_animation, time_since_bounce);
         wand.position += sample.offset;
-        wand.rotation = player_rotation * sample.rotation;
+        wand.rotation = state.player.rotation * sample.rotation;
       }
     }
   }
@@ -795,7 +663,7 @@ static void UpdateWand(Tachyon* tachyon, State& state, Quaternion& player_rotati
   // Player death
   {
     if (state.player_hp <= 0.f) {
-      Quaternion death_rotation = player_rotation * (
+      Quaternion death_rotation = state.player.rotation * (
         Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 0.8f) *
         Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), -t_HALF_PI) *
         Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -t_HALF_PI)
@@ -984,63 +852,6 @@ static void UpdateWandLights(Tachyon* tachyon, State& state) {
   }
 }
 
-static void UpdateLantern(Tachyon* tachyon, State& state, const Quaternion& player_rotation, const tMat4f& player_rotation_matrix) {
-  // Lantern object
-  {
-    // @temporary
-    static float lantern_swing = 0.f;
-
-    float speed_ratio = state.previous_move_delta / 90.f;
-
-    lantern_swing += state.dt * speed_ratio;
-    lantern_swing *= 1.f - state.dt;
-
-    if (lantern_swing < 0.f) lantern_swing = 0.f;
-    if (lantern_swing > 1.f) lantern_swing = 1.f;
-
-    float lantern_angle = lantern_swing * sinf(get_scene_time() * 10.f);
-    Quaternion lantern_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), lantern_angle);
-
-    auto& lantern = objects(state.meshes.player_lantern)[0];
-
-    tVec3f offset = player_rotation_matrix * tVec3f(
-      525.f,
-      -100.f + 200.f * abs(lantern_angle),
-      -100.f * lantern_angle
-    );
-
-    lantern.position = state.player_position + offset;
-    lantern.scale = tVec3f(80.f, 120.f, 80.f);
-    lantern.rotation = player_rotation * lantern_rotation;
-    lantern.color = state.is_nighttime ? tVec4f(1.f, 0.7f, 0.3f, 1.f) : tVec4f(0.8f, 0.6f, 0.4f, 1.f);
-    lantern.material = tVec4f(1.f, 0, 0, 1.f);
-
-    commit(lantern);
-  }
-
-  // Point light source
-  {
-    auto& light = *get_point_light(state.player_light_id);
-
-    tVec3f offset = player_rotation_matrix * tVec3f(710.f, 50.f, 0);
-
-    light.position = state.player_position + offset;
-    light.position.y -= 300.f;
-    light.radius = state.is_nighttime ? 4000.f : 2500.f;
-    light.color = tVec3f(0.5f, 0.3f, 0.6f);
-    light.color = get_point_light(state.astrolabe_light_id)->color;
-    light.power = state.is_nighttime ? 1.f : 0.5f;
-    light.glow_power = 0.f;
-
-    // @todo factor (Astrolabe::)
-    if (time_since(state.game_time_at_start_of_turn) < 2.f) {
-      float alpha = time_since(state.game_time_at_start_of_turn) / 2.f;
-
-      light.power += sinf(alpha * t_PI);
-    }
-  }
-}
-
 void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
   profile("UpdatePlayer()");
 
@@ -1117,21 +928,24 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
     }
   }
 
-  Quaternion player_rotation = (
-    // Rotate according to facing direction
-    Quaternion::FromDirection(state.player_facing_direction, tVec3f(0, 1.f, 0)) *
-    // Apply tilt
-    Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), state.tilt_angle)
-  );
+  // Set current rotation
+  // @todo factor
+  {
+    state.player.rotation = (
+      // Rotate according to facing direction
+      Quaternion::FromDirection(state.player_facing_direction, tVec3f(0, 1.f, 0)) *
+      // Apply tilt
+      Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), state.tilt_angle)
+    );
 
-  tMat4f player_rotation_matrix = player_rotation.toMatrix4f();
+    state.player.rotation_matrix = state.player.rotation.toMatrix4f();
+  }
 
   UpdatePlayerHeadTurnAngle(tachyon, state);
-  UpdatePlayerModel(tachyon, state, player_rotation, player_rotation_matrix);
-  UpdateLantern(tachyon, state, player_rotation, player_rotation_matrix);
+  UpdatePlayerModel(tachyon, state);
 
   if (Items::HasItem(state, MAGIC_WAND)) {
-    UpdateWand(tachyon, state, player_rotation, player_rotation_matrix);
+    UpdateWand(tachyon, state);
     UpdateWandLights(tachyon, state);
   }
 }
