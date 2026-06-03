@@ -137,6 +137,7 @@
     <ClInclude Include="astro\entity_behaviors\BirchTree.h" />
     <ClInclude Include="astro\entity_behaviors\BirdGate.h" />
     <ClInclude Include="astro\entity_behaviors\BirdSpawn.h" />
+    <ClInclude Include="astro\entity_behaviors\CameraController.h" />
     <ClInclude Include="astro\entity_behaviors\CastleRampart.h" />
     <ClInclude Include="astro\entity_behaviors\CastleSteeple.h" />
     <ClInclude Include="astro\entity_behaviors\CastleTower.h" />
@@ -154,6 +155,7 @@
     <ClInclude Include="astro\entity_behaviors\House.h" />
     <ClInclude Include="astro\entity_behaviors\IronGate.h" />
     <ClInclude Include="astro\entity_behaviors\ItemPickup.h" />
+    <ClInclude Include="astro\entity_behaviors\Ladder.h" />
     <ClInclude Include="astro\entity_behaviors\Lamp.h" />
     <ClInclude Include="astro\entity_behaviors\Lamppost.h" />
     <ClInclude Include="astro\entity_behaviors\LeafShrub.h" />
@@ -179,10 +181,12 @@
     <ClInclude Include="astro\entity_behaviors\StonePathNode.h" />
     <ClInclude Include="astro\entity_behaviors\StoneWall.h" />
     <ClInclude Include="astro\entity_behaviors\Sunbeam.h" />
+    <ClInclude Include="astro\entity_behaviors\TallBirch.h" />
     <ClInclude Include="astro\entity_behaviors\TallGrass.h" />
     <ClInclude Include="astro\entity_behaviors\TallWeeds.h" />
     <ClInclude Include="astro\entity_behaviors\TulipPlant.h" />
     <ClInclude Include="astro\entity_behaviors\VantageSpot.h" />
+    <ClInclude Include="astro\entity_behaviors\WaterFlowNode.h" />
     <ClInclude Include="astro\entity_behaviors\WaterWheel.h" />
     <ClInclude Include="astro\entity_behaviors\WillowTree.h" />
     <ClInclude Include="astro\entity_behaviors\WindChimes.h" />
@@ -205,7 +209,10 @@
     <ClInclude Include="astro\mesh_library.h" />
     <ClInclude Include="astro\particles.h" />
     <ClInclude Include="astro\path_generation.h" />
+    <ClInclude Include="astro\player_animation.h" />
+    <ClInclude Include="astro\player_attachments.h" />
     <ClInclude Include="astro\player_character.h" />
+    <ClInclude Include="astro\player_wand.h" />
     <ClInclude Include="astro\procedural_generation.h" />
     <ClInclude Include="astro\procedural_growth.h" />
     <ClInclude Include="astro\sfx.h" />
@@ -373,7 +380,10 @@
     <ClCompile Include="astro\mesh_library.cpp" />
     <ClCompile Include="astro\particles.cpp" />
     <ClCompile Include="astro\path_generation.cpp" />
+    <ClCompile Include="astro\player_animation.cpp" />
+    <ClCompile Include="astro\player_attachments.cpp" />
     <ClCompile Include="astro\player_character.cpp" />
+    <ClCompile Include="astro\player_wand.cpp" />
     <ClCompile Include="astro\procedural_generation.cpp" />
     <ClCompile Include="astro\procedural_growth.cpp" />
     <ClCompile Include="astro\sfx.cpp" />

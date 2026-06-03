@@ -714,6 +714,27 @@
     <ClInclude Include="astro\entity_behaviors\Signpost.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="astro\entity_behaviors\CameraController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\entity_behaviors\Ladder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\entity_behaviors\TallBirch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\entity_behaviors\WaterFlowNode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\player_attachments.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\player_animation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\player_wand.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -930,6 +951,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="astro\wand_abilities.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="astro\player_animation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="astro\player_attachments.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="astro\player_wand.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
