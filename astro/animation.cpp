@@ -126,9 +126,11 @@ void Animation::UpdatePose(tSkinnedMeshAnimation& mesh_animation, const Animatio
     auto& active_pose = mesh_animation.active_pose;
     float blend_alpha;
 
-    if (blend_type == BLEND_LINEAR)           blend_alpha = mesh_animation.next_animation_blend_alpha;
-    else if (blend_type == BLEND_EASE_IN_OUT) blend_alpha = Tachyon_EaseInOutf(mesh_animation.next_animation_blend_alpha);
-    else                                      blend_alpha = mesh_animation.next_animation_blend_alpha;
+    if (blend_type == BLEND_EASE_IN_OUT) {
+      blend_alpha = Tachyon_EaseInOutf(mesh_animation.next_animation_blend_alpha);
+    } else {
+      blend_alpha = mesh_animation.next_animation_blend_alpha;
+    }
 
     // Compute the active pose rotation by blending between the current/next animations
     // @optimize if the current and next animations are identical, this is unnecessary
@@ -146,7 +148,15 @@ void Animation::UpdatePose(tSkinnedMeshAnimation& mesh_animation, const Animatio
 
       // @todo allow the torso bone name to be specified
       if (active_pose_bone.name == "Torso") {
+        // @todo tilt
+        // active_pose_bone.rotation *= Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), ___);
+
         active_pose_bone.rotation *= Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), mesh_animation.torso_turn_angle);
+      }
+
+      // @todo allow the head bone name to be specified
+      if (active_pose_bone.name == "Head") {
+        active_pose_bone.rotation *= Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), mesh_animation.head_turn_angle);
       }
     }
 
@@ -178,11 +188,6 @@ void Animation::UpdatePose(tSkinnedMeshAnimation& mesh_animation, const Animatio
         active_pose_bone.rotation = Quaternion::nlerp(active_pose_bone.rotation, upper_bone.rotation, blend_alpha);
       }
     }
-
-    // Handle right arm animation
-    if (mesh_animation.arm_animation != nullptr) {
-      // @todo ?
-    }
   }
 }
 
@@ -203,11 +208,6 @@ void Animation::UpdateBoneMatrices(tSkinnedMeshAnimation& mesh_animation) {
       bone.rotation = parent_bone.rotation * bone.rotation;
 
       next_parent_index = parent_bone.parent_bone_index;
-    }
-
-    // @todo allow the head bone name to be specified
-    if (bone.name == "Head") {
-      bone.rotation *= Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), mesh_animation.head_turn_angle);
     }
 
     tMat4f& inverse_bind_matrix = rest_pose.bone_matrices[bone.index];

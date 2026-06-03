@@ -47,16 +47,7 @@ static bool IsAnyIdleAnimation(tSkeletonAnimation* animation, const State& state
   return IsNormalIdleAnimation(animation, state) || IsWandIdleAnimation(animation, state);
 }
 
-static bool IsWalkAnimation(tSkeletonAnimation* animation, const State& state) {
-  auto& animations = state.animations;
-
-  return (
-    animation == &animations.player_walk ||
-    animation == &animations.player_walk_wand
-  );
-}
-
-static void UpdateActiveAnimation(Tachyon* tachyon, State& state) {
+static void SetActiveAnimation(Tachyon* tachyon, State& state) {
   auto& player_animation = state.player_mesh_animation;
   auto& animations = state.animations;
 
@@ -300,7 +291,7 @@ void PlayerAnimation::Update(Tachyon* tachyon, State& state) {
   auto& player_animation = state.player_mesh_animation;
   auto& animations = state.animations;
 
-  UpdateActiveAnimation(tachyon, state);
+  SetActiveAnimation(tachyon, state);
 
   bool moving_forward = tVec3f::dot(state.player_velocity, state.player_facing_direction) >= 0.f;
   float animation_speed = GetAnimationSpeed(tachyon, state);

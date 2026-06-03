@@ -70,32 +70,22 @@ namespace astro {
         fog_volumes.push_back(volume);
       }
 
-      // @hack Add permanent player-aligned fog during certain portions of the game
-      // @todo move this to time_evolution.cpp
+      // Spawn fog
+      // @todo move this elsewhere
       {
-        auto& fx = tachyon->fx;
-        float thickness = 1.f - Tachyon_InverseLerp(astro_time_periods.distant_past, astro_time_periods.past, state.astro_time);
-
-        tFogVolume volume;
-        volume.position = state.player_position;
-        volume.radius = 500000.f;
-        volume.color = tVec3f(0.7f, 0.85f, 1.f);
-        volume.thickness = thickness;
-
         float time_since_spawning = time_since(state.last_spawn_time);
 
-        if (time_since_spawning < 2.5f) {
-          float alpha = time_since_spawning / 2.5f;
+        if (time_since_spawning < 4.f) {
+          float alpha = Tachyon_EaseOutSine(time_since_spawning / 4.f);
 
-          volume.color = tVec3f(0.5f, 0.6f, 0.7f);
-          volume.thickness = Tachyon_Lerpf(1.f, thickness, alpha * alpha * alpha);
+          tFogVolume volume;
+          volume.position = state.player_position;
+          volume.radius = 500000.f;
+          volume.color = tVec3f(0.4f, 0.5f, 0.6f);
+          volume.thickness = Tachyon_Lerpf(1.f, 0.f, alpha);
 
-          fx.fog_visibility = Tachyon_Lerpf(4000.f, 15000.f, alpha);
-        } else {
-          fx.fog_visibility = Tachyon_Lerpf(fx.fog_visibility, 25000.f, thickness);
+          fog_volumes.push_back(volume);
         }
-
-        fog_volumes.push_back(volume);
       }
     }
   };
