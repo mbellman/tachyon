@@ -89,7 +89,7 @@ namespace astro {
           leaves.scale = tree_scale;
           leaves.rotation = entity.orientation;
           leaves.color = leaves_color;
-          leaves.material = tVec4f(0.6f, 0, 0, 1.f);
+          leaves.material = tVec4f(0.4f, 0, 0, 1.f);
 
           commit(leaves);
         }

@@ -58,6 +58,7 @@ float GetFoliageDriftIntensity(float wind, float vertex_y) {
 
 void main() {
   mat3 normal_matrix = transpose(inverse(mat3(modelMatrix)));
+  vec3 N = vertexNormal;
 
   // For the vertex transform, start by just applying rotation + scale
   vec3 model_space_position = mat3(modelMatrix) * vertexPosition;
@@ -121,13 +122,18 @@ void main() {
     foliage_mover_factor = 1.0 - foliage_mover_factor;
 
     world_space_position += foliage_mover_velocity * foliage_mover_factor;
+
+    // @temporary
+    vec3 p = vec3(vertexPosition.x, 0.2 * vertexPosition.y, vertexPosition.z);
+    vec3 oN = normalize(p);
+    N = normalize(mix(N, oN, 0.45));
   }
 
   gl_Position = view_projection_matrix * vec4(world_space_position, 1.0);
 
   fragSurface = SurfaceToUVec4(modelSurface);
   fragWorldPosition = world_space_position;
-  fragNormal = normal_matrix * vertexNormal;
+  fragNormal = normal_matrix * N;
   fragTangent = normal_matrix * vertexTangent;
   fragBitangent = getFragBitangent(fragNormal, fragTangent);
   fragUv = vertexUv;

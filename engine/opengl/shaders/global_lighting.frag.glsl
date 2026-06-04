@@ -163,8 +163,7 @@ vec3 GetDirectionalLightRadiance(
 
   float NdotH = max(dot(N, H), 0.0);
   float NdotL = max(dot(N, L), 0.0);
-  // float light_factor = NdotL * (1.0 - shadow_factor);
-  float light_factor = NdotL * ((1.0 - shadow_factor) + 4.0 * pow(1.0 - NdotV, 6.0));
+  float light_factor = NdotL * (1.0 - shadow_factor);
 
   float D = DistributionGGX(NdotH, roughness);
   float G = GeometryGGX(NdotH, roughness, metalness);
@@ -177,7 +176,26 @@ vec3 GetDirectionalLightRadiance(
   // @todo pass the additional terms into Subsurface()
   float Sc = Subsurface(NdotV, subsurface) * (light_factor + 0.05) * (1.0 - metalness * 0.5);
 
-  return light_color * (albedo * brdf + C + albedo * albedo * Sc) / PI;
+  vec3 light_radiance = light_color * (albedo * brdf + C + albedo * albedo * Sc);
+
+  return light_radiance / PI;
+}
+
+vec3 GetLightTransmittance(
+  vec3 albedo,
+  vec3 light_color,
+  float NdotL,
+  float NdotV,
+  float subsurface,
+  float shadow_factor,
+  float sheen
+) {
+  float T = subsurface * (1.0 - shadow_factor) * (
+    8.0 * pow(1.0 - NdotV, 8.0) +
+    8.0 * pow(NdotL, 8.0)
+  );
+
+  return T * albedo * light_color / PI;
 }
 
 const mat4[] light_matrices = {
@@ -270,13 +288,13 @@ float GetPrimaryLightShadowFactor(vec3 world_position) {
   );
 }
 
-vec3 GetAmbientFresnel(float NdotV) {
-  return vec3(pow(1.0 - NdotV, 5.0)) * sky_light_color * 0.2;
+vec3 GetAmbientFresnel(float NdotV, vec3 albedo) {
+  return vec3(pow(1.0 - NdotV, 8.0)) * albedo * 0.2;
 }
 
-vec3 GetSheenFresnel(float NdotV, float sheen) {
+vec3 GetSheenFresnel(float NdotV, vec3 albedo, float sheen) {
   // @todo sheen_color
-  return vec3(pow(1.0 - NdotV, 8.0)) * vec3(1, 0.5, 0.2) * sheen;
+  return vec3(pow(1.0 - NdotV, 8.0)) * albedo * sheen;
 }
 
 vec4 UnpackColor(uvec4 surface) {
@@ -743,7 +761,10 @@ void main() {
 
   // Primary directional light
   {
+    float tNdotL = max(dot(N, -L), 0.0);
+
     out_color += GetDirectionalLightRadiance(L, primary_light_color, albedo, position, N, V, NdotV, roughness, metalness, clearcoat, subsurface, shadow);
+    out_color += GetLightTransmittance(albedo, primary_light_color, tNdotL, NdotV, subsurface, shadow, sheen);
   }
 
   // Mood lighting
@@ -780,8 +801,8 @@ void main() {
     out_color = albedo * pow(NdotV, 2.0);
   }
 
-  out_color += GetAmbientFresnel(NdotV);
-  out_color += GetSheenFresnel(NdotV, sheen);
+  out_color += GetAmbientFresnel(NdotV, albedo);
+  out_color += GetSheenFresnel(NdotV, albedo, sheen);
 
   if (frag_normal_and_depth.w >= 1.0) out_color = vec3(0);
 
@@ -797,7 +818,9 @@ void main() {
   // Emissives
   out_color = mix(out_color, albedo, pow(emissive, 1.5));
 
-  if (!use_high_visibility_mode) {
+  if (use_high_visibility_mode) {
+    out_color -= ssao;
+  } else {
     // Fade to a dim blue in shadowed/darkened areas.
     // Reduce the effect as the camera approaches.
     {
@@ -860,8 +883,6 @@ void main() {
 
       out_color = mix(out_color * player_light_color, out_color, alpha);
     }
-  } else {
-    out_color -= ssao;
   }
 
   vec3 previous_color = texture(previous_color_and_depth, fragUv).rgb;
