@@ -181,6 +181,7 @@ vec3 GetDirectionalLightRadiance(
   return light_radiance / PI;
 }
 
+// @todo cleanup
 vec3 GetLightTransmittance(
   vec3 albedo,
   vec3 light_color,
@@ -195,7 +196,14 @@ vec3 GetLightTransmittance(
     8.0 * pow(NdotL, 8.0)
   );
 
-  return T * albedo * light_color / PI;
+  vec3 base_transmittance = T * albedo * light_color / PI;
+
+  base_transmittance *= 32.0 * pow(1.0 - NdotV, 2.0) * albedo * light_color;
+
+  return (
+    base_transmittance +
+    T * albedo * light_color * sheen
+  );
 }
 
 const mat4[] light_matrices = {
@@ -288,13 +296,12 @@ float GetPrimaryLightShadowFactor(vec3 world_position) {
   );
 }
 
-vec3 GetAmbientFresnel(float NdotV, vec3 albedo) {
-  return vec3(pow(1.0 - NdotV, 8.0)) * albedo * 0.2;
+vec3 GetAmbientFresnel(float NdotV) {
+  return vec3(pow(1.0 - NdotV, 8.0)) * 0.2;
 }
 
-vec3 GetSheenFresnel(float NdotV, vec3 albedo, float sheen) {
-  // @todo sheen_color
-  return vec3(pow(1.0 - NdotV, 8.0)) * albedo * sheen;
+vec3 GetSheenFresnel(float NdotV, float sheen) {
+  return vec3(pow(1.0 - NdotV, 8.0)) * sheen;
 }
 
 vec4 UnpackColor(uvec4 surface) {
@@ -677,8 +684,6 @@ void main() {
   float clearcoat = material.clearcoat;
   float subsurface = material.subsurface;
 
-  subsurface = mix(subsurface, 2.0, sheen);
-
   if (roughness < 0.05) roughness = 0.05;
 
   // Temporal data
@@ -801,8 +806,8 @@ void main() {
     out_color = albedo * pow(NdotV, 2.0);
   }
 
-  out_color += GetAmbientFresnel(NdotV, albedo);
-  out_color += GetSheenFresnel(NdotV, albedo, sheen);
+  out_color += albedo * GetAmbientFresnel(NdotV);
+  out_color += albedo * GetSheenFresnel(NdotV, sheen);
 
   if (frag_normal_and_depth.w >= 1.0) out_color = vec3(0);
 
