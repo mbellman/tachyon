@@ -123,8 +123,7 @@ namespace astro {
 
     addMeshes() {
       meshes.lesser_guard_placeholder = MODEL_MESH("./astro/3d_models/guy.obj", 500);
-      // @todo use own shield
-      meshes.lesser_guard_shield = MODEL_MESH("./astro/3d_models/low_guard/shield.obj", 500);
+      meshes.lesser_guard_shield = MODEL_MESH("./astro/3d_models/lesser_guard/shield.obj", 500);
       meshes.lesser_guard_sword = MODEL_MESH("./astro/3d_models/lesser_guard/sword.obj", 500);
     }
 
@@ -284,8 +283,8 @@ namespace astro {
       auto& meshes = state.meshes;
 
       // @temporary
-      reset_instances(meshes.lesser_guard_shield);
-      reset_instances(meshes.lesser_guard_sword);
+      // reset_instances(meshes.lesser_guard_shield);
+      // reset_instances(meshes.lesser_guard_sword);
 
       if (state.enemies_disabled) {
         return;
@@ -352,7 +351,7 @@ namespace astro {
 
         // Shield
         // @temporary
-        {
+        if (false) {
           auto& shield = use_instance(meshes.lesser_guard_shield);
 
           shield.position = UnitEntityToWorldPosition(entity, tVec3f(1.f, 0.2f, 1.2f));
@@ -377,7 +376,7 @@ namespace astro {
 
         // Sword
         // @temporary
-        {
+        if (false) {
           auto& sword = use_instance(meshes.lesser_guard_sword);
 
           sword.position = UnitEntityToWorldPosition(entity, tVec3f(-1.f, 1.f, 1.2f));

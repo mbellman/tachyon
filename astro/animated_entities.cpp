@@ -77,6 +77,21 @@ static void AttachToRightArm(tObject& object, SkinnedPerson& person, const tVec3
   object.scale = scale;
 }
 
+static void AttachToRightHand(tObject& object, SkinnedPerson& person, const tVec3f& body_position, const Quaternion& body_rotation) {
+  auto& bone = person.rig.active_pose.bones[5];
+  tVec3f scale = tVec3f(1500.f);
+
+  tVec3f offset;
+  offset += bone.translation * scale;
+
+  // Extend offset from the beginning of the forearm to the hand
+  offset += bone.rotation.toMatrix4f() * tVec3f(0, 250.f, 0);
+
+  object.position = body_position + body_rotation.toMatrix4f() * offset;
+  object.rotation = body_rotation * bone.rotation;
+  object.scale = scale;
+}
+
 static void AttachToLeftShoulder(tObject& object, SkinnedPerson& person, const tVec3f& body_position, const Quaternion& body_rotation) {
   auto& bone = person.rig.active_pose.bones[4];
   tVec3f scale = tVec3f(1500.f);
@@ -95,6 +110,21 @@ static void AttachToLeftArm(tObject& object, SkinnedPerson& person, const tVec3f
 
   tVec3f offset;
   offset += bone.translation * scale;
+
+  object.position = body_position + body_rotation.toMatrix4f() * offset;
+  object.rotation = body_rotation * bone.rotation;
+  object.scale = scale;
+}
+
+static void AttachToLeftHand(tObject& object, SkinnedPerson& person, const tVec3f& body_position, const Quaternion& body_rotation) {
+  auto& bone = person.rig.active_pose.bones[2];
+  tVec3f scale = tVec3f(1500.f);
+
+  tVec3f offset;
+  offset += bone.translation * scale;
+
+  // Extend offset from the beginning of the forearm to the hand
+  offset += bone.rotation.toMatrix4f() * tVec3f(0, 250.f, 0);
 
   object.position = body_position + body_rotation.toMatrix4f() * offset;
   object.rotation = body_rotation * bone.rotation;
@@ -231,6 +261,34 @@ static void HandleAnimatedLesserGuards(Tachyon* tachyon, State& state, int32& us
 
       commit(left_vambrace);
       commit(right_vambrace);
+    }
+
+    // Sword
+    {
+      auto& sword = use_instance(meshes.lesser_guard_sword);
+
+      AttachToRightHand(sword, person, body_position, body_rotation);
+
+      sword.rotation = sword.rotation * Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), -t_HALF_PI);
+
+      sword.color = tVec3f(0.6f);
+      sword.material = tVec4f(0.2f, 1.f, 0, 0);
+
+      commit(sword);
+    }
+
+    // Shield
+    {
+      auto& shield = use_instance(meshes.lesser_guard_shield);
+
+      AttachToLeftHand(shield, person, body_position, body_rotation);
+
+      shield.rotation = shield.rotation * Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), -t_HALF_PI);
+
+      shield.color = tVec3f(0.6f);
+      shield.material = tVec4f(0.2f, 1.f, 0, 0);
+
+      commit(shield);
     }
   }
 }
@@ -411,10 +469,15 @@ void AnimatedEntities::UpdateAnimatedEntities(Tachyon* tachyon, State& state) {
     shirt.disabled = true;
   }
 
+  // Armor
   reset_instances(meshes.lesser_helmet);
   reset_instances(meshes.lesser_vambrace);
   reset_instances(meshes.low_helmet);
   reset_instances(meshes.shoulder_plate);
+
+  // Weapons/shields
+  reset_instances(meshes.lesser_guard_sword);
+  reset_instances(meshes.lesser_guard_shield);
 
   // Use animated meshes on-demand based on proximity to entities
   int32 usage_counter = 0;
