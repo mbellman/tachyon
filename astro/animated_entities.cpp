@@ -7,7 +7,8 @@
 using namespace astro;
 
 struct AnimationParams {
-  tSkeletonAnimation* animation;
+  tSkeletonAnimation* main_animation = nullptr;
+  tSkeletonAnimation* upper_body_animation = nullptr;
   float speed;
   bool immediate = false;
 };
@@ -22,6 +23,8 @@ bool IsEnemyHit(Tachyon* tachyon, GameEntity& entity) {
 }
 
 static void UpdateAnimation(tAnimationRig& rig, const float speed, const float dt) {
+  rig.upper_body_animation_time += speed * dt;
+
   Animation::AccumulateTime(rig, speed, 3.f, dt);
   Animation::UpdatePose(rig, BLEND_LINEAR);
   Animation::UpdateBoneMatrices(rig);
@@ -138,10 +141,13 @@ static void HandleAnimatedPerson(State& state, SkinnedPerson& person, AnimationP
     person.rig.current_animation = &animations.player_run;
   }
 
+  person.rig.upper_body_animation = params.upper_body_animation;
+  person.rig.upper_body_animation_time = 0.f;
+
   if (params.immediate) {
-    Animation::StartNextAnimation(person.rig, params.animation);
+    Animation::StartNextAnimation(person.rig, params.main_animation);
   } else {
-    Animation::AwaitNextAnimation(person.rig, params.animation);
+    Animation::AwaitNextAnimation(person.rig, params.main_animation);
   }
 
   UpdateAnimation(person.rig, params.speed, state.dt);
@@ -153,27 +159,50 @@ static void HandleAnimatedPerson(State& state, SkinnedPerson& person, AnimationP
  * -------------
  */
 static AnimationParams GetLesserGuardAnimationParams(Tachyon* tachyon, State& state, GameEntity& entity) {
+  auto& animations = state.animations;
   auto& enemy = entity.enemy_state;
 
   if (time_since(enemy.last_damage_time) < 1.f) {
-    return { &state.animations.person_hit_front, 5.f, true };
+    return {
+      .main_animation = &animations.person_hit_front,
+      .speed = 5.f,
+      .immediate = true
+    };
   }
   else if (time_since(enemy.last_break_time) < 1.f) {
-    // @todo break animation
-    return { &state.animations.person_hit_front, 5.f, true };
+    return {
+      // @todo actual break animation
+      .main_animation = &animations.person_hit_front,
+      .speed = 5.f,
+      .immediate = true
+    };
   }
   else if (time_since(enemy.last_attack_start_time) < LesserGuard::ATTACK_DURATION) {
-    // @temporary
-    return { &state.animations.player_swing_wand, 3.f, true };
+    return {
+      .main_animation = &animations.player_walk,
+      // @temporary
+      .upper_body_animation = &animations.player_swing_wand,
+      .speed = 10.f,
+      .immediate = true
+    };
   }
-  else if (enemy.speed > 2500.f) {
-    return { &state.animations.player_run, 10.f };
+  else if (enemy.speed > 1500.f) {
+    return {
+      .main_animation = &animations.player_run,
+      .speed = 12.f
+    };
   }
-  else if (enemy.speed > 500.f) {
-    return { &state.animations.player_walk, 10.f };
+  else if (enemy.speed > 50.f) {
+    return {
+      .main_animation = &animations.player_walk,
+      .speed = 10.f
+    };
   }
   else {
-    return { &state.animations.person_idle, 1.f };
+    return {
+      .main_animation = &animations.person_idle,
+      .speed = 1.f
+    };
   }
 }
 
@@ -299,27 +328,49 @@ static void HandleAnimatedLesserGuards(Tachyon* tachyon, State& state, int32& us
  * ----------
  */
 static AnimationParams GetLowGuardAnimationParams(Tachyon* tachyon, State& state, GameEntity& entity) {
+  auto& animations = state.animations;
   auto& enemy = entity.enemy_state;
 
   if (time_since(enemy.last_damage_time) < 1.f) {
-    return { &state.animations.person_hit_front, 5.f, true };
+    return {
+      .main_animation = &animations.person_hit_front,
+      .speed = 5.f,
+      .immediate = true
+    };
   }
   else if (time_since(enemy.last_break_time) < 1.f) {
     // @todo break animation
-    return { &state.animations.person_hit_front, 5.f, true };
+    return {
+      .main_animation = &animations.person_hit_front,
+      .speed = 5.f,
+      .immediate = true
+    };
   }
   else if (time_since(enemy.last_attack_start_time) < LowGuard::ATTACK_DURATION) {
     // @temporary
-    return { &state.animations.player_swing_wand, 4.f, true };
+    return {
+      .main_animation = &animations.player_swing_wand,
+      .speed = 4.f,
+      .immediate = true
+    };
   }
   else if (enemy.speed > 2500.f) {
-    return { &state.animations.player_run, 10.f };
+    return {
+      .main_animation = &animations.player_run,
+      .speed = 12.f
+    };
   }
   else if (enemy.speed > 500.f) {
-    return { &state.animations.player_walk, 10.f };
+    return {
+      .main_animation = &animations.player_walk,
+      .speed = 10.f
+    };
   }
   else {
-    return { &state.animations.person_idle, 1.f };
+    return {
+      .main_animation = &animations.person_idle,
+      .speed = 1.f
+    };
   }
 }
 
