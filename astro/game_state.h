@@ -383,6 +383,7 @@ namespace astro {
     float last_head_turn_time = 0.f;
     float last_jump_time = 0.f;
     float last_fly_away_time = 0.f;
+    bool did_land = false;
 
     enum State {
       IDLING,

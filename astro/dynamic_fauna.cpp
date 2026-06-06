@@ -309,6 +309,7 @@ static void HandleTinyBirdFlyingDown(TinyBird& bird, const tVec3f& direction, co
   if (distance < 100.f) {
     bird.position = bird.target_position;
     bird.state = TinyBird::IDLING;
+    bird.did_land = true;
   }
 }
 
@@ -379,7 +380,15 @@ static void HandleTinyBird(Tachyon* tachyon, State& state, TinyBird& bird, const
     }
 
     else if (bird.state == TinyBird::FLY_UP) {
-      tVec3f fly_direction = player_to_bird.xz().unit();
+      tVec3f fly_direction;
+
+      if (bird.did_land) {
+        // Fly away from the player
+        fly_direction = player_to_bird.xz().unit();
+      } else {
+        // Continue flying along the current direction
+        fly_direction = bird.rotation.getDirection().invert();
+      }
 
       HandleTinyBirdFlyingAway(bird, fly_direction, state.dt);
     }
