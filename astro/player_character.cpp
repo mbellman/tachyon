@@ -183,6 +183,7 @@ static void HandleCombatJumpMotions(Tachyon* tachyon, State& state) {
   }
 }
 
+// @todo move to player_animation.cpp
 // @todo refactor to allow NPCs/enemies to turn their own heads
 static bool TurnPlayerHeadTowardPosition(State& state, const tVec3f& position, const float facing_angle) {
   tVec3f player_to_position = position - state.player_position;
@@ -205,6 +206,7 @@ static bool TurnPlayerHeadTowardPosition(State& state, const tVec3f& position, c
   return true;
 }
 
+// @todo move to player_animation.cpp
 static void TurnPlayerHeadToward(State& state, const std::vector<GameEntity>& entities, const float facing_angle) {
   for (auto& entity : entities) {
     if (!IsDuringActiveTime(entity, state)) continue;
@@ -277,11 +279,6 @@ static void UpdatePlayerHeadTurnAngle(Tachyon* tachyon, State& state) {
       state.player.rig.head_turn_angle += 10.f * state.tilt_angle * state.dt;
     }
   }
-
-  // Continually drift back toward 0
-  float& turn_angle = state.player.rig.head_turn_angle;
-
-  turn_angle = Tachyon_Lerpf(turn_angle, 0.f, 4.f * state.dt);
 }
 
 static void UpdatePlayerModel(Tachyon* tachyon, State& state) {
@@ -876,16 +873,6 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
 
     state.player_facing_direction = tVec3f::slerp(state.player_facing_direction, desired_facing_direction, turn_speed * state.dt).unit();
     state.tilt_angle = Tachyon_Lerpf(state.tilt_angle, tilt, 5.f * state.dt);
-
-    state.player.rig.torso_turn_angle = 4.f * state.tilt_angle;
-
-    // Swing the torso while walking
-    // @todo refactor/clean up
-    float t = fmodf(state.player.rig.seek_time + 3.f, 8.f) / 8.f;
-    float alpha = t * t_TAU;
-    float r = sinf(speed_ratio * t_PI);
-
-    state.player.rig.torso_turn_angle += 0.1f * r * sinf(alpha);
   }
 
   // Shift the player left or right relative to the tilt angle,

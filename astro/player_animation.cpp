@@ -301,12 +301,64 @@ static void HandleRunningChargeAnimation(Tachyon* tachyon, State& state) {
   state.player.rig.torso_tilt_angle = 0.1f * sinf(state.player.running_charge * t_PI);
 }
 
+static void HandleTurnAnimation(Tachyon* tachyon, State& state) {
+  auto& rig = state.player.rig;
+  float player_speed = state.player_velocity.magnitude();
+  float speed_ratio = player_speed / PlayerCharacter::MAX_RUN_SPEED;
+
+  rig.torso_turn_angle = Tachyon_Lerpf(
+    rig.torso_turn_angle,
+    4.f * state.tilt_angle,
+    20.f * speed_ratio * state.dt
+  );
+
+  // Swing the torso while walking
+  // @todo refactor/clean up
+  float t = fmodf(rig.seek_time + 3.f, 8.f) / 8.f;
+  float alpha = t * t_TAU;
+  float r = sinf(speed_ratio * t_PI);
+
+  rig.torso_turn_angle += 0.025f * r * sinf(alpha);
+}
+
+static void HandleLookAroundAnimation(Tachyon* tachyon, State& state, float t, float blend) {
+  auto& rig = state.player.rig;
+  float oscillation = sinf(t);
+
+  rig.head_turn_angle = Tachyon_Lerpf(rig.head_turn_angle, 0.5f * oscillation, blend);
+  rig.torso_turn_angle = Tachyon_Lerpf(rig.torso_turn_angle, 0.25f * oscillation, blend);
+}
+
 static void HandleStoppedAfterMovingAnimation(Tachyon* tachyon, State& state) {
-  if (state.player.is_looking_at_something) {
+  if (
+    // Do nothing if we're looking at something
+    state.player.is_looking_at_something ||
+    // Do nothing if we haven't manually stopped yet
+    state.player.last_stopped_time == 0.f ||
+    // Do nothing if we're moving
+    state.previous_move_delta > 0.f
+  ) {
     return;
   }
 
-  // @todo
+  float time_since_stopping = time_since(state.player.last_stopped_time);
+
+  // When stopping, trigger look-around behavior for a few seconds
+  if (time_since_stopping < 3.f) {
+    float animation_time = 2.f * time_since_stopping;
+    float blend = time_since_stopping / 1.5f;
+
+    clamp_to_1(blend);
+
+    HandleLookAroundAnimation(tachyon, state, animation_time, blend);
+  }
+}
+
+static void DriftToRestAnimation(Tachyon* tachyon, State& state) {
+  auto& rig = state.player.rig;
+
+  rig.head_turn_angle = Tachyon_Lerpf(rig.head_turn_angle, 0.f, 4.f * state.dt);
+  rig.torso_turn_angle = Tachyon_Lerpf(rig.torso_turn_angle, 0.f, 0.5f * state.dt);
 }
 
 void PlayerAnimation::Update(Tachyon* tachyon, State& state) {
@@ -352,7 +404,9 @@ void PlayerAnimation::Update(Tachyon* tachyon, State& state) {
   }
 
   HandleRunningChargeAnimation(tachyon, state);
+  HandleTurnAnimation(tachyon, state);
   HandleStoppedAfterMovingAnimation(tachyon, state);
+  DriftToRestAnimation(tachyon, state);
 
   Animation::AccumulateTime(state.player.rig, animation_speed, blend_rate, state.dt);
   Animation::UpdatePose(state.player.rig, blend_type);

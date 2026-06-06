@@ -332,7 +332,12 @@ static void HandleSpeedDampening(Tachyon* tachyon, State& state) {
     state.player_velocity = unit_velocity * speed_limit;
   }
 
-  if (speed < 50.f && !is_moving_left_stick()) {
+  if (
+    speed < 50.f &&
+    speed != 0.f &&
+    !is_moving_left_stick()
+  ) {
+    state.player.last_stopped_time = get_scene_time();
     state.player_velocity = tVec3f(0.f);
   }
 }

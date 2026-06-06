@@ -493,6 +493,8 @@ namespace astro {
 
       float running_charge = 0.f;
 
+      float last_stopped_time = 0.f;
+
       bool is_looking_at_something = false;
 
       tAnimationRig rig;
