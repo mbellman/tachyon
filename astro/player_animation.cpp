@@ -6,23 +6,23 @@ using namespace astro;
 
 static bool HasCurrentWandAnimation(State& state) {
   auto& animations = state.animations;
-  auto& player_animation = state.player_mesh_animation;
+  auto& rig = state.player.rig;
 
   return (
-    player_animation.current_animation == &animations.player_idle_wand ||
-    player_animation.current_animation == &animations.player_walk_wand ||
-    player_animation.current_animation == &animations.player_run_wand
+    rig.current_animation == &animations.player_idle_wand ||
+    rig.current_animation == &animations.player_walk_wand ||
+    rig.current_animation == &animations.player_run_wand
   );
 }
 
 static bool HasNextWandAnimation(State& state) {
   auto& animations = state.animations;
-  auto& player_animation = state.player_mesh_animation;
+  auto& rig = state.player.rig;
 
   return (
-    player_animation.next_animation == &animations.player_idle_wand ||
-    player_animation.next_animation == &animations.player_walk_wand ||
-    player_animation.next_animation == &animations.player_run_wand
+    rig.next_animation == &animations.player_idle_wand ||
+    rig.next_animation == &animations.player_walk_wand ||
+    rig.next_animation == &animations.player_run_wand
   );
 }
 
@@ -48,7 +48,7 @@ static bool IsAnyIdleAnimation(tSkeletonAnimation* animation, const State& state
 }
 
 static void SetActiveAnimation(Tachyon* tachyon, State& state) {
-  auto& player_animation = state.player_mesh_animation;
+  auto& rig = state.player.rig;
   auto& animations = state.animations;
 
   bool is_doing_quick_turn = (
@@ -62,8 +62,8 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
   );
 
   // Set the default current animation if not initialized
-  if (player_animation.current_animation == nullptr) {
-    player_animation.current_animation = &animations.player_idle;
+  if (rig.current_animation == nullptr) {
+    rig.current_animation = &animations.player_idle;
   }
 
   // Taking damage
@@ -71,12 +71,12 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
     state.last_damage_time != 0.f &&
     time_since(state.last_damage_time) < 1.f
   ) {
-    Animation::StartNextAnimation(player_animation, &animations.person_hit_front);
+    Animation::StartNextAnimation(rig, &animations.person_hit_front);
   }
 
   // Astro traveling
   else if (state.astro_turn_speed != 0.f) {
-    Animation::AwaitNextAnimation(player_animation, &animations.player_idle_wand);
+    Animation::AwaitNextAnimation(rig, &animations.player_idle_wand);
   }
 
   // Climbing off
@@ -85,29 +85,29 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
     time_since(state.last_off_ladder_time) < 0.5f
   ) {
     if (state.did_climb_down) {
-      Animation::StartNextAnimation(player_animation, &animations.player_climb_down);
+      Animation::StartNextAnimation(rig, &animations.player_climb_down);
     } else {
-      Animation::StartNextAnimation(player_animation, &animations.player_climb_up);
+      Animation::StartNextAnimation(rig, &animations.player_climb_up);
     }
   }
 
   // Climbing
   else if (state.is_on_ladder) {
     if (state.is_starting_climb_down) {
-      Animation::StartNextAnimation(player_animation, &animations.player_climb_up);
+      Animation::StartNextAnimation(rig, &animations.player_climb_up);
     } else {
-      Animation::AwaitNextAnimation(player_animation, &animations.player_climb);
+      Animation::AwaitNextAnimation(rig, &animations.player_climb);
     }
   }
 
   // Running
   else if (PlayerCharacter::IsRunning(tachyon, state)) {
     if (state.is_holding_up_wand) {
-      Animation::AwaitNextAnimation(player_animation, &animations.player_run_wand);
+      Animation::AwaitNextAnimation(rig, &animations.player_run_wand);
     } else {
       if (
-        IsWandIdleAnimation(player_animation.current_animation, state) &&
-        IsNormalIdleAnimation(player_animation.next_animation, state)
+        IsWandIdleAnimation(rig.current_animation, state) &&
+        IsNormalIdleAnimation(rig.next_animation, state)
       ) {
         // Special case for lowering the wand while idle, and immediately
         // starting a run action. Ordinarily, this would cause us to wait
@@ -117,13 +117,13 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
         // start transitioning to the run animation.
         //
         // @todo factor this into an animation cancel method (?)
-        float current_blend = player_animation.next_animation_blend_alpha;
+        float current_blend = rig.next_animation_blend_alpha;
 
-        Animation::SetNextAnimation(player_animation, &animations.player_run);
+        Animation::SetNextAnimation(rig, &animations.player_run);
 
-        player_animation.next_animation_blend_alpha = current_blend;
+        rig.next_animation_blend_alpha = current_blend;
       } else {
-        Animation::AwaitNextAnimation(player_animation, &animations.player_run);
+        Animation::AwaitNextAnimation(rig, &animations.player_run);
       }
     }
   }
@@ -140,9 +140,9 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
     )
   ) {
     if (state.is_holding_up_wand) {
-      Animation::AwaitNextAnimation(player_animation, &animations.player_walk_wand);
+      Animation::AwaitNextAnimation(rig, &animations.player_walk_wand);
     } else {
-      Animation::AwaitNextAnimation(player_animation, &animations.player_walk);
+      Animation::AwaitNextAnimation(rig, &animations.player_walk);
     }
   }
 
@@ -154,10 +154,10 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
     // idle stances use opposite foot positioning, which are alternately picked
     // to reduce foot sliding from walk -> idle.
     if (
-      player_animation.next_animation == &animations.player_walk ||
-      player_animation.next_animation == &animations.player_walk_wand
+      rig.next_animation == &animations.player_walk ||
+      rig.next_animation == &animations.player_walk_wand
     ) {
-      float seek_time = fmodf(player_animation.seek_time, 8.f);
+      float seek_time = fmodf(rig.seek_time, 8.f);
 
       if (seek_time < 1.5f || seek_time > 6.5f) {
         state.player_idle_stance = 2;
@@ -173,11 +173,11 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
     }
 
     if (state.is_holding_up_wand) {
-      Animation::AwaitNextAnimation(player_animation, &animations.player_idle_wand);
+      Animation::AwaitNextAnimation(rig, &animations.player_idle_wand);
     } else if (state.player_idle_stance == 1) {
-      Animation::AwaitNextAnimation(player_animation, &animations.player_idle);
+      Animation::AwaitNextAnimation(rig, &animations.player_idle);
     } else if (state.player_idle_stance == 2) {
-      Animation::AwaitNextAnimation(player_animation, &animations.player_idle_2);
+      Animation::AwaitNextAnimation(rig, &animations.player_idle_2);
     }
   }
 }
@@ -186,7 +186,7 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
 static float GetAnimationSpeed(Tachyon* tachyon, State& state) {
   bool is_astro_traveling = state.astro_turn_speed != 0.f;
   bool is_hit = state.last_damage_time != 0.f && time_since(state.last_damage_time) < 1.f;
-  bool is_idle = IsAnyIdleAnimation(state.player_mesh_animation.next_animation, state);
+  bool is_idle = IsAnyIdleAnimation(state.player.rig.next_animation, state);
 
   if (is_astro_traveling) return 0.65f;
   if (is_hit) return 7.f;
@@ -209,7 +209,7 @@ static float GetAnimationSpeed(Tachyon* tachyon, State& state) {
 }
 
 static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
-  auto& player_animation = state.player_mesh_animation;
+  auto& player_animation = state.player.rig;
   auto& animations = state.animations;
 
   // If our current and pending animation involves holding up the wand,
@@ -288,7 +288,7 @@ static AnimationBlendType GetAnimationBlendType(State& state) {
 void PlayerAnimation::Update(Tachyon* tachyon, State& state) {
   profile("PlayerAnimation::Update()");
 
-  auto& player_animation = state.player_mesh_animation;
+  auto& player_animation = state.player.rig;
   auto& animations = state.animations;
 
   SetActiveAnimation(tachyon, state);
@@ -327,7 +327,7 @@ void PlayerAnimation::Update(Tachyon* tachyon, State& state) {
     }
   }
 
-  Animation::AccumulateTime(state.player_mesh_animation, animation_speed, blend_rate, state.dt);
-  Animation::UpdatePose(state.player_mesh_animation, blend_type);
-  Animation::UpdateBoneMatrices(state.player_mesh_animation);
+  Animation::AccumulateTime(state.player.rig, animation_speed, blend_rate, state.dt);
+  Animation::UpdatePose(state.player.rig, blend_type);
+  Animation::UpdateBoneMatrices(state.player.rig);
 }

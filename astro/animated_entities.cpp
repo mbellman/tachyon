@@ -21,13 +21,13 @@ bool IsEnemyHit(Tachyon* tachyon, GameEntity& entity) {
   );
 }
 
-static void UpdateAnimation(tSkinnedMeshAnimation& animation, const float speed, const float dt) {
-  Animation::AccumulateTime(animation, speed, 3.f, dt);
-  Animation::UpdatePose(animation, BLEND_LINEAR);
-  Animation::UpdateBoneMatrices(animation);
+static void UpdateAnimation(tAnimationRig& rig, const float speed, const float dt) {
+  Animation::AccumulateTime(rig, speed, 3.f, dt);
+  Animation::UpdatePose(rig, BLEND_LINEAR);
+  Animation::UpdateBoneMatrices(rig);
 }
 
-static void SyncSkinnedMesh(tSkinnedMesh& mesh, GameEntity& entity, tSkinnedMeshAnimation& animation) {
+static void SyncSkinnedMesh(tSkinnedMesh& mesh, GameEntity& entity, tAnimationRig& animation) {
   mesh.position = entity.visible_position;
   mesh.rotation = entity.visible_rotation;
   mesh.scale = tVec3f(1500.f);
@@ -37,7 +37,7 @@ static void SyncSkinnedMesh(tSkinnedMesh& mesh, GameEntity& entity, tSkinnedMesh
 }
 
 static void AttachToHead(tObject& object, SkinnedPerson& person, const tVec3f& body_position, const Quaternion& body_rotation) {
-  auto& head_bone = person.animation.active_pose.bones[0];
+  auto& head_bone = person.rig.active_pose.bones[0];
   tVec3f scale = tVec3f(1500.f);
 
   tVec3f head_offset;
@@ -50,7 +50,7 @@ static void AttachToHead(tObject& object, SkinnedPerson& person, const tVec3f& b
 }
 
 static void AttachToRightShoulder(tObject& object, SkinnedPerson& person, const tVec3f& body_position, const Quaternion& body_rotation) {
-  auto& bone = person.animation.active_pose.bones[7];
+  auto& bone = person.rig.active_pose.bones[7];
   tVec3f scale = tVec3f(1500.f);
 
   tVec3f offset;
@@ -66,7 +66,7 @@ static void AttachToRightShoulder(tObject& object, SkinnedPerson& person, const 
 }
 
 static void AttachToRightArm(tObject& object, SkinnedPerson& person, const tVec3f& body_position, const Quaternion& body_rotation) {
-  auto& bone = person.animation.active_pose.bones[5];
+  auto& bone = person.rig.active_pose.bones[5];
   tVec3f scale = tVec3f(1500.f);
 
   tVec3f offset;
@@ -78,7 +78,7 @@ static void AttachToRightArm(tObject& object, SkinnedPerson& person, const tVec3
 }
 
 static void AttachToLeftShoulder(tObject& object, SkinnedPerson& person, const tVec3f& body_position, const Quaternion& body_rotation) {
-  auto& bone = person.animation.active_pose.bones[4];
+  auto& bone = person.rig.active_pose.bones[4];
   tVec3f scale = tVec3f(1500.f);
 
   tVec3f offset;
@@ -90,7 +90,7 @@ static void AttachToLeftShoulder(tObject& object, SkinnedPerson& person, const t
 }
 
 static void AttachToLeftArm(tObject& object, SkinnedPerson& person, const tVec3f& body_position, const Quaternion& body_rotation) {
-  auto& bone = person.animation.active_pose.bones[2];
+  auto& bone = person.rig.active_pose.bones[2];
   tVec3f scale = tVec3f(1500.f);
 
   tVec3f offset;
@@ -104,17 +104,17 @@ static void AttachToLeftArm(tObject& object, SkinnedPerson& person, const tVec3f
 static void HandleAnimatedPerson(State& state, SkinnedPerson& person, AnimationParams& params) {
   auto& animations = state.animations;
 
-  if (person.animation.current_animation == nullptr) {
-    person.animation.current_animation = &animations.player_run;
+  if (person.rig.current_animation == nullptr) {
+    person.rig.current_animation = &animations.player_run;
   }
 
   if (params.immediate) {
-    Animation::StartNextAnimation(person.animation, params.animation);
+    Animation::StartNextAnimation(person.rig, params.animation);
   } else {
-    Animation::AwaitNextAnimation(person.animation, params.animation);
+    Animation::AwaitNextAnimation(person.rig, params.animation);
   }
 
-  UpdateAnimation(person.animation, params.speed, state.dt);
+  UpdateAnimation(person.rig, params.speed, state.dt);
 }
 
 /**
@@ -193,7 +193,7 @@ static void HandleAnimatedLesserGuards(Tachyon* tachyon, State& state, int32& us
     {
       auto& shirt = skinned_mesh(person.shirt_mesh_index);
 
-      SyncSkinnedMesh(shirt, entity, person.animation);
+      SyncSkinnedMesh(shirt, entity, person.rig);
 
       shirt.position = body_position;
       shirt.rotation = body_rotation;
@@ -292,7 +292,7 @@ static void HandleAnimatedLowGuards(Tachyon* tachyon, State& state, int32& usage
     {
       auto& mail = skinned_mesh(person.shirt_mesh_index);
 
-      SyncSkinnedMesh(mail, entity, person.animation);
+      SyncSkinnedMesh(mail, entity, person.rig);
 
       mail.color = tVec3f(0.5f);
       mail.material = tVec4f(0.5f, 1.f, 0, 0.4f);
@@ -370,25 +370,25 @@ static void HandleAnimatedNPCs(Tachyon* tachyon, State& state, int32& usage_coun
     auto& person = state.skinned_people[usage_counter++];
     auto& body = skinned_mesh(person.body_mesh_index);
 
-    if (person.animation.current_animation == nullptr) {
-      person.animation.current_animation = &animations.person_idle;
+    if (person.rig.current_animation == nullptr) {
+      person.rig.current_animation = &animations.person_idle;
     }
 
     float animation_speed;
 
     // @todo improve determinant for current talking npc
     if (state.current_dialogue_set == entity.unique_name) {
-      Animation::SetNextAnimation(person.animation, &animations.person_talking);
+      Animation::SetNextAnimation(person.rig, &animations.person_talking);
 
       animation_speed = 1.75f;
     } else {
-      Animation::SetNextAnimation(person.animation, &animations.person_idle);
+      Animation::SetNextAnimation(person.rig, &animations.person_idle);
 
       animation_speed = 0.75f;
     }
 
-    UpdateAnimation(person.animation, animation_speed, state.dt);
-    SyncSkinnedMesh(body, entity, person.animation);
+    UpdateAnimation(person.rig, animation_speed, state.dt);
+    SyncSkinnedMesh(body, entity, person.rig);
 
     commit(body);
   }

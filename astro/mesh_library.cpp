@@ -256,7 +256,7 @@ static void TransformBonesIntoMeshSpace(tSkeleton& skeleton) {
 
 static void AddSkinnedPlayerMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
-  auto& rest_pose = state.player_mesh_animation.rest_pose;
+  auto& rest_pose = state.player.rig.rest_pose;
 
   rest_pose = GltfLoader("./astro/3d_skeleton_animations/player_skeleton.gltf").skeleton;
 
@@ -348,7 +348,7 @@ static void AddSkinnedPersonMeshes(Tachyon* tachyon, State& state) {
   for_range(0, MAX_ANIMATED_PEOPLE - 1) {
     auto& person = state.skinned_people[i];
 
-    person.animation.rest_pose = rest_pose_skeleton;
+    person.rig.rest_pose = rest_pose_skeleton;
 
     // Add meshes
     {

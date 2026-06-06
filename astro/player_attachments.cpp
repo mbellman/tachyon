@@ -16,7 +16,7 @@ static float GetSwingIntensity(Tachyon* tachyon, State& state, const float off_l
   }
 
   if (state.is_on_ladder) {
-    float t = fmodf(state.player_mesh_animation.seek_time, 8.f) / 8.f;
+    float t = fmodf(state.player.rig.seek_time, 8.f) / 8.f;
     float alpha = 2.f * t * t_TAU;
 
     float speed = 3500.f * (0.5f + 0.5f * sinf(alpha));
@@ -29,7 +29,7 @@ static float GetSwingIntensity(Tachyon* tachyon, State& state, const float off_l
 
 static void UpdateBlanket(Tachyon* tachyon, State& state) {
   float swing_intensity = GetSwingIntensity(tachyon, state, 1.5f);
-  auto& player_animation = state.player_mesh_animation;
+  auto& player_animation = state.player.rig;
   auto& torso_bone = player_animation.active_pose.bones[8];
   auto& blanket = objects(state.meshes.player_blanket)[0];
 
@@ -62,7 +62,7 @@ static void UpdateBlanket(Tachyon* tachyon, State& state) {
 
 static void UpdateSatchel(Tachyon* tachyon, State& state) {
   float swing_intensity = GetSwingIntensity(tachyon, state, 1.5f);
-  auto& player_animation = state.player_mesh_animation;
+  auto& player_animation = state.player.rig;
   auto& torso_bone = player_animation.active_pose.bones[8];
   auto& satchel = objects(state.meshes.player_satchel)[0];
 
@@ -93,7 +93,7 @@ static void UpdateSatchel(Tachyon* tachyon, State& state) {
 
 static void UpdateFlasks(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
-  auto& player_animation = state.player_mesh_animation;
+  auto& player_animation = state.player.rig;
 
   float swing_intensity = GetSwingIntensity(tachyon, state, 2.f);
   Quaternion side_swing_rotation = Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), 4.f * state.tilt_angle);

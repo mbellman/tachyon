@@ -73,63 +73,63 @@ static void EvaluateAnimation(tSkeletonAnimation& animation, const float seek_ti
   }
 }
 
-void Animation::AccumulateTime(tSkinnedMeshAnimation& mesh_animation, const float animation_speed, const float blend_rate, const float dt) {
-  mesh_animation.seek_time += animation_speed * dt;
+void Animation::AccumulateTime(tAnimationRig& rig, const float animation_speed, const float blend_rate, const float dt) {
+  rig.seek_time += animation_speed * dt;
 
   // Limit and wrap the animation time to a common multiple of the
   // current/next animation times so that we don't eventually encounter
   // accumulation precision errors
   {
-    float max_seek_time = GetMaxSeekTime(*mesh_animation.current_animation) * GetMaxSeekTime(*mesh_animation.next_animation);
+    float max_seek_time = GetMaxSeekTime(*rig.current_animation) * GetMaxSeekTime(*rig.next_animation);
 
-    if (mesh_animation.seek_time > max_seek_time) {
-      mesh_animation.seek_time -= max_seek_time;
-    } else if (mesh_animation.seek_time < 0.f) {
-      mesh_animation.seek_time = max_seek_time;
+    if (rig.seek_time > max_seek_time) {
+      rig.seek_time -= max_seek_time;
+    } else if (rig.seek_time < 0.f) {
+      rig.seek_time = max_seek_time;
     }
   }
 
   // Increment the blend factor to the next animation, in case
   // we're transitioning between animations.
   {
-    mesh_animation.next_animation_blend_alpha += blend_rate * dt;
+    rig.next_animation_blend_alpha += blend_rate * dt;
 
-    if (mesh_animation.next_animation_blend_alpha > 1.f) {
-      mesh_animation.next_animation_blend_alpha = 1.f;
+    if (rig.next_animation_blend_alpha > 1.f) {
+      rig.next_animation_blend_alpha = 1.f;
     }
   }
 
   // Update the current animation when a full blend from current -> next is complete
   if (
-    mesh_animation.current_animation != mesh_animation.next_animation &&
-    mesh_animation.next_animation_blend_alpha == 1.f
+    rig.current_animation != rig.next_animation &&
+    rig.next_animation_blend_alpha == 1.f
   ) {
-    mesh_animation.current_animation = mesh_animation.next_animation;
+    rig.current_animation = rig.next_animation;
   }
 }
 
-void Animation::UpdatePose(tSkinnedMeshAnimation& mesh_animation, const AnimationBlendType blend_type) {
-  tSkeletonAnimation& current_animation = *mesh_animation.current_animation;
-  tSkeletonAnimation& next_animation = *mesh_animation.next_animation;
+void Animation::UpdatePose(tAnimationRig& rig, const AnimationBlendType blend_type) {
+  tSkeletonAnimation& current_animation = *rig.current_animation;
+  tSkeletonAnimation& next_animation = *rig.next_animation;
 
   // Evaluate the current and next animations simultaneously so they can be blended
   // @optimize this only has to be done when transitioning between animations
-  EvaluateAnimation(current_animation, mesh_animation.seek_time);
-  EvaluateAnimation(next_animation, mesh_animation.seek_time);
+  EvaluateAnimation(current_animation, rig.seek_time);
+  EvaluateAnimation(next_animation, rig.seek_time);
 
-  if (mesh_animation.upper_body_animation != nullptr) {
-    EvaluateAnimation(*mesh_animation.upper_body_animation, mesh_animation.upper_body_animation_time);
+  if (rig.upper_body_animation != nullptr) {
+    EvaluateAnimation(*rig.upper_body_animation, rig.upper_body_animation_time);
   }
 
   // Update the active pose based on the blended result of the current/next animations
   {
-    auto& active_pose = mesh_animation.active_pose;
+    auto& active_pose = rig.active_pose;
     float blend_alpha;
 
     if (blend_type == BLEND_EASE_IN_OUT) {
-      blend_alpha = Tachyon_EaseInOutf(mesh_animation.next_animation_blend_alpha);
+      blend_alpha = Tachyon_EaseInOutf(rig.next_animation_blend_alpha);
     } else {
-      blend_alpha = mesh_animation.next_animation_blend_alpha;
+      blend_alpha = rig.next_animation_blend_alpha;
     }
 
     // Compute the active pose rotation by blending between the current/next animations
@@ -151,19 +151,19 @@ void Animation::UpdatePose(tSkinnedMeshAnimation& mesh_animation, const Animatio
         // @todo tilt
         // active_pose_bone.rotation *= Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), ___);
 
-        active_pose_bone.rotation *= Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), mesh_animation.torso_turn_angle);
+        active_pose_bone.rotation *= Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), rig.torso_turn_angle);
       }
 
       // @todo allow the head bone name to be specified
       if (active_pose_bone.name == "Head") {
-        active_pose_bone.rotation *= Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), mesh_animation.head_turn_angle);
+        active_pose_bone.rotation *= Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), rig.head_turn_angle);
       }
     }
 
     // Handle separate upper body animation
-    if (mesh_animation.upper_body_animation != nullptr) {
-      auto& animation = *mesh_animation.upper_body_animation;
-      float seek_time = mesh_animation.upper_body_animation_time;
+    if (rig.upper_body_animation != nullptr) {
+      auto& animation = *rig.upper_body_animation;
+      float seek_time = rig.upper_body_animation_time;
       float progress = seek_time / float(animation.frames.size());
       if (progress > 1.f) progress = 1.f;
       // @todo make blend alpha configurable. Right now this assumes
@@ -174,7 +174,7 @@ void Animation::UpdatePose(tSkinnedMeshAnimation& mesh_animation, const Animatio
 
       for (size_t i = 0; i < active_pose.bones.size(); i++) {
         auto& active_pose_bone = active_pose.bones[i];
-        auto& animation = *mesh_animation.upper_body_animation;
+        auto& animation = *rig.upper_body_animation;
         auto& bone_name = active_pose_bone.name;
 
         // Skip lower-body bones
@@ -191,9 +191,9 @@ void Animation::UpdatePose(tSkinnedMeshAnimation& mesh_animation, const Animatio
   }
 }
 
-void Animation::UpdateBoneMatrices(tSkinnedMeshAnimation& mesh_animation) {
-  auto& rest_pose = mesh_animation.rest_pose;
-  auto& active_pose = mesh_animation.active_pose;
+void Animation::UpdateBoneMatrices(tAnimationRig& rig) {
+  auto& rest_pose = rig.rest_pose;
+  auto& active_pose = rig.active_pose;
 
   active_pose.bone_matrices.clear();
 
@@ -218,30 +218,30 @@ void Animation::UpdateBoneMatrices(tSkinnedMeshAnimation& mesh_animation) {
   }
 }
 
-void Animation::SetNextAnimation(tSkinnedMeshAnimation& mesh_animation, tSkeletonAnimation* skeleton_animation) {
-  if (mesh_animation.next_animation == skeleton_animation) {
+void Animation::SetNextAnimation(tAnimationRig& rig, tSkeletonAnimation* skeleton_animation) {
+  if (rig.next_animation == skeleton_animation) {
     return;
   }
 
-  mesh_animation.next_animation = skeleton_animation;
-  mesh_animation.next_animation_blend_alpha = 0.f;
+  rig.next_animation = skeleton_animation;
+  rig.next_animation_blend_alpha = 0.f;
 }
 
-void Animation::StartNextAnimation(tSkinnedMeshAnimation& mesh_animation, tSkeletonAnimation* skeleton_animation) {
-  if (mesh_animation.next_animation == skeleton_animation) {
+void Animation::StartNextAnimation(tAnimationRig& rig, tSkeletonAnimation* skeleton_animation) {
+  if (rig.next_animation == skeleton_animation) {
     return;
   }
 
-  mesh_animation.current_animation = skeleton_animation;
-  mesh_animation.next_animation = skeleton_animation;
-  mesh_animation.next_animation_blend_alpha = 0.f;
-  mesh_animation.seek_time = 0.f;
+  rig.current_animation = skeleton_animation;
+  rig.next_animation = skeleton_animation;
+  rig.next_animation_blend_alpha = 0.f;
+  rig.seek_time = 0.f;
 }
 
-void Animation::AwaitNextAnimation(tSkinnedMeshAnimation& mesh_animation, tSkeletonAnimation* skeleton_animation) {
-  if (mesh_animation.next_animation != nullptr && mesh_animation.next_animation_blend_alpha < 1.f) {
+void Animation::AwaitNextAnimation(tAnimationRig& rig, tSkeletonAnimation* skeleton_animation) {
+  if (rig.next_animation != nullptr && rig.next_animation_blend_alpha < 1.f) {
     return;
   }
 
-  Animation::SetNextAnimation(mesh_animation, skeleton_animation);
+  Animation::SetNextAnimation(rig, skeleton_animation);
 }

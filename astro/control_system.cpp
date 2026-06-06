@@ -87,7 +87,7 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
         0.f
       );
 
-      float t = fmodf(state.player_mesh_animation.seek_time, 8.f) / 8.f;
+      float t = fmodf(state.player.rig.seek_time, 8.f) / 8.f;
       float alpha = 2.f * t * t_TAU;
       float speed = 3500.f * (0.5f + 0.5f * sinf(alpha));
 

@@ -46,23 +46,23 @@ static inline float GetAngleBetween(const float a1, const float a2) {
 
 static bool HasCurrentWandAnimation(State& state) {
   auto& animations = state.animations;
-  auto& player_animation = state.player_mesh_animation;
+  auto& rig = state.player.rig;
 
   return (
-    player_animation.current_animation == &animations.player_idle_wand ||
-    player_animation.current_animation == &animations.player_walk_wand ||
-    player_animation.current_animation == &animations.player_run_wand
+    rig.current_animation == &animations.player_idle_wand ||
+    rig.current_animation == &animations.player_walk_wand ||
+    rig.current_animation == &animations.player_run_wand
   );
 }
 
 static bool HasNextWandAnimation(State& state) {
   auto& animations = state.animations;
-  auto& player_animation = state.player_mesh_animation;
+  auto& rig = state.player.rig;
 
   return (
-    player_animation.next_animation == &animations.player_idle_wand ||
-    player_animation.next_animation == &animations.player_walk_wand ||
-    player_animation.next_animation == &animations.player_run_wand
+    rig.next_animation == &animations.player_idle_wand ||
+    rig.next_animation == &animations.player_walk_wand ||
+    rig.next_animation == &animations.player_run_wand
   );
 }
 
@@ -83,7 +83,7 @@ static void ShowDebugPlayerSkeleton(Tachyon* tachyon, State& state) {
 
   reset_instances(meshes.debug_skeleton_bone);
 
-  auto& skeleton = state.player_mesh_animation.active_pose;
+  auto& skeleton = state.player.rig.active_pose;
 
   for (auto& bone : skeleton.bones) {
     // End on the root bone, since it does not need to be visualized
@@ -160,7 +160,7 @@ static void HandleRunOscillation(Tachyon* tachyon, State& state) {
   if (state.run_oscillation > 1.f) state.run_oscillation = 1.f;
 
   float run_bounce_height = RUN_BOUNCE_HEIGHT * state.run_oscillation;
-  float run_cycle_time = fmodf(state.player_mesh_animation.seek_time + 1.f, 8.f) / 8.f;
+  float run_cycle_time = fmodf(state.player.rig.seek_time + 1.f, 8.f) / 8.f;
   float run_bounce = SampleCurve(run_bounce_curve, run_cycle_time * 2.f);
 
   state.player.visual_position.y += run_bounce_height * run_bounce;
@@ -196,7 +196,7 @@ static bool TurnPlayerHeadTowardPosition(State& state, const tVec3f& position, c
   if (turn < -1.6f) turn = -1.6f;
   if (turn > 1.6f) turn = 1.6f;
 
-  float& turn_angle = state.player_mesh_animation.head_turn_angle;
+  float& turn_angle = state.player.rig.head_turn_angle;
 
   turn_angle = Tachyon_Lerpf(turn_angle, -turn, 5.f * state.dt);
 
@@ -266,14 +266,14 @@ static void UpdatePlayerHeadTurnAngle(Tachyon* tachyon, State& state) {
       // to rotate back into a normal forward orientation
       float alpha = 1.f - 0.75f * (state.player_velocity.magnitude() / PlayerCharacter::MAX_RUN_SPEED);
 
-      state.player_mesh_animation.head_turn_angle += 40.f * alpha * state.tilt_angle * state.dt;
+      state.player.rig.head_turn_angle += 40.f * alpha * state.tilt_angle * state.dt;
     } else {
-      state.player_mesh_animation.head_turn_angle += 10.f * state.tilt_angle * state.dt;
+      state.player.rig.head_turn_angle += 10.f * state.tilt_angle * state.dt;
     }
   }
 
   // Continually drift back toward 0
-  float& turn_angle = state.player_mesh_animation.head_turn_angle;
+  float& turn_angle = state.player.rig.head_turn_angle;
 
   turn_angle = Tachyon_Lerpf(turn_angle, 0.f, 4.f * state.dt);
 }
@@ -334,7 +334,7 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state) {
   PlayerAnimation::Update(tachyon, state);
   PlayerAttachments::Update(tachyon, state);
 
-  auto& active_pose = state.player_mesh_animation.active_pose;
+  auto& active_pose = state.player.rig.active_pose;
 
   // Head
   {
@@ -465,16 +465,16 @@ static float GetWandHoldFactor(State& state) {
       ? 0.f :
     !has_current_wand_animation && has_next_wand_animation
       // Taking the wand out
-      ? state.player_mesh_animation.next_animation_blend_alpha :
+      ? state.player.rig.next_animation_blend_alpha :
     has_current_wand_animation && !has_next_wand_animation
       // Putting the wand down
-      ? 1.f - state.player_mesh_animation.next_animation_blend_alpha :
+      ? 1.f - state.player.rig.next_animation_blend_alpha :
     1.f
   );
 }
 
 static void UpdateWand(Tachyon* tachyon, State& state) {
-  auto& active_pose = state.player_mesh_animation.active_pose;
+  auto& active_pose = state.player.rig.active_pose;
   auto& wand = objects(state.meshes.player_wand)[0];
   tVec3f player_body_position = skinned_mesh(state.meshes.player_robes).position;
 
@@ -871,15 +871,15 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
     state.player_facing_direction = tVec3f::slerp(state.player_facing_direction, desired_facing_direction, turn_speed * state.dt).unit();
     state.tilt_angle = Tachyon_Lerpf(state.tilt_angle, tilt, 5.f * state.dt);
 
-    state.player_mesh_animation.torso_turn_angle = 4.f * state.tilt_angle;
+    state.player.rig.torso_turn_angle = 4.f * state.tilt_angle;
 
     // Swing the torso while walking
     // @todo refactor/clean up
-    float t = fmodf(state.player_mesh_animation.seek_time + 3.f, 8.f) / 8.f;
+    float t = fmodf(state.player.rig.seek_time + 3.f, 8.f) / 8.f;
     float alpha = t * t_TAU;
     float r = sinf(speed_ratio * t_PI);
 
-    state.player_mesh_animation.torso_turn_angle += 0.1f * r * sinf(alpha);
+    state.player.rig.torso_turn_angle += 0.1f * r * sinf(alpha);
   }
 
   // Shift the player left or right relative to the tilt angle,
@@ -968,8 +968,8 @@ void PlayerCharacter::TakeDamage(Tachyon* tachyon, State& state, const float dam
 
   // Cancel attack animation
   state.last_wand_swing_time = 0.f;
-  state.player_mesh_animation.upper_body_animation = nullptr;
-  state.player_mesh_animation.upper_body_animation_time = 0.f;
+  state.player.rig.upper_body_animation = nullptr;
+  state.player.rig.upper_body_animation_time = 0.f;
 
   if (state.player_hp <= 0.f) {
     // @temporary

@@ -467,7 +467,7 @@ static void HandleWalkSounds(Tachyon* tachyon, State& state) {
   bool is_running = player_speed > PlayerCharacter::MAX_COMBAT_WALK_SPEED;
   int step_frame_1 = 2; // Left foot
   int step_frame_2 = 6; // Right foot
-  float seek_time = state.player_mesh_animation.seek_time;
+  float seek_time = state.player.rig.seek_time;
   int current_frame = (int) fmodf(seek_time, 8.f);
 
   if (current_frame == step_frame_1 || current_frame == step_frame_2) {
@@ -532,7 +532,7 @@ static void HandleClimbingSounds(Tachyon* tachyon, State& state) {
 
   int step_frame_1 = 0; // Left foot
   int step_frame_2 = 4; // Right foot
-  float seek_time = state.player_mesh_animation.seek_time;
+  float seek_time = state.player.rig.seek_time;
   int current_frame = (int) fmodf(seek_time, 8.f);
 
   if (current_frame == step_frame_1 || current_frame == step_frame_2) {
@@ -689,9 +689,9 @@ static void ShowGameStats(Tachyon* tachyon, State& state) {
     "Target time: " + std::to_string(state.target_astro_time),
     "Astro turn speed: " + std::to_string(state.astro_turn_speed),
     "Ground Y: " + std::to_string(state.current_ground_y),
-    "Current animation: " + state.player_mesh_animation.current_animation->name,
-    "Next animation: " + state.player_mesh_animation.next_animation->name,
-    "Animation time: " + std::to_string(state.player_mesh_animation.seek_time),
+    "Current animation: " + state.player.rig.current_animation->name,
+    "Next animation: " + state.player.rig.next_animation->name,
+    "Animation time: " + std::to_string(state.player.rig.seek_time),
     "Delta time: " + std::to_string(state.dt)
   };
 
@@ -1034,7 +1034,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
 
     // @todo factor
     for (auto& bone : state.animations.player_idle.frames[0].bones) {
-      state.player_mesh_animation.active_pose.bones.push_back(bone);
+      state.player.rig.active_pose.bones.push_back(bone);
     }
   }
 
@@ -1070,7 +1070,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
 
       // @todo factor
       for (auto& bone : state.animations.person_idle.frames[0].bones) {
-        person.animation.active_pose.bones.push_back(bone);
+        person.rig.active_pose.bones.push_back(bone);
       }
     }
   }

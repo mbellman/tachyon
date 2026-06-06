@@ -208,8 +208,8 @@ vec3 GetLightTransmittance(
   float Ti = Sf * (Vf + Lf);
 
   // Various transmittance terms. For artistic purposes, we use additional
-  // forms of transmittance to enhance highlights and closer-to-glancing angles.
-  vec3 transmittance = filtered_light * Sf * (Vf + Lf);
+  // forms of transmittance to enhance highlights and farther-away glancing angles.
+  vec3 transmittance = filtered_light * Ti;
   vec3 highlight_transmittance = 32.0 * pow(1.0 - NdotV, 2.0) * filtered_light;
   vec3 sheen_transmittance = transmittance * sheen;
 

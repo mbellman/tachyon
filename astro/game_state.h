@@ -415,7 +415,7 @@ namespace astro {
     std::string name = "";
   };
 
-  struct tSkinnedMeshAnimation {
+  struct tAnimationRig {
     tSkeleton rest_pose;
     tSkeleton active_pose;
     tSkeletonAnimation* current_animation = nullptr;
@@ -438,7 +438,7 @@ namespace astro {
     int32 body_mesh_index = -1;
     int32 shirt_mesh_index = -1;
     int32 pants_mesh_index = -1;
-    tSkinnedMeshAnimation animation;
+    tAnimationRig rig;
   };
 
   /**
@@ -489,6 +489,8 @@ namespace astro {
 
       Quaternion visual_rotation;
       tVec3f visual_position;
+
+      tAnimationRig rig;
     } player;
 
     tVec3f player_position;
@@ -569,8 +571,6 @@ namespace astro {
     } animations;
 
     uint8 player_idle_stance = 1;
-
-    tSkinnedMeshAnimation player_mesh_animation;
     SkinnedPerson skinned_people[MAX_ANIMATED_PEOPLE];
     int32 total_animated_people = 0;
 
