@@ -277,7 +277,7 @@ static void UpdateTreeFlowers(Tachyon* tachyon, State& state) {
 
         flower.position = base_position + offset;
         flower.rotation = rotation;
-        flower.color = tVec4f(1.f, 1.f, 1.f, 0.4f);
+        flower.color = tVec4f(tVec3f(0.6f), 0.4f);
         flower.material = tVec4f(0.5f, 0, 0, 1.f);
 
         commit(flower);

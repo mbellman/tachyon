@@ -129,7 +129,11 @@ static void HandleBlowingLeaves(Tachyon* tachyon, State& state) {
   }
 }
 
-void HandleDustMotes(Tachyon* tachyon, State& state) {
+static void HandleBlowingWhiteFlowerSeeds(Tachyon* tachyon, State& state) {
+  // @todo
+}
+
+static void HandleDustMotes(Tachyon* tachyon, State& state) {
   profile("HandleDustMotes()");
 
   auto& meshes = state.meshes;
@@ -324,6 +328,7 @@ void Environment::Init(Tachyon* tachyon, State& state) {
 
 void Environment::HandleEnvironment(Tachyon* tachyon, State& state) {
   HandleBlowingLeaves(tachyon, state);
+  HandleBlowingWhiteFlowerSeeds(tachyon, state);
   HandleDustMotes(tachyon, state);
   HandleGlowParticles(tachyon, state);
   HandleRiverLeaves(tachyon, state);
