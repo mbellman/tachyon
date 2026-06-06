@@ -196,9 +196,11 @@ static bool TurnPlayerHeadTowardPosition(State& state, const tVec3f& position, c
   if (turn < -1.6f) turn = -1.6f;
   if (turn > 1.6f) turn = 1.6f;
 
-  float& turn_angle = state.player.rig.head_turn_angle;
+  auto& rig = state.player.rig;
 
-  turn_angle = Tachyon_Lerpf(turn_angle, -turn, 5.f * state.dt);
+  rig.head_turn_angle = Tachyon_Lerpf(rig.head_turn_angle, -turn, 5.f * state.dt);
+
+  state.player.is_looking_at_something = true;
 
   return true;
 }
@@ -217,8 +219,12 @@ static void TurnPlayerHeadToward(State& state, const std::vector<GameEntity>& en
   }
 }
 
+// @todo move to player_animation.cpp
 static void UpdatePlayerHeadTurnAngle(Tachyon* tachyon, State& state) {
   float player_facing_angle = atan2f(state.player_facing_direction.z, state.player_facing_direction.x);
+
+  // Assume this is false until we determine otherwise
+  state.player.is_looking_at_something = false;
 
   if (state.has_target) {
     // Turn head toward active target
@@ -936,9 +942,9 @@ bool PlayerCharacter::CanTakeDamage(Tachyon* tachyon, const State& state) {
 bool PlayerCharacter::IsRunning(Tachyon* tachyon, State& state) {
   return (
     is_key_held(tKey::CONTROLLER_A) &&
+    is_moving_left_stick() &&
     state.previous_move_delta > 0.f &&
-    !PlayerCharacter::IsClimbingOffLadder(tachyon, state) &&
-    (abs(tachyon->left_stick.x) > 0.1f || abs(tachyon->left_stick.y) > 0.1f)
+    !PlayerCharacter::IsClimbingOffLadder(tachyon, state)
   );
 }
 

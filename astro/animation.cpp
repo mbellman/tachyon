@@ -148,9 +148,7 @@ void Animation::UpdatePose(tAnimationRig& rig, const AnimationBlendType blend_ty
 
       // @todo allow the torso bone name to be specified
       if (active_pose_bone.name == "Torso") {
-        // @todo tilt
-        // active_pose_bone.rotation *= Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), ___);
-
+        active_pose_bone.rotation *= Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), rig.torso_tilt_angle);
         active_pose_bone.rotation *= Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), rig.torso_turn_angle);
       }
 

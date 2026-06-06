@@ -285,6 +285,30 @@ static AnimationBlendType GetAnimationBlendType(State& state) {
   return BLEND_LINEAR;
 }
 
+static void HandleRunningChargeAnimation(Tachyon* tachyon, State& state) {
+  if (PlayerCharacter::IsRunning(tachyon, state)) {
+    state.player.running_charge += state.dt;
+
+    clamp_to_1(state.player.running_charge);
+  } else {
+    if (state.player.running_charge == 1.f) {
+      state.player.running_charge = 0.f;
+    }
+
+    state.player.running_charge *= 1.f - 2.f * state.dt;
+  }
+
+  state.player.rig.torso_tilt_angle = 0.1f * sinf(state.player.running_charge * t_PI);
+}
+
+static void HandleStoppedAfterMovingAnimation(Tachyon* tachyon, State& state) {
+  if (state.player.is_looking_at_something) {
+    return;
+  }
+
+  // @todo
+}
+
 void PlayerAnimation::Update(Tachyon* tachyon, State& state) {
   profile("PlayerAnimation::Update()");
 
@@ -326,6 +350,9 @@ void PlayerAnimation::Update(Tachyon* tachyon, State& state) {
       player_animation.upper_body_animation = nullptr;
     }
   }
+
+  HandleRunningChargeAnimation(tachyon, state);
+  HandleStoppedAfterMovingAnimation(tachyon, state);
 
   Animation::AccumulateTime(state.player.rig, animation_speed, blend_rate, state.dt);
   Animation::UpdatePose(state.player.rig, blend_type);

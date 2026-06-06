@@ -426,6 +426,7 @@ namespace astro {
     float next_animation_blend_alpha = 0.f;
     float head_turn_angle = 0.f;
     float torso_turn_angle = 0.f;
+    float torso_tilt_angle = 0.f;
     float upper_body_animation_time = 0.f;
   };
 
@@ -489,6 +490,10 @@ namespace astro {
 
       Quaternion visual_rotation;
       tVec3f visual_position;
+
+      float running_charge = 0.f;
+
+      bool is_looking_at_something = false;
 
       tAnimationRig rig;
     } player;
