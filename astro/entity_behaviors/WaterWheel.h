@@ -4,7 +4,7 @@
 
 namespace astro {
   behavior WaterWheel {
-    const static float BASE_ROTATION_RATE = 0.7f;
+    const static float BASE_ROTATION_RATE = 0.5f;
     const static float STOPPED_ROTATION = t_TAU;
 
     // Wrap rotation to between 0 and TAU

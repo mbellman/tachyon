@@ -98,8 +98,8 @@ static void HandleBlowingLeaves(Tachyon* tachyon, State& state) {
       Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), rotation_speed * 0.7f * state.dt)
     );
 
-    leaf.color = tVec3f(0.15f, 0.3f, 0.1f);
-    leaf.material = tVec4f(0.9f, 0, 0, 1.f);
+    leaf.color = tVec3f(0.14f, 0.5f, 0.07f);
+    leaf.material = tVec4f(0.6f, 0, 0, 1.f);
 
     if (leaf.position.z - state.player_position.z > 15000.f) {
       // Move leaves into view as we move north
