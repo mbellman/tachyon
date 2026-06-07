@@ -295,6 +295,9 @@ static void HandleInGameDevHotkeys(Tachyon* tachyon, State& state) {
       for_entities(state.sculpture_1s) {
         auto& entity = state.sculpture_1s[i];
 
+        // Don't reset sculptures which are perma-activated
+        if (entity.requires_action) continue;
+
         if (entity.did_activate) {
           entity.did_activate = false;
           entity.game_activation_time = -1.;

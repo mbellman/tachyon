@@ -181,6 +181,12 @@ void DataLoader::LoadLevelData(Tachyon* tachyon, State& state) {
         entity.did_activate = true;
       }
 
+      // @temporary
+      // @todo move this elsewhere
+      if (current_entity_type == SCULPTURE_1 && entity.requires_action) {
+        entity.did_activate = true;
+      }
+
       // Set base visible position + rotation; scale is astro time-dependent
       entity.visible_position = entity.position;
       entity.visible_rotation = entity.orientation;
