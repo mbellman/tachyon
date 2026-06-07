@@ -23,6 +23,7 @@ bool IsEnemyHit(Tachyon* tachyon, GameEntity& entity) {
 }
 
 static void UpdateAnimation(tAnimationRig& rig, const float speed, const float dt) {
+  // @todo allow upper body animation speed to be decoupled from main animation speed
   rig.upper_body_animation_time += speed * dt;
 
   Animation::AccumulateTime(rig, speed, 3.f, dt);
@@ -138,11 +139,18 @@ static void HandleAnimatedPerson(State& state, SkinnedPerson& person, AnimationP
   auto& animations = state.animations;
 
   if (person.rig.current_animation == nullptr) {
-    person.rig.current_animation = &animations.player_run;
+    // Default animation
+    person.rig.current_animation = &animations.player_idle;
+  }
+
+  if (person.rig.upper_body_animation == nullptr) {
+    // Reset the upper body animation time whenever an animation isn't defined.
+    // If this is the first frame we are defining it, we reset the animation
+    // so it can play from the beginning.
+    person.rig.upper_body_animation_time = 0.f;
   }
 
   person.rig.upper_body_animation = params.upper_body_animation;
-  person.rig.upper_body_animation_time = 0.f;
 
   if (params.immediate) {
     Animation::StartNextAnimation(person.rig, params.main_animation);
@@ -182,20 +190,26 @@ static AnimationParams GetLesserGuardAnimationParams(Tachyon* tachyon, State& st
       .main_animation = &animations.player_walk,
       // @temporary
       .upper_body_animation = &animations.player_swing_wand,
-      .speed = 10.f,
+      .speed = 5.f,
       .immediate = true
     };
   }
   else if (enemy.speed > 1500.f) {
+    const float top_speed = 12.f;
+    float speed_ratio = enemy.speed / 5000.f;
+
     return {
       .main_animation = &animations.player_run,
-      .speed = 12.f
+      .speed = top_speed * speed_ratio
     };
   }
   else if (enemy.speed > 50.f) {
+    const float top_speed = 12.f;
+    float speed_ratio = enemy.speed / 5000.f;
+
     return {
       .main_animation = &animations.player_walk,
-      .speed = 10.f
+      .speed = top_speed * speed_ratio
     };
   }
   else {
@@ -312,8 +326,8 @@ static void HandleAnimatedLesserGuards(Tachyon* tachyon, State& state, int32& us
 
       AttachToLeftHand(shield, person, body_position, body_rotation);
 
-      shield.rotation = shield.rotation * Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), -t_HALF_PI);
-
+      shield.position += body_rotation.getDirection().invert() * 350.f;
+      shield.rotation = body_rotation;
       shield.color = tVec3f(0.6f);
       shield.material = tVec4f(0.2f, 1.f, 0, 0);
 
