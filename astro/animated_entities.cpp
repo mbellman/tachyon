@@ -200,7 +200,7 @@ static AnimationParams GetLesserGuardAnimationParams(Tachyon* tachyon, State& st
 
     return {
       .main_animation = &animations.player_run,
-      .speed = top_speed * speed_ratio
+      .speed = top_speed * sqrt(speed_ratio)
     };
   }
   else if (enemy.speed > 50.f) {
@@ -209,7 +209,7 @@ static AnimationParams GetLesserGuardAnimationParams(Tachyon* tachyon, State& st
 
     return {
       .main_animation = &animations.player_walk,
-      .speed = top_speed * speed_ratio
+      .speed = top_speed * sqrt(speed_ratio)
     };
   }
   else {

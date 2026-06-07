@@ -185,6 +185,7 @@ namespace astro {
         }
 
         if (time_since_last_stun >= 4.f && enemy.mood != ENEMY_IDLE) {
+          bool is_attacking = time_since(enemy.last_attack_start_time) < ATTACK_DURATION;
           bool is_enemy_broken = time_since(enemy.last_break_time) < BREAK_DURATION;
 
           FacePlayer(entity, state);
@@ -193,12 +194,16 @@ namespace astro {
           if (enemy.mood == ENEMY_AGITATED) {
             if (!is_enemy_broken) {
               enemy.speed += 5000.f * state.dt;
-              if (enemy.speed > 3000.f) enemy.speed = 3000.f;
+              if (enemy.speed > 8000.f) enemy.speed = 8000.f;
             }
 
             if (enemy.speed < 0.f) {
               // Slow down when recovering from knockback
               enemy.speed *= 1.f - 4.f * state.dt;
+            }
+            else if (is_attacking) {
+              // Slow down when attacking
+              enemy.speed *= 1.f - 10.f * state.dt;
             }
             else if (player_distance < 3000.f) {
               // Slow down upon approaching player
@@ -248,28 +253,29 @@ namespace astro {
 
           play_random_dialogue(entity, lesser_guard_dialogue_agitated);
 
+          // Normal attack
           if (
-            player_distance < 8000.f &&
+            player_distance < 6000.f &&
             time_since(enemy.last_attack_start_time) > 1.5f * ATTACK_DURATION &&
             time_since(enemy.last_block_time) > 1.25f &&
             time_since(enemy.last_mood_change_time) > 0.5f &&
             time_since(enemy.last_damage_time) > 1.f &&
             time_since(enemy.last_break_time) > BREAK_DURATION
           ) {
-            // Start an attack
             enemy.last_attack_start_time = get_scene_time();
             enemy.is_counterattacking = false;
           }
 
+          // Counterattack
           if (
             player_distance < 8000.f &&
-            time_since(state.last_wand_bounce_time) < 1.f &&
+            time_since(enemy.last_block_deflect_time) < 1.f &&
             time_since(enemy.last_break_time) > 2.f &&
             time_since(enemy.last_attack_start_time) > 1.f
           ) {
-            // Start an attack
             enemy.last_attack_start_time = get_scene_time();
             enemy.is_counterattacking = true;
+            enemy.last_block_deflect_time = 0.f;
           }
         }
       } else {
@@ -301,8 +307,8 @@ namespace astro {
         }
 
         if (
-          !IsInRangeX(entity, state, 25000.f) ||
-          !IsInRangeZ(entity, state, 25000.f)
+          !IsInRangeX(entity, state, 40000.f) ||
+          !IsInRangeZ(entity, state, 40000.f)
         ) {
           ResetEntityPosition(entity);
 

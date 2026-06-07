@@ -132,6 +132,7 @@ static void HandleLesserGuardWandStrike(Tachyon* tachyon, State& state, GameEnti
       } else {
         // Enemy knockback from wand bounce
         enemy.speed = -6000.f;
+        enemy.last_block_deflect_time = get_scene_time();
 
         PlayerCharacter::GetKnockedBack(state, 500.f);
 

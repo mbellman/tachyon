@@ -228,7 +228,17 @@ static void HandleWandControls(Tachyon* tachyon, State& state) {
         // @todo magic weapons
         SpellSystem::CastHoming(tachyon, state);
       }
-      else if (time_since(state.last_wand_swing_time) > 0.7f) {
+      else if (time_since(state.last_break_attack_time) < 0.7f) {
+        // Break follow-up
+        // @todo
+        console_log("Break follow-up");
+      }
+      else if (time_since(state.last_wand_swing_time) < 0.7f) {
+        // Follow-up
+        // @todo
+        console_log("Follow-up");
+      }
+      else {
         // Before we have magic weapons, swing the wand as a melee weapon
         state.last_wand_swing_time = get_scene_time();
         state.last_wand_bounce_time = 0.f;
