@@ -80,6 +80,10 @@ static void CreateConstantObjects(Tachyon* tachyon, State& state) {
       create(meshes.duck_wings);
       create(meshes.duck_head);
       create(meshes.duck_beak);
+
+      // Swans
+      create(meshes.swan_body);
+      create(meshes.swan_beak);
     }
   }
 

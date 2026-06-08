@@ -222,6 +222,9 @@ static void AddFaunaMeshes(Tachyon* tachyon, State& state) {
   meshes.duck_head = MODEL_MESH("./astro/3d_models/fauna/duck_head.obj", 50);
   meshes.duck_beak = MODEL_MESH("./astro/3d_models/fauna/duck_beak.obj", 50);
 
+  meshes.swan_body = MODEL_MESH("./astro/3d_models/fauna/swan_body.obj", 50);
+  meshes.swan_beak = MODEL_MESH("./astro/3d_models/fauna/swan_beak.obj", 50);
+
   mesh(meshes.butterfly_left_wing).shadow_cascade_ceiling = 1;
   mesh(meshes.butterfly_right_wing).shadow_cascade_ceiling = 1;
 
@@ -236,6 +239,9 @@ static void AddFaunaMeshes(Tachyon* tachyon, State& state) {
   mesh(meshes.duck_wings).shadow_cascade_ceiling = 2;
   mesh(meshes.duck_head).shadow_cascade_ceiling = 2;
   mesh(meshes.duck_beak).shadow_cascade_ceiling = 2;
+
+  mesh(meshes.swan_body).shadow_cascade_ceiling = 2;
+  mesh(meshes.swan_beak).shadow_cascade_ceiling = 2;
 }
 
 // @todo move to engine

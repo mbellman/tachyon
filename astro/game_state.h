@@ -71,6 +71,8 @@ namespace astro {
       duck_wings,
       duck_head,
       duck_beak,
+      swan_body,
+      swan_beak,
 
       // Clothing + Armor meshes
       lesser_helmet,
@@ -404,6 +406,16 @@ namespace astro {
     EntityRecord spawn_entity_record;
   };
 
+  struct Swan {
+    tVec3f position;
+    tVec3f target_position;
+    Quaternion rotation;
+    Quaternion head_rotation;
+    float last_target_time = 0.f;
+
+    EntityRecord spawn_entity_record;
+  };
+
   /**
    * ----------------------------
    * Animation
@@ -652,6 +664,7 @@ namespace astro {
     std::vector<Butterfly> butterflies;
     std::vector<TinyBird> tiny_birds;
     std::vector<Duck> ducks;
+    std::vector<Swan> swans;
     float last_tiny_bird_spawn_time = 0.f;
 
     // Particles

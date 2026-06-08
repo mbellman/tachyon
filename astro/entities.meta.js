@@ -718,5 +718,15 @@ export default [
     ],
     scale: [ 2500.0 ],
     color: [ 1.0 ]
+  },
+
+  {
+    type: "SWAN_SPAWN",
+    list: "swan_spawns",
+    meshes: [
+      "swan_spawn_placeholder"
+    ],
+    scale: [ 2000.0 ],
+    color: [ 1.0 ]
   }
 ];

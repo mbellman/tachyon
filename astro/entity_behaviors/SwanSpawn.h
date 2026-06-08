@@ -3,21 +3,23 @@
 #include "astro/entity_behaviors/behavior.h"
 
 namespace astro {
-  behavior DuckSpawn {
+  behavior SwanSpawn {
     addMeshes() {
-      meshes.duck_spawn_placeholder = SPHERE_MESH(100);
+      meshes.swan_spawn_placeholder = SPHERE_MESH(500);
+
     }
 
     getMeshes() {
-      // Duck spawns don't have a specific in-game object
       return_meshes({});
     }
 
     getPlaceholderMesh() {
-      return meshes.duck_spawn_placeholder;
+      // Swan spawns don't have a specific in-game object
+      return meshes.swan_spawn_placeholder;
     }
 
     timeEvolve() {
+      // @todo
     }
   };
 }

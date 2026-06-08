@@ -646,7 +646,6 @@ static void HandleDuck(Tachyon* tachyon, State& state, Duck& duck) {
 }
 
 static void HandleDucks(Tachyon* tachyon, State& state) {
-  float scene_time = get_scene_time();
   auto& meshes = state.meshes;
 
   reset_instances(meshes.duck_body);
@@ -677,10 +676,111 @@ static void HandleDucks(Tachyon* tachyon, State& state) {
   }
 }
 
+/**
+ * ----------
+ * Swans
+ * ----------
+ */
+static tVec3f GetNewSwanTargetPosition(State& state, Swan& swan) {
+  float offset_x = Tachyon_GetRandom(-4000.f, 4000.f);
+  float offset_z = Tachyon_GetRandom(-4000.f, 4000.f);
+
+  // @todo account for spawn entities being deleted + delete associated swans
+  GameEntity& spawn_entity = *EntityManager::FindEntity(state, swan.spawn_entity_record);
+
+  tVec3f new_target_position = spawn_entity.position;
+  // @todo use local water plane position
+  new_target_position.y = -3000.f;
+  new_target_position.x += offset_x;
+  new_target_position.z += offset_z;
+
+  return new_target_position;
+}
+
+
+static void HandleSwan(Tachyon* tachyon, State& state, Swan& swan) {
+  auto& meshes = state.meshes;
+
+  // Update rotation/position
+  {
+    tVec3f target_direction = (swan.target_position - swan.position).unit();
+    Quaternion target_rotation = Quaternion::FromDirection(target_direction, tVec3f(0, 1.f, 0));
+    float body_rotation_speed = GetRotationSpeed(time_since(swan.last_target_time) - 0.75f);
+    float head_rotation_speed = GetRotationSpeed(time_since(swan.last_target_time));
+
+    if (time_since(swan.last_target_time) > 1.f) {
+      swan.rotation = Quaternion::slerp(swan.rotation, target_rotation, body_rotation_speed * state.dt);
+    }
+
+    swan.head_rotation = Quaternion::slerp(swan.head_rotation, target_rotation, head_rotation_speed * state.dt);
+    swan.position += swan.rotation.getDirection().invert() * 200.f * state.dt;
+
+    if (tVec3f::distance(swan.position, swan.target_position) < 500.f) {
+      swan.target_position = GetNewSwanTargetPosition(state, swan);
+      swan.last_target_time = get_scene_time();
+    }
+  }
+
+  // Body
+  {
+    auto& body = use_instance(meshes.swan_body);
+
+    body.position = swan.position;
+    body.rotation = swan.rotation;
+    body.scale = tVec3f(500.f);
+    body.color = tVec4f(tVec3f(1.f), 0.3f);
+    body.material = tVec4f(1.f, 0, 0, 0.4f);
+
+    commit(body);
+  }
+
+  // Beak
+  {
+    auto& beak = use_instance(meshes.swan_beak);
+
+    beak.position = swan.position;
+    beak.rotation = swan.rotation;
+    beak.scale = tVec3f(500.f);
+    beak.color = tVec3f(1.f, 0.7f, 0.3f);
+    beak.material = tVec4f(1.f, 0, 0, 0.4f);
+
+    commit(beak);
+  }
+}
+
+static void HandleSwans(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
+  reset_instances(meshes.swan_body);
+  reset_instances(meshes.swan_beak);
+
+  // @todo spawn swans in and out as we move around the map
+  if (state.swans.size() == 0) {
+    for (auto& entity : state.swan_spawns) {
+      Swan swan;
+      swan.spawn_entity_record = GetRecord(entity);
+
+      swan.position = entity.position;
+      // @todo use local water plane position
+      swan.position.y = -3000.f;
+      swan.target_position = GetNewSwanTargetPosition(state, swan);
+      swan.rotation = Quaternion(1.f, 0, 0, 0);
+      swan.head_rotation = Quaternion(1.f, 0, 0, 0);
+
+      state.swans.push_back(swan);
+    }
+  }
+
+  for (auto& swan : state.swans) {
+    HandleSwan(tachyon, state, swan);
+  }
+}
+
 void DynamicFauna::HandleBehavior(Tachyon* tachyon, State& state) {
   profile("DynamicFauna::HandleBehavior()");
 
   HandleButterflies(tachyon, state);
   HandleTinyBirds(tachyon, state);
   HandleDucks(tachyon, state);
+  HandleSwans(tachyon, state);
 }

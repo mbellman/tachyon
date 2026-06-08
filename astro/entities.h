@@ -64,6 +64,7 @@ namespace astro {
     STONE_PATH_NODE,
     STONE_WALL,
     SUNBEAM,
+    SWAN_SPAWN,
     TALL_BIRCH,
     TALL_GRASS,
     TALL_WEEDS,
@@ -135,6 +136,7 @@ namespace astro {
     STONE_PATH_NODE,
     STONE_WALL,
     SUNBEAM,
+    SWAN_SPAWN,
     TALL_BIRCH,
     TALL_GRASS,
     TALL_WEEDS,
@@ -514,6 +516,9 @@ namespace astro {
       sunbeam_placeholder,
       sunbeam,
 
+      // SWAN_SPAWN
+      swan_spawn_placeholder,
+
       // TALL_BIRCH
       tall_birch_placeholder,
       tall_birch_trunk,
@@ -631,6 +636,7 @@ namespace astro {
     EntityList stone_path_nodes;
     EntityList stone_walls;
     EntityList sunbeams;
+    EntityList swan_spawns;
     EntityList tall_birches;
     EntityList tall_grasses;
     EntityList tall_weeds;
@@ -968,6 +974,12 @@ namespace astro {
       .name = "Sunbeam",
       .scale = tVec3f(3000.f, 8000.f, 3000.f),
       .tint = tVec3f(1.f, 0.7f, 0.2f)
+    } },
+
+    { SWAN_SPAWN, {
+      .name = "Swan Spawn",
+      .scale = tVec3f(2000.f),
+      .tint = tVec3f(1.f)
     } },
 
     { TALL_BIRCH, {
