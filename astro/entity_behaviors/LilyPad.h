@@ -32,7 +32,7 @@ namespace astro {
 
         // @todo factor
         if (abs(state.player_position.x - entity.position.x) > 30000.f) continue;
-        if (abs(state.player_position.z - entity.position.z) > 30000.f) continue;
+        if (abs(state.player_position.z - entity.position.z) > 40000.f) continue;
 
         float life_progress = Tachyon_InverseLerp(entity.astro_start_time, entity.astro_end_time, state.astro_time);
         float rotation_angle = 0.2f * sinf(0.8f * get_scene_time() + entity.position.z);

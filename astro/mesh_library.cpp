@@ -211,6 +211,7 @@ static void AddFaunaMeshes(Tachyon* tachyon, State& state) {
   meshes.butterfly_right_wing = MODEL_MESH("./astro/3d_models/fauna/butterfly_right_wing.obj", 10);
 
   meshes.tiny_bird_head = MODEL_MESH("./astro/3d_models/small_bird/head.obj", 50);
+  meshes.tiny_bird_feet = MODEL_MESH("./astro/3d_models/small_bird/feet.obj", 50);
   meshes.tiny_bird_body = MODEL_MESH("./astro/3d_models/small_bird/body.obj", 50);
   meshes.tiny_bird_wings = MODEL_MESH("./astro/3d_models/small_bird/wings.obj", 50);
   meshes.tiny_bird_left_wing = MODEL_MESH("./astro/3d_models/small_bird/left_wing.obj", 50);
@@ -229,6 +230,7 @@ static void AddFaunaMeshes(Tachyon* tachyon, State& state) {
   mesh(meshes.butterfly_right_wing).shadow_cascade_ceiling = 1;
 
   mesh(meshes.tiny_bird_body).shadow_cascade_ceiling = 1;
+  mesh(meshes.tiny_bird_feet).shadow_cascade_ceiling = 1;
   mesh(meshes.tiny_bird_head).shadow_cascade_ceiling = 1;
   mesh(meshes.tiny_bird_wings).shadow_cascade_ceiling = 1;
   mesh(meshes.tiny_bird_left_wing).shadow_cascade_ceiling = 1;
@@ -244,7 +246,7 @@ static void AddFaunaMeshes(Tachyon* tachyon, State& state) {
   mesh(meshes.swan_beak).shadow_cascade_ceiling = 2;
 }
 
-// @todo move to engine
+// @todo move to engine/animation.cpp
 static void TransformBonesIntoMeshSpace(tSkeleton& skeleton) {
   for (auto& bone : skeleton.bones) {
     int32 parent_index = bone.parent_bone_index;

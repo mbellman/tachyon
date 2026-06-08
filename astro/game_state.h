@@ -63,6 +63,7 @@ namespace astro {
       butterfly_right_wing,
       tiny_bird_head,
       tiny_bird_body,
+      tiny_bird_feet,
       tiny_bird_wings,
       tiny_bird_left_wing,
       tiny_bird_right_wing,
@@ -382,9 +383,16 @@ namespace astro {
 
     float timer = 0.f;
 
+    // Parameters for free-flying tiny birds
+    float wing_speed = 0.f;
+    float wing_value = 0.f;
+    float wing_angle = 0.f;
+
     float last_head_turn_time = 0.f;
     float last_jump_time = 0.f;
     float last_fly_away_time = 0.f;
+    float last_wing_flapping_time = 0.f;
+    bool flapping_wings = false;
     bool did_land = false;
 
     enum State {

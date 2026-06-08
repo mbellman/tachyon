@@ -37,8 +37,8 @@ namespace astro {
       reset_instances(meshes.lily_pad_flower);
 
       for (auto& entity : state.lily_pad_clusters) {
-        if (abs(state.player_position.x - entity.position.x) > 25000.f) continue;
-        if (abs(state.player_position.z - entity.position.z) > 25000.f) continue;
+        if (!IsInRangeX(entity, state, 30000.f)) continue;
+        if (!IsInRangeZ(entity, state, 40000.f)) continue;
 
         // Lily pads
         {

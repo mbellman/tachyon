@@ -54,6 +54,9 @@ namespace astro {
     SFX_BIRD_WINGS_2,
     SFX_BIRD_WINGS_3,
 
+    SFX_TWEET_1,
+    SFX_TWEET_2,
+
     SFX_BIRD_CALL_1,
 
     SFX_SCULPTURE_ACTIVATE_1,
