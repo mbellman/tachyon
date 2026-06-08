@@ -402,6 +402,7 @@ namespace astro {
     Quaternion rotation;
     Quaternion head_rotation;
     float last_target_time = 0.f;
+    float current_speed = 200.f;
 
     EntityRecord spawn_entity_record;
   };

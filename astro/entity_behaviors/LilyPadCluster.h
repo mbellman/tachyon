@@ -46,6 +46,7 @@ namespace astro {
 
           Sync(cluster, entity);
 
+          cluster.color = tVec3f(0.1f, 0.5f, 0.1f);
           cluster.material = tVec4f(0.5f, 0, 1.f, 0.4f);
 
           commit(cluster);

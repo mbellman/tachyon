@@ -573,11 +573,12 @@ static void HandleDuck(Tachyon* tachyon, State& state, Duck& duck) {
     }
 
     duck.head_rotation = Quaternion::slerp(duck.head_rotation, target_rotation, head_rotation_speed * state.dt);
-    duck.position += duck.rotation.getDirection().invert() * 200.f * state.dt;
+    duck.position += duck.rotation.getDirection().invert() * duck.current_speed * state.dt;
 
     if (tVec3f::distance(duck.position, duck.target_position) < 500.f) {
       duck.target_position = GetNewDuckTargetPosition(state, duck);
       duck.last_target_time = get_scene_time();
+      duck.current_speed = Tachyon_GetRandom(200.f, 350.f);
     }
   }
 
@@ -655,7 +656,9 @@ static void HandleDucks(Tachyon* tachyon, State& state) {
   reset_instances(meshes.duck_beak);
 
   // @todo spawn ducks in and out as we move around the map
-  if (state.ducks.size() == 0) {
+  if (state.ducks.size() != state.duck_spawns.size()) {
+    state.ducks.clear();
+
     for (auto& entity : state.duck_spawns) {
       Duck duck;
       duck.spawn_entity_record = GetRecord(entity);
@@ -713,7 +716,7 @@ static void HandleSwan(Tachyon* tachyon, State& state, Swan& swan) {
     }
 
     swan.head_rotation = Quaternion::slerp(swan.head_rotation, target_rotation, head_rotation_speed * state.dt);
-    swan.position += swan.rotation.getDirection().invert() * 200.f * state.dt;
+    swan.position += swan.rotation.getDirection().invert() * 300.f * state.dt;
 
     if (tVec3f::distance(swan.position, swan.target_position) < 500.f) {
       swan.target_position = GetNewSwanTargetPosition(state, swan);
@@ -755,7 +758,9 @@ static void HandleSwans(Tachyon* tachyon, State& state) {
   reset_instances(meshes.swan_beak);
 
   // @todo spawn swans in and out as we move around the map
-  if (state.swans.size() == 0) {
+  if (state.swans.size() != state.swan_spawns.size()) {
+    state.swans.clear();
+
     for (auto& entity : state.swan_spawns) {
       Swan swan;
       swan.spawn_entity_record = GetRecord(entity);
