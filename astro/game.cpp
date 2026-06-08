@@ -680,7 +680,11 @@ static void HandleCurrentAreaMusic(Tachyon* tachyon, State& state) {
     BGM::LoopMusic(BGM_VILLAGE_1, BGM_VOLUME);
   }
   else if (state.bgm_start_time != -1.f) {
-    BGM::LoopMusic(BGM_DIVINATION_WOODREALM, BGM_VOLUME);
+    if (state.current_location == Location::DIVINATION_LAKE_PROMENADE) {
+      BGM::LoopMusic(BGM_PROMENADE, BGM_VOLUME);
+    } else {
+      BGM::LoopMusic(BGM_DIVINATION_WOODREALM, BGM_VOLUME);
+    }
   }
 }
 

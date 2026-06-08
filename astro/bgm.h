@@ -6,6 +6,7 @@ namespace astro {
     BGM_STORY,
     BGM_WIND_CHIMES,
     BGM_DIVINATION_WOODREALM,
+    BGM_PROMENADE,
     // @todo rename
     BGM_VILLAGE_1
   };

@@ -9,6 +9,7 @@ static std::map<Music, const char*> music_file_map = {
   { BGM_STORY, "./astro/audio/bgm_story.wav" },
   { BGM_WIND_CHIMES, "./astro/audio/bgm_wind_chimes.wav" },
   { BGM_DIVINATION_WOODREALM, "./astro/audio/bgm_divination_woodrealm.wav" },
+  { BGM_PROMENADE, "./astro/audio/bgm_promenade.wav" },
   { BGM_VILLAGE_1, "./astro/audio/bgm_village.wav" }
 };
 
