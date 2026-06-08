@@ -39,6 +39,9 @@ namespace astro {
           else if (entity.unique_name == "riverway") {
             state.current_location = Location::DIVINATION_RIVERWAY;
           }
+          else if (entity.unique_name == "promenade") {
+            state.current_location = Location::DIVINATION_LAKE_PROMENADE;
+          }
 
           if (state.current_location != previous_location) {
             state.last_area_change_time = get_scene_time();

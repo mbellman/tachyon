@@ -80,6 +80,12 @@ static void HandleBlowingLeaves(Tachyon* tachyon, State& state) {
   // Scale down the leaves during astro travel
   float scale_factor = 1.f - 4.f * abs(state.astro_turn_speed);
 
+  if (state.current_location == Location::DIVINATION_LAKE_PROMENADE) {
+    // @temporary
+    // @todo scale down or keep leaves out of view
+    scale_factor = 0.f;
+  }
+
   for (auto& leaf : objects(meshes.stray_leaf)) {
     float movement_speed = speeds[leaf.object_id % 4];
     float rotation_speed = rotation_speeds[leaf.object_id % 6];

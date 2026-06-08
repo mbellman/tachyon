@@ -185,23 +185,43 @@ static void SpawnTinyBird(Tachyon* tachyon, State& state, const GameEntity& spaw
   tVec3f target_position = spawn_entity.position;
   target_position.x += Tachyon_GetRandom(-4000.f, 4000.f);
   target_position.z += Tachyon_GetRandom(-4000.f, 4000.f);
-  target_position.y = CollisionSystem::QueryGroundHeight(state, target_position.x, target_position.z);
-  target_position.y += 400.f;
+
+  float ground_height = CollisionSystem::QueryGroundHeight(state, target_position.x, target_position.z);
 
   TinyBird bird;
-  bird.target_position = target_position;
 
   // Pick a starting offset from which to fly in
-  float x = 12000.f * sinf(scene_time);
-  float z = 12000.f * cosf(scene_time);
-  tVec3f offset = tVec3f(x, target_position.y + 15000.f, z);
+  tVec3f offset;
 
+  if (spawn_entity.position.y - ground_height > 10000.f) {
+    // Spawn in the air, and continue flying
+    bird.state = TinyBird::FLY_FORWARD;
+    target_position.y = spawn_entity.position.y;
+
+    // Spawn randomly on the left or right side, with a random z offset
+    float x = Tachyon_GetRandom() > 0.5f ? 15000.f : -15000.f;
+    float z = Tachyon_GetRandom(-5000.f, 5000.f);
+    offset = tVec3f(x, 0.f, z);
+
+  } else {
+    // Spawn and land on the ground
+    bird.state = TinyBird::FLY_DOWN_AND_LAND;
+    target_position.y = ground_height + 400.f;
+
+    // Spawn randomly around the target position
+    float x = 12000.f * sinf(scene_time);
+    float z = 12000.f * cosf(scene_time);
+    offset = tVec3f(x, 15000.f, z);
+  }
+
+  bird.target_position = target_position;
   bird.position = target_position + offset;
 
-  // @todo make random
-  bird.rotation = Quaternion(1.f, 0, 0, 0);
+  // Rotate to target position
+  tVec3f bird_to_target_direction = (target_position - bird.position).xz().unit();
+  Quaternion starting_rotation = Quaternion::FromDirection(bird_to_target_direction, tVec3f(0, 1.f, 0));
 
-  bird.state = TinyBird::FLY_DOWN;
+  bird.rotation = starting_rotation;
   bird.last_jump_time = scene_time;
 
   state.tiny_birds.push_back(bird);
@@ -236,6 +256,8 @@ static void HandleTinyBirdSpawningBehavior(Tachyon* tachyon, State& state, const
       break;
     }
   }
+
+  // @todo land on other objects
 }
 
 // @todo refactor with SmallBird.h
@@ -336,6 +358,21 @@ static void HandleTinyBirdFlyingAway(TinyBird& bird, const tVec3f& direction, co
   bird.rotation = Quaternion::nlerp(bird.rotation, away_rotation, 20.f * dt);
 }
 
+static void HandleTinyBirdFlyingForward(TinyBird& bird, const tVec3f& direction, const float dt) {
+  Quaternion rotation = Quaternion::FromDirection(direction, tVec3f(0, 1.f, 0));
+
+  bird.position += direction * 13000.f * dt;
+  bird.position.y += 2500.f * sinf(bird.position.x * 0.00025f) * dt;
+  bird.rotation = Quaternion::nlerp(bird.rotation, rotation, 20.f * dt);
+
+  // Turn back and forth, and roll accordingly
+  float turn_delta = 0.35f * sinf(bird.timer * 2.f) * dt;
+  float roll_delta = -40.f * turn_delta;
+
+  bird.rotation *= Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), turn_delta);
+  bird.rotation = bird.rotation * Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), roll_delta);
+}
+
 static void HandleTinyBird(Tachyon* tachyon, State& state, TinyBird& bird, const float player_speed) {
   auto& meshes = state.meshes;
   const tVec3f bird_color = tVec3f(0.3f, 0.2f, 0.1f);
@@ -373,7 +410,7 @@ static void HandleTinyBird(Tachyon* tachyon, State& state, TinyBird& bird, const
       HandleTinyBirdJumpingForward(tachyon, bird);
     }
 
-    else if (bird.state == TinyBird::FLY_DOWN) {
+    else if (bird.state == TinyBird::FLY_DOWN_AND_LAND) {
       tVec3f fly_direction = (bird.target_position - bird.position).xz().unit();
 
       HandleTinyBirdFlyingDown(bird, fly_direction, state.dt);
@@ -391,6 +428,12 @@ static void HandleTinyBird(Tachyon* tachyon, State& state, TinyBird& bird, const
       }
 
       HandleTinyBirdFlyingAway(bird, fly_direction, state.dt);
+    }
+
+    else if (bird.state == TinyBird::FLY_FORWARD) {
+      tVec3f fly_direction = bird.rotation.getDirection().invert();
+
+      HandleTinyBirdFlyingForward(bird, fly_direction, state.dt);
     }
   }
 
@@ -417,9 +460,9 @@ static void HandleTinyBird(Tachyon* tachyon, State& state, TinyBird& bird, const
     head.color = bird_color;
     head.material = tVec4f(0.8f, 0, 0, 0.6f);
 
-    // Head turning
-    // @todo factor
-    {
+    if (bird.state == TinyBird::IDLING) {
+      // Head turning
+      // @todo factor
       static const Quaternion head_rotations[] = {
         Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 0),
         Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 0.3f),
@@ -443,18 +486,24 @@ static void HandleTinyBird(Tachyon* tachyon, State& state, TinyBird& bird, const
       alpha = Tachyon_EaseOutQuad(alpha);
 
       head.rotation = bird.rotation * Quaternion::nlerp(old_rotation, new_rotation, alpha);
+    } else {
+      head.rotation = bird.rotation;
     }
 
     commit(head);
   }
 
   // Wings (not flying)
-  if (bird.state != TinyBird::FLY_DOWN && bird.state != TinyBird::FLY_UP) {
+  if (
+    bird.state != TinyBird::FLY_DOWN_AND_LAND &&
+    bird.state != TinyBird::FLY_UP &&
+    bird.state != TinyBird::FLY_FORWARD
+  ) {
     auto& wings = use_instance(meshes.tiny_bird_wings);
 
     wings.position = bird.position;
     wings.rotation = bird.rotation;
-    wings.scale = tVec3f(750.f);
+    wings.scale = tVec3f(850.f);
     wings.color = wing_color;
     wings.material = tVec4f(0.8f, 0, 0, 0.6f);
 
@@ -462,8 +511,23 @@ static void HandleTinyBird(Tachyon* tachyon, State& state, TinyBird& bird, const
 
   // Wings (flying)
   } else {
-    float flap_rate = 45.f;
-    float angle = sinf(flap_rate * get_scene_time());
+    float angle;
+
+    if (bird.state == TinyBird::FLY_FORWARD) {
+      // When flying forward, have the bird alternate between
+      // flapping its wings and keeping them steady
+      int seed = (int) (2.f * get_scene_time());
+      bool flap_wings = seed % 3 == 0;
+
+      if (flap_wings) {
+        angle = 0.5f * sinf(32.f * get_scene_time());
+      } else {
+        angle = -0.25f;
+      }
+    } else {
+      // Use a constant flap rate when flying down or up
+      angle = sinf(45.f * get_scene_time());
+    }
 
     // Left
     {

@@ -24,9 +24,9 @@ music
 * promenade
 
 time evolution:
+* fence end time
 * tall weeds improvements
 * leaf bush + rose bush leaves improvements
-* fences
 * duck spawns
 * lily pad clusters
 * chestnut tree leaves
@@ -46,6 +46,7 @@ tutorial:
 * magic gate improvements/collision
 
 features/fixes:
+* fx haze color/smoothstep points
 * signpost collision
 * more tiny bird variance
 * stone walking sounds

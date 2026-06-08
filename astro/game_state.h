@@ -391,8 +391,9 @@ namespace astro {
       IDLING,
       TURN_AROUND,
       JUMP_FORWARD,
-      FLY_DOWN,
-      FLY_UP
+      FLY_DOWN_AND_LAND,
+      FLY_UP,
+      FLY_FORWARD
     } state;
   };
 
