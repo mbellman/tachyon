@@ -722,12 +722,15 @@ static void HandleDuck(Tachyon* tachyon, State& state, Duck& duck) {
     }
 
     duck.head_rotation = Quaternion::slerp(duck.head_rotation, target_rotation, head_rotation_speed * state.dt);
+
+    // Slow down to 200 so we don't get stuck circling the target position
+    duck.current_speed = Tachyon_Lerpf(duck.current_speed, 200.f, 0.25f * state.dt);
     duck.position += duck.rotation.getDirection().invert() * duck.current_speed * state.dt;
 
     if (tVec3f::distance(duck.position, duck.target_position) < 500.f) {
       duck.target_position = GetNewDuckTargetPosition(state, duck);
       duck.last_target_time = get_scene_time();
-      duck.current_speed = Tachyon_GetRandom(200.f, 500.f);
+      duck.current_speed = Tachyon_GetRandom(250.f, 750.f);
     }
   }
 
@@ -898,6 +901,19 @@ static void HandleSwan(Tachyon* tachyon, State& state, Swan& swan) {
 
     commit(beak);
   }
+
+  // Beak skin
+  {
+    auto& beak_skin = use_instance(meshes.swan_beak_skin);
+
+    beak_skin.position = swan.position;
+    beak_skin.rotation = swan.rotation;
+    beak_skin.scale = tVec3f(500.f);
+    beak_skin.color = tVec3f(0.f);
+    beak_skin.material = tVec4f(1.f, 0, 0, 0);
+
+    commit(beak_skin);
+  }
 }
 
 static void HandleSwans(Tachyon* tachyon, State& state) {
@@ -905,6 +921,7 @@ static void HandleSwans(Tachyon* tachyon, State& state) {
 
   reset_instances(meshes.swan_body);
   reset_instances(meshes.swan_beak);
+  reset_instances(meshes.swan_beak_skin);
 
   // @todo spawn swans in and out as we move around the map
   if (state.swans.size() != state.swan_spawns.size()) {

@@ -320,16 +320,18 @@ void main() {
     #if ENABLE_ASTRO_FX
       float depth_factor = pow(color_and_depth.w, 20.0);
       float fog_factor = haze_intensity * pow(color_and_depth.w, 20.0);
-      float gold_haze_factor = 2.0 * haze_intensity * smoothstep(0.6, 0.85, depth_factor);
+      float medium_haze_factor = 2.0 * haze_intensity * smoothstep(0.6, 0.85, depth_factor);
+      float far_haze_factor = 2.0 * haze_intensity * smoothstep(0.9, 0.99, depth_factor);
 
       vec3 fog_color = vec3(0.2, 0.4, 0.5);
-      // vec3 gold_haze_color = 2.0 * vec3(1.0, 0.7, 0.3);
-      vec3 gold_haze_color = 2.0 * vec3(1.0, 0.5, 0.3);
-      // vec3 gold_haze_color = 2.0 * vec3(0.6, 0.3, 0.2);
-      // vec3 gold_haze_color = 4.0 * vec3(0.6, 0.3, 0.4);
+      // vec3 medium_haze_color = 2.0 * vec3(1.0, 0.7, 0.3);
+      vec3 medium_haze_color = 2.0 * vec3(1.0, 0.5, 0.3);
+      // vec3 medium_haze_color = 2.0 * vec3(0.6, 0.3, 0.2);
+      // vec3 medium_haze_color = 4.0 * vec3(0.6, 0.3, 0.4);
 
       post_color = mix(post_color, fog_color, fog_factor);
-      post_color = mix(post_color, gold_haze_color, gold_haze_factor);
+      post_color = mix(post_color, medium_haze_color, medium_haze_factor);
+      post_color = mix(post_color, vec3(1.5), 0.75 * far_haze_factor);
     #elif ENABLE_COSMODRONE_FX
       float depth_factor = 0.25 * pow(color_and_depth.w, 300.0);
 

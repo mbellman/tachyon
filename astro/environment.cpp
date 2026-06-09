@@ -203,7 +203,8 @@ static void HandleGlowParticles(Tachyon* tachyon, State& state) {
   // Determine whether we want glow particles to be visible
   bool is_valid_spawn_location = (
     state.current_location == Location::DIVINATION_WOODREALM ||
-    state.current_location == Location::DIVINATION_RIVERWAY
+    state.current_location == Location::DIVINATION_RIVERWAY ||
+    state.current_location == Location::DIVINATION_LAKE_PROMENADE
   );
 
   // Fade particles in/out when we transition from valid <-> invalid areas

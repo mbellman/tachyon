@@ -74,6 +74,7 @@ namespace astro {
       duck_beak,
       swan_body,
       swan_beak,
+      swan_beak_skin,
 
       // Clothing + Armor meshes
       lesser_helmet,

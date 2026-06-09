@@ -32,8 +32,8 @@ time evolution:
 * chestnut tree leaves
 
 entities:
-* castle wall
-* castle column
+* hosta plant
+* evergreen shrubs
 * big mushrooms
 * stone blocks
 * horse (?)
@@ -47,6 +47,8 @@ tutorial:
 
 features/fixes:
 * fx haze color/smoothstep points
+* tiny birds looking out for castle towers
+* rename castle tower -> castle wall
 * signpost collision
 * more tiny bird variance
 * stone walking sounds
