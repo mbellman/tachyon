@@ -387,6 +387,7 @@ namespace astro {
     float wing_speed = 0.f;
     float wing_value = 0.f;
     float wing_angle = 0.f;
+    float steady_flight_duration = 0.5f;
 
     float last_head_turn_time = 0.f;
     float last_jump_time = 0.f;
@@ -676,6 +677,7 @@ namespace astro {
     std::vector<Duck> ducks;
     std::vector<Swan> swans;
     float last_tiny_bird_spawn_time = 0.f;
+    float tiny_bird_cooldown_time = 0.f;
 
     // Particles
     std::vector<FlowerParticle> flower_particles;

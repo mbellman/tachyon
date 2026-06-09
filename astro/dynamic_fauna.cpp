@@ -200,6 +200,7 @@ static void SpawnTinyBird(Tachyon* tachyon, State& state, const GameEntity& spaw
   }
 
   state.last_tiny_bird_spawn_time = scene_time;
+  state.tiny_bird_cooldown_time = Tachyon_GetRandom(2.f, 6.f);
 
   // Determine target position
   tVec3f target_position = spawn_entity.position;
@@ -218,10 +219,16 @@ static void SpawnTinyBird(Tachyon* tachyon, State& state, const GameEntity& spaw
     bird.state = TinyBird::FLY_FORWARD;
     target_position.y = spawn_entity.position.y;
 
-    // Spawn randomly on the left or right side, with a random z offset
-    float x = Tachyon_GetRandom() > 0.5f ? 15000.f : -15000.f;
+    // Spawn pseudo-randomly on the left or right side, with a random z offset
+    float x = fmodf(scene_time, 1.f) > 0.5f ? 15000.f : -15000.f;
     float z = Tachyon_GetRandom(-5000.f, 5000.f);
     offset = tVec3f(x, 0.f, z);
+
+    // Randomize the initial values for airborne birds in case
+    // they spawn in small groups, to ensure variation between
+    // individual birds
+    bird.last_wing_flapping_time = scene_time - 0.5f * Tachyon_GetRandom();
+    bird.timer = Tachyon_GetRandom();
 
   } else {
     // Spawn and land on the ground
@@ -245,12 +252,20 @@ static void SpawnTinyBird(Tachyon* tachyon, State& state, const GameEntity& spaw
   bird.last_jump_time = scene_time;
 
   state.tiny_birds.push_back(bird);
+
+  if (
+    bird.state == TinyBird::FLY_FORWARD &&
+    // Chance of spawning another airborne tiny bird with this one
+    Tachyon_GetRandom() < 0.3f
+  ) {
+    SpawnTinyBird(tachyon, state, spawn_entity);
+  }
 }
 
 static void HandleTinyBirdSpawningBehavior(Tachyon* tachyon, State& state, const float player_speed) {
   float last_spawn_time = time_since(state.last_tiny_bird_spawn_time);
 
-  if (last_spawn_time < 4.3f) return;
+  if (last_spawn_time < state.tiny_bird_cooldown_time) return;
   if (abs(state.astro_turn_speed) != 0.f) return;
 
   for_entities(state.bird_spawns) {
@@ -337,9 +352,9 @@ static void HandleTinyBirdIdling(Tachyon* tachyon, TinyBird& bird) {
     }
   }
 
-  // Fly away after lingering for too long
+  // Fly away after idling for too long
   {
-    if (bird.timer > 30.f) {
+    if (bird.timer > 20.f) {
       bird.state = TinyBird::FLY_UP;
 
       auto& camera = tachyon->scene.camera;
@@ -400,7 +415,7 @@ static void HandleTinyBirdFlyingForward(TinyBird& bird, const tVec3f& direction,
 
   if (bird.flapping_wings) {
     // Pitch up based on wing speed
-    float pitch_delta = -0.8f * (bird.wing_speed / 60.f) * dt;
+    float pitch_delta = -0.9f * (bird.wing_speed / 60.f) * dt;
 
     bird.rotation = bird.rotation * Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), pitch_delta);
   } else {
@@ -560,8 +575,8 @@ static void HandleTinyBird(Tachyon* tachyon, State& state, TinyBird& bird, const
 
       if (bird.flapping_wings) {
         if (bird.wing_value < t_TAU) {
-          // Reach top wing speed
-          bird.wing_speed = Tachyon_Lerpf(bird.wing_speed, 60.f, 3.f * state.dt);
+          // Approach top wing speed
+          bird.wing_speed = Tachyon_Lerpf(bird.wing_speed, 80.f, 3.f * state.dt);
         } else {
           // Start slowing wings down after a few cycles
           bird.wing_speed = Tachyon_Lerpf(bird.wing_speed, 1.f, 3.f * state.dt);
@@ -580,6 +595,7 @@ static void HandleTinyBird(Tachyon* tachyon, State& state, TinyBird& bird, const
         // Stop flapping wings every few cycles
         if (bird.wing_value > t_TAU * 2.f + t_PI) {
           bird.last_wing_flapping_time = get_scene_time();
+          bird.steady_flight_duration = Tachyon_GetRandom(0.3f, 0.55f);
           bird.flapping_wings = false;
         }
       } else {
@@ -589,7 +605,7 @@ static void HandleTinyBird(Tachyon* tachyon, State& state, TinyBird& bird, const
         bird.wing_angle = Tachyon_Lerpf(bird.wing_angle, -1.f, 1.5f * state.dt);
 
         // Start flapping wings after a period of steady flight
-        if (time_since(bird.last_wing_flapping_time) > 0.75f) {
+        if (time_since(bird.last_wing_flapping_time) > bird.steady_flight_duration) {
           bird.flapping_wings = true;
         }
       }
@@ -711,7 +727,7 @@ static void HandleDuck(Tachyon* tachyon, State& state, Duck& duck) {
     if (tVec3f::distance(duck.position, duck.target_position) < 500.f) {
       duck.target_position = GetNewDuckTargetPosition(state, duck);
       duck.last_target_time = get_scene_time();
-      duck.current_speed = Tachyon_GetRandom(200.f, 350.f);
+      duck.current_speed = Tachyon_GetRandom(200.f, 500.f);
     }
   }
 
