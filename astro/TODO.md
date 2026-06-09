@@ -46,8 +46,11 @@ tutorial:
 * magic gate improvements/collision
 
 features/fixes:
+* jump-off animation
+* tipping-over animation/preventing jumping off very high ledges
 * fx haze color/smoothstep points
 * tiny birds looking out for castle towers
+* vantage camera tweaks
 * rename castle tower -> castle wall
 * signpost collision
 * more tiny bird variance

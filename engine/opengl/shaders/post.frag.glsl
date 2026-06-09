@@ -323,6 +323,12 @@ void main() {
       float medium_haze_factor = 2.0 * haze_intensity * smoothstep(0.6, 0.85, depth_factor);
       float far_haze_factor = 2.0 * haze_intensity * smoothstep(0.9, 0.99, depth_factor);
 
+      // @hack
+      float height_fog_alpha = clamp(world_position.y / 3000000.0, 0.0, 1.0);
+
+      far_haze_factor = mix(far_haze_factor, 0.0, height_fog_alpha);
+      medium_haze_factor = mix(medium_haze_factor, 0.0, height_fog_alpha);
+
       vec3 fog_color = vec3(0.2, 0.4, 0.5);
       // vec3 medium_haze_color = 2.0 * vec3(1.0, 0.7, 0.3);
       vec3 medium_haze_color = 2.0 * vec3(1.0, 0.5, 0.3);
