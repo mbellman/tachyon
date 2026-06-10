@@ -314,18 +314,19 @@ void main() {
   float wx = fragPosition.x;
   float wz = fragPosition.z;
 
-  // Medium-turbulence
+  // Large turbulence
   N.xz += 0.4 * vec2(simplex_noise(vec2(
     water_speed.x * 0.2 + wx * 0.0005,
     water_speed.y * 0.2 + wz * 0.0005
   )));
 
-  // Micro-turbulence
+  // Medium turbulence
   N.xz += 0.2 * vec2(simplex_noise(vec2(
     water_speed.x * 0.9 + wx * 0.001,
     water_speed.y * 0.9 + wz * 0.001
   )));
 
+  // Micro-turbulence
   N.xz += 0.1 * vec2(simplex_noise(vec2(
     water_speed.x * 0.75 + wx * 0.0025,
     water_speed.y * 0.75 + wz * 0.0025

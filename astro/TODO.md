@@ -25,12 +25,10 @@ music
 time evolution:
 * tall weeds improvements
 * leaf bush + rose bush leaves improvements
-* duck spawns
 * chestnut tree leaves
 
 entities:
 * hosta plant
-* evergreen shrubs
 * big mushrooms
 * stone blocks
 * horse (?)
@@ -46,6 +44,7 @@ tutorial:
 * magic gate improvements/collision
 
 features/fixes:
+* disable running on small castle towers (walls)
 * ladder left stick axis bug
 * jump-off animation
 * tipping-over animation/preventing jumping off very high ledges

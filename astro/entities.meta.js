@@ -728,5 +728,16 @@ export default [
     ],
     scale: [ 2000.0 ],
     color: [ 1.0 ]
+  },
+
+  {
+    type: "TALL_EVERGREEN_SHRUB",
+    list: "tall_evergreen_shrubs",
+    meshes: [
+      "tall_evergreen_shrub_placeholder",
+      "tall_evergreen_shrub"
+    ],
+    scale: [ 2000.0 ],
+    color: [ 1.0 ]
   }
 ];

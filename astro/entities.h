@@ -66,6 +66,7 @@ namespace astro {
     SUNBEAM,
     SWAN_SPAWN,
     TALL_BIRCH,
+    TALL_EVERGREEN_SHRUB,
     TALL_GRASS,
     TALL_WEEDS,
     TULIP_PLANT,
@@ -138,6 +139,7 @@ namespace astro {
     SUNBEAM,
     SWAN_SPAWN,
     TALL_BIRCH,
+    TALL_EVERGREEN_SHRUB,
     TALL_GRASS,
     TALL_WEEDS,
     TULIP_PLANT,
@@ -524,6 +526,10 @@ namespace astro {
       tall_birch_trunk,
       tall_birch_leaves,
 
+      // TALL_EVERGREEN_SHRUB
+      tall_evergreen_shrub_placeholder,
+      tall_evergreen_shrub,
+
       // TALL_GRASS
       tall_grass_placeholder,
       tall_grass,
@@ -638,6 +644,7 @@ namespace astro {
     EntityList sunbeams;
     EntityList swan_spawns;
     EntityList tall_birches;
+    EntityList tall_evergreen_shrubs;
     EntityList tall_grasses;
     EntityList tall_weeds;
     EntityList tulip_plants;
@@ -985,6 +992,12 @@ namespace astro {
     { TALL_BIRCH, {
       .name = "Tall Birch",
       .scale = tVec3f(2500.f),
+      .tint = tVec3f(1.f)
+    } },
+
+    { TALL_EVERGREEN_SHRUB, {
+      .name = "Tall Evergreen Shrub",
+      .scale = tVec3f(2000.f),
       .tint = tVec3f(1.f)
     } },
 
