@@ -59,7 +59,7 @@ namespace astro {
             ) {
               UISystem::ShowTransientDialogue(tachyon, state, "[X] Open");
 
-              if (did_press_key(tKey::CONTROLLER_A) && player_speed < 200.f) {
+              if (did_press_key(tKey::CONTROLLER_A) && player_speed < 800.f) {
                 Open(entity, get_scene_time());
 
                 if (state.astro_time >= astro_time_periods.present) {

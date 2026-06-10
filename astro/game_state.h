@@ -726,6 +726,7 @@ namespace astro {
       tUIElement* past_age_title = nullptr;
 
       tUIElement* divination_woodrealm_title = nullptr;
+      tUIElement* divination_riverway_title = nullptr;
       tUIElement* lake_promenade_title = nullptr;
 
       tUIElement* seeker_stargazer_title = nullptr;

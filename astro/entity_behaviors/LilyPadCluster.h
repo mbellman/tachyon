@@ -39,6 +39,7 @@ namespace astro {
       for (auto& entity : state.lily_pad_clusters) {
         if (!IsInRangeX(entity, state, 30000.f)) continue;
         if (!IsInRangeZ(entity, state, 40000.f)) continue;
+        if (!IsDuringActiveTime(entity, state)) continue;
 
         // Lily pads
         {

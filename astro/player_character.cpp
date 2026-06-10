@@ -243,12 +243,12 @@ static void UpdatePlayerHeadTurnAngle(Tachyon* tachyon, State& state) {
   else {
     // Turn head toward key entities when not targeting anything
     TurnPlayerHeadToward(state, state.sculpture_1s, player_facing_angle);
-    TurnPlayerHeadToward(state, state.npcs, player_facing_angle);
     TurnPlayerHeadToward(state, state.wind_chimes, player_facing_angle);
     TurnPlayerHeadToward(state, state.light_posts, player_facing_angle);
 
-    // Turn head toward enemies
+    // Turn head toward enemies + people
     if (!state.enemies_disabled) {
+      TurnPlayerHeadToward(state, state.npcs, player_facing_angle);
       TurnPlayerHeadToward(state, state.low_guards, player_facing_angle);
       TurnPlayerHeadToward(state, state.lesser_guards, player_facing_angle);
     }

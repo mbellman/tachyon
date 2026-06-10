@@ -30,6 +30,7 @@ namespace astro {
       for (auto& entity : state.ladders) {
         if (!IsInRangeX(entity, state, 20000.f)) continue;
         if (!IsInRangeZ(entity, state, 20000.f)) continue;
+        if (!IsDuringActiveTime(entity, state)) continue;
 
         // Collision
         entity.visible_position = entity.position;

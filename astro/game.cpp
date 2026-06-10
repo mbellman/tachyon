@@ -643,7 +643,7 @@ static void HandleMusicLevels(Tachyon* tachyon, State& state) {
       BGM::FadeCurrentMusicVolumeTo(0.2f, 1000);
     }
     else if (state.is_holding_up_wand) {
-      BGM::FadeCurrentMusicVolumeTo(0.f, 1000);
+      BGM::FadeCurrentMusicVolumeTo(0.1f, 1000);
     }
     else {
       BGM::FadeCurrentMusicVolumeTo(BGM_VOLUME, 3000);
@@ -1097,6 +1097,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
     state.ui.past_age_title = Tachyon_CreateUIElement("./astro/textures/titles/past-age.png");
 
     state.ui.divination_woodrealm_title = Tachyon_CreateUIElement("./astro/textures/titles/divination-woodrealm.png");
+    state.ui.divination_riverway_title = Tachyon_CreateUIElement("./astro/textures/titles/divination-riverway.png");
     state.ui.lake_promenade_title = Tachyon_CreateUIElement("./astro/textures/titles/lake-promenade.png");
 
     state.ui.seeker_stargazer_title = Tachyon_CreateUIElement("./astro/textures/titles/seeker-stargazer.png");

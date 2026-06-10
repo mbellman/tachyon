@@ -230,7 +230,7 @@ static void HandleGateCollisions(Tachyon* tachyon, State& state) {
 
 static void HandleWoodenFenceCollisions(Tachyon* tachyon, State& state) {
   for (auto& entity : state.wooden_fences) {
-    if (state.astro_time < entity.astro_start_time) continue;
+    if (!IsDuringActiveTime(entity, state)) continue;
 
     auto fence_plane = CollisionSystem::CreatePlane(entity.position, entity.visible_scale, entity.orientation);
 
@@ -288,6 +288,8 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
   bool was_just_climbing = time_since(state.last_climbing_time) < 0.5f;
 
   for (auto& entity : state.ladders) {
+    if (!IsDuringActiveTime(entity, state)) continue;
+
     float dx = abs(state.player_position.x - entity.position.x);
     float dz = abs(state.player_position.z - entity.position.z);
 

@@ -686,7 +686,6 @@ static tVec3f GetNewDuckTargetPosition(State& state, Duck& duck) {
   float offset_x = Tachyon_GetRandom(-2000.f, 2000.f);
   float offset_z = Tachyon_GetRandom(-2000.f, 2000.f);
 
-  // @todo account for spawn entities being deleted + delete associated ducks
   GameEntity& spawn_entity = *EntityManager::FindEntity(state, duck.spawn_entity_record);
 
   tVec3f new_target_position = spawn_entity.position;
@@ -709,6 +708,13 @@ static float GetRotationSpeed(const float time_since_target) {
 
 static void HandleDuck(Tachyon* tachyon, State& state, Duck& duck) {
   auto& meshes = state.meshes;
+
+  GameEntity& spawn_entity = *EntityManager::FindEntity(state, duck.spawn_entity_record);
+
+  // @temporary
+  if (!IsDuringActiveTime(spawn_entity, state)) {
+    return;
+  }
 
   // Update rotation/position
   {

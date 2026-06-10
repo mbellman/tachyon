@@ -68,6 +68,7 @@ static tUIElement* GetCurrentLocationTitleGraphic(const State& state) {
     case Location::DIVINATION_WOODREALM:
       return ui.divination_woodrealm_title;
     case Location::DIVINATION_RIVERWAY:
+      return ui.divination_riverway_title;
     case Location::DIVINATION_LAKE_PROMENADE:
       return ui.lake_promenade_title;
     default:

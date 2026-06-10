@@ -20,15 +20,12 @@ art:
 
 music
 * auspice overworld
-* lake girl path + riverway (?)
-* promenade
+* lake girl house
 
 time evolution:
-* fence end time
 * tall weeds improvements
 * leaf bush + rose bush leaves improvements
 * duck spawns
-* lily pad clusters
 * chestnut tree leaves
 
 entities:
@@ -41,15 +38,20 @@ entities:
 * dandelions
 * cattails
 
+fauna:
+* dragonflies
+
 tutorial:
 * crows near second wind chime
 * magic gate improvements/collision
 
 features/fixes:
+* ladder left stick axis bug
 * jump-off animation
 * tipping-over animation/preventing jumping off very high ledges
 * fx haze color/smoothstep points
 * tiny birds looking out for castle towers
+* house knocking sound
 * vantage camera tweaks
 * rename castle tower -> castle wall
 * signpost collision

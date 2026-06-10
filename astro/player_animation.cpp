@@ -344,7 +344,7 @@ static void HandleStoppedAfterMovingAnimation(Tachyon* tachyon, State& state) {
   float time_since_stopping = time_since(state.player.last_stopped_time);
 
   // When stopping, trigger look-around behavior for a few seconds
-  if (time_since_stopping < 3.f) {
+  if (time_since_stopping < 2.75f) {
     float animation_time = 2.f * time_since_stopping;
     float blend = time_since_stopping / 1.5f;
 

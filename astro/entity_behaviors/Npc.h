@@ -20,6 +20,10 @@ namespace astro {
       auto& meshes = state.meshes;
       float player_speed = state.player_velocity.magnitude();
 
+      if (state.enemies_disabled) {
+        return;
+      }
+
       for_entities(state.npcs) {
         auto& entity = state.npcs[i];
 

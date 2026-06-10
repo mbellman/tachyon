@@ -49,9 +49,9 @@ namespace astro {
 
         if (abs(state.player_position.x - entity.position.x) > 25000.f) continue;
         if (abs(state.player_position.z - entity.position.z) > 25000.f) continue;
+        if (!IsDuringActiveTime(entity, state)) continue;
 
         float age = state.astro_time - entity.astro_start_time;
-        if (age < 0.f) age = 0.f;
 
         // Posts
         {

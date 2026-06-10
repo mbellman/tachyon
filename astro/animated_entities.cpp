@@ -483,6 +483,10 @@ static void HandleAnimatedNPCs(Tachyon* tachyon, State& state, int32& usage_coun
   auto& meshes = state.meshes;
   auto& animations = state.animations;
 
+  if (state.enemies_disabled) {
+    return;
+  }
+
   for_entities(state.npcs) {
     auto& entity = state.npcs[i];
 
