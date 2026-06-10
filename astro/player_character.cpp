@@ -681,7 +681,7 @@ static void UpdateWandLights(Tachyon* tachyon, State& state) {
   tVec3f wand_end_position = wand.position + wand.rotation.toMatrix4f() * wand_end_offset;
   float time_since_last_wand_swing = time_since(state.last_wand_swing_time);
   float time_since_last_wand_strike = time_since(state.last_wand_strike_time);
-  tVec3f light_color = tVec3f(1.f, 0.6f, 0.2f);
+  tVec3f light_color = tVec3f(1.f, 0.75f, 0.4f);
 
   // When striking an enemy, glow blue for a short duration
   if (
@@ -721,9 +721,24 @@ static void UpdateWandLights(Tachyon* tachyon, State& state) {
     // Glow when holding up the wand
     {
       if (IsWandHoldAnimationActive(state)) {
-        float alpha = GetWandHoldFactor(state);
+        float wand_hold_factor = GetWandHoldFactor(state);
+        float pulse_alpha = time_since(state.last_wand_light_pulse_time) / 4.f;
 
-        main_light_power += alpha * (5.f + 2.f * oscillating_alpha);
+        clamp_to_1(pulse_alpha);
+
+        float glow;
+
+        if (pulse_alpha < 0.2f) {
+          glow = Tachyon_EaseOutSine(pulse_alpha * 5.f);
+        } else {
+          pulse_alpha -= 0.2f;
+          glow = 1.f - Tachyon_EaseInOutf(pulse_alpha / 0.8f);
+        }
+
+        float glow_intensity = 10.f * glow;
+        float oscillation = 0.5f * oscillating_alpha;
+
+        main_light_power += wand_hold_factor * (glow_intensity + oscillation);
       }
     }
 

@@ -47,6 +47,15 @@ static bool IsAnyIdleAnimation(tSkeletonAnimation* animation, const State& state
   return IsNormalIdleAnimation(animation, state) || IsWandIdleAnimation(animation, state);
 }
 
+static bool IsWalkAnimation(tSkeletonAnimation* animation, const State& state) {
+  auto& animations = state.animations;
+
+  return (
+    animation == &animations.player_walk ||
+    animation == &animations.player_walk_wand
+  );
+}
+
 static void SetActiveAnimation(Tachyon* tachyon, State& state) {
   auto& rig = state.player.rig;
   auto& animations = state.animations;
@@ -182,7 +191,6 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
   }
 }
 
-
 static float GetAnimationSpeed(Tachyon* tachyon, State& state) {
   bool is_astro_traveling = state.astro_turn_speed != 0.f;
   bool is_hit = state.last_damage_time != 0.f && time_since(state.last_damage_time) < 1.f;
@@ -209,7 +217,7 @@ static float GetAnimationSpeed(Tachyon* tachyon, State& state) {
 }
 
 static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
-  auto& player_animation = state.player.rig;
+  auto& rig = state.player.rig;
   auto& animations = state.animations;
 
   // If our current and pending animation involves holding up the wand,
@@ -238,8 +246,8 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
   // Blend faster if we're not currently in the running animation while running
   if (
     PlayerCharacter::IsRunning(tachyon, state) && (
-      player_animation.current_animation != &animations.player_run &&
-      player_animation.current_animation != &animations.player_run_wand
+      rig.current_animation != &animations.player_run &&
+      rig.current_animation != &animations.player_run_wand
     )
   ) {
     return 5.f;
@@ -258,18 +266,26 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
     return 2.f;
   }
 
+  // Blend faster from running -> walking
+  if (
+    !PlayerCharacter::IsRunning(tachyon, state) &&
+    IsWalkAnimation(rig.next_animation, state)
+  ) {
+    return 3.5f;
+  }
+
   // Blend faster out of idle
   if (
-    IsAnyIdleAnimation(player_animation.current_animation, state) &&
-    !IsAnyIdleAnimation(player_animation.next_animation, state)
+    IsAnyIdleAnimation(rig.current_animation, state) &&
+    !IsAnyIdleAnimation(rig.next_animation, state)
   ) {
     return 3.5f;
   }
 
   // Blend faster into idle
   if (
-    !IsAnyIdleAnimation(player_animation.current_animation, state) &&
-    IsAnyIdleAnimation(player_animation.next_animation, state)
+    !IsAnyIdleAnimation(rig.current_animation, state) &&
+    IsAnyIdleAnimation(rig.next_animation, state)
   ) {
     return 3.5f;
   }
@@ -364,7 +380,7 @@ static void DriftToRestAnimation(Tachyon* tachyon, State& state) {
 void PlayerAnimation::Update(Tachyon* tachyon, State& state) {
   profile("PlayerAnimation::Update()");
 
-  auto& player_animation = state.player.rig;
+  auto& rig = state.player.rig;
   auto& animations = state.animations;
 
   SetActiveAnimation(tachyon, state);
@@ -396,10 +412,10 @@ void PlayerAnimation::Update(Tachyon* tachyon, State& state) {
       float speed = animation_duration / frame_duration;
       float alpha = time_since(state.last_wand_swing_time) / animation_duration;
 
-      player_animation.upper_body_animation = &swing_animation;
-      player_animation.upper_body_animation_time = speed * alpha;
+      rig.upper_body_animation = &swing_animation;
+      rig.upper_body_animation_time = speed * alpha;
     } else {
-      player_animation.upper_body_animation = nullptr;
+      rig.upper_body_animation = nullptr;
     }
   }
 

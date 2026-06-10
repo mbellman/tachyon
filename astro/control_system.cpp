@@ -259,7 +259,12 @@ static void HandleWandControls(Tachyon* tachyon, State& state) {
     }
 
     // Check for hints shortly after wand pulsing
-    if (time_since(state.last_wand_light_pulse_time) > 0.5f) {
+    float time_since_pulse = time_since(state.last_wand_light_pulse_time);
+
+    if (
+      time_since_pulse > 0.2f &&
+      time_since_pulse < 0.3f
+    ) {
       WandAbilities::CheckForHints(tachyon, state);
     }
   } else {
