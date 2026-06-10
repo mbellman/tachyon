@@ -1056,6 +1056,8 @@ static void RenderGlobalLighting(Tachyon* tachyon) {
   SetShaderVec3f(locations.sky_light_direction, scene.sky_light_direction);
   SetShaderVec3f(locations.sky_light_color, scene.sky_light_color);
   SetShaderVec3f(locations.player_position, fx.player_position);
+  SetShaderVec3f(locations.player_light_color, fx.player_light_color);
+  SetShaderFloat(locations.player_light_radius, fx.player_light_radius);
   SetShaderFloat(locations.accumulation_blur_factor, tachyon->fx.accumulation_blur_factor);
   SetShaderBool(locations.enable_shadows, fx.enable_shadows);
   SetShaderBool(locations.enable_ssao, fx.enable_ssao);

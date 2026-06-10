@@ -297,7 +297,7 @@ void main() {
 
   // @todo make a uniform/allow location-dependent flow direction
   // @todo improve behavior
-  const vec2 flow_direction = vec2(-0.1, -1);
+  const vec2 flow_direction = vec2(1, -1);
 
   vec2 water_speed = vec2(-time * flow_direction.x, -time * flow_direction.y);
   vec2 ripple_speed = 2.0 * water_speed;
@@ -316,8 +316,8 @@ void main() {
 
   // Large turbulence
   N.xz += 0.4 * vec2(simplex_noise(vec2(
-    water_speed.x * 0.2 + wx * 0.0005,
-    water_speed.y * 0.2 + wz * 0.0005
+    water_speed.x * 0.5 + wx * 0.0005,
+    water_speed.y * 0.5 + wz * 0.0005
   )));
 
   // Medium turbulence

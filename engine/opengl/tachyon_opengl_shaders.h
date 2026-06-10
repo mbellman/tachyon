@@ -84,6 +84,8 @@ struct tUniformLocations {
     sky_light_direction,
     sky_light_color,
     player_position,
+    player_light_color,
+    player_light_radius,
     fog_volumes,
     total_fog_volumes,
     fog_visibility,

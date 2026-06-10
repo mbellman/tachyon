@@ -135,6 +135,8 @@ static void StoreShaderUniforms(tOpenGLShaders& shaders) {
   store_shader_uniform(global_lighting, sky_light_direction);
   store_shader_uniform(global_lighting, sky_light_color);
   store_shader_uniform(global_lighting, player_position);
+  store_shader_uniform(global_lighting, player_light_color);
+  store_shader_uniform(global_lighting, player_light_radius);
   // @todo Right now this is commented out because the volumes
   // are in an array, so we need to iterate over their indexes
   // and set by interpolated uniform locations. Ideally we'd use

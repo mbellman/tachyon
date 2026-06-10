@@ -675,6 +675,7 @@ static void UpdateWandLights(Tachyon* tachyon, State& state) {
     }
   }
 
+  auto& fx = tachyon->fx;
   float scene_time = get_scene_time();
   auto& wand = objects(state.meshes.player_wand)[0];
   tVec3f wand_end_offset = tVec3f(0, 1.48f * wand.scale.y, 0.18f * wand.scale.z);
@@ -731,15 +732,23 @@ static void UpdateWandLights(Tachyon* tachyon, State& state) {
         if (pulse_alpha < 0.2f) {
           glow = Tachyon_EaseOutSine(pulse_alpha * 5.f);
         } else {
-          pulse_alpha -= 0.2f;
-          glow = 1.f - Tachyon_EaseInOutf(pulse_alpha / 0.8f);
+          glow = 1.f - Tachyon_EaseInOutf((pulse_alpha - 0.2f) / 0.8f);
         }
 
         float glow_intensity = 10.f * glow;
         float oscillation = 0.5f * oscillating_alpha;
 
         main_light_power += wand_hold_factor * (glow_intensity + oscillation);
+
+        // Player light
+        float player_light_alpha = sinf(pulse_alpha * t_PI);
+
+        fx.player_light_color = tVec3f(1.8f, 1.6f, 1.2f) + tVec3f(1.f, 0.5f, 0.2f) * player_light_alpha;
+        fx.player_light_radius = 6000.f + 5000.f * player_light_alpha;
       }
+
+      fx.player_light_color = tVec3f::lerp(fx.player_light_color, tVec3f(1.8f, 1.6f, 1.2f), state.dt);
+      fx.player_light_radius = Tachyon_Lerpf(fx.player_light_radius, 6000.f, state.dt);
     }
 
     // Glow when close to interactibles ("wand sense")

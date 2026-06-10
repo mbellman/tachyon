@@ -271,7 +271,7 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
     !PlayerCharacter::IsRunning(tachyon, state) &&
     IsWalkAnimation(rig.next_animation, state)
   ) {
-    return 3.5f;
+    return 4.f;
   }
 
   // Blend faster out of idle

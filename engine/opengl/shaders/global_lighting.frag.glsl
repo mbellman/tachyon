@@ -31,6 +31,11 @@ uniform vec3 primary_light_color;
 uniform vec3 sky_light_direction;
 uniform vec3 sky_light_color;
 
+// Player light
+uniform vec3 player_position;
+uniform vec3 player_light_color;
+uniform float player_light_radius;
+
 // Fog
 struct FogVolume {
   vec3 position;
@@ -39,7 +44,6 @@ struct FogVolume {
   float thickness;
 };
 
-uniform vec3 player_position;
 uniform FogVolume fog_volumes[50];
 uniform int total_fog_volumes;
 uniform float fog_visibility;
@@ -887,9 +891,7 @@ void main() {
     // Subtly brighten the scene near the player for visibility
     // @todo make optional/customizable
     {
-      const vec3 player_light_color = vec3(1.8, 1.6, 1.2);
-
-      float alpha = frag_distance_from_player / 6000.0;
+      float alpha = frag_distance_from_player / player_light_radius;
       if (alpha > 1.0) alpha = 1.0;
 
       out_color = mix(out_color * player_light_color, out_color, alpha);
