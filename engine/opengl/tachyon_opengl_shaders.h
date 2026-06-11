@@ -181,7 +181,7 @@ struct tUniformLocations {
     astro_time_warp_start_radius,
     astro_time_warp_end_radius,
     wand_pulse_position,
-    wand_pulse_radius,
+    wand_pulse_alpha,
     haze_intensity,
     vignette_intensity,
     dialogue_overlay_opacity

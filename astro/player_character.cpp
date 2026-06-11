@@ -737,7 +737,7 @@ static void UpdateWandLights(Tachyon* tachyon, State& state) {
           glow = 1.f - Tachyon_EaseInOutf((pulse_alpha - 0.2f) / 0.8f);
         }
 
-        float glow_intensity = 10.f * glow;
+        float glow_intensity = 5.f * glow;
         float oscillation = 0.5f * oscillating_alpha;
 
         main_light_power += wand_hold_factor * (glow_intensity + oscillation);
@@ -752,16 +752,17 @@ static void UpdateWandLights(Tachyon* tachyon, State& state) {
       fx.player_light_color = tVec3f::lerp(fx.player_light_color, tVec3f(1.8f, 1.6f, 1.2f), state.dt);
       fx.player_light_radius = Tachyon_Lerpf(fx.player_light_radius, 6000.f, state.dt);
 
+      // Perform a pulse effect after a short duration
       if (
         state.last_wand_light_pulse_time != 0.f &&
+        time_since_wand_pulse > 0.2f &&
         time_since_wand_pulse < 4.f
       ) {
-        float pulse_alpha = time_since_wand_pulse / 4.f;
-
         fx.wand_pulse_position = wand_end_position;
-        fx.wand_pulse_radius = pulse_alpha * 50000.f;
+        fx.wand_pulse_alpha = (time_since_wand_pulse - 0.2f) / 3.8f;
       } else {
-        fx.wand_pulse_radius = 0.f;
+        // Setting the alpha to 1 renders the effect "complete"
+        fx.wand_pulse_alpha = 1.f;
       }
     }
 

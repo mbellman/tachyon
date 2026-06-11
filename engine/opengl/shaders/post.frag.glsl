@@ -22,7 +22,7 @@ uniform float astro_time_warp;
 uniform float astro_time_warp_start_radius;
 uniform float astro_time_warp_end_radius;
 uniform vec3 wand_pulse_position;
-uniform float wand_pulse_radius;
+uniform float wand_pulse_alpha;
 uniform float haze_intensity;
 uniform float vignette_intensity;
 uniform float dialogue_overlay_opacity;
@@ -504,20 +504,33 @@ void main() {
     {
       if (world_depth > 2200.0) {
         const vec3 pulse_color = vec3(1.0, 0.9, 0.6);
+        const float pulse_range = 30000.0;
+        const float outside_edge_range = 2000.0;
 
-        float distance_from_wand = distance(world_position, wand_pulse_position);
-        float distance_from_radius = abs(wand_pulse_radius - distance_from_wand);
+        float inverse_alpha = 1.0 - wand_pulse_alpha;
+        float alpha = pow(wand_pulse_alpha, 0.5);
 
-        if (distance_from_wand < wand_pulse_radius) {
-          float distance_ratio = distance_from_wand / wand_pulse_radius;
+        float current_radius = alpha * pulse_range;
+        float pulse_distance = distance(world_position, wand_pulse_position);
+
+        if (pulse_distance < current_radius) {
+          // Apply effects within the radius
+          float distance_ratio = pulse_distance / current_radius;
           distance_ratio *= distance_ratio;
 
-          // distance_ratio *= clamp(radius_ratio, 0.0, 1.0);
+          float blend = clamp(distance_ratio, 0.0, 1.0);
 
-          float pulse_light_alpha = clamp(distance_ratio, 0.0, 1.0);
-          float pulse_intensity = 1.0 - wand_pulse_radius / 50000.0;
+          blend *= inverse_alpha;
 
-          post_color = mix(post_color, pulse_color, pulse_light_alpha);
+          post_color = mix(post_color, pulse_color, blend);
+        } else {
+          // Apply effects on the outside edge of the radius
+          float distance_from_radius = abs(current_radius - pulse_distance);
+          float blend = clamp(1.0 - distance_from_radius / outside_edge_range, 0.0, 1.0);
+
+          blend *= inverse_alpha;
+
+          post_color = mix(post_color, pulse_color, blend);
         }
       }
     }
