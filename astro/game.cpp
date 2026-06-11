@@ -877,17 +877,9 @@ static void HandleFrameEnd(Tachyon* tachyon, State& state) {
   {
     auto& velocity = state.player_velocity;
     float speed = velocity.magnitude();
-    tVec3f foliage_movement_offset = (speed > 0.f ? velocity.invert().unit() * 500.f : 0.f);
 
-    scene.foliage_mover_position = state.player_position + foliage_movement_offset;
+    scene.foliage_mover_position = state.player_position;
     scene.foliage_mover_velocity = velocity;
-
-    if (speed > 300.f) {
-      scene.foliage_mover_velocity = velocity.unit() * 300.f;
-    }
-
-    // @hack
-    scene.foliage_mover_velocity *= 1.5f;
   }
 
   // Disocclusion target

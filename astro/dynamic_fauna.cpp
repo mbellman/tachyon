@@ -454,6 +454,10 @@ static void HandleTinyBird(Tachyon* tachyon, State& state, TinyBird& bird, const
       bird.state = TinyBird::FLY_UP;
 
       PlayWingsFlappingSound();
+
+      if (Tachyon_GetRandom() < 0.33f) {
+        PlayTweetingSound();
+      }
     }
   }
 

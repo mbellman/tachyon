@@ -56,6 +56,28 @@ float GetFoliageDriftIntensity(float wind, float vertex_y) {
   return wind * min(1.0, vertex_y * vertex_y);
 }
 
+vec3 GetFoliageCollisionDisplacement(vec3 world_position, vec3 model_position) {
+  const float capsule_size = 200.0;
+  const float movement_falloff_radius = 2500.0;
+
+  vec3 adjusted_position = (world_position + model_position) / 2.0;
+
+  vec3 displacement_direction = adjusted_position - foliage_mover_position;
+  displacement_direction.y *= 0.0;
+
+  float mover_distance = max(capsule_size, length(displacement_direction));
+  float mover_y_distance = max(0.0, world_position.y - (foliage_mover_position.y - 1000.0));
+
+  float foliage_mover_factor = clamp(1.0 - mover_distance / movement_falloff_radius, 0.0, 1.0);
+  foliage_mover_factor *= foliage_mover_factor;
+
+  foliage_mover_factor *= min(1.0, mover_y_distance / 500.0);
+
+  float foliage_move_intensity = max(0.5, sqrt(length(foliage_mover_velocity) / 1800.0));
+
+  return displacement_direction * foliage_move_intensity * foliage_mover_factor;
+}
+
 void main() {
   mat3 normal_matrix = transpose(inverse(mat3(modelMatrix)));
   vec3 N = vertexNormal;
@@ -86,13 +108,7 @@ void main() {
     world_space_position.x += drift_factor * sin(alpha);
     world_space_position.z += drift_factor * cos(1.5 * alpha);
 
-    // @todo refactor
-    float foliage_mover_factor = 1000.0 / distance(foliage_mover_position, world_space_position);
-    if (foliage_mover_factor > 1.0) foliage_mover_factor = 1.0;
-    foliage_mover_factor *= foliage_mover_factor;
-    foliage_mover_factor *= foliage_mover_factor;
-
-    world_space_position += foliage_mover_velocity * foliage_mover_factor;
+    world_space_position += GetFoliageCollisionDisplacement(world_space_position, translation);
   }
 
   // @todo handle foliage behavior in shadow map pass
@@ -116,12 +132,7 @@ void main() {
     // world_space_position.y += wind_strength * core_intensity * S;
     world_space_position.z += wind_strength * core_intensity * C;
 
-    // @todo refactor
-    float foliage_mover_factor = distance(foliage_mover_position, world_space_position) / 2000.0;
-    if (foliage_mover_factor > 1.0) foliage_mover_factor = 1.0;
-    foliage_mover_factor = 1.0 - foliage_mover_factor;
-
-    world_space_position += foliage_mover_velocity * foliage_mover_factor;
+    world_space_position += GetFoliageCollisionDisplacement(world_space_position, translation);
 
     // @temporary
     // @todo export meshes with custom normals
