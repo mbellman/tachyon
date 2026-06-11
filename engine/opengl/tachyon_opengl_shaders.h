@@ -175,11 +175,13 @@ struct tUniformLocations {
     // Fx: Cosmodrone
     scan_time,
 
-    // Fx: Alchemist's Astrolabe
+    // Fx: A + A
     player_position,
     astro_time_warp,
     astro_time_warp_start_radius,
     astro_time_warp_end_radius,
+    wand_pulse_position,
+    wand_pulse_radius,
     haze_intensity,
     vignette_intensity,
     dialogue_overlay_opacity

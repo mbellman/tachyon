@@ -891,10 +891,10 @@ void main() {
     // Subtly brighten the scene near the player for visibility
     // @todo make optional/customizable
     {
-      float alpha = frag_distance_from_player / player_light_radius;
+      float alpha = frag_distance_from_player / 6000.0;
       if (alpha > 1.0) alpha = 1.0;
 
-      out_color = mix(out_color * player_light_color, out_color, alpha);
+      out_color = mix(out_color * vec3(1.8, 1.6, 1.2), out_color, alpha);
     }
   }
 

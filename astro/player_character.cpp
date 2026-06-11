@@ -721,9 +721,11 @@ static void UpdateWandLights(Tachyon* tachyon, State& state) {
 
     // Glow when holding up the wand
     {
+      float time_since_wand_pulse = time_since(state.last_wand_light_pulse_time);
+
       if (IsWandHoldAnimationActive(state)) {
         float wand_hold_factor = GetWandHoldFactor(state);
-        float pulse_alpha = time_since(state.last_wand_light_pulse_time) / 4.f;
+        float pulse_alpha = time_since_wand_pulse / 4.f;
 
         clamp_to_1(pulse_alpha);
 
@@ -749,6 +751,18 @@ static void UpdateWandLights(Tachyon* tachyon, State& state) {
 
       fx.player_light_color = tVec3f::lerp(fx.player_light_color, tVec3f(1.8f, 1.6f, 1.2f), state.dt);
       fx.player_light_radius = Tachyon_Lerpf(fx.player_light_radius, 6000.f, state.dt);
+
+      if (
+        state.last_wand_light_pulse_time != 0.f &&
+        time_since_wand_pulse < 4.f
+      ) {
+        float pulse_alpha = time_since_wand_pulse / 4.f;
+
+        fx.wand_pulse_position = wand_end_position;
+        fx.wand_pulse_radius = pulse_alpha * 50000.f;
+      } else {
+        fx.wand_pulse_radius = 0.f;
+      }
     }
 
     // Glow when close to interactibles ("wand sense")

@@ -16,11 +16,13 @@ uniform vec3 primary_light_direction;
 // Fx: Cosmodrone
 uniform float scan_time;
 
-// Fx: Alchemist's Astrolabe
+// Fx: A + A
 uniform vec3 player_position;
 uniform float astro_time_warp;
 uniform float astro_time_warp_start_radius;
 uniform float astro_time_warp_end_radius;
+uniform vec3 wand_pulse_position;
+uniform float wand_pulse_radius;
 uniform float haze_intensity;
 uniform float vignette_intensity;
 uniform float dialogue_overlay_opacity;
@@ -330,12 +332,12 @@ void main() {
       medium_haze_factor = mix(medium_haze_factor, 0.0, height_fog_alpha);
 
       vec3 fog_color = vec3(0.2, 0.4, 0.5);
-      // vec3 medium_haze_color = 2.0 * vec3(1.0, 0.7, 0.3);
+      vec3 medium_haze_color = 2.0 * vec3(1.0, 0.6, 0.3);
       // vec3 medium_haze_color = 2.0 * vec3(1.0, 0.45, 0.3);
-      vec3 medium_haze_color = 3.0 * vec3(0.6, 0.4, 0.3);
+      // vec3 medium_haze_color = 3.0 * vec3(0.6, 0.4, 0.3);
 
       post_color = mix(post_color, fog_color, fog_factor);
-      // post_color = mix(post_color, medium_haze_color, medium_haze_factor);
+      post_color = mix(post_color, medium_haze_color, medium_haze_factor);
       post_color = mix(post_color, vec3(1.5), 0.75 * far_haze_factor);
     #elif ENABLE_COSMODRONE_FX
       float depth_factor = 0.25 * pow(color_and_depth.w, 300.0);
@@ -410,7 +412,7 @@ void main() {
   #endif
 
   // ---------------------
-  // Alchemist's Astrolabe
+  // A + A
   // ---------------------
   #if ENABLE_ASTRO_FX
     // Artstyle
@@ -496,6 +498,28 @@ void main() {
 
       post_color = mix(post_color, vec3(1.0, 0.8, 0.4), haze_factor);
       post_color = mix(post_color, vec3(1.0, 1.0, 0.7), ring_factor);
+    }
+
+    // Wand pulse
+    {
+      if (world_depth > 2200.0) {
+        const vec3 pulse_color = vec3(1.0, 0.9, 0.6);
+
+        float distance_from_wand = distance(world_position, wand_pulse_position);
+        float distance_from_radius = abs(wand_pulse_radius - distance_from_wand);
+
+        if (distance_from_wand < wand_pulse_radius) {
+          float distance_ratio = distance_from_wand / wand_pulse_radius;
+          distance_ratio *= distance_ratio;
+
+          // distance_ratio *= clamp(radius_ratio, 0.0, 1.0);
+
+          float pulse_light_alpha = clamp(distance_ratio, 0.0, 1.0);
+          float pulse_intensity = 1.0 - wand_pulse_radius / 50000.0;
+
+          post_color = mix(post_color, pulse_color, pulse_light_alpha);
+        }
+      }
     }
 
     // Vignette

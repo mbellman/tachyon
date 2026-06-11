@@ -215,6 +215,8 @@ static void StoreShaderUniforms(tOpenGLShaders& shaders) {
   store_shader_uniform(post, astro_time_warp);
   store_shader_uniform(post, astro_time_warp_start_radius);
   store_shader_uniform(post, astro_time_warp_end_radius);
+  store_shader_uniform(post, wand_pulse_position);
+  store_shader_uniform(post, wand_pulse_radius);
   store_shader_uniform(post, haze_intensity);
   store_shader_uniform(post, vignette_intensity);
   store_shader_uniform(post, dialogue_overlay_opacity);
