@@ -843,7 +843,7 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
   // @todo factor
   {
     tVec3f desired_facing_direction = state.player_facing_direction;
-    float turn_speed = Tachyon_Lerpf(2.f, 5.f, speed_ratio);
+    float turn_speed = Tachyon_Lerpf(2.f, 10.f, speed_ratio);
     float tilt = 0.f;
 
     if (state.has_target) {
@@ -876,7 +876,7 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
     float desired_facing_angle = atan2f(desired_facing_direction.z, desired_facing_direction.x);
 
     tilt = GetAngleBetween(desired_facing_angle, facing_angle);
-    tilt *= 0.15f;
+    tilt *= 0.3f;
     tilt *= speed_ratio;
 
     state.player_facing_direction = tVec3f::slerp(state.player_facing_direction, desired_facing_direction, turn_speed * state.dt).unit();
