@@ -265,19 +265,14 @@ static void UpdatePlayerHeadTurnAngle(Tachyon* tachyon, State& state) {
     }
   }
 
-  // Turn head when we do quick turns, or based on tilt,
-  // for slightly more natural movement when changing direction
+  // Turn head based on tilt for slightly more natural movement when changing direction
   {
-    if (time_since(state.last_quick_turn_time) < 1.f) {
-      // Diminish the effect with velocity; otherwise when we
-      // quick turn while running, the head takes unnaturally long
-      // to rotate back into a normal forward orientation
-      float alpha = 1.f - 0.75f * (state.player_velocity.magnitude() / PlayerCharacter::MAX_RUN_SPEED);
+    // Diminish the effect with velocity; otherwise when we
+    // quick turn while running, the head takes unnaturally long
+    // to rotate back into a normal forward orientation
+    float alpha = 1.f - 0.75f * (state.player_velocity.magnitude() / PlayerCharacter::MAX_RUN_SPEED);
 
-      state.player.rig.head_turn_angle += 40.f * alpha * state.tilt_angle * state.dt;
-    } else {
-      state.player.rig.head_turn_angle += 10.f * state.tilt_angle * state.dt;
-    }
+    state.player.rig.head_turn_angle += 10.f * alpha * state.tilt_angle * state.dt;
   }
 }
 
@@ -874,7 +869,7 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
   // @todo factor
   {
     tVec3f desired_facing_direction = state.player_facing_direction;
-    float turn_speed = Tachyon_Lerpf(2.f, 10.f, speed_ratio);
+    float turn_speed = Tachyon_Lerpf(2.f, 5.f, speed_ratio);
     float tilt = 0.f;
 
     if (state.has_target) {

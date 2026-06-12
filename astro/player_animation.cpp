@@ -324,7 +324,7 @@ static void HandleTurnAnimation(Tachyon* tachyon, State& state) {
 
   rig.torso_turn_angle = Tachyon_Lerpf(
     rig.torso_turn_angle,
-    4.f * state.tilt_angle,
+    -state.tilt_angle,
     20.f * speed_ratio * state.dt
   );
 
