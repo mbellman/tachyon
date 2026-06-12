@@ -183,99 +183,6 @@ static void HandleCombatJumpMotions(Tachyon* tachyon, State& state) {
   }
 }
 
-// @todo move to player_animation.cpp
-// @todo refactor to allow NPCs/enemies to turn their own heads
-static bool TurnPlayerHeadTowardPosition(State& state, const tVec3f& position, const float facing_angle) {
-  tVec3f player_to_position = position - state.player_position;
-  float position_direction_angle = atan2f(player_to_position.z, player_to_position.x);
-  float turn = GetAngleBetween(position_direction_angle, facing_angle);
-
-  if (abs(turn) > 1.8f) {
-    return false;
-  }
-
-  if (turn < -1.6f) turn = -1.6f;
-  if (turn > 1.6f) turn = 1.6f;
-
-  auto& rig = state.player.rig;
-
-  rig.head_turn_angle = Tachyon_Lerpf(rig.head_turn_angle, -turn, 5.f * state.dt);
-
-  state.player.is_looking_at_something = true;
-
-  return true;
-}
-
-// @todo move to player_animation.cpp
-static void TurnPlayerHeadToward(State& state, const std::vector<GameEntity>& entities, const float facing_angle) {
-  for (auto& entity : entities) {
-    if (!IsDuringActiveTime(entity, state)) continue;
-
-    float entity_distance = tVec3f::distance(state.player_position, entity.visible_position);
-
-    if (entity_distance > 7500.f) continue;
-
-    if (TurnPlayerHeadTowardPosition(state, entity.visible_position, facing_angle)) {
-      break;
-    }
-  }
-}
-
-// @todo move to player_animation.cpp
-static void UpdatePlayerHeadTurnAngle(Tachyon* tachyon, State& state) {
-  float player_facing_angle = atan2f(state.player_facing_direction.z, state.player_facing_direction.x);
-
-  // Assume this is false until we determine otherwise
-  state.player.is_looking_at_something = false;
-
-  if (state.has_target) {
-    // Turn head toward active target
-    auto& entity = *EntityManager::FindEntity(state, state.target_entity);
-
-    TurnPlayerHeadTowardPosition(state, entity.visible_position, player_facing_angle);
-  }
-  else if (state.preview_target_entity_record.type != UNSPECIFIED) {
-    // Turn head toward preview target
-    auto& entity = *EntityManager::FindEntity(state, state.preview_target_entity_record);
-
-    TurnPlayerHeadTowardPosition(state, entity.visible_position, player_facing_angle);
-  }
-  else {
-    // Turn head toward key entities when not targeting anything
-    TurnPlayerHeadToward(state, state.sculpture_1s, player_facing_angle);
-    TurnPlayerHeadToward(state, state.wind_chimes, player_facing_angle);
-    TurnPlayerHeadToward(state, state.light_posts, player_facing_angle);
-
-    // Turn head toward enemies + people
-    if (!state.enemies_disabled) {
-      TurnPlayerHeadToward(state, state.npcs, player_facing_angle);
-      TurnPlayerHeadToward(state, state.low_guards, player_facing_angle);
-      TurnPlayerHeadToward(state, state.lesser_guards, player_facing_angle);
-    }
-
-    // Turn head toward wand hints
-    if (
-      state.wand_hint_light_id != -1 &&
-      time_since(state.last_wand_hint_time) < 4.f
-    ) {
-      auto& light = *get_point_light(state.wand_hint_light_id);
-      tVec3f wand_hint_position = light.position;
-
-      TurnPlayerHeadTowardPosition(state, wand_hint_position, player_facing_angle);
-    }
-  }
-
-  // Turn head based on tilt for slightly more natural movement when changing direction
-  {
-    // Diminish the effect with velocity; otherwise when we
-    // quick turn while running, the head takes unnaturally long
-    // to rotate back into a normal forward orientation
-    float alpha = 1.f - 0.75f * (state.player_velocity.magnitude() / PlayerCharacter::MAX_RUN_SPEED);
-
-    state.player.rig.head_turn_angle += 10.f * alpha * state.tilt_angle * state.dt;
-  }
-}
-
 static void UpdatePlayerModel(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
   auto& player = state.player;
@@ -902,7 +809,7 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
     float desired_facing_angle = atan2f(desired_facing_direction.z, desired_facing_direction.x);
 
     tilt = GetAngleBetween(desired_facing_angle, facing_angle);
-    tilt *= 0.3f;
+    tilt *= 0.15f;
     tilt *= speed_ratio;
 
     state.player_facing_direction = tVec3f::slerp(state.player_facing_direction, desired_facing_direction, turn_speed * state.dt).unit();
@@ -936,7 +843,6 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
     state.player.rotation_matrix = state.player.rotation.toMatrix4f();
   }
 
-  UpdatePlayerHeadTurnAngle(tachyon, state);
   UpdatePlayerModel(tachyon, state);
 
   if (Items::HasItem(state, MAGIC_WAND)) {
