@@ -521,6 +521,13 @@ namespace astro {
       float last_stopped_time = 0.f;
 
       bool is_looking_at_something = false;
+      bool is_airborne_in_run_cycle = false;
+
+      tVec3f planted_left_foot_position;
+      bool is_left_foot_planted = false;
+
+      tVec3f planted_right_foot_position;
+      bool is_right_foot_planted = false;
 
       tAnimationRig rig;
     } player;

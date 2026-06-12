@@ -139,6 +139,49 @@ static float SampleCurve(const std::vector<float>& curve, const float t) {
   return Tachyon_Lerpf(a, b, alpha);
 }
 
+static void HandleRunState(Tachyon* tachyon, State& state) {
+  auto& rig = state.player.rig;
+  float t = fmodf(rig.seek_time, 8.f);
+
+  // Airborne
+  if (!state.player.is_airborne_in_run_cycle && t > 7.f) {
+    state.player.is_airborne_in_run_cycle = true;
+    state.player.is_left_foot_planted = false;
+    state.player.is_right_foot_planted = false;
+  }
+
+  // Airborne
+  if (!state.player.is_airborne_in_run_cycle && t > 3.f && t < 5.5f) {
+    state.player.is_airborne_in_run_cycle = true;
+    state.player.is_left_foot_planted = false;
+    state.player.is_right_foot_planted = false;
+  }
+
+  // Landed (left foot)
+  if (state.player.is_airborne_in_run_cycle && t > 1.5f && t < 3.f) {
+    state.player.is_airborne_in_run_cycle = false;
+    state.player.is_left_foot_planted = true;
+    state.player.is_right_foot_planted = false;
+
+    tVec3f foot = rig.active_pose.bones[9].translation * 1500.f;
+    foot = state.player.rotation_matrix * foot;
+
+    state.player.planted_left_foot_position = state.player_position + foot;
+  }
+
+  // Landed (right foot)
+  if (state.player.is_airborne_in_run_cycle && t > 5.5f && t < 7.f) {
+    state.player.is_airborne_in_run_cycle = false;
+    state.player.is_left_foot_planted = false;
+    state.player.is_right_foot_planted = true;
+
+    tVec3f foot = rig.active_pose.bones[13].translation * 1500.f;
+    foot = state.player.rotation_matrix * foot;
+
+    state.player.planted_right_foot_position = state.player_position + foot;
+  }
+}
+
 static void HandleRunOscillation(Tachyon* tachyon, State& state) {
   if (state.did_jump_off_ledge) {
     // Reduce run oscillation when jumping off ledges
@@ -216,6 +259,13 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state) {
   player.visual_rotation = player.rotation;
 
   if (state.player_hp > 0.f) {
+    if (PlayerCharacter::IsRunning(tachyon, state)) {
+      HandleRunState(tachyon, state);
+    } else {
+      state.player.is_left_foot_planted = false;
+      state.player.is_right_foot_planted = false;
+    }
+
     HandleRunOscillation(tachyon, state);
     HandleCombatJumpMotions(tachyon, state);
   } else {
@@ -238,6 +288,32 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state) {
 
   PlayerAnimation::Update(tachyon, state);
   PlayerAttachments::Update(tachyon, state);
+
+  // Keep feet planted
+  // @todo factor
+  {
+    auto& rig = state.player.rig;
+
+    if (state.player.is_left_foot_planted) {
+      tVec3f foot = rig.active_pose.bones[9].translation * 1500.f;
+      foot = player.rotation_matrix * foot;
+
+      tVec3f current_left_foot_position = state.player_position + foot;
+      tVec3f offset = state.player.planted_left_foot_position - current_left_foot_position;
+
+      state.player_position += offset.xz() * 0.1f;
+    }
+
+    if (state.player.is_right_foot_planted) {
+      tVec3f foot = rig.active_pose.bones[13].translation * 1500.f;
+      foot = player.rotation_matrix * foot;
+
+      tVec3f current_right_foot_position = state.player_position + foot;
+      tVec3f offset = state.player.planted_right_foot_position - current_right_foot_position;
+
+      state.player_position += offset.xz() * 0.1f;
+    }
+  }
 
   auto& active_pose = state.player.rig.active_pose;
 
@@ -643,16 +719,7 @@ static void UpdateWandLights(Tachyon* tachyon, State& state) {
         float oscillation = 0.5f * oscillating_alpha;
 
         main_light_power += wand_hold_factor * (glow_intensity + oscillation);
-
-        // Player light
-        float player_light_alpha = sinf(pulse_alpha * t_PI);
-
-        fx.player_light_color = tVec3f(1.8f, 1.6f, 1.2f) + tVec3f(1.f, 0.5f, 0.2f) * player_light_alpha;
-        fx.player_light_radius = 6000.f + 5000.f * player_light_alpha;
       }
-
-      fx.player_light_color = tVec3f::lerp(fx.player_light_color, tVec3f(1.8f, 1.6f, 1.2f), state.dt);
-      fx.player_light_radius = Tachyon_Lerpf(fx.player_light_radius, 6000.f, state.dt);
 
       // Perform a pulse effect after a short duration
       if (
@@ -816,20 +883,6 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
     state.tilt_angle = Tachyon_Lerpf(state.tilt_angle, tilt, 5.f * state.dt);
   }
 
-  // Shift the player left or right relative to the tilt angle,
-  // improving foot positioning stability by approximating the
-  // planted foot as a pivot. This isn't completely precise,
-  // but is more visually (and kinematically) consistent.
-  //
-  // @todo planted foot rotation
-  {
-    if (time_since(state.last_quick_turn_time) > 0.6f) {
-      tVec3f player_left = tVec3f::cross(state.player_facing_direction, tVec3f(0, 1.f, 0)).invert();
-
-      state.player_position += player_left * speed_ratio * 15000.f * state.tilt_angle * state.dt;
-    }
-  }
-
   // Set current rotation
   // @todo factor
   {
@@ -870,7 +923,7 @@ bool PlayerCharacter::IsRunning(Tachyon* tachyon, State& state) {
   return (
     is_key_held(tKey::CONTROLLER_A) &&
     is_moving_left_stick() &&
-    state.previous_move_delta > 0.f &&
+    !state.is_on_ladder &&
     !PlayerCharacter::IsClimbingOffLadder(tachyon, state)
   );
 }

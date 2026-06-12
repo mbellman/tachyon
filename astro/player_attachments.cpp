@@ -190,6 +190,13 @@ static void UpdateLantern(Tachyon* tachyon, State& state) {
       light.power += sinf(alpha * t_PI);
     }
   }
+
+  // Player light
+  // @todo feature dynamic behavior
+  auto& fx = tachyon->fx;
+
+  fx.player_light_color = tVec3f(1.8f, 1.6f, 1.2f);
+  fx.player_light_radius = 6000.f;
 }
 
 void PlayerAttachments::Update(Tachyon* tachyon, State& state) {

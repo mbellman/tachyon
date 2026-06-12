@@ -50,15 +50,6 @@ static void HandleQuickManeuverAction(Tachyon* tachyon, State& state) {
   PlayerCharacter::PerformStandardDodgeAction(tachyon, state);
 }
 
-// @todo continue to work on this
-static void HandleExperimentalControls(Tachyon* tachyon, State& state, const float acceleration) {
-  tVec3f forward = state.player_facing_direction;
-  tVec3f left = tVec3f::cross(state.player_facing_direction, tVec3f(0, 1.f, 0));
-
-  state.player_velocity += state.player_facing_direction * -tachyon->left_stick.y * acceleration * state.dt;
-  state.player_velocity += left * tachyon->left_stick.x * acceleration * state.dt;
-}
-
 static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
   // Disable movement during:
   if (
@@ -155,8 +146,6 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
     }
   }
 
-  // HandleExperimentalControls(tachyon, state, acceleration);
-
   // Track run input timings to use for dodges
   if (did_press_key(tKey::CONTROLLER_A)) {
     state.last_run_input_time = get_scene_time();
@@ -179,8 +168,7 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
   }
 }
 
-// @disabled
-// @todo remove
+// @todo dev mode only
 static void HandleAstroControls(Tachyon* tachyon, State& state) {
   if (did_press_key(tKey::NUM_1)) {
     state.astro_time = astro_time_periods.future;
