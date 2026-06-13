@@ -21,3 +21,6 @@
 
 @old_wood_camera
 1000.0
+
+@promenade_camera
+1500.0

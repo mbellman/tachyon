@@ -624,7 +624,7 @@ static void HandleTinyBird(Tachyon* tachyon, State& state, TinyBird& bird, const
 
       left_wing.position = bird.position;
       left_wing.rotation = bird.rotation * Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), -bird.wing_angle);
-      left_wing.scale = tVec3f(900.f);
+      left_wing.scale = tVec3f(750.f);
       left_wing.color = wing_color;
       left_wing.material = tVec4f(0.8f, 0, 0, 0.6f);
 
@@ -637,7 +637,7 @@ static void HandleTinyBird(Tachyon* tachyon, State& state, TinyBird& bird, const
 
       right_wing.position = bird.position;
       right_wing.rotation = bird.rotation * Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), bird.wing_angle);
-      right_wing.scale = tVec3f(900.f);
+      right_wing.scale = tVec3f(750.f);
       right_wing.color = wing_color;
       right_wing.material = tVec4f(0.8f, 0, 0, 0.6f);
 
