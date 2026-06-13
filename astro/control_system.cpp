@@ -86,7 +86,10 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
         speed = 8000.f;
       }
 
-      if (state.is_starting_climb_down) {
+      if (
+        state.is_starting_climb_down ||
+        time_since(state.player.last_climbing_start_time) < 0.5f
+      ) {
         speed = 0.f;
       }
 
@@ -340,7 +343,7 @@ static void HandleSpeedDampening(Tachyon* tachyon, State& state) {
     speed != 0.f &&
     !is_moving_left_stick()
   ) {
-    state.player.last_stopped_time = get_scene_time();
+    state.player.last_stopped_moving_time = get_scene_time();
     state.player_velocity = tVec3f(0.f);
   }
 }

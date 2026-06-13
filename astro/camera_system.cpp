@@ -141,4 +141,6 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
   camera.position = tVec3f::lerp(camera.position, new_camera_position, state.camera_blend_speed);
   camera.rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), state.camera_angle);
+
+  // camera.rotation = camera.rotation * Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 0.2f * sinf(get_scene_time()));
 }

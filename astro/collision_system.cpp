@@ -285,7 +285,7 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
 
   bool is_left_stick_up = tachyon->left_stick.y < 0.f;
   bool is_left_stick_down = tachyon->left_stick.y > 0.f;
-  bool was_just_climbing = time_since(state.last_climbing_time) < 0.5f;
+  bool was_just_climbing = time_since(state.player.last_climbing_time) < 0.5f;
 
   for (auto& entity : state.ladders) {
     if (!IsDuringActiveTime(entity, state)) continue;
@@ -316,16 +316,29 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
     );
 
     if (is_climbing_onto_ladder_normally || is_climbing_over_wall_onto_ladder) {
+      // @todo remove
       state.last_climbing_time = scene_time;
 
-      // @todo handle climbing off and over a ledge
+      state.player.last_climbing_time = scene_time;
+
+      if (!was_just_climbing) {
+        // Starting a new climb action, so track its time
+        state.player.last_climbing_start_time = scene_time;
+      }
+
+
+      float time_since_starting_climb = time_since(state.player.last_climbing_start_time);
+
+      // @todo handle climbing off over a wall
       bool did_climb_off_top = (
         is_left_stick_up &&
+        time_since_starting_climb > 0.5f &&
         state.player_position.y > climbing_top_y
       );
 
       bool did_climb_off_bottom = (
         is_left_stick_down &&
+        time_since_starting_climb > 0.5f &&
         state.player_position.y < climbing_bottom_y
       );
 
@@ -337,15 +350,21 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
         // @todo change back to 2000.f
         state.player_velocity = off_direction * 5000.f;
         state.player_velocity.y = 3800.f;
-        state.last_off_ladder_time = scene_time;
+        state.player.last_climbing_stop_time = scene_time;
         state.did_climb_down = false;
+
+        // @todo remove
+        state.last_off_ladder_time = scene_time;
       }
       else if (did_climb_off_bottom) {
         tVec3f off_direction = (climbing_position_xz - entity.position.xz()).unit();
 
         state.player_velocity = off_direction * 1000.f;
-        state.last_off_ladder_time = scene_time;
+        state.player.last_climbing_stop_time = scene_time;
         state.did_climb_down = true;
+
+        // @todo remove
+        state.last_off_ladder_time = scene_time;
       }
       else {
         float alpha = 5.f * state.dt;

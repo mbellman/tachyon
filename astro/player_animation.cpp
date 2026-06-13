@@ -450,19 +450,19 @@ static void HandleStoppedAfterMovingAnimation(Tachyon* tachyon, State& state) {
     // Do nothing if we're looking at something
     state.player.is_looking_at_something ||
     // Do nothing if we haven't manually stopped yet
-    state.player.last_stopped_time == 0.f ||
+    state.player.last_stopped_moving_time == 0.f ||
     // Do nothing if we're moving
     state.previous_move_delta > 0.f
   ) {
     return;
   }
 
-  float time_since_stopping = time_since(state.player.last_stopped_time);
+  float time_since_stopped_moving = time_since(state.player.last_stopped_moving_time);
 
   // When stopping, trigger look-around behavior for a few seconds
-  if (time_since_stopping < 2.75f) {
-    float animation_time = 2.f * time_since_stopping;
-    float blend = time_since_stopping / 1.5f;
+  if (time_since_stopped_moving < 2.75f) {
+    float animation_time = 2.f * time_since_stopped_moving;
+    float blend = time_since_stopped_moving / 1.5f;
 
     clamp_to_1(blend);
 

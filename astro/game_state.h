@@ -518,7 +518,10 @@ namespace astro {
 
       float running_charge = 0.f;
 
-      float last_stopped_time = 0.f;
+      float last_stopped_moving_time = 0.f;
+      float last_climbing_time = 0.f;
+      float last_climbing_start_time = 0.f;
+      float last_climbing_stop_time = 0.f;
 
       bool is_looking_at_something = false;
       bool is_airborne_in_run_cycle = false;

@@ -156,7 +156,7 @@ vec3 GetSparklesColor(vec3 sky_direction) {
     simplex_noise(vec2(stars_x, stars_y) * 60.0);
 
   stars_noise = clamp(stars_noise, 0.0, 1.0);
-  stars_noise = pow(stars_noise, 10.0) * 10.0;
+  stars_noise = pow(stars_noise, 10.0) * 20.0;
   vec3 stars_color = vec3(stars_noise, stars_noise, 0);
 
   vec3 sky_color = stars_color;

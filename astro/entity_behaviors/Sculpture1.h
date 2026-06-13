@@ -21,7 +21,7 @@ namespace astro {
 
       Sfx::PlaySound(sound_effect, 0.4f);
 
-      // @todo factor
+      // @todo remove
       {
         if (entity.requires_action) {
           entity.is_astro_synced = true;
