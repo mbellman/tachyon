@@ -51,7 +51,7 @@ static void UpdateBlanket(Tachyon* tachyon, State& state) {
   blanket.position = state.player.visual_position + base_rotation_matrix * (torso_bone.translation * tVec3f(1500.f));
   blanket.position += base_rotation_matrix * (offset * 1500.f);
 
-  blanket.position.y += 150.f - 300.f * swing_angle;
+  blanket.position.y += 150.f + 50.f * swing_intensity * sinf(2.f * bounce_alpha);
 
   blanket.scale = tVec3f(1500.f);
   blanket.rotation = base_rotation * swing_rotation * tilt_rotation;

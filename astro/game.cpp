@@ -482,9 +482,9 @@ static void HandleWalkSounds(Tachyon* tachyon, State& state) {
     auto cycle = state.walk_cycle++;
 
     float volume = (
-      is_running ? 0.1f :
-      PlayerCharacter::IsClimbingOffLadder(tachyon, state) ? 0.2f :
-      0.05f
+      is_running ? 0.2f :
+      PlayerCharacter::IsClimbingOffLadder(tachyon, state) ? 0.25f :
+      0.1f
     );
 
     if (state.is_on_stone_surface) {
@@ -500,7 +500,7 @@ static void HandleWalkSounds(Tachyon* tachyon, State& state) {
         Sfx::PlaySound(SFX_GROUND_WALK_1, volume);
       }
 
-      Sfx::PlaySound(SFX_CARRYING_1, 2.f * volume);
+      Sfx::PlaySound(SFX_CARRYING_1, volume);
     }
     else if (cycle == 1) {
       if (state.is_on_wood_surface) {
@@ -511,7 +511,7 @@ static void HandleWalkSounds(Tachyon* tachyon, State& state) {
         Sfx::PlaySound(SFX_GROUND_WALK_2, volume);
       }
 
-      Sfx::PlaySound(SFX_CARRYING_2, 2.f * volume);
+      Sfx::PlaySound(SFX_CARRYING_2, volume);
     }
     else if (cycle == 2) {
       if (state.is_on_wood_surface) {
@@ -523,9 +523,9 @@ static void HandleWalkSounds(Tachyon* tachyon, State& state) {
       }
 
       if (Tachyon_GetRandom() < 0.5f) {
-        Sfx::PlaySound(SFX_CARRYING_1, 2.f * volume);
+        Sfx::PlaySound(SFX_CARRYING_1, volume);
       } else {
-        Sfx::PlaySound(SFX_CARRYING_2, 2.f * volume);
+        Sfx::PlaySound(SFX_CARRYING_2, volume);
       }
 
       state.walk_cycle = 0;
