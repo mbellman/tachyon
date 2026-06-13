@@ -499,6 +499,8 @@ static void HandleWalkSounds(Tachyon* tachyon, State& state) {
       } else {
         Sfx::PlaySound(SFX_GROUND_WALK_1, volume);
       }
+
+      Sfx::PlaySound(SFX_CARRYING_1, 2.f * volume);
     }
     else if (cycle == 1) {
       if (state.is_on_wood_surface) {
@@ -508,6 +510,8 @@ static void HandleWalkSounds(Tachyon* tachyon, State& state) {
       } else {
         Sfx::PlaySound(SFX_GROUND_WALK_2, volume);
       }
+
+      Sfx::PlaySound(SFX_CARRYING_2, 2.f * volume);
     }
     else if (cycle == 2) {
       if (state.is_on_wood_surface) {
@@ -516,6 +520,12 @@ static void HandleWalkSounds(Tachyon* tachyon, State& state) {
         Sfx::PlaySound(SFX_STONE_WALK_3, volume);
       } else {
         Sfx::PlaySound(SFX_GROUND_WALK_3, volume);
+      }
+
+      if (Tachyon_GetRandom() < 0.5f) {
+        Sfx::PlaySound(SFX_CARRYING_1, 2.f * volume);
+      } else {
+        Sfx::PlaySound(SFX_CARRYING_2, 2.f * volume);
       }
 
       state.walk_cycle = 0;

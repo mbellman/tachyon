@@ -51,8 +51,10 @@ static void UpdateBlanket(Tachyon* tachyon, State& state) {
   blanket.position = state.player.visual_position + base_rotation_matrix * (torso_bone.translation * tVec3f(1500.f));
   blanket.position += base_rotation_matrix * (offset * 1500.f);
 
+  blanket.position.y += 150.f - 300.f * swing_angle;
+
   blanket.scale = tVec3f(1500.f);
-  blanket.rotation = base_rotation * bounce_rotation * swing_rotation * tilt_rotation;
+  blanket.rotation = base_rotation * swing_rotation * tilt_rotation;
 
   blanket.color = 0x2220;
   blanket.material = tVec4f(1.f, 0, 0, 0.5f);
@@ -81,6 +83,8 @@ static void UpdateSatchel(Tachyon* tachyon, State& state) {
 
   satchel.position = state.player.visual_position + rotation_matrix * (torso_bone.translation * tVec3f(1500.f));
   satchel.position += rotation_matrix * (offset * 1500.f);
+
+  satchel.position.y += 200.f * bounce_angle;
 
   satchel.scale = tVec3f(1500.f);
   satchel.rotation = rotation * bounce_rotation * swing_rotation;

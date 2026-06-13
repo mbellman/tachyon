@@ -224,7 +224,7 @@ static float GetAnimationSpeed(Tachyon* tachyon, State& state) {
   float speed_ratio = player_speed / PlayerCharacter::MAX_RUN_SPEED;
   bool is_running = player_speed > max_walk_speed;
 
-  return (is_running ? 12.5f : 13.5f) * sqrtf(speed_ratio);
+  return (is_running ? 12.f : 13.5f) * sqrtf(speed_ratio);
 }
 
 static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
