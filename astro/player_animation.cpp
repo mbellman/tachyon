@@ -81,6 +81,8 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
     (tachyon->left_stick.x != 0.f || tachyon->left_stick.y != 0.f)
   );
 
+  float walking_move_delta_threshold = state.use_slow_motion ? 2.f : 10.f;
+
   // Set the default current animation if not initialized
   if (rig.current_animation == nullptr) {
     rig.current_animation = &animations.player_idle;
@@ -154,7 +156,7 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
       time_since(state.last_off_ladder_time) > 1.5f ||
       is_moving_left_stick()
     ) && (
-      state.previous_move_delta > 10.f ||
+      state.previous_move_delta > walking_move_delta_threshold ||
       is_doing_quick_turn ||
       has_target_and_is_moving
     )

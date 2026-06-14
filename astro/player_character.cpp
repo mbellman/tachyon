@@ -139,7 +139,7 @@ static float SampleCurve(const std::vector<float>& curve, const float t) {
   return Tachyon_Lerpf(a, b, alpha);
 }
 
-static void HandleRunState(Tachyon* tachyon, State& state) {
+static void TrackPlantedFootPositionWhileRunning(Tachyon* tachyon, State& state) {
   auto& rig = state.player.rig;
   float t = fmodf(rig.seek_time, 8.f);
 
@@ -157,7 +157,7 @@ static void HandleRunState(Tachyon* tachyon, State& state) {
     state.player.is_right_foot_planted = false;
   }
 
-  // Landed (left foot)
+  // Planted (left foot)
   if (state.player.is_airborne_in_run_cycle && t > 1.5f && t < 3.f) {
     state.player.is_airborne_in_run_cycle = false;
     state.player.is_left_foot_planted = true;
@@ -169,8 +169,51 @@ static void HandleRunState(Tachyon* tachyon, State& state) {
     state.player.planted_left_foot_position = state.player_position + foot;
   }
 
-  // Landed (right foot)
+  // Planted (right foot)
   if (state.player.is_airborne_in_run_cycle && t > 5.5f && t < 7.f) {
+    state.player.is_airborne_in_run_cycle = false;
+    state.player.is_left_foot_planted = false;
+    state.player.is_right_foot_planted = true;
+
+    tVec3f foot = rig.active_pose.bones[13].translation * 1500.f;
+    foot = state.player.rotation_matrix * foot;
+
+    state.player.planted_right_foot_position = state.player_position + foot;
+  }
+}
+
+static void TrackPlantedFootPositionsWhileWalking(Tachyon* tachyon, State& state) {
+  auto& rig = state.player.rig;
+  float t = fmodf(rig.seek_time, 8.f);
+
+  // Airborne
+  if (!state.player.is_airborne_in_run_cycle && t > 0.f && t < 1.f) {
+    state.player.is_airborne_in_run_cycle = true;
+    state.player.is_left_foot_planted = false;
+    state.player.is_right_foot_planted = false;
+  }
+
+  // Airborne
+  if (!state.player.is_airborne_in_run_cycle && t > 4.f && t < 5.f) {
+    state.player.is_airborne_in_run_cycle = true;
+    state.player.is_left_foot_planted = false;
+    state.player.is_right_foot_planted = false;
+  }
+
+  // Planted (left foot)
+  if (state.player.is_airborne_in_run_cycle && t > 1.f && t < 4.f) {
+    state.player.is_airborne_in_run_cycle = false;
+    state.player.is_left_foot_planted = true;
+    state.player.is_right_foot_planted = false;
+
+    tVec3f foot = rig.active_pose.bones[9].translation * 1500.f;
+    foot = state.player.rotation_matrix * foot;
+
+    state.player.planted_left_foot_position = state.player_position + foot;
+  }
+
+  // Planted (right foot)
+  if (state.player.is_airborne_in_run_cycle && t > 5.f) {
     state.player.is_airborne_in_run_cycle = false;
     state.player.is_left_foot_planted = false;
     state.player.is_right_foot_planted = true;
@@ -260,7 +303,13 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state) {
 
   if (state.player_hp > 0.f) {
     if (PlayerCharacter::IsRunning(tachyon, state)) {
-      HandleRunState(tachyon, state);
+      TrackPlantedFootPositionWhileRunning(tachyon, state);
+    } else if (
+      state.previous_move_delta > 5.f &&
+      !state.is_on_ladder &&
+      !PlayerCharacter::IsClimbingOffLadder(tachyon, state)
+    ) {
+      TrackPlantedFootPositionsWhileWalking(tachyon, state);
     } else {
       state.player.is_left_foot_planted = false;
       state.player.is_right_foot_planted = false;

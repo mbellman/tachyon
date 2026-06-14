@@ -48,7 +48,6 @@ features/fixes:
 * duck sfx
 * fix duck heads turning backwards
 * wand pulse timing
-* walk foot locking
 * jump-off-ledge animation
 * climb over onto ladder animation + reverse
 * tipping-over animation/preventing jumping off very high ledges
@@ -59,8 +58,7 @@ features/fixes:
 * rename castle tower -> castle wall
 * signpost collision
 * more tiny bird variance
-* stone walking sounds
-* walk sounds playing when idle, running against a wall
+* running against a wall
 * water color changes with time
 * light pillars sound when using normal wand raising
 * health bar + potions
