@@ -46,9 +46,11 @@ tutorial:
 features/fixes:
 * river sfx
 * duck sfx
-* disable running on small castle towers (walls)
-* ladder left stick axis bug
-* jump-off animation
+* fix duck heads turning backwards
+* wand pulse timing
+* walk foot locking
+* jump-off-ledge animation
+* climb over onto ladder animation + reverse
 * tipping-over animation/preventing jumping off very high ledges
 * fx haze color/smoothstep points
 * tiny birds looking out for castle towers

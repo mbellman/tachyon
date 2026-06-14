@@ -623,6 +623,17 @@ export default [
   },
 
   {
+    type: "CASTLE_ARCH",
+    list: "castle_arches",
+    meshes: [
+      "castle_arch_placeholder",
+      "castle_arch",
+    ],
+    scale: [ 4000.0 ],
+    color: [ 0.6 ]
+  },
+
+  {
     type: "BIRCH_TREE",
     list: "birch_trees",
     meshes: [

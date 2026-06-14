@@ -21,6 +21,7 @@ namespace astro {
     BIRD_GATE,
     BIRD_SPAWN,
     CAMERA_CONTROLLER,
+    CASTLE_ARCH,
     CASTLE_RAMPART,
     CASTLE_STAIRS,
     CASTLE_STEEPLE,
@@ -95,6 +96,7 @@ namespace astro {
     BIRD_GATE,
     BIRD_SPAWN,
     CAMERA_CONTROLLER,
+    CASTLE_ARCH,
     CASTLE_RAMPART,
     CASTLE_STAIRS,
     CASTLE_STEEPLE,
@@ -314,6 +316,10 @@ namespace astro {
 
       // CAMERA_CONTROLLER
       camera_controller_placeholder,
+
+      // CASTLE_ARCH
+      castle_arch_placeholder,
+      castle_arch,
 
       // CASTLE_RAMPART
       castle_rampart_placeholder,
@@ -606,6 +612,7 @@ namespace astro {
     EntityList bird_gates;
     EntityList bird_spawns;
     EntityList camera_controllers;
+    EntityList castle_arches;
     EntityList castle_ramparts;
     EntityList castle_stairs;
     EntityList castle_steeples;
@@ -731,6 +738,12 @@ namespace astro {
       .name = "Camera Controller",
       .scale = tVec3f(1000.f),
       .tint = tVec3f(0.2f)
+    } },
+
+    { CASTLE_ARCH, {
+      .name = "Castle Arch",
+      .scale = tVec3f(4000.f),
+      .tint = tVec3f(0.6f)
     } },
 
     { CASTLE_RAMPART, {

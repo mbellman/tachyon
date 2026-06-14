@@ -28,6 +28,7 @@ namespace astro {
       reset_instances(meshes.tall_evergreen_shrub);
 
       for (auto& entity : state.tall_evergreen_shrubs) {
+        if (!IsDuringActiveTime(entity, state)) continue;
         if (!IsInRangeX(entity, state, 30000.f)) continue;
         if (!IsInRangeZ(entity, state, 40000.f)) continue;
 
