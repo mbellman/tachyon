@@ -701,8 +701,8 @@ static tVec3f GetNewDuckTargetPosition(State& state, Duck& duck) {
   return new_target_position;
 }
 
-static float GetRotationSpeed(const float time_since_target) {
-  float speed = time_since_target / 1.f;
+static float GetRotationSpeed(const float t) {
+  float speed = t / 1.f;
   if (speed < 0.f) speed = 0.f;
   if (speed > 1.f) speed = 1.f;
   speed *= 0.5f;
@@ -720,18 +720,42 @@ static void HandleDuck(Tachyon* tachyon, State& state, Duck& duck) {
     return;
   }
 
+  // Randomly turn the head
+  {
+    float random_head_turn_cooldown = 1.5f + fmodf(abs(duck.position.x), 1.f);
+
+    if (time_since(duck.last_random_head_turn_time) > random_head_turn_cooldown) {
+      duck.random_head_turn_angle = Tachyon_GetRandom(-1.f, 1.f);
+      duck.last_random_head_turn_time = get_scene_time();
+    }
+  }
+
   // Update rotation/position
   {
     tVec3f target_direction = (duck.target_position - duck.position).unit();
     Quaternion target_rotation = Quaternion::FromDirection(target_direction, tVec3f(0, 1.f, 0));
-    float body_rotation_speed = GetRotationSpeed(time_since(duck.last_target_time) - 0.75f);
-    float head_rotation_speed = GetRotationSpeed(time_since(duck.last_target_time));
+    float time_since_changing_target = time_since(duck.last_target_change_time);
+    float body_rotation_speed = GetRotationSpeed(time_since_changing_target - 0.75f);
+    float head_rotation_speed = GetRotationSpeed(time_since_changing_target);
 
-    if (time_since(duck.last_target_time) > 1.f) {
+    if (time_since_changing_target > 1.f) {
       duck.rotation = Quaternion::slerp(duck.rotation, target_rotation, body_rotation_speed * state.dt);
     }
 
-    duck.head_rotation = Quaternion::slerp(duck.head_rotation, target_rotation, head_rotation_speed * state.dt);
+    if (time_since_changing_target < 3.5f) {
+      // For a short duration after changing the target position,
+      // turn the head in that direction
+      duck.head_rotation = Quaternion::slerp(duck.head_rotation, target_rotation, head_rotation_speed * state.dt);
+    } else {
+      // When free-moving, rotate the head randomly
+      Quaternion random_rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), duck.random_head_turn_angle);
+
+      duck.head_rotation = Quaternion::slerp(
+        duck.head_rotation,
+        target_rotation * random_rotation,
+        7.5f * state.dt
+      );
+    }
 
     // Slow down to 200 so we don't get stuck circling the target position
     duck.current_speed = Tachyon_Lerpf(duck.current_speed, 200.f, 0.25f * state.dt);
@@ -739,7 +763,7 @@ static void HandleDuck(Tachyon* tachyon, State& state, Duck& duck) {
 
     if (tVec3f::distance(duck.position, duck.target_position) < 500.f) {
       duck.target_position = GetNewDuckTargetPosition(state, duck);
-      duck.last_target_time = get_scene_time();
+      duck.last_target_change_time = get_scene_time();
       duck.current_speed = Tachyon_GetRandom(250.f, 750.f);
     }
   }
@@ -883,6 +907,20 @@ static void HandleSwan(Tachyon* tachyon, State& state, Swan& swan) {
     if (tVec3f::distance(swan.position, swan.target_position) < 500.f) {
       swan.target_position = GetNewSwanTargetPosition(state, swan);
       swan.last_target_time = get_scene_time();
+    }
+  }
+
+  // Avoid colliding with other swans
+  {
+    for (auto& other_swan : state.swans) {
+      // Skip self
+      if (other_swan.position == swan.position) continue;
+
+      float distance = tVec3f::distance(swan.position, other_swan.position);
+
+      if (distance < 3500.f) {
+        // @todo
+      }
     }
   }
 

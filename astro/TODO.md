@@ -44,6 +44,8 @@ tutorial:
 * magic gate improvements/collision
 
 features/fixes:
+* river sfx
+* duck sfx
 * disable running on small castle towers (walls)
 * ladder left stick axis bug
 * jump-off animation

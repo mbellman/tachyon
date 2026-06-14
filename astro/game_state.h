@@ -412,8 +412,10 @@ namespace astro {
     tVec3f target_position;
     Quaternion rotation;
     Quaternion head_rotation;
-    float last_target_time = 0.f;
+    float last_target_change_time = 0.f;
+    float last_random_head_turn_time = 0.f;
     float current_speed = 200.f;
+    float random_head_turn_angle = 0.f;
 
     EntityRecord spawn_entity_record;
   };
