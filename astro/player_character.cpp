@@ -305,7 +305,7 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state) {
     if (PlayerCharacter::IsRunning(tachyon, state)) {
       TrackPlantedFootPositionWhileRunning(tachyon, state);
     } else if (
-      state.previous_move_delta > 5.f &&
+      state.previous_move_delta > 0.f &&
       !state.is_on_ladder &&
       !PlayerCharacter::IsClimbingOffLadder(tachyon, state)
     ) {

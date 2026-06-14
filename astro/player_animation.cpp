@@ -151,12 +151,14 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
   }
 
   // Walking
+  // @todo PlayerCharacter::IsWalking()
   else if (
     (
       time_since(state.last_off_ladder_time) > 1.5f ||
       is_moving_left_stick()
     ) && (
       state.previous_move_delta > walking_move_delta_threshold ||
+      is_moving_left_stick() ||
       is_doing_quick_turn ||
       has_target_and_is_moving
     )
