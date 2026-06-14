@@ -9,6 +9,7 @@
 #include "astro/entity_behaviors/BirdSpawn.h"
 #include "astro/entity_behaviors/CameraController.h"
 #include "astro/entity_behaviors/CastleRampart.h"
+#include "astro/entity_behaviors/CastleStairs.h"
 #include "astro/entity_behaviors/CastleSteeple.h"
 #include "astro/entity_behaviors/CastleTower.h"
 #include "astro/entity_behaviors/ChestnutTree.h"
@@ -100,6 +101,7 @@ using namespace astro;
   dispatch_macro(BIRD_SPAWN, BirdSpawn);\
   dispatch_macro(CAMERA_CONTROLLER, CameraController);\
   dispatch_macro(CASTLE_RAMPART, CastleRampart);\
+  dispatch_macro(CASTLE_STAIRS, CastleStairs);\
   dispatch_macro(CASTLE_STEEPLE, CastleSteeple);\
   dispatch_macro(CASTLE_TOWER, CastleTower);\
   dispatch_macro(CHESTNUT_TREE, ChestnutTree);\
@@ -168,6 +170,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
     dispatch_GetEntityContainer(BIRD_SPAWN, state.bird_spawns);
     dispatch_GetEntityContainer(CAMERA_CONTROLLER, state.camera_controllers);
     dispatch_GetEntityContainer(CASTLE_RAMPART, state.castle_ramparts);
+    dispatch_GetEntityContainer(CASTLE_STAIRS, state.castle_stairs);
     dispatch_GetEntityContainer(CASTLE_STEEPLE, state.castle_steeples);
     dispatch_GetEntityContainer(CASTLE_TOWER, state.castle_towers);
     dispatch_GetEntityContainer(CHESTNUT_TREE, state.chestnut_trees);

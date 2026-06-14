@@ -611,6 +611,18 @@ export default [
   },
 
   {
+    type: "CASTLE_STAIRS",
+    list: "castle_stairs",
+    meshes: [
+      "castle_stairs_placeholder",
+      "castle_stairs_platform",
+      "castle_stairs_step"
+    ],
+    scale: [ 4000.0 ],
+    color: [ 0.6 ]
+  },
+
+  {
     type: "BIRCH_TREE",
     list: "birch_trees",
     meshes: [

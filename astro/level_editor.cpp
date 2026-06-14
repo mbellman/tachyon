@@ -1385,17 +1385,16 @@ static void HandleCurrentSelectedScaleActions(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
   auto& placeholder = editor.current_selectable.placeholder;
   float scale_speed = (placeholder.position - camera.position).magnitude() / 4000.f;
+  bool is_scaling_horizontally = abs(tachyon->mouse_delta_x) > abs(tachyon->mouse_delta_y);
 
   if (editor.use_uniform_scaling) {
-    bool is_moving_mouse_horizontally = abs(tachyon->mouse_delta_x) > abs(tachyon->mouse_delta_y);
-
-    if (is_moving_mouse_horizontally) {
+    if (is_scaling_horizontally) {
       placeholder.scale += scale_speed * (float)tachyon->mouse_delta_x;
     } else {
       placeholder.scale -= scale_speed * (float)tachyon->mouse_delta_y;
     }
   }
-  else if (abs(tachyon->mouse_delta_x) > abs(tachyon->mouse_delta_y)) {
+  else if (is_scaling_horizontally) {
     tVec3f camera_left = camera.orientation.getLeftDirection();
 
     // The scale axis must be ascertained over several steps.
@@ -1425,6 +1424,18 @@ static void HandleCurrentSelectedScaleActions(Tachyon* tachyon, State& state) {
   // @temporary
   if (placeholder.mesh_index == state.meshes.flat_ground) {
     placeholder.scale.y = 1.f;
+  }
+
+  // Synchronize CASTLE_STAIRS x/y scale to preserve slope angle
+  if (
+    editor.current_selectable.is_entity &&
+    editor.current_selectable.entity_record.type == CASTLE_STAIRS
+  ) {
+    if (is_scaling_horizontally) {
+      placeholder.scale.y = placeholder.scale.x;
+    } else {
+      placeholder.scale.x = placeholder.scale.y;
+    }
   }
 
   // @optimize We don't need to do this every time the object is moved!
