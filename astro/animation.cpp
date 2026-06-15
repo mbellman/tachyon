@@ -138,24 +138,25 @@ void Animation::UpdatePose(tAnimationRig& rig, const AnimationBlendType blend_ty
     for (size_t i = 0; i < current_animation.evaluated_pose.bones.size(); i++) {
       auto& current_bone = current_animation.evaluated_pose.bones[i];
       auto& next_bone = next_animation.evaluated_pose.bones[i];
-      auto& active_pose_bone = active_pose.bones[i];
+      auto& active_bone = active_pose.bones[i];
       Quaternion blended_rotation = Quaternion::nlerp(current_bone.rotation, next_bone.rotation, blend_alpha);
 
-      // Reset current pose bone translation back to bone space
-      active_pose_bone.translation = current_bone.translation;
+      // Reset active pose bone translation back to bone space
+      active_bone.translation = current_bone.translation;
 
       // Set blended rotation
-      active_pose_bone.rotation = blended_rotation;
+      active_bone.rotation = blended_rotation;
 
       // @todo allow the torso bone name to be specified
-      if (active_pose_bone.name == "Torso") {
-        active_pose_bone.rotation *= Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), rig.torso_tilt_angle);
-        active_pose_bone.rotation *= Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), rig.torso_turn_angle);
+      if (active_bone.name == "Torso") {
+        active_bone.rotation *= Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), rig.torso_tilt_angle);
+        active_bone.rotation *= Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), rig.torso_turn_angle);
+        active_bone.translation *= 1.f - rig.torso_compression;
       }
 
       // @todo allow the head bone name to be specified
-      if (active_pose_bone.name == "Head") {
-        active_pose_bone.rotation *= Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), rig.head_turn_angle);
+      if (active_bone.name == "Head") {
+        active_bone.rotation *= Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), rig.head_turn_angle);
       }
     }
 
@@ -172,9 +173,9 @@ void Animation::UpdatePose(tAnimationRig& rig, const AnimationBlendType blend_ty
       float blend_alpha = SmoothStep(0.f, 0.05f, progress) * (1.f - SmoothStep(0.7f, 1.f, progress));
 
       for (size_t i = 0; i < active_pose.bones.size(); i++) {
-        auto& active_pose_bone = active_pose.bones[i];
+        auto& active_bone = active_pose.bones[i];
         auto& animation = *rig.upper_body_animation;
-        auto& bone_name = active_pose_bone.name;
+        auto& bone_name = active_bone.name;
 
         // Skip lower-body bones
         if (bone_name.starts_with("Pelvis")) continue;
@@ -182,9 +183,9 @@ void Animation::UpdatePose(tAnimationRig& rig, const AnimationBlendType blend_ty
         if (bone_name.starts_with("Shin")) continue;
         if (bone_name.starts_with("Foot")) continue;
 
-        auto& upper_bone = animation.evaluated_pose.bones[active_pose_bone.index];
+        auto& upper_bone = animation.evaluated_pose.bones[active_bone.index];
 
-        active_pose_bone.rotation = Quaternion::nlerp(active_pose_bone.rotation, upper_bone.rotation, blend_alpha);
+        active_bone.rotation = Quaternion::nlerp(active_bone.rotation, upper_bone.rotation, blend_alpha);
       }
     }
   }

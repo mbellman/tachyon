@@ -454,6 +454,7 @@ namespace astro {
     float head_turn_angle = 0.f;
     float torso_turn_angle = 0.f;
     float torso_tilt_angle = 0.f;
+    float torso_compression = 0.f;
     float upper_body_animation_time = 0.f;
   };
 

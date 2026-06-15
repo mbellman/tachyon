@@ -467,7 +467,20 @@ static void HandleTorsoAnimation(Tachyon* tachyon, State& state) {
 
     float running_charge_tilt = 0.1f * sinf(state.player.running_charge * t_PI);
 
-    state.player.rig.torso_tilt_angle = running_charge_tilt;
+    rig.torso_tilt_angle = running_charge_tilt;
+  }
+
+  // Compress when running
+  {
+    float t = fmodf(rig.seek_time + 2.f, 8.f) / 8.f;
+    float alpha = 0.5f + 0.5f * sinf(2.f * t * t_TAU);
+    float compression = 0.5f * alpha;
+
+    if (PlayerCharacter::IsRunning(tachyon, state)) {
+      rig.torso_compression = speed_ratio * compression;
+    } else {
+      rig.torso_compression = Tachyon_Lerpf(rig.torso_compression, 0.f, state.dt);
+    }
   }
 }
 

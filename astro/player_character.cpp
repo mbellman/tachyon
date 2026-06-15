@@ -78,7 +78,7 @@ static void ShowDebugPlayerSkeleton(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
   auto& meshes = state.meshes;
 
-  tVec3f camera_to_player = state.player_position - camera.position;
+  tVec3f camera_to_player = state.player.visual_position - camera.position;
   tVec3f base_position = camera.position + camera_to_player.unit() * 650.f;
 
   reset_instances(meshes.debug_skeleton_bone);
