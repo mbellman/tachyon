@@ -849,6 +849,14 @@ static void RenderSingleSkinnedMesh(Tachyon* tachyon, tOpenGLSkinnedMesh& gl_ski
       SetShaderMat4f(location, bone_matrix);
     }
 
+    GLint flop_control_point_location = glGetUniformLocation(shader.program, "flop_control_point");
+    GLint flop_offset_location = glGetUniformLocation(shader.program, "flop_offset");
+
+    if (flop_control_point_location != -1 && flop_offset_location != -1) {
+      SetShaderVec3f(flop_control_point_location, base_mesh.flop_control_point);
+      SetShaderVec3f(flop_offset_location, base_mesh.flop_offset);
+    }
+
     glBindVertexArray(gl_skinned_mesh.vao);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gl_skinned_mesh.ebo);
 

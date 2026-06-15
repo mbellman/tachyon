@@ -204,6 +204,9 @@ struct tSkinnedMesh {
   bool disabled = false;
   tSkeleton* current_pose = nullptr;
   uint8 shadow_cascade_ceiling = 4;
+
+  tVec3f flop_control_point;
+  tVec3f flop_offset;
 };
 
 struct tPointLight {

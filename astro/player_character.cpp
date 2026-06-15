@@ -25,14 +25,14 @@ constexpr static float AUTO_HOP_DURATION = 0.3f;
 constexpr static float RUN_BOUNCE_HEIGHT = 275.f;
 
 static std::vector<float> run_bounce_curve = {
+  0.1f,
   0.6f,
   0.9f,
   1.f,
   0.8f,
   0.4f,
-  -0.2f,
-  -0.1f,
-  0.1f
+  -0.3f,
+  -0.2f
 };
 
 static inline float GetAngleBetween(const float a1, const float a2) {
@@ -126,19 +126,6 @@ static void HandleAutoHop(State& state) {
   state.player_position.y = Tachyon_Lerpf(state.player_position.y, jump_height, alpha);
 }
 
-// @todo move elsewhere
-static float SampleCurve(const std::vector<float>& curve, const float t) {
-  float seek_time = t * float(curve.size());
-  int start_frame = (int) seek_time;
-  int end_frame = start_frame + 1;
-
-  float a = curve[start_frame % 8];
-  float b = curve[end_frame % 8];
-  float alpha = fmodf(seek_time, 1.f);
-
-  return Tachyon_Lerpf(a, b, alpha);
-}
-
 static void TrackPlantedFootPositionWhileRunning(Tachyon* tachyon, State& state) {
   auto& rig = state.player.rig;
   float t = fmodf(rig.seek_time, 8.f);
@@ -223,6 +210,19 @@ static void TrackPlantedFootPositionsWhileWalking(Tachyon* tachyon, State& state
 
     state.player.planted_right_foot_position = state.player_position + foot;
   }
+}
+
+// @todo move elsewhere
+static float SampleCurve(const std::vector<float>& curve, const float t) {
+  float seek_time = t * float(curve.size());
+  int start_frame = (int) seek_time;
+  int end_frame = start_frame + 1;
+
+  float a = curve[start_frame % 8];
+  float b = curve[end_frame % 8];
+  float alpha = fmodf(seek_time, 1.f);
+
+  return Tachyon_Lerpf(a, b, alpha);
 }
 
 static void HandleRunOscillation(Tachyon* tachyon, State& state) {
@@ -399,6 +399,19 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state) {
     hood.material = tVec4f(1.f, 0, 0, 0.2f);
     hood.shadow_cascade_ceiling = 2;
     hood.current_pose = &active_pose;
+
+    // @todo factor
+    float speed_ratio = state.player_velocity.magnitude() / PlayerCharacter::MAX_RUN_SPEED;
+    float t = fmodf(state.player.rig.seek_time + 3.f, 8.f) / 8.f;
+
+    tVec3f flop = tVec3f(
+      150.f * speed_ratio * cosf(t * t_TAU),
+      250.f * speed_ratio * sinf(2.f * t * t_TAU),
+      0.f
+    );
+
+    hood.flop_control_point = tVec3f(0, 1.3f, -0.5f);
+    hood.flop_offset = state.player.rotation_matrix * flop;
 
     commit(hood);
 

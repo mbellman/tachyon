@@ -5,6 +5,9 @@ uniform vec3 transform_origin;
 uniform mat4 model_matrix;
 uniform uint model_surface;
 
+uniform vec3 flop_control_point;
+uniform vec3 flop_offset;
+
 uniform mat4 bones[32];
 
 layout (location = 0) in vec3 vertexPosition;
@@ -71,6 +74,15 @@ void main() {
 
   // For the vertex transform, start by just applying rotation + scale
   vec3 model_space_position = mat3(model_matrix) * position;
+
+  // Flop
+  {
+    float control_point_distance = distance(vertexPosition, flop_control_point);
+    float control_ratio = control_point_distance / 0.4;
+    float flop_strength = max(0.0, 1.0 - control_ratio);
+
+    model_space_position += flop_offset * flop_strength;
+  }
 
   // Then apply translation, offset by the transform origin
   vec3 translation = vec3(model_matrix[3][0], model_matrix[3][1], model_matrix[3][2]);
