@@ -296,8 +296,6 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state) {
     }
   }
 
-  tVec3f body_scale = tVec3f(1500.f);
-
   player.visual_position = state.player_position;
   player.visual_rotation = player.rotation;
 
@@ -364,6 +362,8 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state) {
     }
   }
 
+  // @todo make this a constant
+  tVec3f body_scale = tVec3f(1500.f);
   auto& active_pose = state.player.rig.active_pose;
 
   // Head

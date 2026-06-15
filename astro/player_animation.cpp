@@ -67,6 +67,15 @@ static bool IsWalkAnimation(tSkeletonAnimation* animation, const State& state) {
   );
 }
 
+static bool IsRunAnimation(tSkeletonAnimation* animation, const State& state) {
+  auto& animations = state.animations;
+
+  return (
+    animation == &animations.player_run ||
+    animation == &animations.player_run_wand
+  );
+}
+
 static void SetActiveAnimation(Tachyon* tachyon, State& state) {
   auto& rig = state.player.rig;
   auto& animations = state.animations;
@@ -286,7 +295,7 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
     !PlayerCharacter::IsRunning(tachyon, state) &&
     IsWalkAnimation(rig.next_animation, state)
   ) {
-    return 4.f;
+    return 3.f;
   }
 
   // Blend faster out of idle
@@ -309,27 +318,20 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
 }
 
 static AnimationBlendType GetAnimationBlendType(State& state) {
+  auto& rig = state.player.rig;
+
   if (HasCurrentWandAnimation(state) != HasNextWandAnimation(state)) {
     return BLEND_EASE_IN_OUT;
   }
 
-  return BLEND_LINEAR;
-}
-
-static void HandleRunningChargeAnimation(Tachyon* tachyon, State& state) {
-  if (PlayerCharacter::IsRunning(tachyon, state)) {
-    state.player.running_charge += state.dt;
-
-    clamp_to_1(state.player.running_charge);
-  } else {
-    if (state.player.running_charge == 1.f) {
-      state.player.running_charge = 0.f;
-    }
-
-    state.player.running_charge *= 1.f - 2.f * state.dt;
+  if (
+    IsRunAnimation(rig.current_animation, state) &&
+    IsWalkAnimation(rig.next_animation, state)
+  ) {
+    return BLEND_EASE_IN_OUT;
   }
 
-  state.player.rig.torso_tilt_angle = 0.1f * sinf(state.player.running_charge * t_PI);
+  return BLEND_LINEAR;
 }
 
 static bool TurnHeadTowardPosition(State& state, const tVec3f& position, const float facing_angle) {
@@ -421,10 +423,19 @@ static void HandleHeadAnimation(Tachyon* tachyon, State& state) {
   }
 }
 
+static float GetRunningStopAlpha(const float running_stop) {
+  if (running_stop < 0.33f) {
+    return Tachyon_EaseInOutf(running_stop * 3.f);
+  } else {
+    return 1.f - Tachyon_EaseInOutf((running_stop - 0.33f) / 0.66f);
+  }
+}
+
 static void HandleTorsoAnimation(Tachyon* tachyon, State& state) {
   auto& rig = state.player.rig;
   float player_speed = state.player_velocity.magnitude();
   float speed_ratio = player_speed / PlayerCharacter::MAX_RUN_SPEED;
+  bool is_running = PlayerCharacter::IsRunning(tachyon, state);
 
   rig.torso_turn_angle = Tachyon_Lerpf(
     rig.torso_turn_angle,
@@ -439,6 +450,25 @@ static void HandleTorsoAnimation(Tachyon* tachyon, State& state) {
   float r = sinf(speed_ratio * t_PI);
 
   rig.torso_turn_angle += 0.025f * r * sinf(alpha);
+
+  // Lean forward when starting a run
+  {
+    if (is_running) {
+      state.player.running_charge += state.dt;
+
+      clamp_to_1(state.player.running_charge);
+    } else {
+      if (state.player.running_charge == 1.f) {
+        state.player.running_charge = 0.f;
+      }
+
+      state.player.running_charge *= 1.f - 2.f * state.dt;
+    }
+
+    float running_charge_tilt = 0.1f * sinf(state.player.running_charge * t_PI);
+
+    state.player.rig.torso_tilt_angle = running_charge_tilt;
+  }
 }
 
 static void HandleLookAroundAnimation(Tachyon* tachyon, State& state, float t, float blend) {
@@ -523,7 +553,6 @@ void PlayerAnimation::Update(Tachyon* tachyon, State& state) {
     }
   }
 
-  HandleRunningChargeAnimation(tachyon, state);
   HandleHeadAnimation(tachyon, state);
   HandleTorsoAnimation(tachyon, state);
   HandleStoppedAfterMovingAnimation(tachyon, state);
