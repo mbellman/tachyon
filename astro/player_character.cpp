@@ -523,7 +523,7 @@ static void UpdateWand(Tachyon* tachyon, State& state) {
 
   tVec3f offset = state.player.rotation_matrix * tVec3f(-1.f, 0, 0);
 
-  wand.scale = state.is_on_ladder || time_since(state.last_off_ladder_time) < 0.4f ? tVec3f(0.f) : tVec3f(800.f);
+  wand.scale = state.is_on_ladder || time_since(state.player.last_climbing_stop_time) < 0.4f ? tVec3f(0.f) : tVec3f(800.f);
   wand.color = tVec3f(1.f, 0.6f, 0.2f);
   wand.material = tVec4f(1.f, 0, 0, 0.4f);
 
@@ -991,14 +991,16 @@ bool PlayerCharacter::IsRunning(Tachyon* tachyon, State& state) {
 }
 
 bool PlayerCharacter::IsClimbingOffLadder(Tachyon* tachyon, State& state) {
-  if (state.last_off_ladder_time == 0.f) {
+  float climbing_stop_time = state.player.last_climbing_stop_time;
+
+  if (climbing_stop_time == 0.f) {
     return false;
   }
 
   if (state.did_climb_down) {
-    return time_since(state.last_off_ladder_time) < 0.8f;
+    return time_since(climbing_stop_time) < 0.8f;
   } else {
-    return time_since(state.last_off_ladder_time) < 1.6f;
+    return time_since(climbing_stop_time) < 1.6f;
   }
 }
 

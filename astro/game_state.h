@@ -525,7 +525,6 @@ namespace astro {
       float last_climbing_time = 0.f;
       float last_climbing_start_time = 0.f;
       float last_climbing_stop_time = 0.f;
-      float climb_up_y = 0.f;
       tVec3f climb_up_start_position;
 
       bool is_looking_at_something = false;
@@ -555,7 +554,6 @@ namespace astro {
     float last_wand_bounce_time = 0.f;
     float last_auto_hop_time = 0.f;
     float last_ledge_jump_time = 0.f;
-    float last_off_ladder_time = 0.f;
     float last_death_time = 0.f;
     float last_spawn_time = 0.f;
     float last_dodge_time = 0.f;

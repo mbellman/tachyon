@@ -76,6 +76,20 @@ static bool IsRunAnimation(tSkeletonAnimation* animation, const State& state) {
   );
 }
 
+static bool ShouldPlayClimbingOffAnimation(Tachyon* tachyon, State& state) {
+  float climbing_stop_time = state.player.last_climbing_stop_time;
+
+  if (climbing_stop_time == 0.f) {
+    return false;
+  }
+
+  if (state.did_climb_down) {
+    return time_since(climbing_stop_time) < 0.5f;
+  } else {
+    return time_since(climbing_stop_time) < 1.2f;
+  }
+}
+
 static void SetActiveAnimation(Tachyon* tachyon, State& state) {
   auto& rig = state.player.rig;
   auto& animations = state.animations;
@@ -111,7 +125,7 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
   }
 
   // Climbing off
-  else if (PlayerCharacter::IsClimbingOffLadder(tachyon, state)) {
+  else if (ShouldPlayClimbingOffAnimation(tachyon, state)) {
     if (state.did_climb_down) {
       Animation::StartNextAnimation(rig, &animations.player_climb_down);
     } else {
@@ -160,7 +174,7 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
   // @todo PlayerCharacter::IsWalking()
   else if (
     (
-      time_since(state.last_off_ladder_time) > 1.5f ||
+      !PlayerCharacter::IsClimbingOffLadder(tachyon, state) ||
       is_moving_left_stick()
     ) && (
       state.previous_move_delta > walking_move_delta_threshold ||
@@ -280,8 +294,8 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
   // foot shuffling behavior.
   if (
     !state.is_on_ladder &&
-    state.last_off_ladder_time != 0.f &&
-    time_since(state.last_off_ladder_time) < 1.5f &&
+    state.player.last_climbing_stop_time != 0.f &&
+    time_since(state.player.last_climbing_stop_time) < 1.5f &&
     state.did_climb_down
   ) {
     return 2.f;

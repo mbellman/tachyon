@@ -329,7 +329,6 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
         state.player.last_climbing_start_time = scene_time;
       }
 
-
       float time_since_starting_climb = time_since(state.player.last_climbing_start_time);
 
       // @todo handle climbing off over a wall
@@ -348,19 +347,10 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
       tVec3f climbing_position_xz = UnitEntityToWorldPosition(entity, tVec3f(0.95f, 0, 0)).xz();
 
       if (did_climb_off_top) {
-        tVec3f off_direction = (entity.position.xz() - climbing_position_xz).unit();
-
-        // @todo change back to 2000.f
-        // state.player_velocity = off_direction * 2000.f;
-        // state.player_velocity.y = 3800.f;
         state.player_velocity = tVec3f(0.f);
         state.player.last_climbing_stop_time = scene_time;
         state.did_climb_down = false;
         state.player.climb_up_start_position = state.player_position;
-        state.player.climb_up_y = state.player_position.y;
-
-        // @todo remove
-        state.last_off_ladder_time = scene_time;
       }
       else if (did_climb_off_bottom) {
         tVec3f off_direction = (climbing_position_xz - entity.position.xz()).unit();
@@ -368,9 +358,6 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
         state.player_velocity = off_direction * 1000.f;
         state.player.last_climbing_stop_time = scene_time;
         state.did_climb_down = true;
-
-        // @todo remove
-        state.last_off_ladder_time = scene_time;
       }
       else {
         float alpha = 5.f * state.dt;
@@ -804,14 +791,17 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
     PlayerCharacter::IsClimbingOffLadder(tachyon, state) &&
     !state.did_climb_down
   ) {
-    // When we climb up off a ladder, procedurally handle height updates
-    // to match the CLIMB_UP animation
-    //
-    // @todo factor this
+    // @todo move this into PlayerCharacter::
     tVec3f root_motion = Animation::GetRootMotion(state.player.rig);
-    tVec3f root_offset = state.player.rotation_matrix * (root_motion * 2250.f);
+    tVec3f root_offset = state.player.rotation_matrix * (root_motion * 2420.f);
 
-    state.player_position = state.player.climb_up_start_position + root_offset;
+    if (
+      state.player.rig.current_animation == &state.animations.player_climb_up &&
+      state.player.rig.next_animation == &state.animations.player_climb_up
+    ) {
+      state.player_position = state.player.climb_up_start_position + root_offset;
+    }
+
     state.current_ground_y = state.player_position.y;
 
     return;

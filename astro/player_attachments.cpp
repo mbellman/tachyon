@@ -3,14 +3,14 @@
 
 using namespace astro;
 
-static float GetSwingIntensity(Tachyon* tachyon, State& state, const float off_ladder_duration) {
+static float GetSwingIntensity(Tachyon* tachyon, State& state, const float climbing_stop_duration) {
   float swing_intensity = state.player_velocity.magnitude() / PlayerCharacter::MAX_RUN_SPEED;
 
   if (
-    state.last_off_ladder_time != 0.f &&
-    time_since(state.last_off_ladder_time) < off_ladder_duration
+    state.player.last_climbing_stop_time != 0.f &&
+    time_since(state.player.last_climbing_stop_time) < climbing_stop_duration
   ) {
-    float alpha = time_since(state.last_off_ladder_time) / off_ladder_duration;
+    float alpha = time_since(state.player.last_climbing_stop_time) / climbing_stop_duration;
 
     swing_intensity += 1.f - alpha;
   }
