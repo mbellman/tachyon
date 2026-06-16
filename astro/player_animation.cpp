@@ -111,10 +111,7 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
   }
 
   // Climbing off
-  else if (
-    state.last_off_ladder_time != 0.f &&
-    time_since(state.last_off_ladder_time) < 1.5f
-  ) {
+  else if (PlayerCharacter::IsClimbingOffLadder(tachyon, state)) {
     if (state.did_climb_down) {
       Animation::StartNextAnimation(rig, &animations.player_climb_down);
     } else {

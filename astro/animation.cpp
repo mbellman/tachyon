@@ -293,8 +293,10 @@ void Animation::AwaitNextAnimation(tAnimationRig& rig, tSkeletonAnimation* skele
 }
 
 tVec3f Animation::GetRootMotion(tAnimationRig& rig) {
+  tVec3f initial_root = rig.current_animation->frames[0].bones[17].translation;
   tVec3f current_root = GetSkeletonRootMotion(*rig.current_animation, rig.seek_time);
   tVec3f next_root = GetSkeletonRootMotion(*rig.next_animation, rig.seek_time);
+  tVec3f blended_root = tVec3f::lerp(current_root, next_root, rig.next_animation_blend_alpha);
 
-  return tVec3f::lerp(current_root, next_root, rig.next_animation_blend_alpha);
+  return blended_root - initial_root;
 }

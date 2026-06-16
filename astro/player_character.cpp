@@ -991,10 +991,15 @@ bool PlayerCharacter::IsRunning(Tachyon* tachyon, State& state) {
 }
 
 bool PlayerCharacter::IsClimbingOffLadder(Tachyon* tachyon, State& state) {
-  return (
-    state.last_off_ladder_time != 0.f &&
-    time_since(state.last_off_ladder_time) < 1.6f
-  );
+  if (state.last_off_ladder_time == 0.f) {
+    return false;
+  }
+
+  if (state.did_climb_down) {
+    return time_since(state.last_off_ladder_time) < 0.8f;
+  } else {
+    return time_since(state.last_off_ladder_time) < 1.6f;
+  }
 }
 
 float PlayerCharacter::GetHumanEnemyAlertedSpeed(const State& state) {
