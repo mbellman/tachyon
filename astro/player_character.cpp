@@ -993,7 +993,7 @@ bool PlayerCharacter::IsRunning(Tachyon* tachyon, State& state) {
 bool PlayerCharacter::IsClimbingOffLadder(Tachyon* tachyon, State& state) {
   return (
     state.last_off_ladder_time != 0.f &&
-    time_since(state.last_off_ladder_time) < 0.8f
+    time_since(state.last_off_ladder_time) < 1.6f
   );
 }
 

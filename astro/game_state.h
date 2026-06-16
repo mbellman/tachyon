@@ -525,6 +525,8 @@ namespace astro {
       float last_climbing_time = 0.f;
       float last_climbing_start_time = 0.f;
       float last_climbing_stop_time = 0.f;
+      float climb_up_y = 0.f;
+      tVec3f climb_up_start_position;
 
       bool is_looking_at_something = false;
       bool is_airborne_in_run_cycle = false;

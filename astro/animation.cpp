@@ -74,6 +74,52 @@ static void EvaluateAnimation(tSkeletonAnimation& animation, const float seek_ti
   }
 }
 
+// @todo refactor with EvaluateAnimation()
+static tVec3f GetSkeletonRootMotion(tSkeletonAnimation& animation, const float seek_time) {
+  float blend_alpha = fmodf(seek_time, 1.f);
+  float t = seek_time;
+
+  if (animation.frames.size() == 2) {
+    // Special treatment for 2-frame animations: alternate between
+    // both frames using an ease-in-out transition
+    blend_alpha = Tachyon_EaseInOutf(blend_alpha);
+  } else {
+    // Determine seek time / max time ratio
+    float max_time = GetMaxSeekTime(animation);
+    t = fmodf(seek_time, max_time);
+    t = t / max_time;
+
+    // Allow for smoother time curves as opposed to tracking progress linearly
+    float smoothing = 0.2f;
+
+    if (t < 0.5f) t = 0.5f * Curve(t * 2.f, smoothing);
+    else          t = 0.5f + 0.5f * Curve((t - 0.5f) * 2.f, smoothing);
+
+    // Scale back up to the max time to resolve our adjusted seek time
+    t *= max_time;
+
+    // Determine blend between the current/next keyframes
+    blend_alpha = fmodf(t, 1.f);
+  }
+
+  int32 current_frame_index = int(t) % animation.frames.size();
+  int32 next_frame_index = (current_frame_index + 1) % animation.frames.size();
+
+  auto& current_frame = animation.frames[current_frame_index];
+  auto& next_frame = animation.frames[next_frame_index];
+
+  for (size_t i = 0; i < current_frame.bones.size(); i++) {
+    auto& current_bone = current_frame.bones[i];
+    auto& next_bone = next_frame.bones[i];
+
+    if (current_bone.name == "Root") {
+      return tVec3f::lerp(current_bone.translation, next_bone.translation, blend_alpha);
+    }
+  }
+
+  return tVec3f(0.f);
+}
+
 void Animation::AccumulateTime(tAnimationRig& rig, const float animation_speed, const float blend_rate, const float dt) {
   rig.seek_time += animation_speed * dt;
 
@@ -244,4 +290,11 @@ void Animation::AwaitNextAnimation(tAnimationRig& rig, tSkeletonAnimation* skele
   }
 
   Animation::SetNextAnimation(rig, skeleton_animation);
+}
+
+tVec3f Animation::GetRootMotion(tAnimationRig& rig) {
+  tVec3f current_root = GetSkeletonRootMotion(*rig.current_animation, rig.seek_time);
+  tVec3f next_root = GetSkeletonRootMotion(*rig.next_animation, rig.seek_time);
+
+  return tVec3f::lerp(current_root, next_root, rig.next_animation_blend_alpha);
 }

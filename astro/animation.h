@@ -16,5 +16,6 @@ namespace astro {
     void SetNextAnimation(tAnimationRig& rig, tSkeletonAnimation* skeleton_animation);
     void StartNextAnimation(tAnimationRig& rig, tSkeletonAnimation* skeleton_animation);
     void AwaitNextAnimation(tAnimationRig& rig, tSkeletonAnimation* skeleton_animation);
+    tVec3f GetRootMotion(tAnimationRig& rig);
   }
 }

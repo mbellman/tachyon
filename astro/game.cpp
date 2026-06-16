@@ -1014,7 +1014,8 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
       GltfLoader("./astro/3d_skeleton_animations/player_climb_up/climb_up_5.gltf").skeleton,
       GltfLoader("./astro/3d_skeleton_animations/player_climb_up/climb_up_6.gltf").skeleton,
       GltfLoader("./astro/3d_skeleton_animations/player_climb_up/climb_up_7.gltf").skeleton,
-      GltfLoader("./astro/3d_skeleton_animations/player_climb_up/climb_up_8.gltf").skeleton
+      GltfLoader("./astro/3d_skeleton_animations/player_climb_up/climb_up_8.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_climb_up/climb_up_9.gltf").skeleton
     };
 
     state.animations.player_climb_up.name = "PLAYER_CLIMB_UP";

@@ -113,7 +113,7 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
   // Climbing off
   else if (
     state.last_off_ladder_time != 0.f &&
-    time_since(state.last_off_ladder_time) < 0.5f
+    time_since(state.last_off_ladder_time) < 1.5f
   ) {
     if (state.did_climb_down) {
       Animation::StartNextAnimation(rig, &animations.player_climb_down);
@@ -229,7 +229,7 @@ static float GetAnimationSpeed(Tachyon* tachyon, State& state) {
   }
 
   if (PlayerCharacter::IsClimbingOffLadder(tachyon, state)) {
-    return state.did_climb_down ? 7.f : 8.f;
+    return state.did_climb_down ? 7.f : 5.f;
   }
 
   float player_speed = state.player_velocity.magnitude();

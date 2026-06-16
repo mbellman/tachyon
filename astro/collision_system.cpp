@@ -4,6 +4,9 @@
 #include "astro/player_character.h"
 #include "astro/entity_behaviors/behavior.h"
 
+// @temporary
+#include "astro/animation.h"
+
 using namespace astro;
 
 // @todo move to PlayerCharacter.h
@@ -348,10 +351,13 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
         tVec3f off_direction = (entity.position.xz() - climbing_position_xz).unit();
 
         // @todo change back to 2000.f
-        state.player_velocity = off_direction * 5000.f;
-        state.player_velocity.y = 3800.f;
+        // state.player_velocity = off_direction * 2000.f;
+        // state.player_velocity.y = 3800.f;
+        state.player_velocity = tVec3f(0.f);
         state.player.last_climbing_stop_time = scene_time;
         state.did_climb_down = false;
+        state.player.climb_up_start_position = state.player_position;
+        state.player.climb_up_y = state.player_position.y;
 
         // @todo remove
         state.last_off_ladder_time = scene_time;
@@ -794,6 +800,23 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   state.did_resolve_radius_collision = false;
   state.did_resolve_plane_collision = false;
 
+  if (
+    PlayerCharacter::IsClimbingOffLadder(tachyon, state) &&
+    !state.did_climb_down
+  ) {
+    // When we climb up off a ladder, procedurally handle height updates
+    // to match the CLIMB_UP animation
+    //
+    // @todo factor this
+    tVec3f root_motion = Animation::GetRootMotion(state.player.rig);
+    tVec3f root_offset = state.player.rotation_matrix * (root_motion * 2250.f);
+
+    state.player_position = state.player.climb_up_start_position + root_offset;
+    state.current_ground_y = state.player_position.y;
+
+    return;
+  }
+
   // Resolve collisions with climbable entities before anything else
   HandleLadderCollisions(tachyon, state);
 
@@ -990,6 +1013,10 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
       state.did_jump_off_ledge = false;
     }
 
+    if (state.player_position.y < state.current_ground_y) {
+      state.player_position.y = state.current_ground_y;
+    }
+
     if (
       time_since(state.last_auto_hop_time) > 0.3f &&
       time_since(state.last_ledge_jump_time) > 0.2f
@@ -1004,7 +1031,7 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
         state.current_ground_y - state.player_position.y > 200.f &&
         state.current_ground_y - state.player_position.y < 900.f
       ) {
-        PlayerCharacter::AutoHop(tachyon, state);
+        // PlayerCharacter::AutoHop(tachyon, state);
       }
       else if (
         state.player_position.y < state.current_ground_y ||
