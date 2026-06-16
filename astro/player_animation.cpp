@@ -504,13 +504,16 @@ static void HandleLookAroundAnimation(Tachyon* tachyon, State& state, float t, f
 }
 
 static void HandleStoppedAfterMovingAnimation(Tachyon* tachyon, State& state) {
+  // Do nothing if:
   if (
-    // Do nothing if we're looking at something
+    // We're looking at something
     state.player.is_looking_at_something ||
-    // Do nothing if we haven't manually stopped yet
+    // We haven't manually stopped yet
     state.player.last_stopped_moving_time == 0.f ||
-    // Do nothing if we're moving
-    state.previous_move_delta > 0.f
+    // We're moving
+    state.previous_move_delta > 0.f ||
+    // We're on a ladder, or climbing off
+    state.is_on_ladder || PlayerCharacter::IsClimbingOffLadder(tachyon, state)
   ) {
     return;
   }
