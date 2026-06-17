@@ -797,15 +797,13 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
       state.player.rig.current_animation == &state.animations.player_climb_up &&
       state.player.rig.next_animation == &state.animations.player_climb_up
     ) {
-      tVec3f root_motion = Animation::GetRootMotion(state.player.rig);
-      root_motion *= 1500.f;
-      // @hack @todo fix animation y delta
-      root_motion.y *= 1.6f;
+      tVec3f root_motion = Animation::GetRootMotion(state.player.rig) * 1500.f;
       tVec3f root_offset = state.player.rotation_matrix * root_motion;
 
       state.player_position = state.player.climb_up_start_position + root_offset;
     }
 
+    state.player_idle_stance = 2;
     state.current_ground_y = state.player_position.y;
 
     return;

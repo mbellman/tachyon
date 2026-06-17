@@ -86,8 +86,39 @@ static bool ShouldPlayClimbingOffAnimation(Tachyon* tachyon, State& state) {
   if (state.did_climb_down) {
     return time_since(climbing_stop_time) < 0.5f;
   } else {
-    return time_since(climbing_stop_time) < 1.2f;
+    return time_since(climbing_stop_time) < 1.8f;
   }
+}
+
+static bool ShouldPlayWalkAnimation(Tachyon* tachyon, State& state) {
+  if (PlayerCharacter::IsClimbingOffLadder(tachyon, state)) {
+    return false;
+  }
+
+  if (is_moving_left_stick()) {
+    return true;
+  }
+
+  float walking_move_delta_threshold = state.use_slow_motion ? 2.f : 10.f;
+
+  if (
+    state.previous_move_delta > walking_move_delta_threshold &&
+    state.player.rig.current_animation != &state.animations.player_climb_up
+  ) {
+    return true;
+  }
+
+  bool is_doing_quick_turn = (
+    state.last_quick_turn_time != 0.f &&
+    time_since(state.last_quick_turn_time) < 0.3f
+  );
+
+  bool has_target_and_is_moving = (
+    state.has_target &&
+    (tachyon->left_stick.x != 0.f || tachyon->left_stick.y != 0.f)
+  );
+
+  return is_doing_quick_turn || has_target_and_is_moving;
 }
 
 static void SetActiveAnimation(Tachyon* tachyon, State& state) {
@@ -171,18 +202,7 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
   }
 
   // Walking
-  // @todo PlayerCharacter::IsWalking()
-  else if (
-    (
-      !PlayerCharacter::IsClimbingOffLadder(tachyon, state) ||
-      is_moving_left_stick()
-    ) && (
-      state.previous_move_delta > walking_move_delta_threshold ||
-      is_moving_left_stick() ||
-      is_doing_quick_turn ||
-      has_target_and_is_moving
-    )
-  ) {
+  else if (ShouldPlayWalkAnimation(tachyon, state)) {
     if (state.is_holding_up_wand) {
       Animation::AwaitNextAnimation(rig, &animations.player_walk_wand);
     } else {
@@ -240,7 +260,7 @@ static float GetAnimationSpeed(Tachyon* tachyon, State& state) {
   }
 
   if (PlayerCharacter::IsClimbingOffLadder(tachyon, state)) {
-    return state.did_climb_down ? 7.f : 5.f;
+    return 7.f;
   }
 
   float player_speed = state.player_velocity.magnitude();
@@ -292,10 +312,11 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
   // off a climbable wall. Use a slightly slower blend so we
   // transition into idle more naturally, mitigating awkward
   // foot shuffling behavior.
+  // @todo check animation, rather than climbing stop time
   if (
     !state.is_on_ladder &&
     state.player.last_climbing_stop_time != 0.f &&
-    time_since(state.player.last_climbing_stop_time) < 1.5f &&
+    time_since(state.player.last_climbing_stop_time) < 2.f &&
     state.did_climb_down
   ) {
     return 2.f;

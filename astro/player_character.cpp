@@ -1000,7 +1000,7 @@ bool PlayerCharacter::IsClimbingOffLadder(Tachyon* tachyon, State& state) {
   if (state.did_climb_down) {
     return time_since(climbing_stop_time) < 0.8f;
   } else {
-    return time_since(climbing_stop_time) < 1.6f;
+    return time_since(climbing_stop_time) < 2.f;
   }
 }
 
