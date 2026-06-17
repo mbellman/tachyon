@@ -10,7 +10,6 @@ namespace astro {
     const static float MAX_WALK_SPEED = 550.f;
 
     void UpdatePlayer(Tachyon* tachyon, State& state);
-    void AutoHop(Tachyon* tachyon, State& state);
     bool CanTakeDamage(Tachyon* tachyon, const State& state);
     bool IsRunning(Tachyon* tachyon, State& state);
     bool IsClimbingOffLadder(Tachyon* tachyon, State& state);

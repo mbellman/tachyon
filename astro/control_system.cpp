@@ -70,6 +70,7 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
   }
 
   // Ladder controls
+  // @todo factor
   {
     if (state.is_on_ladder) {
       float climb_direction = (
@@ -86,10 +87,7 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
         speed = 8000.f;
       }
 
-      if (
-        state.is_starting_climb_down ||
-        time_since(state.player.last_climbing_start_time) < 0.5f
-      ) {
+      if (state.is_starting_climb_down) {
         speed = 0.f;
       }
 

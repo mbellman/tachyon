@@ -86,7 +86,7 @@ static bool ShouldPlayClimbingOffAnimation(Tachyon* tachyon, State& state) {
   if (state.did_climb_down) {
     return time_since(climbing_stop_time) < 0.5f;
   } else {
-    return time_since(climbing_stop_time) < 1.8f;
+    return time_since(climbing_stop_time) < 1.5f;
   }
 }
 
@@ -256,11 +256,13 @@ static float GetAnimationSpeed(Tachyon* tachyon, State& state) {
   if (is_idle) return 0.8f;
 
   if (state.is_on_ladder) {
-    return is_moving_left_stick() || state.is_starting_climb_down ? 8.f : 0.f;
+    if (state.is_starting_climb_down) return 8.f;
+    if (is_moving_left_stick()) return 10.f;
+    return 0.f;
   }
 
   if (PlayerCharacter::IsClimbingOffLadder(tachyon, state)) {
-    return 7.f;
+    return state.did_climb_down ? 7.f : 8.5f;
   }
 
   float player_speed = state.player_velocity.magnitude();

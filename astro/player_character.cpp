@@ -118,14 +118,6 @@ static void ShowDebugPlayerSkeleton(Tachyon* tachyon, State& state) {
   }
 }
 
-// @todo replace with auto-jump actions
-static void HandleAutoHop(State& state) {
-  float jump_height = state.current_ground_y + 500.f;
-  float alpha = 10.f * state.dt;
-
-  state.player_position.y = Tachyon_Lerpf(state.player_position.y, jump_height, alpha);
-}
-
 static void TrackPlantedFootPositionWhileRunning(Tachyon* tachyon, State& state) {
   auto& rig = state.player.rig;
   float t = fmodf(rig.seek_time, 8.f);
@@ -272,16 +264,6 @@ static void HandleCombatJumpMotions(Tachyon* tachyon, State& state) {
 static void UpdatePlayerModel(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
   auto& player = state.player;
-
-  // Auto-hop actions
-  {
-    if (
-      state.last_auto_hop_time != 0.f &&
-      time_since(state.last_auto_hop_time) < AUTO_HOP_DURATION
-    ) {
-      HandleAutoHop(state);
-    }
-  }
 
   // Ledge jump actions
   {
@@ -523,7 +505,7 @@ static void UpdateWand(Tachyon* tachyon, State& state) {
 
   tVec3f offset = state.player.rotation_matrix * tVec3f(-1.f, 0, 0);
 
-  wand.scale = state.is_on_ladder || time_since(state.player.last_climbing_stop_time) < 0.4f ? tVec3f(0.f) : tVec3f(800.f);
+  wand.scale = state.is_on_ladder || time_since(state.player.last_climbing_stop_time) < 0.5f ? tVec3f(0.f) : tVec3f(800.f);
   wand.color = tVec3f(1.f, 0.6f, 0.2f);
   wand.material = tVec4f(1.f, 0, 0, 0.4f);
 
@@ -966,12 +948,6 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
   }
 }
 
-void PlayerCharacter::AutoHop(Tachyon* tachyon, State& state) {
-  if (time_since(state.last_auto_hop_time) > AUTO_HOP_DURATION) {
-    state.last_auto_hop_time = get_scene_time();
-  }
-}
-
 bool PlayerCharacter::CanTakeDamage(Tachyon* tachyon, const State& state) {
   return (
     time_since(state.last_damage_time) > 1.5f &&
@@ -1000,7 +976,7 @@ bool PlayerCharacter::IsClimbingOffLadder(Tachyon* tachyon, State& state) {
   if (state.did_climb_down) {
     return time_since(climbing_stop_time) < 0.8f;
   } else {
-    return time_since(climbing_stop_time) < 2.f;
+    return time_since(climbing_stop_time) < 1.6f;
   }
 }
 

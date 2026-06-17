@@ -355,6 +355,7 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
       else if (did_climb_off_bottom) {
         tVec3f off_direction = (climbing_position_xz - entity.position.xz()).unit();
 
+        state.player_position.y = climbing_bottom_y;
         state.player_velocity = off_direction * 1000.f;
         state.player.last_climbing_stop_time = scene_time;
         state.did_climb_down = true;
@@ -668,11 +669,6 @@ static void HandleWaterWheelCollisions(Tachyon* tachyon, State& state) {
         float target_y = entity.position.y + entity.scale.y * 0.1f + PLAYER_HEIGHT;
         float player_y = target_y;// Tachyon_Lerpf(base_y, target_y, height_alpha);
 
-        // @temporary
-        if (abs(state.previous_player_positions[0].y) < 0.01f) {
-          PlayerCharacter::AutoHop(tachyon, state);
-        }
-
         AllowPlayerMovement(state, player_y, wheel_plane);
 
         state.is_on_solid_platform = true;
@@ -687,11 +683,6 @@ static void HandleWaterWheelCollisions(Tachyon* tachyon, State& state) {
 
     if (CollisionSystem::IsPointOnPlane(player_xz, platform_plane)) {
       float player_y = 0.f;// entity.position.y - entity.scale.y * 0.1f + PLAYER_HEIGHT;
-
-      // @temporary
-      if (state.current_ground_y > player_y) {
-        PlayerCharacter::AutoHop(tachyon, state);
-      }
 
       AllowPlayerMovement(state, player_y, platform_plane);
 
@@ -1006,32 +997,21 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
     }
 
     if (state.player_position.y < state.current_ground_y) {
-      state.player_position.y = state.current_ground_y;
+      state.player_position.y = Tachyon_Lerpf(
+        state.player_position.y,
+        state.current_ground_y,
+        2.f * state.dt
+      );
     }
 
     if (
-      time_since(state.last_auto_hop_time) > 0.3f &&
-      time_since(state.last_ledge_jump_time) > 0.2f
+      time_since(state.last_ledge_jump_time) > 0.2f &&
+      state.player_position.y > state.current_ground_y + 100.f
     ) {
-      if (state.player_position.y - state.current_ground_y > 100.f) {
-        state.fall_velocity += 50000.f * state.dt;
-      }
-
+      state.fall_velocity += 50000.f * state.dt;
       state.player_position.y -= state.fall_velocity * state.dt;
 
-      if (
-        state.current_ground_y - state.player_position.y > 200.f &&
-        state.current_ground_y - state.player_position.y < 900.f
-      ) {
-        // PlayerCharacter::AutoHop(tachyon, state);
-      }
-      else if (
-        state.player_position.y < state.current_ground_y ||
-        (
-          state.player_position.y > state.current_ground_y &&
-          state.player_position.y - state.current_ground_y < 100.f
-        )
-      ) {
+      if (state.player_position.y < state.current_ground_y) {
         state.player_position.y = state.current_ground_y;
         state.fall_velocity = 0.f;
       }
