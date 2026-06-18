@@ -351,6 +351,7 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
         state.player.last_climbing_stop_time = scene_time;
         state.did_climb_down = false;
         state.player.climb_up_start_position = state.player_position;
+        state.is_on_ladder = false;
       }
       else if (did_climb_off_bottom) {
         tVec3f off_direction = (climbing_position_xz - entity.position.xz()).unit();
@@ -359,6 +360,13 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
         state.player_velocity = off_direction * 1000.f;
         state.player.last_climbing_stop_time = scene_time;
         state.did_climb_down = true;
+        state.is_on_ladder = false;
+
+        // Tentatively assume the ground is some distance below us,
+        // and reset our fall velocity. As soon as we start falling
+        // the actual ground y will be updated.
+        state.current_ground_y = state.player_position.y - 1000.f;
+        state.fall_velocity = 0.f;
       }
       else {
         float alpha = 5.f * state.dt;

@@ -108,7 +108,7 @@ void main() {
     world_space_position.x += drift_factor * sin(alpha);
     world_space_position.z += drift_factor * cos(1.5 * alpha);
 
-    world_space_position += GetFoliageCollisionDisplacement(world_space_position, translation);
+    world_space_position += 1.5 * GetFoliageCollisionDisplacement(world_space_position, translation);
   }
 
   // @todo handle foliage behavior in shadow map pass

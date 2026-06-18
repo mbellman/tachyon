@@ -541,6 +541,16 @@ static void HandleStoppedAfterMovingAnimation(Tachyon* tachyon, State& state) {
     return;
   }
 
+  float did_just_climb_down = (
+    time_since(state.player.last_climbing_time) < 4.f &&
+    state.did_climb_down
+  );
+
+  // Don't perform stopped moving animation after climbing down off something
+  if (did_just_climb_down) {
+    return;
+  }
+
   float time_since_stopped_moving = time_since(state.player.last_stopped_moving_time);
 
   // When stopping, trigger look-around behavior for a few seconds
