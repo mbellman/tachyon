@@ -962,6 +962,7 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   }
 
   // Climbing-off behavior
+  // @todo factor
   {
     if (PlayerCharacter::IsClimbingOffLadder(tachyon, state)) {
       if (state.did_climb_down) {
@@ -979,7 +980,7 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
           state.fall_velocity = 0.f;
         }
       } else {
-        // Climbing up; no falling involved
+        // Climbing up; zero out fall velocity to yield to animation control
         state.fall_velocity = 0.f;
       }
 
@@ -989,22 +990,20 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
     }
   }
 
-  // Falling behavior
+  // Landing/falling/grounding behavior
   // @todo factor
   {
-    if (
-      state.player_position.y > state.current_ground_y + 1000.f &&
-      !state.did_jump_off_ledge
-    ) {
+    float height_above_ground = state.player_position.y - state.current_ground_y;
+    float distance_below_ground = -height_above_ground;
+
+    // Handle walking off higher ground levels
+    if (height_above_ground > 500.f && !state.did_jump_off_ledge) {
       state.did_jump_off_ledge = true;
       state.last_ledge_jump_time = get_scene_time();
     }
 
-    if (state.player_position.y == state.current_ground_y) {
-      state.did_jump_off_ledge = false;
-    }
-
-    if (state.player_position.y < state.current_ground_y) {
+    // If we're slightly below ground level, blend smoothly to the correct y position
+    if (distance_below_ground > 0.f && distance_below_ground < 200.f) {
       state.player_position.y = Tachyon_Lerpf(
         state.player_position.y,
         state.current_ground_y,
@@ -1012,9 +1011,27 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
       );
     }
 
+    // Snap our y position if:
     if (
+      // We're moving
+      state.previous_move_delta > 5.f && (
+        // We're on a solid platform (distinct from normal ground)
+        state.is_on_solid_platform ||
+        // We're far enough below ground level
+        distance_below_ground > 200.f ||
+        // We're within a small threshold of ground level, snap our y position
+        abs(height_above_ground) < 10.f
+      )
+    ) {
+      state.player_position.y = state.current_ground_y;
+      state.fall_velocity = 0.f;
+    }
+
+    // Falling behavior
+    if (
+      state.last_ledge_jump_time != 0.f &&
       time_since(state.last_ledge_jump_time) > 0.2f &&
-      state.player_position.y > state.current_ground_y + 100.f
+      height_above_ground > 0.f
     ) {
       state.fall_velocity += 50000.f * state.dt;
       state.player_position.y -= state.fall_velocity * state.dt;
@@ -1023,6 +1040,11 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
         state.player_position.y = state.current_ground_y;
         state.fall_velocity = 0.f;
       }
+    }
+
+    // Stop ledge jumps once on the ground
+    if (state.player_position.y == state.current_ground_y) {
+      state.did_jump_off_ledge = false;
     }
   }
 }

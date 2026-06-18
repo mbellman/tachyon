@@ -74,26 +74,31 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
   {
     if (state.is_on_ladder) {
       float climb_direction = (
+        // Up
         tachyon->left_stick.y < 0.f ? 1.f :
+        // Down
         tachyon->left_stick.y > 0.f ? -1.f :
         0.f
       );
 
       float t = fmodf(state.player.rig.seek_time, 8.f) / 8.f;
       float alpha = 2.f * t * t_TAU;
-      float speed = 3500.f * (0.5f + 0.5f * sinf(alpha));
+
+      state.player.climb_speed = climb_direction * 3500.f * (0.5f + 0.5f * sinf(alpha));
 
       if (climb_direction == -1.f && is_key_held(tKey::CONTROLLER_A)) {
-        speed = 8000.f;
+        state.player.climb_speed = -8000.f;
       }
 
       if (state.is_starting_climb_down) {
-        speed = 0.f;
+        state.player.climb_speed = 0.f;
       }
 
-      state.player_position.y += climb_direction * speed * state.dt;
+      state.player_position.y += state.player.climb_speed * state.dt;
 
       return;
+    } else {
+      state.player.climb_speed = 0.f;
     }
   }
 

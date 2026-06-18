@@ -520,10 +520,12 @@ namespace astro {
       tVec3f visual_position;
 
       float running_charge = 0.f;
+      float climb_speed = 0.f;
 
       // Attachments
       float satchel_freefall = 0.f;
       float blanket_freefall = 0.f;
+      float blanket_run_swing = 0.f;
 
       float last_stopped_moving_time = 0.f;
       float last_climbing_time = 0.f;

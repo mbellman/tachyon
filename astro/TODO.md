@@ -44,14 +44,16 @@ tutorial:
 * magic gate improvements/collision
 
 features/fixes:
-* fix run oscillation (current ground y snapping/did_jump_off_ledge)
-* river sfx
-* duck sfx
-* fix duck heads turning backwards
+* twitchy look-around behavior (wtf is up with this?)
 * wand pulse timing
 * jump-off-ledge animation
 * climb over onto ladder animation + reverse
 * tipping-over animation/preventing jumping off very high ledges
+* climb-down-onto-ladder animation
+* iron gates opening
+* river sfx
+* duck sfx
+* fix duck heads turning backwards
 * fx haze color/smoothstep points
 * tiny birds looking out for castle towers
 * house knocking sound

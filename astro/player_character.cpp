@@ -245,15 +245,6 @@ static void HandleRunOscillation(Tachyon* tachyon, State& state) {
   float run_bounce = SampleCurve(run_bounce_curve, 2.f * run_cycle_time);
 
   state.player.visual_position.y += run_bounce_height * run_bounce;
-
-  // Attachments
-  {
-    float satchel_bounce = SampleCurve(run_bounce_curve, 2.f * run_cycle_time - 0.5f);
-    float blanket_bounce = SampleCurve(run_bounce_curve, 2.f * run_cycle_time - 0.25f);
-
-    state.player.satchel_freefall = state.run_oscillation * satchel_bounce;
-    state.player.blanket_freefall = state.run_oscillation * blanket_bounce;
-  }
 }
 
 static void HandleCombatJumpMotions(Tachyon* tachyon, State& state) {
