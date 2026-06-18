@@ -54,9 +54,24 @@ static void UpdateEventCamera(State& state, const float scene_time) {
   state.camera_blend_speed = 5.f * state.dt;
 }
 
+static void UpdateLadderCamera(State& state) {
+  state.camera_tracking_position = state.player_position;
+
+  state.camera_blend_speed = Tachyon_Lerpf(
+    state.camera_blend_speed,
+    state.dt,
+    state.dt
+  );
+}
+
 static void UpdateStandardCamera(State& state) {
   state.camera_tracking_position = state.player_position;
-  state.camera_blend_speed = 10.f * state.dt;
+
+  state.camera_blend_speed = Tachyon_Lerpf(
+    state.camera_blend_speed,
+    10.f * state.dt,
+    state.dt
+  );
 }
 
 void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state) {
@@ -64,6 +79,8 @@ void CameraSystem::UpdateCamera(Tachyon* tachyon, State& state) {
 
   if (state.camera_events.size() > 0) {
     UpdateEventCamera(state, get_scene_time());
+  } else if (state.is_on_ladder || PlayerCharacter::IsClimbingOffLadder(tachyon, state)) {
+    UpdateLadderCamera(state);
   } else {
     UpdateStandardCamera(state);
   }

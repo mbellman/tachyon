@@ -341,8 +341,13 @@ static void HandleSpeedDampening(Tachyon* tachyon, State& state) {
     speed != 0.f &&
     !is_moving_left_stick()
   ) {
-    state.player.last_stopped_moving_time = get_scene_time();
     state.player_velocity = tVec3f(0.f);
+
+    if (!state.is_on_ladder) {
+      // As long as we're not climbing, count this as a coming to rest action,
+      // which triggers various idle character animations
+      state.player.last_stopped_moving_time = get_scene_time();
+    }
   }
 }
 
