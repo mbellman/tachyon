@@ -3,55 +3,31 @@
 
 using namespace astro;
 
-static float GetSwingIntensity(Tachyon* tachyon, State& state, const float climbing_stop_duration) {
+static float GetSwingIntensity(State& state) {
   float swing_intensity = state.player_velocity.magnitude() / PlayerCharacter::MAX_RUN_SPEED;
-
-  if (
-    state.player.last_climbing_stop_time != 0.f &&
-    time_since(state.player.last_climbing_stop_time) < climbing_stop_duration
-  ) {
-    float alpha = time_since(state.player.last_climbing_stop_time) / climbing_stop_duration;
-
-    swing_intensity += 1.f - alpha;
-  }
-
-  if (state.is_on_ladder) {
-    float t = fmodf(state.player.rig.seek_time, 8.f) / 8.f;
-    float alpha = 2.f * t * t_TAU;
-
-    float speed = 3500.f * (0.5f + 0.5f * sinf(alpha));
-
-    swing_intensity = speed / 3500.f;
-  }
 
   return swing_intensity;
 }
 
 static void UpdateBlanket(Tachyon* tachyon, State& state) {
-  float swing_intensity = GetSwingIntensity(tachyon, state, 1.5f);
+  float swing_intensity = GetSwingIntensity(state);
   auto& player_animation = state.player.rig;
   auto& torso_bone = player_animation.active_pose.bones[8];
   auto& blanket = objects(state.meshes.player_blanket)[0];
 
-  float bounce_t = player_animation.seek_time;
-  if (bounce_t < 0.f) bounce_t += 8.f;
-  float bounce_alpha = t_TAU * fmodf(bounce_t, 8.f) / 8.f;
-  float bounce_angle = 0.6f * swing_intensity * swing_intensity * abs(sinf(bounce_alpha));
-  Quaternion bounce_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), bounce_angle);
+  float swing_angle = 3.f * state.tilt_angle;
+  float freefall_angle = state.player.blanket_freefall;
 
-  float swing_angle = 0.35f * swing_intensity * cosf(bounce_alpha);
   Quaternion swing_rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), swing_angle);
 
   Quaternion tilt_rotation = Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), -0.5f);
 
-  tVec3f offset = tVec3f(0.f, 0.35f + bounce_angle * 0.1f, -0.48f);
+  tVec3f offset = tVec3f(0.f, 0.45f + freefall_angle * 0.1f, -0.48f);
   Quaternion base_rotation = state.player.rotation * torso_bone.rotation;
   tMat4f base_rotation_matrix = base_rotation.toMatrix4f();
 
-  blanket.position = state.player.visual_position + base_rotation_matrix * (torso_bone.translation * tVec3f(1500.f));
+  blanket.position = state.player.visual_position + base_rotation_matrix * (torso_bone.translation * 1500.f);
   blanket.position += base_rotation_matrix * (offset * 1500.f);
-
-  blanket.position.y += 150.f + 100.f * swing_intensity * sinf(2.f * bounce_alpha);
 
   blanket.scale = tVec3f(1500.f);
   blanket.rotation = base_rotation * swing_rotation * tilt_rotation;
@@ -63,31 +39,30 @@ static void UpdateBlanket(Tachyon* tachyon, State& state) {
 }
 
 static void UpdateSatchel(Tachyon* tachyon, State& state) {
-  float swing_intensity = GetSwingIntensity(tachyon, state, 1.5f);
+  float swing_intensity = GetSwingIntensity(state);
   auto& player_animation = state.player.rig;
   auto& torso_bone = player_animation.active_pose.bones[8];
   auto& satchel = objects(state.meshes.player_satchel)[0];
 
-  float bounce_t = player_animation.seek_time;
-  if (bounce_t < 0.f) bounce_t += 8.f;
-  float bounce_alpha = t_TAU * fmodf(bounce_t, 8.f) / 8.f;
-  float bounce_angle = 0.6f * swing_intensity * swing_intensity * abs(sinf(bounce_alpha));
-  Quaternion bounce_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), bounce_angle);
+  // Swing the satchel in proportion to how fast we turn
+  float swing_angle = 5.f * state.tilt_angle;
 
-  float swing_angle = 0.15f * swing_intensity * cosf(bounce_alpha) + 3.f * state.tilt_angle;
+  float freefall_angle = 0.75f * state.player.satchel_freefall;
+
   Quaternion swing_rotation = Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), swing_angle);
+  Quaternion fall_rotation = Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), freefall_angle);
 
-  tVec3f offset = tVec3f(0.f, 0.25f + bounce_angle * 0.1f, -0.325f);
+  tVec3f offset = tVec3f(0.f, 0.3f + freefall_angle * 0.1f, -0.35f);
   Quaternion rotation = state.player.rotation * torso_bone.rotation;
   tMat4f rotation_matrix = rotation.toMatrix4f();
 
   satchel.position = state.player.visual_position + rotation_matrix * (torso_bone.translation * tVec3f(1500.f));
   satchel.position += rotation_matrix * (offset * 1500.f);
 
-  satchel.position.y += 200.f * bounce_angle;
+  satchel.position.y += 100.f * freefall_angle;
 
   satchel.scale = tVec3f(1500.f);
-  satchel.rotation = rotation * bounce_rotation * swing_rotation;
+  satchel.rotation = rotation * fall_rotation * swing_rotation;
 
   satchel.color = 0x1110;
   satchel.material = tVec4f(0.8f, 0, 0, 0.2f);
@@ -99,7 +74,7 @@ static void UpdateFlasks(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
   auto& player_animation = state.player.rig;
 
-  float swing_intensity = GetSwingIntensity(tachyon, state, 2.f);
+  float swing_intensity = GetSwingIntensity(state);
   Quaternion side_swing_rotation = Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), 4.f * state.tilt_angle);
 
   // Flask 1

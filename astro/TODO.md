@@ -44,6 +44,7 @@ tutorial:
 * magic gate improvements/collision
 
 features/fixes:
+* fix run oscillation (current ground y snapping/did_jump_off_ledge)
 * river sfx
 * duck sfx
 * fix duck heads turning backwards

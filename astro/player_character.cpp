@@ -206,7 +206,10 @@ static void TrackPlantedFootPositionsWhileWalking(Tachyon* tachyon, State& state
 
 // @todo move elsewhere
 static float SampleCurve(const std::vector<float>& curve, const float t) {
-  float seek_time = t * float(curve.size());
+  float max_time = float(curve.size());
+  float seek_time = t * max_time;
+  if (seek_time < 0.f) seek_time += max_time;
+
   int start_frame = (int) seek_time;
   int end_frame = start_frame + 1;
 
@@ -239,9 +242,18 @@ static void HandleRunOscillation(Tachyon* tachyon, State& state) {
 
   float run_bounce_height = RUN_BOUNCE_HEIGHT * state.run_oscillation;
   float run_cycle_time = fmodf(state.player.rig.seek_time + 1.f, 8.f) / 8.f;
-  float run_bounce = SampleCurve(run_bounce_curve, run_cycle_time * 2.f);
+  float run_bounce = SampleCurve(run_bounce_curve, 2.f * run_cycle_time);
 
   state.player.visual_position.y += run_bounce_height * run_bounce;
+
+  // Attachments
+  {
+    float satchel_bounce = SampleCurve(run_bounce_curve, 2.f * run_cycle_time - 0.5f);
+    float blanket_bounce = SampleCurve(run_bounce_curve, 2.f * run_cycle_time - 0.25f);
+
+    state.player.satchel_freefall = state.run_oscillation * satchel_bounce;
+    state.player.blanket_freefall = state.run_oscillation * blanket_bounce;
+  }
 }
 
 static void HandleCombatJumpMotions(Tachyon* tachyon, State& state) {

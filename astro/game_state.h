@@ -521,6 +521,10 @@ namespace astro {
 
       float running_charge = 0.f;
 
+      // Attachments
+      float satchel_freefall = 0.f;
+      float blanket_freefall = 0.f;
+
       float last_stopped_moving_time = 0.f;
       float last_climbing_time = 0.f;
       float last_climbing_start_time = 0.f;
