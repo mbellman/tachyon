@@ -533,8 +533,6 @@ static void HandleStoppedAfterMovingAnimation(Tachyon* tachyon, State& state) {
     state.player.is_looking_at_something ||
     // We haven't manually stopped yet
     state.player.last_stopped_moving_time == 0.f ||
-    // We're moving
-    state.previous_move_delta > 0.f ||
     // We're on a ladder, or climbing off
     state.is_on_ladder || PlayerCharacter::IsClimbingOffLadder(tachyon, state)
   ) {

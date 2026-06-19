@@ -566,7 +566,6 @@ namespace astro {
     float last_break_attack_time = 0.f;
     float last_strong_attack_time = 0.f;
     float last_run_input_time = 0.f;
-    float last_climbing_time = 0.f;
     float last_wind_chimes_action_time = 0.f;
     bool is_on_solid_ground = false;
     bool is_on_solid_platform = false;

@@ -341,6 +341,11 @@ static void HandleSpeedDampening(Tachyon* tachyon, State& state) {
     state.player_velocity = unit_velocity * speed_limit;
   }
 
+  // While moving, reset the last stopped moving time
+  if (speed > 0.f) {
+    state.player.last_stopped_moving_time = 0.f;
+  }
+
   if (
     speed < 50.f &&
     speed != 0.f &&
@@ -348,10 +353,16 @@ static void HandleSpeedDampening(Tachyon* tachyon, State& state) {
   ) {
     state.player_velocity = tVec3f(0.f);
 
-    if (!state.is_on_ladder) {
-      // As long as we're not climbing, count this as a coming to rest action,
-      // which triggers various idle character animations
+    if (!state.is_on_ladder && !is_climbing_off_ladder) {
+      // As long as we're not climbing or climbing off a ladder,
+      // count this as a coming to rest action, which triggers
+      // various idle character animations.
       state.player.last_stopped_moving_time = get_scene_time();
+
+      // Also reset the last climbing time so the animation system
+      // doesn't think we were just climbing something, and suppress
+      // the desired idle animation
+      state.player.last_climbing_time = 0.f;
     }
   }
 }

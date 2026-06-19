@@ -44,7 +44,6 @@ tutorial:
 * magic gate improvements/collision
 
 features/fixes:
-* twitchy look-around behavior (wtf is up with this?)
 * wand pulse timing
 * jump-off-ledge animation
 * climb over onto ladder animation + reverse

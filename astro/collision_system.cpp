@@ -319,9 +319,6 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
     );
 
     if (is_climbing_onto_ladder_normally || is_climbing_over_wall_onto_ladder) {
-      // @todo remove
-      state.last_climbing_time = scene_time;
-
       state.player.last_climbing_time = scene_time;
 
       if (!was_just_climbing) {
