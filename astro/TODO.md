@@ -45,6 +45,7 @@ tutorial:
 
 features/fixes:
 * wand pulse timing
+* optimal stopping point for run animation (only stop when airborne?)
 * jump-off-ledge animation
 * climb over onto ladder animation + reverse
 * tipping-over animation/preventing jumping off very high ledges

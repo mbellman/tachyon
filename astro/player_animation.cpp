@@ -324,6 +324,11 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
     return 2.f;
   }
 
+  // Blend faster into climbing
+  if (state.is_on_ladder) {
+    return 5.f;
+  }
+
   // Blend faster from running -> walking
   if (
     !PlayerCharacter::IsRunning(tachyon, state) &&
@@ -501,7 +506,24 @@ static void HandleTorsoAnimation(Tachyon* tachyon, State& state) {
 
     float running_charge_tilt = 0.1f * sinf(state.player.running_charge * t_PI);
 
-    rig.torso_tilt_angle = running_charge_tilt;
+    if (running_charge_tilt > 0.f) {
+      rig.torso_tilt_angle = Tachyon_Lerpf(
+        rig.torso_tilt_angle,
+        running_charge_tilt,
+        10.f * state.dt
+      );
+    }
+  }
+
+  // Lean backward when running down slopes
+  {
+    if (state.is_moving_down_slope) {
+      rig.torso_tilt_angle = Tachyon_Lerpf(
+        rig.torso_tilt_angle,
+        -0.2f,
+        3.f * state.dt
+      );
+    }
   }
 
   // Compress when running
