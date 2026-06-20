@@ -197,6 +197,73 @@ static void ShowHighestLevelsOfDetail(Tachyon* tachyon, State& state) {
 }
 
 // @todo dev_tools.cpp
+static void ResetEntities(Tachyon* tachyon, State& state) {
+  for_entities(state.light_posts) {
+    auto& entity = state.light_posts[i];
+
+    entity.did_activate = false;
+    entity.astro_activation_time = 0.f;
+    entity.game_activation_time = -1.f;
+    entity.is_astro_synced = false;
+  }
+
+  for (auto type : { GATE, BIRD_GATE, IRON_GATE, WATER_WHEEL }) {
+    for_entities_of_type(type) {
+      auto& entity = entities[i];
+
+      entity.did_activate = false;
+      entity.astro_activation_time = 0.f;
+      entity.game_activation_time = -1.f;
+    }
+  }
+
+  for (auto type : { LESSER_GUARD, LOW_GUARD, FAERIE, NPC }) {
+    for_entities_of_type(type) {
+      auto& entity = entities[i];
+
+      HardResetEntity(entity);
+    }
+  }
+
+  for_entities(state.small_birds) {
+    auto& entity = state.small_birds[i];
+
+    SmallBird::Reset(entity);
+  }
+
+  state.tiny_birds.clear();
+
+  for_entities(state.sculpture_1s) {
+    auto& entity = state.sculpture_1s[i];
+
+    // Don't reset sculptures which are perma-activated
+    if (entity.requires_action) continue;
+
+    if (entity.did_activate) {
+      entity.did_activate = false;
+      entity.game_activation_time = -1.f;
+      entity.astro_activation_time = 0.f;
+    }
+
+    if (entity.light_id != -1) {
+      remove_point_light(entity.light_id);
+
+      entity.light_id = -1;
+    }
+  }
+
+  for (auto type : { EVENT_TRIGGER, ITEM_PICKUP }) {
+    for_entities_of_type(type) {
+      auto& entity = entities[i];
+
+      entity.did_activate = false;
+    }
+  }
+
+  show_overlay_message("Reset interactible entities");
+}
+
+// @todo dev_tools.cpp
 static void HandleInGameDevHotkeys(Tachyon* tachyon, State& state) {
   // Toggling game stats
   {
@@ -248,83 +315,7 @@ static void HandleInGameDevHotkeys(Tachyon* tachyon, State& state) {
   // Resetting entities
   {
     if (did_press_key(tKey::R)) {
-      for_entities(state.light_posts) {
-        auto& entity = state.light_posts[i];
-
-        entity.did_activate = false;
-        entity.astro_activation_time = 0.f;
-        entity.game_activation_time = -1.f;
-        entity.is_astro_synced = false;
-      }
-
-      for_entities(state.gates) {
-        auto& entity = state.gates[i];
-
-        entity.did_activate = false;
-        entity.astro_activation_time = 0.f;
-        entity.game_activation_time = -1.f;
-      }
-
-      for_entities(state.bird_gates) {
-        auto& entity = state.bird_gates[i];
-
-        entity.did_activate = false;
-        entity.astro_activation_time = 0.f;
-        entity.game_activation_time = -1.f;
-      }
-
-      for_entities(state.water_wheels) {
-        auto& entity = state.water_wheels[i];
-
-        entity.did_activate = false;
-        entity.astro_activation_time = 0.f;
-        entity.game_activation_time = -1.f;
-      }
-
-      for (auto type : { LESSER_GUARD, LOW_GUARD, FAERIE, NPC }) {
-        for_entities_of_type(type) {
-          auto& entity = entities[i];
-
-          HardResetEntity(entity);
-        }
-      }
-
-      for_entities(state.small_birds) {
-        auto& entity = state.small_birds[i];
-
-        SmallBird::Reset(entity);
-      }
-
-      state.tiny_birds.clear();
-
-      for_entities(state.sculpture_1s) {
-        auto& entity = state.sculpture_1s[i];
-
-        // Don't reset sculptures which are perma-activated
-        if (entity.requires_action) continue;
-
-        if (entity.did_activate) {
-          entity.did_activate = false;
-          entity.game_activation_time = -1.;
-          entity.astro_activation_time = 0.f;
-        }
-
-        if (entity.light_id != -1) {
-          remove_point_light(entity.light_id);
-
-          entity.light_id = -1;
-        }
-      }
-
-      for (auto type : { EVENT_TRIGGER, ITEM_PICKUP }) {
-        for_entities_of_type(type) {
-          auto& entity = entities[i];
-
-          entity.did_activate = false;
-        }
-      }
-
-      show_overlay_message("Reset interactible entities");
+      ResetEntities(tachyon, state);
     }
   }
 
