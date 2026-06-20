@@ -269,6 +269,12 @@ static void UpdateGround1Plants(Tachyon* tachyon, State& state) {
   float grass_height_alpha = Tachyon_InverseLerp(astro_time_periods.distant_past, astro_time_periods.present, state.astro_time);
   float grass_height = 400.f + 400.f * powf(grass_height_alpha, 2.f);
 
+  tVec3f flower_color = tVec3f::lerp(
+    tVec3f(0.8f, 0.3f, 0.3f),
+    tVec3f(0.8f),
+    Tachyon_InverseLerp(astro_time_periods.past, astro_time_periods.present, state.astro_time)
+  );
+
   for (auto& cluster : state.ground_plant_clusters) {
     if (
       abs(cluster.position.x - player_position.x) > 20000.f ||
@@ -316,7 +322,7 @@ static void UpdateGround1Plants(Tachyon* tachyon, State& state) {
         grass.scale *= scale_factor;
 
         grass.color = tVec4f(0.3f, 0.4f, 0.2f, 0.1f);
-        grass.material = tVec4f(0.8f, 0, 0, 1.f);
+        grass.material = tVec4f(0.8f, 0, 0, 0.1f);
 
         grass.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), rotation_angle);
 
@@ -341,7 +347,7 @@ static void UpdateGround1Plants(Tachyon* tachyon, State& state) {
         flower.scale = tVec3f(flower_scales[iteration % 5]) * sqrtf(0.5f + 0.5f * sinf(growth_rate * alpha));
         flower.scale *= scale_factor;
 
-        flower.color = tVec4f(0.8f, 0.3f, 0.3f, emissivity);
+        flower.color = tVec4f(flower_color, emissivity);
         flower.material = tVec4f(0.8f, 0, 0, 0.7f);
 
         flower.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), rotation_angle);
