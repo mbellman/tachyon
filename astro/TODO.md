@@ -49,7 +49,6 @@ features/fixes:
 * climb over onto ladder animation + reverse
 * tipping-over animation/preventing jumping off very high ledges
 * climb-down-onto-ladder animation
-* iron gates opening
 * river sfx
 * duck sfx
 * fix duck heads turning backwards
