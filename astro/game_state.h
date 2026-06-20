@@ -528,6 +528,7 @@ namespace astro {
       float blanket_run_swing = 0.f;
 
       float last_stopped_moving_time = 0.f;
+      float last_wand_start_time = 0.f;
       float last_climbing_time = 0.f;
       float last_climbing_start_time = 0.f;
       float last_climbing_stop_time = 0.f;

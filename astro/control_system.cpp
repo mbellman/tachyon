@@ -243,13 +243,29 @@ static void HandleWandControls(Tachyon* tachyon, State& state) {
   }
 
   // Holding Square
-  if (has_wand && is_key_held(tKey::CONTROLLER_X) && state.targetable_entities.size() == 0) {
+  if (
+    has_wand && is_key_held(tKey::CONTROLLER_X) &&
+    state.targetable_entities.size() == 0
+  ) {
+    if (!state.is_holding_up_wand) {
+      state.player.last_wand_start_time = get_scene_time();
+    }
+
     state.is_holding_up_wand = true;
 
-    if (time_since(state.last_wand_light_pulse_time) > 4.f) {
+    // Reset certain properties relating to movement/stance to avoid
+    // complicating certain animation details
+    state.player.last_stopped_moving_time = 0.f;
+    state.player_idle_stance = 1;
+
+    if (
+      time_since(state.player.last_wand_start_time) > 0.25f &&
+      time_since(state.last_wand_light_pulse_time) > 4.f
+    ) {
       state.last_wand_light_pulse_time = get_scene_time();
 
       Sfx::PlaySound(SFX_LIGHT_PULSE, 0.8f);
+      Sfx::PlaySound(SFX_WAND_HINT, 1.f);
     }
 
     // Check for hints shortly after wand pulsing
@@ -263,6 +279,7 @@ static void HandleWandControls(Tachyon* tachyon, State& state) {
     }
   } else {
     state.is_holding_up_wand = false;
+    state.player.last_wand_start_time = 0.f;
   }
 
   // Triangle

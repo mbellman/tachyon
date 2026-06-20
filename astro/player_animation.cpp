@@ -476,19 +476,35 @@ static void HandleTorsoAnimation(Tachyon* tachyon, State& state) {
   float speed_ratio = player_speed / PlayerCharacter::MAX_RUN_SPEED;
   bool is_running = PlayerCharacter::IsRunning(tachyon, state);
 
-  rig.torso_turn_angle = Tachyon_Lerpf(
-    rig.torso_turn_angle,
-    -state.tilt_angle,
-    20.f * speed_ratio * state.dt
-  );
+  if (state.tilt_angle != 0.f) {
+    rig.torso_turn_angle = Tachyon_Lerpf(
+      rig.torso_turn_angle,
+      -state.tilt_angle,
+      20.f * speed_ratio * state.dt
+    );
+  }
+
+  // Turn a little when holding up the wand, inversely proportional
+  // to speed (we want to reduce this effect when moving more quickly)
+  {
+    if (state.is_holding_up_wand) {
+      float inverse_speed_ratio = 1.f - speed_ratio;
+
+      rig.torso_turn_angle = Tachyon_Lerpf(
+        rig.torso_turn_angle,
+        0.5f,
+        2.f * inverse_speed_ratio * state.dt
+      );
+    }
+  }
 
   // Swing the torso while walking
   // @todo refactor/clean up
   float t = fmodf(rig.seek_time + 3.f, 8.f) / 8.f;
-  float alpha = t * t_TAU;
-  float r = sinf(speed_ratio * t_PI);
+  float walk_cycle_time = t * t_TAU;
+  float speed_curve_alpha = sinf(speed_ratio * t_PI);
 
-  rig.torso_turn_angle += 0.025f * r * sinf(alpha);
+  rig.torso_turn_angle += 0.025f * speed_curve_alpha * sinf(walk_cycle_time);
 
   // Lean forward when starting a run
   {

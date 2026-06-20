@@ -44,7 +44,6 @@ tutorial:
 * magic gate improvements/collision
 
 features/fixes:
-* wand pulse timing
 * optimal stopping point for run animation (only stop when airborne?)
 * jump-off-ledge animation
 * climb over onto ladder animation + reverse
