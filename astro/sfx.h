@@ -12,7 +12,9 @@ namespace astro {
     SFX_AREA_CHANGE,
 
     SFX_LIGHT_PULSE,
-    SFX_WAND_HINT,
+    SFX_WAND_HINT_1,
+    SFX_WAND_HINT_2,
+    SFX_WAND_HINT_3,
 
     SFX_CARRYING_1,
     SFX_CARRYING_2,

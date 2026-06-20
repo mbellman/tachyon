@@ -6,7 +6,7 @@ using namespace astro;
 static void ShowWandHint(Tachyon* tachyon, State& state, const tVec3f& position) {
   state.last_wand_hint_time = get_scene_time();
 
-  Sfx::PlaySound(SFX_WAND_HINT, 1.f);
+  Sfx::PlaySound(SFX_WAND_HINT_1, 1.f);
 
   // Update light
   {

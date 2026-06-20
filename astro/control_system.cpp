@@ -265,7 +265,15 @@ static void HandleWandControls(Tachyon* tachyon, State& state) {
       state.last_wand_light_pulse_time = get_scene_time();
 
       Sfx::PlaySound(SFX_LIGHT_PULSE, 0.8f);
-      Sfx::PlaySound(SFX_WAND_HINT, 1.f);
+
+      // @todo factor
+      {
+        float r = Tachyon_GetRandom();
+
+        if (r < 0.33f) Sfx::PlaySound(SFX_WAND_HINT_1, 1.f);
+        else if (r < 0.66f) Sfx::PlaySound(SFX_WAND_HINT_2, 1.f);
+        else Sfx::PlaySound(SFX_WAND_HINT_3, 1.f);
+      }
     }
 
     // Check for hints shortly after wand pulsing

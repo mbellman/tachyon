@@ -503,7 +503,8 @@ void main() {
     // Wand pulse
     {
       if (world_depth > 2200.0) {
-        const vec3 pulse_color = vec3(1.0, 0.9, 0.6);
+        const vec3 start_pulse_color = vec3(1.0, 0.9, 0.6);
+        const vec3 end_pulse_color = vec3(1.0, 0.7, 0.2);
         const float pulse_range = 30000.0;
         const float outside_edge_range = 2000.0;
 
@@ -512,6 +513,8 @@ void main() {
 
         float current_radius = alpha * pulse_range;
         float pulse_distance = distance(world_position, wand_pulse_position);
+
+        vec3 pulse_color = mix(start_pulse_color, end_pulse_color, wand_pulse_alpha);
 
         if (pulse_distance < current_radius) {
           // Apply effects within the radius
