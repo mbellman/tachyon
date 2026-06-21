@@ -506,6 +506,17 @@ static void HandleTorsoAnimation(Tachyon* tachyon, State& state) {
 
   rig.torso_turn_angle += 0.025f * speed_curve_alpha * sinf(walk_cycle_time);
 
+  // Swing when slowing down
+  {
+    if (speed_ratio > 0.f && !is_moving_left_stick()) {
+      rig.torso_turn_angle = Tachyon_Lerpf(
+        rig.torso_turn_angle,
+        0.2f * sinf(walk_cycle_time),
+        10.f * state.dt
+      );
+    }
+  }
+
   // Lean forward when starting a run
   {
     if (is_running) {
@@ -531,12 +542,12 @@ static void HandleTorsoAnimation(Tachyon* tachyon, State& state) {
     }
   }
 
-  // Lean backward when running down slopes
+  // Lean backward when moving quickly down slopes
   {
-    if (state.is_moving_down_slope) {
+    if (speed_ratio > 0.75f && state.is_moving_down_slope) {
       rig.torso_tilt_angle = Tachyon_Lerpf(
         rig.torso_tilt_angle,
-        -0.2f,
+        -0.25f,
         3.f * state.dt
       );
     }
@@ -605,6 +616,7 @@ static void DriftToRestAnimation(Tachyon* tachyon, State& state) {
 
   rig.head_turn_angle = Tachyon_Lerpf(rig.head_turn_angle, 0.f, 4.f * state.dt);
   rig.torso_turn_angle = Tachyon_Lerpf(rig.torso_turn_angle, 0.f, 0.5f * state.dt);
+  rig.torso_tilt_angle = Tachyon_Lerpf(rig.torso_tilt_angle, 0.f, 0.5f * state.dt);
 }
 
 void PlayerAnimation::Update(Tachyon* tachyon, State& state) {
