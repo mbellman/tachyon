@@ -324,26 +324,28 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state) {
   // Keep feet planted
   // @todo factor
   {
-    auto& rig = state.player.rig;
+    if (time_since(state.last_quick_turn_time) > 1.f) {
+      auto& rig = state.player.rig;
 
-    if (state.player.is_left_foot_planted) {
-      tVec3f foot = rig.active_pose.bones[9].translation * 1500.f;
-      foot = player.rotation_matrix * foot;
+      if (state.player.is_left_foot_planted) {
+        tVec3f foot = rig.active_pose.bones[9].translation * 1500.f;
+        foot = player.rotation_matrix * foot;
 
-      tVec3f current_left_foot_position = state.player_position + foot;
-      tVec3f offset = state.player.planted_left_foot_position - current_left_foot_position;
+        tVec3f current_left_foot_position = state.player_position + foot;
+        tVec3f offset = state.player.planted_left_foot_position - current_left_foot_position;
 
-      state.player_position += offset.xz() * 0.1f;
-    }
+        state.player_position += offset.xz() * 0.1f;
+      }
 
-    if (state.player.is_right_foot_planted) {
-      tVec3f foot = rig.active_pose.bones[13].translation * 1500.f;
-      foot = player.rotation_matrix * foot;
+      if (state.player.is_right_foot_planted) {
+        tVec3f foot = rig.active_pose.bones[13].translation * 1500.f;
+        foot = player.rotation_matrix * foot;
 
-      tVec3f current_right_foot_position = state.player_position + foot;
-      tVec3f offset = state.player.planted_right_foot_position - current_right_foot_position;
+        tVec3f current_right_foot_position = state.player_position + foot;
+        tVec3f offset = state.player.planted_right_foot_position - current_right_foot_position;
 
-      state.player_position += offset.xz() * 0.1f;
+        state.player_position += offset.xz() * 0.1f;
+      }
     }
   }
 
