@@ -476,6 +476,7 @@ static void HandleTorsoAnimation(Tachyon* tachyon, State& state) {
   float speed_ratio = player_speed / PlayerCharacter::MAX_RUN_SPEED;
   bool is_running = PlayerCharacter::IsRunning(tachyon, state);
 
+  // Turn as we tilt
   if (state.tilt_angle != 0.f) {
     rig.torso_turn_angle = Tachyon_Lerpf(
       rig.torso_turn_angle,

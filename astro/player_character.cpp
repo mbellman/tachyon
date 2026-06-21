@@ -893,6 +893,11 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
     float turn_speed = Tachyon_Lerpf(2.f, 10.f, speed_ratio);
     float tilt = 0.f;
 
+    bool is_doing_quick_turn = (
+      state.last_quick_turn_time != 0.f &&
+      time_since(state.last_quick_turn_time) < 1.f
+    );
+
     if (state.has_target) {
       // When we're focused on a target, continue to face toward it
       auto& target = *EntityManager::FindEntity(state, state.target_entity);
@@ -925,6 +930,15 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
     tilt = GetAngleBetween(desired_facing_angle, facing_angle);
     tilt *= 0.3f;
     tilt *= speed_ratio;
+
+    // Apply extra tilt, and reduce turn speed, at the beginning of a quick turn
+    // @todo use a proper quick turn animation
+    if (is_doing_quick_turn) {
+      float turn_speedup = time_since(state.last_quick_turn_time);
+
+      turn_speed *= 0.5f;
+      tilt *= 1.f + 0.1f * (1.f - turn_speedup);
+    }
 
     state.player_facing_direction = tVec3f::slerp(state.player_facing_direction, desired_facing_direction, turn_speed * state.dt).unit();
     state.tilt_angle = Tachyon_Lerpf(state.tilt_angle, tilt, 5.f * state.dt);

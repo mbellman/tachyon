@@ -102,10 +102,10 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
     }
   }
 
+  bool is_running = is_key_held(tKey::CONTROLLER_A) || is_key_held(tKey::SHIFT);
+
   // Directional movement
   {
-    bool is_running = is_key_held(tKey::CONTROLLER_A) || is_key_held(tKey::SHIFT);
-
     float acceleration =
       is_running ? 12000.f :
       state.has_target ? 8000.f :
@@ -170,6 +170,19 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
 
   // Quick turning
   if (GetTurnDot(tachyon, state) < -0.5f && !state.has_target) {
+    // If we start a running quick turn while at a relative standstill,
+    // jump to the correct time in the run animation based on our
+    // idle stance/foot positioning
+    //
+    // @todo use a proper quick turn animation
+    if (
+      is_running &&
+      time_since(state.last_quick_turn_time) > 0.5f &&
+      state.previous_move_delta < 5.f
+    ) {
+      state.player.rig.seek_time = state.player_idle_stance == 1 ? 0.f : 4.f;
+    }
+
     state.last_quick_turn_time = get_scene_time();
   }
 }
