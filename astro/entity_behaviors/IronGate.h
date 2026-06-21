@@ -51,7 +51,9 @@ namespace astro {
         {
           if (entity.did_activate) {
             open_alpha = time_since(entity.game_activation_time) / opening_duration;
-            if (open_alpha > 1.f) open_alpha = 1.f;
+
+            clamp_to_1(open_alpha);
+
             open_alpha = Tachyon_EaseInOutf(open_alpha);
           }
         }

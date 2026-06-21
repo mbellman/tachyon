@@ -481,13 +481,35 @@ static void HandleWoodenBridgeCollisions(Tachyon* tachyon, State& state) {
 
 static void HandleIronGateCollisions(Tachyon* tachyon, State& state) {
   for (auto& entity : state.iron_gates) {
-    auto gate_plane = CollisionSystem::CreatePlane(
-      entity.position,
-      entity.scale * tVec3f(1.f, 1.f, 0.35f),
-      entity.orientation
-    );
+    if (entity.did_activate) {
+      // Opened gate collision
+      tVec3f left_wall_position = UnitEntityToWorldPosition(entity, tVec3f(0.5f, 0, 0));
+      tVec3f right_wall_position = UnitEntityToWorldPosition(entity, tVec3f(-0.5f, 0, 0));
 
-    ResolveClippingIntoPlane(state, gate_plane);
+      auto left_wall_plane = CollisionSystem::CreatePlane(
+        left_wall_position,
+        entity.scale * tVec3f(0.2f),
+        entity.orientation
+      );
+
+      auto right_wall_plane = CollisionSystem::CreatePlane(
+        right_wall_position,
+        entity.scale * tVec3f(0.2f),
+        entity.orientation
+      );
+
+      ResolveClippingIntoPlane(state, left_wall_plane);
+      ResolveClippingIntoPlane(state, right_wall_plane);
+    } else {
+      // Closed gate collision
+      auto gate_plane = CollisionSystem::CreatePlane(
+        entity.position,
+        entity.scale * tVec3f(1.f, 1.f, 0.35f),
+        entity.orientation
+      );
+
+      ResolveClippingIntoPlane(state, gate_plane);
+    }
   }
 }
 
