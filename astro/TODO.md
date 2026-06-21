@@ -44,7 +44,7 @@ tutorial:
 * magic gate improvements/collision
 
 features/fixes:
-* optimal stopping point for run animation (only stop when airborne?)
+* fx haze color/smoothstep points
 * jump-off-ledge animation
 * climb over onto ladder animation + reverse
 * tipping-over animation/preventing jumping off very high ledges
@@ -52,7 +52,6 @@ features/fixes:
 * river sfx
 * duck sfx
 * fix duck heads turning backwards
-* fx haze color/smoothstep points
 * tiny birds looking out for castle towers
 * house knocking sound
 * vantage camera tweaks
@@ -67,7 +66,7 @@ features/fixes:
 * reset ducks with R
 * don't UpdateTreeFlowers() if we're far back enough in time
 * reset needs-action wind chimes with R
-* targeting, respawn, gate sfx
+* targeting + respawn + gate sfx
 * smoother camera position blending
 * targeting angle vs. distance
 * enemy animations (seek time consistency)

@@ -1882,6 +1882,7 @@ static void RepositionPlayer(Tachyon* tachyon, State& state) {
 
   state.player_position = camera.position + camera_direction * distance;
   state.player_position.y = CollisionSystem::QueryGroundHeight(state, state.player_position.x, state.player_position.z);
+  state.player_position.y += 1500.f;
 
   auto& player = objects(state.meshes.player_head)[0];
 
