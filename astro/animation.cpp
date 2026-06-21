@@ -123,9 +123,43 @@ static tVec3f GetSkeletonRootMotion(tSkeletonAnimation& animation, const float s
 void Animation::AccumulateTime(tAnimationRig& rig, const float animation_speed, const float blend_rate, const float dt) {
   rig.seek_time += animation_speed * dt;
 
+  // Limit and wrap current animation time
+  // @todo refactor with below
+  {
+    auto& animation = *rig.current_animation;
+    float max_seek_time = GetMaxSeekTime(animation);
+
+    animation.seek_time += animation.animation_speed * dt;
+
+    if (animation.seek_time > max_seek_time) {
+      animation.seek_time -= max_seek_time;
+    } else if (animation.seek_time < 0.f) {
+      animation.seek_time += max_seek_time;
+    }
+  }
+
+  // Limit and wrap next animation time
+  // @todo refactor with above
+  {
+    auto& animation = *rig.next_animation;
+    float max_seek_time = GetMaxSeekTime(animation);
+
+    animation.seek_time += animation.animation_speed * dt;
+
+    if (animation.seek_time > max_seek_time) {
+      animation.seek_time -= max_seek_time;
+    } else if (animation.seek_time < 0.f) {
+      animation.seek_time += max_seek_time;
+    }
+  }
+
+  // @todo remove
+  rig.next_animation->seek_time += rig.next_animation->animation_speed * dt;
+
   // Limit and wrap the animation time to a common multiple of the
   // current/next animation times so that we don't eventually encounter
   // accumulation precision errors
+  // @todo remove
   {
     float max_seek_time = GetMaxSeekTime(*rig.current_animation) * GetMaxSeekTime(*rig.next_animation);
 
@@ -285,8 +319,10 @@ void Animation::StartNextAnimation(tAnimationRig& rig, tSkeletonAnimation* skele
     return;
   }
 
+  // @todo don't immediately set the current animation; blend into the next animation
   rig.current_animation = skeleton_animation;
   rig.next_animation = skeleton_animation;
+  rig.next_animation->seek_time = 0.f;
   rig.next_animation_blend_alpha = 0.f;
   rig.seek_time = 0.f;
 }

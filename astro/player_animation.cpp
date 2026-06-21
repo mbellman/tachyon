@@ -246,6 +246,22 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
   }
 }
 
+static void SetAnimationSpeed(Tachyon* tachyon, State& state, tSkeletonAnimation* animation) {
+  auto& rig = state.player.rig;
+  auto& animations = state.animations;
+
+  if (
+    animation == &animations.player_idle ||
+    animation == &animations.player_idle_2 ||
+    animation == &animations.player_idle_wand ||
+    animation == &animations.player_idle_wand_2
+  ) {
+    animation->animation_speed = 0.8f;
+  }
+
+  // @todo update the rest here
+}
+
 static float GetAnimationSpeed(Tachyon* tachyon, State& state) {
   bool is_astro_traveling = state.astro_turn_speed != 0.f;
   bool is_hit = state.last_damage_time != 0.f && time_since(state.last_damage_time) < 1.f;
