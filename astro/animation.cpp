@@ -27,9 +27,9 @@ static float Curve(const float t, const float k) {
   return t + k * (3.f * t * t - 2.f * t * t * t - t);
 }
 
-static void EvaluateAnimation(tSkeletonAnimation& animation, const float seek_time) {
-  float blend_alpha = fmodf(seek_time, 1.f);
-  float t = seek_time;
+static void EvaluateAnimation(tSkeletonAnimation& animation) {
+  float blend_alpha = fmodf(animation.seek_time, 1.f);
+  float t = animation.seek_time;
 
   // @temporary @todo Do this when loading the animations for the first time
   ReserveAnimationPoseData(animation);
@@ -41,7 +41,7 @@ static void EvaluateAnimation(tSkeletonAnimation& animation, const float seek_ti
   } else {
     // Determine seek time / max time ratio
     float max_time = GetMaxSeekTime(animation);
-    t = fmodf(seek_time, max_time);
+    t = fmodf(t, max_time);
     t = t / max_time;
 
     // Allow for smoother time curves as opposed to tracking progress linearly
@@ -159,13 +159,20 @@ void Animation::UpdatePose(tAnimationRig& rig, const AnimationBlendType blend_ty
   tSkeletonAnimation& current_animation = *rig.current_animation;
   tSkeletonAnimation& next_animation = *rig.next_animation;
 
+  // @temporary
+  current_animation.seek_time = rig.seek_time;
+  next_animation.seek_time = rig.seek_time;
+
   // Evaluate the current and next animations simultaneously so they can be blended
   // @optimize this only has to be done when transitioning between animations
-  EvaluateAnimation(current_animation, rig.seek_time);
-  EvaluateAnimation(next_animation, rig.seek_time);
+  EvaluateAnimation(current_animation);
+  EvaluateAnimation(next_animation);
 
   if (rig.upper_body_animation != nullptr) {
-    EvaluateAnimation(*rig.upper_body_animation, rig.upper_body_animation_time);
+    // @temporary
+    rig.upper_body_animation->seek_time = rig.upper_body_animation_time;
+
+    EvaluateAnimation(*rig.upper_body_animation);
   }
 
   // Update the active pose based on the blended result of the current/next animations

@@ -440,6 +440,7 @@ namespace astro {
     std::vector<tSkeleton> frames;
     tSkeleton evaluated_pose;
     std::string name = "";
+    float seek_time = 0.f;
   };
 
   struct tAnimationRig {

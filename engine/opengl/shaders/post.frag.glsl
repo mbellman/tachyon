@@ -333,8 +333,8 @@ void main() {
 
       vec3 fog_color = vec3(0.2, 0.4, 0.5);
       // vec3 medium_haze_color = 3.0 * vec3(1.0, 0.6, 0.3);
-      // vec3 medium_haze_color = 2.0 * vec3(1.0, 0.45, 0.3);
-      vec3 medium_haze_color = 2.0 * vec3(0.7, 0.4, 0.3);
+      vec3 medium_haze_color = 2.0 * vec3(1.0, 0.45, 0.3);
+      // vec3 medium_haze_color = 2.0 * vec3(0.7, 0.4, 0.3);
 
       post_color = mix(post_color, fog_color, fog_factor);
       post_color = mix(post_color, medium_haze_color, medium_haze_factor);
