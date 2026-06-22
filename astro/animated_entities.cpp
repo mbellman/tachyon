@@ -26,7 +26,7 @@ static void UpdateAnimation(tAnimationRig& rig, const float speed, const float d
   // @todo allow upper body animation speed to be decoupled from main animation speed
   rig.upper_body_animation_time += speed * dt;
 
-  Animation::AccumulateTime(rig, speed, 3.f, dt);
+  Animation::AccumulateTime(rig, 3.f, dt);
   Animation::UpdatePose(rig, BLEND_LINEAR);
   Animation::UpdateBoneMatrices(rig);
 }
@@ -157,6 +157,9 @@ static void HandleAnimatedPerson(State& state, SkinnedPerson& person, AnimationP
   } else {
     Animation::AwaitNextAnimation(person.rig, params.main_animation);
   }
+
+  person.rig.current_animation_speed = params.speed;
+  person.rig.next_animation_speed = params.speed;
 
   UpdateAnimation(person.rig, params.speed, state.dt);
 }

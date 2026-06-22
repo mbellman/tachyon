@@ -287,34 +287,9 @@ static float GetAnimationSpeed(Tachyon* tachyon, State& state, tSkeletonAnimatio
     return is_moving_left_stick() ? 10.f : 0.f;
   }
 
-  return 1.f;
-}
+  // @todo add remaining animations
 
-static float GetAnimationSpeed(Tachyon* tachyon, State& state) {
-  bool is_astro_traveling = state.astro_turn_speed != 0.f;
-  bool is_hit = state.last_damage_time != 0.f && time_since(state.last_damage_time) < 1.f;
-  bool is_idle = IsAnyIdleAnimation(state.player.rig.next_animation, state);
-
-  if (is_astro_traveling) return 0.65f;
-  if (is_hit) return 7.f;
-  if (is_idle) return 0.8f;
-
-  if (state.is_on_ladder) {
-    if (state.is_starting_climb_down) return 8.f;
-    if (is_moving_left_stick()) return 10.f;
-    return 0.f;
-  }
-
-  if (PlayerCharacter::IsClimbingOffLadder(tachyon, state)) {
-    return state.did_climb_down ? 7.f : 8.5f;
-  }
-
-  float player_speed = state.player_velocity.magnitude();
-  float max_walk_speed = state.has_target ? PlayerCharacter::MAX_COMBAT_WALK_SPEED : PlayerCharacter::MAX_WALK_SPEED;
-  float speed_ratio = player_speed / PlayerCharacter::MAX_RUN_SPEED;
-  bool is_running = player_speed > max_walk_speed;
-
-  return (is_running ? 12.f : 13.5f) * sqrtf(speed_ratio);
+  return 4.f;
 }
 
 static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
@@ -685,7 +660,6 @@ void PlayerAnimation::Update(Tachyon* tachyon, State& state) {
   }
 
   bool moving_forward = tVec3f::dot(state.player_velocity, state.player_facing_direction) >= 0.f;
-  float animation_speed = GetAnimationSpeed(tachyon, state);
   float blend_rate = GetAnimationBlendRate(tachyon, state);
   auto blend_type = GetAnimationBlendType(state);
 
@@ -729,7 +703,7 @@ void PlayerAnimation::Update(Tachyon* tachyon, State& state) {
   HandleStoppedAfterMovingAnimation(tachyon, state);
   DriftToRestAnimation(tachyon, state);
 
-  Animation::AccumulateTime(state.player.rig, animation_speed, blend_rate, state.dt);
+  Animation::AccumulateTime(state.player.rig, blend_rate, state.dt);
   Animation::UpdatePose(state.player.rig, blend_type);
   Animation::UpdateBoneMatrices(state.player.rig);
 }

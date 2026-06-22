@@ -120,10 +120,7 @@ static tVec3f GetSkeletonRootMotion(tSkeletonAnimation& animation, const float s
   return tVec3f(0.f);
 }
 
-void Animation::AccumulateTime(tAnimationRig& rig, const float animation_speed, const float blend_rate, const float dt) {
-  // @todo remove
-  rig.seek_time += animation_speed * dt;
-
+void Animation::AccumulateTime(tAnimationRig& rig, const float blend_rate, const float dt) {
   // Update and wrap current animation seek time
   // @todo refactor with below
   {
@@ -156,20 +153,6 @@ void Animation::AccumulateTime(tAnimationRig& rig, const float animation_speed, 
     rig.next_animation_time = rig.current_animation_time;
   }
 
-  // Limit and wrap the animation time to a common multiple of the
-  // current/next animation times so that we don't eventually encounter
-  // accumulation precision errors
-  // @todo remove
-  {
-    float max_seek_time = GetMaxSeekTime(*rig.current_animation) * GetMaxSeekTime(*rig.next_animation);
-
-    if (rig.seek_time > max_seek_time) {
-      rig.seek_time -= max_seek_time;
-    } else if (rig.seek_time < 0.f) {
-      rig.seek_time = max_seek_time;
-    }
-  }
-
   // Increment the blend factor to the next animation, in case
   // we're transitioning between animations.
   {
@@ -186,6 +169,8 @@ void Animation::AccumulateTime(tAnimationRig& rig, const float animation_speed, 
     rig.next_animation_blend_alpha == 1.f
   ) {
     rig.current_animation = rig.next_animation;
+
+    // Carry over the animation time to avoid skipping behavior
     rig.current_animation_time = rig.next_animation_time;
   }
 }
@@ -321,7 +306,6 @@ void Animation::StartNextAnimation(tAnimationRig& rig, tSkeletonAnimation* skele
   rig.next_animation = skeleton_animation;
   rig.next_animation_time = 0.f;
   rig.next_animation_blend_alpha = 0.f;
-  rig.seek_time = 0.f;
 }
 
 void Animation::AwaitNextAnimation(tAnimationRig& rig, tSkeletonAnimation* skeleton_animation) {

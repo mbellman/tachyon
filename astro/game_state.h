@@ -440,7 +440,6 @@ namespace astro {
     std::vector<tSkeleton> frames;
     tSkeleton evaluated_pose;
     std::string name = "";
-    float animation_speed = 0.f;
   };
 
   struct tAnimationRig {
@@ -450,7 +449,6 @@ namespace astro {
     tSkeletonAnimation* next_animation = nullptr;
     tSkeletonAnimation* upper_body_animation = nullptr;
     tSkeletonAnimation* arm_animation = nullptr;
-    float seek_time = 0.f;
     float next_animation_blend_alpha = 0.f;
     float head_turn_angle = 0.f;
     float torso_turn_angle = 0.f;
