@@ -120,7 +120,7 @@ static void ShowDebugPlayerSkeleton(Tachyon* tachyon, State& state) {
 
 static void TrackPlantedFootPositionWhileRunning(Tachyon* tachyon, State& state) {
   auto& rig = state.player.rig;
-  float t = fmodf(rig.seek_time, 8.f);
+  float t = fmodf(rig.next_animation_time, 8.f);
 
   // Airborne
   if (!state.player.is_airborne_in_run_cycle && t > 7.f) {
@@ -163,7 +163,7 @@ static void TrackPlantedFootPositionWhileRunning(Tachyon* tachyon, State& state)
 
 static void TrackPlantedFootPositionsWhileWalking(Tachyon* tachyon, State& state) {
   auto& rig = state.player.rig;
-  float t = fmodf(rig.seek_time, 8.f);
+  float t = fmodf(rig.next_animation_time, 8.f);
 
   // Airborne
   if (!state.player.is_airborne_in_run_cycle && t > 0.f && t < 1.f) {
@@ -241,7 +241,7 @@ static void HandleRunOscillation(Tachyon* tachyon, State& state) {
   if (state.run_oscillation > 1.f) state.run_oscillation = 1.f;
 
   float run_bounce_height = RUN_BOUNCE_HEIGHT * state.run_oscillation;
-  float run_cycle_time = fmodf(state.player.rig.seek_time + 1.f, 8.f) / 8.f;
+  float run_cycle_time = fmodf(state.player.rig.next_animation_time + 1.f, 8.f) / 8.f;
   float run_bounce = SampleCurve(run_bounce_curve, 2.f * run_cycle_time);
 
   state.player.visual_position.y += run_bounce_height * run_bounce;
@@ -389,7 +389,7 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state) {
 
     // @todo factor
     float speed_ratio = state.player_velocity.magnitude() / PlayerCharacter::MAX_RUN_SPEED;
-    float t = fmodf(state.player.rig.seek_time + 3.f, 8.f) / 8.f;
+    float t = fmodf(state.player.rig.next_animation_time + 3.f, 8.f) / 8.f;
 
     tVec3f flop = tVec3f(
       150.f * speed_ratio * cosf(t * t_TAU),
@@ -939,7 +939,7 @@ void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
       float turn_speedup = time_since(state.last_quick_turn_time);
 
       turn_speed *= 0.5f;
-      tilt *= 1.f + 0.1f * (1.f - turn_speedup);
+      tilt *= 0.5f;
     }
 
     state.player_facing_direction = tVec3f::slerp(state.player_facing_direction, desired_facing_direction, turn_speed * state.dt).unit();

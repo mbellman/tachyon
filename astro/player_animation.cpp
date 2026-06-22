@@ -221,7 +221,7 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
       rig.next_animation == &animations.player_walk ||
       rig.next_animation == &animations.player_walk_wand
     ) {
-      float seek_time = fmodf(rig.seek_time, 8.f);
+      float seek_time = fmodf(rig.current_animation_time, 8.f);
 
       if (seek_time < 1.5f || seek_time > 6.5f) {
         state.player_idle_stance = 2;
@@ -246,7 +246,7 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
   }
 }
 
-static void SetAnimationSpeed(Tachyon* tachyon, State& state, tSkeletonAnimation* animation) {
+static float GetAnimationSpeed(Tachyon* tachyon, State& state, tSkeletonAnimation* animation) {
   auto& rig = state.player.rig;
   auto& animations = state.animations;
 
@@ -256,10 +256,38 @@ static void SetAnimationSpeed(Tachyon* tachyon, State& state, tSkeletonAnimation
     animation == &animations.player_idle_wand ||
     animation == &animations.player_idle_wand_2
   ) {
-    animation->animation_speed = 0.8f;
+    return 0.8f;
   }
 
-  // @todo update the rest here
+  float speed_ratio = state.player_velocity.magnitude() / PlayerCharacter::MAX_RUN_SPEED;
+
+  if (
+    animation == &animations.player_walk ||
+    animation == &animations.player_walk_wand
+  ) {
+    return 13.5f * sqrt(speed_ratio);
+  }
+
+  if (
+    animation == &animations.player_run ||
+    animation == &animations.player_run_wand
+  ) {
+    return 12.f * sqrt(speed_ratio);
+  }
+
+  if (animation == &animations.player_climb_down) {
+    return 7.f;
+  }
+
+  if (animation == &animations.player_climb_up) {
+    return 8.5f;
+  }
+
+  if (animation == &animations.player_climb) {
+    return is_moving_left_stick() ? 10.f : 0.f;
+  }
+
+  return 1.f;
 }
 
 static float GetAnimationSpeed(Tachyon* tachyon, State& state) {
@@ -342,6 +370,11 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
 
   // Blend faster into climbing
   if (state.is_on_ladder) {
+    return 5.f;
+  }
+
+  // Blend faster into climbing up off a climbable surface
+  if (PlayerCharacter::IsClimbingOffLadder(tachyon, state) && !state.did_climb_down) {
     return 5.f;
   }
 
@@ -517,7 +550,7 @@ static void HandleTorsoAnimation(Tachyon* tachyon, State& state) {
 
   // Swing the torso while walking
   // @todo refactor/clean up
-  float t = fmodf(rig.seek_time + 3.f, 8.f) / 8.f;
+  float t = fmodf(rig.next_animation_time + 3.f, 8.f) / 8.f;
   float walk_cycle_time = t * t_TAU;
   float speed_curve_alpha = sinf(speed_ratio * t_PI);
 
@@ -572,7 +605,7 @@ static void HandleTorsoAnimation(Tachyon* tachyon, State& state) {
 
   // Compress when running
   {
-    float t = fmodf(rig.seek_time + 3.5f, 8.f) / 8.f;
+    float t = fmodf(rig.next_animation_time + 3.5f, 8.f) / 8.f;
     float alpha = 0.5f + 0.5f * sinf(2.f * t * t_TAU);
     float compression = 0.5f * alpha;
 
@@ -644,18 +677,31 @@ void PlayerAnimation::Update(Tachyon* tachyon, State& state) {
 
   SetActiveAnimation(tachyon, state);
 
+  if (
+    (IsWalkAnimation(rig.current_animation, state) || IsRunAnimation(rig.current_animation, state)) &&
+    (IsWalkAnimation(rig.next_animation, state) || IsRunAnimation(rig.next_animation, state))
+  ) {
+    rig.next_animation_time = rig.current_animation_time;
+  }
+
   bool moving_forward = tVec3f::dot(state.player_velocity, state.player_facing_direction) >= 0.f;
   float animation_speed = GetAnimationSpeed(tachyon, state);
   float blend_rate = GetAnimationBlendRate(tachyon, state);
   auto blend_type = GetAnimationBlendType(state);
 
+  rig.current_animation_speed = GetAnimationSpeed(tachyon, state, rig.current_animation);
+  rig.next_animation_speed = GetAnimationSpeed(tachyon, state, rig.next_animation);
+
   // When manually moving backward, or climbing down a ladder, play the animation in reverse
   if (
-    (!moving_forward && !PlayerCharacter::IsClimbingOffLadder(tachyon, state)) ||
-    (state.is_on_ladder && tachyon->left_stick.y > 0.f) ||
-    state.is_starting_climb_down
+    time_since(state.last_quick_turn_time) > 0.5f && (
+      (!moving_forward && !PlayerCharacter::IsClimbingOffLadder(tachyon, state)) ||
+      (state.is_on_ladder && tachyon->left_stick.y > 0.f) ||
+      state.is_starting_climb_down
+    )
   ) {
-    animation_speed *= -1.f;
+    rig.current_animation_speed *= -1.f;
+    rig.next_animation_speed *= -1.f;
   }
 
   // @todo factor

@@ -466,7 +466,7 @@ static void HandleWalkSounds(Tachyon* tachyon, State& state) {
   bool is_running = player_speed > PlayerCharacter::MAX_COMBAT_WALK_SPEED;
   int step_frame_1 = 2; // Left foot
   int step_frame_2 = 6; // Right foot
-  float seek_time = state.player.rig.seek_time;
+  float seek_time = state.player.rig.next_animation_time;
   int current_frame = (int) fmodf(seek_time, 8.f);
 
   if (current_frame == step_frame_1 || current_frame == step_frame_2) {
@@ -541,7 +541,7 @@ static void HandleClimbingSounds(Tachyon* tachyon, State& state) {
 
   int step_frame_1 = 0; // Left foot
   int step_frame_2 = 4; // Right foot
-  float seek_time = state.player.rig.seek_time;
+  float seek_time = state.player.rig.next_animation_time;
   int current_frame = (int) fmodf(seek_time, 8.f);
 
   if (current_frame == step_frame_1 || current_frame == step_frame_2) {
@@ -704,7 +704,8 @@ static void ShowGameStats(Tachyon* tachyon, State& state) {
     "Ground Y: " + std::to_string(state.current_ground_y),
     "Current animation: " + state.player.rig.current_animation->name,
     "Next animation: " + state.player.rig.next_animation->name,
-    "Animation time: " + std::to_string(state.player.rig.seek_time),
+    "Current animation time: " + std::to_string(state.player.rig.current_animation_time),
+    "Next animation time: " + std::to_string(state.player.rig.next_animation_time),
     "Delta time: " + std::to_string(state.dt)
   };
 

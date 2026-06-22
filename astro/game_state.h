@@ -441,7 +441,6 @@ namespace astro {
     tSkeleton evaluated_pose;
     std::string name = "";
     float animation_speed = 0.f;
-    float seek_time = 0.f;
   };
 
   struct tAnimationRig {
@@ -457,7 +456,13 @@ namespace astro {
     float torso_turn_angle = 0.f;
     float torso_tilt_angle = 0.f;
     float torso_compression = 0.f;
+
+    float current_animation_time = 0.f;
+    float current_animation_speed = 0.f;
+    float next_animation_time = 0.f;
+    float next_animation_speed = 0.f;
     float upper_body_animation_time = 0.f;
+    float upper_body_animation_speed = 0.f;
   };
 
   /**

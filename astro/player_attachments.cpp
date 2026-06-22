@@ -281,7 +281,7 @@ void PlayerAttachments::Update(Tachyon* tachyon, State& state) {
     }
   }
   else {
-    float run_cycle_time = fmodf(state.player.rig.seek_time + 1.f, 8.f) / 8.f;
+    float run_cycle_time = fmodf(state.player.rig.next_animation_time + 1.f, 8.f) / 8.f;
 
     float satchel_bounce = SampleCurve(run_bounce_curve, 2.f * run_cycle_time - 0.5f);
     float blanket_bounce = SampleCurve(run_bounce_curve, 2.f * run_cycle_time - 0.25f);

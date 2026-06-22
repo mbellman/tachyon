@@ -27,9 +27,9 @@ static float Curve(const float t, const float k) {
   return t + k * (3.f * t * t - 2.f * t * t * t - t);
 }
 
-static void EvaluateAnimation(tSkeletonAnimation& animation) {
-  float blend_alpha = fmodf(animation.seek_time, 1.f);
-  float t = animation.seek_time;
+static void EvaluateAnimation(tSkeletonAnimation& animation, const float seek_time) {
+  float blend_alpha = fmodf(seek_time, 1.f);
+  float t = seek_time;
 
   // @temporary @todo Do this when loading the animations for the first time
   ReserveAnimationPoseData(animation);
@@ -121,40 +121,40 @@ static tVec3f GetSkeletonRootMotion(tSkeletonAnimation& animation, const float s
 }
 
 void Animation::AccumulateTime(tAnimationRig& rig, const float animation_speed, const float blend_rate, const float dt) {
+  // @todo remove
   rig.seek_time += animation_speed * dt;
 
-  // Limit and wrap current animation time
+  // Update and wrap current animation seek time
   // @todo refactor with below
   {
     auto& animation = *rig.current_animation;
     float max_seek_time = GetMaxSeekTime(animation);
 
-    animation.seek_time += animation.animation_speed * dt;
+    rig.current_animation_time += rig.current_animation_speed * dt;
 
-    if (animation.seek_time > max_seek_time) {
-      animation.seek_time -= max_seek_time;
-    } else if (animation.seek_time < 0.f) {
-      animation.seek_time += max_seek_time;
+    if (rig.current_animation_time > max_seek_time) {
+      rig.current_animation_time -= max_seek_time;
+    } else if (rig.current_animation_time < 0.f) {
+      rig.current_animation_time += max_seek_time;
     }
   }
 
-  // Limit and wrap next animation time
+  // Update and wrap next animation seek time
   // @todo refactor with above
-  {
+  if (rig.next_animation != rig.current_animation) {
     auto& animation = *rig.next_animation;
     float max_seek_time = GetMaxSeekTime(animation);
 
-    animation.seek_time += animation.animation_speed * dt;
+    rig.next_animation_time += rig.next_animation_speed * dt;
 
-    if (animation.seek_time > max_seek_time) {
-      animation.seek_time -= max_seek_time;
-    } else if (animation.seek_time < 0.f) {
-      animation.seek_time += max_seek_time;
+    if (rig.next_animation_time > max_seek_time) {
+      rig.next_animation_time -= max_seek_time;
+    } else if (rig.next_animation_time < 0.f) {
+      rig.next_animation_time += max_seek_time;
     }
+  } else {
+    rig.next_animation_time = rig.current_animation_time;
   }
-
-  // @todo remove
-  rig.next_animation->seek_time += rig.next_animation->animation_speed * dt;
 
   // Limit and wrap the animation time to a common multiple of the
   // current/next animation times so that we don't eventually encounter
@@ -186,6 +186,7 @@ void Animation::AccumulateTime(tAnimationRig& rig, const float animation_speed, 
     rig.next_animation_blend_alpha == 1.f
   ) {
     rig.current_animation = rig.next_animation;
+    rig.current_animation_time = rig.next_animation_time;
   }
 }
 
@@ -194,19 +195,16 @@ void Animation::UpdatePose(tAnimationRig& rig, const AnimationBlendType blend_ty
   tSkeletonAnimation& next_animation = *rig.next_animation;
 
   // @temporary
-  current_animation.seek_time = rig.seek_time;
-  next_animation.seek_time = rig.seek_time;
+  // current_animation.seek_time = rig.seek_time;
+  // next_animation.seek_time = rig.seek_time;
 
   // Evaluate the current and next animations simultaneously so they can be blended
   // @optimize this only has to be done when transitioning between animations
-  EvaluateAnimation(current_animation);
-  EvaluateAnimation(next_animation);
+  EvaluateAnimation(current_animation, rig.current_animation_time);
+  EvaluateAnimation(next_animation, rig.next_animation_time);
 
   if (rig.upper_body_animation != nullptr) {
-    // @temporary
-    rig.upper_body_animation->seek_time = rig.upper_body_animation_time;
-
-    EvaluateAnimation(*rig.upper_body_animation);
+    EvaluateAnimation(*rig.upper_body_animation, rig.upper_body_animation_time);
   }
 
   // Update the active pose based on the blended result of the current/next animations
@@ -311,6 +309,7 @@ void Animation::SetNextAnimation(tAnimationRig& rig, tSkeletonAnimation* skeleto
   }
 
   rig.next_animation = skeleton_animation;
+  rig.next_animation_time = 0.f;
   rig.next_animation_blend_alpha = 0.f;
 }
 
@@ -319,10 +318,8 @@ void Animation::StartNextAnimation(tAnimationRig& rig, tSkeletonAnimation* skele
     return;
   }
 
-  // @todo don't immediately set the current animation; blend into the next animation
-  rig.current_animation = skeleton_animation;
   rig.next_animation = skeleton_animation;
-  rig.next_animation->seek_time = 0.f;
+  rig.next_animation_time = 0.f;
   rig.next_animation_blend_alpha = 0.f;
   rig.seek_time = 0.f;
 }
@@ -337,8 +334,8 @@ void Animation::AwaitNextAnimation(tAnimationRig& rig, tSkeletonAnimation* skele
 
 tVec3f Animation::GetRootMotion(tAnimationRig& rig) {
   tVec3f initial_root = rig.current_animation->frames[0].bones[17].translation;
-  tVec3f current_root = GetSkeletonRootMotion(*rig.current_animation, rig.seek_time);
-  tVec3f next_root = GetSkeletonRootMotion(*rig.next_animation, rig.seek_time);
+  tVec3f current_root = GetSkeletonRootMotion(*rig.current_animation, rig.current_animation_time);
+  tVec3f next_root = GetSkeletonRootMotion(*rig.next_animation, rig.next_animation_time);
   tVec3f blended_root = tVec3f::lerp(current_root, next_root, rig.next_animation_blend_alpha);
 
   return blended_root - initial_root;

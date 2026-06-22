@@ -811,10 +811,7 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   ) {
     // @todo move this into PlayerCharacter::
 
-    if (
-      state.player.rig.current_animation == &state.animations.player_climb_up &&
-      state.player.rig.next_animation == &state.animations.player_climb_up
-    ) {
+    if (state.player.rig.next_animation == &state.animations.player_climb_up) {
       tVec3f root_motion = Animation::GetRootMotion(state.player.rig) * 1500.f;
       tVec3f root_offset = state.player.rotation_matrix * root_motion;
 

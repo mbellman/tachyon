@@ -81,7 +81,7 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
         0.f
       );
 
-      float t = fmodf(state.player.rig.seek_time, 8.f) / 8.f;
+      float t = fmodf(state.player.rig.next_animation_time, 8.f) / 8.f;
       float alpha = 2.f * t * t_TAU;
 
       state.player.climb_speed = climb_direction * 3500.f * (0.5f + 0.5f * sinf(alpha));
@@ -180,7 +180,7 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
       time_since(state.last_quick_turn_time) > 0.5f &&
       state.previous_move_delta < 5.f
     ) {
-      state.player.rig.seek_time = state.player_idle_stance == 1 ? 0.f : 4.f;
+      state.player.rig.next_animation_time = state.player_idle_stance == 1 ? 0.f : 4.f;
     }
 
     state.last_quick_turn_time = get_scene_time();
