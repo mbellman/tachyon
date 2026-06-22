@@ -689,3 +689,35 @@ void PlayerAnimation::Update(Tachyon* tachyon, State& state) {
   Animation::UpdatePose(state.player.rig, blend_type);
   Animation::UpdateBoneMatrices(state.player.rig);
 }
+
+float PlayerAnimation::GetRunCycleAnimationTime(State& state) {
+  auto& animations = state.animations;
+  auto& rig = state.player.rig;
+
+  // If our next animation is walking or running, use that
+  // as our source value. This can also mean both current and
+  // next use the same animation, but we want to favor the
+  // next animation if they are not.
+  if (
+    rig.next_animation == &animations.player_walk ||
+    rig.next_animation == &animations.player_walk_wand ||
+    rig.next_animation == &animations.player_run ||
+    rig.next_animation == &animations.player_run_wand
+  ) {
+    return rig.next_animation_time;
+  }
+
+  // If our next animation is something other than walking or running,
+  // use the residual animation time from our current animation as we
+  // blend into that one.
+  if (
+    rig.current_animation == &animations.player_walk ||
+    rig.current_animation == &animations.player_walk_wand ||
+    rig.current_animation == &animations.player_run ||
+    rig.current_animation == &animations.player_run_wand
+  ) {
+    return rig.current_animation_time;
+  }
+
+  return 0.f;
+}

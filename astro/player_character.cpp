@@ -118,7 +118,17 @@ static void ShowDebugPlayerSkeleton(Tachyon* tachyon, State& state) {
   }
 }
 
-static void TrackPlantedFootPositionWhileRunning(Tachyon* tachyon, State& state) {
+static void HandleLedgeJumpActions(Tachyon* tachyon, State& state) {
+  float time_since_jump = time_since(state.last_ledge_jump_time);
+
+  if (time_since_jump < 0.2f) {
+    float alpha = time_since_jump / 0.2f;
+
+    state.player_position.y += 6000.f * state.dt * (1.f - alpha);
+  }
+}
+
+static void TrackPlantedFeetWhileRunning(Tachyon* tachyon, State& state) {
   auto& rig = state.player.rig;
   float t = fmodf(rig.next_animation_time, 8.f);
 
@@ -161,7 +171,7 @@ static void TrackPlantedFootPositionWhileRunning(Tachyon* tachyon, State& state)
   }
 }
 
-static void TrackPlantedFootPositionsWhileWalking(Tachyon* tachyon, State& state) {
+static void TrackPlantedFeetWhileWalking(Tachyon* tachyon, State& state) {
   auto& rig = state.player.rig;
   float t = fmodf(rig.next_animation_time, 8.f);
 
@@ -220,38 +230,6 @@ static float SampleCurve(const std::vector<float>& curve, const float t) {
   return Tachyon_Lerpf(a, b, alpha);
 }
 
-static float GetRunCycleAnimationTime(State& state) {
-  auto& animations = state.animations;
-  auto& rig = state.player.rig;
-
-  // If our next animation is walking or running, use that
-  // as our source value. This can also mean both current and
-  // next use the same animation, but we want to favor the
-  // next animation if they are not.
-  if (
-    rig.next_animation == &animations.player_walk ||
-    rig.next_animation == &animations.player_walk_wand ||
-    rig.next_animation == &animations.player_run ||
-    rig.next_animation == &animations.player_run_wand
-  ) {
-    return rig.next_animation_time;
-  }
-
-  // If our next animation is something other than walking or running,
-  // use the residual animation time from our current animation as we
-  // blend into that one.
-  if (
-    rig.current_animation == &animations.player_walk ||
-    rig.current_animation == &animations.player_walk_wand ||
-    rig.current_animation == &animations.player_run ||
-    rig.current_animation == &animations.player_run_wand
-  ) {
-    return rig.current_animation_time;
-  }
-
-  return 0.f;
-}
-
 static void HandleRunOscillation(Tachyon* tachyon, State& state) {
   if (state.did_jump_off_ledge) {
     // Reduce run oscillation when jumping off ledges
@@ -277,7 +255,8 @@ static void HandleRunOscillation(Tachyon* tachyon, State& state) {
   if (state.run_oscillation > 1.f) state.run_oscillation = 1.f;
 
   float run_bounce_height = RUN_BOUNCE_HEIGHT * state.run_oscillation;
-  float run_cycle_time = fmodf(GetRunCycleAnimationTime(state) + 1.f, 8.f) / 8.f;
+  float run_cycle_animation_time = PlayerAnimation::GetRunCycleAnimationTime(state);
+  float run_cycle_time = fmodf(run_cycle_animation_time + 1.f, 8.f) / 8.f;
   float run_bounce = SampleCurve(run_bounce_curve, 2.f * run_cycle_time);
 
   state.player.visual_position.y += run_bounce_height * run_bounce;
@@ -300,21 +279,102 @@ static void HandleCombatJumpMotions(Tachyon* tachyon, State& state) {
   }
 }
 
+static void KeepFeetPlanted(State& state) {
+  auto& rig = state.player.rig;
+  auto& player = state.player;
+
+  if (state.player.is_left_foot_planted) {
+    tVec3f foot = rig.active_pose.bones[9].translation * 1500.f;
+    foot = player.rotation_matrix * foot;
+
+    tVec3f current_left_foot_position = state.player_position + foot;
+    tVec3f offset = state.player.planted_left_foot_position - current_left_foot_position;
+
+    state.player_position += offset.xz() * 0.1f;
+  }
+
+  if (state.player.is_right_foot_planted) {
+    tVec3f foot = rig.active_pose.bones[13].translation * 1500.f;
+    foot = player.rotation_matrix * foot;
+
+    tVec3f current_right_foot_position = state.player_position + foot;
+    tVec3f offset = state.player.planted_right_foot_position - current_right_foot_position;
+
+    state.player_position += offset.xz() * 0.1f;
+  }
+}
+
+static void UpdateFacingDirectionAndTilt(Tachyon* tachyon, State& state) {
+  float player_speed = state.player_velocity.magnitude();
+  float speed_ratio = player_speed / PlayerCharacter::MAX_RUN_SPEED;
+  tVec3f desired_facing_direction = state.player_facing_direction;
+  float turn_speed = Tachyon_Lerpf(2.f, 10.f, speed_ratio);
+  float tilt = 0.f;
+
+  bool is_doing_quick_turn = (
+    state.last_quick_turn_time != 0.f &&
+    time_since(state.last_quick_turn_time) < 1.f
+  );
+
+  if (state.has_target) {
+    // When we're focused on a target, continue to face toward it
+    auto& target = *EntityManager::FindEntity(state, state.target_entity);
+
+    desired_facing_direction = (target.visible_position - state.player_position).xz().unit();
+  }
+  else if (
+    state.player_hp > 0.f &&
+    player_speed > 0.01f &&
+    !state.is_on_ladder &&
+    !PlayerCharacter::IsClimbingOffLadder(tachyon, state)
+  ) {
+    // Without a target, use our velocity vector to influence facing direction
+    desired_facing_direction = state.player_velocity.xz().unit();
+  }
+
+  // Calculate tilt before applying the new facing direction
+  float facing_angle = atan2f(state.player_facing_direction.z, state.player_facing_direction.x);
+  float desired_facing_angle = atan2f(desired_facing_direction.z, desired_facing_direction.x);
+
+  tilt = GetAngleBetween(desired_facing_angle, facing_angle);
+  tilt *= 0.3f;
+  tilt *= speed_ratio;
+
+  // Apply extra tilt, and reduce turn speed, at the beginning of a quick turn
+  // @todo use a proper quick turn animation
+  if (is_doing_quick_turn) {
+    float turn_speedup = time_since(state.last_quick_turn_time);
+
+    turn_speed *= 0.5f;
+    tilt *= 0.5f;
+  }
+
+  state.player_facing_direction = tVec3f::slerp(state.player_facing_direction, desired_facing_direction, turn_speed * state.dt).unit();
+  state.tilt_angle = Tachyon_Lerpf(state.tilt_angle, tilt, 5.f * state.dt);
+
+  // Reset tilt angle when it drops low enough
+  if (abs(state.tilt_angle) < 0.001f) {
+    state.tilt_angle = 0.f;
+  }
+}
+
+static void UpdateRotation(State& state) {
+  state.player.rotation = (
+    // Rotate according to facing direction
+    Quaternion::FromDirection(state.player_facing_direction, tVec3f(0, 1.f, 0)) *
+    // Apply tilt
+    Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), state.tilt_angle)
+  );
+
+  state.player.rotation_matrix = state.player.rotation.toMatrix4f();
+}
+
 static void UpdatePlayerModel(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
   auto& player = state.player;
 
-  // Ledge jump actions
-  {
-    if (state.did_jump_off_ledge) {
-      float time_since_jump = time_since(state.last_ledge_jump_time);
-
-      if (time_since_jump < 0.2f) {
-        float alpha = time_since_jump / 0.2f;
-
-        state.player_position.y += 6000.f * state.dt * (1.f - alpha);
-      }
-    }
+  if (state.did_jump_off_ledge) {
+    HandleLedgeJumpActions(tachyon, state);
   }
 
   player.visual_position = state.player_position;
@@ -322,13 +382,13 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state) {
 
   if (state.player_hp > 0.f) {
     if (PlayerCharacter::IsRunning(tachyon, state)) {
-      TrackPlantedFootPositionWhileRunning(tachyon, state);
+      TrackPlantedFeetWhileRunning(tachyon, state);
     } else if (
       state.previous_move_delta > 0.f &&
       !state.is_on_ladder &&
       !PlayerCharacter::IsClimbingOffLadder(tachyon, state)
     ) {
-      TrackPlantedFootPositionsWhileWalking(tachyon, state);
+      TrackPlantedFeetWhileWalking(tachyon, state);
     } else {
       state.player.is_left_foot_planted = false;
       state.player.is_right_foot_planted = false;
@@ -357,32 +417,8 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state) {
   PlayerAnimation::Update(tachyon, state);
   PlayerAttachments::Update(tachyon, state);
 
-  // Keep feet planted
-  // @todo factor
-  {
-    if (time_since(state.last_quick_turn_time) > 1.f) {
-      auto& rig = state.player.rig;
-
-      if (state.player.is_left_foot_planted) {
-        tVec3f foot = rig.active_pose.bones[9].translation * 1500.f;
-        foot = player.rotation_matrix * foot;
-
-        tVec3f current_left_foot_position = state.player_position + foot;
-        tVec3f offset = state.player.planted_left_foot_position - current_left_foot_position;
-
-        state.player_position += offset.xz() * 0.1f;
-      }
-
-      if (state.player.is_right_foot_planted) {
-        tVec3f foot = rig.active_pose.bones[13].translation * 1500.f;
-        foot = player.rotation_matrix * foot;
-
-        tVec3f current_right_foot_position = state.player_position + foot;
-        tVec3f offset = state.player.planted_right_foot_position - current_right_foot_position;
-
-        state.player_position += offset.xz() * 0.1f;
-      }
-    }
+  if (time_since(state.last_quick_turn_time) > 1.f) {
+    KeepFeetPlanted(state);
   }
 
   // @todo make this a constant
@@ -516,12 +552,14 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state) {
   }
 }
 
+// @todo PlayerWand::
 static void HandleWandStrike(Tachyon* tachyon, State& state) {
   Combat::HandleWandStrikeWindow(tachyon, state);
   // @deprecated
   Magic::HandleWandAction(tachyon, state);
 }
 
+// @todo PlayerWand::
 static float GetWandHoldFactor(State& state) {
   bool has_current_wand_animation = HasCurrentWandAnimation(state);
   bool has_next_wand_animation = HasNextWandAnimation(state);
@@ -539,6 +577,7 @@ static float GetWandHoldFactor(State& state) {
   );
 }
 
+// @todo PlayerWand::
 static void UpdateWand(Tachyon* tachyon, State& state) {
   auto& active_pose = state.player.rig.active_pose;
   auto& wand = objects(state.meshes.player_wand)[0];
@@ -725,6 +764,7 @@ static void UpdateWand(Tachyon* tachyon, State& state) {
   commit(wand);
 }
 
+// @todo PlayerWand::
 static void UpdateWandLights(Tachyon* tachyon, State& state) {
   // Initialization
   {
@@ -921,85 +961,8 @@ static void UpdateWandLights(Tachyon* tachyon, State& state) {
 void PlayerCharacter::UpdatePlayer(Tachyon* tachyon, State& state) {
   profile("UpdatePlayer()");
 
-  float player_speed = state.player_velocity.magnitude();
-  float speed_ratio = player_speed / PlayerCharacter::MAX_RUN_SPEED;
-
-  // Update facing direction and tilt
-  // @todo factor
-  {
-    tVec3f desired_facing_direction = state.player_facing_direction;
-    float turn_speed = Tachyon_Lerpf(2.f, 10.f, speed_ratio);
-    float tilt = 0.f;
-
-    bool is_doing_quick_turn = (
-      state.last_quick_turn_time != 0.f &&
-      time_since(state.last_quick_turn_time) < 1.f
-    );
-
-    if (state.has_target) {
-      // When we're focused on a target, continue to face toward it
-      auto& target = *EntityManager::FindEntity(state, state.target_entity);
-
-      desired_facing_direction = (target.visible_position - state.player_position).xz().unit();
-    }
-    else if (
-      state.player_hp > 0.f &&
-      player_speed > 0.01f &&
-      !state.is_on_ladder &&
-      !PlayerCharacter::IsClimbingOffLadder(tachyon, state)
-    ) {
-      // Without a target, use our velocity vector to influence facing direction
-      desired_facing_direction = state.player_velocity.xz().unit();
-    }
-
-    // When astro turning, don't change our facing direction at all,
-    // since targeted entities may jitter and jump about rapidly,
-    // and we don't want the facing direction being thrown off
-    //
-    // @todo remove this since we detarget things upon astro traveling now
-    if (abs(state.astro_turn_speed) > 0.05f) {
-      turn_speed = 0.f;
-    }
-
-    // Calculate tilt before applying the new facing direction
-    float facing_angle = atan2f(state.player_facing_direction.z, state.player_facing_direction.x);
-    float desired_facing_angle = atan2f(desired_facing_direction.z, desired_facing_direction.x);
-
-    tilt = GetAngleBetween(desired_facing_angle, facing_angle);
-    tilt *= 0.3f;
-    tilt *= speed_ratio;
-
-    // Apply extra tilt, and reduce turn speed, at the beginning of a quick turn
-    // @todo use a proper quick turn animation
-    if (is_doing_quick_turn) {
-      float turn_speedup = time_since(state.last_quick_turn_time);
-
-      turn_speed *= 0.5f;
-      tilt *= 0.5f;
-    }
-
-    state.player_facing_direction = tVec3f::slerp(state.player_facing_direction, desired_facing_direction, turn_speed * state.dt).unit();
-    state.tilt_angle = Tachyon_Lerpf(state.tilt_angle, tilt, 5.f * state.dt);
-
-    // Reset tilt angle when it drops low enough
-    if (abs(state.tilt_angle) < 0.001f) {
-      state.tilt_angle = 0.f;
-    }
-  }
-
-  // Set current rotation
-  // @todo factor
-  {
-    state.player.rotation = (
-      // Rotate according to facing direction
-      Quaternion::FromDirection(state.player_facing_direction, tVec3f(0, 1.f, 0)) *
-      // Apply tilt
-      Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), state.tilt_angle)
-    );
-
-    state.player.rotation_matrix = state.player.rotation.toMatrix4f();
-  }
-
+  UpdateFacingDirectionAndTilt(tachyon, state);
+  UpdateRotation(state);
   UpdatePlayerModel(tachyon, state);
 
   if (Items::HasItem(state, MAGIC_WAND)) {
