@@ -220,10 +220,46 @@ static float SampleCurve(const std::vector<float>& curve, const float t) {
   return Tachyon_Lerpf(a, b, alpha);
 }
 
+static float GetRunCycleAnimationTime(State& state) {
+  auto& animations = state.animations;
+  auto& rig = state.player.rig;
+
+  // If our next animation is walking or running, use that
+  // as our source value. This can also mean both current and
+  // next use the same animation, but we want to favor the
+  // next animation if they are not.
+  if (
+    rig.next_animation == &animations.player_walk ||
+    rig.next_animation == &animations.player_walk_wand ||
+    rig.next_animation == &animations.player_run ||
+    rig.next_animation == &animations.player_run_wand
+  ) {
+    return rig.next_animation_time;
+  }
+
+  // If our next animation is something other than walking or running,
+  // use the residual animation time from our current animation as we
+  // blend into that one.
+  if (
+    rig.current_animation == &animations.player_walk ||
+    rig.current_animation == &animations.player_walk_wand ||
+    rig.current_animation == &animations.player_run ||
+    rig.current_animation == &animations.player_run_wand
+  ) {
+    return rig.current_animation_time;
+  }
+
+  return 0.f;
+}
+
 static void HandleRunOscillation(Tachyon* tachyon, State& state) {
   if (state.did_jump_off_ledge) {
     // Reduce run oscillation when jumping off ledges
     state.run_oscillation -= 5.f * state.dt;
+  }
+  else if (state.is_on_ladder) {
+    // Reduce run oscillation when climbing
+    state.run_oscillation -= 20.f * state.dt;
   }
   else if (
     is_key_held(tKey::CONTROLLER_A) &&
@@ -241,7 +277,7 @@ static void HandleRunOscillation(Tachyon* tachyon, State& state) {
   if (state.run_oscillation > 1.f) state.run_oscillation = 1.f;
 
   float run_bounce_height = RUN_BOUNCE_HEIGHT * state.run_oscillation;
-  float run_cycle_time = fmodf(state.player.rig.next_animation_time + 1.f, 8.f) / 8.f;
+  float run_cycle_time = fmodf(GetRunCycleAnimationTime(state) + 1.f, 8.f) / 8.f;
   float run_bounce = SampleCurve(run_bounce_curve, 2.f * run_cycle_time);
 
   state.player.visual_position.y += run_bounce_height * run_bounce;

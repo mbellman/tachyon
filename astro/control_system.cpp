@@ -90,7 +90,13 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
         state.player.climb_speed = -8000.f;
       }
 
-      if (state.is_starting_climb_down) {
+      // Null out climbing speed if:
+      if (
+        // We're beginning our climb down onto something
+        state.is_starting_climb_down ||
+        // We're trying to climb down immediately after climbing onto the bottom of something
+        (climb_direction == -1.f && !state.is_starting_climb_down && time_since(state.player.last_climbing_start_time) < 0.5f)
+      ) {
         state.player.climb_speed = 0.f;
       }
 
@@ -169,7 +175,7 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
   }
 
   // Quick turning
-  if (GetTurnDot(tachyon, state) < -0.5f && !state.has_target) {
+  if (GetTurnDot(tachyon, state) < -0.8f && !state.has_target) {
     // If we start a running quick turn while at a relative standstill,
     // jump to the correct time in the run animation based on our
     // idle stance/foot positioning

@@ -84,9 +84,9 @@ static bool ShouldPlayClimbingOffAnimation(Tachyon* tachyon, State& state) {
   }
 
   if (state.did_climb_down) {
-    return time_since(climbing_stop_time) < 0.5f;
+    return time_since(climbing_stop_time) < 0.4f;
   } else {
-    return time_since(climbing_stop_time) < 1.5f;
+    return time_since(climbing_stop_time) < 1.3f;
   }
 }
 
@@ -167,9 +167,10 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
   // Climbing
   else if (state.is_on_ladder) {
     if (state.is_starting_climb_down) {
+      // @todo use a proper climb-down-onto-wall animation
       Animation::StartNextAnimation(rig, &animations.player_climb_up);
     } else {
-      Animation::AwaitNextAnimation(rig, &animations.player_climb);
+      Animation::StartNextAnimation(rig, &animations.player_climb);
     }
   }
 
@@ -178,26 +179,7 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
     if (state.is_holding_up_wand) {
       Animation::AwaitNextAnimation(rig, &animations.player_run_wand);
     } else {
-      if (
-        IsWandIdleAnimation(rig.current_animation, state) &&
-        IsNormalIdleAnimation(rig.next_animation, state)
-      ) {
-        // Special case for lowering the wand while idle, and immediately
-        // starting a run action. Ordinarily, this would cause us to wait
-        // for the transition from wand idle -> idle before then starting
-        // the run animation, causing awkward gliding behavior while still
-        // using the idle animation. Instead, we "cancel" and immediately
-        // start transitioning to the run animation.
-        //
-        // @todo factor this into an animation cancel method (?)
-        float current_blend = rig.next_animation_blend_alpha;
-
-        Animation::SetNextAnimation(rig, &animations.player_run);
-
-        rig.next_animation_blend_alpha = current_blend;
-      } else {
-        Animation::AwaitNextAnimation(rig, &animations.player_run);
-      }
+      Animation::AwaitNextAnimation(rig, &animations.player_run);
     }
   }
 
@@ -340,7 +322,7 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
     time_since(state.player.last_climbing_stop_time) < 2.f &&
     state.did_climb_down
   ) {
-    return 2.f;
+    return 3.f;
   }
 
   // Blend faster into climbing
@@ -529,7 +511,7 @@ static void HandleTorsoAnimation(Tachyon* tachyon, State& state) {
   float walk_cycle_time = t * t_TAU;
   float speed_curve_alpha = sinf(speed_ratio * t_PI);
 
-  rig.torso_turn_angle += 0.025f * speed_curve_alpha * sinf(walk_cycle_time);
+  rig.torso_turn_angle += speed_curve_alpha * sinf(walk_cycle_time) * state.dt;
 
   // Swing when slowing down
   {
