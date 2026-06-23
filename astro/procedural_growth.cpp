@@ -222,6 +222,12 @@ static void UpdateTreeFlowers(Tachyon* tachyon, State& state) {
     -18.f
   };
 
+  tVec3f flower_color = tVec3f::lerp(
+    tVec3f(0.6f),
+    tVec3f(1.f, 0.4f, 0.4f),
+    Tachyon_InverseLerp(astro_time_periods.past, astro_time_periods.future, state.astro_time)
+  );
+
   uint16 max_flower_count = objects(meshes.tree_flower).total;
   uint16 total_visible_oak_leaves = mesh(meshes.oak_tree_leaves).lod_1.instance_count;
 
@@ -277,7 +283,7 @@ static void UpdateTreeFlowers(Tachyon* tachyon, State& state) {
 
         flower.position = base_position + offset;
         flower.rotation = rotation;
-        flower.color = tVec4f(tVec3f(0.6f), 0.4f);
+        flower.color = tVec4f(flower_color, 0.4f);
         flower.material = tVec4f(0.5f, 0, 0, 1.f);
 
         commit(flower);
