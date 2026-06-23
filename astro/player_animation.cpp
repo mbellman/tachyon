@@ -174,6 +174,11 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
     }
   }
 
+  // Quick-turning
+  else if (time_since(state.last_quick_turn_time) < 0.15f) {
+    Animation::StartNextAnimation(rig, &animations.player_idle_quickturn);
+  }
+
   // Running
   else if (PlayerCharacter::IsRunning(tachyon, state)) {
     if (state.is_holding_up_wand) {
@@ -241,6 +246,10 @@ static float GetAnimationSpeed(Tachyon* tachyon, State& state, tSkeletonAnimatio
     return 0.8f;
   }
 
+  if (animation == &animations.player_idle_quickturn) {
+    return 15.f;
+  }
+
   float speed_ratio = state.player_velocity.magnitude() / PlayerCharacter::MAX_RUN_SPEED;
 
   if (
@@ -299,6 +308,14 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
     !HasNextWandAnimation(state)
   ) {
     return 5.f;
+  }
+
+  // Idle quickturn - > running
+  if (
+    rig.current_animation == &animations.player_idle_quickturn &&
+    IsRunAnimation(rig.next_animation, state)
+  ) {
+    return 4.f;
   }
 
   // Blend faster if we're not currently in the running animation while running

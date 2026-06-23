@@ -611,6 +611,7 @@ namespace astro {
       tSkeletonAnimation player_idle_2;
       tSkeletonAnimation player_idle_wand;
       tSkeletonAnimation player_idle_wand_2;
+      tSkeletonAnimation player_idle_quickturn;
       tSkeletonAnimation player_walk;
       tSkeletonAnimation player_walk_wand;
       tSkeletonAnimation player_run;

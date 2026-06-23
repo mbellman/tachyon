@@ -239,6 +239,9 @@ static void HandleRunOscillation(Tachyon* tachyon, State& state) {
     // Reduce run oscillation when climbing
     state.run_oscillation -= 20.f * state.dt;
   }
+  else if (time_since(state.last_quick_turn_time) < 0.2f) {
+    state.run_oscillation -= 10.f * state.dt;
+  }
   else if (
     is_key_held(tKey::CONTROLLER_A) &&
     state.player_velocity.magnitude() > 500.f
