@@ -297,8 +297,8 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
     float dz = abs(state.player_position.z - entity.position.z);
 
     tVec3f player_to_entity = (entity.position - state.player_position).xz().unit();
-    float facing_dot = tVec3f::dot(state.player_facing_direction, player_to_entity);
-    bool is_facing_ladder = facing_dot > 0.f;
+    float moving_dot = tVec3f::dot(state.player_velocity.xz(), player_to_entity);
+    bool is_moving_toward_ladder = moving_dot > 0.f;
     float ladder_top_y = entity.position.y + entity.scale.y;
     float climbing_top_y = ladder_top_y - 1500.f;
     float climbing_bottom_y = entity.position.y - entity.scale.y + 2500.f;
@@ -306,7 +306,7 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
     // Approaching the bottom or top of a ladder
     bool is_climbing_onto_ladder_normally = (
       dx < 1100.f && dz < 1100.f &&
-      (is_facing_ladder || was_just_climbing)
+      (is_moving_toward_ladder || was_just_climbing)
     );
 
     // Approaching a ladder over the edge of a raised wall
@@ -331,6 +331,7 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
       // @todo handle climbing off over a wall
       bool did_climb_off_top = (
         is_left_stick_up &&
+        !state.is_starting_climb_down &&
         time_since_starting_climb > 0.5f &&
         state.player_position.y > climbing_top_y
       );

@@ -168,7 +168,7 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
   else if (state.is_on_ladder) {
     if (state.is_starting_climb_down) {
       // @todo use a proper climb-down-onto-wall animation
-      Animation::StartNextAnimation(rig, &animations.player_climb_up);
+      Animation::StartNextAnimation(rig, &animations.player_climb);
     } else {
       Animation::StartNextAnimation(rig, &animations.player_climb);
     }
@@ -308,7 +308,7 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
       rig.current_animation != &animations.player_run_wand
     )
   ) {
-    return 5.f;
+    return 4.f;
   }
 
   // Special case for blending into idle when climbing down
