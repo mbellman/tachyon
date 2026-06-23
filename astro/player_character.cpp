@@ -279,6 +279,30 @@ static void HandleCombatJumpMotions(Tachyon* tachyon, State& state) {
   }
 }
 
+static void HandleHoodFlop(State& state, tSkinnedMesh& hood) {
+  float speed_ratio;
+
+  // If we're climbing, use that speed to control flop
+  if (state.player.climb_speed != 0.f) {
+    speed_ratio = abs(state.player.climb_speed) / 5000.f;
+
+  // If we're moving normally, use the regular movement speed ratio
+  } else {
+    speed_ratio = state.player_velocity.magnitude() / PlayerCharacter::MAX_RUN_SPEED;
+  }
+
+  float t = fmodf(state.player.rig.next_animation_time + 3.f, 8.f) / 8.f;
+
+  tVec3f flop = tVec3f(
+    150.f * speed_ratio * cosf(t * t_TAU),
+    250.f * speed_ratio * sinf(2.f * t * t_TAU),
+    0.f
+  );
+
+  hood.flop_control_point = tVec3f(0, 1.3f, -0.5f);
+  hood.flop_offset = state.player.rotation_matrix * flop;
+}
+
 static void KeepFeetPlanted(State& state) {
   auto& rig = state.player.rig;
   auto& player = state.player;
@@ -459,18 +483,7 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state) {
     hood.shadow_cascade_ceiling = 2;
     hood.current_pose = &active_pose;
 
-    // @todo factor
-    float speed_ratio = state.player_velocity.magnitude() / PlayerCharacter::MAX_RUN_SPEED;
-    float t = fmodf(state.player.rig.next_animation_time + 3.f, 8.f) / 8.f;
-
-    tVec3f flop = tVec3f(
-      150.f * speed_ratio * cosf(t * t_TAU),
-      250.f * speed_ratio * sinf(2.f * t * t_TAU),
-      0.f
-    );
-
-    hood.flop_control_point = tVec3f(0, 1.3f, -0.5f);
-    hood.flop_offset = state.player.rotation_matrix * flop;
+    HandleHoodFlop(state, hood);
 
     commit(hood);
 

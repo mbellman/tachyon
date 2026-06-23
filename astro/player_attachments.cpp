@@ -67,7 +67,7 @@ static void UpdateBlanket(Tachyon* tachyon, State& state) {
 
 static float GetSwingIntensity(Tachyon* tachyon, State& state) {
   if (state.is_on_ladder) {
-    return state.player.climb_speed / 8000.f;
+    return abs(state.player.climb_speed) / 5000.f;
   }
   else if (PlayerCharacter::IsClimbingOffLadder(tachyon, state)) {
     float time_since_stopping_climb = time_since(state.player.last_climbing_stop_time);
