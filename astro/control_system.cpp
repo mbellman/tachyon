@@ -117,6 +117,11 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
       state.has_target ? 8000.f :
       4000.f;
 
+    if (time_since(state.last_quick_turn_time) < 0.5f) {
+      // In the moments after a quick turn, ramp up from half to full acceleration
+      acceleration *= 0.5f + 0.5f * time_since(state.last_quick_turn_time) / 0.5f;
+    }
+
     // Make sure we can't accelerate beyond our current movement speed.
     // In HandleSpeedDampening(), we actually perform hard speed limiting
     // and slowdown behavior.
@@ -175,7 +180,11 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
   }
 
   // Quick turning
-  if (GetTurnDot(tachyon, state) < -0.8f && !state.has_target) {
+  if (
+    is_key_held(tKey::CONTROLLER_A) &&
+    GetTurnDot(tachyon, state) < -0.8f &&
+    !state.has_target
+  ) {
     // If we start a running quick turn while at a relative standstill,
     // jump to the correct time in the run animation based on our
     // idle stance/foot positioning

@@ -125,9 +125,12 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
   auto& rig = state.player.rig;
   auto& animations = state.animations;
 
-  bool is_doing_quick_turn = (
+  bool is_running = PlayerCharacter::IsRunning(tachyon, state);
+
+  bool just_did_quick_turn = (
+    (IsAnyIdleAnimation(rig.current_animation, state) || IsWalkAnimation(rig.current_animation, state)) &&
     state.last_quick_turn_time != 0.f &&
-    time_since(state.last_quick_turn_time) < 0.3f
+    time_since(state.last_quick_turn_time) < 0.1f
   );
 
   bool has_target_and_is_moving = (
@@ -175,7 +178,7 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
   }
 
   // Quick-turning
-  else if (time_since(state.last_quick_turn_time) < 0.15f) {
+  else if (just_did_quick_turn) {
     Animation::StartNextAnimation(rig, &animations.player_idle_quickturn);
   }
 
@@ -247,7 +250,7 @@ static float GetAnimationSpeed(Tachyon* tachyon, State& state, tSkeletonAnimatio
   }
 
   if (animation == &animations.player_idle_quickturn) {
-    return 15.f;
+    return 12.f;
   }
 
   float speed_ratio = state.player_velocity.magnitude() / PlayerCharacter::MAX_RUN_SPEED;

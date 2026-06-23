@@ -343,6 +343,11 @@ static void UpdateFacingDirectionAndTilt(Tachyon* tachyon, State& state) {
     time_since(state.last_quick_turn_time) < 1.f
   );
 
+  bool just_started_quick_turn = (
+    state.last_quick_turn_time != 0.f &&
+    time_since(state.last_quick_turn_time) < 0.25f
+  );
+
   if (state.has_target) {
     // When we're focused on a target, continue to face toward it
     auto& target = *EntityManager::FindEntity(state, state.target_entity);
@@ -357,6 +362,13 @@ static void UpdateFacingDirectionAndTilt(Tachyon* tachyon, State& state) {
   ) {
     // Without a target, use our velocity vector to influence facing direction
     desired_facing_direction = state.player_velocity.xz().unit();
+
+    if (just_started_quick_turn) {
+      // At the start of a quick turn, turn toward the left to
+      // better match the leg animation
+      // @todo deal with player axis inversion issues
+      desired_facing_direction = state.player.rotation.getLeftDirection().invert();
+    }
   }
 
   // Calculate tilt before applying the new facing direction
@@ -367,11 +379,9 @@ static void UpdateFacingDirectionAndTilt(Tachyon* tachyon, State& state) {
   tilt *= 0.3f;
   tilt *= speed_ratio;
 
-  // Apply extra tilt, and reduce turn speed, at the beginning of a quick turn
-  // @todo use a proper quick turn animation
+  // Reduce turn speed + tilt when doing a quick turn,
+  // since we have an animation for the visual aspects
   if (is_doing_quick_turn) {
-    float turn_speedup = time_since(state.last_quick_turn_time);
-
     turn_speed *= 0.5f;
     tilt *= 0.5f;
   }
@@ -444,7 +454,7 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state) {
   PlayerAnimation::Update(tachyon, state);
   PlayerAttachments::Update(tachyon, state);
 
-  if (time_since(state.last_quick_turn_time) > 1.f) {
+  if (time_since(state.last_quick_turn_time) > 0.75f) {
     KeepFeetPlanted(state);
   }
 
