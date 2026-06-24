@@ -118,8 +118,8 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
       4000.f;
 
     if (time_since(state.last_quick_turn_time) < 0.5f) {
-      // In the moments after a quick turn, ramp up from half to full acceleration
-      acceleration *= 0.5f + 0.5f * time_since(state.last_quick_turn_time) / 0.5f;
+      // In the moments after a quick turn, ramp up from partial to full acceleration
+      acceleration *= 0.75f + 0.25f * time_since(state.last_quick_turn_time) / 0.5f;
     }
 
     // Make sure we can't accelerate beyond our current movement speed.
@@ -182,22 +182,10 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
   // Quick turning
   if (
     is_key_held(tKey::CONTROLLER_A) &&
-    GetTurnDot(tachyon, state) < -0.8f &&
-    !state.has_target
+    !state.has_target &&
+    GetTurnDot(tachyon, state) < -0.7f &&
+    time_since(state.last_quick_turn_time) > 0.75f
   ) {
-    // If we start a running quick turn while at a relative standstill,
-    // jump to the correct time in the run animation based on our
-    // idle stance/foot positioning
-    //
-    // @todo use a proper quick turn animation
-    if (
-      is_running &&
-      time_since(state.last_quick_turn_time) > 0.5f &&
-      state.previous_move_delta < 5.f
-    ) {
-      state.player.rig.next_animation_time = state.player_idle_stance == 1 ? 0.f : 4.f;
-    }
-
     state.last_quick_turn_time = get_scene_time();
   }
 }

@@ -345,7 +345,7 @@ static void UpdateFacingDirectionAndTilt(Tachyon* tachyon, State& state) {
 
   bool just_started_quick_turn = (
     state.last_quick_turn_time != 0.f &&
-    time_since(state.last_quick_turn_time) < 0.25f
+    time_since(state.last_quick_turn_time) < 0.15f
   );
 
   if (state.has_target) {

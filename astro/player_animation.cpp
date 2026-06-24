@@ -127,10 +127,10 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
 
   bool is_running = PlayerCharacter::IsRunning(tachyon, state);
 
-  bool just_did_quick_turn = (
+  bool just_started_quick_turn = (
     (IsAnyIdleAnimation(rig.current_animation, state) || IsWalkAnimation(rig.current_animation, state)) &&
     state.last_quick_turn_time != 0.f &&
-    time_since(state.last_quick_turn_time) < 0.1f
+    time_since(state.last_quick_turn_time) < 0.15f
   );
 
   bool has_target_and_is_moving = (
@@ -178,7 +178,7 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
   }
 
   // Quick-turning
-  else if (just_did_quick_turn) {
+  else if (just_started_quick_turn) {
     Animation::StartNextAnimation(rig, &animations.player_idle_quickturn);
   }
 

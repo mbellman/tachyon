@@ -512,7 +512,9 @@ void main() {
         float alpha = pow(wand_pulse_alpha, 0.5);
 
         float current_radius = alpha * pulse_range;
-        float pulse_distance = distance(world_position, wand_pulse_position);
+        vec3 wand_pulse_to_world_position = world_position * vec3(1, 0, 1) - wand_pulse_position * vec3(1, 0, 1);
+        float pulse_distance = length(wand_pulse_to_world_position);
+        float distance_from_radius = abs(current_radius - pulse_distance);
 
         vec3 pulse_color = mix(start_pulse_color, end_pulse_color, wand_pulse_alpha);
 
@@ -528,13 +530,23 @@ void main() {
           post_color = mix(post_color, pulse_color, blend);
         } else {
           // Apply effects on the outside edge of the radius
-          float distance_from_radius = abs(current_radius - pulse_distance);
           float blend = clamp(1.0 - distance_from_radius / outside_edge_range, 0.0, 1.0);
 
           blend *= inverse_alpha;
 
           post_color = mix(post_color, pulse_color, blend);
         }
+
+        // Apply a highlight near the radius line
+        float angle = 5.0 * atan(wand_pulse_to_world_position.z, wand_pulse_to_world_position.x);
+        float highlight_alpha = max(0.0, 1.0 - distance_from_radius / 500.0);
+        vec3 highlight_color = vec3(1.0, 0.9, 0.8);
+
+        highlight_color.g *= 0.9 + 0.1 * sin(angle + 1.5);
+        highlight_color.b *= 0.8 + 0.2 * cos(angle);
+        highlight_alpha *= inverse_alpha;
+
+        post_color = mix(post_color, highlight_color, highlight_alpha);
       }
     }
 
