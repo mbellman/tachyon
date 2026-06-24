@@ -382,7 +382,7 @@ static void UpdateFacingDirectionAndTilt(Tachyon* tachyon, State& state) {
   // Reduce turn speed + tilt when doing a quick turn,
   // since we have an animation for the visual aspects
   if (is_doing_quick_turn) {
-    turn_speed *= 0.5f;
+    turn_speed *= 0.45f;
     tilt *= 0.5f;
   }
 

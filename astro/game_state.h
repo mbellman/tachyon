@@ -28,6 +28,9 @@
 #define get_scene_time() tachyon->scene.scene_time
 #define is_moving_left_stick() (tachyon->left_stick.x != 0.f || tachyon->left_stick.y != 0.f)
 
+#define get_speed() state.player_velocity.magnitude()
+#define get_speed_ratio() (get_speed() / PlayerCharacter::MAX_RUN_SPEED)
+
 namespace astro {
   /**
    * ----------------------------

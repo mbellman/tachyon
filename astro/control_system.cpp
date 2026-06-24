@@ -19,8 +19,13 @@ const static float dodge_cooldown_time = 0.3f;
 const static float target_jump_cooldown_time = 0.5f;
 const static float strong_attack_cooldown_time = 0.5f;
 
+// @todo move to engine
+static float Dot(const tVec2f& a, const tVec2f& b) {
+  return a.x * b.x + a.y * b.y;
+}
+
 static float GetTurnDot(Tachyon* tachyon, State& state) {
-  tVec2f stick_direction = tVec2f(tachyon->left_stick.x, tachyon->left_stick.y);
+  tVec2f stick_direction = tachyon->left_stick;
 
   if (stick_direction.x == 0.f && stick_direction.y == 0.f) {
     return 0.f;
@@ -29,7 +34,10 @@ static float GetTurnDot(Tachyon* tachyon, State& state) {
   stick_direction = stick_direction.unit();
   tVec3f facing_direction = state.player_facing_direction.xz().unit();
 
-  return stick_direction.x * facing_direction.x + stick_direction.y * facing_direction.z;
+  return Dot(
+    stick_direction,
+    tVec2f(facing_direction.x, facing_direction.z)
+  );
 }
 
 // @todo PlayerCharacter::
@@ -108,12 +116,12 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
     }
   }
 
-  bool is_running = is_key_held(tKey::CONTROLLER_A) || is_key_held(tKey::SHIFT);
+  bool is_holding_run_button = is_key_held(tKey::CONTROLLER_A) || is_key_held(tKey::SHIFT);
 
   // Directional movement
   {
     float acceleration =
-      is_running ? 12000.f :
+      is_holding_run_button ? 12000.f :
       state.has_target ? 8000.f :
       4000.f;
 
@@ -126,8 +134,8 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
     // In HandleSpeedDampening(), we actually perform hard speed limiting
     // and slowdown behavior.
     float controlled_speed_limit =
-      (is_running && state.is_moving_down_slope) ? PlayerCharacter::MAX_RUN_SPEED_DOWN_SLOPES :
-      is_running ? PlayerCharacter::MAX_RUN_SPEED :
+      (is_holding_run_button && state.is_moving_down_slope) ? PlayerCharacter::MAX_RUN_SPEED_DOWN_SLOPES :
+      is_holding_run_button ? PlayerCharacter::MAX_RUN_SPEED :
       state.has_target ? PlayerCharacter::MAX_COMBAT_WALK_SPEED :
       PlayerCharacter::MAX_WALK_SPEED;
 
@@ -181,10 +189,10 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
 
   // Quick turning
   if (
-    is_key_held(tKey::CONTROLLER_A) &&
+    is_holding_run_button &&
     !state.has_target &&
     GetTurnDot(tachyon, state) < -0.7f &&
-    time_since(state.last_quick_turn_time) > 0.75f
+    get_speed_ratio() < 0.5f
   ) {
     state.last_quick_turn_time = get_scene_time();
   }
@@ -343,7 +351,6 @@ static void HandleTargetingControls(Tachyon* tachyon, State& state) {
 }
 
 static void HandleSpeedDampening(Tachyon* tachyon, State& state) {
-  bool is_running = is_key_held(tKey::CONTROLLER_A) || is_key_held(tKey::SHIFT);
   bool is_dodging = time_since(state.last_dodge_time) < dodge_cooldown_time;
   bool is_target_jumping = time_since(state.last_target_jump_time) < target_jump_cooldown_time;
   bool is_doing_wind_chimes_action = time_since(state.last_wind_chimes_action_time) < 4.f;
