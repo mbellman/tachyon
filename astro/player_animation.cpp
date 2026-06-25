@@ -108,17 +108,7 @@ static bool ShouldPlayWalkAnimation(Tachyon* tachyon, State& state) {
     return true;
   }
 
-  bool is_doing_quick_turn = (
-    state.last_quick_turn_time != 0.f &&
-    time_since(state.last_quick_turn_time) < 0.3f
-  );
-
-  bool has_target_and_is_moving = (
-    state.has_target &&
-    (tachyon->left_stick.x != 0.f || tachyon->left_stick.y != 0.f)
-  );
-
-  return is_doing_quick_turn || has_target_and_is_moving;
+  return false;
 }
 
 static void SetActiveAnimation(Tachyon* tachyon, State& state) {
