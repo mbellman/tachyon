@@ -37,6 +37,7 @@ namespace astro {
     GATE,
     GLOW_FLOWER,
     GROUND_FLOWER_PATCH,
+    HOSTA_BUSH,
     HOUSE,
     IRON_GATE,
     ITEM_PICKUP,
@@ -112,6 +113,7 @@ namespace astro {
     GATE,
     GLOW_FLOWER,
     GROUND_FLOWER_PATCH,
+    HOSTA_BUSH,
     HOUSE,
     IRON_GATE,
     ITEM_PICKUP,
@@ -385,6 +387,12 @@ namespace astro {
       ground_flower_patch_placeholder,
       ground_flower_patch,
 
+      // HOSTA_BUSH
+      hosta_placeholder,
+      hosta_leaves,
+      hosta_stalks,
+      hosta_flowers,
+
       // HOUSE
       house_placeholder,
       house_body,
@@ -628,6 +636,7 @@ namespace astro {
     EntityList gates;
     EntityList glow_flowers;
     EntityList ground_flower_patches;
+    EntityList hosta_bushes;
     EntityList houses;
     EntityList iron_gates;
     EntityList item_pickups;
@@ -833,6 +842,12 @@ namespace astro {
     { GROUND_FLOWER_PATCH, {
       .name = "Ground Flower Patch",
       .scale = tVec3f(2000.f),
+      .tint = tVec3f(1.f)
+    } },
+
+    { HOSTA_BUSH, {
+      .name = "Hosta Bush",
+      .scale = tVec3f(800.f),
       .tint = tVec3f(1.f)
     } },
 

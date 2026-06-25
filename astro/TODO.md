@@ -28,7 +28,6 @@ time evolution:
 * chestnut tree leaves
 
 entities:
-* hosta plant
 * big mushrooms
 * stone blocks
 * horse (?)

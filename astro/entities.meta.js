@@ -762,5 +762,18 @@ export default [
     ],
     scale: [ 2000.0 ],
     color: [ 1.0 ]
+  },
+
+  {
+    type: "HOSTA_BUSH",
+    list: "hosta_bushes",
+    meshes: [
+      "hosta_placeholder",
+      "hosta_leaves",
+      "hosta_stalks",
+      "hosta_flowers"
+    ],
+    scale: [ 800.0 ],
+    color: [ 1.0 ]
   }
 ];

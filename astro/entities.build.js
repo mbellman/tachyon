@@ -32,8 +32,7 @@ function createDefaultBehaviorFileContents(entity) {
   const placeholderMeshName = meshes.find(name => name.includes("placeholder"));
   const nonPlaceholderMeshNames = meshes.filter(name => !name.includes("placeholder"));
 
-  return `
-#pragma once
+  return `#pragma once
 
 #include "astro/entity_behaviors/behavior.h"
 
