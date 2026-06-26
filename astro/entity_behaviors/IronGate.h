@@ -61,8 +61,8 @@ namespace astro {
         // @temporary
         // @todo implement proper opening triggers
         if (
-          abs(state.player_position.x - entity.position.x) < 5000.f &&
-          abs(state.player_position.z - entity.position.z) < 5000.f &&
+          abs(state.player_position.x - entity.position.x) < 3000.f &&
+          abs(state.player_position.z - entity.position.z) < 3000.f &&
           !entity.did_activate
         ) {
           entity.did_activate = true;

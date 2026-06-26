@@ -42,6 +42,9 @@ namespace astro {
           else if (entity.unique_name == "promenade") {
             state.current_location = Location::DIVINATION_LAKE_PROMENADE;
           }
+          else if (entity.unique_name == "lakefront_south") {
+            state.current_location = Location::DIVINATION_LAKEFRONT_SOUTH;
+          }
 
           if (state.current_location != previous_location) {
             state.last_area_change_time = get_scene_time();

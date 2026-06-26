@@ -489,6 +489,7 @@ namespace astro {
     DIVINATION_WOODREALM,
     DIVINATION_RIVERWAY,
     DIVINATION_LAKE_PROMENADE,
+    DIVINATION_LAKEFRONT_SOUTH,
     PROVENANCE_WOODREALM_WEST,
     PROVENANCE_WOODREALM_EAST,
     VILLAGE_1,
@@ -755,6 +756,7 @@ namespace astro {
       tUIElement* divination_woodrealm_title = nullptr;
       tUIElement* divination_riverway_title = nullptr;
       tUIElement* lake_promenade_title = nullptr;
+      tUIElement* lakefront_south_title = nullptr;
 
       tUIElement* seeker_stargazer_title = nullptr;
 

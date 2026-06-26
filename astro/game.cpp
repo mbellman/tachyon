@@ -1100,7 +1100,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
     }
   }
 
-  // @todo ui.cpp
+  // @todo UISystem::
   {
     state.debug_text = Tachyon_CreateUIText("./fonts/CascadiaMonoNF.ttf", 19);
     state.debug_text_large = Tachyon_CreateUIText("./fonts/GoogleSans-Regular.ttf", 32);
@@ -1112,6 +1112,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
     state.ui.divination_woodrealm_title = Tachyon_CreateUIElement("./astro/textures/titles/divination-woodrealm.png");
     state.ui.divination_riverway_title = Tachyon_CreateUIElement("./astro/textures/titles/divination-riverway.png");
     state.ui.lake_promenade_title = Tachyon_CreateUIElement("./astro/textures/titles/lake-promenade.png");
+    state.ui.lakefront_south_title = Tachyon_CreateUIElement("./astro/textures/titles/lakefront-south.png");
 
     state.ui.seeker_stargazer_title = Tachyon_CreateUIElement("./astro/textures/titles/seeker-stargazer.png");
   }

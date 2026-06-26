@@ -62,7 +62,6 @@ static void InitiateDialogueSet(State& state, DialogueSet& dialogue_set) {
 static tUIElement* GetCurrentLocationTitleGraphic(const State& state) {
   auto& ui = state.ui;
 
-  // @todo expand on the options here
   switch (state.current_location) {
     case Location::TUTORIAL:
     case Location::DIVINATION_WOODREALM:
@@ -71,6 +70,8 @@ static tUIElement* GetCurrentLocationTitleGraphic(const State& state) {
       return ui.divination_riverway_title;
     case Location::DIVINATION_LAKE_PROMENADE:
       return ui.lake_promenade_title;
+    case Location::DIVINATION_LAKEFRONT_SOUTH:
+      return ui.lakefront_south_title;
     default:
       return nullptr;
   }
