@@ -456,7 +456,11 @@ void main() {
 
     if (shadow < 1.0 || !enable_shadows) {
       // Highlights
-      out_color += 20.0 * vec3(1.0, 0.9, 0.6) * pow(hRdotL, 100.0) * smoothstep(0.2, 0.4, 1.0 - RdotU);
+      out_color +=
+        20.0 * vec3(1.0, 0.9, 0.6) *
+        pow(hRdotL, 100.0) *
+        pow(RdotL, 5.0) *
+        smoothstep(0.2, 0.4, 1.0 - RdotU);
     }
   }
 

@@ -631,8 +631,13 @@ static void HandleStoppedAfterMovingAnimation(Tachyon* tachyon, State& state) {
 static void DriftToRestAnimation(Tachyon* tachyon, State& state) {
   auto& rig = state.player.rig;
 
+  float torso_rest_rate = (
+    IsAnyIdleAnimation(rig.current_animation, state) &&
+    !state.is_holding_up_wand
+  ) ? 2.f : 0.5f;
+
   rig.head_turn_angle = Tachyon_Lerpf(rig.head_turn_angle, 0.f, 4.f * state.dt);
-  rig.torso_turn_angle = Tachyon_Lerpf(rig.torso_turn_angle, 0.f, 0.5f * state.dt);
+  rig.torso_turn_angle = Tachyon_Lerpf(rig.torso_turn_angle, 0.f, torso_rest_rate * state.dt);
   rig.torso_tilt_angle = Tachyon_Lerpf(rig.torso_tilt_angle, 0.f, 0.5f * state.dt);
 }
 

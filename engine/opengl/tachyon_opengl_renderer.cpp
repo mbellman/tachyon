@@ -415,6 +415,10 @@ static void RenderConsoleMessages(Tachyon* tachyon) {
 
   for (auto& console_message : console_messages) {
     auto& message = console_message.message;
+
+    // Don't bother rendering empty strings; this crashes SDL_TTF anyway
+    if (message.size() == 0) continue;
+
     auto& color = console_message.color;
     auto age = std::min(CONSOLE_MESSAGE_DURATION, now - console_message.time);
     auto time_left = CONSOLE_MESSAGE_DURATION - age;

@@ -575,6 +575,7 @@ static void HandleTinyBird(Tachyon* tachyon, State& state, TinyBird& bird, const
     if (bird.state == TinyBird::FLY_FORWARD) {
       // When flying forward, have the bird alternate between
       // flapping its wings and keeping them steady
+      //
       // @todo factor all this
 
       if (bird.flapping_wings) {
@@ -599,7 +600,7 @@ static void HandleTinyBird(Tachyon* tachyon, State& state, TinyBird& bird, const
         // Stop flapping wings every few cycles
         if (bird.wing_value > t_TAU * 2.f + t_PI) {
           bird.last_wing_flapping_time = get_scene_time();
-          bird.steady_flight_duration = Tachyon_GetRandom(0.3f, 0.55f);
+          bird.steady_flight_duration = Tachyon_GetRandom(0.3f, 0.45f);
           bird.flapping_wings = false;
         }
       } else {
