@@ -454,7 +454,7 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state) {
   PlayerAnimation::Update(tachyon, state);
   PlayerAttachments::Update(tachyon, state);
 
-  if (time_since(state.last_quick_turn_time) > 0.75f) {
+  if (time_since(state.last_quick_turn_time) > 0.5f) {
     KeepFeetPlanted(state);
   }
 
