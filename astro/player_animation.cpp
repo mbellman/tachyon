@@ -256,7 +256,12 @@ static float GetAnimationSpeed(Tachyon* tachyon, State& state, tSkeletonAnimatio
     animation == &animations.player_run ||
     animation == &animations.player_run_wand
   ) {
-    return 12.f * sqrt(speed_ratio);
+    if (state.is_moving_down_slope) {
+      // @todo use a separate animation for this
+      return 16.f * sqrtf(speed_ratio);
+    } else {
+      return 12.f * sqrtf(speed_ratio);
+    }
   }
 
   if (animation == &animations.player_climb_down) {

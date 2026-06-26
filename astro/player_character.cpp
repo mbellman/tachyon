@@ -421,9 +421,9 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state) {
     if (PlayerCharacter::IsRunning(tachyon, state)) {
       TrackPlantedFeetWhileRunning(tachyon, state);
     } else if (
-      state.previous_move_delta > 0.f &&
-      !state.is_on_ladder &&
-      !PlayerCharacter::IsClimbingOffLadder(tachyon, state)
+      // @todo factor
+      player.rig.current_animation == &state.animations.player_walk ||
+      player.rig.current_animation == &state.animations.player_walk_wand
     ) {
       TrackPlantedFeetWhileWalking(tachyon, state);
     } else {
