@@ -59,7 +59,6 @@ features/fixes:
 * vantage camera tweaks
 * rename castle tower -> castle wall
 * signpost collision
-* more tiny bird variance
 * running against a wall
 * water color changes with time
 * light pillars sound when using normal wand raising

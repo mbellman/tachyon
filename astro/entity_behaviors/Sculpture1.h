@@ -92,7 +92,7 @@ namespace astro {
         float roughness = Tachyon_Lerpf(0.f, 1.f, decay_alpha);
         roughness *= roughness;
 
-        const float activation_range = 8000.f;
+        const float activation_range = 12000.f;
         auto proximity = GetEntityProximity(entity, state);
         bool is_during_active_time = IsDuringActiveTime(entity, state);
 
@@ -111,10 +111,11 @@ namespace astro {
         // Responding to wand pulses
         {
           if (PlayerWand::DidRecentlyPulse(tachyon, state)) {
-            float radius = PlayerWand::GetPulseRadius(tachyon);
+            auto pulse = PlayerWand::GetPulse(tachyon);
+            float pulse_distance = tVec3f::distance(pulse.position, entity.position);
 
-            if (proximity.distance < radius) {
-              if (is_during_active_time && proximity.distance < activation_range) {
+            if (pulse_distance < pulse.radius) {
+              if (is_during_active_time && pulse_distance < activation_range) {
                 Activate(tachyon, state, entity);
               }
               else if (is_during_active_time) {

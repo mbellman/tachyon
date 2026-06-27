@@ -161,6 +161,16 @@ namespace astro {
 
   /**
    * ----------------------------
+   * Wand behavior
+   * ----------------------------
+   */
+  struct WandPulse {
+    tVec3f position;
+    float radius;
+  };
+
+  /**
+   * ----------------------------
    * Spellcasting
    * ----------------------------
    */
@@ -502,7 +512,7 @@ namespace astro {
 
   /**
    * ----------------------------
-   * Locations
+   * Substories
    * ----------------------------
    */
   enum SubStory {

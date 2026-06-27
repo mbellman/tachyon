@@ -13,12 +13,11 @@ bool PlayerWand::DidRecentlyPulse(Tachyon* tachyon, State& state) {
   );
 }
 
-float PlayerWand::GetPulseRadius(Tachyon* tachyon) {
+WandPulse PlayerWand::GetPulse(Tachyon* tachyon) {
   auto& fx = tachyon->fx;
 
-  if (fx.wand_pulse_alpha == 1.f) {
-    return 0.f;
-  }
-
-  return sqrtf(fx.wand_pulse_alpha) * 30000.f;
+  return {
+    .position = fx.wand_pulse_position,
+    .radius = sqrtf(fx.wand_pulse_alpha) * 30000.f
+  };
 }

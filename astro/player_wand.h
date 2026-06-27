@@ -6,6 +6,6 @@ namespace astro {
   namespace PlayerWand {
     void Update(Tachyon* tachyon, State& state);
     bool DidRecentlyPulse(Tachyon* tachyon, State& state);
-    float GetPulseRadius(Tachyon* tachyon);
+    WandPulse GetPulse(Tachyon* tachyon);
   }
 }

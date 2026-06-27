@@ -878,7 +878,12 @@ static void UpdateWandLights(Tachyon* tachyon, State& state) {
         time_since_wand_pulse > 0.2f &&
         time_since_wand_pulse < 4.f
       ) {
-        fx.wand_pulse_position = wand_end_position;
+        // Update the pulse position briefly after starting the pulse,
+        // then lock it to a static position
+        if (time_since_wand_pulse < 0.3f) {
+          fx.wand_pulse_position = wand_end_position;
+        }
+
         fx.wand_pulse_alpha = (time_since_wand_pulse - 0.2f) / 3.8f;
       } else {
         // Setting the alpha to 1 renders the effect "complete"
