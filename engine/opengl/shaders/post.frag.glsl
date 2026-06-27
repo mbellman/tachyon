@@ -509,9 +509,9 @@ void main() {
         const float outside_edge_range = 2000.0;
 
         float inverse_alpha = 1.0 - wand_pulse_alpha;
-        float alpha = pow(wand_pulse_alpha, 0.5);
+        float radius_alpha = sqrt(wand_pulse_alpha);
 
-        float current_radius = alpha * pulse_range;
+        float current_radius = radius_alpha * pulse_range;
         vec3 wand_pulse_to_world_position = world_position * vec3(1, 0, 1) - wand_pulse_position * vec3(1, 0, 1);
         float pulse_distance = length(wand_pulse_to_world_position);
         float distance_from_radius = abs(current_radius - pulse_distance);

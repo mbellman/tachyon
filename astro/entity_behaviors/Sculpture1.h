@@ -1,6 +1,7 @@
 #pragma once
 
 #include "astro/entity_behaviors/behavior.h"
+#include "astro/player_wand.h"
 
 namespace astro {
   behavior Sculpture1 {
@@ -12,6 +13,16 @@ namespace astro {
     };
 
     static void Activate(Tachyon* tachyon, State& state, GameEntity& entity) {
+      // Wait for the light be created first
+      if (entity.light_id == -1) return;
+
+      // Avoid redundant activation
+      if (entity.did_activate) return;
+
+      auto& light = *get_point_light(entity.light_id);
+
+      light.power = 1.5f;
+
       entity.did_activate = true;
       entity.game_activation_time = get_scene_time();
 
@@ -20,33 +31,6 @@ namespace astro {
       Sound sound_effect = *(activation_sounds.begin() + sound_index);
 
       Sfx::PlaySound(sound_effect, 0.4f);
-
-      // @todo remove
-      {
-        if (entity.requires_action) {
-          entity.is_astro_synced = true;
-        }
-
-        // @todo check all sculpture chains
-      }
-    }
-
-    static void Charge(Tachyon* tachyon, State& state, GameEntity& entity) {
-      // Wait for the light be created first
-      if (entity.light_id == -1) return;
-
-      // Charge the light
-      auto& light = *get_point_light(entity.light_id);
-
-      light.power += 2.f * state.dt;
-
-      if (light.power >= 1.5f) {
-        light.power = 1.5f;
-
-        if (!entity.did_activate) {
-          Activate(tachyon, state, entity);
-        }
-      }
     }
 
     addMeshes() {
@@ -108,20 +92,37 @@ namespace astro {
         float roughness = Tachyon_Lerpf(0.f, 1.f, decay_alpha);
         roughness *= roughness;
 
+        const float activation_range = 8000.f;
+        auto proximity = GetEntityProximity(entity, state);
+        bool is_during_active_time = IsDuringActiveTime(entity, state);
+
         // Interaction
         {
-          auto proximity = GetEntityProximity(entity, state);
-
           if (
-            proximity.distance < 5000.f &&
+            proximity.distance < activation_range &&
             proximity.facing_dot > 0.f &&
-            IsDuringActiveTime(entity, state) &&
+            is_during_active_time &&
             Items::HasItem(state, MAGIC_WAND)
           ) {
             TriggerWandSense(state);
+          }
+        }
 
-            if (state.is_holding_up_wand) {
-              Charge(tachyon, state, entity);
+        // Responding to wand pulses
+        {
+          if (PlayerWand::DidRecentlyPulse(tachyon, state)) {
+            float radius = PlayerWand::GetPulseRadius(tachyon);
+
+            if (proximity.distance < radius) {
+              if (is_during_active_time && proximity.distance < activation_range) {
+                Activate(tachyon, state, entity);
+              }
+              else if (is_during_active_time) {
+                // @todo play a detection sound (active time)
+              }
+              else {
+                // @todo play a detection sound (not active time)
+              }
             }
           }
         }
