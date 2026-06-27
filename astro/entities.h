@@ -37,6 +37,7 @@ namespace astro {
     GATE,
     GLOW_FLOWER,
     GROUND_FLOWER_PATCH,
+    HEAVY_SWITCH,
     HOSTA_BUSH,
     HOUSE,
     IRON_GATE,
@@ -54,6 +55,7 @@ namespace astro {
     MAGIC_GATE,
     MOOD_LIGHT,
     MUSHROOM,
+    NORMAL_SWITCH,
     NPC,
     OAK_TREE,
     RIVER_LOG,
@@ -113,6 +115,7 @@ namespace astro {
     GATE,
     GLOW_FLOWER,
     GROUND_FLOWER_PATCH,
+    HEAVY_SWITCH,
     HOSTA_BUSH,
     HOUSE,
     IRON_GATE,
@@ -130,6 +133,7 @@ namespace astro {
     MAGIC_GATE,
     MOOD_LIGHT,
     MUSHROOM,
+    NORMAL_SWITCH,
     NPC,
     OAK_TREE,
     RIVER_LOG,
@@ -387,6 +391,11 @@ namespace astro {
       ground_flower_patch_placeholder,
       ground_flower_patch,
 
+      // HEAVY_SWITCH
+      heavy_switch_placeholder,
+      heavy_switch_base,
+      heavy_switch_button,
+
       // HOSTA_BUSH
       hosta_placeholder,
       hosta_leaves,
@@ -473,6 +482,11 @@ namespace astro {
       mushroom_placeholder,
       mushroom_body,
       mushroom_spots,
+
+      // NORMAL_SWITCH
+      normal_switch_placeholder,
+      normal_switch_base,
+      normal_switch_button,
 
       // NPC
       npc_placeholder,
@@ -636,6 +650,7 @@ namespace astro {
     EntityList gates;
     EntityList glow_flowers;
     EntityList ground_flower_patches;
+    EntityList heavy_switches;
     EntityList hosta_bushes;
     EntityList houses;
     EntityList iron_gates;
@@ -653,6 +668,7 @@ namespace astro {
     EntityList magic_gates;
     EntityList mood_lights;
     EntityList mushrooms;
+    EntityList normal_switches;
     EntityList npcs;
     EntityList oak_trees;
     EntityList river_logs;
@@ -845,9 +861,15 @@ namespace astro {
       .tint = tVec3f(1.f)
     } },
 
+    { HEAVY_SWITCH, {
+      .name = "Heavy Switch",
+      .scale = tVec3f(2000.f),
+      .tint = tVec3f(1.f)
+    } },
+
     { HOSTA_BUSH, {
       .name = "Hosta Bush",
-      .scale = tVec3f(800.f),
+      .scale = tVec3f(1750.f),
       .tint = tVec3f(1.f)
     } },
 
@@ -889,7 +911,7 @@ namespace astro {
 
     { LEAF_SHRUB, {
       .name = "Leaf Shrub",
-      .scale = tVec3f(800.f),
+      .scale = tVec3f(1750.f),
       .tint = tVec3f(0.07f, 0.14f, 0.07f)
     } },
 
@@ -945,6 +967,12 @@ namespace astro {
       .name = "Mushroom",
       .scale = tVec3f(3000.f),
       .tint = tVec3f(0.2f, 1.f, 0.4f)
+    } },
+
+    { NORMAL_SWITCH, {
+      .name = "Normal Switch",
+      .scale = tVec3f(1200.f),
+      .tint = tVec3f(1.f)
     } },
 
     { NPC, {

@@ -499,7 +499,7 @@ export default [
       "leaf_shrub_placeholder",
       "leaf_shrub_plant"
     ],
-    scale: [ 800.0 ],
+    scale: [ 1750.0 ],
     color: [ 0.07, 0.14, 0.07 ]
   },
 
@@ -773,7 +773,31 @@ export default [
       "hosta_stalks",
       "hosta_flowers"
     ],
-    scale: [ 800.0 ],
+    scale: [ 1750.0 ],
+    color: [ 1.0 ]
+  },
+
+  {
+    type: "NORMAL_SWITCH",
+    list: "normal_switches",
+    meshes: [
+      "normal_switch_placeholder",
+      "normal_switch_base",
+      "normal_switch_button"
+    ],
+    scale: [ 1200.0 ],
+    color: [ 1.0 ]
+  },
+
+  {
+    type: "HEAVY_SWITCH",
+    list: "heavy_switches",
+    meshes: [
+      "heavy_switch_placeholder",
+      "heavy_switch_base",
+      "heavy_switch_button"
+    ],
+    scale: [ 2000.0 ],
     color: [ 1.0 ]
   }
 ];

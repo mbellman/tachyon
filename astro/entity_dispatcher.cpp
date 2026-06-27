@@ -24,6 +24,7 @@
 #include "astro/entity_behaviors/Gate.h"
 #include "astro/entity_behaviors/GlowFlower.h"
 #include "astro/entity_behaviors/GroundFlowerPatch.h"
+#include "astro/entity_behaviors/HeavySwitch.h"
 #include "astro/entity_behaviors/HostaBush.h"
 #include "astro/entity_behaviors/House.h"
 #include "astro/entity_behaviors/IronGate.h"
@@ -41,6 +42,7 @@
 #include "astro/entity_behaviors/MagicGate.h"
 #include "astro/entity_behaviors/MoodLight.h"
 #include "astro/entity_behaviors/Mushroom.h"
+#include "astro/entity_behaviors/NormalSwitch.h"
 #include "astro/entity_behaviors/Npc.h"
 #include "astro/entity_behaviors/OakTree.h"
 #include "astro/entity_behaviors/RiverLog.h"
@@ -118,6 +120,7 @@ using namespace astro;
   dispatch_macro(GATE, Gate);\
   dispatch_macro(GLOW_FLOWER, GlowFlower);\
   dispatch_macro(GROUND_FLOWER_PATCH, GroundFlowerPatch);\
+  dispatch_macro(HEAVY_SWITCH, HeavySwitch);\
   dispatch_macro(HOSTA_BUSH, HostaBush);\
   dispatch_macro(HOUSE, House);\
   dispatch_macro(IRON_GATE, IronGate);\
@@ -135,6 +138,7 @@ using namespace astro;
   dispatch_macro(MAGIC_GATE, MagicGate);\
   dispatch_macro(MOOD_LIGHT, MoodLight);\
   dispatch_macro(MUSHROOM, Mushroom);\
+  dispatch_macro(NORMAL_SWITCH, NormalSwitch);\
   dispatch_macro(NPC, Npc);\
   dispatch_macro(OAK_TREE, OakTree);\
   dispatch_macro(RIVER_LOG, RiverLog);\
@@ -189,6 +193,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
     dispatch_GetEntityContainer(GATE, state.gates);
     dispatch_GetEntityContainer(GLOW_FLOWER, state.glow_flowers);
     dispatch_GetEntityContainer(GROUND_FLOWER_PATCH, state.ground_flower_patches);
+    dispatch_GetEntityContainer(HEAVY_SWITCH, state.heavy_switches);
     dispatch_GetEntityContainer(HOSTA_BUSH, state.hosta_bushes);
     dispatch_GetEntityContainer(HOUSE, state.houses);
     dispatch_GetEntityContainer(IRON_GATE, state.iron_gates);
@@ -206,6 +211,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
     dispatch_GetEntityContainer(MAGIC_GATE, state.magic_gates);
     dispatch_GetEntityContainer(MOOD_LIGHT, state.mood_lights);
     dispatch_GetEntityContainer(MUSHROOM, state.mushrooms);
+    dispatch_GetEntityContainer(NORMAL_SWITCH, state.normal_switches);
     dispatch_GetEntityContainer(NPC, state.npcs);
     dispatch_GetEntityContainer(OAK_TREE, state.oak_trees);
     dispatch_GetEntityContainer(RIVER_LOG, state.river_logs);
