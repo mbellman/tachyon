@@ -18,16 +18,34 @@ namespace astro {
 
       // @temporary
       // @todo have different wind chimes for different time ranges
-      if (entity.unique_name == "game_start_chimes") {
-        if (state.astro_time == astro_time_periods.future) {
-          // Future -> Present
-          TimeEvolution::StartAstroTraveling(tachyon, state, astro_time_periods.present);
-        } else {
-          // Present -> Future
-          TimeEvolution::StartAstroTraveling(tachyon, state, astro_time_periods.future);
-        }
+      {
+        if (entity.unique_name == "game_start_chimes") {
+          if (state.astro_time == astro_time_periods.future) {
+            // Future -> Present
+            TimeEvolution::StartAstroTraveling(tachyon, state, astro_time_periods.present);
+          } else {
+            // Present -> Future
+            TimeEvolution::StartAstroTraveling(tachyon, state, astro_time_periods.future);
+          }
 
-        return;
+          return;
+        }
+      }
+
+      // @temporary
+      // @todo have different wind chimes for different time ranges
+      {
+        if (entity.unique_name == "distant_past") {
+          if (state.astro_time == astro_time_periods.past) {
+            // Past -> Distant past
+            TimeEvolution::StartAstroTraveling(tachyon, state, astro_time_periods.distant_past);
+          } else {
+            // Distant past -> Past
+            TimeEvolution::StartAstroTraveling(tachyon, state, astro_time_periods.past);
+          }
+
+          return;
+        }
       }
 
       // @todo have different wind chimes for different time ranges

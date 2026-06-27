@@ -14,7 +14,7 @@ namespace astro {
     // Age of Consortium
     float past = -76.f;
 
-    // Age of ???
+    // Age of Machination
     float distant_past = -157.f;
 
     // Age of Yore

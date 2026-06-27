@@ -37,6 +37,7 @@ namespace astro {
       for_entities(state.iron_gates) {
         auto& entity = state.iron_gates[i];
 
+        if (!IsDuringActiveTime(entity, state)) continue;
         if (abs(state.player_position.x - entity.position.x) > 25000.f) continue;
         if (abs(state.player_position.z - entity.position.z) > 25000.f) continue;
 

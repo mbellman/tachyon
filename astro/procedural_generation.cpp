@@ -902,7 +902,7 @@ static tVec3f GetBushFlowerBlossomColor(const float astro_time) {
   tVec3f future_color = tVec3f(1.f, 0.3f, 0.3f);
   tVec3f present_color = tVec3f(0.6f);
   tVec3f past_color = tVec3f(1.f, 0.8f, 0.2f);
-  tVec3f distant_past_color = tVec3f(1.f, 0.8f, 1.f);
+  tVec3f distant_past_color = tVec3f(1.f, 0.5f, 0.4f);
 
   if (astro_time <= periods.future && astro_time >= periods.present) {
     float age_duration = periods.future - periods.present;

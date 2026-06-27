@@ -214,6 +214,11 @@ static void HandleAstroControls(Tachyon* tachyon, State& state) {
     state.astro_time = astro_time_periods.past;
     state.target_astro_time = state.astro_time;
   }
+
+  if (did_press_key(tKey::NUM_4)) {
+    state.astro_time = astro_time_periods.distant_past;
+    state.target_astro_time = state.astro_time;
+  }
 }
 
 // @temporary
@@ -377,7 +382,7 @@ static void HandleSpeedDampening(Tachyon* tachyon, State& state) {
   }
   else {
     // Standard slowdown
-    state.player_velocity *= 1.f - 4.f * state.dt;
+    state.player_velocity *= 1.f - 6.f * state.dt;
   }
 
   float speed = state.player_velocity.magnitude();
