@@ -505,7 +505,7 @@ static void HandleIronGateCollisions(Tachyon* tachyon, State& state) {
       // Closed gate collision
       auto gate_plane = CollisionSystem::CreatePlane(
         entity.position,
-        entity.scale * tVec3f(1.f, 1.f, 0.35f),
+        entity.scale * tVec3f(0.75f, 1.f, 0.35f),
         entity.orientation
       );
 

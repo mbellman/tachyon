@@ -36,7 +36,6 @@ namespace astro {
 
       for (auto& entity : state.hosta_bushes) {
         if (!IsDuringActiveTime(entity, state)) continue;
-
         if (!IsInRangeX(entity, state, 25000.f)) continue;
         if (!IsInRangeZ(entity, state, 25000.f)) continue;
 

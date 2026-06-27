@@ -891,6 +891,13 @@ static tVec3f GetNewSwanTargetPosition(State& state, Swan& swan) {
 static void HandleSwan(Tachyon* tachyon, State& state, Swan& swan) {
   auto& meshes = state.meshes;
 
+  GameEntity& spawn_entity = *EntityManager::FindEntity(state, swan.spawn_entity_record);
+
+  // @temporary
+  if (!IsDuringActiveTime(spawn_entity, state)) {
+    return;
+  }
+
   // Update rotation/position
   {
     tVec3f target_direction = (swan.target_position - swan.position).unit();
