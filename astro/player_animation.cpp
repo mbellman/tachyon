@@ -99,7 +99,7 @@ static bool ShouldPlayWalkAnimation(Tachyon* tachyon, State& state) {
     return true;
   }
 
-  float walking_move_delta_threshold = state.use_slow_motion ? 2.f : 10.f;
+  float walking_move_delta_threshold = state.use_slow_motion ? 4.f : 20.f;
 
   if (
     state.previous_move_delta > walking_move_delta_threshold &&
