@@ -318,7 +318,7 @@ static void HandleNormalSwitchCollisions(Tachyon* tachyon, State& state) {
 
     if (dx < entity.scale.x && dz < entity.scale.z) {
       auto plane = CollisionSystem::CreatePlane(entity.position, entity.scale, entity.orientation);
-      float player_y = entity.position.y + PLAYER_HEIGHT + 150.f;
+      float player_y = entity.position.y + PLAYER_HEIGHT + 100.f;
 
       AllowPlayerMovement(state, player_y, plane);
 

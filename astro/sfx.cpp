@@ -77,6 +77,10 @@ static std::map<Sound, const char*> sound_file_map = {
   { SFX_MAGIC_GATE_OPEN, "./astro/audio/sfx_magic_gate_open.wav" },
   { SFX_MAGIC_GATE_CLOSE, "./astro/audio/sfx_magic_gate_close.wav" },
 
+  { SFX_NORMAL_SWITCH_1, "./astro/audio/sfx_normal_switch_1.wav" },
+  { SFX_NORMAL_SWITCH_2, "./astro/audio/sfx_normal_switch_2.wav" },
+  { SFX_NORMAL_SWITCH_3, "./astro/audio/sfx_normal_switch_3.wav" },
+
   { SFX_SPELL_STUN, "./astro/audio/sfx_spell_stun.wav" },
 
   { SFX_LIGHT_POST_ACTIVATE, "./astro/audio/light_post.wav" },

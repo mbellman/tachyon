@@ -556,6 +556,10 @@ static void HandleTorsoAnimation(Tachyon* tachyon, State& state) {
 
     float running_charge_tilt = 0.1f * sinf(state.player.running_charge * t_PI);
 
+    if (time_since(state.last_quick_turn_time) < 1.f) {
+      running_charge_tilt *= 3.f;
+    }
+
     if (running_charge_tilt > 0.f) {
       rig.torso_tilt_angle = Tachyon_Lerpf(
         rig.torso_tilt_angle,

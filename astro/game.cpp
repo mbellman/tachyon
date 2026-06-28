@@ -198,6 +198,12 @@ static void ShowHighestLevelsOfDetail(Tachyon* tachyon, State& state) {
 
 // @todo dev_tools.cpp
 static void ResetEntities(Tachyon* tachyon, State& state) {
+  // Reset wand pulses to avoid re-activating anything
+  {
+    tachyon->fx.wand_pulse_alpha = 1.f;
+    state.last_wand_light_pulse_time = 0.f;
+  }
+
   for_entities(state.light_posts) {
     auto& entity = state.light_posts[i];
 
@@ -672,7 +678,10 @@ static void HandleCurrentAreaMusic(Tachyon* tachyon, State& state) {
   if (IsPlayerNearUsableWindChimes(state)) {
     BGM::LoopMusic(BGM_WIND_CHIMES, BGM_VOLUME);
   }
-  else if (state.astro_time >= astro_time_periods.present) {
+  else if (
+    state.astro_time >= astro_time_periods.present ||
+    state.astro_time == astro_time_periods.distant_past
+  ) {
     // @temporary
     // @todo add overworld music for this period
     BGM::StopCurrentMusic();

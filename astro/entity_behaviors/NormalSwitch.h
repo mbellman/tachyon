@@ -4,6 +4,33 @@
 
 namespace astro {
   behavior NormalSwitch {
+    static void Press(Tachyon* tachyon, State& state, GameEntity& entity) {
+      // Do nothing for pressed switches
+      if (entity.did_activate) return;
+
+      entity.did_activate = true;
+      entity.game_activation_time = get_scene_time();
+      entity.astro_activation_time = state.astro_time;
+
+      // @todo refactor
+      {
+        auto r = Tachyon_GetRandom();
+
+        if (r < 0.33f) Sfx::PlaySound(SFX_NORMAL_SWITCH_1, 0.5f);
+        else if (r < 0.66f) Sfx::PlaySound(SFX_NORMAL_SWITCH_2, 0.5f);
+        else Sfx::PlaySound(SFX_NORMAL_SWITCH_3, 0.5f);
+      }
+    }
+
+    static void Unpress(Tachyon* tachyon, State& state, GameEntity& entity) {
+      // Do nothing for unpressed switches
+      if (!entity.did_activate) return;
+
+      entity.did_activate = false;
+      entity.game_activation_time = get_scene_time();
+      entity.astro_activation_time = -1.f;
+    }
+
     addMeshes() {
       meshes.normal_switch_placeholder = MODEL_MESH("./astro/3d_models/normal_switch/placeholder.obj", 500);
       meshes.normal_switch_base = MODEL_MESH("./astro/3d_models/normal_switch/base.obj", 500);
@@ -28,6 +55,9 @@ namespace astro {
       reset_instances(meshes.normal_switch_button);
 
       for (auto& entity : state.normal_switches) {
+        float dx = abs(state.player_position.x - entity.position.x);
+        float dz = abs(state.player_position.z - entity.position.z);
+
         // Base
         {
           auto& base = use_instance(meshes.normal_switch_base);
@@ -46,7 +76,22 @@ namespace astro {
 
           Sync(button, entity);
 
-          button.color = tVec3f(0.6f, 0.5f, 0.4f);
+          // Pressing behavior
+          if (dx < entity.scale.x && dz < entity.scale.z) {
+            Press(tachyon, state, entity);
+
+            entity.accumulation_value = Tachyon_Lerpf(entity.accumulation_value, 200.f, 5.f * state.dt);
+            button.position.y -= entity.accumulation_value;
+
+          // Unpressing behavior
+          } else {
+            Unpress(tachyon, state, entity);
+
+            entity.accumulation_value = Tachyon_Lerpf(entity.accumulation_value, 0.f, state.dt);
+            button.position.y -= entity.accumulation_value;
+          }
+
+          button.color = tVec3f(0.6f, 0.4f, 0.3f);
           button.material = tVec4f(0.9f, 0, 0, 0.1f);
 
           commit(button);

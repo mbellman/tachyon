@@ -43,7 +43,6 @@ tutorial:
 * magic gate improvements/collision
 
 features/fixes:
-* switch functionality
 * jump-off-ledge animation
 * walk/run start foot sticking
 * faster animation down slopes
