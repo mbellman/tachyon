@@ -43,7 +43,8 @@ tutorial:
 * magic gate improvements/collision
 
 features/fixes:
-* optimal stopping point for run animation (only stop when airborne?)
+* staircase slope behavior
+* switch functionality
 * jump-off-ledge animation
 * walk/run start foot sticking
 * faster animation down slopes
