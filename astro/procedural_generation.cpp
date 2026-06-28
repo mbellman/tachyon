@@ -382,6 +382,7 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
   auto ground_1_planes = GetObjectPlanes(tachyon, meshes.ground_1, tVec3f(0.9f));
   auto altar_planes = GetEntityPlanes(state.altars, tVec3f(1.9f, 1.f, 0.6f));
   auto wind_chime_planes = GetEntityPlanes(state.wind_chimes, tVec3f(0.8f, 1.f, 1.4f));
+  auto normal_switch_planes = GetEntityPlanes(state.normal_switches, tVec3f(1.15f));
 
   // Reset grass objects/chunks etc.
   {
@@ -473,6 +474,7 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
       if (IsPointOnAnyPlane(position, local_ground_1_planes)) continue;
       if (IsPointOnAnyPlane(position, altar_planes)) continue;
       if (IsPointOnAnyPlane(position, wind_chime_planes)) continue;
+      if (IsPointOnAnyPlane(position, normal_switch_planes)) continue;
 
       GrassBlade blade;
       blade.position = position;

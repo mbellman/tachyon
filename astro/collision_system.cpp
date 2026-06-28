@@ -309,6 +309,28 @@ static void HandleSlopeCollisions(Tachyon* tachyon, State& state) {
   }
 }
 
+static void HandleNormalSwitchCollisions(Tachyon* tachyon, State& state) {
+  for (auto& entity : state.normal_switches) {
+    if (!IsDuringActiveTime(entity, state)) continue;
+
+    float dx = abs(state.player_position.x - entity.position.x);
+    float dz = abs(state.player_position.z - entity.position.z);
+
+    if (dx < entity.scale.x && dz < entity.scale.z) {
+      auto plane = CollisionSystem::CreatePlane(entity.position, entity.scale, entity.orientation);
+      float player_y = entity.position.y + PLAYER_HEIGHT + 150.f;
+
+      AllowPlayerMovement(state, player_y, plane);
+
+      state.is_on_solid_platform = true;
+      state.is_on_wood_surface = true;
+
+      return;
+    }
+  }
+}
+
+// @todo move this to top
 static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
   float scene_time = get_scene_time();
 
@@ -995,6 +1017,9 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   HandleWaterWheelCollisions(tachyon, state);
   HandleCastleStairsCollisions(tachyon, state);
   HandleSlopeCollisions(tachyon, state);
+
+  // Switches
+  HandleNormalSwitchCollisions(tachyon, state);
 
   // HandleRiverLogCollisions(tachyon, state); // @todo remove (?)
 

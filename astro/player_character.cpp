@@ -894,13 +894,16 @@ static void UpdateWandLights(Tachyon* tachyon, State& state) {
     // Glow when close to interactibles ("wand sense")
     {
       if (state.wand_sense_factor > 0.f) {
+        // We don't want the wand sense light to amplify held wand light,
+        // so show it in inverse proportion to how high the wand is held
         float inverse_wand_hold_factor = IsWandHoldAnimationActive(state)
           ? 1.f - GetWandHoldFactor(state)
           : 1.f;
 
         float alpha = state.wand_sense_factor * inverse_wand_hold_factor;
+        float strength = 3.5f + 0.5f * sinf(2.f * scene_time);
 
-        main_light_power += 4.f * alpha;
+        main_light_power += strength * alpha;
         light_color = tVec3f::lerp(light_color, tVec3f(1.f), alpha);
       }
     }

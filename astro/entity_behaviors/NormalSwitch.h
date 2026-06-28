@@ -34,6 +34,9 @@ namespace astro {
 
           Sync(base, entity);
 
+          base.color = tVec3f(0.4f, 0.2f, 0.1f);
+          base.material = tVec4f(0.9f, 0, 0, 0.1f);
+
           commit(base);
         }
 
@@ -42,6 +45,9 @@ namespace astro {
           auto& button = use_instance(meshes.normal_switch_button);
 
           Sync(button, entity);
+
+          button.color = tVec3f(0.6f, 0.5f, 0.4f);
+          button.material = tVec4f(0.9f, 0, 0, 0.1f);
 
           commit(button);
         }
