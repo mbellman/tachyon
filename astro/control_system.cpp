@@ -234,6 +234,7 @@ static void HandleWandControls(Tachyon* tachyon, State& state) {
   if (abs(state.astro_turn_speed) != 0.f) return;
 
   bool has_wand = Items::HasItem(state, MAGIC_WAND);
+  float scene_time = get_scene_time();
 
   // O
   if (did_press_key(tKey::CONTROLLER_B)) {
@@ -263,7 +264,7 @@ static void HandleWandControls(Tachyon* tachyon, State& state) {
       }
       else {
         // Before we have magic weapons, swing the wand as a melee weapon
-        state.last_wand_swing_time = get_scene_time();
+        state.last_wand_swing_time = scene_time;
         state.last_wand_bounce_time = 0.f;
 
         Combat::HandleWandSwing(tachyon, state);
@@ -277,10 +278,11 @@ static void HandleWandControls(Tachyon* tachyon, State& state) {
     state.targetable_entities.size() == 0
   ) {
     if (!state.is_holding_up_wand) {
-      state.player.last_wand_start_time = get_scene_time();
+      state.player.last_wand_start_time = scene_time;
     }
 
     state.is_holding_up_wand = true;
+    state.player.last_wand_held_time = scene_time;
 
     // Reset certain properties relating to movement/stance to avoid
     // complicating certain animation details
@@ -291,7 +293,7 @@ static void HandleWandControls(Tachyon* tachyon, State& state) {
       time_since(state.player.last_wand_start_time) > 0.25f &&
       time_since(state.last_wand_light_pulse_time) > 4.f
     ) {
-      state.last_wand_light_pulse_time = get_scene_time();
+      state.last_wand_light_pulse_time = scene_time;
 
       Sfx::PlaySound(SFX_LIGHT_PULSE, 0.8f);
 

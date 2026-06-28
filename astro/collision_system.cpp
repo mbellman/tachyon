@@ -251,6 +251,36 @@ static void HandleHouseCollisions(Tachyon* tachyon, State& state) {
   }
 }
 
+static void HandleCastleStairsCollisions(Tachyon* tachyon, State& state) {
+  tVec3f player_xz = state.player_position.xz();
+
+  for (auto& entity : state.castle_stairs) {
+    if (!IsDuringActiveTime(entity, state)) continue;
+
+    auto slope_plane = CollisionSystem::CreatePlane(entity.position, entity.scale, entity.orientation);
+
+    if (CollisionSystem::IsPointOnPlane(player_xz, slope_plane)) {
+      // Figure out how far along the slope the player is,
+      // and set their height accordingly
+      //
+      // @todo the slope runs along the object-space x axis,
+      // which is counterintuitive. It should be z, ideally.
+      tVec3f slope_to_player = state.player_position - entity.position;
+      tVec3f player_position_in_slope_space = entity.orientation.toMatrix4f().inverse() * slope_to_player;
+      float progress_along_slope = 0.5f * (1.f - player_position_in_slope_space.x / entity.scale.x);
+      float slope_bottom_y = slope_plane.p1.y + PLAYER_HEIGHT + 200.f;
+      float player_y = slope_bottom_y + progress_along_slope * entity.scale.y * 1.2f;
+      float slope_dot = tVec3f::dot(state.player_facing_direction, entity.orientation.getLeftDirection());
+
+      AllowPlayerMovement(state, player_y, slope_plane);
+
+      state.is_on_solid_platform = true;
+      state.is_on_stone_surface = true;
+      state.is_moving_down_slope = slope_dot < 0.f;
+    }
+  }
+}
+
 static void HandleSlopeCollisions(Tachyon* tachyon, State& state) {
   tVec3f player_xz = state.player_position.xz();
 
@@ -274,7 +304,7 @@ static void HandleSlopeCollisions(Tachyon* tachyon, State& state) {
 
       state.is_on_solid_platform = true;
       state.is_on_stone_surface = true;
-      state.is_moving_down_slope = slope_dot < -0.f;
+      state.is_moving_down_slope = slope_dot < 0.f;
     }
   }
 }
@@ -963,6 +993,7 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   HandleCastleTowerCollisions(tachyon, state);
   HandleAltarCollisions(tachyon, state);
   HandleWaterWheelCollisions(tachyon, state);
+  HandleCastleStairsCollisions(tachyon, state);
   HandleSlopeCollisions(tachyon, state);
 
   // HandleRiverLogCollisions(tachyon, state); // @todo remove (?)

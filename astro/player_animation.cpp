@@ -522,13 +522,14 @@ static void HandleTorsoAnimation(Tachyon* tachyon, State& state) {
 
   // Swing the torso while walking
   // @todo refactor/clean up
-  float t = fmodf(rig.next_animation_time + 3.f, 8.f) / 8.f;
+  float t = PlayerAnimation::GetRunCycleAnimationTime(state);
+  t = fmodf(t + 3.f, 8.f) / 8.f;
   float walk_cycle_time = t * t_TAU;
   float speed_curve_alpha = sinf(speed_ratio * t_PI);
 
   rig.torso_turn_angle += speed_curve_alpha * sinf(walk_cycle_time) * state.dt;
 
-  // Swing when slowing down
+  // Swing when slowing down from a run
   {
     if (speed_ratio > 0.f && !is_moving_left_stick()) {
       rig.torso_turn_angle = Tachyon_Lerpf(
@@ -636,8 +637,12 @@ static void HandleStoppedAfterMovingAnimation(Tachyon* tachyon, State& state) {
 static void DriftToRestAnimation(Tachyon* tachyon, State& state) {
   auto& rig = state.player.rig;
 
+  // If we stop holding the wand, drift the torso to rest more quickly
+  // to emphasize the "putting away" action. Otherwise, drift to rest
+  // at a modest rate, e.g. after running.
   float torso_rest_rate = (
     IsAnyIdleAnimation(rig.current_animation, state) &&
+    time_since(state.player.last_wand_held_time) < 2.f &&
     !state.is_holding_up_wand
   ) ? 2.f : 0.5f;
 

@@ -43,7 +43,6 @@ tutorial:
 * magic gate improvements/collision
 
 features/fixes:
-* staircase slope behavior
 * switch functionality
 * jump-off-ledge animation
 * walk/run start foot sticking
