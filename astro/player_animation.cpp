@@ -174,10 +174,19 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
 
   // Running
   else if (PlayerCharacter::IsRunning(tachyon, state)) {
+    bool was_idling = IsAnyIdleAnimation(rig.next_animation, state);
+
     if (state.is_holding_up_wand) {
       Animation::AwaitNextAnimation(rig, &animations.player_run_wand);
     } else {
       Animation::AwaitNextAnimation(rig, &animations.player_run);
+    }
+
+    bool is_starting_run = IsRunAnimation(rig.next_animation, state);
+
+    if (was_idling && state.player_idle_stance == 1 && is_starting_run) {
+      // Motion match the feet in idle stance 1 -> running
+      rig.next_animation_time = 4.f;
     }
   }
 
@@ -554,10 +563,11 @@ static void HandleTorsoAnimation(Tachyon* tachyon, State& state) {
       state.player.running_charge *= 1.f - 2.f * state.dt;
     }
 
-    float running_charge_tilt = 0.1f * sinf(state.player.running_charge * t_PI);
+    float running_charge_tilt = 0.2f * sinf(state.player.running_charge * t_PI);
 
+    // Lean forward a little more when doing a quick turn
     if (time_since(state.last_quick_turn_time) < 1.f) {
-      running_charge_tilt *= 3.f;
+      running_charge_tilt *= 1.5f;
     }
 
     if (running_charge_tilt > 0.f) {
