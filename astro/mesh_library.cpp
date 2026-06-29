@@ -202,6 +202,13 @@ static void AddProceduralMeshes(Tachyon* tachyon, State& state) {
 
     mesh(meshes.ladder_rung).shadow_cascade_ceiling = 2;
   }
+
+  // Stair steps
+  {
+    meshes.stair_step = MODEL_MESH("./astro/3d_models/castle_stairs/stair_step.obj", 200);
+
+    mesh(meshes.stair_step).shadow_cascade_ceiling = 2;
+  }
 }
 
 static void AddFaunaMeshes(Tachyon* tachyon, State& state) {

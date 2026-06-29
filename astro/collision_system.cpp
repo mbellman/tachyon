@@ -269,7 +269,7 @@ static void HandleCastleStairsCollisions(Tachyon* tachyon, State& state) {
       tVec3f player_position_in_slope_space = entity.orientation.toMatrix4f().inverse() * slope_to_player;
       float progress_along_slope = 0.5f * (1.f - player_position_in_slope_space.x / entity.scale.x);
       float slope_bottom_y = slope_plane.p1.y + PLAYER_HEIGHT + 200.f;
-      float player_y = slope_bottom_y + progress_along_slope * entity.scale.y * 1.2f;
+      float player_y = slope_bottom_y + progress_along_slope * entity.scale.y * 1.15f;
       float slope_dot = tVec3f::dot(state.player_facing_direction, entity.orientation.getLeftDirection());
 
       AllowPlayerMovement(state, player_y, slope_plane);

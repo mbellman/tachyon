@@ -25,10 +25,14 @@ namespace astro {
       auto& meshes = state.meshes;
 
       reset_instances(meshes.castle_stairs_platform);
+      reset_instances(meshes.stair_step);
 
       for (auto& entity : state.castle_stairs) {
         if (!IsDuringActiveTime(entity, state)) continue;
-        // @todo range culling
+
+        entity.visible_position = entity.position;
+        entity.visible_rotation = entity.orientation;
+        entity.visible_scale = entity.scale;
 
         // Platform
         {
@@ -40,8 +44,27 @@ namespace astro {
         }
 
         // Procedural stair steps
-        {
-          // @todo
+        if (
+          IsInRangeX(entity, state, 25000.f) &&
+          IsInRangeZ(entity, state, 25000.f)
+        ) {
+          tVec3f direction = entity.orientation.toMatrix4f() * tVec3f(-1.f, 0, 0);
+          tVec3f start_position = UnitEntityToWorldPosition(entity, tVec3f(1.f, 0, 0)) - direction * 200.f;
+          int total_steps = (int) (2.f * entity.scale.x / 425.f);
+
+          for_range(1, total_steps) {
+            auto& step = use_instance(meshes.stair_step);
+            float offset_distance = (float) (i * 425);
+            float progress = float(i) / float(total_steps);
+
+            Sync(step, entity);
+
+            step.scale.x = 200.f;
+            step.scale.y = 100.f + entity.scale.y * progress * 1.15f;
+            step.position = start_position + direction * offset_distance;
+
+            commit(step);
+          }
         }
       }
     }

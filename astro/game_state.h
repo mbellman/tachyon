@@ -99,6 +99,7 @@ namespace astro {
       vine_flower,
       tree_flower,
       ladder_rung,
+      stair_step,
 
       // Procedural path meshes
       dirt_path,

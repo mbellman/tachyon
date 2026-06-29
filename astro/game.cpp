@@ -108,6 +108,10 @@ static void CreateConstantObjects(Tachyon* tachyon, State& state) {
     create(meshes.ladder_rung);
   }
 
+  for_range(1, 200) {
+    create(meshes.stair_step);
+  }
+
   // Clothing + armor
   {
     for_range(1, 10) {
