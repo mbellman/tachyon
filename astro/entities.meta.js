@@ -783,7 +783,8 @@ export default [
     meshes: [
       "normal_switch_placeholder",
       "normal_switch_base",
-      "normal_switch_button"
+      "normal_switch_button",
+      "normal_switch_emblem"
     ],
     scale: [ 1200.0 ],
     color: [ 1.0 ]

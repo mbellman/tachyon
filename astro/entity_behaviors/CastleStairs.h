@@ -52,18 +52,18 @@ namespace astro {
           tVec3f start_position = UnitEntityToWorldPosition(entity, tVec3f(1.f, 0, 0)) - direction * 200.f;
           int total_steps = (int) (2.f * entity.scale.x / 425.f);
 
-          float base_y_scale = 100.f;
+          float base_y_scale = 200.f;
 
           for_range(1, total_steps) {
             auto& step = use_instance(meshes.stair_step);
             float offset_distance = (float) (i * 425);
             float progress = float(i) / float(total_steps);
-            float full_y_scale = base_y_scale + entity.scale.y * progress * 1.15f;
+            float full_y_scale = 100.f + entity.scale.y * progress * 1.15f;
             float current_y_scale = full_y_scale;
 
             // Only used for trigger-activated stairs
             if (entity.requires_action) {
-              float trigger_time_offset = float(i) * 0.1f;
+              float trigger_time_offset = float(total_steps - (i - 1)) * 0.1f;
               float activation_alpha = time_since(entity.game_activation_time + trigger_time_offset) / 1.f;
 
               clamp_to_0(activation_alpha);
@@ -74,6 +74,11 @@ namespace astro {
               }
 
               current_y_scale = Tachyon_Lerpf(base_y_scale, full_y_scale, activation_alpha);
+
+              if (i == total_steps) {
+                // Make the final step full height so it covers the "back" side of the staircase
+                current_y_scale = full_y_scale;
+              }
             }
 
             Sync(step, entity);

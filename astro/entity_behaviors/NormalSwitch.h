@@ -5,22 +5,26 @@
 
 namespace astro {
   behavior NormalSwitch {
-    static void TriggerAssociatedEntity(Tachyon* tachyon, State& state, GameEntity& entity) {
+    static bool TriggerAssociatedEntity(Tachyon* tachyon, State& state, GameEntity& entity) {
       auto& associated = entity.associated_entity_record;
 
       if (associated.type == UNSPECIFIED || associated.id == -1) {
-        return;
+        return false;
       }
 
       auto& associated_entity = *EntityManager::FindEntity(state, associated);
 
-      if (!associated_entity.did_activate) {
-        // Associated entities can react according to their own rules;
-        // we simply mark them as activated here
-        associated_entity.did_activate = true;
-        associated_entity.game_activation_time = get_scene_time();
-        associated_entity.astro_activation_time = state.astro_time;
+      if (associated_entity.did_activate) {
+        return false;
       }
+
+      // Associated entities can react according to their own rules;
+      // we simply mark them as activated here
+      associated_entity.did_activate = true;
+      associated_entity.game_activation_time = get_scene_time();
+      associated_entity.astro_activation_time = state.astro_time;
+
+      return true;
     }
 
     static void Press(Tachyon* tachyon, State& state, GameEntity& entity) {
@@ -31,15 +35,21 @@ namespace astro {
       entity.game_activation_time = get_scene_time();
       entity.astro_activation_time = state.astro_time;
 
-      TriggerAssociatedEntity(tachyon, state, entity);
+      bool did_trigger_effect = TriggerAssociatedEntity(tachyon, state, entity);
 
       // @todo refactor
       {
         auto r = Tachyon_GetRandom();
 
-        if (r < 0.33f) Sfx::PlaySound(SFX_NORMAL_SWITCH_1, 0.5f);
-        else if (r < 0.66f) Sfx::PlaySound(SFX_NORMAL_SWITCH_2, 0.5f);
-        else Sfx::PlaySound(SFX_NORMAL_SWITCH_3, 0.5f);
+        if (r < 0.33f) Sfx::PlaySound(SFX_NORMAL_SWITCH_1, 0.3f);
+        else if (r < 0.66f) Sfx::PlaySound(SFX_NORMAL_SWITCH_2, 0.3f);
+        else Sfx::PlaySound(SFX_NORMAL_SWITCH_3, 0.3f);
+      }
+
+      if (did_trigger_effect) {
+        Sfx::PlaySound(SFX_SWITCH_ACTIVATE, 0.8f);
+      } else {
+        Sfx::PlaySound(SFX_SWITCH_PULSE, 0.5f);
       }
     }
 
@@ -56,12 +66,18 @@ namespace astro {
       meshes.normal_switch_placeholder = MODEL_MESH("./astro/3d_models/normal_switch/placeholder.obj", 500);
       meshes.normal_switch_base = MODEL_MESH("./astro/3d_models/normal_switch/base.obj", 500);
       meshes.normal_switch_button = MODEL_MESH("./astro/3d_models/normal_switch/button.obj", 500);
+      meshes.normal_switch_emblem = MODEL_MESH("./astro/3d_models/normal_switch/emblem.obj", 500);
+
+      mesh(meshes.normal_switch_base).shadow_cascade_ceiling = 2;
+      mesh(meshes.normal_switch_button).shadow_cascade_ceiling = 2;
+      mesh(meshes.normal_switch_emblem).shadow_cascade_ceiling = 0;
     }
 
     getMeshes() {
       return_meshes({
         meshes.normal_switch_base,
-        meshes.normal_switch_button
+        meshes.normal_switch_button,
+        meshes.normal_switch_emblem
       });
     }
 
@@ -74,10 +90,14 @@ namespace astro {
 
       reset_instances(meshes.normal_switch_base);
       reset_instances(meshes.normal_switch_button);
+      reset_instances(meshes.normal_switch_emblem);
 
       for (auto& entity : state.normal_switches) {
         float dx = abs(state.player_position.x - entity.position.x);
         float dz = abs(state.player_position.z - entity.position.z);
+
+        // Range culling
+        if (dx > 25000.f || dz > 25000.f) continue;
 
         // Base
         {
@@ -85,8 +105,8 @@ namespace astro {
 
           Sync(base, entity);
 
-          base.color = tVec3f(0.4f, 0.2f, 0.1f);
-          base.material = tVec4f(0.9f, 0, 0, 0.1f);
+          base.color = tVec3f(1.f, 1.f, 0.1f);
+          base.material = tVec4f(0.5f, 1.f, 0, 0.1f);
 
           commit(base);
         }
@@ -102,20 +122,36 @@ namespace astro {
             Press(tachyon, state, entity);
 
             entity.accumulation_value = Tachyon_Lerpf(entity.accumulation_value, 200.f, 5.f * state.dt);
-            button.position.y -= entity.accumulation_value;
 
           // Unpressing behavior
           } else {
             Unpress(tachyon, state, entity);
 
             entity.accumulation_value = Tachyon_Lerpf(entity.accumulation_value, 0.f, state.dt);
-            button.position.y -= entity.accumulation_value;
           }
 
-          button.color = tVec3f(0.6f, 0.4f, 0.3f);
+          button.position.y -= entity.accumulation_value;
+          button.color = tVec3f(0.8f, 0.6f, 0.5f);
           button.material = tVec4f(0.9f, 0, 0, 0.1f);
 
           commit(button);
+        }
+
+        // Emblem
+        {
+          auto& emblem = use_instance(meshes.normal_switch_emblem);
+
+          Sync(emblem, entity);
+
+          // Match the button motion
+          emblem.position.y -= entity.accumulation_value;
+
+          float emissive = entity.accumulation_value / 200.f;
+
+          emblem.color = tVec4f(1.f, 0.6f, 0.2f, emissive);
+          emblem.material = tVec4f(0.3f, 1.f, 0, 0.1f);
+
+          commit(emblem);
         }
       }
     }

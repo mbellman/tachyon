@@ -41,6 +41,25 @@ static std::vector<Plane> GetEntityPlanes(const std::vector<GameEntity>& entitie
   return planes;
 }
 
+static std::vector<Plane> GetSpecialEntityPlanes(const std::vector<GameEntity>& entities, const tVec3f& scale_factor = tVec3f(1.f)) {
+  // @allocation
+  std::vector<Plane> planes;
+
+  for_entities(entities) {
+    auto& entity = entities[i];
+
+    // Skip non-special entities
+    if (!entity.requires_action) continue;
+
+    auto plane = CollisionSystem::CreatePlane(entity.position, entity.scale * scale_factor, entity.orientation);
+
+    planes.push_back(plane);
+  }
+
+  // @allocation
+  return planes;
+}
+
 static std::vector<Plane> GetObjectPlanes(Tachyon* tachyon, uint16 mesh_index, const tVec3f& scale_factor = tVec3f(1.f)) {
   // @allocation
   std::vector<Plane> planes;
@@ -383,6 +402,7 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
   auto altar_planes = GetEntityPlanes(state.altars, tVec3f(1.9f, 1.f, 0.6f));
   auto wind_chime_planes = GetEntityPlanes(state.wind_chimes, tVec3f(0.8f, 1.f, 1.4f));
   auto normal_switch_planes = GetEntityPlanes(state.normal_switches, tVec3f(1.15f));
+  auto castle_stairs_planes = GetSpecialEntityPlanes(state.castle_stairs);
 
   // Reset grass objects/chunks etc.
   {
@@ -475,6 +495,7 @@ static void GenerateSmallGrass(Tachyon* tachyon, State& state) {
       if (IsPointOnAnyPlane(position, altar_planes)) continue;
       if (IsPointOnAnyPlane(position, wind_chime_planes)) continue;
       if (IsPointOnAnyPlane(position, normal_switch_planes)) continue;
+      if (IsPointOnAnyPlane(position, castle_stairs_planes)) continue;
 
       GrassBlade blade;
       blade.position = position;
@@ -712,6 +733,7 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
 
   auto dirt_path_planes = GetObjectPlanes(tachyon, meshes.dirt_path);
   auto stone_path_planes = GetObjectPlanes(tachyon, meshes.stone_path);
+  auto castle_stairs_planes = GetSpecialEntityPlanes(state.castle_stairs);
 
   // @todo factor
   remove_all(meshes.ground_flower);
@@ -738,6 +760,7 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
       if (
         IsPointOnAnyPlane(position, dirt_path_planes) ||
         IsPointOnAnyPlane(position, stone_path_planes) ||
+        IsPointOnAnyPlane(position, castle_stairs_planes) ||
         position.y < -1500.f
       ) {
         continue;
@@ -789,6 +812,7 @@ static void GenerateGroundFlowers(Tachyon* tachyon, State& state) {
       if (
         IsPointOnAnyPlane(position, dirt_path_planes) ||
         IsPointOnAnyPlane(position, stone_path_planes) ||
+        IsPointOnAnyPlane(position, castle_stairs_planes) ||
         position.y < -1500.f
       ) {
         continue;

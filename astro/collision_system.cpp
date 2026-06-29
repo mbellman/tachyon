@@ -260,23 +260,29 @@ static void HandleCastleStairsCollisions(Tachyon* tachyon, State& state) {
     auto slope_plane = CollisionSystem::CreatePlane(entity.position, entity.scale, entity.orientation);
 
     if (CollisionSystem::IsPointOnPlane(player_xz, slope_plane)) {
-      // Figure out how far along the slope the player is,
-      // and set their height accordingly
-      //
-      // @todo the slope runs along the object-space x axis,
-      // which is counterintuitive. It should be z, ideally.
-      tVec3f slope_to_player = state.player_position - entity.position;
-      tVec3f player_position_in_slope_space = entity.orientation.toMatrix4f().inverse() * slope_to_player;
-      float progress_along_slope = 0.5f * (1.f - player_position_in_slope_space.x / entity.scale.x);
-      float slope_bottom_y = slope_plane.p1.y + PLAYER_HEIGHT + 200.f;
-      float player_y = slope_bottom_y + progress_along_slope * entity.scale.y * 1.15f;
-      float slope_dot = tVec3f::dot(state.player_facing_direction, entity.orientation.getLeftDirection());
-
-      AllowPlayerMovement(state, player_y, slope_plane);
-
-      state.is_on_solid_platform = true;
+      // Apply the right footstep sounds
       state.is_on_stone_surface = true;
-      state.is_moving_down_slope = slope_dot < 0.f;
+
+      // Only use slope collision if the stairs are static (not trigger-activated),
+      // or already activated
+      if (!entity.requires_action || entity.did_activate) {
+        // Figure out how far along the slope the player is,
+        // and set their height accordingly
+        //
+        // @todo the slope runs along the object-space x axis,
+        // which is counterintuitive. It should be z, ideally.
+        tVec3f slope_to_player = state.player_position - entity.position;
+        tVec3f player_position_in_slope_space = entity.orientation.toMatrix4f().inverse() * slope_to_player;
+        float progress_along_slope = 0.5f * (1.f - player_position_in_slope_space.x / entity.scale.x);
+        float slope_bottom_y = slope_plane.p1.y + PLAYER_HEIGHT + 200.f;
+        float player_y = slope_bottom_y + progress_along_slope * entity.scale.y * 1.15f;
+        float slope_dot = tVec3f::dot(state.player_facing_direction, entity.orientation.getLeftDirection());
+
+        AllowPlayerMovement(state, player_y, slope_plane);
+
+        state.is_on_solid_platform = true;
+        state.is_moving_down_slope = slope_dot < 0.f;
+      }
     }
   }
 }

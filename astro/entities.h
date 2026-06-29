@@ -487,6 +487,7 @@ namespace astro {
       normal_switch_placeholder,
       normal_switch_base,
       normal_switch_button,
+      normal_switch_emblem,
 
       // NPC
       npc_placeholder,
