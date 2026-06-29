@@ -1,9 +1,28 @@
 #pragma once
 
 #include "astro/entity_behaviors/behavior.h"
+#include "astro/entity_behaviors/CastleStairs.h"
 
 namespace astro {
   behavior NormalSwitch {
+    static void TriggerAssociatedEntity(Tachyon* tachyon, State& state, GameEntity& entity) {
+      auto& associated = entity.associated_entity_record;
+
+      if (associated.type == UNSPECIFIED || associated.id == -1) {
+        return;
+      }
+
+      auto& associated_entity = *EntityManager::FindEntity(state, associated);
+
+      if (!associated_entity.did_activate) {
+        // Associated entities can react according to their own rules;
+        // we simply mark them as activated here
+        associated_entity.did_activate = true;
+        associated_entity.game_activation_time = get_scene_time();
+        associated_entity.astro_activation_time = state.astro_time;
+      }
+    }
+
     static void Press(Tachyon* tachyon, State& state, GameEntity& entity) {
       // Do nothing for pressed switches
       if (entity.did_activate) return;
@@ -11,6 +30,8 @@ namespace astro {
       entity.did_activate = true;
       entity.game_activation_time = get_scene_time();
       entity.astro_activation_time = state.astro_time;
+
+      TriggerAssociatedEntity(tachyon, state, entity);
 
       // @todo refactor
       {

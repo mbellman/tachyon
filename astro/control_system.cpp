@@ -192,7 +192,7 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
     is_holding_run_button &&
     !state.has_target &&
     GetTurnDot(tachyon, state) < -0.7f &&
-    get_speed_ratio() < 0.5f
+    get_speed_ratio() < 0.2f
   ) {
     state.last_quick_turn_time = get_scene_time();
   }

@@ -24,7 +24,7 @@
 #define clamp_to_0(__value) if (__value < 0.f) __value = 0.f
 #define clamp_to_1(__value) if (__value > 1.f) __value = 1.f
 
-#define time_since(t) (tachyon->scene.scene_time - t)
+#define time_since(t) (tachyon->scene.scene_time - (t))
 #define get_scene_time() tachyon->scene.scene_time
 #define is_moving_left_stick() (tachyon->left_stick.x != 0.f || tachyon->left_stick.y != 0.f)
 

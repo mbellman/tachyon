@@ -217,7 +217,7 @@ static void ResetEntities(Tachyon* tachyon, State& state) {
     entity.is_astro_synced = false;
   }
 
-  for (auto type : { GATE, BIRD_GATE, IRON_GATE, WATER_WHEEL }) {
+  for (auto type : { GATE, BIRD_GATE, IRON_GATE, WATER_WHEEL, CASTLE_STAIRS }) {
     for_entities_of_type(type) {
       auto& entity = entities[i];
 
