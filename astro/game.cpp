@@ -1122,11 +1122,13 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
     state.ui.future_age_title = Tachyon_CreateUIElement("./astro/textures/titles/future-age.png");
     state.ui.present_age_title = Tachyon_CreateUIElement("./astro/textures/titles/present-age.png");
     state.ui.past_age_title = Tachyon_CreateUIElement("./astro/textures/titles/past-age.png");
+    state.ui.distant_past_age_title = Tachyon_CreateUIElement("./astro/textures/titles/distant-past-age.png");
 
     state.ui.divination_woodrealm_title = Tachyon_CreateUIElement("./astro/textures/titles/divination-woodrealm.png");
     state.ui.divination_riverway_title = Tachyon_CreateUIElement("./astro/textures/titles/divination-riverway.png");
     state.ui.lake_promenade_title = Tachyon_CreateUIElement("./astro/textures/titles/lake-promenade.png");
     state.ui.lakefront_south_title = Tachyon_CreateUIElement("./astro/textures/titles/lakefront-south.png");
+    state.ui.garden_of_monastics_title = Tachyon_CreateUIElement("./astro/textures/titles/garden-of-monastics.png");
 
     state.ui.seeker_stargazer_title = Tachyon_CreateUIElement("./astro/textures/titles/seeker-stargazer.png");
   }

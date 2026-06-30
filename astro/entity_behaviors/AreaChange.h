@@ -45,6 +45,9 @@ namespace astro {
           else if (entity.unique_name == "lakefront_south") {
             state.current_location = Location::DIVINATION_LAKEFRONT_SOUTH;
           }
+          else if (entity.unique_name == "garden") {
+            state.current_location = Location::GARDEN_OF_MONASTICS;
+          }
 
           if (state.current_location != previous_location) {
             state.last_area_change_time = get_scene_time();

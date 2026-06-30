@@ -72,6 +72,8 @@ static tUIElement* GetCurrentLocationTitleGraphic(const State& state) {
       return ui.lake_promenade_title;
     case Location::DIVINATION_LAKEFRONT_SOUTH:
       return ui.lakefront_south_title;
+    case Location::GARDEN_OF_MONASTICS:
+      return ui.garden_of_monastics_title;
     default:
       return nullptr;
   }
@@ -260,8 +262,18 @@ void UISystem::UpdateHUD(Tachyon* tachyon, State& state) {
     }
 
     // Past
-    else {
+    else if (state.astro_time > -100.f) {
       Tachyon_DrawUIElement(tachyon, state.ui.past_age_title, {
+        .screen_x = int32(float(tachyon->window_width) * 0.165f),
+        .screen_y = tachyon->window_height - 185,
+        .centered = false,
+        .alpha = sqrtf(state.ui.titles_alpha)
+      });
+    }
+
+    // Distant past
+    else {
+      Tachyon_DrawUIElement(tachyon, state.ui.distant_past_age_title, {
         .screen_x = int32(float(tachyon->window_width) * 0.165f),
         .screen_y = tachyon->window_height - 185,
         .centered = false,
