@@ -281,7 +281,7 @@ static void HandleCastleStairsCollisions(Tachyon* tachyon, State& state) {
         AllowPlayerMovement(state, player_y, slope_plane);
 
         state.is_on_solid_platform = true;
-        state.is_moving_down_slope = slope_dot < 0.f;
+        state.is_moving_down_slope = slope_dot < -0.4f || slope_dot > 0.4f;
       }
     }
   }
@@ -310,7 +310,7 @@ static void HandleSlopeCollisions(Tachyon* tachyon, State& state) {
 
       state.is_on_solid_platform = true;
       state.is_on_stone_surface = true;
-      state.is_moving_down_slope = slope_dot < 0.f;
+      state.is_moving_down_slope = slope_dot < -0.4f || slope_dot > 0.4f;
     }
   }
 }

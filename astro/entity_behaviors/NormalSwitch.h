@@ -5,6 +5,8 @@
 
 namespace astro {
   behavior NormalSwitch {
+    static int pulse_sound_cycle = 0;
+
     static bool TriggerAssociatedEntity(Tachyon* tachyon, State& state, GameEntity& entity) {
       auto& associated = entity.associated_entity_record;
 
@@ -49,7 +51,15 @@ namespace astro {
       if (did_trigger_effect) {
         Sfx::PlaySound(SFX_SWITCH_ACTIVATE, 0.8f);
       } else {
-        Sfx::PlaySound(SFX_SWITCH_PULSE, 0.5f);
+        if (pulse_sound_cycle == 0) {
+          Sfx::PlaySound(SFX_SWITCH_PULSE_1, 0.5f);
+
+          pulse_sound_cycle++;
+        } else {
+          Sfx::PlaySound(SFX_SWITCH_PULSE_2, 0.5f);
+
+          pulse_sound_cycle = 0;
+        }
       }
     }
 

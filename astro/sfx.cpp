@@ -81,7 +81,8 @@ static std::map<Sound, const char*> sound_file_map = {
   { SFX_NORMAL_SWITCH_2, "./astro/audio/sfx_normal_switch_2.wav" },
   { SFX_NORMAL_SWITCH_3, "./astro/audio/sfx_normal_switch_3.wav" },
 
-  { SFX_SWITCH_PULSE, "./astro/audio/sfx_switch_pulse.wav" },
+  { SFX_SWITCH_PULSE_1, "./astro/audio/sfx_switch_pulse_1.wav" },
+  { SFX_SWITCH_PULSE_2, "./astro/audio/sfx_switch_pulse_2.wav" },
   { SFX_SWITCH_ACTIVATE, "./astro/audio/sfx_switch_activate.wav" },
 
   { SFX_SPELL_STUN, "./astro/audio/sfx_spell_stun.wav" },
