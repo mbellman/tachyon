@@ -264,7 +264,7 @@ void main() {
   #if ENABLE_DEPTH_OF_FIELD_BLUR
     // Depth-of-field blur
     {
-      const float max_blur = 2.0;
+      const float max_blur = 1.5;
 
       float depth = color_and_depth.w;
       float adjusted_depth = pow(depth, 70.0);

@@ -48,7 +48,7 @@ static void CreateConstantObjects(Tachyon* tachyon, State& state) {
   // Environment meshes
   {
     for_range(1, 100) {
-      create(meshes.snow_particle);
+      // create(meshes.snow_particle);
     }
 
     for_range(1, 30) {
@@ -419,6 +419,7 @@ static void HandleFog(Tachyon* tachyon, State& state) {
 }
 
 // @todo Environment::
+// @todo remove? replace with rain? (preserve the wrapping behavior though)
 static void HandleSnow(Tachyon* tachyon, State& state) {
   profile("HandleSnow()");
 
@@ -1203,7 +1204,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   FacadeGeometry::HandleFacades(tachyon, state);
   Environment::HandleEnvironment(tachyon, state);
   HandleFog(tachyon, state);
-  HandleSnow(tachyon, state);
+  // HandleSnow(tachyon, state);
   HandleWalkSounds(tachyon, state);
   HandleClimbingSounds(tachyon, state);
   HandleCurrentAreaMusic(tachyon, state);

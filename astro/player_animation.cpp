@@ -461,6 +461,7 @@ static void HandleHeadAnimation(Tachyon* tachyon, State& state) {
     TurnPlayerHeadToward(state, state.sculpture_1s, player_facing_angle);
     TurnPlayerHeadToward(state, state.wind_chimes, player_facing_angle);
     TurnPlayerHeadToward(state, state.light_posts, player_facing_angle);
+    TurnPlayerHeadToward(state, state.castle_stairs, player_facing_angle);
 
     // Turn head toward enemies + people
     if (!state.enemies_disabled) {

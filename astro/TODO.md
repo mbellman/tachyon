@@ -37,6 +37,7 @@ entities:
 
 fauna:
 * dragonflies
+* baby ducklings/swans
 
 tutorial:
 * crows near second wind chime
