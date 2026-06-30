@@ -44,7 +44,6 @@ tutorial:
 * magic gate improvements/collision
 
 features/fixes:
-* starting run animation when interacting with wind chimes
 * triggering sculptures when interacting with wind chimes
 * jump-off-ledge animation
 * walk/run start foot sticking

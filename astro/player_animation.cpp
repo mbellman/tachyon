@@ -91,24 +91,17 @@ static bool ShouldPlayClimbingOffAnimation(Tachyon* tachyon, State& state) {
 }
 
 static bool ShouldPlayWalkAnimation(Tachyon* tachyon, State& state) {
-  if (PlayerCharacter::IsClimbingOffLadder(tachyon, state)) {
+  if (
+    PlayerCharacter::IsClimbingOffLadder(tachyon, state) ||
+    state.player.rig.current_animation == &state.animations.player_climb_up
+  ) {
     return false;
   }
 
-  if (is_moving_left_stick()) {
-    return true;
-  }
-
   float walking_move_delta_threshold = state.use_slow_motion ? 4.f : 20.f;
+  bool is_moving = state.previous_move_delta > walking_move_delta_threshold;
 
-  if (
-    state.previous_move_delta > walking_move_delta_threshold &&
-    state.player.rig.current_animation != &state.animations.player_climb_up
-  ) {
-    return true;
-  }
-
-  return false;
+  return is_moving;
 }
 
 static void SetActiveAnimation(Tachyon* tachyon, State& state) {
