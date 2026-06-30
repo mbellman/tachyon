@@ -596,7 +596,7 @@ static void HandleTorsoAnimation(Tachyon* tachyon, State& state) {
     float run_cycle_time = PlayerAnimation::GetRunCycleAnimationTime(state);
     float t = fmodf(run_cycle_time + 2.f, 8.f) / 8.f;
     float alpha = 0.5f + 0.5f * sinf(2.f * t * t_TAU);
-    float compression = 0.4f * alpha;
+    float compression = 0.25f * alpha;
 
     if (PlayerCharacter::IsRunning(tachyon, state)) {
       float alpha = get_speed_ratio();
