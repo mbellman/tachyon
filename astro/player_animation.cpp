@@ -592,14 +592,25 @@ static void HandleTorsoAnimation(Tachyon* tachyon, State& state) {
 
   // Compress when running
   {
-    float t = fmodf(rig.next_animation_time + 3.5f, 8.f) / 8.f;
+    float run_cycle_time = PlayerAnimation::GetRunCycleAnimationTime(state);
+    float t = fmodf(run_cycle_time + 2.f, 8.f) / 8.f;
     float alpha = 0.5f + 0.5f * sinf(2.f * t * t_TAU);
-    float compression = 0.5f * alpha;
+    float compression = 0.4f * alpha;
 
     if (PlayerCharacter::IsRunning(tachyon, state)) {
-      rig.torso_compression = speed_ratio * compression;
+      float alpha = get_speed_ratio();
+
+      rig.torso_compression = Tachyon_Lerpf(
+        rig.torso_compression,
+        speed_ratio * compression,
+        alpha
+      );
     } else {
-      rig.torso_compression = Tachyon_Lerpf(rig.torso_compression, 0.f, 0.2f * state.dt);
+      rig.torso_compression = Tachyon_Lerpf(
+        rig.torso_compression,
+        0.f,
+        0.2f * state.dt
+      );
     }
   }
 }
