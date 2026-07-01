@@ -484,6 +484,31 @@ static void HandleHeadAnimation(Tachyon* tachyon, State& state) {
 
     state.player.rig.head_turn_angle += 10.f * alpha * state.tilt_angle * state.dt;
   }
+
+  // Turn head to face our new running direction
+  // @todo do this instead of the above?
+  {
+    // @todo factor
+    tVec3f direction = state.player_facing_direction;
+    tVec3f velocity = state.player_velocity;
+    float current_angle = atan2f(direction.z, direction.x);
+    float new_angle = atan2f(velocity.z, velocity.x);
+    float turn = GetAngleBetween(current_angle, new_angle);
+
+    if (velocity.magnitude() == 0.f) {
+      turn = 0.f;
+    }
+
+    float turn_magnitude = abs(turn);
+
+    if (turn_magnitude > 0.25f && turn_magnitude < 1.5f) {
+      state.player.rig.head_turn_angle = Tachyon_Lerpf(
+        state.player.rig.head_turn_angle,
+        turn,
+        7.5f * state.dt
+      );
+    }
+  }
 }
 
 static float GetRunningStopAlpha(const float running_stop) {
