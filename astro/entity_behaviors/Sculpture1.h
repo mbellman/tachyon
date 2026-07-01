@@ -57,7 +57,7 @@ namespace astro {
       int sound_index = Tachyon_GetRandom(0, 3);
       Sound sound_effect = *(activation_sounds.begin() + sound_index);
 
-      Sfx::PlaySound(sound_effect, 0.4f);
+      Sfx::PlaySound(sound_effect, 0.1f);
     }
 
     addMeshes() {

@@ -98,10 +98,19 @@ static bool ShouldPlayWalkAnimation(Tachyon* tachyon, State& state) {
     return false;
   }
 
-  float walking_move_delta_threshold = state.use_slow_motion ? 4.f : 20.f;
-  bool is_moving = state.previous_move_delta > walking_move_delta_threshold;
+  if (
+    is_moving_left_stick() && (
+      !state.has_blocking_dialogue ||
+      state.dismissed_blocking_dialogue
+    )
+  ) {
+    return true;
+  }
 
-  return is_moving;
+  float walking_move_delta_threshold = state.use_slow_motion ? 4.f : 20.f;
+  bool is_still_moving = state.previous_move_delta > walking_move_delta_threshold;
+
+  return is_still_moving;
 }
 
 static void SetActiveAnimation(Tachyon* tachyon, State& state) {

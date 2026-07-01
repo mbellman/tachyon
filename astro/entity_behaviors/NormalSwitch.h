@@ -50,7 +50,7 @@ namespace astro {
       }
 
       if (did_trigger_effect) {
-        Sfx::PlaySound(SFX_SWITCH_ACTIVATE, 0.8f);
+        Sfx::PlaySound(SFX_SWITCH_ACTIVATE, 0.6f);
       } else {
         if (pulse_sound_cycle == 0) {
           Sfx::PlaySound(SFX_SWITCH_PULSE_1, 0.5f);
