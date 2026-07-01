@@ -12,6 +12,31 @@ namespace astro {
       SFX_SCULPTURE_ACTIVATE_4
     };
 
+    // @todo refactor
+    static void TriggerAssociatedEntity(Tachyon* tachyon, State& state, GameEntity& entity) {
+      auto& associated = entity.associated_entity_record;
+
+      if (associated.type == UNSPECIFIED || associated.id == -1) {
+        return;
+      }
+
+      auto& associated_entity = *EntityManager::FindEntity(state, associated);
+
+      if (associated_entity.did_activate) {
+        return;
+      }
+
+      // Associated entities can react according to their own rules;
+      // we simply mark them as activated here
+      associated_entity.did_activate = true;
+      associated_entity.game_activation_time = get_scene_time();
+      associated_entity.astro_activation_time = state.astro_time;
+
+      // @temporary
+      // @todo force_activate?
+      associated_entity.can_activate = false;
+    }
+
     static void Activate(Tachyon* tachyon, State& state, GameEntity& entity) {
       // Wait for the light be created first
       if (entity.light_id == -1) return;
@@ -25,6 +50,8 @@ namespace astro {
 
       entity.did_activate = true;
       entity.game_activation_time = get_scene_time();
+
+      TriggerAssociatedEntity(tachyon, state, entity);
 
       // Activation sound effect
       int sound_index = Tachyon_GetRandom(0, 3);

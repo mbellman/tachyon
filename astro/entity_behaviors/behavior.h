@@ -199,6 +199,7 @@ namespace astro {
     ResetEnemyState(entity.enemy_state);
   }
 
+  // @todo rename ResetEnemyEntity
   static void HardResetEntity(GameEntity& entity) {
     entity.visible_scale = tVec3f(0.f);
     entity.visible_position = entity.position;

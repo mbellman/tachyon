@@ -7,6 +7,7 @@ namespace astro {
   behavior NormalSwitch {
     static int pulse_sound_cycle = 0;
 
+    // @todo refactor
     static bool TriggerAssociatedEntity(Tachyon* tachyon, State& state, GameEntity& entity) {
       auto& associated = entity.associated_entity_record;
 
@@ -109,13 +110,16 @@ namespace astro {
         // Range culling
         if (dx > 25000.f || dz > 25000.f) continue;
 
+        float activation_alpha = entity.accumulation_value;
+        float press_down_y = activation_alpha * 200.f;
+
         // Base
         {
           auto& base = use_instance(meshes.normal_switch_base);
 
           Sync(base, entity);
 
-          base.color = tVec3f(1.f, 1.f, 0.1f);
+          base.color = tVec4f(1.f, 0.6f, 0.2f, activation_alpha);
           base.material = tVec4f(0.5f, 1.f, 0, 0.1f);
 
           commit(base);
@@ -124,23 +128,27 @@ namespace astro {
         // Switch
         {
           auto& button = use_instance(meshes.normal_switch_button);
+          bool is_force_activated = entity.did_activate && !entity.can_activate;
 
           Sync(button, entity);
 
           // Pressing behavior
-          if (dx < entity.scale.x && dz < entity.scale.z) {
+          if (
+            (dx < entity.scale.x && dz < entity.scale.z) ||
+            is_force_activated
+          ) {
             Press(tachyon, state, entity);
 
-            entity.accumulation_value = Tachyon_Lerpf(entity.accumulation_value, 200.f, 5.f * state.dt);
+            entity.accumulation_value = Tachyon_Lerpf(entity.accumulation_value, 1.f, 5.f * state.dt);
 
           // Unpressing behavior
-          } else {
+          } else if (entity.can_activate) {
             Unpress(tachyon, state, entity);
 
             entity.accumulation_value = Tachyon_Lerpf(entity.accumulation_value, 0.f, state.dt);
           }
 
-          button.position.y -= entity.accumulation_value;
+          button.position.y -= press_down_y;
           button.color = tVec3f(0.8f, 0.6f, 0.5f);
           button.material = tVec4f(0.9f, 0, 0, 0.1f);
 
@@ -154,11 +162,9 @@ namespace astro {
           Sync(emblem, entity);
 
           // Match the button motion
-          emblem.position.y -= entity.accumulation_value;
+          emblem.position.y -= press_down_y;
 
-          float emissive = entity.accumulation_value / 200.f;
-
-          emblem.color = tVec4f(1.f, 0.6f, 0.2f, emissive);
+          emblem.color = tVec4f(1.f, 0.6f, 0.2f, activation_alpha);
           emblem.material = tVec4f(0.3f, 1.f, 0, 0.1f);
 
           commit(emblem);

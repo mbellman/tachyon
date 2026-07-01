@@ -217,13 +217,14 @@ static void ResetEntities(Tachyon* tachyon, State& state) {
     entity.is_astro_synced = false;
   }
 
-  for (auto type : { GATE, BIRD_GATE, IRON_GATE, WATER_WHEEL, CASTLE_STAIRS }) {
+  for (auto type : { GATE, BIRD_GATE, IRON_GATE, WATER_WHEEL, CASTLE_STAIRS, NORMAL_SWITCH }) {
     for_entities_of_type(type) {
       auto& entity = entities[i];
 
       entity.did_activate = false;
       entity.astro_activation_time = 0.f;
       entity.game_activation_time = -1.f;
+      entity.can_activate = true;
     }
   }
 
@@ -253,12 +254,6 @@ static void ResetEntities(Tachyon* tachyon, State& state) {
       entity.did_activate = false;
       entity.game_activation_time = -1.f;
       entity.astro_activation_time = 0.f;
-    }
-
-    if (entity.light_id != -1) {
-      remove_point_light(entity.light_id);
-
-      entity.light_id = -1;
     }
   }
 
