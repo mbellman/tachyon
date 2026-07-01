@@ -588,7 +588,7 @@ static void HandleTorsoAnimation(Tachyon* tachyon, State& state) {
         state.player.running_charge = 0.f;
       }
 
-      state.player.running_charge *= 1.f - 2.f * state.dt;
+      state.player.running_charge *= 1.f - 10.f * state.dt;
     }
 
     float running_charge_tilt = 0.2f * sinf(state.player.running_charge * t_PI);
