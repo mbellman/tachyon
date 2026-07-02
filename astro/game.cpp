@@ -461,7 +461,12 @@ static void HandleSnow(Tachyon* tachyon, State& state) {
 
 // @todo 3d positioned sfx
 static void HandleWalkSounds(Tachyon* tachyon, State& state) {
-  float player_speed = state.player_velocity.magnitude();
+  // Don't play sounds if we're in freefall
+  if (state.did_jump_off_ledge) {
+    return;
+  }
+
+  float player_speed = get_speed();
 
   if (player_speed < 50.f || time_since(state.last_walk_sound_time) < 0.2f) {
     // Don't play walk sounds if we're not moving fast enough,
