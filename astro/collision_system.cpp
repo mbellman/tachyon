@@ -1123,6 +1123,10 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
 
     // Stop ledge jumps once on the ground
     if (state.player_position.y == state.current_ground_y) {
+      if (state.did_jump_off_ledge) {
+        state.player.last_freefall_landing_time = get_scene_time();
+      }
+
       state.did_jump_off_ledge = false;
     }
   }

@@ -625,6 +625,27 @@ static void HandleTorsoAnimation(Tachyon* tachyon, State& state) {
     }
   }
 
+  // Lean forward when landing after freefall
+  if (
+    state.player.last_freefall_landing_time != 0.f &&
+    time_since(state.player.last_freefall_landing_time) < 1.f
+  ) {
+    float time_alpha = time_since(state.player.last_freefall_landing_time);
+    float tilt_alpha;
+
+    if (time_alpha < 0.2f) {
+      tilt_alpha = sqrtf(time_alpha * 5.f);
+    } else {
+      tilt_alpha = pow(1.f - (time_alpha - 0.2f) / 0.8f, 2.f);
+    }
+
+    rig.torso_tilt_angle = Tachyon_Lerpf(
+      rig.torso_tilt_angle,
+      0.8f * tilt_alpha,
+      15.f * state.dt
+    );
+  }
+
   // Lean backward when moving quickly down slopes
   {
     if (speed_ratio > 0.75f && state.is_moving_down_slope) {
