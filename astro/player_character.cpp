@@ -1019,6 +1019,7 @@ bool PlayerCharacter::IsRunning(Tachyon* tachyon, State& state) {
     is_key_held(tKey::CONTROLLER_A) &&
     is_moving_left_stick() &&
     !state.is_on_ladder &&
+    !state.did_jump_off_ledge &&
     !PlayerCharacter::IsClimbingOffLadder(tachyon, state) &&
     state.previous_move_delta > 5.f
   );

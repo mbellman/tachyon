@@ -169,6 +169,10 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
     }
   }
 
+  else if (state.did_jump_off_ledge) {
+    Animation::AwaitNextAnimation(rig, &animations.player_freefall);
+  }
+
   // Quick-turning
   else if (just_started_quick_turn) {
     Animation::StartNextAnimation(rig, &animations.player_idle_quickturn);
@@ -250,6 +254,10 @@ static float GetAnimationSpeed(Tachyon* tachyon, State& state, tSkeletonAnimatio
     return 0.8f;
   }
 
+  if (animation == &animations.player_freefall) {
+    return 14.f;
+  }
+
   if (animation == &animations.player_idle_quickturn) {
     return 12.f;
   }
@@ -317,6 +325,11 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
     !HasNextWandAnimation(state)
   ) {
     return 5.f;
+  }
+
+  // Walking/running -> freefall
+  if (state.did_jump_off_ledge) {
+    return 6.f;
   }
 
   // Idle quickturn - > running

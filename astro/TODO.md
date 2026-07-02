@@ -44,10 +44,8 @@ tutorial:
 * magic gate improvements/collision
 
 features/fixes:
-* triggering sculptures when interacting with wind chimes
-* jump-off-ledge animation
+* bug: triggering sculptures when interacting with wind chimes
 * walk/run start foot sticking
-* faster animation down slopes
 * climb over onto ladder animation + reverse
 * fx haze color/smoothstep points
 * tipping-over animation/preventing jumping off very high ledges
