@@ -22,6 +22,7 @@ void Tachyon_SpawnWindow(Tachyon* tachyon, const char* title, uint32 width, uint
 void Tachyon_UseRenderBackend(Tachyon* tachyon, TachyonRenderBackend backend);
 void Tachyon_StartFrame(Tachyon* tachyon);
 void Tachyon_EndFrame(Tachyon* tachyon);
+int Tachyon_GetActiveDisplayRefreshRate(Tachyon* tachyon);
 float Tachyon_GetDeltaTime(Tachyon* tachyon);
 void Tachyon_FocusWindow(Tachyon* tachyon);
 void Tachyon_UnfocusWindow(Tachyon* tachyon);

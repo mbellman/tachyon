@@ -166,6 +166,15 @@ void Tachyon_EndFrame(Tachyon* tachyon) {
   tachyon->dev_labels.clear();
 }
 
+int Tachyon_GetActiveDisplayRefreshRate(Tachyon* tachyon) {
+  int active_display_index = SDL_GetWindowDisplayIndex(tachyon->sdl_window);
+
+  SDL_DisplayMode mode;
+  SDL_GetCurrentDisplayMode(active_display_index, &mode);
+
+  return mode.refresh_rate;
+}
+
 float Tachyon_GetDeltaTime(Tachyon* tachyon) {
   float actual_delta_time = (float)tachyon->last_frame_time_in_microseconds / 1000000.f;
 

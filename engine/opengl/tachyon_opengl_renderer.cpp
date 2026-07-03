@@ -12,6 +12,7 @@
 #include "engine/tachyon_console.h"
 #include "engine/tachyon_file_helpers.h"
 #include "engine/tachyon_input.h"
+#include "engine/tachyon_life_cycle.h"
 #include "engine/tachyon_linear_algebra.h"
 #include "engine/tachyon_timer.h"
 #include "engine/opengl/tachyon_opengl_geometry.h"
@@ -45,6 +46,16 @@ struct tOpenGLTexture {
 static std::map<std::string, tOpenGLTexture> texture_cache;
 
 // --------------------------------------
+static int GetVsyncSwapInterval(Tachyon* tachyon) {
+  int refresh_rate = Tachyon_GetActiveDisplayRefreshRate(tachyon);
+
+  if (refresh_rate >= 60) {
+    return refresh_rate / 60;
+  } else {
+    return 1;
+  }
+}
+
 static void Tachyon_CheckError(const std::string& message) {
   GLenum error;
 
@@ -386,7 +397,7 @@ static void HandleDevModeInputs(Tachyon* tachyon) {
       std::string("[Tachyon] V-Sync ") +
       (swap_interval ? "disabled" : "enabled");
 
-    SDL_GL_SetSwapInterval(swap_interval ? 0 : 1);
+    SDL_GL_SetSwapInterval(swap_interval ? 0 : GetVsyncSwapInterval(tachyon));
 
     add_console_message(message, tVec3f(1.f));
     show_overlay_message(message);
@@ -1471,8 +1482,7 @@ void Tachyon_OpenGL_InitRenderer(Tachyon* tachyon) {
 
     glewInit();
 
-    // @todo set to 2 on a 144hz+ monitor, 1 otherwise
-    SDL_GL_SetSwapInterval(1);
+    SDL_GL_SetSwapInterval(GetVsyncSwapInterval(tachyon));
 
     // Apply default OpenGL settings
     glEnable(GL_PROGRAM_POINT_SIZE);
@@ -1640,12 +1650,9 @@ int Tachyon_OpenGL_GetCurrentRefreshRate(Tachyon* tachyon) {
   // Use 0 to represent an unlocked refresh rate
   if (swap_interval == 0) return 0;
 
-  int active_display_index = SDL_GetWindowDisplayIndex(tachyon->sdl_window);
+  int refresh_rate = Tachyon_GetActiveDisplayRefreshRate(tachyon);
 
-  SDL_DisplayMode mode;
-  SDL_GetCurrentDisplayMode(active_display_index, &mode);
-
-  return mode.refresh_rate / swap_interval;
+  return refresh_rate / swap_interval;
 }
 
 void Tachyon_OpenGL_DestroyRenderer(Tachyon* tachyon) {

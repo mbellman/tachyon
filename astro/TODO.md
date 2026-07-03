@@ -72,7 +72,6 @@ features/fixes:
 * enemy animations (seek time consistency)
 * don't face new enemy until attack finishes
 * only play light post sounds near them + associated entities
-* framerate (swap interval) on 60hz monitors
 * crouching
 * bgm entities
 * sun dial
