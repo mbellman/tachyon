@@ -89,7 +89,6 @@ features/fixes:
 * enemy startled state
 
 editor/dev stuff:
-* editor: active / total counter
 * freecam mode in-game (dev)
 
 tech debt:

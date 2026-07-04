@@ -1610,13 +1610,14 @@ static void DisplaySelectedEntityProperties(Tachyon* tachyon, State& state) {
   auto& entity_name = GetEntityDefaults(selected.entity_record.type).name;
   auto& entity = *EntityManager::FindEntity(state, selected.entity_record);
   int32 total_active = EntityDispatcher::GetEntityContainer(state, entity.type).size();
+  uint16 max_total = mesh(selected.placeholder.mesh_index).group.total;
   int32 total_verts = CountEntityVertices(tachyon, state, entity.type);
   int32 summed_verts = total_active * total_verts;
 
   static std::vector<std::string> labels;
 
   labels.clear();
-  labels.push_back("Entity: " + entity_name + " (" + std::to_string(total_active) + " active)");
+  labels.push_back("Entity: " + entity_name + " (" + std::to_string(total_active) + " / " + std::to_string(max_total) + " active)");
   labels.push_back("Vertices: " + std::to_string(total_verts) + " [" + std::to_string(summed_verts) + "]");
   labels.push_back("Entity ID: " + std::to_string(entity.id));
   labels.push_back("position: " + FormatForDisplay(entity.position));
@@ -1683,13 +1684,14 @@ static void DisplaySelectedObjectProperties(Tachyon* tachyon, State& state) {
   auto& mesh = mesh(object.mesh_index);
   auto& mesh_name = GetDecorativeMeshName(state, object.mesh_index);
   uint16 total_active = objects(object.mesh_index).total_active;
+  uint16 max_total = objects(object.mesh_index).total;
   int32 total_verts = mesh.lod_1.vertex_end - mesh.lod_1.vertex_start;
   int32 summed_verts = total_active * total_verts;
 
   static std::vector<std::string> labels;
 
   labels.clear();
-  labels.push_back("Mesh: " + mesh_name + " (" + std::to_string(total_active) + " active)");
+  labels.push_back("Mesh: " + mesh_name + " (" + std::to_string(total_active) + " / " + std::to_string(max_total) + " active)");
   labels.push_back("Vertices: " + std::to_string(total_verts) + " [" + std::to_string(summed_verts) + "]");
   labels.push_back("Object ID: " + std::to_string(object.object_id));
   labels.push_back("position: " + FormatForDisplay(object.position));
@@ -2116,13 +2118,14 @@ static void DisplayObjectPlacementLabels(Tachyon* tachyon, State& state) {
   auto& mesh = mesh(decorative_mesh.mesh_index);
   auto& mesh_name = GetDecorativeMeshName(state, decorative_mesh.mesh_index);
   uint16 total_active = objects(decorative_mesh.mesh_index).total_active;
+  uint16 max_total = objects(decorative_mesh.mesh_index).total;
   int32 total_verts = mesh.lod_1.vertex_end - mesh.lod_1.vertex_start;
   int32 summed_verts = total_active * total_verts;
 
   static std::vector<std::string> labels;
 
   labels.clear();
-  labels.push_back("Mesh: " + mesh_name + " (" + std::to_string(total_active) + " active)");
+  labels.push_back("Mesh: " + mesh_name + " (" + std::to_string(total_active) + " / " + std::to_string(max_total) + " active)");
   labels.push_back("Vertices: " + std::to_string(total_verts) + " [" + std::to_string(summed_verts) + "]");
 
   RenderInfoLabels(tachyon, state, labels);
@@ -2135,16 +2138,18 @@ static void DisplayObjectPlacementLabels(Tachyon* tachyon, State& state) {
  */
 static void DisplayEntityPlacementLabels(Tachyon* tachyon, State& state) {
   EntityType entity_type = entity_types[editor.current_entity_index];
+  uint16 placeholder_mesh_index = EntityDispatcher::GetPlaceholderMesh(state, entity_type);
   auto& defaults = GetEntityDefaults(entity_type);
   auto& entity_name = defaults.name;
   int32 total_active = EntityDispatcher::GetEntityContainer(state, entity_type).size();
+  uint16 max_total = mesh(placeholder_mesh_index).group.total;
   int32 total_verts = CountEntityVertices(tachyon, state, entity_type);
   int32 summed_verts = total_active * total_verts;
 
   static std::vector<std::string> labels;
 
   labels.clear();
-  labels.push_back("Entity: " + entity_name + " (" + std::to_string(total_active) + " active)");
+  labels.push_back("Entity: " + entity_name + " (" + std::to_string(total_active) + " / " + std::to_string(max_total) + " active)");
   labels.push_back("Vertices: " + std::to_string(total_verts) + " [" + std::to_string(summed_verts) + "]");
 
   RenderInfoLabels(tachyon, state, labels);
