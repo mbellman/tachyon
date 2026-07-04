@@ -1267,6 +1267,7 @@ static void RenderPointLights(Tachyon* tachyon) {
   SetShaderMat4f(locations.inverse_view_matrix, ctx.inverse_view_matrix);
   SetShaderVec3f(locations.camera_position, ctx.camera_position);
   SetShaderFloat(locations.accumulation_blur_factor, tachyon->fx.accumulation_blur_factor);
+  SetShaderBool(locations.show_light_discs, tachyon->show_light_discs);
 
   // @allocation
   std::vector<tOpenGLPointLightDiscInstance> instances;

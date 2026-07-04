@@ -355,6 +355,7 @@ struct Tachyon {
   // @todo dev mode only
   bool show_developer_tools = false;
   bool show_timing_profile = false;
+  bool show_light_discs = false;
   bool use_high_visibility_mode = false;
   TTF_Font* developer_overlay_font = nullptr;
   TTF_Font* overlay_message_font = nullptr;

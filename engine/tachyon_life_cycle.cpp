@@ -70,6 +70,10 @@ static void HandleEvents(Tachyon* tachyon) {
     tachyon->show_developer_tools = !tachyon->show_developer_tools;
   }
 
+  if (tachyon->hotkeys_enabled && did_release_key(tKey::L)) {
+    tachyon->show_light_discs = !tachyon->show_light_discs;
+  }
+
   if (tachyon->hotkeys_enabled && did_release_key(tKey::ENTER)) {
     Tachyon_ClearConsole(tachyon);
   }

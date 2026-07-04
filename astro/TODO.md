@@ -89,7 +89,6 @@ features/fixes:
 * enemy startled state
 
 editor/dev stuff:
-* toggle light discs with L
 * editor: active / total counter
 * freecam mode in-game (dev)
 

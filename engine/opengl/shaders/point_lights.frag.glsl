@@ -16,6 +16,7 @@ uniform mat4 inverse_projection_matrix;
 uniform mat4 inverse_view_matrix;
 uniform vec3 camera_position;
 uniform float accumulation_blur_factor;
+uniform bool show_light_discs;
 
 noperspective in vec2 fragUv;
 flat in Light light;
@@ -171,7 +172,9 @@ void main() {
   out_color += light.color * GetGlowFactor(position) * min(1.0, light.power) * light.glow_power;
   out_color *= GetDiscRadiusFactor(position);
 
-  // out_color += light.color * 0.1;
+  if (show_light_discs) {
+    out_color += light.color * 0.1;
+  }
 
   // Reduce the light contribution in proportion to the accumulation blur effect,
   // which otherwise causes the light itself to accumulate and wash out the picture.

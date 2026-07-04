@@ -103,7 +103,8 @@ struct tUniformLocations {
     inverse_projection_matrix,
     inverse_view_matrix,
     camera_position,
-    accumulation_blur_factor
+    accumulation_blur_factor,
+    show_light_discs
   ) point_lights;
 
   uniform_locations(
