@@ -5,8 +5,8 @@
 namespace astro {
   behavior TallWeeds {
     addMeshes() {
-      meshes.tall_weeds_placeholder = MODEL_MESH("./astro/3d_models/tall_weeds/placeholder.obj", 500);
-      meshes.tall_weeds = MODEL_MESH("./astro/3d_models/tall_weeds/weeds.obj", 500);
+      meshes.tall_weeds_placeholder = MODEL_MESH("./astro/3d_models/tall_weeds/placeholder.obj", 1000);
+      meshes.tall_weeds = MODEL_MESH("./astro/3d_models/tall_weeds/weeds.obj", 1000);
 
       mesh(meshes.tall_weeds_placeholder).shadow_cascade_ceiling = 2;
       mesh(meshes.tall_weeds).shadow_cascade_ceiling = 2;

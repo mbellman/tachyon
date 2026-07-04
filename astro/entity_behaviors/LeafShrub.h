@@ -49,8 +49,8 @@ namespace astro {
     }
 
     addMeshes() {
-      meshes.leaf_shrub_placeholder = MODEL_MESH("./astro/3d_models/leaf_shrub/placeholder.obj", 500);
-      meshes.leaf_shrub_plant = MODEL_MESH("./astro/3d_models/leaf_shrub/plant.obj", 500);
+      meshes.leaf_shrub_placeholder = MODEL_MESH("./astro/3d_models/leaf_shrub/placeholder.obj", 1000);
+      meshes.leaf_shrub_plant = MODEL_MESH("./astro/3d_models/leaf_shrub/plant.obj", 1000);
 
       mesh(meshes.leaf_shrub_placeholder).type = FOLIAGE_MESH;
       mesh(meshes.leaf_shrub_placeholder).shadow_cascade_ceiling = 2;
