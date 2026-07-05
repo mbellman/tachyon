@@ -70,6 +70,19 @@ static bool IsWandHoldAnimationActive(State& state) {
   return HasCurrentWandAnimation(state) || HasNextWandAnimation(state);
 }
 
+static bool IsWalkAnimation(tSkeletonAnimation* animation, const State& state) {
+  auto& animations = state.animations;
+
+  return (
+    animation == &animations.player_walk ||
+    animation == &animations.player_walk_wand
+  );
+}
+
+static bool DidJustLand(Tachyon* tachyon, State& state) {
+  return time_since(state.player.last_freefall_landing_time) < 0.25f;
+}
+
 // @todo debug mode only
 // @todo factor to allow any skeleton pose to be visualized
 static void ShowDebugPlayerSkeleton(Tachyon* tachyon, State& state) {
@@ -418,13 +431,11 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state) {
   player.visual_rotation = player.rotation;
 
   if (state.player_hp > 0.f) {
-    if (PlayerCharacter::IsRunning(tachyon, state)) {
+    bool did_just_land = DidJustLand(tachyon, state);
+
+    if (!did_just_land && PlayerCharacter::IsRunning(tachyon, state)) {
       TrackPlantedFeetWhileRunning(tachyon, state);
-    } else if (
-      // @todo factor
-      player.rig.current_animation == &state.animations.player_walk ||
-      player.rig.current_animation == &state.animations.player_walk_wand
-    ) {
+    } else if (!did_just_land && IsWalkAnimation(player.rig.current_animation, state)) {
       TrackPlantedFeetWhileWalking(tachyon, state);
     } else {
       state.player.is_left_foot_planted = false;
