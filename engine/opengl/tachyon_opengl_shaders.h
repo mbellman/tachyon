@@ -88,7 +88,7 @@ struct tUniformLocations {
     player_light_radius,
     fog_volumes,
     total_fog_volumes,
-    fog_visibility,
+    fog_volume_visibility,
     enable_shadows,
     enable_ssao,
     use_high_visibility_mode,

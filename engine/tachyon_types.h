@@ -331,7 +331,7 @@ struct Tachyon {
     bool enable_ssao = true;
 
     // @todo move to .scene
-    float fog_visibility = 10000.f;
+    float fog_volume_visibility = 10000.f;
     float water_time = 0.f;
 
     // Cosmodrone

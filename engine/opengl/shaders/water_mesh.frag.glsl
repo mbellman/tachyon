@@ -472,9 +472,9 @@ void main() {
   // @todo fog
   {
     // vec3 fog_color = vec3(0.2, 0.2, 0.4);
-    // float fog_visibility = 25000.0;
+    // float fog_volume_visibility = 25000.0;
     // float frag_distance_from_camera = length(fragPosition - camera_position);
-    // float fog_thickness = clamp(frag_distance_from_camera / fog_visibility, 0.0, 1.0);
+    // float fog_thickness = clamp(frag_distance_from_camera / fog_volume_visibility, 0.0, 1.0);
     // out_color = mix(out_color, vec3(0.2, 0.2, 0.4), fog_thickness);
   }
 

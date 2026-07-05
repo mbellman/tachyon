@@ -410,7 +410,7 @@ static void HandleFog(Tachyon* tachyon, State& state) {
 
   // @temporary
   // @todo lerp based on day/night alpha
-  fx.fog_visibility = state.is_nighttime ? 15000.f : 4000.f;
+  fx.fog_volume_visibility = state.is_nighttime ? 15000.f : 4000.f;
 }
 
 // @todo Environment::

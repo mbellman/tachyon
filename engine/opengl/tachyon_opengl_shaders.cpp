@@ -143,7 +143,7 @@ static void StoreShaderUniforms(tOpenGLShaders& shaders) {
   // a UBO or SSBO or similar.
   // store_shader_uniform(global_lighting, fog_volumes);
   store_shader_uniform(global_lighting, total_fog_volumes);
-  store_shader_uniform(global_lighting, fog_visibility);
+  store_shader_uniform(global_lighting, fog_volume_visibility);
   store_shader_uniform(global_lighting, enable_shadows);
   store_shader_uniform(global_lighting, enable_ssao);
   store_shader_uniform(global_lighting, accumulation_blur_factor);

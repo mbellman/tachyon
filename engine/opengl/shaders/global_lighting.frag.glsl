@@ -46,7 +46,7 @@ struct FogVolume {
 
 uniform FogVolume fog_volumes[50];
 uniform int total_fog_volumes;
-uniform float fog_visibility;
+uniform float fog_volume_visibility;
 
 // Frame blur
 uniform float accumulation_blur_factor;
@@ -871,7 +871,7 @@ void main() {
 
       if (fog_thickness > 1.0) fog_thickness = 1.0;
 
-      float local_thickness = clamp(frag_distance_from_player / fog_visibility, 0.0, 1.0);
+      float local_thickness = clamp(frag_distance_from_player / fog_volume_visibility, 0.0, 1.0);
       local_thickness = pow(local_thickness, 0.5);
 
       fog_thickness *= local_thickness;

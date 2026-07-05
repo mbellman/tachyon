@@ -1091,7 +1091,7 @@ static void RenderGlobalLighting(Tachyon* tachyon) {
     auto& fog_volumes = tachyon->fog_volumes;
 
     SetShaderInt(locations.total_fog_volumes, (int)fog_volumes.size());
-    SetShaderFloat(locations.fog_visibility, fx.fog_visibility);
+    SetShaderFloat(locations.fog_volume_visibility, fx.fog_volume_visibility);
 
     for (size_t i = 0; i < fog_volumes.size(); i++) {
       auto& volume = fog_volumes[i];
