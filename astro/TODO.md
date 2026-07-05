@@ -45,7 +45,8 @@ tutorial:
 
 features/fixes:
 * bug: triggering sculptures when interacting with wind chimes
-* walk/run start foot sticking
+* bug: walk/run start foot sticking
+* bug: foot sticking when ledge jump landing
 * climb over onto ladder animation + reverse
 * fx haze color/smoothstep points
 * tipping-over animation/preventing jumping off very high ledges
@@ -58,7 +59,7 @@ features/fixes:
 * vantage camera tweaks
 * rename castle tower -> castle wall
 * signpost collision
-* running against a wall
+* running in place against walls
 * water color changes with time
 * light pillars sound when using normal wand raising
 * health bar + potions

@@ -343,6 +343,7 @@ struct Tachyon {
     float astro_time_warp = 0.f;
     float astro_time_warp_start_radius = 0.f;
     float astro_time_warp_end_radius = 0.f;
+    tVec3f medium_haze_color = tVec3f(2.f, 1.2f, 0.6f);
     tVec3f player_light_color = tVec3f(1.8f, 1.6f, 1.2f);
     float player_light_radius = 6000.f;
     tVec3f wand_pulse_position;

@@ -181,6 +181,7 @@ struct tUniformLocations {
     astro_time_warp,
     astro_time_warp_start_radius,
     astro_time_warp_end_radius,
+    medium_haze_color,
     wand_pulse_position,
     wand_pulse_alpha,
     haze_intensity,

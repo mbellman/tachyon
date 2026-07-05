@@ -1359,6 +1359,7 @@ static void RenderPostEffects(Tachyon* tachyon) {
   SetShaderFloat(locations.astro_time_warp, fx.astro_time_warp);
   SetShaderFloat(locations.astro_time_warp_start_radius, fx.astro_time_warp_start_radius);
   SetShaderFloat(locations.astro_time_warp_end_radius, fx.astro_time_warp_end_radius);
+  SetShaderVec3f(locations.medium_haze_color, fx.medium_haze_color);
   SetShaderVec3f(locations.wand_pulse_position, fx.wand_pulse_position);
   SetShaderFloat(locations.wand_pulse_alpha, fx.wand_pulse_alpha);
   SetShaderFloat(locations.haze_intensity, fx.haze_intensity);

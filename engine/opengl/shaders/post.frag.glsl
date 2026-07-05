@@ -21,6 +21,7 @@ uniform vec3 player_position;
 uniform float astro_time_warp;
 uniform float astro_time_warp_start_radius;
 uniform float astro_time_warp_end_radius;
+uniform vec3 medium_haze_color;
 uniform vec3 wand_pulse_position;
 uniform float wand_pulse_alpha;
 uniform float haze_intensity;
@@ -321,23 +322,24 @@ void main() {
     // Depth haze
     #if ENABLE_ASTRO_FX
       float depth_factor = pow(color_and_depth.w, 20.0);
-      float fog_factor = haze_intensity * pow(color_and_depth.w, 20.0);
+      float haze_factor = haze_intensity * pow(color_and_depth.w, 20.0);
       float medium_haze_factor = 2.0 * haze_intensity * smoothstep(0.6, 0.85, depth_factor);
       float far_haze_factor = 2.0 * haze_intensity * smoothstep(0.9, 0.99, depth_factor);
 
       // @hack
       float height_fog_alpha = clamp(world_position.y / 3000000.0, 0.0, 1.0);
 
-      far_haze_factor = mix(far_haze_factor, 0.0, height_fog_alpha);
+      // Diminish medium/far haze with height
       medium_haze_factor = mix(medium_haze_factor, 0.0, height_fog_alpha);
+      far_haze_factor = mix(far_haze_factor, 0.0, height_fog_alpha);
 
       vec3 fog_color = vec3(0.2, 0.4, 0.5);
       // vec3 medium_haze_color = 2.0 * vec3(0.7, 0.4, 0.3);
-      vec3 medium_haze_color = 2.0 * vec3(1.0, 0.6, 0.3);
+      // vec3 medium_haze_color = 2.0 * vec3(1.0, 0.6, 0.3);
       // vec3 medium_haze_color = 2.0 * vec3(1.0, 0.45, 0.3);
       // vec3 medium_haze_color = 2.0 * vec3(0.8, 0.4, 0.5);
 
-      post_color = mix(post_color, fog_color, fog_factor);
+      post_color = mix(post_color, fog_color, haze_factor);
       post_color = mix(post_color, medium_haze_color, medium_haze_factor);
       post_color = mix(post_color, vec3(1.5), 0.75 * far_haze_factor);
     #elif ENABLE_COSMODRONE_FX
