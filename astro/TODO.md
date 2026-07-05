@@ -48,7 +48,6 @@ features/fixes:
 * bug: walk/run start foot sticking
 * bug: foot sticking when ledge jump landing
 * climb over onto ladder animation + reverse
-* fx haze color/smoothstep points
 * tipping-over animation/preventing jumping off very high ledges
 * climb-down-onto-ladder animation
 * river sfx

@@ -405,12 +405,31 @@ static float Wrap(float value, float min, float max, float range) {
 }
 
 // @todo Environment::
+static void UseMediumHazeColor(Tachyon::Fx& fx, const tVec3f& color, const float blend_alpha) {
+  fx.medium_haze_color = tVec3f::lerp(fx.medium_haze_color, color, blend_alpha);
+}
+
+// @todo Environment::
 static void HandleFog(Tachyon* tachyon, State& state) {
   auto& fx = tachyon->fx;
 
   // @temporary
   // @todo lerp based on day/night alpha
   fx.fog_volume_visibility = state.is_nighttime ? 15000.f : 4000.f;
+
+  // Medium haze
+  // @todo HandleMediumHaze()
+  {
+    if (state.astro_time >= astro_time_periods.present) {
+      UseMediumHazeColor(fx, tVec3f(1.f, 0.6f, 1.f), state.dt);
+    }
+    else if (state.astro_time == astro_time_periods.past) {
+      UseMediumHazeColor(fx, tVec3f(2.f, 1.2f, 0.6f), state.dt);
+    }
+    else if (state.astro_time == astro_time_periods.distant_past) {
+      UseMediumHazeColor(fx, tVec3f(1.6f, 0.8f, 1.f), state.dt);
+    }
+  }
 }
 
 // @todo Environment::

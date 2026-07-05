@@ -175,10 +175,6 @@ void TimeEvolution::UpdateAstroTime(Tachyon* tachyon, State& state) {
   // Water
   tachyon->fx.water_time += state.dt + 2.f * state.astro_turn_speed;
 
-  // @temporary
-  // @todo base on area + time
-  tachyon->fx.medium_haze_color = tVec3f(1.f, 0.6f, 1.f);
-
   // Primary + ambient sky light
   {
     auto& scene = tachyon->scene;
