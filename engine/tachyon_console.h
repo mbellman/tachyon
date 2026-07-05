@@ -8,8 +8,10 @@
 #include "engine/tachyon_quaternion.h"
 #include "engine/tachyon_types.h"
 
-#define add_console_message(message, color) Tachyon_AddConsoleMessage(message, color)
-#define console_log(value) Tachyon_Log(value);
+#define console_log(message) Tachyon_Log(message);
+#define console_warn(message) Tachyon_AddConsoleMessage(message, tVec3f(1.f, 0.8f, 0.4f))
+#define console_error(message) Tachyon_AddConsoleMessage(message, tVec3f(1.f, 0, 0))
+#define console_info(message) Tachyon_AddConsoleMessage(message, tVec3f(0.6f, 0.7f, 1.f))
 
 #define show_overlay_message(message)\
   tachyon->overlay_message = message;\

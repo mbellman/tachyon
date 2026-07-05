@@ -70,7 +70,7 @@ void Items::SpawnItemObjects(Tachyon* tachyon, State& state) {
     auto item_type = ItemNameToType(entity.item_pickup_name);
 
     if (item_type == ITEM_UNSPECIFIED) {
-      add_console_message("Item '" + entity.item_pickup_name + "' doesn't map to a known item type", tVec3f(1.f, 0.9f, 0.4f));
+      console_warn("Item '" + entity.item_pickup_name + "' doesn't map to a known item type");
 
       continue;
     }

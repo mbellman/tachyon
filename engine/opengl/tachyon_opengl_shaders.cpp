@@ -61,9 +61,9 @@ static tOpenGLShaderAttachment AttachShader(tOpenGLShader& shader, GLenum type, 
       printf("Failed to compile shader: %s\n", path);
       printf("\u001b[31m %s\n\u001b[37m", error);
 
-      add_console_message("Failed to compile shader: " + std::string(path), tVec3f(1.f, 0.8f, 0.2f));
+      console_warn("Failed to compile shader: " + std::string(path));
       // @todo split error by newlines and add each as its own message
-      add_console_message(error, tVec3f(1.f, 0, 0));
+      console_error(error);
     }
   }
 
@@ -387,7 +387,7 @@ void Tachyon_OpenGL_HotReloadShaders(tOpenGLShaders& shaders) {
 
             glLinkProgram(shader->program);
 
-            add_console_message("Hot reloaded shader: " + attachment.source_path, tVec3f(1.f));
+            console_log("Hot reloaded shader: " + attachment.source_path);
           }
         }
       }

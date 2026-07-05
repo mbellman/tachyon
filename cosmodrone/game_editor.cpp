@@ -173,7 +173,7 @@ static void SaveWorldData(Tachyon* tachyon, State& state) {
   auto save_time = Tachyon_GetMicroseconds() - start;
   auto message = std::format("Saved world data in {}us", save_time);
 
-  add_console_message(message, tVec3f(1.f));
+  console_log(message);
 }
 
 static void HandleCamera(Tachyon* tachyon, State& state, const float dt) {

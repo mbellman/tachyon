@@ -58,7 +58,7 @@ namespace astro {
 
             // @todo dev mode only
             {
-              add_console_message("Collected item: " + entity.item_pickup_name, tVec3f(0.8f, 0.8f, 1.f));
+              console_info("Collected item: " + entity.item_pickup_name);
             }
           }
         }

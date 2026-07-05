@@ -1316,7 +1316,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
       .generated_from = meshes.solar_panel_2,
       .defaults = {
         .color = 0x44F0,
-        .material = tVec4f(0.2f, 1.f, 0.3f, 1.f) 
+        .material = tVec4f(0.2f, 1.f, 0.3f, 1.f)
       }
     },
     {
@@ -1569,7 +1569,7 @@ static void LoadGeneratedMeshes(Tachyon* tachyon, State& state) {
         .material = tVec4f(0.4f, 1.f, 0, 1.f)
       }
     },
-  
+
     // light_1
     {
       .mesh_index = meshes.light_1_base,
@@ -2008,7 +2008,7 @@ void MeshLibrary::LoadMeshes(Tachyon* tachyon, State& state) {
   {
     auto load_time = (Tachyon_GetMicroseconds() - start_time) / 1000;
 
-    add_console_message("Loaded meshes in " + std::to_string(load_time) + "ms", tVec3f(1.f));
+    console_log("Loaded meshes in " + std::to_string(load_time) + "ms");
   }
 
   // Define highest cascades per mesh

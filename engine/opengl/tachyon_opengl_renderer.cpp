@@ -399,7 +399,7 @@ static void HandleDevModeInputs(Tachyon* tachyon) {
 
     SDL_GL_SetSwapInterval(swap_interval ? 0 : GetVsyncSwapInterval(tachyon));
 
-    add_console_message(message, tVec3f(1.f));
+    console_log(message);
     show_overlay_message(message);
   }
 }

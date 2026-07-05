@@ -52,7 +52,7 @@ void AbstractLoader::load(const char* filePath) {
   FILE* f = fopen(filePath, "r");
 
   if (!f) {
-    add_console_message("Failed to load file: " + std::string(filePath), tVec3f(1.f, 0, 0));
+    console_error("Failed to load file: " + std::string(filePath));
 
     return;
   }
@@ -186,7 +186,7 @@ VertexData ObjLoader::parseVertexData(const std::string& chunk) {
     int next = chunk.find("/", offset);
     bool hasNext = next > -1;
 
-    if (next - offset == 0 || offset >= chunk.length()) {
+    if (next - offset == 0 || offset >= (int) chunk.length()) {
       // If the next '/' is immediately after the last,
       // or we've reached the end of the chunk with
       // cycles to spare, this type of vertex index isn't

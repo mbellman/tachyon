@@ -960,8 +960,8 @@ static tVec3f GetBushFlowerBlossomColor(const float astro_time) {
 }
 
 // @todo move to FlowerBush.h
-static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
-  profile("UpdateBushFlowers()");
+static void UpdateFlowerBushes(Tachyon* tachyon, State& state) {
+  profile("UpdateFlowerBushes()");
 
   auto& meshes = state.meshes;
 
@@ -1004,6 +1004,13 @@ static void UpdateBushFlowers(Tachyon* tachyon, State& state) {
       float vz = abs(entity.visible_position.z);
 
       for (int i = 0; i < 3; i++) {
+        if (count_used_instances(flower_mesh) == 500) {
+          // @todo break out of outer loop as well
+          console_warn("Too many flowers!");
+
+          break;
+        }
+
         auto& flower = use_instance(flower_mesh);
 
         float offset_x = fmodf(vx + 847.f * (float)i, spawn_radius) - half_spawn_radius;
@@ -1452,7 +1459,7 @@ void ProceduralBehavior::Generation::UpdateProceduralObjects(Tachyon* tachyon, S
   UpdateSmallGrass(tachyon, state);
 
   UpdateGroundFlowers(tachyon, state);
-  UpdateBushFlowers(tachyon, state);
+  UpdateFlowerBushes(tachyon, state);
 
   // Define a barrier between labels added here and timing labels generated later
   if (state.show_game_stats) {
