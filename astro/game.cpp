@@ -421,10 +421,18 @@ static void HandleFog(Tachyon* tachyon, State& state) {
   // @todo HandleMediumHaze()
   {
     if (state.astro_time >= astro_time_periods.present) {
-      UseMediumHazeColor(fx, tVec3f(1.f, 0.6f, 1.f), state.dt);
+      if (state.current_location == Location::TUTORIAL) {
+        UseMediumHazeColor(fx, tVec3f(1.f, 0.6f, 1.f), state.dt);
+      } else {
+        UseMediumHazeColor(fx, tVec3f(1.6f, 0.8f, 0.6f), state.dt);
+      }
     }
     else if (state.astro_time == astro_time_periods.past) {
-      UseMediumHazeColor(fx, tVec3f(2.f, 1.2f, 0.6f), state.dt);
+      if (state.current_location == Location::DIVINATION_LAKE_PROMENADE) {
+        UseMediumHazeColor(fx, tVec3f(2.f, 0.9f, 0.6f), state.dt);
+      } else {
+        UseMediumHazeColor(fx, tVec3f(2.f, 1.2f, 0.6f), state.dt);
+      }
     }
     else if (state.astro_time == astro_time_periods.distant_past) {
       UseMediumHazeColor(fx, tVec3f(1.6f, 0.8f, 1.f), state.dt);

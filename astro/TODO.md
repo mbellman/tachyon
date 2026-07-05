@@ -66,7 +66,6 @@ features/fixes:
 * don't UpdateTreeFlowers() if we're far back enough in time
 * reset needs-action wind chimes with R
 * targeting + respawn + gate sfx
-* smoother camera position blending
 * targeting angle vs. distance
 * enemy animations (seek time consistency)
 * don't face new enemy until attack finishes
