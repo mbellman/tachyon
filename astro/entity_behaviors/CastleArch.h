@@ -34,6 +34,8 @@ namespace astro {
 
           Sync(arch, entity);
 
+          arch.material = tVec4f(0.6f, 0, 0, 1.f);
+
           commit(arch);
         }
       }
