@@ -47,6 +47,7 @@ features/fixes:
 * bug: triggering sculptures when interacting with wind chimes
 * bug: walk/run start foot sticking
 * bug: airborne tiny bird spawn/spawn-out position relative to player
+* guidance (small stone bridges, slopes)
 * climb over onto ladder animation + reverse
 * tipping-over animation/preventing jumping off very high ledges
 * climb-down-onto-ladder animation
@@ -62,7 +63,6 @@ features/fixes:
 * water color changes with time
 * light pillars sound when using normal wand raising
 * health bar + potions
-* guidance (small stone bridges, slopes)
 * reset ducks with R
 * don't UpdateTreeFlowers() if we're far back enough in time
 * reset needs-action wind chimes with R
