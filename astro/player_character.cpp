@@ -502,7 +502,7 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state) {
     hood.position = player.visual_position;
     hood.rotation = player.visual_rotation;
     hood.scale = body_scale;
-    hood.color = tVec4f(0.2f, 0.3f, 0.7f, 0.2f);
+    hood.color = tVec4f(0.2f, 0.3f, 0.7f, 0.3f);
     hood.material = tVec4f(1.f, 0, 0, 0.2f);
     hood.shadow_cascade_ceiling = 2;
     hood.current_pose = &active_pose;
@@ -514,7 +514,7 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state) {
     robes.position = player.visual_position;
     robes.rotation = player.visual_rotation;
     robes.scale = body_scale;
-    robes.color = tVec4f(0.3f, 0.4f, 0.6f, 0.2f);
+    robes.color = tVec4f(0.3f, 0.4f, 0.6f, 0.3f);
     robes.material = tVec4f(1.f, 0, 0, 0.2f);
     robes.shadow_cascade_ceiling = 2;
     robes.current_pose = &active_pose;
@@ -524,7 +524,7 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state) {
     vambraces.position = player.visual_position;
     vambraces.rotation = player.visual_rotation;
     vambraces.scale = body_scale;
-    vambraces.color = 0x3220;
+    vambraces.color = 0x3222;
     vambraces.material = tVec4f(0.6f, 0, 0, 0.2f);
     vambraces.shadow_cascade_ceiling = 2;
     vambraces.current_pose = &active_pose;
@@ -544,7 +544,7 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state) {
     shirt.position = player.visual_position;
     shirt.rotation = player.visual_rotation;
     shirt.scale = body_scale;
-    shirt.color = tVec3f(0.3f, 0.1f, 0.3f);
+    shirt.color = tVec4f(0.3f, 0.1f, 0.3f, 0.2f);
     shirt.material = tVec4f(1.f, 0, 0, 0.1f);
     shirt.shadow_cascade_ceiling = 2;
     shirt.current_pose = &active_pose;
@@ -554,7 +554,7 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state) {
     pants.position = player.visual_position;
     pants.rotation = player.visual_rotation;
     pants.scale = body_scale;
-    pants.color = tVec3f(0.6f, 0.4f, 0.2f);
+    pants.color = tVec4f(0.6f, 0.4f, 0.2f, 0.2f);
     pants.material = tVec4f(1.f, 0, 0, 0.1f);
     pants.shadow_cascade_ceiling = 2;
     pants.current_pose = &active_pose;

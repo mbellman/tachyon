@@ -31,8 +31,11 @@ namespace astro {
       reset_instances(meshes.ground_flower_patch);
 
       for (auto& entity : state.ground_flower_patches) {
-        if (!IsInRangeX(entity, state, 20000.f)) continue;
-        if (!IsInRangeZ(entity, state, 20000.f)) continue;
+        float dy = state.player_position.y - entity.position.y;
+        clamp_to_0(dy);
+
+        if (!IsInRangeX(entity, state, 20000.f + dy)) continue;
+        if (!IsInRangeZ(entity, state, 20000.f + dy)) continue;
 
         // Flower patch
         {

@@ -420,6 +420,7 @@ static void HandleFog(Tachyon* tachyon, State& state) {
   // Medium haze
   // @todo HandleMediumHaze()
   {
+    // Present + Future
     if (state.astro_time >= astro_time_periods.present) {
       if (state.current_location == Location::TUTORIAL) {
         UseMediumHazeColor(fx, tVec3f(1.f, 0.6f, 1.f), state.dt);
@@ -427,6 +428,8 @@ static void HandleFog(Tachyon* tachyon, State& state) {
         UseMediumHazeColor(fx, tVec3f(1.6f, 0.8f, 0.6f), state.dt);
       }
     }
+
+    // Past
     else if (state.astro_time == astro_time_periods.past) {
       if (state.current_location == Location::DIVINATION_LAKE_PROMENADE) {
         UseMediumHazeColor(fx, tVec3f(2.f, 0.9f, 0.6f), state.dt);
@@ -434,6 +437,8 @@ static void HandleFog(Tachyon* tachyon, State& state) {
         UseMediumHazeColor(fx, tVec3f(2.f, 1.2f, 0.6f), state.dt);
       }
     }
+
+    // Distant past
     else if (state.astro_time == astro_time_periods.distant_past) {
       UseMediumHazeColor(fx, tVec3f(1.6f, 0.8f, 1.f), state.dt);
     }

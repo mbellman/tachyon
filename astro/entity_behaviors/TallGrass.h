@@ -41,8 +41,11 @@ namespace astro {
       for_entities(state.tall_grasses) {
         auto& entity = state.tall_grasses[i];
 
-        if (abs(state.player_position.x - entity.position.x) > 20000.f) continue;
-        if (abs(state.player_position.z - entity.position.z) > 25000.f) continue;
+        float dy = state.player_position.y - entity.position.y;
+        clamp_to_0(dy);
+
+        if (!IsInRangeX(entity, state, 20000.f + dy)) continue;
+        if (!IsInRangeZ(entity, state, 25000.f + dy)) continue;
 
         auto& grass = use_instance(meshes.tall_grass);
 

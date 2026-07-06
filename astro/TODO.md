@@ -47,6 +47,8 @@ features/fixes:
 * bug: triggering sculptures when interacting with wind chimes
 * bug: walk/run start foot sticking
 * bug: airborne tiny bird spawn/spawn-out position relative to player
+* bug: pressing E while editing entities causing glow particles to respawn?
+* bug: 30fps delta slowdown
 * guidance (small stone bridges, slopes)
 * climb over onto ladder animation + reverse
 * tipping-over animation/preventing jumping off very high ledges

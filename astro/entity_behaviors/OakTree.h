@@ -24,7 +24,6 @@ namespace astro {
       mesh(meshes.oak_tree_roots).shadow_cascade_ceiling = 2;
 
       mesh(meshes.oak_tree_trunk).shadow_cascade_ceiling = 2;
-      // mesh(meshes.oak_tree_trunk).use_disocclusion = true;
 
       mesh(meshes.oak_tree_branches).shadow_cascade_ceiling = 2;
       mesh(meshes.oak_tree_branches).use_disocclusion = true;
