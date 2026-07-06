@@ -636,13 +636,15 @@ static void HandleCastleTowerCollisions(Tachyon* tachyon, State& state) {
     } else if (tower_top_y > highest_y) {
       // Allow movement on top of the tower
       auto tower_plane = CollisionSystem::CreatePlane(entity.position, entity.scale * tVec3f(0.6f, 1.f, 0.6f), entity.orientation);
+      float player_top_y = tower_top_y + PLAYER_HEIGHT;
 
-      if (CollisionSystem::IsPointOnPlane(state.player_position, tower_plane)) {
-        float player_y = tower_top_y + PLAYER_HEIGHT;
-
+      if (
+        state.player_position.y <= player_top_y &&
+        CollisionSystem::IsPointOnPlane(state.player_position, tower_plane)
+      ) {
         highest_y = tower_top_y;
 
-        AllowPlayerMovement(state, player_y, tower_plane);
+        AllowPlayerMovement(state, player_top_y, tower_plane);
 
         state.is_on_solid_platform = true;
         state.is_on_stone_surface = true;
