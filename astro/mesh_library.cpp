@@ -38,12 +38,12 @@ static void AddDecorativeMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   meshes.flat_ground   = PLANE_MESH(1000);
-  meshes.rock_1        = MODEL_MESH("./astro/3d_models/rock_1.obj", 2000);
+  meshes.rock_1        = MODEL_MESH_LOD_2("./astro/3d_models/rock_1.obj", "./astro/3d_models/rock_1_LoD.obj", 2000);
   meshes.rock_2        = MODEL_MESH("./astro/3d_models/rock_2.obj", 2000);
   meshes.rock_step     = MODEL_MESH("./astro/3d_models/rock_step.obj", 500);
   meshes.rock_stair    = MODEL_MESH("./astro/3d_models/rock_stair.obj", 1000);
-  meshes.river_edge    = MODEL_MESH("./astro/3d_models/river_edge.obj", 5000);
-  meshes.ground_1      = MODEL_MESH("./astro/3d_models/ground_1.obj", 5000);
+  meshes.river_edge    = MODEL_MESH_LOD_2("./astro/3d_models/river_edge.obj", "./astro/3d_models/river_edge_LoD.obj", 5000);
+  meshes.ground_1      = MODEL_MESH_LOD_2("./astro/3d_models/ground_1.obj", "./astro/3d_models/ground_1_LoD.obj", 5000);
   meshes.lookout_tower = MODEL_MESH("./astro/3d_models/decoratives/lookout_tower.obj", 50);
   meshes.stairs_floor  = MODEL_MESH("./astro/3d_models/stairs_floor.obj", 1000);
 

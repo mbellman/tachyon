@@ -620,8 +620,8 @@ static void UpdateSmallGrass(Tachyon* tachyon, State& state) {
 
   for (auto& chunk : state.grass_chunks) {
     bool is_chunk_in_view = (
-      abs(ground_center.x - chunk.center_position.x) < 28000.f &&
-      abs(ground_center.z - chunk.center_position.z) < 30000.f
+      abs(ground_center.x - chunk.center_position.x) < 30000.f &&
+      abs(ground_center.z - chunk.center_position.z) < 40000.f
     );
 
     if (!is_chunk_in_view) {
@@ -641,13 +641,13 @@ static void UpdateSmallGrass(Tachyon* tachyon, State& state) {
     for (auto& blade : chunk.grass_blades) {
       float z_distance = blade.position.z - ground_center.z;
       float x_limit = 15000.f + -z_distance * 0.5f;
-      if (x_limit > 20000.f) x_limit = 20000.f;
+      if (x_limit > 25000.f) x_limit = 25000.f;
 
       // Remove out-of-view blades
       if (
         abs(blade.position.x - ground_center.x) > x_limit ||
         z_distance > 8000.f ||
-        z_distance < -25000.f
+        z_distance < -30000.f
       ) {
         remove_blade_if_active(blade);
 
@@ -991,70 +991,73 @@ static void UpdateFlowerBushes(Tachyon* tachyon, State& state) {
     if (state.astro_time < entity.astro_start_time + 20.f) continue;
     if (state.astro_time > end_time - 20.f) continue;
 
-    float distance = tVec3f::distance(entity.visible_position, player_position);
+    float dy = state.player_position.y - entity.position.y;
+    clamp_to_0(dy);
 
-    if (distance < 25000.f) {
-      float entity_life_progress = GetLivingEntityProgress(state, entity, plant_lifetime);
-      float flower_size = 300.f * sqrtf(sinf(entity_life_progress * t_PI));
-      bool is_infected = entity.astro_start_time > -90.f;
-      uint16 flower_mesh = is_infected ? meshes.bush_flower_2 : meshes.bush_flower;
-      tVec4f flower_material = is_infected ? tVec4f(0.5f, 0, 0, 1.f) : tVec4f(0.9f, 0, 0, 0.6f);
+    if (!IsInRangeX(entity, state, 15000.f + dy)) continue;
+    if (!IsInRangeZ(entity, state, 20000.f + dy)) continue;
 
-      float vx = abs(entity.visible_position.x);
-      float vz = abs(entity.visible_position.z);
+    float entity_life_progress = GetLivingEntityProgress(state, entity, plant_lifetime);
+    float flower_size = 300.f * sqrtf(sinf(entity_life_progress * t_PI));
+    bool is_infected = entity.astro_start_time > -90.f;
+    uint16 flower_mesh = is_infected ? meshes.bush_flower_2 : meshes.bush_flower;
+    tVec4f flower_material = is_infected ? tVec4f(0.5f, 0, 0, 1.f) : tVec4f(0.9f, 0, 0, 0.6f);
 
-      for (int i = 0; i < 3; i++) {
-        if (count_used_instances(flower_mesh) == 500) {
-          // @todo break out of outer loop as well
-          console_warn("Too many flowers!");
+    float vx = abs(entity.visible_position.x);
+    float vz = abs(entity.visible_position.z);
 
-          break;
-        }
+    for (int i = 0; i < 3; i++) {
+      if (count_used_instances(flower_mesh) == 500) {
+        console_warn("Too many flowers!");
 
-        auto& flower = use_instance(flower_mesh);
-
-        float offset_x = fmodf(vx + 847.f * (float)i, spawn_radius) - half_spawn_radius;
-        float offset_z = fmodf(vz + 847.f * (float)i, spawn_radius) - half_spawn_radius;
-
-        flower.position = entity.visible_position;
-        flower.position.x += offset_x;
-        flower.position.y += entity.visible_scale.y * 0.4f;
-        flower.position.z += offset_z;
-
-        flower.rotation = rotations[int(abs(flower.position.x)) % 3];
-
-        // Give blossoms a bit of color variation based on position
-        float flower_brightness = 1.f - 0.2f * fmodf(abs(flower.position.x), 1.f);
-        tVec3f adjusted_blossom_color = blossom_color * flower_brightness;
-
-        // Determine the progress of the flower
-        // @todo rename
-        float life_progress_variation = fmodf(abs(flower.position.x + flower.position.z), 10.f);
-        float life_alpha = base_time_progress + life_progress_variation;
-
-        UpdateBloomingFlower(flower, adjusted_blossom_color, flower_size, life_alpha, flower_lifetime);
-
-        if (state.is_nighttime) {
-          flower.color.rgba |= 0x0002;
-        }
-
-        flower.material = flower_material;
-
-        commit(flower);
-
-        // Add middle piece
-        auto& middle = use_instance(meshes.flower_middle);
-
-        middle.position = flower.position;
-        middle.scale = flower.scale;
-        middle.rotation = flower.rotation;
-        middle.color = tVec3f(1.f, 0.8f, 0.2f);
-        middle.material = tVec4f(1.f, 0, 0, 1.f);
-
-        commit(middle);
+        goto after_loop;
       }
+
+      auto& flower = use_instance(flower_mesh);
+
+      float offset_x = fmodf(vx + 847.f * (float)i, spawn_radius) - half_spawn_radius;
+      float offset_z = fmodf(vz + 847.f * (float)i, spawn_radius) - half_spawn_radius;
+
+      flower.position = entity.visible_position;
+      flower.position.x += offset_x;
+      flower.position.y += entity.visible_scale.y * 0.4f;
+      flower.position.z += offset_z;
+
+      flower.rotation = rotations[int(abs(flower.position.x)) % 3];
+
+      // Give blossoms a bit of color variation based on position
+      float flower_brightness = 1.f - 0.2f * fmodf(abs(flower.position.x), 1.f);
+      tVec3f adjusted_blossom_color = blossom_color * flower_brightness;
+
+      // Determine the progress of the flower
+      // @todo rename
+      float life_progress_variation = fmodf(abs(flower.position.x + flower.position.z), 10.f);
+      float life_alpha = base_time_progress + life_progress_variation;
+
+      UpdateBloomingFlower(flower, adjusted_blossom_color, flower_size, life_alpha, flower_lifetime);
+
+      if (state.is_nighttime) {
+        flower.color.rgba |= 0x0002;
+      }
+
+      flower.material = flower_material;
+
+      commit(flower);
+
+      // Add middle piece
+      auto& middle = use_instance(meshes.flower_middle);
+
+      middle.position = flower.position;
+      middle.scale = flower.scale;
+      middle.rotation = flower.rotation;
+      middle.color = tVec3f(1.f, 0.8f, 0.2f);
+      middle.material = tVec4f(1.f, 0, 0, 1.f);
+
+      commit(middle);
     }
   }
+
+  after_loop:
 
   // @todo dev only
   if (state.show_game_stats) {

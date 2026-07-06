@@ -43,6 +43,7 @@ namespace astro {
       reset_instances(meshes.birch_tree_leaves);
 
       // @todo time evolution
+      // @todo range culling
       for_entities(state.birch_trees) {
         auto& entity = state.birch_trees[i];
 

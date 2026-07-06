@@ -175,10 +175,10 @@ static void UpdateLevelsOfDetail(Tachyon* tachyon, State& state) {
 
   // Decorative objects
   if (frame == 0 || frame % 3 == 0) {
-    Tachyon_UseLodByDistance(tachyon, meshes.rock_1, 50000.f);
+    Tachyon_UseLodByDistance(tachyon, meshes.rock_1, 50000.f, 100000.f);
     Tachyon_UseLodByDistance(tachyon, meshes.rock_2, 50000.f);
-    Tachyon_UseLodByDistance(tachyon, meshes.river_edge, 50000.f);
-    Tachyon_UseLodByDistance(tachyon, meshes.ground_1, 50000.f);
+    Tachyon_UseLodByDistance(tachyon, meshes.river_edge, 50000.f, 100000.f);
+    Tachyon_UseLodByDistance(tachyon, meshes.ground_1, 50000.f, 100000.f);
     Tachyon_UseLodByDistance(tachyon, meshes.lookout_tower, 60000.f);
   }
 
