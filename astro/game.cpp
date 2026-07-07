@@ -112,6 +112,10 @@ static void CreateConstantObjects(Tachyon* tachyon, State& state) {
     create(meshes.stair_step);
   }
 
+  for_range(1, 100) {
+    create(meshes.castle_tile);
+  }
+
   // Clothing + armor
   {
     for_range(1, 10) {

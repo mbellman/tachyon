@@ -209,6 +209,14 @@ static void AddProceduralMeshes(Tachyon* tachyon, State& state) {
 
     mesh(meshes.stair_step).shadow_cascade_ceiling = 2;
   }
+
+  // Castle tiles
+  {
+    meshes.castle_tile = CUBE_MESH(100);
+    // meshes.castle_tile = MODEL_MESH("./astro/3d_models/castle_tower/tile.obj", 200);
+
+    mesh(meshes.castle_tile).shadow_cascade_ceiling = 1;
+  }
 }
 
 static void AddFaunaMeshes(Tachyon* tachyon, State& state) {

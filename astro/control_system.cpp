@@ -289,8 +289,9 @@ static void HandleWandControls(Tachyon* tachyon, State& state) {
     state.player.last_stopped_moving_time = 0.f;
     state.player_idle_stance = 1;
 
+    // Perform wand pulses after holding the wand for a bit
     if (
-      time_since(state.player.last_wand_start_time) > 0.25f &&
+      time_since(state.player.last_wand_start_time) > 0.4f &&
       time_since(state.last_wand_light_pulse_time) > 4.f
     ) {
       state.last_wand_light_pulse_time = scene_time;

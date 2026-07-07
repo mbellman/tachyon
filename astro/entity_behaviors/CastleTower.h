@@ -24,17 +24,56 @@ namespace astro {
       auto& meshes = state.meshes;
 
       reset_instances(meshes.castle_tower);
+      reset_instances(meshes.castle_tile);
 
       for_entities(state.castle_towers) {
         auto& entity = state.castle_towers[i];
 
-        auto& tower = use_instance(meshes.castle_tower);
+        // Wall structure
+        {
+          auto& tower = use_instance(meshes.castle_tower);
 
-        Sync(tower, entity);
+          Sync(tower, entity);
 
-        tower.material = tVec4f(0.6f, 0, 0, 1.f);
+          tower.material = tVec4f(0.6f, 0, 0, 1.f);
 
-        commit(tower);
+          commit(tower);
+        }
+
+        // Skip additional visual features if the structure is far enough away
+        if (!IsInRangeX(entity, state, 10000.f)) continue;
+        if (!IsInRangeZ(entity, state, 10000.f)) continue;
+
+        // Floor tiles
+        // @incomplete
+        // @todo proper tile distribution/variation
+        {
+          int total_x_tiles = (int) ceilf(entity.scale.x / 2000.f);
+          int total_z_tiles = (int) ceilf(entity.scale.z / 2000.f);
+
+          float x_scale = entity.scale.x / float(total_x_tiles);
+          float z_scale = entity.scale.z / float(total_z_tiles);
+
+          for (int x = 0; x < total_x_tiles; x++) {
+            for (int z = 0; z < total_z_tiles; z++) {
+              auto& tile = use_instance(meshes.castle_tile);
+
+              // @temporary
+              tile.position.x = entity.position.x;
+              tile.position.z = entity.position.z;
+
+              tile.position.y = entity.position.y + entity.scale.y;
+
+              tile.rotation = entity.orientation;
+
+              tile.scale.x = x_scale;
+              tile.scale.z = z_scale;
+              tile.scale.y = 50.f;
+
+              commit(tile);
+            }
+          }
+        }
       }
     }
   };
