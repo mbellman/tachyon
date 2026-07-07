@@ -186,7 +186,23 @@ float Tachyon_GetDeltaTime(Tachyon* tachyon) {
     case TachyonRenderBackend::OPENGL: {
       int refresh_rate = Tachyon_OpenGL_GetCurrentRefreshRate(tachyon);
 
-      return refresh_rate == 0 ? actual_delta_time : 1.f / float(refresh_rate);
+      if (refresh_rate == 0) {
+        // When unlocked, return the actual frame delta time
+        return actual_delta_time;
+      } else {
+        // When v-synced, define a delta time based on the refresh rate
+        float nominal_delta_time = 1.f / float(refresh_rate);
+
+        if (actual_delta_time > nominal_delta_time * 1.2f) {
+          // If the actual delta time is much higher than what we expect,
+          // use that, rather than the nominal time. This happens during
+          // slowdown due to CPU or GPU bottlenecking.
+          return actual_delta_time;
+        } else {
+          // Otherwise, use the nominal time
+          return nominal_delta_time;
+        }
+      }
     }
     default:
       return actual_delta_time;
