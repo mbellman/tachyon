@@ -44,6 +44,7 @@ tutorial:
 * magic gate improvements/collision
 
 features/fixes:
+* castle steeple/rampart geometry optimizations
 * bug: triggering sculptures when interacting with wind chimes
 * bug: walk/run start foot sticking
 * bug: airborne tiny bird spawn/spawn-out position relative to player
