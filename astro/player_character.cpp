@@ -132,10 +132,11 @@ static void ShowDebugPlayerSkeleton(Tachyon* tachyon, State& state) {
 }
 
 static void HandleLedgeJumpActions(Tachyon* tachyon, State& state) {
-  float time_since_jump = time_since(state.last_ledge_jump_time);
+  float time_since_jump = time_since(state.player.last_ledge_jump_time);
+  float jump_duration = state.player.ledge_jump_duration;
 
-  if (time_since_jump < 0.2f) {
-    float alpha = time_since_jump / 0.2f;
+  if (time_since_jump < jump_duration) {
+    float alpha = time_since_jump / jump_duration;
 
     state.player_position.y += 6000.f * state.dt * (1.f - alpha);
   }

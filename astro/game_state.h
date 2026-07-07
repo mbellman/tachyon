@@ -551,11 +551,17 @@ namespace astro {
       float last_stopped_moving_time = 0.f;
       float last_wand_start_time = 0.f;
       float last_wand_held_time = 0.f;
+
+      // Climbing
       float last_climbing_time = 0.f;
       float last_climbing_start_time = 0.f;
       float last_climbing_stop_time = 0.f;
-      float last_freefall_landing_time = 0.f;
       tVec3f climb_up_start_position;
+
+      // Ledge jumping
+      float last_ledge_jump_time = 0.f;
+      float last_freefall_landing_time = 0.f;
+      float ledge_jump_duration = 0.2f;
 
       bool is_looking_at_something = false;
       bool is_airborne_in_run_cycle = false;
@@ -582,7 +588,6 @@ namespace astro {
     float last_wand_swing_time = 0.f;
     float last_wand_action_time = 0.f;
     float last_wand_bounce_time = 0.f;
-    float last_ledge_jump_time = 0.f;
     float last_death_time = 0.f;
     float last_spawn_time = 0.f;
     float last_dodge_time = 0.f;

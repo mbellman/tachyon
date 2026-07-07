@@ -255,7 +255,7 @@ static float GetAnimationSpeed(Tachyon* tachyon, State& state, tSkeletonAnimatio
   }
 
   if (animation == &animations.player_freefall) {
-    return 14.f;
+    return 12.f;
   }
 
   if (animation == &animations.player_idle_quickturn) {

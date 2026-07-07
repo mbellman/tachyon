@@ -282,6 +282,7 @@ static void HandleCastleStairsCollisions(Tachyon* tachyon, State& state) {
 
         state.is_on_solid_platform = true;
         state.is_moving_down_slope = slope_dot < -0.4f || slope_dot > 0.4f;
+        state.player.ledge_jump_duration = 0.2f;
       }
     }
   }
@@ -311,6 +312,7 @@ static void HandleSlopeCollisions(Tachyon* tachyon, State& state) {
       state.is_on_solid_platform = true;
       state.is_on_stone_surface = true;
       state.is_moving_down_slope = slope_dot < -0.4f || slope_dot > 0.4f;
+      state.player.ledge_jump_duration = 0.2f;
     }
   }
 }
@@ -509,6 +511,7 @@ static void HandleSmallStoneBridgeCollisions(Tachyon* tachyon, State& state) {
 
       state.is_on_solid_platform = true;
       state.is_on_stone_surface = true;
+      state.player.ledge_jump_duration = 0.2f;
 
       break;
     }
@@ -532,6 +535,7 @@ static void HandleWoodenBridgeCollisions(Tachyon* tachyon, State& state) {
 
       state.is_on_solid_platform = true;
       state.is_on_wood_surface = true;
+      state.player.ledge_jump_duration = 0.2f;
 
       break;
     }
@@ -648,6 +652,9 @@ static void HandleCastleTowerCollisions(Tachyon* tachyon, State& state) {
 
         state.is_on_solid_platform = true;
         state.is_on_stone_surface = true;
+
+        // Extend ledge jumps off castle walls
+        state.player.ledge_jump_duration = 0.32f;
       }
     }
   }
@@ -689,6 +696,7 @@ static void HandleAltarCollisions(Tachyon* tachyon, State& state) {
       AllowPlayerMovement(state, player_y, altar_plane);
 
       state.is_on_solid_platform = true;
+      state.player.ledge_jump_duration = 0.2f;
 
     // Standing on top of altar platform disc
     } else if (
@@ -698,6 +706,7 @@ static void HandleAltarCollisions(Tachyon* tachyon, State& state) {
       AllowPlayerMovement(state, altar_floor_y, altar_plane);
 
       state.is_on_solid_platform = true;
+      state.player.ledge_jump_duration = 0.2f;
 
     // Prevent movement into the altar platform disc from ground level
     } else if (state.fall_velocity == 0.f) {
@@ -760,6 +769,7 @@ static void HandleWaterWheelCollisions(Tachyon* tachyon, State& state) {
         AllowPlayerMovement(state, player_y, wheel_plane);
 
         state.is_on_solid_platform = true;
+        state.player.ledge_jump_duration = 0.2f;
 
         continue;
       }
@@ -775,6 +785,7 @@ static void HandleWaterWheelCollisions(Tachyon* tachyon, State& state) {
       AllowPlayerMovement(state, player_y, platform_plane);
 
       state.is_on_solid_platform = true;
+      state.player.ledge_jump_duration = 0.2f;
     }
   }
 }
@@ -1017,7 +1028,7 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   HandleBirdGateCollisions(tachyon, state);
   HandleCastleRampartCollisions(tachyon, state);
 
-  // Resolve collisions with irregularly-shaped entities
+  // Resolve ground collisions with irregularly-shaped entities
   HandleSmallStoneBridgeCollisions(tachyon, state);
   HandleWoodenBridgeCollisions(tachyon, state);
   HandleCastleTowerCollisions(tachyon, state);
@@ -1072,15 +1083,15 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   }
 
   // Landing/falling/grounding behavior
-  // @todo factor
+  // @todo refactor/clean up
   {
     float height_above_ground = state.player_position.y - state.current_ground_y;
     float distance_below_ground = -height_above_ground;
 
-    // Handle walking off higher ground levels
+    // Perform ledge jumps
     if (height_above_ground > 500.f && !state.did_jump_off_ledge) {
       state.did_jump_off_ledge = true;
-      state.last_ledge_jump_time = get_scene_time();
+      state.player.last_ledge_jump_time = get_scene_time();
     }
 
     // If we're slightly below ground level, blend smoothly to the correct y position
@@ -1110,8 +1121,8 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
 
     // Falling behavior
     if (
-      state.last_ledge_jump_time != 0.f &&
-      time_since(state.last_ledge_jump_time) > 0.2f &&
+      state.player.last_ledge_jump_time != 0.f &&
+      time_since(state.player.last_ledge_jump_time) > state.player.ledge_jump_duration &&
       height_above_ground > 0.f
     ) {
       state.fall_velocity += 50000.f * state.dt;
@@ -1130,6 +1141,12 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
       }
 
       state.did_jump_off_ledge = false;
+
+      // Reset ledge jump duration when landed on solid ground,
+      // as opposed to a specialized solid platform
+      if (!state.is_on_solid_platform) {
+        state.player.ledge_jump_duration = 0.2f;
+      }
     }
   }
 }
