@@ -1094,6 +1094,15 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
       state.player.last_ledge_jump_time = get_scene_time();
     }
 
+    // Snap to ground level when only slightly above
+    if (
+      height_above_ground > 0.f &&
+      height_above_ground <= 500.f &&
+      !state.did_jump_off_ledge
+    ) {
+      state.player_position.y = state.current_ground_y;
+    }
+
     // If we're slightly below ground level, blend smoothly to the correct y position
     if (distance_below_ground > 0.f && distance_below_ground < 200.f) {
       state.player_position.y = Tachyon_Lerpf(

@@ -47,6 +47,8 @@ features/fixes:
 * castle steeple/rampart geometry optimizations
 * bug: triggering sculptures when interacting with wind chimes
 * bug: walk/run start foot sticking
+* bug: player rotation axis during quick turns
+* bug: putting down wand into running animation
 * bug: airborne tiny bird spawn/spawn-out position relative to player
 * bug: pressing E while editing entities causing glow particles to respawn?
 * guidance (small stone bridges, slopes)

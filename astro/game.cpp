@@ -498,7 +498,10 @@ static void HandleSnow(Tachyon* tachyon, State& state) {
 // @todo 3d positioned sfx
 static void HandleWalkSounds(Tachyon* tachyon, State& state) {
   // Don't play sounds if we're in freefall
-  if (state.did_jump_off_ledge) {
+  if (
+    state.did_jump_off_ledge ||
+    state.player_position.y > state.current_ground_y
+  ) {
     return;
   }
 
