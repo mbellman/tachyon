@@ -43,7 +43,7 @@ namespace astro {
         auto& entity = state.gates[i];
 
         if (abs(state.player_position.x - entity.position.x) > 25000.f) continue;
-        if (abs(state.player_position.z - entity.position.z) > 25000.f) continue;
+        if (abs(state.player_position.z - entity.position.z) > 35000.f) continue;
 
         auto& body = use_instance(meshes.gate_body);
         auto& door_left = use_instance(meshes.gate_left_door);

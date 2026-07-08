@@ -33,11 +33,11 @@ namespace astro {
       };
 
       const float tile_heights[] = {
-        30.f,
         20.f,
-        15.f,
-        35.f,
-        25.f
+        10.f,
+        5.f,
+        12.5f,
+        15.f
       };
 
       reset_instances(meshes.castle_tower);

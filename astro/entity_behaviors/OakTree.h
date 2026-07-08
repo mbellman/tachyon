@@ -77,8 +77,11 @@ namespace astro {
       for_entities(state.oak_trees) {
         auto& entity = state.oak_trees[i];
 
+        float dy = state.player_position.y - entity.position.y;
+        clamp_to_0(dy);
+
         bool is_in_range = (
-          abs(state.player_position.x - entity.position.x) < 30000.f &&
+          abs(state.player_position.x - entity.position.x) < (25000.f + dy) &&
           entity.position.z - state.player_position.z < 12000.f &&
           state.player_position.z - entity.position.z < 32000.f
         );

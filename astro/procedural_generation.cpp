@@ -1310,6 +1310,12 @@ static void UpdateStonePaths(Tachyon* tachyon, State& state) {
 
   reset_instances(meshes.path_stone);
 
+  const tColor colors[] = {
+    0x5550,
+    0x7770,
+    0x8880
+  };
+
   Quaternion rotations[] = {
     Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 0.f),
     Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 0.1f),
@@ -1415,7 +1421,7 @@ static void UpdateStonePaths(Tachyon* tachyon, State& state) {
           stone.position.y += y_offsets[y_iteration % 5];
           stone.scale = tVec3f(250.f);
           stone.rotation = path.rotation * rotations[rotation_iteration % 5];
-          stone.color = tVec3f(0.4f);
+          stone.color = colors[int(abs(stone.position.x)) % 3];
           stone.material = tVec4f(0.1f, 0, 0, 0.2f);
 
           commit(stone);
