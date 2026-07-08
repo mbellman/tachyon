@@ -212,10 +212,9 @@ static void AddProceduralMeshes(Tachyon* tachyon, State& state) {
 
   // Castle tiles
   {
-    meshes.castle_tile = CUBE_MESH(100);
-    // meshes.castle_tile = MODEL_MESH("./astro/3d_models/castle_tower/tile.obj", 200);
+    meshes.castle_tile = MODEL_MESH("./astro/3d_models/castle_tower/tile.obj", 150);
 
-    mesh(meshes.castle_tile).shadow_cascade_ceiling = 1;
+    mesh(meshes.castle_tile).shadow_cascade_ceiling = 0;
   }
 }
 

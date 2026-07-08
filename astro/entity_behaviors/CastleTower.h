@@ -21,6 +21,8 @@ namespace astro {
     }
 
     timeEvolve() {
+      profile("  CastleTower::timeEvolve()");
+
       auto& meshes = state.meshes;
 
       reset_instances(meshes.castle_tower);
@@ -41,34 +43,52 @@ namespace astro {
         }
 
         // Skip additional visual features if the structure is far enough away
-        if (!IsInRangeX(entity, state, 10000.f)) continue;
-        if (!IsInRangeZ(entity, state, 10000.f)) continue;
+        if (!IsInRangeX(entity, state, 20000.f)) continue;
+        if (!IsInRangeZ(entity, state, 20000.f)) continue;
 
         // Floor tiles
-        // @incomplete
-        // @todo proper tile distribution/variation
+        // @todo color/material variation
         {
-          int total_x_tiles = (int) ceilf(entity.scale.x / 2000.f);
-          int total_z_tiles = (int) ceilf(entity.scale.z / 2000.f);
+          const float ratio = 0.6f;
 
-          float x_scale = entity.scale.x / float(total_x_tiles);
-          float z_scale = entity.scale.z / float(total_z_tiles);
+          float wall_x_width = entity.scale.x * 2.f * ratio;
+          float wall_z_width = entity.scale.z * 2.f * ratio;
 
-          for (int x = 0; x < total_x_tiles; x++) {
-            for (int z = 0; z < total_z_tiles; z++) {
+          int total_x_tiles = (int) ceilf(wall_x_width / 3000.f);
+          int total_z_tiles = (int) ceilf(wall_z_width / 3000.f);
+
+          float x_scale = wall_x_width / float(total_x_tiles);
+          float z_scale = wall_z_width / float(total_z_tiles);
+
+          tVec3f x_axis = entity.orientation.toMatrix4f() * tVec3f(1.f, 0, 0);
+          tVec3f z_axis = entity.orientation.toMatrix4f() * tVec3f(0, 0, 1.f);
+
+          tVec3f top_left = entity.position;
+          top_left.y += entity.scale.y;
+          top_left -= x_axis * (x_scale * (total_x_tiles - 1) * 0.5f);
+          top_left -= z_axis * (z_scale * (total_z_tiles - 1) * 0.5f);
+
+          for (int z = 0; z < total_z_tiles; z++) {
+            tVec3f start = top_left + z_axis * z_scale * z;
+
+            for (int x = 0; x < total_x_tiles; x++) {
+              if (count_used_instances(meshes.castle_tile) == 150) {
+                console_warn("Too many castle tiles!");
+
+                return;
+              }
+
               auto& tile = use_instance(meshes.castle_tile);
 
-              // @temporary
-              tile.position.x = entity.position.x;
-              tile.position.z = entity.position.z;
-
-              tile.position.y = entity.position.y + entity.scale.y;
+              tile.position = start + x_axis * x_scale * x;
 
               tile.rotation = entity.orientation;
 
-              tile.scale.x = x_scale;
-              tile.scale.z = z_scale;
+              tile.scale.x = 0.832f * ratio * x_scale;
+              tile.scale.z = 0.832f * ratio * z_scale;
               tile.scale.y = 50.f;
+
+              tile.material = tVec4f(0.8f, 0, 0, 0.7f);
 
               commit(tile);
             }

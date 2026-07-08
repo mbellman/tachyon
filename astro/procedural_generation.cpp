@@ -1008,7 +1008,7 @@ static void UpdateFlowerBushes(Tachyon* tachyon, State& state) {
 
     for (int i = 0; i < 3; i++) {
       if (count_used_instances(flower_mesh) == 500) {
-        console_warn("Too many flowers!");
+        console_warn("Too many flower bush flowers!");
 
         goto after_loop;
       }
