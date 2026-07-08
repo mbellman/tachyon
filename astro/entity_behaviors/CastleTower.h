@@ -25,6 +25,21 @@ namespace astro {
 
       auto& meshes = state.meshes;
 
+      const tColor tile_colors[] = {
+        0xFFF0,
+        0xEDE0,
+        0xECC0,
+        0xDCC0
+      };
+
+      const float tile_heights[] = {
+        30.f,
+        20.f,
+        15.f,
+        35.f,
+        25.f
+      };
+
       reset_instances(meshes.castle_tower);
       reset_instances(meshes.castle_tile);
 
@@ -68,6 +83,8 @@ namespace astro {
           top_left -= x_axis * (x_scale * (total_x_tiles - 1) * 0.5f);
           top_left -= z_axis * (z_scale * (total_z_tiles - 1) * 0.5f);
 
+          int tile_index = 0;
+
           for (int z = 0; z < total_z_tiles; z++) {
             tVec3f start = top_left + z_axis * z_scale * z;
 
@@ -86,11 +103,14 @@ namespace astro {
 
               tile.scale.x = 0.832f * ratio * x_scale;
               tile.scale.z = 0.832f * ratio * z_scale;
-              tile.scale.y = 50.f;
+              tile.scale.y = tile_heights[tile_index % 5];
 
+              tile.color = tile_colors[tile_index % 4];
               tile.material = tVec4f(0.8f, 0, 0, 0.7f);
 
               commit(tile);
+
+              tile_index++;
             }
           }
         }

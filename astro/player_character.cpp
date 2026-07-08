@@ -390,7 +390,7 @@ static void UpdateFacingDirectionAndTilt(Tachyon* tachyon, State& state) {
   float desired_facing_angle = atan2f(desired_facing_direction.z, desired_facing_direction.x);
 
   tilt = GetAngleBetween(desired_facing_angle, facing_angle);
-  tilt *= 0.3f;
+  tilt *= 0.45f;
   tilt *= speed_ratio;
 
   // Reduce turn speed + tilt when doing a quick turn,
