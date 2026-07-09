@@ -593,7 +593,8 @@ export default [
     list: "castle_ramparts",
     meshes: [
       "castle_rampart_placeholder",
-      "castle_rampart"
+      "castle_rampart",
+      "castle_rampart_frills"
     ],
     scale: [ 4000.0 ],
     color: [ 0.6 ]
@@ -604,7 +605,8 @@ export default [
     list: "castle_steeples",
     meshes: [
       "castle_steeple_placeholder",
-      "castle_steeple"
+      "castle_steeple",
+      "castle_steeple_frills"
     ],
     scale: [ 4000.0 ],
     color: [ 0.6 ]

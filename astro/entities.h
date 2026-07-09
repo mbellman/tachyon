@@ -330,6 +330,7 @@ namespace astro {
       // CASTLE_RAMPART
       castle_rampart_placeholder,
       castle_rampart,
+      castle_rampart_frills,
 
       // CASTLE_STAIRS
       castle_stairs_placeholder,
@@ -339,6 +340,7 @@ namespace astro {
       // CASTLE_STEEPLE
       castle_steeple_placeholder,
       castle_steeple,
+      castle_steeple_frills,
 
       // CASTLE_TOWER
       castle_tower_placeholder,
