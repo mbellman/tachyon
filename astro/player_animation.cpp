@@ -532,7 +532,7 @@ static void HandleHeadAnimation(Tachyon* tachyon, State& state) {
       state.player.rig.head_turn_angle = Tachyon_Lerpf(
         state.player.rig.head_turn_angle,
         turn,
-        7.5f * state.dt
+        10.f * state.dt
       );
     }
   }

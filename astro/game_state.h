@@ -548,6 +548,7 @@ namespace astro {
       float satchel_freefall = 0.f;
       float blanket_freefall = 0.f;
       float blanket_run_swing = 0.f;
+      float airborne_freefall = 0.f;
 
       float last_stopped_moving_time = 0.f;
       float last_wand_start_time = 0.f;

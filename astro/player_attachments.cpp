@@ -290,6 +290,29 @@ void PlayerAttachments::Update(Tachyon* tachyon, State& state) {
     state.player.satchel_freefall = state.run_oscillation * satchel_bounce;
     state.player.blanket_freefall = state.run_oscillation * blanket_bounce;
     state.player.blanket_run_swing = state.run_oscillation * blanket_run_swing;
+
+    if (state.did_jump_off_ledge) {
+      float t = time_since(state.player.last_ledge_jump_time);
+      t -= state.player.ledge_jump_duration * 0.75f;
+      clamp_to_0(t);
+
+      float alpha = t / (t + 0.5f);
+
+      state.player.airborne_freefall = 4.f * alpha;
+
+      // Raise the satchel/blanket as we fall
+      state.player.satchel_freefall += state.player.airborne_freefall;
+      state.player.blanket_freefall += state.player.airborne_freefall;
+    } else {
+      float t = time_since(state.player.last_freefall_landing_time);
+      float alpha = 1.f - t / 0.1f;
+
+      clamp_to_0(alpha);
+
+      // Quickly reduce satchel/blanket freefall after landing
+      state.player.satchel_freefall += state.player.airborne_freefall * alpha;
+      state.player.blanket_freefall += state.player.airborne_freefall * alpha;
+    }
   }
 
   UpdateSatchel(tachyon, state);
