@@ -10,7 +10,7 @@ namespace astro {
       meshes.castle_steeple = MODEL_MESH("./astro/3d_models/castle_steeple/steeple.obj", 500);
       meshes.castle_steeple_frills = MODEL_MESH("./astro/3d_models/castle_steeple/frills.obj", 500);
 
-      mesh(meshes.castle_steeple_frills).shadow_cascade_ceiling = 1;
+      mesh(meshes.castle_steeple_frills).shadow_cascade_ceiling = 2;
     }
 
     getMeshes() {

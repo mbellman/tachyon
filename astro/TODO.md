@@ -46,21 +46,26 @@ tutorial:
 features/fixes:
 * bug: triggering sculptures when interacting with wind chimes
 * bug: walk/run start foot sticking
-* bug: putting down wand into running animation
+* bug: putting down wand into running animation pop
+* bug: quick turn while slowing down animation pop
 * bug: airborne tiny bird spawn/spawn-out position relative to player
 * bug: pressing E while editing entities causing glow particles to respawn?
+* bug: swans moving through each other
+* bug: duck heads turning backwards
+* bug: tiny birds flying through castle towers
+* willow tree y-relative culling
+* signpost collision
+* sculpture collision
+* climbing off over castle rampart ladders
 * guidance (small stone bridges, slopes)
 * climb over onto ladder animation + reverse
-* tipping-over animation/preventing jumping off very high ledges
 * climb-down-onto-ladder animation
+* tipping-over animation/preventing jumping off very high ledges
 * river sfx
 * duck sfx
-* fix duck heads turning backwards
-* tiny birds looking out for castle towers
 * house knocking sound
 * vantage camera tweaks
 * rename castle tower -> castle wall
-* signpost collision
 * running in place against walls
 * water color changes with time
 * light pillars sound when using normal wand raising
