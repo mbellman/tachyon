@@ -31,7 +31,7 @@ namespace astro {
     }
 
     timeEvolve() {
-      profile("  Mushroom::timeEvolve()");
+      // profile("  Mushroom::timeEvolve()");
 
       auto& meshes = state.meshes;
 

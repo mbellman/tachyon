@@ -81,7 +81,7 @@ namespace astro {
         clamp_to_0(dy);
 
         bool is_in_range = (
-          abs(state.player_position.x - entity.position.x) < (20000.f + dy) &&
+          abs(state.player_position.x - entity.position.x) < (25000.f + dy) &&
           entity.position.z - state.player_position.z < 12000.f &&
           state.player_position.z - entity.position.z < 32000.f
         );

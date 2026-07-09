@@ -619,9 +619,13 @@ static void UpdateSmallGrass(Tachyon* tachyon, State& state) {
   tVec3f ground_center = camera.position + camera_direction * 10000.f * 1.2f;
 
   for (auto& chunk : state.grass_chunks) {
+    float chunk_z_distance = ground_center.z - chunk.center_position.z;
+
     bool is_chunk_in_view = (
-      abs(ground_center.x - chunk.center_position.x) < 30000.f &&
-      abs(ground_center.z - chunk.center_position.z) < 40000.f
+      abs(ground_center.x - chunk.center_position.x) < 30000.f && (
+        chunk_z_distance < 40000.f &&
+        chunk_z_distance > -15000.f
+      )
     );
 
     if (!is_chunk_in_view) {
