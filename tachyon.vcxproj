@@ -138,7 +138,9 @@
     <ClInclude Include="astro\entity_behaviors\BirdGate.h" />
     <ClInclude Include="astro\entity_behaviors\BirdSpawn.h" />
     <ClInclude Include="astro\entity_behaviors\CameraController.h" />
+    <ClInclude Include="astro\entity_behaviors\CastleArch.h" />
     <ClInclude Include="astro\entity_behaviors\CastleRampart.h" />
+    <ClInclude Include="astro\entity_behaviors\CastleStairs.h" />
     <ClInclude Include="astro\entity_behaviors\CastleSteeple.h" />
     <ClInclude Include="astro\entity_behaviors\CastleTower.h" />
     <ClInclude Include="astro\entity_behaviors\ChestnutTree.h" />
@@ -152,6 +154,8 @@
     <ClInclude Include="astro\entity_behaviors\Gate.h" />
     <ClInclude Include="astro\entity_behaviors\GlowFlower.h" />
     <ClInclude Include="astro\entity_behaviors\GroundFlowerPatch.h" />
+    <ClInclude Include="astro\entity_behaviors\HeavySwitch.h" />
+    <ClInclude Include="astro\entity_behaviors\HostaBush.h" />
     <ClInclude Include="astro\entity_behaviors\House.h" />
     <ClInclude Include="astro\entity_behaviors\IronGate.h" />
     <ClInclude Include="astro\entity_behaviors\ItemPickup.h" />
@@ -168,6 +172,7 @@
     <ClInclude Include="astro\entity_behaviors\MagicGate.h" />
     <ClInclude Include="astro\entity_behaviors\MoodLight.h" />
     <ClInclude Include="astro\entity_behaviors\Mushroom.h" />
+    <ClInclude Include="astro\entity_behaviors\NormalSwitch.h" />
     <ClInclude Include="astro\entity_behaviors\Npc.h" />
     <ClInclude Include="astro\entity_behaviors\OakTree.h" />
     <ClInclude Include="astro\entity_behaviors\RiverLog.h" />
@@ -181,7 +186,9 @@
     <ClInclude Include="astro\entity_behaviors\StonePathNode.h" />
     <ClInclude Include="astro\entity_behaviors\StoneWall.h" />
     <ClInclude Include="astro\entity_behaviors\Sunbeam.h" />
+    <ClInclude Include="astro\entity_behaviors\SwanSpawn.h" />
     <ClInclude Include="astro\entity_behaviors\TallBirch.h" />
+    <ClInclude Include="astro\entity_behaviors\TallEvergreenShrub.h" />
     <ClInclude Include="astro\entity_behaviors\TallGrass.h" />
     <ClInclude Include="astro\entity_behaviors\TallWeeds.h" />
     <ClInclude Include="astro\entity_behaviors\TulipPlant.h" />
@@ -203,6 +210,7 @@
     <ClInclude Include="astro\game.h" />
     <ClInclude Include="astro\game_events.h" />
     <ClInclude Include="astro\game_state.h" />
+    <ClInclude Include="astro\hud_system.h" />
     <ClInclude Include="astro\items.h" />
     <ClInclude Include="astro\level_editor.h" />
     <ClInclude Include="astro\magic.h" />
@@ -374,6 +382,7 @@
     <ClCompile Include="astro\facade_geometry.cpp" />
     <ClCompile Include="astro\game.cpp" />
     <ClCompile Include="astro\game_events.cpp" />
+    <ClCompile Include="astro\hud_system.cpp" />
     <ClCompile Include="astro\items.cpp" />
     <ClCompile Include="astro\level_editor.cpp" />
     <ClCompile Include="astro\magic.cpp" />

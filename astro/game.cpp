@@ -13,6 +13,7 @@
 #include "astro/environment.h"
 #include "astro/facade_geometry.h"
 #include "astro/game_events.h"
+#include "astro/hud_system.h"
 #include "astro/items.h"
 #include "astro/level_editor.h"
 #include "astro/mesh_library.h"
@@ -129,18 +130,22 @@ static void CreateConstantObjects(Tachyon* tachyon, State& state) {
     }
   }
 
-  create(meshes.astrolabe_rear);
-  create(meshes.astrolabe_base);
-  create(meshes.astrolabe_plate);
-  create(meshes.astrolabe_plate2);
-  create(meshes.astrolabe_plate3);
-  create(meshes.astrolabe_plate4);
-  create(meshes.astrolabe_ring);
-  create(meshes.astrolabe_hand);
+  // HUD objects
+  {
+    create(meshes.astrolabe_rear);
+    create(meshes.astrolabe_base);
+    create(meshes.astrolabe_plate);
+    create(meshes.astrolabe_plate2);
+    create(meshes.astrolabe_plate3);
+    create(meshes.astrolabe_plate4);
+    create(meshes.astrolabe_ring);
+    create(meshes.astrolabe_hand);
+    create(meshes.health_bar);
+    create(meshes.target_reticle);
+  }
 
   create(meshes.item_gate_key);
 
-  create(meshes.target_reticle);
 
   // @todo dev mode only
   {
@@ -1270,6 +1275,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   CameraSystem::UpdateCamera(tachyon, state);
   Astrolabe::Update(tachyon, state);
   UISystem::UpdateHUD(tachyon, state);
+  HUDSystem::Update(tachyon, state);
   PlayerCharacter::UpdatePlayer(tachyon, state);
   AnimatedEntities::UpdateAnimatedEntities(tachyon, state);
   UpdateWaterPlane(tachyon, state);

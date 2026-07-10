@@ -21,6 +21,7 @@ static void AddHUDMeshes(Tachyon* tachyon, State& state) {
   meshes.astrolabe_plate4      = MODEL_MESH("./astro/3d_models/astrolabe_plate4.obj", 1);
   meshes.astrolabe_ring        = MODEL_MESH("./astro/3d_models/astrolabe_ring.obj", 1);
   meshes.astrolabe_hand        = MODEL_MESH("./astro/3d_models/astrolabe_hand.obj", 1);
+  meshes.health_bar            = MODEL_MESH("./astro/3d_models/health_bar.obj", 1);
   meshes.target_reticle        = MODEL_MESH("./astro/3d_models/target_reticle.obj", 1);
 
   mesh(meshes.astrolabe_rear).shadow_cascade_ceiling = 0;
@@ -31,6 +32,7 @@ static void AddHUDMeshes(Tachyon* tachyon, State& state) {
   mesh(meshes.astrolabe_plate4).shadow_cascade_ceiling = 0;
   mesh(meshes.astrolabe_ring).shadow_cascade_ceiling = 0;
   mesh(meshes.astrolabe_hand).shadow_cascade_ceiling = 0;
+  mesh(meshes.health_bar).shadow_cascade_ceiling = 0;
   mesh(meshes.target_reticle).shadow_cascade_ceiling = 0;
 }
 

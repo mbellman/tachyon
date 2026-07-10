@@ -117,6 +117,7 @@ namespace astro {
       astrolabe_plate4,
       astrolabe_ring,
       astrolabe_hand,
+      health_bar,
       target_reticle,
 
       // Item meshes
