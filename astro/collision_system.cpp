@@ -614,6 +614,9 @@ static void HandleBirdGateCollisions(Tachyon* tachyon, State& state) {
 }
 
 static void HandleCastleRampartCollisions(Tachyon* tachyon, State& state) {
+  tVec3f player_xz = state.player_position.xz();
+  float player_bottom_y = state.player_position.y - PLAYER_HEIGHT;
+
   for (auto& entity : state.castle_ramparts) {
     auto rampart_plane = CollisionSystem::CreatePlane(
       entity.position,
@@ -621,7 +624,27 @@ static void HandleCastleRampartCollisions(Tachyon* tachyon, State& state) {
       entity.orientation
     );
 
-    ResolveClippingIntoPlane(state, rampart_plane);
+    if (player_bottom_y > entity.position.y) {
+      // Act as a floor
+      float floor_y = entity.position.y + entity.scale.y * 0.25f;
+
+      if (CollisionSystem::IsPointOnPlane(player_xz, rampart_plane)) {
+        AllowPlayerMovement(state, floor_y + PLAYER_HEIGHT, rampart_plane);
+
+        state.is_on_solid_platform = true;
+        state.is_on_stone_surface = true;
+
+        // Do small jumps off ramparts
+        state.player.ledge_jump_duration = 0.1f;
+
+        return;
+      }
+    } else {
+      // Act as a wall
+      if (ResolveClippingIntoPlane(state, rampart_plane)) {
+        return;
+      }
+    }
   }
 }
 

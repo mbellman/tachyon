@@ -51,8 +51,8 @@ static void UpdateHealthBar(Tachyon* tachyon, State& state) {
       unit.rotation = bar.rotation;
       unit.scale = bar.scale;
 
-      unit.color = tVec3f(0.5f, 0, 0);
-      unit.material = tVec4f(0.2f, 0, 1.f, 1.f);
+      unit.color = 0x8224;
+      unit.material = tVec4f(0.2f, 0, 1.f, 0.5f);
 
       commit(unit);
     }

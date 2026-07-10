@@ -334,7 +334,7 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
 
   // Freefall -> running/walking/idle
   if (rig.current_animation == &animations.player_freefall && !state.did_jump_off_ledge) {
-    return 15.f;
+    return 6.f;
   }
 
   // Idle quickturn - > running
