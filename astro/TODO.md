@@ -46,6 +46,7 @@ tutorial:
 features/fixes:
 * bug: triggering sculptures when interacting with wind chimes
 * bug: walk/run start foot sticking
+* bug: snapping to slopes when above them
 * bug: putting down wand into running animation pop
 * bug: quick turn while slowing down animation pop
 * bug: airborne tiny bird spawn/spawn-out position relative to player
