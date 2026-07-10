@@ -141,6 +141,11 @@ static void CreateConstantObjects(Tachyon* tachyon, State& state) {
     create(meshes.astrolabe_ring);
     create(meshes.astrolabe_hand);
     create(meshes.health_bar);
+
+    for_range(1, 4) {
+      create(meshes.health_unit);
+    }
+
     create(meshes.target_reticle);
   }
 
