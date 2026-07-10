@@ -611,6 +611,7 @@ namespace astro {
     bool did_resolve_plane_collision = false;
     bool did_jump_off_ledge = false;
     bool did_climb_down = false;
+    bool did_climb_up_jump = false;
     int32 last_used_wind_chimes_id = -1;
 
     float previous_move_delta = 0.f;
@@ -645,6 +646,7 @@ namespace astro {
       tSkeletonAnimation player_run_wand;
       tSkeletonAnimation player_climb;
       tSkeletonAnimation player_climb_up;
+      tSkeletonAnimation player_climb_up_jump;
       tSkeletonAnimation player_climb_down;
       tSkeletonAnimation player_swing_wand;
       tSkeletonAnimation player_freefall;

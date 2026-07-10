@@ -56,7 +56,6 @@ features/fixes:
 * bug: tiny birds flying through castle towers
 * signpost collision
 * sculpture collision
-* climbing off over castle rampart ladders
 * guidance (small stone bridges, slopes)
 * climb over onto ladder animation + reverse
 * climb-down-onto-ladder animation

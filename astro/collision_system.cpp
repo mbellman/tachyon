@@ -410,6 +410,11 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
         state.did_climb_down = false;
         state.player.climb_up_start_position = state.player_position;
         state.is_on_ladder = false;
+        state.did_climb_up_jump = entity.requires_action;
+
+        if (state.did_climb_up_jump) {
+          state.player.ledge_jump_duration = 0.f;
+        }
       }
       else if (did_climb_off_bottom) {
         tVec3f off_direction = (climbing_position_xz - entity.position.xz()).unit();
@@ -418,6 +423,7 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
         state.player_velocity = off_direction * 1000.f;
         state.player.last_climbing_stop_time = scene_time;
         state.did_climb_down = true;
+        state.did_climb_up_jump = false;
         state.is_on_ladder = false;
 
         // Tentatively assume the ground is some distance below us,
@@ -906,8 +912,14 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
   ) {
     // @todo PlayerCharacter::ClimbUp()
 
-    if (state.player.rig.next_animation == &state.animations.player_climb_up) {
-      tVec3f root_motion = Animation::GetRootMotion(state.player.rig) * 1500.f;
+    auto& animations = state.animations;
+    auto& rig = state.player.rig;
+
+    if (
+      rig.next_animation == &animations.player_climb_up ||
+      rig.next_animation == &animations.player_climb_up_jump
+    ) {
+      tVec3f root_motion = Animation::GetRootMotion(rig) * 1500.f;
       tVec3f root_offset = state.player.rotation_matrix * root_motion;
 
       state.player_position = state.player.climb_up_start_position + root_offset;
@@ -1111,10 +1123,14 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
     float height_above_ground = state.player_position.y - state.current_ground_y;
     float distance_below_ground = -height_above_ground;
 
-    // Perform ledge jumps
+    // Start freefall
     if (height_above_ground > 500.f && !state.did_jump_off_ledge) {
       state.did_jump_off_ledge = true;
       state.player.last_ledge_jump_time = get_scene_time();
+
+      if (state.did_climb_up_jump) {
+        state.player_velocity = state.player_facing_direction * 1000.f;
+      }
     }
 
     // Snap to ground level when only slightly above

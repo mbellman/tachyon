@@ -1093,6 +1093,24 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
 
     state.animations.player_climb_up.name = "PLAYER_CLIMB_UP";
 
+    state.animations.player_climb_up_jump.frames = {
+      GltfLoader("./astro/3d_skeleton_animations/player_climb_up_jump/climb_up_jump_1.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_climb_up_jump/climb_up_jump_2.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_climb_up_jump/climb_up_jump_3.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_climb_up_jump/climb_up_jump_4.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_climb_up_jump/climb_up_jump_5.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_climb_up_jump/climb_up_jump_6.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_climb_up_jump/climb_up_jump_7.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_climb_up_jump/climb_up_jump_8.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_climb_up_jump/climb_up_jump_9.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_climb_up_jump/climb_up_jump_10.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_climb_up_jump/climb_up_jump_11.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_climb_up_jump/climb_up_jump_12.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_climb_up_jump/climb_up_jump_13.gltf").skeleton
+    };
+
+    state.animations.player_climb_up_jump.name = "PLAYER_CLIMB_UP_JUMP";
+
     state.animations.player_climb_down.frames = {
       GltfLoader("./astro/3d_skeleton_animations/player_climb_down/climb_down_1.gltf").skeleton,
       GltfLoader("./astro/3d_skeleton_animations/player_climb_down/climb_down_2.gltf").skeleton,

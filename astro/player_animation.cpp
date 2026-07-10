@@ -85,6 +85,8 @@ static bool ShouldPlayClimbingOffAnimation(Tachyon* tachyon, State& state) {
 
   if (state.did_climb_down) {
     return time_since(climbing_stop_time) < 0.4f;
+  } else if (state.did_climb_up_jump) {
+    return time_since(climbing_stop_time) < 1.4f;
   } else {
     return time_since(climbing_stop_time) < 1.3f;
   }
@@ -93,7 +95,8 @@ static bool ShouldPlayClimbingOffAnimation(Tachyon* tachyon, State& state) {
 static bool ShouldPlayWalkAnimation(Tachyon* tachyon, State& state) {
   if (
     PlayerCharacter::IsClimbingOffLadder(tachyon, state) ||
-    state.player.rig.current_animation == &state.animations.player_climb_up
+    state.player.rig.current_animation == &state.animations.player_climb_up ||
+    state.player.rig.current_animation == &state.animations.player_climb_up_jump
   ) {
     return false;
   }
@@ -154,6 +157,8 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
   else if (ShouldPlayClimbingOffAnimation(tachyon, state)) {
     if (state.did_climb_down) {
       Animation::StartNextAnimation(rig, &animations.player_climb_down);
+    } else if (state.did_climb_up_jump) {
+      Animation::StartNextAnimation(rig, &animations.player_climb_up_jump);
     } else {
       Animation::StartNextAnimation(rig, &animations.player_climb_up);
     }
@@ -287,7 +292,7 @@ static float GetAnimationSpeed(Tachyon* tachyon, State& state, tSkeletonAnimatio
     return 7.f;
   }
 
-  if (animation == &animations.player_climb_up) {
+  if (animation == &animations.player_climb_up || animation == &animations.player_climb_up_jump) {
     return 8.5f;
   }
 
