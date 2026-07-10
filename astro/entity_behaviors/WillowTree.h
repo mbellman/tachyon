@@ -52,8 +52,11 @@ namespace astro {
       for_entities(state.willow_trees) {
         auto& entity = state.willow_trees[i];
 
+        float dy = state.player_position.y - entity.position.y;
+        clamp_to_0(dy);
+
         if (abs(state.player_position.x - entity.position.x) > 25000.f) continue;
-        if (abs(state.player_position.z - entity.position.z) > 25000.f) continue;
+        if (abs(state.player_position.z - entity.position.z) > (25000.f + dy)) continue;
 
         if (
           entity.unique_name.starts_with("tutorial") &&

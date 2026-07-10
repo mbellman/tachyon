@@ -53,7 +53,6 @@ features/fixes:
 * bug: swans moving through each other
 * bug: duck heads turning backwards
 * bug: tiny birds flying through castle towers
-* willow tree y-relative culling
 * signpost collision
 * sculpture collision
 * climbing off over castle rampart ladders

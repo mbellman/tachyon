@@ -20,7 +20,7 @@ static void UpdateHealthBar(Tachyon* tachyon, State& state) {
     // Camera-facing rotation
     bar.rotation = (
       Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), -state.camera_angle) *
-      Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -t_HALF_PI * 1.4f)
+      Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), -t_HALF_PI * 1.1f)
     );
 
     // Roll correction
@@ -51,8 +51,8 @@ static void UpdateHealthBar(Tachyon* tachyon, State& state) {
       unit.rotation = bar.rotation;
       unit.scale = bar.scale;
 
-      unit.color = tVec3f(1.f, 0, 0);
-      unit.material = tVec4f(0.4f, 0, 1.f, 0.4f);
+      unit.color = tVec3f(0.5f, 0, 0);
+      unit.material = tVec4f(0.2f, 0, 1.f, 1.f);
 
       commit(unit);
     }
