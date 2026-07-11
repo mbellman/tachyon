@@ -1186,6 +1186,7 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
     if (state.player_position.y == state.current_ground_y) {
       if (state.did_jump_off_ledge) {
         state.player.last_freefall_landing_time = get_scene_time();
+        state.did_climb_up_jump = false;
 
         // @todo factor
         {

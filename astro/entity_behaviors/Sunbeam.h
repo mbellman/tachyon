@@ -39,8 +39,11 @@ namespace astro {
       for_entities(state.sunbeams) {
         auto& entity = state.sunbeams[i];
 
-        if (abs(state.player_position.x - entity.position.x) > 30000.f) continue;
-        if (abs(state.player_position.z - entity.position.z) > 30000.f) continue;
+        float dy = state.player_position.y - entity.position.y;
+        clamp_to_0(dy);
+
+        if (abs(state.player_position.x - entity.position.x) > (25000.f + dy)) continue;
+        if (abs(state.player_position.z - entity.position.z) > (25000.f + dy)) continue;
 
         // @todo fade out inactive sunbeams
         if (!IsDuringActiveTime(entity, state)) continue;

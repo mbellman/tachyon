@@ -54,6 +54,7 @@ features/fixes:
 * bug: swans moving through each other
 * bug: duck heads turning backwards
 * bug: tiny birds flying through castle towers
+* custom fog volume color
 * signpost collision
 * sculpture collision
 * guidance (small stone bridges, slopes)

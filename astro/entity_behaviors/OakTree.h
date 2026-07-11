@@ -29,7 +29,7 @@ namespace astro {
       mesh(meshes.oak_tree_branches).use_disocclusion = true;
 
       mesh(meshes.oak_tree_leaves).type = FOLIAGE_MESH;
-      mesh(meshes.oak_tree_leaves).shadow_cascade_ceiling = 2;
+      mesh(meshes.oak_tree_leaves).shadow_cascade_ceiling = 3;
       mesh(meshes.oak_tree_leaves).use_lowest_lod_for_shadows = true;
       mesh(meshes.oak_tree_leaves).use_disocclusion = true;
 

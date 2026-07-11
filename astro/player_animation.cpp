@@ -174,7 +174,7 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
     }
   }
 
-  else if (state.did_jump_off_ledge) {
+  else if (state.did_jump_off_ledge && !state.did_climb_up_jump) {
     Animation::AwaitNextAnimation(rig, &animations.player_freefall);
   }
 
