@@ -342,6 +342,13 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
     return 6.f;
   }
 
+  if (
+    rig.current_animation == &animations.player_climb_up_jump &&
+    rig.next_animation == &animations.player_idle_2
+  ) {
+    return 2.5f;
+  }
+
   // Idle quickturn - > running
   if (
     rig.current_animation == &animations.player_idle_quickturn &&
@@ -481,7 +488,10 @@ static void HandleHeadAnimation(Tachyon* tachyon, State& state) {
 
     TurnHeadTowardPosition(state, entity.visible_position, player_facing_angle);
   }
-  else {
+  else if (
+    !state.is_on_ladder &&
+    time_since(state.player.last_climbing_stop_time) > 2.f
+  ) {
     // Turn head toward key entities when not targeting anything
     TurnPlayerHeadToward(state, state.sculpture_1s, player_facing_angle);
     TurnPlayerHeadToward(state, state.wind_chimes, player_facing_angle);

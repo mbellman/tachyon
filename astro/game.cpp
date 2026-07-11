@@ -1091,6 +1091,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
       GltfLoader("./astro/3d_skeleton_animations/player_climb_up/climb_up_15.gltf").skeleton
     };
 
+    state.animations.player_climb_up.looping = false;
     state.animations.player_climb_up.name = "PLAYER_CLIMB_UP";
 
     state.animations.player_climb_up_jump.frames = {
@@ -1105,10 +1106,10 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
       GltfLoader("./astro/3d_skeleton_animations/player_climb_up_jump/climb_up_jump_9.gltf").skeleton,
       GltfLoader("./astro/3d_skeleton_animations/player_climb_up_jump/climb_up_jump_10.gltf").skeleton,
       GltfLoader("./astro/3d_skeleton_animations/player_climb_up_jump/climb_up_jump_11.gltf").skeleton,
-      GltfLoader("./astro/3d_skeleton_animations/player_climb_up_jump/climb_up_jump_12.gltf").skeleton,
-      GltfLoader("./astro/3d_skeleton_animations/player_climb_up_jump/climb_up_jump_13.gltf").skeleton
+      GltfLoader("./astro/3d_skeleton_animations/player_climb_up_jump/climb_up_jump_12.gltf").skeleton
     };
 
+    state.animations.player_climb_up_jump.looping = false;
     state.animations.player_climb_up_jump.name = "PLAYER_CLIMB_UP_JUMP";
 
     state.animations.player_climb_down.frames = {
@@ -1242,7 +1243,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
 
     // @todo dev mode only
     if (state.use_slow_motion) {
-      state.dt *= 0.2f;
+      state.dt *= 0.1f;
     }
 
     tachyon->scene.scene_time += state.dt;

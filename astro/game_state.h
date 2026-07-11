@@ -457,6 +457,7 @@ namespace astro {
     std::vector<tSkeleton> frames;
     tSkeleton evaluated_pose;
     std::string name = "";
+    bool looping = true;
   };
 
   struct tAnimationRig {

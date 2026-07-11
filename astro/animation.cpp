@@ -28,21 +28,28 @@ static float Curve(const float t, const float k) {
 }
 
 static void EvaluateAnimation(tSkeletonAnimation& animation, const float seek_time) {
+  int total_frames = (int) animation.frames.size();
+  float max_time = GetMaxSeekTime(animation);
   float blend_alpha = fmodf(seek_time, 1.f);
   float t = seek_time;
 
   // @temporary @todo Do this when loading the animations for the first time
   ReserveAnimationPoseData(animation);
 
-  if (animation.frames.size() == 2) {
+  if (total_frames== 2) {
     // Special treatment for 2-frame animations: alternate between
     // both frames using an ease-in-out transition
     blend_alpha = Tachyon_EaseInOutf(blend_alpha);
   } else {
     // Determine seek time / max time ratio
-    float max_time = GetMaxSeekTime(animation);
     t = fmodf(t, max_time);
     t = t / max_time;
+
+    if (!animation.looping && seek_time == max_time) {
+      // If the animation is non-looping, represent t as 1
+      // here so it can be scaled back up to max_time
+      t = 1.f;
+    }
 
     // Allow for smoother time curves as opposed to tracking progress linearly
     float smoothing = 0.2f;
@@ -57,8 +64,21 @@ static void EvaluateAnimation(tSkeletonAnimation& animation, const float seek_ti
     blend_alpha = fmodf(t, 1.f);
   }
 
-  int32 current_frame_index = int(t) % animation.frames.size();
-  int32 next_frame_index = (current_frame_index + 1) % animation.frames.size();
+  int32 current_frame_index;
+  int32 next_frame_index;
+
+  if (animation.looping) {
+    current_frame_index = int(t) % animation.frames.size();
+    next_frame_index = (current_frame_index + 1) % animation.frames.size();
+  } else {
+    // Frame cycling for non-looping animations, which we want to end
+    // on the final frame exactly at t = max_time
+    current_frame_index = (int32) floorf(t);
+    next_frame_index = (int32) ceilf(t);
+
+    if (current_frame_index == total_frames) current_frame_index -= 1;
+    if (next_frame_index == total_frames) next_frame_index -= 1;
+  }
 
   auto& current_frame = animation.frames[current_frame_index];
   auto& next_frame = animation.frames[next_frame_index];
@@ -130,7 +150,11 @@ void Animation::AccumulateTime(tAnimationRig& rig, const float blend_rate, const
     rig.current_animation_time += rig.current_animation_speed * dt;
 
     if (rig.current_animation_time > max_seek_time) {
-      rig.current_animation_time -= max_seek_time;
+      if (rig.current_animation->looping) {
+        rig.current_animation_time -= max_seek_time;
+      } else {
+        rig.current_animation_time = max_seek_time;
+      }
     } else if (rig.current_animation_time < 0.f) {
       rig.current_animation_time += max_seek_time;
     }
@@ -145,7 +169,11 @@ void Animation::AccumulateTime(tAnimationRig& rig, const float blend_rate, const
     rig.next_animation_time += rig.next_animation_speed * dt;
 
     if (rig.next_animation_time > max_seek_time) {
-      rig.next_animation_time -= max_seek_time;
+      if (rig.next_animation->looping) {
+        rig.next_animation_time -= max_seek_time;
+      } else {
+        rig.next_animation_time = max_seek_time;
+      }
     } else if (rig.next_animation_time < 0.f) {
       rig.next_animation_time += max_seek_time;
     }
@@ -178,10 +206,6 @@ void Animation::AccumulateTime(tAnimationRig& rig, const float blend_rate, const
 void Animation::UpdatePose(tAnimationRig& rig, const AnimationBlendType blend_type) {
   tSkeletonAnimation& current_animation = *rig.current_animation;
   tSkeletonAnimation& next_animation = *rig.next_animation;
-
-  // @temporary
-  // current_animation.seek_time = rig.seek_time;
-  // next_animation.seek_time = rig.seek_time;
 
   // Evaluate the current and next animations simultaneously so they can be blended
   // @optimize this only has to be done when transitioning between animations
