@@ -642,14 +642,10 @@ static void HandleCastleRampartCollisions(Tachyon* tachyon, State& state) {
 
         // Do small jumps off ramparts
         state.player.ledge_jump_duration = 0.1f;
-
-        return;
       }
     } else {
       // Act as a wall
-      if (ResolveClippingIntoPlane(state, rampart_plane)) {
-        return;
-      }
+      ResolveClippingIntoPlane(state, rampart_plane);
     }
   }
 }
