@@ -86,7 +86,10 @@ static bool ShouldPlayClimbingOffAnimation(Tachyon* tachyon, State& state) {
   if (state.did_climb_down) {
     return time_since(climbing_stop_time) < 0.4f;
   } else if (state.did_climb_up_jump) {
-    return time_since(climbing_stop_time) < 1.4f;
+    // @todo expose Animation::GetMaxTime()
+    float max_time = (float) state.animations.player_climb_up_jump.frames.size();
+
+    return state.player.rig.current_animation_time < (max_time - 1.f);
   } else {
     return time_since(climbing_stop_time) < 1.3f;
   }
@@ -153,6 +156,10 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
     Animation::AwaitNextAnimation(rig, &animations.player_idle_wand);
   }
 
+  else if (state.did_jump_off_ledge) {
+    Animation::AwaitNextAnimation(rig, &animations.player_freefall);
+  }
+
   // Climbing off
   else if (ShouldPlayClimbingOffAnimation(tachyon, state)) {
     if (state.did_climb_down) {
@@ -172,10 +179,6 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
     } else {
       Animation::StartNextAnimation(rig, &animations.player_climb);
     }
-  }
-
-  else if (state.did_jump_off_ledge && !state.did_climb_up_jump) {
-    Animation::AwaitNextAnimation(rig, &animations.player_freefall);
   }
 
   // Quick-turning
@@ -260,7 +263,7 @@ static float GetAnimationSpeed(Tachyon* tachyon, State& state, tSkeletonAnimatio
   }
 
   if (animation == &animations.player_freefall) {
-    return 12.f;
+    return state.did_climb_up_jump ? 4.f : 12.f;
   }
 
   if (animation == &animations.player_idle_quickturn) {
@@ -299,8 +302,6 @@ static float GetAnimationSpeed(Tachyon* tachyon, State& state, tSkeletonAnimatio
   if (animation == &animations.player_climb) {
     return is_moving_left_stick() ? 10.f : 0.f;
   }
-
-  // @todo add remaining animations
 
   return 4.f;
 }
@@ -342,12 +343,6 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
     return 6.f;
   }
 
-  if (
-    rig.current_animation == &animations.player_climb_up_jump &&
-    rig.next_animation == &animations.player_idle_2
-  ) {
-    return 2.5f;
-  }
 
   // Idle quickturn - > running
   if (

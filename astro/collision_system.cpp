@@ -1125,7 +1125,7 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
       state.player.last_ledge_jump_time = get_scene_time();
 
       if (state.did_climb_up_jump) {
-        state.player_velocity = state.player_facing_direction * 1000.f;
+        state.player_velocity = state.player_facing_direction * 1500.f;
       }
     }
 
@@ -1182,7 +1182,6 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
     if (state.player_position.y == state.current_ground_y) {
       if (state.did_jump_off_ledge) {
         state.player.last_freefall_landing_time = get_scene_time();
-        state.did_climb_up_jump = false;
 
         // @todo factor
         {
@@ -1198,6 +1197,7 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
         }
       }
 
+      state.did_climb_up_jump = false;
       state.did_jump_off_ledge = false;
 
       // Reset ledge jump duration when landed on solid ground,

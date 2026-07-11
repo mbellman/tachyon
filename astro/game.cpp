@@ -1123,6 +1123,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
       GltfLoader("./astro/3d_skeleton_animations/player_climb_down/climb_down_8.gltf").skeleton
     };
 
+    state.animations.player_climb_down.looping = false;
     state.animations.player_climb_down.name = "PLAYER_CLIMB_DOWN";
 
     state.animations.player_swing_wand.frames = {
