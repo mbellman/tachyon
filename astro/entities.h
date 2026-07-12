@@ -26,6 +26,7 @@ namespace astro {
     CASTLE_STAIRS,
     CASTLE_STEEPLE,
     CASTLE_TOWER,
+    CASTLE_WALL_FOUNTAIN,
     CHESTNUT_TREE,
     DIRT_PATH_NODE,
     DUCK_SPAWN,
@@ -104,6 +105,7 @@ namespace astro {
     CASTLE_STAIRS,
     CASTLE_STEEPLE,
     CASTLE_TOWER,
+    CASTLE_WALL_FOUNTAIN,
     CHESTNUT_TREE,
     DIRT_PATH_NODE,
     DUCK_SPAWN,
@@ -345,6 +347,11 @@ namespace astro {
       // CASTLE_TOWER
       castle_tower_placeholder,
       castle_tower,
+
+      // CASTLE_WALL_FOUNTAIN
+      castle_wall_fountain_placeholder,
+      castle_wall_fountain,
+      castle_wall_fountain_water,
 
       // CHESTNUT_TREE
       chestnut_tree_placeholder,
@@ -642,6 +649,7 @@ namespace astro {
     EntityList castle_stairs;
     EntityList castle_steeples;
     EntityList castle_towers;
+    EntityList castle_wall_fountains;
     EntityList chestnut_trees;
     EntityList dirt_path_nodes;
     EntityList duck_spawns;
@@ -794,6 +802,12 @@ namespace astro {
 
     { CASTLE_TOWER, {
       .name = "Castle Tower",
+      .scale = tVec3f(4000.f),
+      .tint = tVec3f(0.6f)
+    } },
+
+    { CASTLE_WALL_FOUNTAIN, {
+      .name = "Castle Wall Fountain",
       .scale = tVec3f(4000.f),
       .tint = tVec3f(0.6f)
     } },

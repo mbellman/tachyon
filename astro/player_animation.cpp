@@ -778,7 +778,7 @@ static void HandleAnimationSounds(Tachyon* tachyon, State& state) {
       // to climb up on
       state.is_on_stone_surface = true;
 
-      SoundDriver::PlayWalkSound(state, 0.3f);
+      SoundDriver::PlayWalkSound(state, 0.5f);
 
       state.last_walk_sound_time = get_scene_time();
     }
@@ -791,7 +791,7 @@ static void HandleAnimationSounds(Tachyon* tachyon, State& state) {
       // to climb up on
       state.is_on_stone_surface = true;
 
-      SoundDriver::PlayWalkSound(state, 0.3f);
+      SoundDriver::PlayWalkSound(state, 0.5f);
 
       state.last_walk_sound_time = get_scene_time();
     }

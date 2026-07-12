@@ -613,6 +613,18 @@ export default [
   },
 
   {
+    type: "CASTLE_WALL_FOUNTAIN",
+    list: "castle_wall_fountains",
+    meshes: [
+      "castle_wall_fountain_placeholder",
+      "castle_wall_fountain",
+      "castle_wall_fountain_water"
+    ],
+    scale: [ 4000.0 ],
+    color: [ 0.6 ]
+  },
+
+  {
     type: "CASTLE_STAIRS",
     list: "castle_stairs",
     meshes: [

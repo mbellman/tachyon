@@ -13,6 +13,7 @@
 #include "astro/entity_behaviors/CastleStairs.h"
 #include "astro/entity_behaviors/CastleSteeple.h"
 #include "astro/entity_behaviors/CastleTower.h"
+#include "astro/entity_behaviors/CastleWallFountain.h"
 #include "astro/entity_behaviors/ChestnutTree.h"
 #include "astro/entity_behaviors/DirtPathNode.h"
 #include "astro/entity_behaviors/DuckSpawn.h"
@@ -109,6 +110,7 @@ using namespace astro;
   dispatch_macro(CASTLE_STAIRS, CastleStairs);\
   dispatch_macro(CASTLE_STEEPLE, CastleSteeple);\
   dispatch_macro(CASTLE_TOWER, CastleTower);\
+  dispatch_macro(CASTLE_WALL_FOUNTAIN, CastleWallFountain);\
   dispatch_macro(CHESTNUT_TREE, ChestnutTree);\
   dispatch_macro(DIRT_PATH_NODE, DirtPathNode);\
   dispatch_macro(DUCK_SPAWN, DuckSpawn);\
@@ -182,6 +184,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
     dispatch_GetEntityContainer(CASTLE_STAIRS, state.castle_stairs);
     dispatch_GetEntityContainer(CASTLE_STEEPLE, state.castle_steeples);
     dispatch_GetEntityContainer(CASTLE_TOWER, state.castle_towers);
+    dispatch_GetEntityContainer(CASTLE_WALL_FOUNTAIN, state.castle_wall_fountains);
     dispatch_GetEntityContainer(CHESTNUT_TREE, state.chestnut_trees);
     dispatch_GetEntityContainer(DIRT_PATH_NODE, state.dirt_path_nodes);
     dispatch_GetEntityContainer(DUCK_SPAWN, state.duck_spawns);
