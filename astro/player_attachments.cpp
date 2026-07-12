@@ -3,6 +3,62 @@
 
 using namespace astro;
 
+// @todo move to constants
+static std::vector<float> run_bounce_curve = {
+  0.1f,
+  0.6f,
+  0.9f,
+  1.f,
+  0.8f,
+  0.4f,
+  -0.3f,
+  -0.2f
+};
+
+// @todo move to constants
+static std::vector<float> climb_up_jump_hood_flop_curve = {
+  // Climbing up
+  0.f,
+  -0.5f,
+  -0.3f,
+  -0.2f,
+  0.f,
+  // First jump
+  -0.5f,
+  -0.2f,
+  0.f,
+  // First fall
+  0.5f,
+  1.f,
+  // Second jump
+  0.f,
+  -0.7f,
+  0.f,
+  0.7f
+};
+
+// @todo move elsewhere
+// @todo allow spline sampling
+static float SampleCurve(const std::vector<float>& curve, const float t) {
+  int max = (int) curve.size();
+  float max_time = (float) curve.size();
+  float seek_time = t * float(max);
+  if (seek_time < 0.f) seek_time += max_time;
+
+  int start_frame = (int) seek_time;
+  int end_frame = start_frame + 1;
+
+  if (end_frame == max) {
+    end_frame = start_frame;
+  }
+
+  auto a = curve[start_frame % max];
+  auto b = curve[end_frame % max];
+  float alpha = fmodf(seek_time, 1.f);
+
+  return Tachyon_Lerpf(a, b, alpha);
+}
+
 static void UpdateSatchel(Tachyon* tachyon, State& state) {
   auto& player_animation = state.player.rig;
   auto& torso_bone = player_animation.active_pose.bones[8];
@@ -192,38 +248,21 @@ static void UpdateLantern(Tachyon* tachyon, State& state) {
   fx.player_light_radius = 6000.f;
 }
 
-static std::vector<float> run_bounce_curve = {
-  0.1f,
-  0.6f,
-  0.9f,
-  1.f,
-  0.8f,
-  0.4f,
-  -0.3f,
-  -0.2f
-};
-
-// @todo move elsewhere
-static float SampleCurve(const std::vector<float>& curve, const float t) {
-  float max_time = float(curve.size());
-  float seek_time = t * max_time;
-  if (seek_time < 0.f) seek_time += max_time;
-
-  int start_frame = (int) seek_time;
-  int end_frame = start_frame + 1;
-
-  float a = curve[start_frame % 8];
-  float b = curve[end_frame % 8];
-  float alpha = fmodf(seek_time, 1.f);
-
-  return Tachyon_Lerpf(a, b, alpha);
-}
-
 void PlayerAttachments::Update(Tachyon* tachyon, State& state) {
   // @todo cleanup
   bool is_climbing_off_ladder = PlayerCharacter::IsClimbingOffLadder(tachyon, state);
+  float time_since_landing = time_since(state.player.last_freefall_landing_time);
+  auto& rig = state.player.rig;
 
-  if (state.is_on_ladder) {
+  if (time_since_landing < 0.1f) {
+    float alpha = 1.f - time_since_landing / 0.1f;
+    clamp_to_0(alpha);
+
+    // Quickly reduce satchel/blanket freefall after landing
+    state.player.satchel_freefall = state.player.airborne_freefall * alpha;
+    state.player.blanket_freefall = state.player.airborne_freefall * alpha;
+  }
+  else if (state.is_on_ladder) {
     float satchel_freefall = abs(state.player.climb_speed * 0.0001f);
 
     state.player.satchel_freefall = Tachyon_Lerpf(
@@ -273,6 +312,16 @@ void PlayerAttachments::Update(Tachyon* tachyon, State& state) {
           15.f * state.dt
         );
       }
+    } else if (rig.current_animation == &state.animations.player_climb_up_jump) {
+      float t = rig.current_animation_time;
+      float max_time = (float) rig.current_animation->frames.size();
+      float alpha = t / max_time;
+      float sample = SampleCurve(climb_up_jump_hood_flop_curve, alpha);
+
+      if (sample < 0.f) sample = 0.f;
+
+      state.player.satchel_freefall = sample;
+      state.player.blanket_freefall = sample;
     } else {
       // @temporary
       // @todo climb-up behavior
@@ -303,15 +352,6 @@ void PlayerAttachments::Update(Tachyon* tachyon, State& state) {
       // Raise the satchel/blanket as we fall
       state.player.satchel_freefall += state.player.airborne_freefall;
       state.player.blanket_freefall += state.player.airborne_freefall;
-    } else {
-      float t = time_since(state.player.last_freefall_landing_time);
-      float alpha = 1.f - t / 0.1f;
-
-      clamp_to_0(alpha);
-
-      // Quickly reduce satchel/blanket freefall after landing
-      state.player.satchel_freefall += state.player.airborne_freefall * alpha;
-      state.player.blanket_freefall += state.player.airborne_freefall * alpha;
     }
   }
 

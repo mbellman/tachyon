@@ -158,6 +158,12 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
 
   else if (state.did_jump_off_ledge) {
     Animation::AwaitNextAnimation(rig, &animations.player_freefall);
+
+    // When transitioning from a climb-up-jump animation,
+    // start at t = 1 for a slightly better transition
+    if (state.did_climb_up_jump && rig.next_animation_time == 0.f) {
+      rig.next_animation_time = 1.f;
+    }
   }
 
   // Climbing off
@@ -340,7 +346,7 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
 
   // Freefall -> running/walking/idle
   if (rig.current_animation == &animations.player_freefall && !state.did_jump_off_ledge) {
-    return 6.f;
+    return 3.f;
   }
 
 

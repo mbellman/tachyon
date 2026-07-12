@@ -24,6 +24,7 @@ constexpr static float AUTO_HOP_DURATION = 0.3f;
 
 constexpr static float RUN_BOUNCE_HEIGHT = 275.f;
 
+// @todo move to constants
 static std::vector<float> run_bounce_curve = {
   0.1f,
   0.6f,
@@ -34,6 +35,47 @@ static std::vector<float> run_bounce_curve = {
   -0.3f,
   -0.2f
 };
+
+// @todo move to constants
+static std::vector<float> climb_up_jump_hood_flop_curve = {
+  // Climbing up
+  0.f,
+  -0.5f,
+  -0.3f,
+  -0.2f,
+  0.f,
+  // First jump
+  -0.5f,
+  -0.2f,
+  0.f,
+  // First fall
+  0.5f,
+  1.f,
+  // Second jump
+  0.f,
+  -0.7f,
+  0.f,
+  0.7f
+};
+
+// @todo move elsewhere
+// @todo allow spline sampling
+static float SampleCurve(const std::vector<float>& curve, const float t) {
+  int max = (int) curve.size();
+  float seek_time = t * float(max);
+  int start_frame = (int) seek_time;
+  int end_frame = start_frame + 1;
+
+  if (end_frame == max) {
+    end_frame = start_frame;
+  }
+
+  auto a = curve[start_frame % max];
+  auto b = curve[end_frame % max];
+  float alpha = fmodf(seek_time, 1.f);
+
+  return Tachyon_Lerpf(a, b, alpha);
+}
 
 static inline float GetAngleBetween(const float a1, const float a2) {
   float angle = a1 - a2;
@@ -228,22 +270,6 @@ static void TrackPlantedFeetWhileWalking(Tachyon* tachyon, State& state) {
   }
 }
 
-// @todo move elsewhere
-static float SampleCurve(const std::vector<float>& curve, const float t) {
-  float max_time = float(curve.size());
-  float seek_time = t * max_time;
-  if (seek_time < 0.f) seek_time += max_time;
-
-  int start_frame = (int) seek_time;
-  int end_frame = start_frame + 1;
-
-  float a = curve[start_frame % 8];
-  float b = curve[end_frame % 8];
-  float alpha = fmodf(seek_time, 1.f);
-
-  return Tachyon_Lerpf(a, b, alpha);
-}
-
 static void HandleRunOscillation(Tachyon* tachyon, State& state) {
   if (state.did_jump_off_ledge) {
     // Reduce run oscillation when jumping off ledges
@@ -297,27 +323,45 @@ static void HandleCombatJumpMotions(Tachyon* tachyon, State& state) {
 }
 
 static void HandleHoodFlop(State& state, tSkinnedMesh& hood) {
-  float speed_ratio;
-
-  // If we're climbing, use that speed to control flop
-  if (state.player.climb_speed != 0.f) {
-    speed_ratio = abs(state.player.climb_speed) / 5000.f;
-
-  // If we're moving normally, use the regular movement speed ratio
-  } else {
-    speed_ratio = state.player_velocity.magnitude() / PlayerCharacter::MAX_RUN_SPEED;
-  }
-
-  float t = fmodf(state.player.rig.next_animation_time + 3.f, 8.f) / 8.f;
-
-  tVec3f flop = tVec3f(
-    150.f * speed_ratio * cosf(t * t_TAU),
-    250.f * speed_ratio * sinf(2.f * t * t_TAU),
-    0.f
-  );
+  auto& animations = state.animations;
+  auto& rig = state.player.rig;
 
   hood.flop_control_point = tVec3f(0, 1.3f, -0.5f);
-  hood.flop_offset = state.player.rotation_matrix * flop;
+
+  if (rig.current_animation == &animations.player_climb_up_jump) {
+    // Special case for the climb-up-jump animation,
+    // which features very specific jump timing
+    float t = rig.current_animation_time;
+    float max_time = (float) rig.current_animation->frames.size();
+    float alpha = t / max_time;
+    float sample = SampleCurve(climb_up_jump_hood_flop_curve, alpha);
+
+    tVec3f flop;
+    flop.y = sample * 400.f;
+
+    hood.flop_offset = state.player.rotation_matrix * flop;
+  } else {
+    float speed_ratio;
+
+    // If we're climbing, use that speed to control flop
+    if (state.player.climb_speed != 0.f) {
+      speed_ratio = abs(state.player.climb_speed) / 5000.f;
+
+    // If we're moving normally, use the regular movement speed ratio
+    } else {
+      speed_ratio = state.player_velocity.magnitude() / PlayerCharacter::MAX_RUN_SPEED;
+    }
+
+    float t = fmodf(state.player.rig.next_animation_time + 3.f, 8.f) / 8.f;
+
+    tVec3f flop = tVec3f(
+      150.f * speed_ratio * cosf(t * t_TAU),
+      250.f * speed_ratio * sinf(2.f * t * t_TAU),
+      0.f
+    );
+
+    hood.flop_offset = state.player.rotation_matrix * flop;
+  }
 }
 
 static void KeepFeetPlanted(State& state) {
