@@ -1,8 +1,9 @@
 #include <algorithm>
 
 #include "astro/collision_system.h"
-#include "astro/player_character.h"
 #include "astro/entity_behaviors/behavior.h"
+#include "astro/player_character.h"
+#include "astro/sound_driver.h"
 
 // @temporary
 #include "astro/animation.h"
@@ -1183,18 +1184,7 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
       if (state.did_jump_off_ledge) {
         state.player.last_freefall_landing_time = get_scene_time();
 
-        // @todo factor
-        {
-          if (state.is_on_wood_surface) {
-            Sfx::PlaySound(SFX_WOOD_WALK_1, 0.25f);
-          } else if (state.is_on_stone_surface) {
-            Sfx::PlaySound(SFX_STONE_WALK_1, 0.35f);
-          } else {
-            Sfx::PlaySound(SFX_GROUND_WALK_1, 0.25f);
-          }
-
-          Sfx::PlaySound(SFX_CARRYING_1, 0.25f);
-        }
+        SoundDriver::PlayWalkSound(state, 0.25f);
       }
 
       state.did_climb_up_jump = false;

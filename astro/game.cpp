@@ -22,6 +22,7 @@
 #include "astro/procedural_generation.h"
 #include "astro/procedural_growth.h"
 #include "astro/sfx.h"
+#include "astro/sound_driver.h"
 #include "astro/spell_system.h"
 #include "astro/targeting.h"
 #include "astro/time_evolution.h"
@@ -542,45 +543,7 @@ static void HandleWalkSounds(Tachyon* tachyon, State& state) {
       volume *= 2.f;
     }
 
-    if (cycle == 0) {
-      if (state.is_on_wood_surface) {
-        Sfx::PlaySound(SFX_WOOD_WALK_1, volume);
-      } else if (state.is_on_stone_surface) {
-        Sfx::PlaySound(SFX_STONE_WALK_1, volume);
-      } else {
-        Sfx::PlaySound(SFX_GROUND_WALK_1, volume * 0.75f);
-      }
-
-      Sfx::PlaySound(SFX_CARRYING_1, volume);
-    }
-    else if (cycle == 1) {
-      if (state.is_on_wood_surface) {
-        Sfx::PlaySound(SFX_WOOD_WALK_2, volume);
-      } else if (state.is_on_stone_surface) {
-        Sfx::PlaySound(SFX_STONE_WALK_2, volume);
-      } else {
-        Sfx::PlaySound(SFX_GROUND_WALK_2, volume * 0.75f);
-      }
-
-      Sfx::PlaySound(SFX_CARRYING_2, volume);
-    }
-    else if (cycle == 2) {
-      if (state.is_on_wood_surface) {
-        Sfx::PlaySound(SFX_WOOD_WALK_3, volume);
-      } else if (state.is_on_stone_surface) {
-        Sfx::PlaySound(SFX_STONE_WALK_3, volume);
-      } else {
-        Sfx::PlaySound(SFX_GROUND_WALK_3, volume * 0.75f);
-      }
-
-      if (Tachyon_GetRandom() < 0.5f) {
-        Sfx::PlaySound(SFX_CARRYING_1, volume);
-      } else {
-        Sfx::PlaySound(SFX_CARRYING_2, volume);
-      }
-
-      state.walk_cycle = 0;
-    }
+    SoundDriver::PlayWalkSound(state, volume);
 
     state.last_walk_sound_time = get_scene_time();
   }
@@ -608,17 +571,7 @@ static void HandleClimbingSounds(Tachyon* tachyon, State& state) {
     auto cycle = state.walk_cycle++;
     float volume = state.is_starting_climb_down ? 1.25f : 0.75f;
 
-    if (cycle == 0) {
-      Sfx::PlaySound(SFX_LADDER_WALK_1, volume);
-    }
-    else if (cycle == 1) {
-      Sfx::PlaySound(SFX_LADDER_WALK_2, volume);
-    }
-    else if (cycle == 2) {
-      Sfx::PlaySound(SFX_LADDER_WALK_3, volume);
-
-      state.walk_cycle = 0;
-    }
+    SoundDriver::PlayLadderSound(state, volume);
 
     state.last_walk_sound_time = get_scene_time();
   }
