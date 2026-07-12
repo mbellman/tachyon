@@ -62,13 +62,12 @@ static std::vector<float> climb_up_jump_hood_flop_curve = {
 // @todo allow spline sampling
 static float SampleCurve(const std::vector<float>& curve, const float t) {
   int max = (int) curve.size();
+  float max_time = (float) curve.size();
   float seek_time = t * float(max);
+  if (seek_time < 0.f) seek_time += max_time;
+
   int start_frame = (int) seek_time;
   int end_frame = start_frame + 1;
-
-  if (end_frame == max) {
-    end_frame = start_frame;
-  }
 
   auto a = curve[start_frame % max];
   auto b = curve[end_frame % max];
@@ -328,7 +327,10 @@ static void HandleHoodFlop(State& state, tSkinnedMesh& hood) {
 
   hood.flop_control_point = tVec3f(0, 1.3f, -0.5f);
 
-  if (rig.current_animation == &animations.player_climb_up_jump) {
+  if (
+    rig.current_animation == &animations.player_climb_up_jump &&
+    rig.next_animation == &animations.player_climb_up_jump
+  ) {
     // Special case for the climb-up-jump animation,
     // which features very specific jump timing
     float t = rig.current_animation_time;
@@ -339,7 +341,12 @@ static void HandleHoodFlop(State& state, tSkinnedMesh& hood) {
     tVec3f flop;
     flop.y = sample * 400.f;
 
-    hood.flop_offset = state.player.rotation_matrix * flop;
+    hood.flop_offset = flop;
+  } else if (state.did_jump_off_ledge) {
+    tVec3f flop;
+    flop.y = state.player.airborne_freefall * 300.f;
+
+    hood.flop_offset = flop;
   } else {
     float speed_ratio;
 
@@ -992,8 +999,12 @@ static void UpdateWandLights(Tachyon* tachyon, State& state) {
       main_light_power += 3.f * (1.f - alpha);
     }
 
-    // Disable when climbing/climbing off ladders
-    if (state.is_on_ladder || PlayerCharacter::IsClimbingOffLadder(tachyon, state)) {
+    // Disable when climbing/climbing off ladders/freefalling
+    if (
+      state.is_on_ladder ||
+      PlayerCharacter::IsClimbingOffLadder(tachyon, state) ||
+      state.did_jump_off_ledge
+    ) {
       main_light_power = 0.f;
     }
 

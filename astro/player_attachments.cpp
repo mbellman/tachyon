@@ -48,10 +48,6 @@ static float SampleCurve(const std::vector<float>& curve, const float t) {
   int start_frame = (int) seek_time;
   int end_frame = start_frame + 1;
 
-  if (end_frame == max) {
-    end_frame = start_frame;
-  }
-
   auto a = curve[start_frame % max];
   auto b = curve[end_frame % max];
   float alpha = fmodf(seek_time, 1.f);

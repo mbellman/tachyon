@@ -312,6 +312,7 @@ void Animation::UpdateBoneMatrices(tAnimationRig& rig) {
   }
 }
 
+// @todo consolidate with below
 void Animation::SetNextAnimation(tAnimationRig& rig, tSkeletonAnimation* skeleton_animation) {
   if (rig.next_animation == skeleton_animation) {
     return;
@@ -322,6 +323,7 @@ void Animation::SetNextAnimation(tAnimationRig& rig, tSkeletonAnimation* skeleto
   rig.next_animation_blend_alpha = 0.f;
 }
 
+// @todo consolidate with above
 void Animation::StartNextAnimation(tAnimationRig& rig, tSkeletonAnimation* skeleton_animation) {
   if (rig.next_animation == skeleton_animation) {
     return;

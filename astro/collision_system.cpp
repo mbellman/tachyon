@@ -1126,7 +1126,12 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
       state.player.last_ledge_jump_time = get_scene_time();
 
       if (state.did_climb_up_jump) {
-        state.player_velocity = state.player_facing_direction * 1500.f;
+        state.player_velocity = state.player_facing_direction * 1250.f;
+
+        // Apply the velocity update so the player doesn't hang in the air
+        // for a split second, since position updates normally occur before
+        // all collision checks, in ControlSystem::
+        state.player_position += state.player_velocity * 5.f * state.dt;
       }
     }
 

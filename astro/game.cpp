@@ -1106,6 +1106,19 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
 
     state.animations.player_freefall.name = "PLAYER_FREEFALL";
 
+    state.animations.player_freefall2.frames = {
+      GltfLoader("./astro/3d_skeleton_animations/player_freefall2/freefall_1.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_freefall2/freefall_2.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_freefall2/freefall_3.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_freefall2/freefall_4.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_freefall2/freefall_5.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_freefall2/freefall_6.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_freefall2/freefall_7.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_freefall2/freefall_8.gltf").skeleton
+    };
+
+    state.animations.player_freefall2.name = "PLAYER_FREEFALL_2";
+
     // @todo factor
     for (auto& bone : state.animations.player_idle.frames[0].bones) {
       state.player.rig.active_pose.bones.push_back(bone);
@@ -1197,7 +1210,7 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
 
     // @todo dev mode only
     if (state.use_slow_motion) {
-      state.dt *= 0.1f;
+      state.dt *= 0.2f;
     }
 
     tachyon->scene.scene_time += state.dt;

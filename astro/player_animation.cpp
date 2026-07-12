@@ -51,7 +51,8 @@ static bool IsWandIdleAnimation(tSkeletonAnimation* animation, const State& stat
   auto& animations = state.animations;
 
   return (
-    animation == &animations.player_idle_wand
+    animation == &animations.player_idle_wand ||
+    animation == &animations.player_idle_wand_2
   );
 }
 
@@ -77,6 +78,15 @@ static bool IsRunAnimation(tSkeletonAnimation* animation, const State& state) {
   );
 }
 
+static bool IsFreefallAnimation(tSkeletonAnimation* animation, const State& state) {
+  auto& animations = state.animations;
+
+  return (
+    animation == &animations.player_freefall ||
+    animation == &animations.player_freefall2
+  );
+}
+
 static bool ShouldPlayClimbingOffAnimation(Tachyon* tachyon, State& state) {
   float climbing_stop_time = state.player.last_climbing_stop_time;
 
@@ -90,7 +100,7 @@ static bool ShouldPlayClimbingOffAnimation(Tachyon* tachyon, State& state) {
     // @todo expose Animation::GetMaxTime()
     float max_time = (float) state.animations.player_climb_up_jump.frames.size();
 
-    return state.player.rig.current_animation_time < (max_time - 1.f);
+    return state.player.rig.current_animation_time < max_time;
   } else {
     return time_since(climbing_stop_time) < 1.3f;
   }
@@ -158,12 +168,10 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
   }
 
   else if (state.did_jump_off_ledge) {
-    Animation::AwaitNextAnimation(rig, &animations.player_freefall);
-
-    // When transitioning from a climb-up-jump animation,
-    // start at t = 1.5 for a slightly better transition
-    if (state.did_climb_up_jump && rig.next_animation_time == 0.f) {
-      rig.next_animation_time = 1.5f;
+    if (state.did_climb_up_jump) {
+      Animation::AwaitNextAnimation(rig, &animations.player_freefall2);
+    } else {
+      Animation::AwaitNextAnimation(rig, &animations.player_freefall);
     }
   }
 
@@ -260,17 +268,12 @@ static float GetAnimationSpeed(Tachyon* tachyon, State& state, tSkeletonAnimatio
   auto& rig = state.player.rig;
   auto& animations = state.animations;
 
-  if (
-    animation == &animations.player_idle ||
-    animation == &animations.player_idle_2 ||
-    animation == &animations.player_idle_wand ||
-    animation == &animations.player_idle_wand_2
-  ) {
+  if (IsAnyIdleAnimation(animation, state)) {
     return 0.8f;
   }
 
-  if (animation == &animations.player_freefall) {
-    return state.did_climb_up_jump ? 4.f : 12.f;
+  if (IsFreefallAnimation(animation, state)) {
+    return 12.f;
   }
 
   if (animation == &animations.player_idle_quickturn) {
@@ -279,10 +282,7 @@ static float GetAnimationSpeed(Tachyon* tachyon, State& state, tSkeletonAnimatio
 
   float speed_ratio = state.player_velocity.magnitude() / PlayerCharacter::MAX_RUN_SPEED;
 
-  if (
-    animation == &animations.player_walk ||
-    animation == &animations.player_walk_wand
-  ) {
+  if (IsWalkAnimation(animation, state)) {
     return 13.5f * sqrt(speed_ratio);
   }
 
@@ -342,12 +342,12 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
 
   // Walking/running -> freefall
   if (state.did_jump_off_ledge) {
-    return 6.f;
+    return 4.f;
   }
 
   // Freefall -> running/walking/idle
-  if (rig.current_animation == &animations.player_freefall && !state.did_jump_off_ledge) {
-    return 3.f;
+  if (IsFreefallAnimation(rig.current_animation, state) && !state.did_jump_off_ledge) {
+    return 6.f;
   }
 
 
@@ -565,8 +565,7 @@ static float GetRunningStopAlpha(const float running_stop) {
 
 static void HandleTorsoAnimation(Tachyon* tachyon, State& state) {
   auto& rig = state.player.rig;
-  float player_speed = state.player_velocity.magnitude();
-  float speed_ratio = player_speed / PlayerCharacter::MAX_RUN_SPEED;
+  float speed_ratio = get_speed_ratio();
   bool is_running = PlayerCharacter::IsRunning(tachyon, state);
 
   // Turn as we tilt
@@ -656,9 +655,11 @@ static void HandleTorsoAnimation(Tachyon* tachyon, State& state) {
       tilt_alpha = pow(1.f - (time_alpha - 0.2f) / 0.8f, 2.f);
     }
 
+    float lean_factor = 0.6f + speed_ratio * 0.2f;
+
     rig.torso_tilt_angle = Tachyon_Lerpf(
       rig.torso_tilt_angle,
-      0.8f * tilt_alpha,
+      lean_factor * tilt_alpha,
       15.f * state.dt
     );
   }
