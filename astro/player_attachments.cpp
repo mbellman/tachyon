@@ -321,7 +321,7 @@ void PlayerAttachments::Update(Tachyon* tachyon, State& state) {
       if (sample < 0.f) sample = 0.f;
 
       state.player.satchel_freefall = sample;
-      state.player.blanket_freefall = sample;
+      state.player.blanket_freefall = 1.5f * sample;
     } else {
       // @temporary
       // @todo climb-up behavior

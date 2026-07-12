@@ -3,6 +3,7 @@
 #include "astro/entity_behaviors/behavior.h"
 #include "astro/entity_manager.h"
 #include "astro/player_character.h"
+#include "astro/sound_driver.h"
 
 using namespace astro;
 
@@ -160,9 +161,9 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
     Animation::AwaitNextAnimation(rig, &animations.player_freefall);
 
     // When transitioning from a climb-up-jump animation,
-    // start at t = 1 for a slightly better transition
+    // start at t = 1.5 for a slightly better transition
     if (state.did_climb_up_jump && rig.next_animation_time == 0.f) {
-      rig.next_animation_time = 1.f;
+      rig.next_animation_time = 1.5f;
     }
   }
 
@@ -759,6 +760,43 @@ static void DriftToRestAnimation(Tachyon* tachyon, State& state) {
   rig.torso_tilt_angle = Tachyon_Lerpf(rig.torso_tilt_angle, 0.f, 0.5f * state.dt);
 }
 
+static void HandleAnimationSounds(Tachyon* tachyon, State& state) {
+  auto& animations = state.animations;
+  auto& rig = state.player.rig;
+  float t = rig.current_animation_time;
+
+  // Avoid repeating sounds
+  if (time_since(state.last_walk_sound_time) < 0.5f) {
+    return;
+  }
+
+  if (rig.current_animation == &animations.player_climb_up) {
+    if (t >= 7.f && t < 7.5f) {
+      // @hack
+      // @todo handle this differently if we have additional surfaces
+      // to climb up on
+      state.is_on_stone_surface = true;
+
+      SoundDriver::PlayWalkSound(state, 0.3f);
+
+      state.last_walk_sound_time = get_scene_time();
+    }
+  }
+
+  if (rig.current_animation == &animations.player_climb_up_jump) {
+    if (t >= 8.f && t < 8.5f) {
+      // @hack
+      // @todo handle this differently if we have additional surfaces
+      // to climb up on
+      state.is_on_stone_surface = true;
+
+      SoundDriver::PlayWalkSound(state, 0.3f);
+
+      state.last_walk_sound_time = get_scene_time();
+    }
+  }
+}
+
 void PlayerAnimation::Update(Tachyon* tachyon, State& state) {
   profile("PlayerAnimation::Update()");
 
@@ -817,6 +855,8 @@ void PlayerAnimation::Update(Tachyon* tachyon, State& state) {
   HandleTorsoAnimation(tachyon, state);
   HandleStoppedAfterMovingAnimation(tachyon, state);
   DriftToRestAnimation(tachyon, state);
+
+  HandleAnimationSounds(tachyon, state);
 
   Animation::AccumulateTime(state.player.rig, blend_rate, state.dt);
   Animation::UpdatePose(state.player.rig, blend_type);
