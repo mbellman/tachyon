@@ -46,7 +46,7 @@ namespace astro {
         // Procedural stair steps
         if (
           IsInRangeX(entity, state, 25000.f) &&
-          IsInRangeZ(entity, state, 25000.f)
+          IsInRangeZ(entity, state, 30000.f)
         ) {
           tVec3f direction = entity.orientation.toMatrix4f() * tVec3f(-1.f, 0, 0);
           tVec3f start_position = UnitEntityToWorldPosition(entity, tVec3f(1.f, 0, 0)) - direction * 200.f;

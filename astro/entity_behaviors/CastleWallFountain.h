@@ -46,7 +46,14 @@ namespace astro {
 
         // Water
         {
-          // @todo
+          auto& water = use_instance(meshes.castle_wall_fountain_water);
+
+          Sync(water, entity);
+
+          water.color = 0x46C4;
+          water.material = tVec4f(0.5f, 0, 0, 1.f);
+
+          commit(water);
         }
       }
     }
