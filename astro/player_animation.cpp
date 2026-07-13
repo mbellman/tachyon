@@ -785,7 +785,7 @@ static void HandleAnimationSounds(Tachyon* tachyon, State& state) {
   }
 
   if (rig.current_animation == &animations.player_climb_up_jump) {
-    if (t >= 8.f && t < 8.5f) {
+    if (t >= 7.f && t < 7.5f) {
       // @hack
       // @todo handle this differently if we have additional surfaces
       // to climb up on

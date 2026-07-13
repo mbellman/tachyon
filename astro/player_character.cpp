@@ -47,7 +47,6 @@ static std::vector<float> climb_up_jump_hood_flop_curve = {
   // First jump
   -0.5f,
   -0.2f,
-  0.f,
   // First fall
   0.5f,
   1.f,
@@ -400,7 +399,7 @@ static void UpdateFacingDirectionAndTilt(Tachyon* tachyon, State& state) {
   float player_speed = state.player_velocity.magnitude();
   float speed_ratio = player_speed / PlayerCharacter::MAX_RUN_SPEED;
   tVec3f desired_facing_direction = state.player_facing_direction;
-  float turn_speed = Tachyon_Lerpf(2.f, 10.f, speed_ratio);
+  float turn_speed = Tachyon_Lerpf(5.f, 10.f, speed_ratio);
   float tilt = 0.f;
 
   bool is_doing_quick_turn = (
@@ -1107,8 +1106,10 @@ bool PlayerCharacter::IsClimbingOffLadder(Tachyon* tachyon, State& state) {
   if (state.did_climb_down) {
     return time_since(climbing_stop_time) < 0.8f;
   } else if (state.did_climb_up_jump) {
-    return time_since(climbing_stop_time) < 1.2f;
+    // @todo base on animation time
+    return time_since(climbing_stop_time) < 1.05f;
   } else {
+    // @todo base on animation time
     return time_since(climbing_stop_time) < 1.6f;
   }
 }

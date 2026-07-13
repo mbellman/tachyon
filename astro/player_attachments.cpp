@@ -26,7 +26,6 @@ static std::vector<float> climb_up_jump_hood_flop_curve = {
   // First jump
   -0.5f,
   -0.2f,
-  0.f,
   // First fall
   0.5f,
   1.f,

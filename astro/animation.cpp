@@ -96,6 +96,8 @@ static void EvaluateAnimation(tSkeletonAnimation& animation, const float seek_ti
 
 // @todo refactor with EvaluateAnimation()
 static tVec3f GetSkeletonRootMotion(tSkeletonAnimation& animation, const float seek_time) {
+  int total_frames = (int) animation.frames.size();
+  float max_time = GetMaxSeekTime(animation);
   float blend_alpha = fmodf(seek_time, 1.f);
   float t = seek_time;
 
@@ -105,7 +107,6 @@ static tVec3f GetSkeletonRootMotion(tSkeletonAnimation& animation, const float s
     blend_alpha = Tachyon_EaseInOutf(blend_alpha);
   } else {
     // Determine seek time / max time ratio
-    float max_time = GetMaxSeekTime(animation);
     t = fmodf(seek_time, max_time);
     t = t / max_time;
 
@@ -122,8 +123,18 @@ static tVec3f GetSkeletonRootMotion(tSkeletonAnimation& animation, const float s
     blend_alpha = fmodf(t, 1.f);
   }
 
+  // @todo use more precise frame determination for non-looping animations
   int32 current_frame_index = int(t) % animation.frames.size();
   int32 next_frame_index = (current_frame_index + 1) % animation.frames.size();
+
+  if (!animation.looping) {
+    if (next_frame_index < current_frame_index) {
+      next_frame_index = total_frames;
+    }
+
+    if (current_frame_index == total_frames) current_frame_index -= 1;
+    if (next_frame_index == total_frames) next_frame_index -= 1;
+  }
 
   auto& current_frame = animation.frames[current_frame_index];
   auto& next_frame = animation.frames[next_frame_index];
