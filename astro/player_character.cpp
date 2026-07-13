@@ -45,16 +45,16 @@ static std::vector<float> climb_up_jump_hood_flop_curve = {
   -0.2f,
   0.f,
   // First jump
+  -1.f,
   -0.5f,
-  -0.2f,
   // First fall
+  0.f,
   0.5f,
   1.f,
+  0.f,
   // Second jump
-  0.f,
   -0.7f,
-  0.f,
-  0.7f
+  0.f
 };
 
 // @todo move elsewhere
@@ -1104,11 +1104,11 @@ bool PlayerCharacter::IsClimbingOffLadder(Tachyon* tachyon, State& state) {
   }
 
   if (state.did_climb_down) {
-    return time_since(climbing_stop_time) < 0.8f;
+    return time_since(climbing_stop_time) < 0.7f;
   } else if (state.did_climb_up_jump) {
     return time_since(climbing_stop_time) < 1.f;
   } else {
-    return time_since(climbing_stop_time) < 1.6f;
+    return time_since(climbing_stop_time) < 1.2f;
   }
 }
 

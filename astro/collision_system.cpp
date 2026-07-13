@@ -1189,7 +1189,9 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
       if (state.did_jump_off_ledge) {
         state.player.last_freefall_landing_time = get_scene_time();
 
-        SoundDriver::PlayWalkSound(state, 0.25f);
+        float volume = state.is_on_stone_surface ? 0.5f : 0.25f;
+
+        SoundDriver::PlayWalkSound(state, volume);
       }
 
       state.did_climb_up_jump = false;

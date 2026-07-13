@@ -16,7 +16,7 @@ static std::vector<float> run_bounce_curve = {
 };
 
 // @todo move to constants
-static std::vector<float> climb_up_jump_hood_flop_curve = {
+static std::vector<float> climb_up_jump_curve = {
   // Climbing up
   0.f,
   -0.5f,
@@ -27,13 +27,13 @@ static std::vector<float> climb_up_jump_hood_flop_curve = {
   -0.5f,
   -0.2f,
   // First fall
-  0.5f,
+  0.3f,
+  0.7f,
   1.f,
+  0.5f,
   // Second jump
   0.f,
-  -0.7f,
-  0.f,
-  0.7f
+  0.1f
 };
 
 // @todo move elsewhere
@@ -311,7 +311,7 @@ void PlayerAttachments::Update(Tachyon* tachyon, State& state) {
       float t = rig.current_animation_time;
       float max_time = (float) rig.current_animation->frames.size();
       float alpha = t / max_time;
-      float sample = SampleCurve(climb_up_jump_hood_flop_curve, alpha);
+      float sample = SampleCurve(climb_up_jump_curve, alpha);
 
       if (sample < 0.f) sample = 0.f;
 
