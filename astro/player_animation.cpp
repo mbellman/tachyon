@@ -97,10 +97,7 @@ static bool ShouldPlayClimbingOffAnimation(Tachyon* tachyon, State& state) {
   if (state.did_climb_down) {
     return time_since(climbing_stop_time) < 0.4f;
   } else if (state.did_climb_up_jump) {
-    // @todo expose Animation::GetMaxTime()
-    float max_time = (float) state.animations.player_climb_up_jump.frames.size();
-
-    return state.player.rig.current_animation_time < max_time;
+    return time_since(climbing_stop_time) < 1.f;
   } else {
     return time_since(climbing_stop_time) < 1.3f;
   }
@@ -110,7 +107,8 @@ static bool ShouldPlayWalkAnimation(Tachyon* tachyon, State& state) {
   if (
     PlayerCharacter::IsClimbingOffLadder(tachyon, state) ||
     state.player.rig.current_animation == &state.animations.player_climb_up ||
-    state.player.rig.current_animation == &state.animations.player_climb_up_jump
+    state.player.rig.current_animation == &state.animations.player_climb_up_jump ||
+    (time_since(state.player.last_freefall_landing_time) < 0.5f && !is_moving_left_stick())
   ) {
     return false;
   }
@@ -303,7 +301,7 @@ static float GetAnimationSpeed(Tachyon* tachyon, State& state, tSkeletonAnimatio
   }
 
   if (animation == &animations.player_climb_up || animation == &animations.player_climb_up_jump) {
-    return 8.5f;
+    return 10.f;
   }
 
   if (animation == &animations.player_climb) {
@@ -492,7 +490,9 @@ static void HandleHeadAnimation(Tachyon* tachyon, State& state) {
   }
   else if (
     !state.is_on_ladder &&
-    time_since(state.player.last_climbing_stop_time) > 2.f
+    !state.did_jump_off_ledge &&
+    !state.did_climb_up_jump &&
+    time_since(state.player.last_freefall_landing_time) > 1.f
   ) {
     // Turn head toward key entities when not targeting anything
     TurnPlayerHeadToward(state, state.sculpture_1s, player_facing_angle);

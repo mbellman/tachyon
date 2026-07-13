@@ -1194,6 +1194,7 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
 
       state.did_climb_up_jump = false;
       state.did_jump_off_ledge = false;
+      state.player.last_climbing_stop_time = 0.f;
 
       // Reset ledge jump duration when landed on solid ground,
       // as opposed to a specialized solid platform

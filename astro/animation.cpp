@@ -73,8 +73,13 @@ static void EvaluateAnimation(tSkeletonAnimation& animation, const float seek_ti
   } else {
     // Frame cycling for non-looping animations, which we want to end
     // on the final frame exactly at t = max_time
-    current_frame_index = (int32) floorf(t);
-    next_frame_index = (int32) ceilf(t);
+    float alpha = t / max_time;
+    float f = alpha * float(total_frames - 1);
+
+    blend_alpha = fmodf(f, 1.f);
+
+    current_frame_index = (int32) floorf(f);
+    next_frame_index = (int32) ceilf(f);
 
     if (current_frame_index == total_frames) current_frame_index -= 1;
     if (next_frame_index == total_frames) next_frame_index -= 1;
@@ -123,14 +128,22 @@ static tVec3f GetSkeletonRootMotion(tSkeletonAnimation& animation, const float s
     blend_alpha = fmodf(t, 1.f);
   }
 
-  // @todo use more precise frame determination for non-looping animations
-  int32 current_frame_index = int(t) % animation.frames.size();
-  int32 next_frame_index = (current_frame_index + 1) % animation.frames.size();
+  int32 current_frame_index;
+  int32 next_frame_index;
 
-  if (!animation.looping) {
-    if (next_frame_index < current_frame_index) {
-      next_frame_index = total_frames;
-    }
+  if (animation.looping) {
+    current_frame_index = int(t) % animation.frames.size();
+    next_frame_index = (current_frame_index + 1) % animation.frames.size();
+  } else {
+    // Frame cycling for non-looping animations, which we want to end
+    // on the final frame exactly at t = max_time
+    float alpha = t / max_time;
+    float f = alpha * float(total_frames - 1);
+
+    blend_alpha = fmodf(f, 1.f);
+
+    current_frame_index = (int32) floorf(f);
+    next_frame_index = (int32) ceilf(f);
 
     if (current_frame_index == total_frames) current_frame_index -= 1;
     if (next_frame_index == total_frames) next_frame_index -= 1;
@@ -351,6 +364,10 @@ void Animation::AwaitNextAnimation(tAnimationRig& rig, tSkeletonAnimation* skele
   }
 
   Animation::SetNextAnimation(rig, skeleton_animation);
+}
+
+float Animation::GetMaxTime(tSkeletonAnimation* animation) {
+  return GetMaxSeekTime(*animation);
 }
 
 tVec3f Animation::GetRootMotion(tAnimationRig& rig) {

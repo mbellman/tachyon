@@ -1045,6 +1045,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
     };
 
     state.animations.player_climb_up.looping = false;
+    state.animations.player_climb_up.use_root_motion = true;
     state.animations.player_climb_up.name = "PLAYER_CLIMB_UP";
 
     state.animations.player_climb_up_jump.frames = {
@@ -1062,6 +1063,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
     };
 
     state.animations.player_climb_up_jump.looping = false;
+    state.animations.player_climb_up_jump.use_root_motion = true;
     state.animations.player_climb_up_jump.name = "PLAYER_CLIMB_UP_JUMP";
 
     state.animations.player_climb_down.frames = {
