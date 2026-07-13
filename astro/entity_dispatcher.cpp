@@ -64,6 +64,7 @@
 #include "astro/entity_behaviors/TallWeeds.h"
 #include "astro/entity_behaviors/TulipPlant.h"
 #include "astro/entity_behaviors/VantageSpot.h"
+#include "astro/entity_behaviors/Vine.h"
 #include "astro/entity_behaviors/WaterFlowNode.h"
 #include "astro/entity_behaviors/WaterWheel.h"
 #include "astro/entity_behaviors/WillowTree.h"
@@ -161,6 +162,7 @@ using namespace astro;
   dispatch_macro(TALL_WEEDS, TallWeeds);\
   dispatch_macro(TULIP_PLANT, TulipPlant);\
   dispatch_macro(VANTAGE_SPOT, VantageSpot);\
+  dispatch_macro(VINE, Vine);\
   dispatch_macro(WATER_FLOW_NODE, WaterFlowNode);\
   dispatch_macro(WATER_WHEEL, WaterWheel);\
   dispatch_macro(WILLOW_TREE, WillowTree);\
@@ -235,6 +237,7 @@ std::vector<GameEntity>& EntityDispatcher::GetEntityContainer(State& state, Enti
     dispatch_GetEntityContainer(TALL_WEEDS, state.tall_weeds);
     dispatch_GetEntityContainer(TULIP_PLANT, state.tulip_plants);
     dispatch_GetEntityContainer(VANTAGE_SPOT, state.vantage_spots);
+    dispatch_GetEntityContainer(VINE, state.vines);
     dispatch_GetEntityContainer(WATER_FLOW_NODE, state.water_flow_nodes);
     dispatch_GetEntityContainer(WATER_WHEEL, state.water_wheels);
     dispatch_GetEntityContainer(WILLOW_TREE, state.willow_trees);

@@ -1463,7 +1463,14 @@ static void HandleCurrentSelectedRotateActions(Tachyon* tachyon, State& state) {
   if (abs(tachyon->mouse_delta_x) > abs(tachyon->mouse_delta_y)) {
     placeholder.rotation *= Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), (float)tachyon->mouse_delta_x * 0.001f);
   } else {
-    // @todo
+    auto& selectable = editor.current_selectable;
+
+    if (
+      selectable.is_entity &&
+      selectable.entity_record.type == VINE
+    ) {
+      placeholder.rotation *= Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), (float)tachyon->mouse_delta_y * 0.001f);
+    }
   }
 
   // @optimize We don't need to do this every time the object is moved!

@@ -814,5 +814,16 @@ export default [
     ],
     scale: [ 2000.0 ],
     color: [ 1.0 ]
+  },
+
+  {
+    type: "VINE",
+    list: "vines",
+    meshes: [
+      "vine_placeholder",
+      "vine_leaves"
+    ],
+    scale: [ 1750.0 ],
+    color: [ 0.07, 0.14, 0.07 ]
   }
 ];

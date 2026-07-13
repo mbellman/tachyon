@@ -30,7 +30,6 @@ namespace astro {
       reset_instances(meshes.castle_wall_fountain_water);
 
       for (auto& entity : state.castle_wall_fountains) {
-        // Skip additional visual features if the structure is far enough away
         if (!IsInRangeX(entity, state, 30000.f)) continue;
         if (!IsInRangeZ(entity, state, 40000.f)) continue;
 
