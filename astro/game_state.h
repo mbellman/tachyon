@@ -571,6 +571,7 @@ namespace astro {
 
       bool is_looking_at_something = false;
       bool is_airborne_in_run_cycle = false;
+      bool is_doing_quick_slowdown = false;
 
       tVec3f planted_left_foot_position;
       bool is_left_foot_planted = false;

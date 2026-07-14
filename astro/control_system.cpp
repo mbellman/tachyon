@@ -196,6 +196,22 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
   ) {
     state.last_quick_turn_time = get_scene_time();
   }
+
+  float speed = get_speed();
+
+  // Start quick slowdown actions
+  if (
+    !state.did_jump_off_ledge &&
+    speed > PlayerCharacter::MAX_WALK_SPEED &&
+    !is_moving_left_stick()
+  ) {
+    state.player.is_doing_quick_slowdown = true;
+  }
+
+  // Stop quick slowdown actions
+  if (is_moving_left_stick() || speed < 10.f) {
+    state.player.is_doing_quick_slowdown = false;
+  }
 }
 
 // @todo dev mode only
