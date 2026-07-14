@@ -41,12 +41,16 @@ void main() {
   float phase_alpha = 0.002 * distance_from_top - 2.0 * scene_time + phase_variance;
 
   float vertical_phase = 1.0 + 0.2 * sin(phase_alpha);
-  float horizontal_phase = 1.0 + 0.2 * sin(scene_time + 6.0 * atan(N.z, N.x));
+  float horizontal_phase = 1.0 + 0.2 * sin(scene_time + 6.0 * atan(vertPosition.z, vertPosition.x));
 
   float oscillation_alpha = 1.5 * scene_time;
   float oscillation = 0.8 + 0.2 * sin(oscillation_alpha + 0.001 * topPosition.x);
 
-  float top_falloff = clamp(1.0 - distance_from_top / 16000.0, 0, 1);
+  float top_falloff = (
+    clamp(distance_from_top / 6000.0, 0, 1) *
+    clamp(1.0 - distance_from_top / 16000.0, 0, 1)
+  );
+
   float edge_falloff = pow(NdotV, 4.0);
 
   float distance_falloff = clamp(camera_distance / 6000.0, 0, 1);

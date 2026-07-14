@@ -508,8 +508,9 @@ static void HandleSnow(Tachyon* tachyon, State& state) {
 
 // @todo 3d positioned sfx
 static void HandleWalkSounds(Tachyon* tachyon, State& state) {
-  // Don't play sounds if we're in freefall
+  // Don't play sounds if we're on a ladder or in freefall
   if (
+    state.is_on_ladder ||
     state.did_jump_off_ledge ||
     state.player_position.y > state.current_ground_y
   ) {
@@ -1109,13 +1110,7 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
 
     state.animations.player_freefall2.frames = {
       GltfLoader("./astro/3d_skeleton_animations/player_freefall2/freefall_1.gltf").skeleton,
-      GltfLoader("./astro/3d_skeleton_animations/player_freefall2/freefall_2.gltf").skeleton,
-      GltfLoader("./astro/3d_skeleton_animations/player_freefall2/freefall_3.gltf").skeleton,
-      GltfLoader("./astro/3d_skeleton_animations/player_freefall2/freefall_4.gltf").skeleton,
-      GltfLoader("./astro/3d_skeleton_animations/player_freefall2/freefall_5.gltf").skeleton,
-      GltfLoader("./astro/3d_skeleton_animations/player_freefall2/freefall_6.gltf").skeleton,
-      GltfLoader("./astro/3d_skeleton_animations/player_freefall2/freefall_7.gltf").skeleton,
-      GltfLoader("./astro/3d_skeleton_animations/player_freefall2/freefall_8.gltf").skeleton
+      GltfLoader("./astro/3d_skeleton_animations/player_freefall2/freefall_2.gltf").skeleton
     };
 
     state.animations.player_freefall2.name = "PLAYER_FREEFALL_2";

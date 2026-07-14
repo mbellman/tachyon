@@ -182,6 +182,28 @@ static void HandleLedgeJumpActions(Tachyon* tachyon, State& state) {
   }
 }
 
+static void TrackPlantedFeetWhileQuickTurning(Tachyon* tachyon, State& state) {
+  auto& rig = state.player.rig;
+  float t = PlayerAnimation::GetAnimationTime(state, &state.animations.player_idle_quickturn);
+
+  if (t < 3.5f) {
+    if (!state.player.is_right_foot_planted) {
+      tVec3f foot = rig.active_pose.bones[13].translation * 1500.f;
+      foot = state.player.rotation_matrix * foot;
+
+      state.player.planted_right_foot_position = state.player_position + foot;
+    }
+
+    state.player.is_airborne_in_run_cycle = false;
+    state.player.is_left_foot_planted = false;
+    state.player.is_right_foot_planted = true;
+  } else {
+    state.player.is_airborne_in_run_cycle = true;
+    state.player.is_left_foot_planted = false;
+    state.player.is_right_foot_planted = false;
+  }
+}
+
 static void TrackPlantedFeetWhileRunning(Tachyon* tachyon, State& state) {
   auto& rig = state.player.rig;
   float t = fmodf(rig.next_animation_time, 8.f);
@@ -489,11 +511,16 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state) {
   if (state.player_hp > 0.f) {
     bool did_just_land = DidJustLand(tachyon, state);
 
-    if (!did_just_land && PlayerCharacter::IsRunning(tachyon, state)) {
+    if (PlayerAnimation::GetAnimationTime(state, &state.animations.player_idle_quickturn) != -1.f) {
+      TrackPlantedFeetWhileQuickTurning(tachyon, state);
+    }
+    else if (!did_just_land && PlayerCharacter::IsRunning(tachyon, state)) {
       TrackPlantedFeetWhileRunning(tachyon, state);
-    } else if (!did_just_land && IsWalkAnimation(player.rig.current_animation, state)) {
+    }
+    else if (!did_just_land && IsWalkAnimation(player.rig.current_animation, state)) {
       TrackPlantedFeetWhileWalking(tachyon, state);
-    } else {
+    }
+    else {
       state.player.is_left_foot_planted = false;
       state.player.is_right_foot_planted = false;
     }
@@ -521,9 +548,7 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state) {
   PlayerAnimation::Update(tachyon, state);
   PlayerAttachments::Update(tachyon, state);
 
-  if (time_since(state.last_quick_turn_time) > 0.5f) {
-    KeepFeetPlanted(state);
-  }
+  KeepFeetPlanted(state);
 
   // @todo make this a constant
   tVec3f body_scale = tVec3f(1500.f);
@@ -1104,7 +1129,7 @@ bool PlayerCharacter::IsClimbingOffLadder(Tachyon* tachyon, State& state) {
   }
 
   if (state.did_climb_down) {
-    return time_since(climbing_stop_time) < 0.7f;
+    return time_since(climbing_stop_time) < 0.6f;
   } else if (state.did_climb_up_jump) {
     return time_since(climbing_stop_time) < 1.f;
   } else {

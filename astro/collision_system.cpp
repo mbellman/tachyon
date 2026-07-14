@@ -385,6 +385,8 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
       if (!was_just_climbing) {
         // Starting a new climb action, so track its time
         state.player.last_climbing_start_time = scene_time;
+
+        SoundDriver::PlayLadderSound(state, 1.f);
       }
 
       float time_since_starting_climb = time_since(state.player.last_climbing_start_time);

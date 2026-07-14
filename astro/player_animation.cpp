@@ -196,7 +196,7 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
 
   // Quick-turning
   else if (just_started_quick_turn) {
-    Animation::StartNextAnimation(rig, &animations.player_idle_quickturn);
+    Animation::AwaitNextAnimation(rig, &animations.player_idle_quickturn);
   }
 
   // Running
@@ -219,10 +219,19 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
 
   // Walking
   else if (ShouldPlayWalkAnimation(tachyon, state)) {
+    bool was_idling = IsAnyIdleAnimation(rig.next_animation, state);
+
     if (state.is_holding_up_wand) {
       Animation::AwaitNextAnimation(rig, &animations.player_walk_wand);
     } else {
       Animation::AwaitNextAnimation(rig, &animations.player_walk);
+    }
+
+    bool is_starting_walk = IsWalkAnimation(rig.next_animation, state);
+
+    if (was_idling && state.player_idle_stance == 1 && is_starting_walk) {
+      // Motion match the feet in idle stance 1 -> walking
+      rig.next_animation_time = 4.f;
     }
   }
 
@@ -270,8 +279,12 @@ static float GetAnimationSpeed(Tachyon* tachyon, State& state, tSkeletonAnimatio
     return 0.8f;
   }
 
-  if (IsFreefallAnimation(animation, state)) {
+  if (animation == &animations.player_freefall) {
     return 12.f;
+  }
+
+  if (animation == &animations.player_freefall2) {
+    return 1.5f;
   }
 
   if (animation == &animations.player_idle_quickturn) {
@@ -345,7 +358,7 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
 
   // Freefall -> running/walking/idle
   if (IsFreefallAnimation(rig.current_animation, state) && !state.did_jump_off_ledge) {
-    return 6.f;
+    return 5.f;
   }
 
 
@@ -367,18 +380,18 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
     return 4.f;
   }
 
-  // Special case for blending into idle when climbing down
-  // off a climbable wall. Use a slightly slower blend so we
-  // transition into idle more naturally, mitigating awkward
-  // foot shuffling behavior.
-  // @todo check animation, rather than climbing stop time
   if (
-    !state.is_on_ladder &&
-    state.player.last_climbing_stop_time != 0.f &&
-    time_since(state.player.last_climbing_stop_time) < 2.f &&
-    state.did_climb_down
+    rig.current_animation == &animations.player_climb &&
+    rig.next_animation == &animations.player_climb_down
   ) {
-    return 3.f;
+    return 5.f;
+  }
+
+  if (
+    rig.current_animation == &animations.player_climb_down &&
+    rig.next_animation == &animations.player_idle_2
+  ) {
+    return 2.f;
   }
 
   // Blend faster into climbing
@@ -894,4 +907,19 @@ float PlayerAnimation::GetRunCycleAnimationTime(State& state) {
   }
 
   return 0.f;
+}
+
+float PlayerAnimation::GetAnimationTime(State& state, tSkeletonAnimation* animation) {
+  auto& animations = state.animations;
+  auto& rig = state.player.rig;
+
+  if (rig.current_animation == animation) {
+    return rig.current_animation_time;
+  }
+
+  if (rig.next_animation == animation) {
+    return rig.next_animation_time;
+  }
+
+  return -1.f;
 }
