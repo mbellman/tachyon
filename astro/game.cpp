@@ -1115,6 +1115,13 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
 
     state.animations.player_freefall2.name = "PLAYER_FREEFALL_2";
 
+    state.animations.player_quick_slowdown.frames = {
+      GltfLoader("./astro/3d_skeleton_animations/player_quick_slowdown/quick_slowdown_1.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_quick_slowdown/quick_slowdown_2.gltf").skeleton
+    };
+
+    state.animations.player_quick_slowdown.name = "PLAYER_QUICK_SLOWDOWN";
+
     // @todo factor
     for (auto& bone : state.animations.player_idle.frames[0].bones) {
       state.player.rig.active_pose.bones.push_back(bone);

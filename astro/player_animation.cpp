@@ -199,6 +199,11 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
     Animation::AwaitNextAnimation(rig, &animations.player_idle_quickturn);
   }
 
+  // Quick slowdown
+  else if (state.player.is_doing_quick_slowdown) {
+    Animation::StartNextAnimation(rig, &animations.player_quick_slowdown);
+  }
+
   // Running
   else if (PlayerCharacter::IsRunning(tachyon, state)) {
     bool was_idling = IsAnyIdleAnimation(rig.next_animation, state);
@@ -291,6 +296,10 @@ static float GetAnimationSpeed(Tachyon* tachyon, State& state, tSkeletonAnimatio
     return 12.f;
   }
 
+  if (animation == &animations.player_quick_slowdown) {
+    return 1.5f;
+  }
+
   float speed_ratio = state.player_velocity.magnitude() / PlayerCharacter::MAX_RUN_SPEED;
 
   if (IsWalkAnimation(animation, state)) {
@@ -361,6 +370,16 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
     return 5.f;
   }
 
+  if (rig.next_animation == &animations.player_quick_slowdown) {
+    return 4.f;
+  }
+
+  if (
+    rig.current_animation == &animations.player_quick_slowdown &&
+    IsAnyIdleAnimation(rig.next_animation, state)
+  ) {
+    return 2.f;
+  }
 
   // Idle quickturn - > running
   if (
