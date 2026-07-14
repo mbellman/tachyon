@@ -92,7 +92,7 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
       float t = fmodf(state.player.rig.next_animation_time, 8.f) / 8.f;
       float alpha = 2.f * t * t_TAU;
 
-      state.player.climb_speed = climb_direction * 3500.f * (0.5f + 0.5f * sinf(alpha));
+      state.player.climb_speed = climb_direction * 4000.f * (0.5f + 0.5f * sinf(alpha));
 
       if (climb_direction == -1.f && is_key_held(tKey::CONTROLLER_A)) {
         state.player.climb_speed = -8000.f;

@@ -58,10 +58,10 @@ features/fixes:
 * signpost collision
 * sculpture collision
 * guidance (small stone bridges, slopes)
-* climb over onto ladder animation + reverse
 * climb-down-onto-ladder animation
 * tipping-over animation/preventing jumping off very high ledges
-* river sfx
+* sculpture + wall fountain proximity sfx
+* river proximity sfx
 * duck sfx
 * house knocking sound
 * vantage camera tweaks

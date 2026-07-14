@@ -327,7 +327,7 @@ static float GetAnimationSpeed(Tachyon* tachyon, State& state, tSkeletonAnimatio
   }
 
   if (animation == &animations.player_climb) {
-    return is_moving_left_stick() ? 10.f : 0.f;
+    return is_moving_left_stick() ? 12.f : 0.f;
   }
 
   return 4.f;
