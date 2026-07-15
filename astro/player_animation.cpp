@@ -87,6 +87,16 @@ static bool IsFreefallAnimation(tSkeletonAnimation* animation, const State& stat
   );
 }
 
+static bool ShouldPlayClimbingDownOntoAnimation(State& state) {
+  if (!state.is_starting_climb_down) {
+    return false;
+  }
+
+  float t = PlayerAnimation::GetAnimationTime(state, &state.animations.player_climb_down_onto);
+
+  return t < Animation::GetMaxTime(&state.animations.player_climb_down_onto);
+}
+
 static bool ShouldPlayClimbingOffAnimation(Tachyon* tachyon, State& state) {
   float climbing_stop_time = state.player.last_climbing_stop_time;
 
@@ -173,10 +183,14 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
     }
   }
 
+  else if (ShouldPlayClimbingDownOntoAnimation(state)) {
+    Animation::StartNextAnimation(rig, &animations.player_climb_down_onto);
+  }
+
   // Climbing off
   else if (ShouldPlayClimbingOffAnimation(tachyon, state)) {
     if (state.did_climb_down) {
-      Animation::StartNextAnimation(rig, &animations.player_climb_down);
+      Animation::StartNextAnimation(rig, &animations.player_climb_down_off);
     } else if (state.did_climb_up_jump) {
       Animation::StartNextAnimation(rig, &animations.player_climb_up_jump);
     } else {
@@ -186,12 +200,7 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
 
   // Climbing
   else if (state.is_on_ladder) {
-    if (state.is_starting_climb_down) {
-      // @todo use a proper climb-down-onto-wall animation
-      Animation::StartNextAnimation(rig, &animations.player_climb);
-    } else {
-      Animation::StartNextAnimation(rig, &animations.player_climb);
-    }
+    Animation::StartNextAnimation(rig, &animations.player_climb);
   }
 
   // Quick-turning
@@ -267,11 +276,17 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
     }
 
     if (state.is_holding_up_wand) {
-      Animation::AwaitNextAnimation(rig, &animations.player_idle_wand);
-    } else if (state.player_idle_stance == 1) {
-      Animation::AwaitNextAnimation(rig, &animations.player_idle);
-    } else if (state.player_idle_stance == 2) {
-      Animation::AwaitNextAnimation(rig, &animations.player_idle_2);
+      if (state.player_idle_stance == 1) {
+        Animation::AwaitNextAnimation(rig, &animations.player_idle_wand);
+      } else {
+        Animation::AwaitNextAnimation(rig, &animations.player_idle_wand_2);
+      }
+    } else {
+      if (state.player_idle_stance == 1) {
+        Animation::AwaitNextAnimation(rig, &animations.player_idle);
+      } else {
+        Animation::AwaitNextAnimation(rig, &animations.player_idle_2);
+      }
     }
   }
 }
@@ -280,10 +295,12 @@ static float GetAnimationSpeed(Tachyon* tachyon, State& state, tSkeletonAnimatio
   auto& rig = state.player.rig;
   auto& animations = state.animations;
 
+  // Idling
   if (IsAnyIdleAnimation(animation, state)) {
     return 0.8f;
   }
 
+  // Falling
   if (animation == &animations.player_freefall) {
     return 12.f;
   }
@@ -292,6 +309,7 @@ static float GetAnimationSpeed(Tachyon* tachyon, State& state, tSkeletonAnimatio
     return 1.5f;
   }
 
+  // Quick turns/slowdown
   if (animation == &animations.player_idle_quickturn) {
     return 12.f;
   }
@@ -300,12 +318,14 @@ static float GetAnimationSpeed(Tachyon* tachyon, State& state, tSkeletonAnimatio
     return 1.5f;
   }
 
+  // Walking
   float speed_ratio = state.player_velocity.magnitude() / PlayerCharacter::MAX_RUN_SPEED;
 
   if (IsWalkAnimation(animation, state)) {
     return 13.5f * sqrt(speed_ratio);
   }
 
+  // Running
   if (
     animation == &animations.player_run ||
     animation == &animations.player_run_wand
@@ -318,7 +338,12 @@ static float GetAnimationSpeed(Tachyon* tachyon, State& state, tSkeletonAnimatio
     }
   }
 
-  if (animation == &animations.player_climb_down) {
+  // Climbing
+  if (animation == &animations.player_climb_down_onto) {
+    return 12.f;
+  }
+
+  if (animation == &animations.player_climb_down_off) {
     return 7.f;
   }
 
@@ -399,15 +424,22 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
     return 4.f;
   }
 
+  // Climbing down onto something
+  if (rig.next_animation == &animations.player_climb_down_onto) {
+    return 10.f;
+  }
+
+  // Climbing down off something
   if (
     rig.current_animation == &animations.player_climb &&
-    rig.next_animation == &animations.player_climb_down
+    rig.next_animation == &animations.player_climb_down_off
   ) {
     return 5.f;
   }
 
+  // Climbing off -> idle
   if (
-    rig.current_animation == &animations.player_climb_down &&
+    rig.current_animation == &animations.player_climb_down_off &&
     rig.next_animation == &animations.player_idle_2
   ) {
     return 2.f;
@@ -854,10 +886,10 @@ void PlayerAnimation::Update(Tachyon* tachyon, State& state) {
 
   // When manually moving backward, or climbing down a ladder, play the animation in reverse
   if (
+    !state.is_starting_climb_down &&
     time_since(state.last_quick_turn_time) > 0.5f && (
       (!moving_forward && !PlayerCharacter::IsClimbingOffLadder(tachyon, state)) ||
-      (state.is_on_ladder && tachyon->left_stick.y > 0.f) ||
-      state.is_starting_climb_down
+      (state.is_on_ladder && tachyon->left_stick.y > 0.f)
     )
   ) {
     rig.current_animation_speed *= -1.f;

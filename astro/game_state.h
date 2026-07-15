@@ -650,7 +650,8 @@ namespace astro {
       tSkeletonAnimation player_climb;
       tSkeletonAnimation player_climb_up;
       tSkeletonAnimation player_climb_up_jump;
-      tSkeletonAnimation player_climb_down;
+      tSkeletonAnimation player_climb_down_onto;
+      tSkeletonAnimation player_climb_down_off;
       tSkeletonAnimation player_swing_wand;
       tSkeletonAnimation player_freefall;
       tSkeletonAnimation player_freefall2;

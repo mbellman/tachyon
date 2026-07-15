@@ -1067,7 +1067,24 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
     state.animations.player_climb_up_jump.use_root_motion = true;
     state.animations.player_climb_up_jump.name = "PLAYER_CLIMB_UP_JUMP";
 
-    state.animations.player_climb_down.frames = {
+    state.animations.player_climb_down_onto.frames = {
+      GltfLoader("./astro/3d_skeleton_animations/player_climb_down_onto/climb_down_onto_1.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_climb_down_onto/climb_down_onto_2.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_climb_down_onto/climb_down_onto_3.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_climb_down_onto/climb_down_onto_4.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_climb_down_onto/climb_down_onto_5.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_climb_down_onto/climb_down_onto_6.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_climb_down_onto/climb_down_onto_7.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_climb_down_onto/climb_down_onto_8.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_climb_down_onto/climb_down_onto_9.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_climb_down_onto/climb_down_onto_10.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_climb_down_onto/climb_down_onto_11.gltf").skeleton
+    };
+
+    state.animations.player_climb_down_onto.looping = false;
+    state.animations.player_climb_down_onto.name = "PLAYER_CLIMB_DOWN_ONTO";
+
+    state.animations.player_climb_down_off.frames = {
       GltfLoader("./astro/3d_skeleton_animations/player_climb_down/climb_down_1.gltf").skeleton,
       GltfLoader("./astro/3d_skeleton_animations/player_climb_down/climb_down_2.gltf").skeleton,
       GltfLoader("./astro/3d_skeleton_animations/player_climb_down/climb_down_3.gltf").skeleton,
@@ -1078,8 +1095,8 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
       GltfLoader("./astro/3d_skeleton_animations/player_climb_down/climb_down_8.gltf").skeleton
     };
 
-    state.animations.player_climb_down.looping = false;
-    state.animations.player_climb_down.name = "PLAYER_CLIMB_DOWN";
+    state.animations.player_climb_down_off.looping = false;
+    state.animations.player_climb_down_off.name = "PLAYER_CLIMB_DOWN_OFF";
 
     state.animations.player_swing_wand.frames = {
       GltfLoader("./astro/3d_skeleton_animations/player_swing_wand/swing_1.gltf").skeleton,

@@ -58,7 +58,6 @@ features/fixes:
 * signpost collision
 * sculpture collision
 * guidance (small stone bridges, slopes)
-* climb-down-onto-ladder animation
 * tipping-over animation/preventing jumping off very high ledges
 * sculpture + wall fountain proximity sfx
 * river proximity sfx

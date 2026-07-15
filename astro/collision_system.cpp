@@ -3,6 +3,7 @@
 #include "astro/collision_system.h"
 #include "astro/entity_behaviors/behavior.h"
 #include "astro/player_character.h"
+#include "astro/player_animation.h"
 #include "astro/sound_driver.h"
 
 // @temporary
@@ -436,7 +437,7 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
         state.fall_velocity = 0.f;
       }
       else {
-        float alpha = 5.f * state.dt;
+        float alpha = 3.f * state.dt;
 
         // Blend into the climbing position
         state.player_position.x = Tachyon_Lerpf(state.player_position.x, climbing_position_xz.x, alpha);
@@ -445,7 +446,12 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
         if (state.player_position.y > climbing_top_y) {
           // Climbing down until we're below the climbing y limit
           state.is_starting_climb_down = true;
-          state.player_position.y -= 3000.f * state.dt;
+
+          float t = PlayerAnimation::GetAnimationTime(state, &state.animations.player_climb_down_onto);
+
+          if (t > 3.f) {
+            state.player_position.y -= 4000.f * state.dt;
+          }
         } else {
           state.is_starting_climb_down = false;
         }
