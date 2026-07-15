@@ -406,14 +406,16 @@ static void UpdateFacingDirectionAndTilt(Tachyon* tachyon, State& state) {
   float turn_speed = Tachyon_Lerpf(5.f, 10.f, speed_ratio);
   float tilt = 0.f;
 
+  float time_since_quick_turn = time_since(state.last_quick_turn_time);
+
   bool is_doing_quick_turn = (
     state.last_quick_turn_time != 0.f &&
-    time_since(state.last_quick_turn_time) < 1.f
+    time_since_quick_turn < 0.5f
   );
 
   bool just_started_quick_turn = (
     state.last_quick_turn_time != 0.f &&
-    time_since(state.last_quick_turn_time) < 0.1f
+    time_since_quick_turn < 0.1f
   );
 
   if (state.has_target) {
@@ -450,8 +452,10 @@ static void UpdateFacingDirectionAndTilt(Tachyon* tachyon, State& state) {
   // Reduce turn speed + tilt when doing a quick turn,
   // since we have an animation for the visual aspects
   if (is_doing_quick_turn) {
+    float alpha = time_since_quick_turn / 0.5f;
+
     turn_speed *= 0.5f;
-    tilt *= 0.5f;
+    tilt *= 0.25f + 0.75f * alpha;
   }
 
   state.player_facing_direction = tVec3f::slerp(
@@ -491,12 +495,16 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state) {
   player.visual_rotation = player.rotation;
 
   if (state.player_hp > 0.f) {
-    bool did_just_land = DidJustLand(tachyon, state);
+    bool should_track_feet = (
+      !DidJustLand(tachyon, state) &&
+      player.rig.current_animation != &state.animations.player_idle_quickturn &&
+      player.rig.next_animation != &state.animations.player_idle_quickturn
+    );
 
-    if (!did_just_land && PlayerCharacter::IsRunning(tachyon, state)) {
+    if (should_track_feet && PlayerCharacter::IsRunning(tachyon, state)) {
       TrackPlantedFeetWhileRunning(tachyon, state);
     }
-    else if (!did_just_land && IsWalkAnimation(player.rig.current_animation, state)) {
+    else if (should_track_feet && IsWalkAnimation(player.rig.current_animation, state)) {
       TrackPlantedFeetWhileWalking(tachyon, state);
     }
     else {
@@ -527,12 +535,7 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state) {
   PlayerAnimation::Update(tachyon, state);
   PlayerAttachments::Update(tachyon, state);
 
-  if (
-    state.player.rig.current_animation != &state.animations.player_idle_quickturn &&
-    state.player.rig.next_animation != &state.animations.player_idle_quickturn
-  ) {
-    KeepFeetPlanted(state);
-  }
+  KeepFeetPlanted(state);
 
   // @todo make this a constant
   tVec3f body_scale = tVec3f(1500.f);
@@ -1114,7 +1117,7 @@ bool PlayerCharacter::IsClimbingOffLadder(Tachyon* tachyon, State& state) {
   }
 
   if (state.did_climb_down) {
-    return time_since(climbing_stop_time) < 0.6f;
+    return time_since(climbing_stop_time) < 0.75f;
   } else if (state.did_climb_up_jump) {
     return time_since(climbing_stop_time) < 1.f;
   } else {

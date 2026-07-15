@@ -444,17 +444,12 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
         state.player_position.z = Tachyon_Lerpf(state.player_position.z, climbing_position_xz.z, alpha);
 
         // Blend into the ladder-facing direction
-        //
-        // @todo It's a bit awkward to influence facing direction here,
-        // as that's not really a collision-related consideration. Maybe
-        // that should be done in PlayerCharacter::UpdatePlayer() in a
-        // ladder-specific case.
         tVec3f desired_facing_direction = (entity.position.xz() - climbing_position_xz).unit();
 
         state.player_facing_direction = tVec3f::slerp(
           state.player_facing_direction,
           desired_facing_direction,
-          alpha
+          6.f * state.dt
         );
 
         if (state.player_position.y > climbing_top_y) {

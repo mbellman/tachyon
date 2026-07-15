@@ -44,8 +44,6 @@ tutorial:
 * magic gate improvements/collision
 
 features/fixes:
-* bug: not doing idle quickturns after climbing down off ladders
-* bug: not doing idle quickturns from quick slowdown
 * bug: snapping to slopes when above them
 * ladder model updates
 * walk/run/landing particles

@@ -141,9 +141,14 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
   bool is_running = PlayerCharacter::IsRunning(tachyon, state);
 
   bool just_started_quick_turn = (
-    (IsAnyIdleAnimation(rig.current_animation, state) || IsWalkAnimation(rig.current_animation, state)) &&
+    (
+      IsAnyIdleAnimation(rig.current_animation, state) ||
+      IsWalkAnimation(rig.current_animation, state) ||
+      rig.current_animation == &animations.player_quick_slowdown ||
+      rig.current_animation == &animations.player_climb_down_off
+    ) &&
     state.last_quick_turn_time != 0.f &&
-    time_since(state.last_quick_turn_time) < 0.15f
+    time_since(state.last_quick_turn_time) < 0.2f
   );
 
   bool has_target_and_is_moving = (
@@ -394,6 +399,16 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
 
   if (rig.next_animation == &animations.player_quick_slowdown) {
     return 4.f;
+  }
+
+  if (
+    rig.current_animation == &animations.player_quick_slowdown &&
+    IsAnyIdleAnimation(rig.next_animation, state) && (
+      time_since(state.last_quick_turn_time) < 0.5f ||
+      PlayerCharacter::IsRunning(tachyon, state)
+    )
+  ) {
+    return 10.f;
   }
 
   if (
