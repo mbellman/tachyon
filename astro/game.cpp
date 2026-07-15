@@ -570,7 +570,7 @@ static void HandleClimbingSounds(Tachyon* tachyon, State& state) {
 
   if (current_frame == step_frame_1 || current_frame == step_frame_2) {
     auto cycle = state.walk_cycle++;
-    float volume = state.is_starting_climb_down ? 1.25f : 0.75f;
+    float volume = state.player.is_starting_climb_down ? 1.25f : 0.75f;
 
     SoundDriver::PlayLadderSound(state, volume);
 

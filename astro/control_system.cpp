@@ -101,9 +101,10 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
       // Null out climbing speed if:
       if (
         // We're beginning our climb down onto something
-        state.is_starting_climb_down ||
+        state.player.is_turning_to_climb_down ||
+        state.player.is_starting_climb_down ||
         // We're trying to climb down immediately after climbing onto the bottom of something
-        (climb_direction == -1.f && !state.is_starting_climb_down && time_since(state.player.last_climbing_start_time) < 0.5f)
+        (climb_direction == -1.f && !state.player.is_starting_climb_down && time_since(state.player.last_climbing_start_time) < 0.5f)
       ) {
         state.player.climb_speed = 0.f;
       }

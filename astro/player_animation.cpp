@@ -87,15 +87,6 @@ static bool IsFreefallAnimation(tSkeletonAnimation* animation, const State& stat
   );
 }
 
-static bool ShouldPlayClimbingDownOntoAnimation(State& state) {
-  if (!state.is_starting_climb_down) {
-    return false;
-  }
-
-  float t = PlayerAnimation::GetAnimationTime(state, &state.animations.player_climb_down_onto);
-
-  return t < Animation::GetMaxTime(&state.animations.player_climb_down_onto);
-}
 
 static bool ShouldPlayClimbingOffAnimation(Tachyon* tachyon, State& state) {
   float climbing_stop_time = state.player.last_climbing_stop_time;
@@ -183,7 +174,7 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
     }
   }
 
-  else if (ShouldPlayClimbingDownOntoAnimation(state)) {
+  else if (state.player.is_turning_to_climb_down) {
     Animation::StartNextAnimation(rig, &animations.player_climb_down_onto);
   }
 
@@ -886,7 +877,6 @@ void PlayerAnimation::Update(Tachyon* tachyon, State& state) {
 
   // When manually moving backward, or climbing down a ladder, play the animation in reverse
   if (
-    !state.is_starting_climb_down &&
     time_since(state.last_quick_turn_time) > 0.5f && (
       (!moving_forward && !PlayerCharacter::IsClimbingOffLadder(tachyon, state)) ||
       (state.is_on_ladder && tachyon->left_stick.y > 0.f)

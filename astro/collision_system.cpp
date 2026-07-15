@@ -395,7 +395,7 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
       // @todo handle climbing off over a wall
       bool did_climb_off_top = (
         is_left_stick_up &&
-        !state.is_starting_climb_down &&
+        !state.player.is_starting_climb_down &&
         time_since_starting_climb > 0.5f &&
         state.player_position.y > climbing_top_y
       );
@@ -443,19 +443,6 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
         state.player_position.x = Tachyon_Lerpf(state.player_position.x, climbing_position_xz.x, alpha);
         state.player_position.z = Tachyon_Lerpf(state.player_position.z, climbing_position_xz.z, alpha);
 
-        if (state.player_position.y > climbing_top_y) {
-          // Climbing down until we're below the climbing y limit
-          state.is_starting_climb_down = true;
-
-          float t = PlayerAnimation::GetAnimationTime(state, &state.animations.player_climb_down_onto);
-
-          if (t > 3.f) {
-            state.player_position.y -= 4000.f * state.dt;
-          }
-        } else {
-          state.is_starting_climb_down = false;
-        }
-
         // Blend into the ladder-facing direction
         //
         // @todo It's a bit awkward to influence facing direction here,
@@ -469,6 +456,21 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
           desired_facing_direction,
           alpha
         );
+
+        if (state.player_position.y > climbing_top_y) {
+          float facing_dot = tVec3f::dot(state.player_facing_direction, desired_facing_direction);
+
+          if (facing_dot > 0.9f) {
+            // Climbing down until we're below the climbing y limit
+            state.player.is_starting_climb_down = true;
+            state.player.is_turning_to_climb_down = false;
+            state.player_position.y -= 2500.f * state.dt;
+          } else {
+            state.player.is_turning_to_climb_down = true;
+          }
+        } else {
+          state.player.is_starting_climb_down = false;
+        }
 
         state.is_on_ladder = true;
 

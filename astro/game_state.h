@@ -564,6 +564,9 @@ namespace astro {
       float last_climbing_stop_time = 0.f;
       tVec3f climb_up_start_position;
 
+      bool is_turning_to_climb_down = false;
+      bool is_starting_climb_down = false;
+
       // Ledge jumping
       float last_ledge_jump_time = 0.f;
       float last_freefall_landing_time = 0.f;
@@ -609,7 +612,6 @@ namespace astro {
     bool is_on_wood_surface = false;
     bool is_on_stone_surface = false;
     bool is_on_ladder = false;
-    bool is_starting_climb_down = false;
     bool did_resolve_radius_collision = false;
     bool did_resolve_plane_collision = false;
     bool did_jump_off_ledge = false;
