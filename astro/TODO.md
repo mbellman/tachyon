@@ -44,7 +44,6 @@ tutorial:
 * magic gate improvements/collision
 
 features/fixes:
-* bug: snapping to slopes when above them
 * ladder model updates
 * walk/run/landing particles
 * jumping onto lower surfaces (e.g. castle walls)

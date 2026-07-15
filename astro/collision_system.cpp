@@ -306,10 +306,15 @@ static void HandleSlopeCollisions(Tachyon* tachyon, State& state) {
       tVec3f player_position_in_slope_space = slope.rotation.toMatrix4f().inverse() * slope_to_player;
       float progress_along_slope = 0.5f * (1.f - player_position_in_slope_space.x / slope.scale.x);
       float slope_bottom_y = slope_plane.p1.y + PLAYER_HEIGHT;
-      float player_y = slope_bottom_y + progress_along_slope * slope.scale.y;
+      float desired_player_y = slope_bottom_y + progress_along_slope * slope.scale.y;
       float slope_dot = tVec3f::dot(state.player_facing_direction, slope.rotation.getLeftDirection());
 
-      AllowPlayerMovement(state, player_y, slope_plane);
+      // Don't snap to y unless we're close enough to the slope surface
+      if (state.player_position.y > desired_player_y + 200.f) {
+        continue;
+      }
+
+      AllowPlayerMovement(state, desired_player_y, slope_plane);
 
       state.is_on_solid_platform = true;
       state.is_on_stone_surface = true;
