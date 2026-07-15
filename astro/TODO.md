@@ -8,7 +8,7 @@ _____ (156 + 140)
 
 art:
 * bellflower revision
-* oak + birch tree leaves revision
+* birch tree leaves revision
 * stone paths
 * low guard armor
 * lesser guard armor completion
@@ -46,22 +46,25 @@ tutorial:
 features/fixes:
 * bug: not doing idle quickturns after climbing down off ladders
 * bug: not doing idle quickturns from quick slowdown
+* bug: snapping to slopes when above them
+* ladder model updates
+* walk/run/landing particles
+* jumping onto lower surfaces (e.g. castle walls)
+* custom fog volume color
+* sculpture + wall fountain proximity sfx
+
 * bug: triggering sculptures when interacting with wind chimes
 * bug: walk/run start foot sticking
-* bug: snapping to slopes when above them
 * bug: putting down wand into running animation pop
 * bug: airborne tiny bird spawn/spawn-out position relative to player
 * bug: pressing E while editing entities causing glow particles to respawn?
 * bug: swans moving through each other
 * bug: duck heads turning backwards
 * bug: tiny birds flying through castle towers
-* walk/run/landing particles
-* custom fog volume color
 * signpost collision
 * sculpture collision
 * guidance (small stone bridges, slopes)
 * tipping-over animation/preventing jumping off very high ledges
-* sculpture + wall fountain proximity sfx
 * river proximity sfx
 * duck sfx
 * house knocking sound
