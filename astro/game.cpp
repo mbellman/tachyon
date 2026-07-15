@@ -557,8 +557,8 @@ static void HandleClimbingSounds(Tachyon* tachyon, State& state) {
     !state.is_on_ladder ||
     // We just played a sound
     time_since(state.last_walk_sound_time) < 0.2f ||
-    // We're not moving
-    !is_moving_left_stick()
+    // We're not moving up or down the ladder
+    (!is_moving_left_stick() && !state.player.is_starting_climb_down)
   ) {
     return;
   }

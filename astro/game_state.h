@@ -563,6 +563,7 @@ namespace astro {
       float last_climbing_start_time = 0.f;
       float last_climbing_stop_time = 0.f;
       tVec3f climb_up_start_position;
+      float climb_down_onto_something_remaining_y = 0.f;
 
       bool is_turning_to_climb_down = false;
       bool is_starting_climb_down = false;

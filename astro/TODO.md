@@ -44,16 +44,18 @@ tutorial:
 * magic gate improvements/collision
 
 features/fixes:
+* bug: not doing idle quickturns after climbing down off ladders
+* bug: not doing idle quickturns from quick slowdown
 * bug: triggering sculptures when interacting with wind chimes
 * bug: walk/run start foot sticking
 * bug: snapping to slopes when above them
 * bug: putting down wand into running animation pop
-* bug: quick turn while slowing down animation pop
 * bug: airborne tiny bird spawn/spawn-out position relative to player
 * bug: pressing E while editing entities causing glow particles to respawn?
 * bug: swans moving through each other
 * bug: duck heads turning backwards
 * bug: tiny birds flying through castle towers
+* walk/run/landing particles
 * custom fog volume color
 * signpost collision
 * sculpture collision

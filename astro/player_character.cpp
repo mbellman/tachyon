@@ -579,7 +579,8 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state) {
     robes.position = player.visual_position;
     robes.rotation = player.visual_rotation;
     robes.scale = body_scale;
-    robes.color = tVec4f(0.3f, 0.4f, 0.6f, 0.3f);
+    // robes.color = tVec4f(0.3f, 0.4f, 0.6f, 0.3f);
+    robes.color = tVec4f(0.4f, 0.5f, 0.8f, 0.3f);
     robes.material = tVec4f(1.f, 0, 0, 0.2f);
     robes.shadow_cascade_ceiling = 2;
     robes.current_pose = &active_pose;
@@ -1117,7 +1118,7 @@ bool PlayerCharacter::IsClimbingOffLadder(Tachyon* tachyon, State& state) {
   } else if (state.did_climb_up_jump) {
     return time_since(climbing_stop_time) < 1.f;
   } else {
-    return time_since(climbing_stop_time) < 1.2f;
+    return time_since(climbing_stop_time) < 1.1f;
   }
 }
 

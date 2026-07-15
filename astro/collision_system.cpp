@@ -460,12 +460,15 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
         if (state.player_position.y > climbing_top_y) {
           float facing_dot = tVec3f::dot(state.player_facing_direction, desired_facing_direction);
 
-          if (facing_dot > 0.9f) {
+          state.player.climb_down_onto_something_remaining_y = state.player_position.y - climbing_top_y;
+
+          if (facing_dot > 0.8f) {
             // Climbing down until we're below the climbing y limit
             state.player.is_starting_climb_down = true;
             state.player.is_turning_to_climb_down = false;
             state.player_position.y -= 2500.f * state.dt;
           } else {
+            // Turning around so we can start climbing down
             state.player.is_turning_to_climb_down = true;
           }
         } else {
@@ -473,6 +476,7 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
         }
 
         state.is_on_ladder = true;
+        state.did_jump_off_ledge = false;
 
         break;
       }
