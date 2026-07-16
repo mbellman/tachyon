@@ -26,6 +26,7 @@ vec4 UnpackColor(uvec4 surface) {
 }
 
 void main() {
+  // vec4 sunbeam_color = vec4(0.4, 0.5, 0.6, 1);// UnpackColor(fragSurface);
   vec4 sunbeam_color = UnpackColor(fragSurface);
   float intensity = sunbeam_color.w;
 

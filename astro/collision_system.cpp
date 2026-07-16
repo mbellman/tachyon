@@ -377,12 +377,13 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
     );
 
     // Approaching a ladder over the edge of a raised wall
-    // @todo play a special animation
     bool is_climbing_over_wall_onto_ladder = (
       !state.is_on_ladder &&
+      !state.did_climb_up_jump &&
+      !state.did_jump_off_ledge &&
       state.player_position.y > entity.position.y &&
-      ladder_top_y > state.player_position.y &&
-      dx < 1500.f && dz < 1500.f
+      entity.requires_action &&
+      dx < 1600.f && dz < 1600.f
     );
 
     if (is_climbing_onto_ladder_normally || is_climbing_over_wall_onto_ladder) {
@@ -394,6 +395,11 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
 
         if (is_climbing_over_wall_onto_ladder) {
           state.player.is_hopping_up_to_climb_down = true;
+
+          // @temporary
+          state.is_on_stone_surface = true;
+
+          SoundDriver::PlayWalkSound(state, 0.6f);
         } else {
           SoundDriver::PlayLadderSound(state, 1.f);
         }
@@ -404,6 +410,7 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
       bool did_climb_off_top = (
         is_left_stick_up &&
         !state.player.is_hopping_up_to_climb_down &&
+        !state.player.is_turning_to_climb_down &&
         !state.player.is_starting_climb_down &&
         time_since_starting_climb > 0.5f &&
         state.player_position.y > climbing_top_y
@@ -446,8 +453,45 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
         state.fall_velocity = 0.f;
       }
       else if (state.player.is_hopping_up_to_climb_down) {
-        if (time_since(state.player.last_climbing_start_time) > 1.f) {
+        float time_since_starting_climb = time_since(state.player.last_climbing_start_time);
+
+        if (time_since_starting_climb < 0.5f) {
+          // Hop up
+          float hop_alpha = time_since_starting_climb / 0.5f;
+
+          // Blend into the climbing position
+          tVec3f direction = (climbing_position_xz - state.player_position.xz()).unit();
+
+          state.player_velocity = tVec3f(0.f);
+          state.player_position += direction * 1500.f * state.dt;
+
+          float alpha = 1.5f * (
+            1.f -
+            (1.f - hop_alpha * 1.665f) *
+            (1.f - hop_alpha * 1.5f)
+          );
+
+          state.player_position.y = Tachyon_Lerpf(
+            ladder_top_y - 300.f,
+            ladder_top_y + 1000.f,
+            alpha
+          );
+
+          // Blend into the ladder-facing direction
+          // tVec3f desired_facing_direction = (entity.position.xz() - climbing_position_xz).unit();
+
+          // state.player_facing_direction = tVec3f::slerp(
+          //   state.player_facing_direction,
+          //   desired_facing_direction,
+          //   2.f * state.dt
+          // );
+        } else {
+          // Once we finish the hop up, we're going to start turning
+          // so we can climb down onto the ladder. Pre-emptively set
+          // the flag so we can't control the player until they're on
+          // the ladder completely.
           state.player.is_hopping_up_to_climb_down = false;
+          state.player.is_turning_to_climb_down = true;
         }
 
         state.is_on_ladder = true;

@@ -407,7 +407,7 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
   }
 
   if (rig.next_animation == &animations.player_small_hop) {
-    return 8.f;
+    return 15.f;
   }
 
   if (rig.next_animation == &animations.player_quick_slowdown) {
@@ -869,12 +869,12 @@ static void HandleAnimationSounds(Tachyon* tachyon, State& state) {
   float t = rig.current_animation_time;
 
   // Avoid repeating sounds
-  if (time_since(state.last_walk_sound_time) < 0.5f) {
+  if (time_since(state.last_walk_sound_time) < 0.2f) {
     return;
   }
 
   if (rig.current_animation == &animations.player_climb_up) {
-    if (t >= 7.f && t < 7.5f) {
+    if (t >= 7.f && t < 7.2f) {
       // @hack
       // @todo handle this differently if we have additional surfaces
       // to climb up on
@@ -887,13 +887,24 @@ static void HandleAnimationSounds(Tachyon* tachyon, State& state) {
   }
 
   if (rig.current_animation == &animations.player_climb_up_jump) {
-    if (t >= 7.f && t < 7.5f) {
+    if (t >= 7.f && t < 7.2f) {
       // @hack
       // @todo handle this differently if we have additional surfaces
       // to climb up on
       state.is_on_stone_surface = true;
 
       SoundDriver::PlayWalkSound(state, 0.5f);
+
+      state.last_walk_sound_time = get_scene_time();
+    }
+  }
+
+  if (
+    rig.current_animation == &animations.player_small_hop &&
+    state.player.is_hopping_up_to_climb_down
+  ) {
+    if (t > 3.5f && t < 3.7f) {
+      SoundDriver::PlayLadderSound(state, 1.f);
 
       state.last_walk_sound_time = get_scene_time();
     }

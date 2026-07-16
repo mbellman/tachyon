@@ -5,18 +5,21 @@
 namespace astro {
   behavior Ladder {
     addMeshes() {
-      meshes.ladder_placeholder = MODEL_MESH("./astro/3d_models/ladder/placeholder.obj", 500);
-      meshes.ladder_rails = MODEL_MESH("./astro/3d_models/ladder/rails.obj", 500);
-      meshes.ladder_top = MODEL_MESH("./astro/3d_models/ladder/top.obj", 500);
+      meshes.ladder_placeholder = MODEL_MESH("./astro/3d_models/ladder/placeholder.obj", 200);
+      meshes.ladder_rails = MODEL_MESH("./astro/3d_models/ladder/rails.obj", 200);
+      meshes.ladder_top = MODEL_MESH("./astro/3d_models/ladder/top.obj", 200);
+      meshes.ladder_platform = MODEL_MESH("./astro/3d_models/ladder/platform.obj", 200);
 
       mesh(meshes.ladder_rails).shadow_cascade_ceiling = 3;
       mesh(meshes.ladder_top).shadow_cascade_ceiling = 3;
+      mesh(meshes.ladder_platform).shadow_cascade_ceiling = 2;
     }
 
     getMeshes() {
       return_meshes({
         meshes.ladder_rails,
-        meshes.ladder_top
+        meshes.ladder_top,
+        meshes.ladder_platform
       });
     }
 
@@ -31,6 +34,7 @@ namespace astro {
 
       reset_instances(meshes.ladder_rails);
       reset_instances(meshes.ladder_top);
+      reset_instances(meshes.ladder_platform);
       reset_instances(meshes.ladder_rung);
 
       for (auto& entity : state.ladders) {
@@ -38,10 +42,12 @@ namespace astro {
         if (!IsInRangeZ(entity, state, 25000.f)) continue;
         if (!IsDuringActiveTime(entity, state)) continue;
 
-        // Collision
+        // UnitEntityToWorldPosition() accommodation
         entity.visible_position = entity.position;
         entity.visible_scale = entity.scale;
         entity.visible_rotation = entity.orientation;
+
+        bool is_over_wall = entity.requires_action;
 
         // Rails
         {
@@ -68,6 +74,26 @@ namespace astro {
           top.material = tVec4f(0.4f, 1.f, 0, 0);
 
           commit(top);
+        }
+
+        // Platform
+        {
+          auto& platform = use_instance(meshes.ladder_platform);
+
+          Sync(platform, entity);
+
+          platform.position = UnitEntityToWorldPosition(entity, tVec3f(-0.5f, 1.f, 0));
+
+          // Over-wall ladders have a slightly higher top,
+          // so we lower the platform a smidge
+          if (is_over_wall) {
+            platform.position.y -= 250.f;
+          }
+
+          platform.color = tVec4f(0.5f, 0.5f, 0.5f, 0);
+          platform.material = tVec4f(0.1f, 1.f, 0, 0);
+
+          commit(platform);
         }
 
         // Rungs

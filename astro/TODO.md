@@ -44,6 +44,8 @@ tutorial:
 * magic gate improvements/collision
 
 features/fixes:
+* bug: climbing ladders in place (left stick y)
+* bug: climb up jump reset
 * walk/run/landing particles
 * jumping onto lower surfaces (e.g. castle walls)
 * custom fog volume color

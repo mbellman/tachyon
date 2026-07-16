@@ -1,4 +1,6 @@
 #include "astro/player_attachments.h"
+#include "astro/animation.h"
+#include "astro/player_animation.h"
 #include "astro/player_character.h"
 
 using namespace astro;
@@ -74,6 +76,25 @@ static void UpdateSatchel(Tachyon* tachyon, State& state) {
   satchel.position = state.player.visual_position + rotation_matrix * (torso_bone.translation * tVec3f(1500.f));
   satchel.position += rotation_matrix * (offset * 1500.f);
   satchel.position.y += 100.f * freefall_angle;
+
+  // The satchel clips through the character model when we climb up
+  // off a ladder, so we have to move it upward to compensate. Ugh.
+  {
+    auto& animations = state.animations;
+    float t = PlayerAnimation::GetAnimationTime(state, & animations.player_climb_up);
+
+    if (t != -1.f) {
+      float max_time = Animation::GetMaxTime(&animations.player_climb_up);
+
+      satchel.position.y += 100.f * sinf(t_PI * (t / max_time));
+    }
+  }
+
+  // The satchel clips through the character model when leaning forward,
+  // so move it upward to compensate for that as well.
+  {
+    satchel.position.y += 100.f * std::max(0.f, state.player.rig.torso_tilt_angle);
+  }
 
   satchel.scale = tVec3f(1500.f);
   satchel.rotation = rotation * fall_rotation * tilt_swing_rotation;

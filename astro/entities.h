@@ -436,6 +436,7 @@ namespace astro {
       ladder_placeholder,
       ladder_rails,
       ladder_top,
+      ladder_platform,
 
       // LAMP
       lamp_placeholder,
