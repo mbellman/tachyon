@@ -10,6 +10,11 @@ namespace astro {
       meshes.castle_wall_fountain_water = MODEL_MESH("./astro/3d_models/castle_wall_fountain/water.obj", 500);
 
       mesh(meshes.castle_wall_fountain).shadow_cascade_ceiling = 2;
+
+      // The water stream obviously isn't foliage, but we can use foliage behavior
+      // for the subtle warping/wobbling to mimic flow. We may want to rename the
+      // mesh type to indicate its more general purpose.
+      mesh(meshes.castle_wall_fountain_water).type = FOLIAGE_MESH;
     }
 
     getMeshes() {
@@ -45,13 +50,14 @@ namespace astro {
         }
 
         // Water
+        // @todo particles
         {
           auto& water = use_instance(meshes.castle_wall_fountain_water);
 
           Sync(water, entity);
 
-          water.color = 0x46C4;
-          water.material = tVec4f(0.5f, 0, 0, 1.f);
+          water.color = 0x6AF5;
+          water.material = tVec4f(0.3f, 0, 0, 1.f);
 
           commit(water);
         }

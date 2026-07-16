@@ -278,11 +278,11 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
     }
 
     if (state.is_holding_up_wand) {
-      if (state.player_idle_stance == 1) {
+      // if (state.player_idle_stance == 1) {
         Animation::AwaitNextAnimation(rig, &animations.player_idle_wand);
-      } else {
-        Animation::AwaitNextAnimation(rig, &animations.player_idle_wand_2);
-      }
+      // } else {
+        // Animation::AwaitNextAnimation(rig, &animations.player_idle_wand_2);
+      // }
     } else {
       if (state.player_idle_stance == 1) {
         Animation::AwaitNextAnimation(rig, &animations.player_idle);
@@ -748,7 +748,7 @@ static void HandleTorsoAnimation(Tachyon* tachyon, State& state) {
 
     rig.torso_tilt_angle = Tachyon_Lerpf(
       rig.torso_tilt_angle,
-      alpha * 0.75f,
+      alpha * 1.2f,
       5.f * state.dt
     );
   }

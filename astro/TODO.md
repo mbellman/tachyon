@@ -44,12 +44,12 @@ tutorial:
 * magic gate improvements/collision
 
 features/fixes:
-* ladder model updates
 * walk/run/landing particles
 * jumping onto lower surfaces (e.g. castle walls)
 * custom fog volume color
 * sculpture + wall fountain proximity sfx
 
+* bug (rare): stuck in CLIMB_DOWN_ONTO
 * bug: triggering sculptures when interacting with wind chimes
 * bug: walk/run start foot sticking
 * bug: putting down wand into running animation pop
@@ -58,6 +58,7 @@ features/fixes:
 * bug: swans moving through each other
 * bug: duck heads turning backwards
 * bug: tiny birds flying through castle towers
+* idle_wand_2
 * signpost collision
 * sculpture collision
 * guidance (small stone bridges, slopes)

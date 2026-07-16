@@ -867,6 +867,7 @@ void main() {
 
         fog_thickness += thickness;
         fog_color += volume.color * thickness;
+        // fog_color += 0.8 * vec3(0.8, 0.6, 0.7) * thickness;
       }
 
       if (fog_thickness > 1.0) fog_thickness = 1.0;

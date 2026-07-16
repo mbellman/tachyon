@@ -7,11 +7,17 @@ namespace astro {
     addMeshes() {
       meshes.ladder_placeholder = MODEL_MESH("./astro/3d_models/ladder/placeholder.obj", 500);
       meshes.ladder_rails = MODEL_MESH("./astro/3d_models/ladder/rails.obj", 500);
+      meshes.ladder_top = MODEL_MESH("./astro/3d_models/ladder/top.obj", 500);
+
+      mesh(meshes.ladder_rails).shadow_cascade_ceiling = 3;
+      mesh(meshes.ladder_top).shadow_cascade_ceiling = 3;
+      mesh(meshes.ladder_rung).shadow_cascade_ceiling = 2;
     }
 
     getMeshes() {
       return_meshes({
-        meshes.ladder_rails
+        meshes.ladder_rails,
+        meshes.ladder_top
       });
     }
 
@@ -25,6 +31,7 @@ namespace astro {
       auto& meshes = state.meshes;
 
       reset_instances(meshes.ladder_rails);
+      reset_instances(meshes.ladder_top);
       reset_instances(meshes.ladder_rung);
 
       for (auto& entity : state.ladders) {
@@ -37,13 +44,31 @@ namespace astro {
         entity.visible_scale = entity.scale;
         entity.visible_rotation = entity.orientation;
 
-        // Ladder
+        // Rails
         {
-          auto& ladder = use_instance(meshes.ladder_rails);
+          auto& rails = use_instance(meshes.ladder_rails);
 
-          Sync(ladder, entity);
+          Sync(rails, entity);
 
-          commit(ladder);
+          rails.color = tVec4f(1.f, 1.f, 1.f, 0.3f);
+          rails.material = tVec4f(0.4f, 1.f, 0, 0);
+
+          commit(rails);
+        }
+
+        // Top
+        {
+          auto& top = use_instance(meshes.ladder_top);
+
+          Sync(top, entity);
+
+          top.scale.y = top.scale.x;
+          top.position.y = entity.position.y + entity.scale.y;
+
+          top.color = tVec4f(1.f, 1.f, 1.f, 0.3f);
+          top.material = tVec4f(0.4f, 1.f, 0, 0);
+
+          commit(top);
         }
 
         // Rungs
@@ -61,6 +86,9 @@ namespace astro {
 
             // Place a rung every 600 y units
             rung.position.y = start_y + 600.f * float(i);
+
+            rung.color = tVec3f(1.f);
+            rung.material = tVec4f(0.4f, 1.f, 0, 0);
 
             commit(rung);
           }

@@ -739,7 +739,8 @@ export default [
     list: "ladders",
     meshes: [
       "ladder_placeholder",
-      "ladder_rails"
+      "ladder_rails",
+      "ladder_top"
     ],
     scale: [ 1000.0 ],
     color: [ 0.6 ]

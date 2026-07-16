@@ -372,7 +372,7 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
 
     // Approaching the bottom or top of a ladder
     bool is_climbing_onto_ladder_normally = (
-      dx < 1100.f && dz < 1100.f &&
+      dx < 1200.f && dz < 1200.f &&
       (is_moving_toward_ladder || was_just_climbing)
     );
 
@@ -411,7 +411,7 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
         state.player_position.y < climbing_bottom_y
       );
 
-      tVec3f climbing_position_xz = UnitEntityToWorldPosition(entity, tVec3f(1.05f, 0, 0)).xz();
+      tVec3f climbing_position_xz = UnitEntityToWorldPosition(entity, tVec3f(1.1f, 0, 0)).xz();
 
       if (did_climb_off_top) {
         state.player_velocity = tVec3f(0.f);
