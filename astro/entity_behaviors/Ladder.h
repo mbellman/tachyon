@@ -11,7 +11,6 @@ namespace astro {
 
       mesh(meshes.ladder_rails).shadow_cascade_ceiling = 3;
       mesh(meshes.ladder_top).shadow_cascade_ceiling = 3;
-      mesh(meshes.ladder_rung).shadow_cascade_ceiling = 2;
     }
 
     getMeshes() {

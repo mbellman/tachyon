@@ -392,14 +392,18 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
         // Starting a new climb action, so track its time
         state.player.last_climbing_start_time = scene_time;
 
-        SoundDriver::PlayLadderSound(state, 1.f);
+        if (is_climbing_over_wall_onto_ladder) {
+          state.player.is_hopping_up_to_climb_down = true;
+        } else {
+          SoundDriver::PlayLadderSound(state, 1.f);
+        }
       }
 
       float time_since_starting_climb = time_since(state.player.last_climbing_start_time);
 
-      // @todo handle climbing off over a wall
       bool did_climb_off_top = (
         is_left_stick_up &&
+        !state.player.is_hopping_up_to_climb_down &&
         !state.player.is_starting_climb_down &&
         time_since_starting_climb > 0.5f &&
         state.player_position.y > climbing_top_y
@@ -440,6 +444,14 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
         // the actual ground y will be updated.
         state.current_ground_y = state.player_position.y - 1000.f;
         state.fall_velocity = 0.f;
+      }
+      else if (state.player.is_hopping_up_to_climb_down) {
+        if (time_since(state.player.last_climbing_start_time) > 1.f) {
+          state.player.is_hopping_up_to_climb_down = false;
+        }
+
+        state.is_on_ladder = true;
+        state.did_jump_off_ledge = false;
       }
       else {
         float alpha = 3.f * state.dt;

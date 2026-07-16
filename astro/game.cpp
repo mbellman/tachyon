@@ -1098,6 +1098,19 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
     state.animations.player_climb_down_off.looping = false;
     state.animations.player_climb_down_off.name = "PLAYER_CLIMB_DOWN_OFF";
 
+    state.animations.player_small_hop.frames = {
+      GltfLoader("./astro/3d_skeleton_animations/player_small_hop/small_hop_1.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_small_hop/small_hop_2.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_small_hop/small_hop_3.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_small_hop/small_hop_4.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_small_hop/small_hop_5.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_small_hop/small_hop_6.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_small_hop/small_hop_7.gltf").skeleton
+    };
+
+    state.animations.player_small_hop.looping = false;
+    state.animations.player_small_hop.name = "PLAYER_SMALL_HOP";
+
     state.animations.player_swing_wand.frames = {
       GltfLoader("./astro/3d_skeleton_animations/player_swing_wand/swing_1.gltf").skeleton,
       GltfLoader("./astro/3d_skeleton_animations/player_swing_wand/swing_2.gltf").skeleton,

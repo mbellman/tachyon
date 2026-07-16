@@ -191,6 +191,10 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
     }
   }
 
+  else if (state.player.is_hopping_up_to_climb_down) {
+    Animation::StartNextAnimation(rig, &animations.player_small_hop);
+  }
+
   // Climbing
   else if (state.is_on_ladder) {
     Animation::StartNextAnimation(rig, &animations.player_climb);
@@ -340,6 +344,11 @@ static float GetAnimationSpeed(Tachyon* tachyon, State& state, tSkeletonAnimatio
     }
   }
 
+  // Small hops
+  if (animation == &animations.player_small_hop) {
+    return 8.f;
+  }
+
   // Climbing
   if (animation == &animations.player_climb_down_onto) {
     return 12.f;
@@ -395,6 +404,10 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
   // Freefall -> running/walking/idle
   if (IsFreefallAnimation(rig.current_animation, state) && !state.did_jump_off_ledge) {
     return 5.f;
+  }
+
+  if (rig.next_animation == &animations.player_small_hop) {
+    return 8.f;
   }
 
   if (rig.next_animation == &animations.player_quick_slowdown) {
@@ -748,7 +761,7 @@ static void HandleTorsoAnimation(Tachyon* tachyon, State& state) {
 
     rig.torso_tilt_angle = Tachyon_Lerpf(
       rig.torso_tilt_angle,
-      alpha * 1.2f,
+      alpha * 1.5f,
       5.f * state.dt
     );
   }
@@ -887,6 +900,37 @@ static void HandleAnimationSounds(Tachyon* tachyon, State& state) {
   }
 }
 
+static bool ShouldPlayAnimationInReverse(Tachyon* tachyon, State& state) {
+  // Small hops should never play in reverse
+  if (state.player.is_hopping_up_to_climb_down) {
+    return false;
+  }
+
+  // Quick turns should not play in reverse either
+  if (time_since(state.last_quick_turn_time) < 0.5f) {
+    return false;
+  }
+
+  // Climbing down
+  if (state.player.is_starting_climb_down) {
+    return true;
+  }
+
+  // Climbing down a ladder
+  if (state.is_on_ladder && tachyon->left_stick.y > 0.f) {
+    return true;
+  }
+
+  bool moving_forward = tVec3f::dot(state.player_velocity, state.player_facing_direction) >= 0.f;
+
+  // Moving backward, e.g. away from a target
+  if (!moving_forward && !PlayerCharacter::IsClimbingOffLadder(tachyon, state)) {
+    return true;
+  }
+
+  return false;
+}
+
 void PlayerAnimation::Update(Tachyon* tachyon, State& state) {
   profile("PlayerAnimation::Update()");
 
@@ -909,14 +953,7 @@ void PlayerAnimation::Update(Tachyon* tachyon, State& state) {
   rig.current_animation_speed = GetAnimationSpeed(tachyon, state, rig.current_animation);
   rig.next_animation_speed = GetAnimationSpeed(tachyon, state, rig.next_animation);
 
-  // When manually moving backward, or climbing down a ladder, play the animation in reverse
-  if (
-    state.player.is_starting_climb_down ||
-    time_since(state.last_quick_turn_time) > 0.5f && (
-      (!moving_forward && !PlayerCharacter::IsClimbingOffLadder(tachyon, state)) ||
-      (state.is_on_ladder && tachyon->left_stick.y > 0.f)
-    )
-  ) {
+  if (ShouldPlayAnimationInReverse(tachyon, state)) {
     rig.current_animation_speed *= -1.f;
     rig.next_animation_speed *= -1.f;
   }

@@ -567,6 +567,7 @@ namespace astro {
 
       bool is_turning_to_climb_down = false;
       bool is_starting_climb_down = false;
+      bool is_hopping_up_to_climb_down = false;
 
       // Ledge jumping
       float last_ledge_jump_time = 0.f;
@@ -640,7 +641,7 @@ namespace astro {
     float last_substory_title_time = 0.f;
 
     // Animations
-    struct SkeletonAnimations {
+    struct Animations {
       tSkeletonAnimation player_idle;
       tSkeletonAnimation player_idle_2;
       tSkeletonAnimation player_idle_wand;
@@ -655,6 +656,7 @@ namespace astro {
       tSkeletonAnimation player_climb_up_jump;
       tSkeletonAnimation player_climb_down_onto;
       tSkeletonAnimation player_climb_down_off;
+      tSkeletonAnimation player_small_hop;
       tSkeletonAnimation player_swing_wand;
       tSkeletonAnimation player_freefall;
       tSkeletonAnimation player_freefall2;

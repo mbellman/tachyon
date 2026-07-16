@@ -72,7 +72,9 @@ static void HandlePlayerMovementControls(Tachyon* tachyon, State& state) {
     // Target jump actions
     time_since(state.last_target_jump_time) < target_jump_cooldown_time ||
     // Climbing off ladders
-    PlayerCharacter::IsClimbingOffLadder(tachyon, state)
+    PlayerCharacter::IsClimbingOffLadder(tachyon, state) ||
+    // Hopping up to climb down onto a ladder
+    state.player.is_hopping_up_to_climb_down
   ) {
     return;
   }
