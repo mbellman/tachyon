@@ -11,6 +11,39 @@
 
 using namespace astro;
 
+// @todo move to constants
+static std::vector<float> small_hop_bounce_curve = {
+  0.f,
+  -0.1f,
+  0.6f,
+  1.2f,
+  1.4f,
+  1.5f,
+  1.4f,
+  1.f,
+  1.f
+};
+
+// @todo move elsewhere
+// @todo allow spline sampling
+static float SampleCurveForward(const std::vector<float>& curve, const float t) {
+  int max = (int) curve.size();
+  float max_time = (float) curve.size();
+  float seek_time = t * float(max);
+  if (seek_time < 0.f) seek_time += max_time;
+
+  int start_frame = (int) seek_time;
+  int end_frame = start_frame + 1;
+
+  if (end_frame >= max - 1) end_frame = max - 1;
+
+  auto a = curve[start_frame % max];
+  auto b = curve[end_frame % max];
+  float alpha = fmodf(seek_time, 1.f);
+
+  return Tachyon_Lerpf(a, b, alpha);
+}
+
 // @todo move to PlayerCharacter.h
 constexpr static float PLAYER_RADIUS = 600.f;
 constexpr static float PLAYER_HEIGHT = 1500.f;
@@ -357,6 +390,11 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
   bool is_left_stick_down = tachyon->left_stick.y > 0.f;
   bool was_just_climbing = time_since(state.player.last_climbing_time) < 0.5f;
 
+  bool is_jumping_off_wall_ladder = (
+    state.player.rig.current_animation == &state.animations.player_climb_up_jump ||
+    state.player.rig.current_animation == &state.animations.player_freefall2
+  );
+
   for (auto& entity : state.ladders) {
     if (!IsDuringActiveTime(entity, state)) continue;
 
@@ -373,14 +411,15 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
     // Approaching the bottom or top of a ladder
     bool is_climbing_onto_ladder_normally = (
       dx < 1200.f && dz < 1200.f &&
+      !state.did_climb_up_jump &&
+      !state.did_jump_off_ledge &&
       (is_moving_toward_ladder || was_just_climbing)
     );
 
     // Approaching a ladder over the edge of a raised wall
     bool is_climbing_over_wall_onto_ladder = (
       !state.is_on_ladder &&
-      !state.did_climb_up_jump &&
-      !state.did_jump_off_ledge &&
+      !is_jumping_off_wall_ladder &&
       state.player_position.y > entity.position.y &&
       entity.requires_action &&
       dx < 1600.f && dz < 1600.f
@@ -455,9 +494,9 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
       else if (state.player.is_hopping_up_to_climb_down) {
         float time_since_starting_climb = time_since(state.player.last_climbing_start_time);
 
-        if (time_since_starting_climb < 0.5f) {
+        if (time_since_starting_climb < 0.7f) {
           // Hop up
-          float hop_alpha = time_since_starting_climb / 0.5f;
+          float hop_alpha = time_since_starting_climb / 0.7f;
 
           // Blend into the climbing position
           tVec3f direction = (climbing_position_xz - state.player_position.xz()).unit();
@@ -465,26 +504,14 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
           state.player_velocity = tVec3f(0.f);
           state.player_position += direction * 1500.f * state.dt;
 
-          float alpha = 1.5f * (
-            1.f -
-            (1.f - hop_alpha * 1.665f) *
-            (1.f - hop_alpha * 1.5f)
-          );
+          // @temporary
+          // @todo store player y at start of hop
+          float base_y = ladder_top_y - 300.f;
+          float hop_height = (ladder_top_y + 1000.f) - base_y;
 
-          state.player_position.y = Tachyon_Lerpf(
-            ladder_top_y - 300.f,
-            ladder_top_y + 1000.f,
-            alpha
-          );
+          float sample = SampleCurveForward(small_hop_bounce_curve, hop_alpha);
 
-          // Blend into the ladder-facing direction
-          // tVec3f desired_facing_direction = (entity.position.xz() - climbing_position_xz).unit();
-
-          // state.player_facing_direction = tVec3f::slerp(
-          //   state.player_facing_direction,
-          //   desired_facing_direction,
-          //   2.f * state.dt
-          // );
+          state.player_position.y = base_y + hop_height * sample;
         } else {
           // Once we finish the hop up, we're going to start turning
           // so we can climb down onto the ladder. Pre-emptively set

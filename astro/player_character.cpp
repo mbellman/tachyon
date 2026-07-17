@@ -37,6 +37,18 @@ static std::vector<float> run_bounce_curve = {
 };
 
 // @todo move to constants
+static std::vector<float> small_hop_hood_flop_curve = {
+  0.f,
+  0.2f,
+  -0.5f,
+  -1.f,
+  0.f,
+  1.f,
+  0.1f,
+  0.f
+};
+
+// @todo move to constants
 static std::vector<float> climb_up_jump_hood_flop_curve = {
   // Climbing up
   0.f,
@@ -67,6 +79,26 @@ static float SampleCurve(const std::vector<float>& curve, const float t) {
 
   int start_frame = (int) seek_time;
   int end_frame = start_frame + 1;
+
+  auto a = curve[start_frame % max];
+  auto b = curve[end_frame % max];
+  float alpha = fmodf(seek_time, 1.f);
+
+  return Tachyon_Lerpf(a, b, alpha);
+}
+
+// @todo move elsewhere
+// @todo allow spline sampling
+static float SampleCurveForward(const std::vector<float>& curve, const float t) {
+  int max = (int) curve.size();
+  float max_time = (float) curve.size();
+  float seek_time = t * float(max);
+  if (seek_time < 0.f) seek_time += max_time;
+
+  int start_frame = (int) seek_time;
+  int end_frame = start_frame + 1;
+
+  if (end_frame >= max - 1) end_frame = max - 1;
 
   auto a = curve[start_frame % max];
   auto b = curve[end_frame % max];
@@ -340,6 +372,16 @@ static void HandleHoodFlop(State& state, tSkinnedMesh& hood) {
     float max_time = (float) rig.current_animation->frames.size();
     float alpha = t / max_time;
     float sample = SampleCurve(climb_up_jump_hood_flop_curve, alpha);
+
+    tVec3f flop;
+    flop.y = sample * 400.f;
+
+    hood.flop_offset = flop;
+  } else if (rig.current_animation == &animations.player_small_hop) {
+    float t = rig.current_animation_time;
+    float max_time = (float) rig.current_animation->frames.size();
+    float alpha = t / max_time;
+    float sample = SampleCurveForward(small_hop_hood_flop_curve, alpha);
 
     tVec3f flop;
     flop.y = sample * 400.f;

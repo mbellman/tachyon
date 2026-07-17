@@ -45,7 +45,7 @@ tutorial:
 
 features/fixes:
 * bug: climbing ladders in place (left stick y)
-* bug: climb up jump reset
+* bug: climb up jump -> walk animation ?????
 * walk/run/landing particles
 * jumping onto lower surfaces (e.g. castle walls)
 * custom fog volume color

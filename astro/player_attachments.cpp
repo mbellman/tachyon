@@ -278,6 +278,17 @@ void PlayerAttachments::Update(Tachyon* tachyon, State& state) {
     state.player.satchel_freefall = state.player.airborne_freefall * alpha;
     state.player.blanket_freefall = state.player.airborne_freefall * alpha;
   }
+  else if (state.player.is_hopping_up_to_climb_down) {
+    float t = PlayerAnimation::GetAnimationTime(state, &state.animations.player_small_hop);
+    float max = Animation::GetMaxTime(&state.animations.player_small_hop);
+    float alpha = t / max;
+
+    float freefall = -sinf(t_TAU * alpha);
+    clamp_to_0(freefall);
+
+    state.player.satchel_freefall = freefall;
+    state.player.blanket_freefall = freefall;
+  }
   else if (state.is_on_ladder) {
     float satchel_freefall = abs(state.player.climb_speed * 0.0001f);
 
