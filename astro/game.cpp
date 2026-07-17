@@ -217,6 +217,8 @@ static void ShowHighestLevelsOfDetail(Tachyon* tachyon, State& state) {
 
 // @todo dev_tools.cpp
 static void ResetEntities(Tachyon* tachyon, State& state) {
+  state.player.is_hopping_up_to_climb_down = false;
+
   // Reset wand pulses to avoid re-activating anything
   {
     tachyon->fx.wand_pulse_alpha = 1.f;
@@ -555,6 +557,8 @@ static void HandleClimbingSounds(Tachyon* tachyon, State& state) {
   if (
     // We're not on a ladder
     !state.is_on_ladder ||
+    // We're hopping up onto a ladder, but not on it yet
+    state.player.is_hopping_up_to_climb_down ||
     // We just played a sound
     time_since(state.last_walk_sound_time) < 0.2f ||
     // We're not moving up or down the ladder

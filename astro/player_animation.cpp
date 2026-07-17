@@ -908,8 +908,17 @@ static void HandleAnimationSounds(Tachyon* tachyon, State& state) {
     rig.current_animation == &animations.player_small_hop &&
     state.player.is_hopping_up_to_climb_down
   ) {
-    if (t > 4.f && t < 4.3f) {
-      SoundDriver::PlayLadderSound(state, 2.f);
+    if (t > 1.f && t < 1.3f) {
+      // @temporary
+      state.is_on_stone_surface = true;
+
+      SoundDriver::PlayWalkSound(state, 0.6f);
+
+      state.last_walk_sound_time = get_scene_time();
+    }
+
+    if (t > 4.5f && t < 4.8f) {
+      SoundDriver::PlayLadderSound(state, 1.5f);
 
       state.last_walk_sound_time = get_scene_time();
     }

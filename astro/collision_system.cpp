@@ -14,13 +14,12 @@ using namespace astro;
 // @todo move to constants
 static std::vector<float> small_hop_bounce_curve = {
   0.f,
-  -0.1f,
-  0.6f,
-  1.f,
+  0.f,
+  0.f,
+  0.f,
+  0.8f,
   1.2f,
   1.3f,
-  1.2f,
-  1.f,
   1.f
 };
 
@@ -419,11 +418,11 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
 
     // Approaching a ladder over the edge of a raised wall
     bool is_climbing_over_wall_onto_ladder = (
-      !state.is_on_ladder &&
+      (!state.is_on_ladder || state.player.is_hopping_up_to_climb_down) &&
       !is_jumping_off_wall_ladder &&
       state.player_position.y > entity.position.y &&
       entity.requires_action &&
-      dx < 1600.f && dz < 1600.f
+      dx < 2100.f && dz < 2100.f
     );
 
     if (is_climbing_onto_ladder_normally || is_climbing_over_wall_onto_ladder) {
@@ -435,11 +434,6 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
 
         if (is_climbing_over_wall_onto_ladder) {
           state.player.is_hopping_up_to_climb_down = true;
-
-          // @temporary
-          state.is_on_stone_surface = true;
-
-          SoundDriver::PlayWalkSound(state, 0.6f);
         } else {
           SoundDriver::PlayLadderSound(state, 1.f);
         }
@@ -497,20 +491,24 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
 
         if (time_since_starting_climb < 0.7f) {
           // Hop up
-          float hop_alpha = time_since_starting_climb / 0.7f;
+          float hop_alpha = time_since_starting_climb / 0.7f - 0.05f;
+          clamp_to_0(hop_alpha);
 
-          // Blend into the climbing position
-          tVec3f direction = (climbing_position_xz - state.player_position.xz()).unit();
-
-          state.player_velocity = tVec3f(0.f);
-          state.player_position += direction * 1500.f * state.dt;
+          state.player_velocity *= 1.f - state.dt;
 
           // @temporary
           // @todo store player y at start of hop
-          float base_y = ladder_top_y - 300.f;
-          float hop_height = (ladder_top_y + 1000.f) - base_y;
+          float base_y = ladder_top_y - 200.f;
 
+          float hop_height = (ladder_top_y + 1000.f) - base_y;
           float sample = SampleCurveForward(small_hop_bounce_curve, hop_alpha);
+
+          if (sample > 0.f) {
+            // Blend into the climbing position
+            tVec3f direction = (climbing_position_xz - state.player_position.xz()).unit();
+
+            state.player_position += direction * 3500.f * state.dt;
+          }
 
           state.player_position.y = base_y + hop_height * sample;
         } else {
