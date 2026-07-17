@@ -38,6 +38,18 @@ static std::vector<float> climb_up_jump_curve = {
   0.1f
 };
 
+// @todo move to constants
+static std::vector<float> small_hop_jump_curve = {
+  0.f,
+  -0.5f,
+  -0.2f,
+  0.3f,
+  0.7f,
+  1.f,
+  0.5f,
+  0.f
+};
+
 // @todo move elsewhere
 // @todo allow spline sampling
 static float SampleCurve(const std::vector<float>& curve, const float t) {
@@ -283,11 +295,11 @@ void PlayerAttachments::Update(Tachyon* tachyon, State& state) {
     float max = Animation::GetMaxTime(&state.animations.player_small_hop);
     float alpha = t / max;
 
-    float freefall = -sinf(t_TAU * alpha);
-    clamp_to_0(freefall);
+    float sample = SampleCurve(small_hop_jump_curve, alpha);
+    clamp_to_0(sample);
 
-    state.player.satchel_freefall = freefall;
-    state.player.blanket_freefall = freefall;
+    state.player.satchel_freefall = sample;
+    state.player.blanket_freefall = 1.5f * sample;
   }
   else if (state.is_on_ladder) {
     float satchel_freefall = abs(state.player.climb_speed * 0.0001f);
