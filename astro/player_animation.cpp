@@ -201,7 +201,12 @@ static void SetActiveAnimation(Tachyon* tachyon, State& state) {
   }
 
   // Freefall
-  else if (state.did_jump_off_ledge) {
+  else if (
+    state.did_jump_off_ledge || (
+      rig.current_animation == &animations.player_climb_up_jump &&
+      rig.current_animation_time > 10.f
+    )
+  ) {
     if (state.did_climb_up_jump) {
       Animation::AwaitNextAnimation(rig, &animations.player_freefall2);
     } else {

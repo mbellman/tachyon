@@ -16,10 +16,10 @@ static std::vector<float> small_hop_bounce_curve = {
   0.f,
   -0.1f,
   0.6f,
+  1.f,
   1.2f,
-  1.4f,
-  1.5f,
-  1.4f,
+  1.3f,
+  1.2f,
   1.f,
   1.f
 };
@@ -392,7 +392,8 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
 
   bool is_jumping_off_wall_ladder = (
     state.player.rig.current_animation == &state.animations.player_climb_up_jump ||
-    state.player.rig.current_animation == &state.animations.player_freefall2
+    state.player.rig.current_animation == &state.animations.player_freefall2 ||
+    state.player.rig.current_animation == &state.animations.player_freefall
   );
 
   for (auto& entity : state.ladders) {
