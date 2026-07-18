@@ -18,6 +18,7 @@
 #include "astro/level_editor.h"
 #include "astro/mesh_library.h"
 #include "astro/particles.h"
+#include "astro/player_animation.h"
 #include "astro/player_character.h"
 #include "astro/procedural_generation.h"
 #include "astro/procedural_growth.h"
@@ -528,12 +529,18 @@ static void HandleWalkSounds(Tachyon* tachyon, State& state) {
   }
 
   bool is_running = player_speed > PlayerCharacter::MAX_COMBAT_WALK_SPEED;
-  int step_frame_1 = 2; // Left foot
-  int step_frame_2 = 6; // Right foot
-  float seek_time = state.player.rig.next_animation_time;
+  // @todo Why are the running/walking step frames desynced here?
+  // They appear to be the same in the actual animation.
+  int step_frame_1 = is_running ? 2 : 0; // Left foot
+  int step_frame_2 = is_running ? 6 : 4; // Right foot
+  float seek_time = PlayerAnimation::GetRunCycleAnimationTime(state);
   int current_frame = (int) fmodf(seek_time, 8.f);
 
-  if (current_frame == step_frame_1 || current_frame == step_frame_2) {
+  if (
+    seek_time > 0.f &&
+    current_frame == step_frame_1 ||
+    current_frame == step_frame_2
+  ) {
     auto cycle = state.walk_cycle++;
 
     float volume = (

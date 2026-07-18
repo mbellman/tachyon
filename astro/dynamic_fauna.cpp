@@ -911,7 +911,7 @@ static void HandleSwan(Tachyon* tachyon, State& state, Swan& swan) {
     }
 
     swan.head_rotation = Quaternion::slerp(swan.head_rotation, target_rotation, head_rotation_speed * state.dt);
-    swan.position += swan.rotation.getDirection().invert() * 300.f * state.dt;
+    swan.position += swan.rotation.getDirection().invert() * 150.f * state.dt;
 
     if (tVec3f::distance(swan.position, swan.target_position) < 500.f) {
       swan.target_position = GetNewSwanTargetPosition(state, swan);

@@ -904,6 +904,19 @@ static void HandleAnimationSounds(Tachyon* tachyon, State& state) {
     }
   }
 
+  if (rig.current_animation == &animations.player_climb_down_off) {
+    if (t > 2.8f && t < 3.2f) {
+      // @hack
+      // @todo handle this differently if we have additional surfaces
+      // to climb up on
+      state.is_on_stone_surface = true;
+
+      SoundDriver::PlayWalkSound(state, 0.5f);
+
+      state.last_walk_sound_time = get_scene_time();
+    }
+  }
+
   if (
     rig.current_animation == &animations.player_small_hop &&
     state.player.is_hopping_up_to_climb_down
@@ -918,7 +931,7 @@ static void HandleAnimationSounds(Tachyon* tachyon, State& state) {
     }
 
     if (t > 5.f && t < 5.3f) {
-      SoundDriver::PlayLadderSound(state, 1.75f);
+      SoundDriver::PlayLadderSound(state, 1.5f);
 
       state.last_walk_sound_time = get_scene_time();
     }
