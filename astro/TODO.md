@@ -54,7 +54,6 @@ features/fixes:
 * bug: triggering sculptures when interacting with wind chimes
 * bug: walk/run start foot sticking
 * bug: putting down wand into running animation pop
-* bug: airborne tiny bird spawn/spawn-out position relative to player
 * bug: pressing E while editing entities causing glow particles to respawn?
 * bug: swans moving through each other
 * bug: duck heads turning backwards

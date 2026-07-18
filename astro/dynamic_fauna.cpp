@@ -217,6 +217,7 @@ static void SpawnTinyBird(Tachyon* tachyon, State& state, const GameEntity& spaw
   if (spawn_entity.position.y - ground_height > 6000.f) {
     // Spawn in the air, and continue flying
     bird.state = TinyBird::FLY_FORWARD;
+    target_position.x = state.player_position.x;
     target_position.y = spawn_entity.position.y;
 
     // Spawn pseudo-randomly on the left or right side, with a random z offset
@@ -902,7 +903,7 @@ static void HandleSwan(Tachyon* tachyon, State& state, Swan& swan) {
   {
     tVec3f target_direction = (swan.target_position - swan.position).unit();
     Quaternion target_rotation = Quaternion::FromDirection(target_direction, tVec3f(0, 1.f, 0));
-    float body_rotation_speed = GetRotationSpeed(time_since(swan.last_target_time) - 0.75f);
+    float body_rotation_speed = 0.35f * GetRotationSpeed(time_since(swan.last_target_time) - 0.75f);
     float head_rotation_speed = GetRotationSpeed(time_since(swan.last_target_time));
 
     if (time_since(swan.last_target_time) > 1.f) {
@@ -919,6 +920,7 @@ static void HandleSwan(Tachyon* tachyon, State& state, Swan& swan) {
   }
 
   // Avoid colliding with other swans
+  // @todo!!!!!!!!!!!!!!
   {
     for (auto& other_swan : state.swans) {
       // Skip self

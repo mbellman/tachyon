@@ -1019,10 +1019,10 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
       tVec3f root_offset = state.player.rotation_matrix * root_motion;
 
       state.player_position = state.player.climb_up_start_position + root_offset;
+      state.current_ground_y = state.player_position.y;
     }
 
     state.player_idle_stance = 2;
-    state.current_ground_y = state.player_position.y;
 
     return;
   }

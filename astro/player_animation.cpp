@@ -918,7 +918,7 @@ static void HandleAnimationSounds(Tachyon* tachyon, State& state) {
     }
 
     if (t > 5.f && t < 5.3f) {
-      SoundDriver::PlayLadderSound(state, 2.f);
+      SoundDriver::PlayLadderSound(state, 1.75f);
 
       state.last_walk_sound_time = get_scene_time();
     }
