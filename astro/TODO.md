@@ -45,10 +45,11 @@ tutorial:
 
 features/fixes:
 * bug: climbing ladders in place (left stick y)
+* bug: climb up jump not resulting in forward freefall (timing???)
 * walk/run/landing particles
-* jumping onto lower surfaces (e.g. castle walls)
-* custom fog volume color
 * sculpture + wall fountain proximity sfx
+* custom fog volume color
+* small hops onto lower surfaces (e.g. castle walls)
 
 * bug (rare): stuck in CLIMB_DOWN_ONTO
 * bug: triggering sculptures when interacting with wind chimes
@@ -100,6 +101,7 @@ editor/dev stuff:
 * freecam mode in-game (dev)
 
 tech debt:
+* refactor hidden wand determination
 * point light lookup optimizations
 * platonic_meshes
 

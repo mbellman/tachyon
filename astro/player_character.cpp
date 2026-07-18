@@ -743,7 +743,7 @@ static void UpdateWand(Tachyon* tachyon, State& state) {
   tVec3f player_body_position = skinned_mesh(state.meshes.player_robes).position;
 
   bool is_wand_hidden = (
-    state.is_on_ladder ||
+    (state.is_on_ladder && !state.player.is_hopping_up_to_climb_down) ||
     time_since(state.player.last_climbing_stop_time) < 0.5f
   );
 
@@ -1071,7 +1071,7 @@ static void UpdateWandLights(Tachyon* tachyon, State& state) {
 
     // Disable when climbing/climbing off ladders/freefalling
     if (
-      state.is_on_ladder ||
+      (state.is_on_ladder && !state.player.is_hopping_up_to_climb_down) ||
       PlayerCharacter::IsClimbingOffLadder(tachyon, state) ||
       state.did_jump_off_ledge
     ) {
