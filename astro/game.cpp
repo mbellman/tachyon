@@ -1109,7 +1109,8 @@ void astro::InitGame(Tachyon* tachyon, State& state) {
       GltfLoader("./astro/3d_skeleton_animations/player_small_hop/small_hop_4.gltf").skeleton,
       GltfLoader("./astro/3d_skeleton_animations/player_small_hop/small_hop_5.gltf").skeleton,
       GltfLoader("./astro/3d_skeleton_animations/player_small_hop/small_hop_6.gltf").skeleton,
-      GltfLoader("./astro/3d_skeleton_animations/player_small_hop/small_hop_7.gltf").skeleton
+      GltfLoader("./astro/3d_skeleton_animations/player_small_hop/small_hop_7.gltf").skeleton,
+      GltfLoader("./astro/3d_skeleton_animations/player_small_hop/small_hop_8.gltf").skeleton
     };
 
     state.animations.player_small_hop.looping = false;

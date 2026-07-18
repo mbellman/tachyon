@@ -573,6 +573,7 @@ namespace astro {
       float last_ledge_jump_time = 0.f;
       float last_freefall_landing_time = 0.f;
       float ledge_jump_duration = 0.2f;
+      float small_hop_start_y = 0.f;
 
       bool is_looking_at_something = false;
       bool is_airborne_in_run_cycle = false;

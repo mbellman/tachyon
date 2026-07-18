@@ -17,9 +17,14 @@ static std::vector<float> small_hop_bounce_curve = {
   0.f,
   0.f,
   0.f,
-  0.8f,
+  0.1f,
+  0.5f,
+  1.f,
   1.2f,
   1.3f,
+  1.25f,
+  1.05f,
+  0.95f,
   1.f
 };
 
@@ -434,6 +439,7 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
 
         if (is_climbing_over_wall_onto_ladder) {
           state.player.is_hopping_up_to_climb_down = true;
+          state.player.small_hop_start_y = state.player_position.y;
         } else {
           SoundDriver::PlayLadderSound(state, 1.f);
         }
@@ -491,23 +497,20 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
 
         if (time_since_starting_climb < 0.7f) {
           // Hop up
-          float hop_alpha = time_since_starting_climb / 0.7f - 0.05f;
+          float hop_alpha = time_since_starting_climb / 0.7f;
           clamp_to_0(hop_alpha);
 
           state.player_velocity *= 1.f - state.dt;
 
-          // @temporary
-          // @todo store player y at start of hop
-          float base_y = ladder_top_y - 200.f;
-
-          float hop_height = (ladder_top_y + 1000.f) - base_y;
+          float base_y = state.player.small_hop_start_y;
+          float hop_height = (ladder_top_y + 1200.f) - base_y;
           float sample = SampleCurveForward(small_hop_bounce_curve, hop_alpha);
 
           if (sample > 0.f) {
-            // Blend into the climbing position
+            // Move toward the climbing position
             tVec3f direction = (climbing_position_xz - state.player_position.xz()).unit();
 
-            state.player_position += direction * 3500.f * state.dt;
+            state.player_position += direction * 2500.f * state.dt;
           }
 
           state.player_position.y = base_y + hop_height * sample;

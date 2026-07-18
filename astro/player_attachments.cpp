@@ -40,13 +40,13 @@ static std::vector<float> climb_up_jump_curve = {
 
 // @todo move to constants
 static std::vector<float> small_hop_jump_curve = {
-  0.f,
-  -0.5f,
   -0.2f,
-  0.3f,
-  0.7f,
-  1.f,
-  0.5f,
+  -0.5f,
+  -0.6f,
+  0.f,
+  0.8f,
+  1.3f,
+  0.4f,
   0.f
 };
 

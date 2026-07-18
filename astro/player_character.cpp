@@ -39,12 +39,12 @@ static std::vector<float> run_bounce_curve = {
 // @todo move to constants
 static std::vector<float> small_hop_hood_flop_curve = {
   0.f,
-  0.2f,
-  -0.5f,
-  -1.f,
   0.f,
+  -0.8f,
+  -0.4f,
+  0.f,
+  0.5f,
   1.f,
-  0.1f,
   0.f
 };
 
@@ -731,9 +731,14 @@ static void UpdateWand(Tachyon* tachyon, State& state) {
   auto& wand = objects(state.meshes.player_wand)[0];
   tVec3f player_body_position = skinned_mesh(state.meshes.player_robes).position;
 
+  bool is_wand_hidden = (
+    state.is_on_ladder ||
+    time_since(state.player.last_climbing_stop_time) < 0.5f
+  );
+
   tVec3f offset = state.player.rotation_matrix * tVec3f(-1.f, 0, 0);
 
-  wand.scale = state.is_on_ladder || time_since(state.player.last_climbing_stop_time) < 0.5f ? tVec3f(0.f) : tVec3f(800.f);
+  wand.scale = is_wand_hidden ? tVec3f(0.f) : tVec3f(800.f);
   wand.color = tVec3f(1.f, 0.6f, 0.2f);
   wand.material = tVec4f(1.f, 0, 0, 0.4f);
 

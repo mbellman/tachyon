@@ -351,7 +351,7 @@ static float GetAnimationSpeed(Tachyon* tachyon, State& state, tSkeletonAnimatio
 
   // Small hops
   if (animation == &animations.player_small_hop) {
-    return 8.f;
+    return 10.f;
   }
 
   // Climbing
@@ -412,7 +412,7 @@ static float GetAnimationBlendRate(Tachyon* tachyon, State& state) {
   }
 
   if (rig.next_animation == &animations.player_small_hop) {
-    return 15.f;
+    return 12.f;
   }
 
   if (rig.next_animation == &animations.player_quick_slowdown) {
@@ -908,17 +908,17 @@ static void HandleAnimationSounds(Tachyon* tachyon, State& state) {
     rig.current_animation == &animations.player_small_hop &&
     state.player.is_hopping_up_to_climb_down
   ) {
-    if (t > 1.f && t < 1.3f) {
+    if (t > 1.5f && t < 1.8f) {
       // @temporary
       state.is_on_stone_surface = true;
 
-      SoundDriver::PlayWalkSound(state, 0.6f);
+      SoundDriver::PlayWalkSound(state, 0.5f);
 
       state.last_walk_sound_time = get_scene_time();
     }
 
-    if (t > 4.5f && t < 4.8f) {
-      SoundDriver::PlayLadderSound(state, 1.5f);
+    if (t > 5.f && t < 5.3f) {
+      SoundDriver::PlayLadderSound(state, 2.f);
 
       state.last_walk_sound_time = get_scene_time();
     }
