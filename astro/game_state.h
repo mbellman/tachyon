@@ -338,9 +338,15 @@ namespace astro {
     FlowerParticleType type = PARTICLE_RISING;
   };
 
+  struct DustCloud {
+    tVec3f spawn_position;
+    float spawn_time;
+  };
+
   /**
    * ----------------------------
    * Water flows
+   * @todo rename river flows or similar
    * ----------------------------
    */
   struct WaterFlow {
@@ -628,8 +634,7 @@ namespace astro {
     float last_walk_sound_time = 0.f;
     uint8 walk_cycle = 0;
 
-    tVec3f last_dust_cloud_spawn_position;
-    float last_dust_cloud_spawn_time = 0.f;
+    std::vector<DustCloud> dust_clouds;
 
     float fall_velocity = 0.f;
     float current_ground_y = 0.f;

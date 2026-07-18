@@ -214,11 +214,12 @@ static void HandleLedgeJumpActions(Tachyon* tachyon, State& state) {
   }
 }
 
-static void SpawnDustClouds(Tachyon* tachyon, State& state, const tVec3f& position) {
-  state.last_dust_cloud_spawn_position = position;
-  state.last_dust_cloud_spawn_time = get_scene_time();
+static void SpawnDustCloud(Tachyon* tachyon, State& state, const tVec3f& position) {
+  DustCloud cloud;
+  cloud.spawn_position = position;
+  cloud.spawn_time = get_scene_time();
 
-  // @todo handle dust cloud spawns
+  state.dust_clouds.push_back(cloud);
 }
 
 static void TrackPlantedFeetWhileRunning(Tachyon* tachyon, State& state) {
@@ -250,7 +251,7 @@ static void TrackPlantedFeetWhileRunning(Tachyon* tachyon, State& state) {
 
     state.player.planted_left_foot_position = state.player_position + foot;
 
-    SpawnDustClouds(tachyon, state, state.player.planted_left_foot_position);
+    SpawnDustCloud(tachyon, state, state.player.planted_left_foot_position);
   }
 
   // Planted (right foot)
@@ -264,7 +265,7 @@ static void TrackPlantedFeetWhileRunning(Tachyon* tachyon, State& state) {
 
     state.player.planted_right_foot_position = state.player_position + foot;
 
-    SpawnDustClouds(tachyon, state, state.player.planted_right_foot_position);
+    SpawnDustCloud(tachyon, state, state.player.planted_right_foot_position);
   }
 }
 
