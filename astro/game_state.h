@@ -60,6 +60,7 @@ namespace astro {
       stray_leaf,
       river_leaf,
       dust_mote,
+      dust_cloud,
 
       // Dynamic fauna meshes
       butterfly_left_wing,
@@ -626,6 +627,9 @@ namespace astro {
     float movement_distance = 0.f;
     float last_walk_sound_time = 0.f;
     uint8 walk_cycle = 0;
+
+    tVec3f last_dust_cloud_spawn_position;
+    float last_dust_cloud_spawn_time = 0.f;
 
     float fall_velocity = 0.f;
     float current_ground_y = 0.f;

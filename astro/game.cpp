@@ -65,6 +65,10 @@ static void CreateConstantObjects(Tachyon* tachyon, State& state) {
     for_range(1, 500) {
       create(meshes.river_leaf);
     }
+
+    for_range(1, 10) {
+      create(meshes.dust_cloud);
+    }
   }
 
   // Dynamic fauna meshes

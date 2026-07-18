@@ -450,6 +450,7 @@ void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
   meshes.stray_leaf = MODEL_MESH("./astro/3d_models/stray_leaf.obj", 30);
   meshes.river_leaf = MODEL_MESH("./astro/3d_models/river_leaf.obj", 500);
   meshes.dust_mote = SPHERE_MESH(1000, 6);
+  meshes.dust_cloud = MODEL_MESH("./astro/3d_models/dust_cloud.obj", 10);
 
   mesh(meshes.water_plane).type = WATER_MESH;
   mesh(meshes.water_plane).shadow_cascade_ceiling = 0;
@@ -461,6 +462,8 @@ void MeshLibrary::AddMeshes(Tachyon* tachyon, State& state) {
   // @temporary @todo use GLOW_PARTICLE_MESH once it exists
   mesh(meshes.dust_mote).type = VOLUMETRIC_MESH;
   mesh(meshes.dust_mote).shadow_cascade_ceiling = 0;
+
+  mesh(meshes.dust_cloud).shadow_cascade_ceiling = 0;
 
   AddHUDMeshes(tachyon, state);
   AddDecorativeMeshes(tachyon, state);
