@@ -438,6 +438,9 @@ static void HandleLadderCollisions(Tachyon* tachyon, State& state) {
         // Starting a new climb action, so track its time
         state.player.last_climbing_start_time = scene_time;
 
+        // Cancel out quick slowdowns, in case we were doing one into the ladder
+        state.player.is_doing_quick_slowdown = false;
+
         if (is_climbing_over_wall_onto_ladder) {
           state.player.is_hopping_up_to_climb_down = true;
           state.player.small_hop_start_y = state.player_position.y;
@@ -727,7 +730,7 @@ static void HandleCastleRampartCollisions(Tachyon* tachyon, State& state) {
   for (auto& entity : state.castle_ramparts) {
     auto rampart_plane = CollisionSystem::CreatePlane(
       entity.position,
-      entity.scale * tVec3f(0.2f, 1.f, 0.75f),
+      entity.scale * tVec3f(0.175f, 1.f, 0.75f),
       entity.orientation
     );
 
@@ -1202,6 +1205,8 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
           );
 
           state.fall_velocity = 0.f;
+
+          VisualEffects::SpawnDustCloudsAroundPlayer(tachyon, state);
         }
       } else {
         // Climbing up; zero out fall velocity to yield to animation control

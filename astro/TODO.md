@@ -45,7 +45,6 @@ tutorial:
 
 features/fixes:
 * bug: climbing ladders in place (left stick y)
-* bug: climb up jump not resulting in forward freefall (timing???)
 * sculpture + wall fountain proximity sfx
 * custom fog volume color
 * anti-haze entities

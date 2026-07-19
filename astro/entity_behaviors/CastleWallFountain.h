@@ -31,12 +31,25 @@ namespace astro {
     timeEvolve() {
       auto& meshes = state.meshes;
 
+      float closest_distance = FLT_MAX;
+      tVec3f closest_position;
+
       reset_instances(meshes.castle_wall_fountain);
       reset_instances(meshes.castle_wall_fountain_water);
 
       for (auto& entity : state.castle_wall_fountains) {
         if (!IsInRangeX(entity, state, 30000.f)) continue;
         if (!IsInRangeZ(entity, state, 40000.f)) continue;
+
+        // Track the closest entity
+        {
+          float distance = tVec3f::distance(entity.position, state.player_position);
+
+          if (distance < closest_distance) {
+            closest_distance = distance;
+            closest_position = entity.position;
+          }
+        }
 
         // Fountain
         {
@@ -61,6 +74,11 @@ namespace astro {
 
           commit(water);
         }
+      }
+
+      // Handle sound effects for the closest fountain
+      if (closest_distance < FLT_MAX) {
+        // @todo
       }
     }
   };
