@@ -63,3 +63,19 @@ void VisualEffects::SpawnDustCloud(Tachyon* tachyon, State& state, const tVec3f&
 
   state.dust_clouds.push_back(cloud);
 }
+
+void VisualEffects::SpawnDustCloudsAroundPlayer(Tachyon* tachyon, State& state) {
+  for_range(1, 5) {
+    float alpha = t_TAU * float(i) / 5.f;
+
+    float x = sinf(alpha);
+    float z = cosf(alpha);
+
+    tVec3f spawn_position =
+      state.player_position
+      - tVec3f(0, 1500.f, 0)
+      + tVec3f(1000.f * x, 0, 1000.f * z);
+
+    VisualEffects::SpawnDustCloud(tachyon, state, spawn_position);
+  }
+}

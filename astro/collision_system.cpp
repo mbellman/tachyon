@@ -5,6 +5,7 @@
 #include "astro/player_character.h"
 #include "astro/player_animation.h"
 #include "astro/sound_driver.h"
+#include "astro/visual_effects.h"
 
 // @temporary
 #include "astro/animation.h"
@@ -1286,11 +1287,13 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
     // Stop ledge jumps once on the ground
     if (state.player_position.y == state.current_ground_y) {
       if (state.did_jump_off_ledge) {
+        // Landing from freefall
         state.player.last_freefall_landing_time = get_scene_time();
 
         float volume = state.is_on_stone_surface ? 0.5f : 0.25f;
 
         SoundDriver::PlayWalkSound(state, volume);
+        VisualEffects::SpawnDustCloudsAroundPlayer(tachyon, state);
       }
 
       state.did_climb_up_jump = false;

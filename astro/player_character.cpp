@@ -318,11 +318,11 @@ static void HandleRunOscillation(Tachyon* tachyon, State& state) {
     // Reduce run oscillation when climbing
     state.run_oscillation -= 20.f * state.dt;
   }
-  else if (time_since(state.last_quick_turn_time) < 0.2f) {
-    state.run_oscillation -= 10.f * state.dt;
-  }
-  else if (state.player.is_doing_quick_slowdown) {
-    // Reduce run oscillation when doing a quick slowdown
+  else if (
+    state.player.is_doing_quick_slowdown ||
+    time_since(state.last_quick_turn_time) < 0.5f
+  ) {
+    // Reduce oscillation during quick slowdown + quick turns
     state.run_oscillation -= 10.f * state.dt;
   }
   else if (
@@ -474,7 +474,7 @@ static void UpdateFacingDirectionAndTilt(Tachyon* tachyon, State& state) {
   float player_speed = state.player_velocity.magnitude();
   float speed_ratio = player_speed / PlayerCharacter::MAX_RUN_SPEED;
   tVec3f desired_facing_direction = state.player_facing_direction;
-  float turn_speed = Tachyon_Lerpf(5.f, 10.f, speed_ratio);
+  float turn_speed = Tachyon_Lerpf(2.f, 10.f, speed_ratio);
   float tilt = 0.f;
 
   float time_since_quick_turn = time_since(state.last_quick_turn_time);
