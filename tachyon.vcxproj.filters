@@ -762,6 +762,15 @@
     <ClInclude Include="astro\sound_driver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="astro\entity_behaviors\CastleWallFountain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\entity_behaviors\Vine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="astro\visual_effects.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -993,6 +1002,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="astro\sound_driver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="astro\visual_effects.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

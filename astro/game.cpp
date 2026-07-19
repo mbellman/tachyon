@@ -28,6 +28,7 @@
 #include "astro/targeting.h"
 #include "astro/time_evolution.h"
 #include "astro/ui_system.h"
+#include "astro/visual_effects.h"
 #include "astro/wand_abilities.h"
 
 // @todo dev_tools.cpp
@@ -510,45 +511,6 @@ static void HandleSnow(Tachyon* tachyon, State& state) {
     particle.material = tVec4f(0.f, 1.f, 0, 1.f);
 
     commit(particle);
-  }
-}
-
-// @todo move to engine
-template<class T>
-static inline void RemoveFromArray(std::vector<T>& array, uint32 index) {
-  array.erase(array.begin() + index);
-}
-
-static void HandleDustClouds(Tachyon* tachyon, State& state) {
-  auto& meshes = state.meshes;
-
-  reset_instances(meshes.dust_cloud);
-
-  for (int i = state.dust_clouds.size() - 1; i >= 0; i--) {
-    auto& cloud = state.dust_clouds[i];
-    float time_since_spawned = time_since(cloud.spawn_time);
-
-    float alpha = time_since_spawned / 0.75f;
-    clamp_to_1(alpha);
-
-    if (alpha == 1.f) {
-      // Ignore and remove expired dust clouds
-      RemoveFromArray(state.dust_clouds, i);
-
-      continue;
-    }
-
-    auto& object = use_instance(meshes.dust_cloud);
-
-    object.position = cloud.spawn_position;
-    object.position.y += sqrtf(alpha) * 500.f;
-
-    object.scale = tVec3f(500.f * (1.f - alpha));
-
-    object.color = tVec4f(1.f, 1.f, 1.f, 0.7f);
-    object.material = tVec4f(1.f, 0, 0, 1.f);
-
-    commit(object);
   }
 }
 
@@ -1341,9 +1303,9 @@ void astro::UpdateGame(Tachyon* tachyon, State& state, const float dt) {
   DynamicFauna::HandleBehavior(tachyon, state);
   FacadeGeometry::HandleFacades(tachyon, state);
   Environment::HandleEnvironment(tachyon, state);
+  VisualEffects::Update(tachyon, state);
   HandleFog(tachyon, state);
   // HandleSnow(tachyon, state);
-  HandleDustClouds(tachyon, state);
   HandleWalkSounds(tachyon, state);
   HandleClimbingSounds(tachyon, state);
   HandleCurrentAreaMusic(tachyon, state);
