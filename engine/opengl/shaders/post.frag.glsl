@@ -339,7 +339,7 @@ void main() {
       // vec3 medium_haze_color = 2.0 * vec3(1.0, 0.45, 0.3);
       // vec3 medium_haze_color = 2.0 * vec3(0.8, 0.4, 0.5);
 
-      // float f = 1.0 - 0.5 * smoothstep(0.0, 40000.0, world_position.x);
+      // float f = 1.0 - 0.75 * smoothstep(0.0, 40000.0, world_position.x);
 
       post_color = mix(post_color, fog_color, haze_factor);
       post_color = mix(post_color, medium_haze_color, medium_haze_factor);

@@ -52,6 +52,11 @@ void VisualEffects::Update(Tachyon* tachyon, State& state) {
 }
 
 void VisualEffects::SpawnDustCloud(Tachyon* tachyon, State& state, const tVec3f& position, const float delay) {
+  if (state.dust_clouds.size() == 10) {
+    // Disallow more dust clouds than there are allocated objects
+    return;
+  }
+
   DustCloud cloud;
   cloud.spawn_position = position;
   cloud.spawn_time = get_scene_time() + delay;

@@ -290,6 +290,8 @@ static void TrackPlantedFeetWhileWalking(Tachyon* tachyon, State& state) {
     foot = state.player.rotation_matrix * foot;
 
     state.player.planted_left_foot_position = state.player_position + foot;
+
+    VisualEffects::SpawnDustCloud(tachyon, state, state.player.planted_left_foot_position);
   }
 
   // Planted (right foot)
@@ -302,6 +304,8 @@ static void TrackPlantedFeetWhileWalking(Tachyon* tachyon, State& state) {
     foot = state.player.rotation_matrix * foot;
 
     state.player.planted_right_foot_position = state.player_position + foot;
+
+    VisualEffects::SpawnDustCloud(tachyon, state, state.player.planted_right_foot_position);
   }
 }
 
@@ -446,6 +450,26 @@ static void KeepFeetPlanted(State& state) {
   }
 }
 
+static void HandleQuickSlowdownDust(Tachyon* tachyon, State& state) {
+  tVec3f spawn_position =
+    state.player.visual_position
+    // Spawn on the ground, below the player
+    - tVec3f(0, 1500.f, 0)
+    // Spawn slightly behind the player as well
+    - state.player_facing_direction * 500.f;
+
+  if (state.dust_clouds.size() == 0) {
+    VisualEffects::SpawnDustCloud(tachyon, state, spawn_position);
+  } else {
+    float last_dust_cloud_time = state.dust_clouds.back().spawn_time;
+    float time_since_last_dust_cloud = time_since(last_dust_cloud_time);
+
+    if (time_since_last_dust_cloud > 0.05f) {
+      VisualEffects::SpawnDustCloud(tachyon, state, spawn_position);
+    }
+  }
+}
+
 static void UpdateFacingDirectionAndTilt(Tachyon* tachyon, State& state) {
   float player_speed = state.player_velocity.magnitude();
   float speed_ratio = player_speed / PlayerCharacter::MAX_RUN_SPEED;
@@ -557,6 +581,10 @@ static void UpdatePlayerModel(Tachyon* tachyon, State& state) {
     else {
       state.player.is_left_foot_planted = false;
       state.player.is_right_foot_planted = false;
+    }
+
+    if (state.player.is_doing_quick_slowdown) {
+      HandleQuickSlowdownDust(tachyon, state);
     }
 
     HandleRunOscillation(tachyon, state);

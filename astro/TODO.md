@@ -46,9 +46,10 @@ tutorial:
 features/fixes:
 * bug: climbing ladders in place (left stick y)
 * bug: climb up jump not resulting in forward freefall (timing???)
-* walk/run/landing particles
+* landing particles
 * sculpture + wall fountain proximity sfx
 * custom fog volume color
+* anti-haze entities
 * small hops onto lower surfaces (e.g. castle walls)
 
 * bug (rare): stuck in CLIMB_DOWN_ONTO
@@ -59,6 +60,9 @@ features/fixes:
 * bug: swans moving through each other
 * bug: duck heads turning backwards
 * bug: tiny birds flying through castle towers
+* wand sense pulse sfx
+* wand running sfx
+* quick slowdown sfx
 * idle_wand_2
 * signpost collision
 * sculpture collision

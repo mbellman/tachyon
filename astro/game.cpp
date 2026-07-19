@@ -224,6 +224,7 @@ static void ShowHighestLevelsOfDetail(Tachyon* tachyon, State& state) {
 // @todo dev_tools.cpp
 static void ResetEntities(Tachyon* tachyon, State& state) {
   state.player.is_hopping_up_to_climb_down = false;
+  state.player.is_turning_to_climb_down = false;
 
   // Reset wand pulses to avoid re-activating anything
   {
