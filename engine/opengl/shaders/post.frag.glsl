@@ -341,8 +341,12 @@ void main() {
 
       // float f = 1.0 - 0.75 * smoothstep(0.0, 40000.0, world_position.x);
 
+      // @temporary
+      vec3 anti_haze_position = vec3(35000.0, 10000.0, 130000.0);
+      float f = min(1.0, distance(world_position, anti_haze_position) / 35000.0);
+
       post_color = mix(post_color, fog_color, haze_factor);
-      post_color = mix(post_color, medium_haze_color, medium_haze_factor);
+      post_color = mix(post_color, medium_haze_color, f * medium_haze_factor);
       post_color = mix(post_color, vec3(1.5), 0.75 * far_haze_factor);
     #elif ENABLE_COSMODRONE_FX
       float depth_factor = 0.25 * pow(color_and_depth.w, 300.0);

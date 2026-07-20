@@ -28,7 +28,9 @@ namespace astro {
       reset_instances(meshes.stair_step);
 
       for (auto& entity : state.castle_stairs) {
-        if (!IsDuringActiveTime(entity, state)) continue;
+        bool is_active_time = IsDuringActiveTime(entity, state);
+
+        if (!is_active_time) continue;
 
         entity.visible_position = entity.position;
         entity.visible_rotation = entity.orientation;

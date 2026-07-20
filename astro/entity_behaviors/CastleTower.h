@@ -46,6 +46,10 @@ namespace astro {
       for_entities(state.castle_towers) {
         auto& entity = state.castle_towers[i];
 
+        bool is_active_time = IsDuringActiveTime(entity, state);
+
+        if (!is_active_time) continue;
+
         // Wall structure
         {
           auto& tower = use_instance(meshes.castle_tower);

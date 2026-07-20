@@ -33,6 +33,10 @@ namespace astro {
       for_entities(state.castle_ramparts) {
         auto& entity = state.castle_ramparts[i];
 
+        bool is_active_time = IsDuringActiveTime(entity, state);
+
+        if (!is_active_time) continue;
+
         // Rampart
         {
           auto& rampart = use_instance(meshes.castle_rampart);

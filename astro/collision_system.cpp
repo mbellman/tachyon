@@ -728,6 +728,13 @@ static void HandleCastleRampartCollisions(Tachyon* tachyon, State& state) {
   float player_bottom_y = state.player_position.y - PLAYER_HEIGHT;
 
   for (auto& entity : state.castle_ramparts) {
+    if (!IsDuringActiveTime(entity, state)) continue;
+
+    if (state.player_position.y > entity.position.y + entity.scale.y) {
+      // Ignore ramparts below the player
+      continue;
+    }
+
     auto rampart_plane = CollisionSystem::CreatePlane(
       entity.position,
       entity.scale * tVec3f(0.175f, 1.f, 0.75f),
@@ -1065,8 +1072,17 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
     ResolveSoftRadiusCollision(state, entity.position, radius);
   }
 
+  // @todo check against visible shrubs
   for (auto& entity : state.lilac_bushes) {
-    if (entity.visible_scale.x < 500.f) continue;
+    if (entity.visible_scale.x < 500.f) {
+      // Ignore smaller bushes
+      continue;
+    }
+
+    if (state.player_position.y > entity.position.y + entity.scale.y) {
+      // Ignore bushes below the player
+      continue;
+    }
 
     float radius = entity.visible_scale.x * 1.2f;
 
@@ -1126,6 +1142,11 @@ void CollisionSystem::HandleCollisions(Tachyon* tachyon, State& state) {
 
   for_used_instances(state.meshes.ground_1) {
     auto& ground = objects(state.meshes.ground_1)[i];
+
+    if (state.player_position.y > ground.position.y + 5000.f) {
+      // Ignore ground objects well below the player
+      continue;
+    }
 
     bool has_collision = true;
 

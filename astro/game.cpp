@@ -120,7 +120,7 @@ static void CreateConstantObjects(Tachyon* tachyon, State& state) {
     create(meshes.stair_step);
   }
 
-  for_range(1, 100) {
+  for_range(1, 150) {
     create(meshes.castle_tile);
   }
 
@@ -399,6 +399,15 @@ static void HandleInGameDevHotkeys(Tachyon* tachyon, State& state) {
       } else {
         show_overlay_message("Re-enabled enemies");
       }
+    }
+  }
+
+  // Expensive mesh toggling (for geometry testing)
+  {
+    if (did_press_key(tKey::K)) {
+      auto& grass = objects(state.meshes.small_grass);
+
+      grass.disabled = !grass.disabled;
     }
   }
 }
