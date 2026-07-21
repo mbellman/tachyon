@@ -12,6 +12,7 @@ namespace metro {
   struct MeshIds {
     uint16
       // @temporary
+      cube,
       bicycle;
   };
 

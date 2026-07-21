@@ -5,7 +5,8 @@
 #define ENABLE_CHROMATIC_ABERRATION 0
 
 #define ENABLE_COSMODRONE_FX 0
-#define ENABLE_ASTRO_FX 1
+#define ENABLE_ASTRO_FX 0
+#define ENABLE_METRO_FX 1
 
 uniform sampler2D in_color_and_depth;
 uniform mat4 inverse_projection_matrix;
