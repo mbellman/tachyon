@@ -1,6 +1,4 @@
 #include "metro/game.h"
-#include "metro/background_bicycles.h"
-#include "metro/player_bicycle.h"
 #include "metro/world_init.h"
 #include "metro/world_update.h"
 
@@ -20,6 +18,4 @@ void metro::Update(Tachyon* tachyon, State& state, const float dt) {
   HandleFrameStart(tachyon, state, dt);
 
   World::Update(tachyon, state);
-  BackgroundBicycles::Update(tachyon, state);
-  PlayerBicycle::Update(tachyon, state);
 }

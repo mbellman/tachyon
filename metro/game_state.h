@@ -4,16 +4,26 @@
 #include "engine/tachyon_types.h"
 
 // @todo move to engine
+#define for_range(__low, __high) for (int i = __low; i <= __high; i++)
 #define time_since(t) (tachyon->scene.scene_time - (t))
 #define get_scene_time() tachyon->scene.scene_time
 #define is_moving_left_stick() (tachyon->left_stick.x != 0.f || tachyon->left_stick.y != 0.f)
 
 namespace metro {
-  // @incomplete
+  enum BicycleType {
+    COMMON_BIKE
+  };
+
   struct Bicycle {
-    tVec3f frame_color;
-    tVec3f wheel_color;
-    tVec3f handles_color;
+    BicycleType type;
+
+    tColor frame_color;
+    tColor wheel_color;
+    tColor handles_color;
+    tColor seat_color;
+
+    tVec3f position;
+    Quaternion rotation;
   };
 
   struct MeshIds {
