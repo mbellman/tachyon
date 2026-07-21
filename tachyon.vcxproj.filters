@@ -777,6 +777,12 @@
     <ClInclude Include="metro\game.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="metro\world_update.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="metro\world_init.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -1014,6 +1020,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="metro\game.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="metro\world_update.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="metro\world_init.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

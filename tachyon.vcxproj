@@ -370,6 +370,8 @@
     <ClInclude Include="external\SDL_ttf\include\SDL_ttf.h" />
     <ClInclude Include="metro\game.h" />
     <ClInclude Include="metro\game_state.h" />
+    <ClInclude Include="metro\world_init.h" />
+    <ClInclude Include="metro\world_update.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="astro\animated_entities.cpp" />
@@ -451,6 +453,8 @@
     <ClCompile Include="external\miniaudio\miniaudio.c" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="metro\game.cpp" />
+    <ClCompile Include="metro\world_init.cpp" />
+    <ClCompile Include="metro\world_update.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
