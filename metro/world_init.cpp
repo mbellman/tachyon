@@ -15,10 +15,11 @@ static void LoadCommonBikeMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   meshes.common_frame    = MODEL_MESH("./metro/3d_models/common_bike/frame.obj", 10);
-  meshes.common_skeleton = MODEL_MESH("./metro/3d_models/common_bike/skeleton.obj", 10);
+  meshes.common_chassis  = MODEL_MESH("./metro/3d_models/common_bike/chassis.obj", 10);
   meshes.common_handles  = MODEL_MESH("./metro/3d_models/common_bike/handles.obj", 10);
   meshes.common_seat     = MODEL_MESH("./metro/3d_models/common_bike/seat.obj", 10);
-  meshes.common_wheels   = MODEL_MESH("./metro/3d_models/common_bike/wheels.obj", 10);
+  meshes.common_wheel    = MODEL_MESH("./metro/3d_models/common_bike/wheel.obj", 20);
+  meshes.common_spokes   = MODEL_MESH("./metro/3d_models/common_bike/spokes.obj", 20);
 }
 
 static void LoadGameMeshes(Tachyon* tachyon, State& state) {

@@ -36,10 +36,11 @@ namespace metro {
 
       // Common bike
       common_frame,
-      common_skeleton,
+      common_chassis,
       common_handles,
       common_seat,
-      common_wheels
+      common_spokes,
+      common_wheel
 
       ;
   };
