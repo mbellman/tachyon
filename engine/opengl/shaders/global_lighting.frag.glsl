@@ -531,8 +531,7 @@ vec3 Cosmodrone_GetSkyColor(vec3 sky_direction, float sun_glare_factor) {
   return sky_color;
 }
 
-// @todo nighttime color
-vec3 GetSkyColor(vec3 sky_direction, float sun_glare_factor) {
+vec3 Astro_GetSkyColor(vec3 sky_direction, float sun_glare_factor) {
   float DdotU = max(0.0, dot(sky_direction, vec3(0, 1.0, 0)));
   float up_dot = 0.6 + 0.4 * DdotU;
 
@@ -540,6 +539,23 @@ vec3 GetSkyColor(vec3 sky_direction, float sun_glare_factor) {
   vec3 sky_color = vec3(0.2, 0.3, 1.0);
 
   return mix(horizon_color, sky_color, up_dot * up_dot);
+}
+
+vec3 Metro_GetSkyColor(vec3 sky_direction, float sun_glare_factor) {
+  float DdotU = max(0.0, dot(sky_direction, vec3(0, 1.0, 0)));
+  float up_dot = DdotU;
+
+  vec3 sky_color = vec3(0, 0.2, 1.0);
+  vec3 horizon_color = vec3(0.9, 0.9, 1.0);
+
+  float sky_blend_alpha = pow(up_dot, 0.33);
+
+  return mix(horizon_color, sky_color, sky_blend_alpha);
+}
+
+// @todo nighttime color
+vec3 GetSkyColor(vec3 sky_direction, float sun_glare_factor) {
+  return Metro_GetSkyColor(sky_direction, sun_glare_factor);
 }
 
 vec3 GetReflectionColor(vec3 R) {
