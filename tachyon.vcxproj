@@ -368,6 +368,8 @@
     <ClInclude Include="external\SDL2\include\SDL_vulkan.h" />
     <ClInclude Include="external\SDL_image\include\SDL_image.h" />
     <ClInclude Include="external\SDL_ttf\include\SDL_ttf.h" />
+    <ClInclude Include="metro\game.h" />
+    <ClInclude Include="metro\game_state.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="astro\animated_entities.cpp" />
@@ -448,6 +450,7 @@
     <ClCompile Include="engine\tachyon_ui.cpp" />
     <ClCompile Include="external\miniaudio\miniaudio.c" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="metro\game.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -771,6 +771,12 @@
     <ClInclude Include="astro\visual_effects.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="metro\game_state.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="metro\game.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -1005,6 +1011,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="astro\visual_effects.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="metro\game.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
