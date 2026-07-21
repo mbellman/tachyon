@@ -23,6 +23,8 @@ namespace metro {
     tColor seat_color;
 
     tVec3f position;
+    tVec3f velocity;
+    tVec3f facing_direction;
     Quaternion rotation;
   };
 

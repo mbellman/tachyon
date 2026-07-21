@@ -49,12 +49,12 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
   // @temporary
   {
     Bicycle bike;
-    bike.type = BicycleType::COMMON_BIKE;
+    bike.type          = BicycleType::COMMON_BIKE;
     bike.position      = tVec3f(-5000.f, -2000.f, -10000.f);
     bike.frame_color   = 0xFFF8;
     bike.handles_color = tVec3f(0.1f);
     bike.seat_color    = tVec3f(0.1f, 0, 0);
-    bike.wheel_color   = tVec3f(0.5f);
+    bike.wheel_color   = tVec3f(0.2f);
 
     BackgroundBicycles::SpawnBicycle(tachyon, state, bike);
   }
@@ -62,11 +62,11 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
   // @temporary
   {
     Bicycle bike;
-    bike.type = BicycleType::COMMON_BIKE;
+    bike.type          = BicycleType::COMMON_BIKE;
     bike.position      = tVec3f(0, -2000.f, -10000.f);
     bike.frame_color   = tVec3f(0.5f, 1.f, 0.4f);
     bike.handles_color = tVec3f(0.1f);
-    bike.seat_color    = tVec3f(0.1f, 0, 0);
+    bike.seat_color    = tVec3f(0.2f);
     bike.wheel_color   = tVec3f(1.f, 0.9f, 0.7f);
 
     BackgroundBicycles::SpawnBicycle(tachyon, state, bike);
@@ -75,7 +75,7 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
   // @temporary
   {
     Bicycle bike;
-    bike.type = BicycleType::COMMON_BIKE;
+    bike.type          = BicycleType::COMMON_BIKE;
     bike.position      = tVec3f(5000.f, -2000.f, -10000.f);
     bike.frame_color   = tVec3f(1.f, 0.2f, 0.4f);
     bike.handles_color = tVec3f(0.1f);

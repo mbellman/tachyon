@@ -12,26 +12,6 @@ static void SpawnCommonBike(Tachyon* tachyon, State& state, const Bicycle& bicyc
   auto& seat = create(meshes.common_seat);
   auto& wheels = create(meshes.common_wheels);
 
-  frame.position = bicycle.position;
-  frame.color = bicycle.frame_color;
-  frame.material = tVec4f(0.3f, 0, 0.2f, 0);
-
-  skeleton.position = bicycle.position;
-  skeleton.color = tVec3f(0.8f);
-  skeleton.material = tVec4f(0.4f, 1.f, 0, 0);
-
-  handles.position = bicycle.position;
-  handles.color = bicycle.handles_color;
-  handles.material = tVec4f(0.7f, 0, 0, 0.5f);
-
-  seat.position = bicycle.position;
-  seat.color = bicycle.seat_color;
-  seat.material = tVec4f(0.6f, 0, 0, 0.2f);
-
-  wheels.position = bicycle.position;
-  wheels.color = bicycle.wheel_color;
-  wheels.material = tVec4f(0.9f, 0, 0, 0.5f);
-
   frame.scale = tVec3f(2000.f);
   skeleton.scale = tVec3f(2000.f);
   handles.scale = tVec3f(2000.f);
@@ -55,16 +35,29 @@ static void UpdateCommonBike(Tachyon* tachyon, State& state, const Bicycle& bicy
   auto& wheels = objects(meshes.common_wheels)[index];
 
   frame.position = bicycle.position;
-  skeleton.position = bicycle.position;
-  handles.position = bicycle.position;
-  seat.position = bicycle.position;
-  wheels.position = bicycle.position;
-
   frame.rotation = bicycle.rotation;
+  frame.color = bicycle.frame_color;
+  frame.material = tVec4f(0.3f, 0, 0.2f, 0);
+
+  skeleton.position = bicycle.position;
   skeleton.rotation = bicycle.rotation;
+  skeleton.color = tVec3f(0.8f);
+  skeleton.material = tVec4f(0.4f, 1.f, 0, 0);
+
+  handles.position = bicycle.position;
   handles.rotation = bicycle.rotation;
+  handles.color = bicycle.handles_color;
+  handles.material = tVec4f(0.7f, 0, 0, 0.5f);
+
+  seat.position = bicycle.position;
   seat.rotation = bicycle.rotation;
+  seat.color = bicycle.seat_color;
+  seat.material = tVec4f(0.6f, 0, 0, 0.2f);
+
+  wheels.position = bicycle.position;
   wheels.rotation = bicycle.rotation;
+  wheels.color = bicycle.wheel_color;
+  wheels.material = tVec4f(0.9f, 0, 0, 0.5f);
 
   commit(frame);
   commit(skeleton);
