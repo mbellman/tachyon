@@ -368,8 +368,10 @@
     <ClInclude Include="external\SDL2\include\SDL_vulkan.h" />
     <ClInclude Include="external\SDL_image\include\SDL_image.h" />
     <ClInclude Include="external\SDL_ttf\include\SDL_ttf.h" />
+    <ClInclude Include="metro\background_bicycles.h" />
     <ClInclude Include="metro\game.h" />
     <ClInclude Include="metro\game_state.h" />
+    <ClInclude Include="metro\player_bicycle.h" />
     <ClInclude Include="metro\world_init.h" />
     <ClInclude Include="metro\world_update.h" />
   </ItemGroup>
@@ -452,7 +454,9 @@
     <ClCompile Include="engine\tachyon_ui.cpp" />
     <ClCompile Include="external\miniaudio\miniaudio.c" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="metro\background_bicycles.cpp" />
     <ClCompile Include="metro\game.cpp" />
+    <ClCompile Include="metro\player_bicycle.cpp" />
     <ClCompile Include="metro\world_init.cpp" />
     <ClCompile Include="metro\world_update.cpp" />
   </ItemGroup>

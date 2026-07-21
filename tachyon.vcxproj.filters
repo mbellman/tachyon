@@ -783,6 +783,12 @@
     <ClInclude Include="metro\world_init.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="metro\background_bicycles.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="metro\player_bicycle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -1026,6 +1032,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="metro\world_init.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="metro\background_bicycles.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="metro\player_bicycle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
