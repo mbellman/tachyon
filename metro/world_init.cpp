@@ -47,6 +47,7 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
 
     cube.position = tVec3f(0, -8000.f, -10000.f);
     cube.scale = tVec3f(8000.f, 5000.f, 5000.f);
+    cube.color = tVec3f(0.5f);
 
     commit(cube);
   }

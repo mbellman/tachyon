@@ -15,30 +15,33 @@ void CameraSystem::Update(Tachyon* tachyon, State& state) {
   auto& camera3p = tachyon->scene.camera3p;
   auto& camera = tachyon->scene.camera;
 
-  // Swiveling
+  // Swiveling (azimuth)
   {
-    camera3p.azimuth += tachyon->right_stick.x * 2.f * state.dt;
+    const float swivel_speed = 3.f;
+
+    camera3p.azimuth += tachyon->right_stick.x * swivel_speed * state.dt;
   }
 
-  // Zooming in/out
+  // Zooming in/out (altitude)
   {
-    camera3p.altitude += tachyon->right_stick.y * state.dt;
+    const float min = 0.1f;
+    const float max = 1.2f;
+    const float zoom_speed = 1.5f;
 
-    if (camera3p.altitude < 0.1f) camera3p.altitude = 0.1f;
+    camera3p.altitude += tachyon->right_stick.y * zoom_speed * state.dt;
 
-    camera3p.limitAltitude(0.9f);
+    if (camera3p.altitude < min) camera3p.altitude = min;
+    if (camera3p.altitude > max) camera3p.altitude = max;
 
-    // @temporary
-    if (tachyon->right_stick.y > 0.f) {
-      camera3p.radius = Tachyon_Lerpf(camera3p.radius, 25000.f, state.dt);
-    } else if (tachyon->right_stick.y < 0.f) {
-      camera3p.radius = Tachyon_Lerpf(camera3p.radius, 10000.f, state.dt);
-    }
+    float radiusAlpha = Tachyon_InverseLerp(min, max, camera3p.altitude);
+
+    camera3p.radius = 10000.f + 15000.f * radiusAlpha;
   }
 
   tVec3f target = tVec3f(0, 0, -10000.f);
+  tVec3f updated_position = target + camera3p.calculatePosition();
 
-  camera.position = target + camera3p.calculatePosition();
+  camera.position = tVec3f::lerp(camera.position, updated_position, 8.f * state.dt);
 
   LookAt(camera, target);
 }

@@ -548,7 +548,7 @@ vec3 Metro_GetSkyColor(vec3 sky_direction, float sun_glare_factor) {
   vec3 sky_color = vec3(0, 0.2, 1.0);
   vec3 horizon_color = vec3(0.9, 0.9, 1.0);
 
-  float sky_blend_alpha = pow(up_dot, 0.33);
+  float sky_blend_alpha = pow(up_dot, 0.4);
 
   return mix(horizon_color, sky_color, sky_blend_alpha);
 }
