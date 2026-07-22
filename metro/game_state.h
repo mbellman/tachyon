@@ -30,8 +30,7 @@ namespace metro {
     float leaning_angle = 0.f;
     float wheel_revolution = 0.f;
 
-    // @todo remove this, and compute at runtime from facing direction + leaning angle
-    Quaternion rotation;
+    Quaternion computed_rotation;
   };
 
   struct MeshIds {

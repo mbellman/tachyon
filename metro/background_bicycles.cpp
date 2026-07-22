@@ -9,7 +9,7 @@ const static tVec3f LEANING_AXIS = tVec3f(1.f, 0, 0);
 
 static tVec3f UnitBikeToWorldPosition(const Bicycle& bicycle, const tVec3f& position) {
   tVec3f translation = bicycle.position;
-  Quaternion rotation = bicycle.rotation;
+  Quaternion rotation = bicycle.computed_rotation;
   tVec3f scale = tVec3f(2000.f);
 
   return translation + rotation.toMatrix4f() * (position * scale);
@@ -67,7 +67,9 @@ static void UpdateCommonBike(Tachyon* tachyon, State& state, Bicycle& bicycle, i
   Quaternion leaning_rotation = Quaternion::fromAxisAngle(LEANING_AXIS, bicycle.leaning_angle);
   Quaternion wheel_axle_rotation = Quaternion::fromAxisAngle(WHEEL_AXIS, -bicycle.wheel_revolution);
 
-  bicycle.rotation = bicycle.rotation * leaning_rotation;
+  bicycle.computed_rotation =
+    Quaternion::FromDirection(bicycle.facing_direction, tVec3f(0, 1.f, 0)) *
+    leaning_rotation;
 
   auto& frame = objects(meshes.common_frame)[index];
   auto& fork = objects(meshes.common_fork)[index];
@@ -77,12 +79,12 @@ static void UpdateCommonBike(Tachyon* tachyon, State& state, Bicycle& bicycle, i
   auto& saddle = objects(meshes.common_saddle)[index];
 
   frame.position = bicycle.position;
-  frame.rotation = bicycle.rotation;
+  frame.rotation = bicycle.computed_rotation;
   frame.color = bicycle.frame_color;
   frame.material = tVec4f(0.3f, 0, 0.2f, 0);
 
   fork.position = UnitBikeToWorldPosition(bicycle, tVec3f(0.445f, 0.44f, 0));
-  fork.rotation = bicycle.rotation * steering_rotation;
+  fork.rotation = bicycle.computed_rotation * steering_rotation;
   fork.color = bicycle.frame_color;
   fork.material = tVec4f(0.3f, 0, 0.2f, 0);
 
@@ -97,12 +99,12 @@ static void UpdateCommonBike(Tachyon* tachyon, State& state, Bicycle& bicycle, i
   grips.material = tVec4f(0.7f, 0, 0, 0.5f);
 
   seatpost.position = bicycle.position;
-  seatpost.rotation = bicycle.rotation;
+  seatpost.rotation = bicycle.computed_rotation;
   seatpost.color = tVec3f(0.8f);
   seatpost.material = tVec4f(0.4f, 1.f, 0, 0);
 
   saddle.position = bicycle.position;
-  saddle.rotation = bicycle.rotation;
+  saddle.rotation = bicycle.computed_rotation;
   saddle.color = bicycle.saddle_color;
   saddle.material = tVec4f(0.6f, 0, 0, 0.2f);
 
@@ -134,7 +136,7 @@ static void UpdateCommonBike(Tachyon* tachyon, State& state, Bicycle& bicycle, i
     front_spokes.material = tVec4f(0.4f, 1.f, 0, 0);
 
     back_wheel.position = UnitBikeToWorldPosition(bicycle, tVec3f(-0.61f, 0, 0));
-    back_wheel.rotation = bicycle.rotation * wheel_axle_rotation;
+    back_wheel.rotation = bicycle.computed_rotation * wheel_axle_rotation;
     back_wheel.color = bicycle.wheel_color;
     back_wheel.material = tVec4f(0.9f, 0, 0, 0.5f);
 
@@ -154,8 +156,9 @@ void BackgroundBicycles::Update(Tachyon* tachyon, State& state) {
   int32 total_common_bikes = 0;
 
   for (auto& bicycle : state.bicycles) {
-    // @temporary
-    bicycle.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 0.5f * get_scene_time());
+    bicycle.facing_direction.x = sinf(get_scene_time());
+    bicycle.facing_direction.z = cosf(get_scene_time());
+
     bicycle.wheel_revolution += 5.f * state.dt;
     bicycle.wheel_revolution = fmodf(bicycle.wheel_revolution, t_TAU);
     bicycle.steering_angle = sinf(get_scene_time());
