@@ -85,25 +85,27 @@ static void UpdateCommonBike(Tachyon* tachyon, State& state, const Bicycle& bicy
     auto& back_wheel = objects(meshes.common_wheel)[wheel_index + 1];
     auto& back_spokes = objects(meshes.common_spokes)[wheel_index + 1];
 
+    Quaternion axle_rotation = Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), -bicycle.wheel_angle);
+
     // @temporary
     front_wheel.position = UnitBikeToWorldPosition(bicycle, tVec3f(0.59f, 0, 0));
-    front_wheel.rotation = bicycle.rotation;
+    front_wheel.rotation = bicycle.rotation * axle_rotation;
     front_wheel.color = bicycle.wheel_color;
     front_wheel.material = tVec4f(0.9f, 0, 0, 0.5f);
 
     front_spokes.position = front_wheel.position;
-    front_spokes.rotation = bicycle.rotation;
+    front_spokes.rotation = front_wheel.rotation;
     front_spokes.color = tVec3f(0.8f);
     front_spokes.material = tVec4f(0.4f, 1.f, 0, 0);
 
     // @temporary
     back_wheel.position = UnitBikeToWorldPosition(bicycle, tVec3f(-0.61f, 0, 0));
-    back_wheel.rotation = bicycle.rotation;
+    back_wheel.rotation = bicycle.rotation * axle_rotation;
     back_wheel.color = bicycle.wheel_color;
     back_wheel.material = tVec4f(0.9f, 0, 0, 0.5f);
 
     back_spokes.position = back_wheel.position;
-    back_spokes.rotation = bicycle.rotation;
+    back_spokes.rotation = back_wheel.rotation;
     back_spokes.color = tVec3f(0.8f);
     back_spokes.material = tVec4f(0.4f, 1.f, 0, 0);
 
@@ -120,6 +122,7 @@ void BackgroundBicycles::Update(Tachyon* tachyon, State& state) {
   for (auto& bicycle : state.bicycles) {
     // @temporary
     bicycle.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), 0.5f * get_scene_time());
+    bicycle.wheel_angle += 5.f * state.dt;
 
     switch (bicycle.type) {
       case BicycleType::COMMON_BIKE:

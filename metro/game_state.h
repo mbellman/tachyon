@@ -26,6 +26,7 @@ namespace metro {
     tVec3f velocity;
     tVec3f facing_direction;
     Quaternion rotation;
+    float wheel_angle = 0.f;
   };
 
   struct MeshIds {
