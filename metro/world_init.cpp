@@ -66,7 +66,7 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
     bike.saddle_color  = tVec3f(0.1f, 0, 0);
     bike.wheel_color   = tVec3f(0.2f);
 
-    bike.facing_direction = tVec3f(1.f, 0, 0);
+    bike.facing_direction = tVec3f(0, 0, -1.f);
 
     BackgroundBicycles::SpawnBicycle(tachyon, state, bike);
   }
@@ -82,7 +82,7 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
     bike.saddle_color  = tVec3f(0.2f);
     bike.wheel_color   = tVec3f(1.f, 0.9f, 0.7f);
 
-    bike.facing_direction = tVec3f(1.f, 0, 0);
+    bike.facing_direction = tVec3f(0, 0, -1.f);
 
     BackgroundBicycles::SpawnBicycle(tachyon, state, bike);
   }
@@ -98,7 +98,7 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
     bike.saddle_color  = tVec3f(0.1f, 0, 0);
     bike.wheel_color   = tVec3f(1.f, 0.9f, 0.7f);
 
-    bike.facing_direction = tVec3f(1.f, 0, 0);
+    bike.facing_direction = tVec3f(0, 0, -1.f);
 
     BackgroundBicycles::SpawnBicycle(tachyon, state, bike);
   }

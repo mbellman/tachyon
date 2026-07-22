@@ -28,6 +28,7 @@ void CameraSystem::Update(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
 
   // Swiveling (azimuth)
+  // @todo mouse support
   {
     const float swivel_speed = 3.f;
 
@@ -35,6 +36,7 @@ void CameraSystem::Update(Tachyon* tachyon, State& state) {
   }
 
   // Zooming in/out (altitude)
+  // @todo mouse support
   {
     const float min = 0.1f;
     const float max = 1.2f;
@@ -45,9 +47,9 @@ void CameraSystem::Update(Tachyon* tachyon, State& state) {
     if (camera3p.altitude < min) camera3p.altitude = min;
     if (camera3p.altitude > max) camera3p.altitude = max;
 
-    float radiusAlpha = Tachyon_InverseLerp(min, max, camera3p.altitude);
+    float radius_alpha = Tachyon_InverseLerp(min, max, camera3p.altitude);
 
-    camera3p.radius = 10000.f + 15000.f * radiusAlpha;
+    camera3p.radius = 10000.f + 15000.f * radius_alpha;
   }
 
   tVec3f target = GetCameraTargetPosition(state);
