@@ -30,6 +30,7 @@ namespace metro {
     float leaning_angle = 0.f;
     float wheel_revolution = 0.f;
 
+    int32 id = -1;
     Quaternion computed_rotation;
   };
 
@@ -58,5 +59,7 @@ namespace metro {
     MeshIds meshes;
 
     std::vector<Bicycle> bicycles;
+    int32 player_bike_id = -1;
+    tVec3f player_position;
   };
 }

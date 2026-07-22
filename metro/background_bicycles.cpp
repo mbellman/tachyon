@@ -12,14 +12,9 @@ void BackgroundBicycles::Update(Tachyon* tachyon, State& state) {
 
   for (auto& bicycle : state.bicycles) {
     // @temporary
-    bicycle.facing_direction.x = sinf(get_scene_time());
-    bicycle.facing_direction.z = cosf(get_scene_time());
-
-    // @temporary
     bicycle.wheel_revolution += 5.f * state.dt;
     bicycle.wheel_revolution = fmodf(bicycle.wheel_revolution, t_TAU);
     bicycle.steering_angle = sinf(get_scene_time());
-    bicycle.leaning_angle = 0.5f * cosf(get_scene_time() + 0.5f);
 
     switch (bicycle.type) {
       case BicycleType::COMMON_BIKE:

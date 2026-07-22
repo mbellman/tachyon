@@ -23,6 +23,8 @@ uniform vec3 camera_position;
 uniform float scene_time;
 uniform float running_time;
 
+#define ENABLE_ASTRO_FX 0
+
 // Primary lighting
 uniform vec3 primary_light_direction;
 uniform vec3 primary_light_color;
@@ -833,7 +835,10 @@ void main() {
   }
 
   out_color += primary_light_color * albedo * 0.2 * GetAmbientFresnel(NdotV);
-  out_color += primary_light_color * albedo * sheen * 10.0 * GetAmbientFresnel(NdotV);
+
+  #if ENABLE_ASTRO_FX == 1
+    out_color += primary_light_color * albedo * sheen * 10.0 * GetAmbientFresnel(NdotV);
+  #endif
 
   if (frag_normal_and_depth.w >= 1.0) out_color = vec3(0);
 
@@ -906,12 +911,12 @@ void main() {
     }
 
     // Subtly brighten the scene near the player for visibility
-    {
+    #if ENABLE_ASTRO_FX == 1
       float alpha = frag_distance_from_player / player_light_radius;
       if (alpha > 1.0) alpha = 1.0;
 
       out_color = mix(out_color * player_light_color, out_color, alpha);
-    }
+    #endif
   }
 
   vec3 previous_color = texture(previous_color_and_depth, fragUv).rgb;
