@@ -25,10 +25,13 @@ namespace metro {
     tVec3f position;
     tVec3f velocity;
     tVec3f facing_direction;
-    Quaternion rotation;
 
     float steering_angle = 0.f;
+    float leaning_angle = 0.f;
     float wheel_revolution = 0.f;
+
+    // @todo remove this, and compute at runtime from facing direction + leaning angle
+    Quaternion rotation;
   };
 
   struct MeshIds {

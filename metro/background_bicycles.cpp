@@ -5,6 +5,7 @@ using namespace metro;
 
 const static tVec3f STEERING_AXIS = tVec3f(-0.2305f, 0.9731f, 0);
 const static tVec3f WHEEL_AXIS = tVec3f(0, 0, 1.f);
+const static tVec3f LEANING_AXIS = tVec3f(1.f, 0, 0);
 
 static tVec3f UnitBikeToWorldPosition(const Bicycle& bicycle, const tVec3f& position) {
   tVec3f translation = bicycle.position;
@@ -59,11 +60,14 @@ static void SpawnCommonBike(Tachyon* tachyon, State& state, const Bicycle& bicyc
   commit(spokes2);
 }
 
-static void UpdateCommonBike(Tachyon* tachyon, State& state, const Bicycle& bicycle, int32 index) {
+static void UpdateCommonBike(Tachyon* tachyon, State& state, Bicycle& bicycle, int32 index) {
   auto& meshes = state.meshes;
 
   Quaternion steering_rotation = Quaternion::fromAxisAngle(STEERING_AXIS, bicycle.steering_angle);
+  Quaternion leaning_rotation = Quaternion::fromAxisAngle(LEANING_AXIS, bicycle.leaning_angle);
   Quaternion wheel_axle_rotation = Quaternion::fromAxisAngle(WHEEL_AXIS, -bicycle.wheel_revolution);
+
+  bicycle.rotation = bicycle.rotation * leaning_rotation;
 
   auto& frame = objects(meshes.common_frame)[index];
   auto& fork = objects(meshes.common_fork)[index];
@@ -155,6 +159,7 @@ void BackgroundBicycles::Update(Tachyon* tachyon, State& state) {
     bicycle.wheel_revolution += 5.f * state.dt;
     bicycle.wheel_revolution = fmodf(bicycle.wheel_revolution, t_TAU);
     bicycle.steering_angle = sinf(get_scene_time());
+    bicycle.leaning_angle = 0.5f * cosf(get_scene_time() + 0.5f);
 
     switch (bicycle.type) {
       case BicycleType::COMMON_BIKE:
