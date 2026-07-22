@@ -22,6 +22,8 @@ static void LoadCommonBikeMeshes(Tachyon* tachyon, State& state) {
   meshes.common_saddle     = MODEL_MESH("./metro/3d_models/common_bike/saddle.obj", 10);
   meshes.common_wheel      = MODEL_MESH("./metro/3d_models/common_bike/wheel.obj", 20);
   meshes.common_spokes     = MODEL_MESH("./metro/3d_models/common_bike/spokes.obj", 20);
+
+  mesh(meshes.common_spokes).shadow_cascade_ceiling = 1;
 }
 
 static void LoadGameMeshes(Tachyon* tachyon, State& state) {

@@ -23,10 +23,10 @@ struct tProfiler {
   bool output_to_console = false;
 
   tProfiler(const char* message, bool output_to_console) {
-    start_time = Tachyon_GetMicroseconds();
-
     this->message = message;
     this->output_to_console = output_to_console;
+
+    start_time = Tachyon_GetMicroseconds();
   }
 
   ~tProfiler() {

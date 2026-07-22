@@ -65,12 +65,10 @@ void CommonBike::Update(Tachyon* tachyon, State& state, Bicycle& bike, const int
   auto& meshes = state.meshes;
 
   Quaternion steering_rotation = Quaternion::fromAxisAngle(STEERING_AXIS, bike.steering_angle);
-  Quaternion leaning_rotation = Quaternion::fromAxisAngle(LEANING_AXIS, bike.leaning_angle);
-  Quaternion wheel_axle_rotation = Quaternion::fromAxisAngle(WHEEL_AXIS, -bike.wheel_revolution);
 
   bike.computed_rotation =
     Quaternion::FromDirection(bike.facing_direction, tVec3f(0, 1.f, 0)) *
-    leaning_rotation;
+    Quaternion::fromAxisAngle(LEANING_AXIS, bike.leaning_angle);
 
   auto& frame = objects(meshes.common_frame)[index];
   auto& fork = objects(meshes.common_fork)[index];
@@ -119,6 +117,8 @@ void CommonBike::Update(Tachyon* tachyon, State& state, Bicycle& bike, const int
   // Wheels
   {
     int32 wheel_index = index * 2;
+
+    Quaternion wheel_axle_rotation = Quaternion::fromAxisAngle(WHEEL_AXIS, -bike.wheel_revolution);
 
     auto& front_wheel = objects(meshes.common_wheel)[wheel_index];
     auto& front_spokes = objects(meshes.common_spokes)[wheel_index];

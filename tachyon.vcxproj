@@ -370,6 +370,7 @@
     <ClInclude Include="external\SDL_ttf\include\SDL_ttf.h" />
     <ClInclude Include="metro\background_bicycles.h" />
     <ClInclude Include="metro\bikes\common_bike.h" />
+    <ClInclude Include="metro\camera_system.h" />
     <ClInclude Include="metro\game.h" />
     <ClInclude Include="metro\game_state.h" />
     <ClInclude Include="metro\player_bicycle.h" />
@@ -456,6 +457,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="metro\background_bicycles.cpp" />
     <ClCompile Include="metro\bikes\common_bike.cpp" />
+    <ClCompile Include="metro\camera_system.cpp" />
     <ClCompile Include="metro\game.cpp" />
     <ClCompile Include="metro\player_bicycle.cpp" />
     <ClCompile Include="metro\world_init.cpp" />

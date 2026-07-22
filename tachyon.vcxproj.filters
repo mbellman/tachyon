@@ -789,6 +789,9 @@
     <ClInclude Include="metro\bikes\common_bike.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="metro\camera_system.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -1038,6 +1041,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="metro\bikes\common_bike.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="metro\camera_system.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
