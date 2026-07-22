@@ -19,14 +19,16 @@ namespace metro {
 
     tColor frame_color;
     tColor wheel_color;
-    tColor handles_color;
-    tColor seat_color;
+    tColor grips_color;
+    tColor saddle_color;
 
     tVec3f position;
     tVec3f velocity;
     tVec3f facing_direction;
     Quaternion rotation;
-    float wheel_angle = 0.f;
+
+    float steering_angle = 0.f;
+    float wheel_revolution = 0.f;
   };
 
   struct MeshIds {
@@ -37,9 +39,11 @@ namespace metro {
 
       // Common bike
       common_frame,
-      common_chassis,
-      common_handles,
-      common_seat,
+      common_fork,
+      common_handlebars,
+      common_grips,
+      common_seatpost,
+      common_saddle,
       common_spokes,
       common_wheel
 

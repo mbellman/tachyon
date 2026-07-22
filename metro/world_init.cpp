@@ -14,12 +14,14 @@ using namespace metro;
 static void LoadCommonBikeMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
-  meshes.common_frame    = MODEL_MESH("./metro/3d_models/common_bike/frame.obj", 10);
-  meshes.common_chassis  = MODEL_MESH("./metro/3d_models/common_bike/chassis.obj", 10);
-  meshes.common_handles  = MODEL_MESH("./metro/3d_models/common_bike/handles.obj", 10);
-  meshes.common_seat     = MODEL_MESH("./metro/3d_models/common_bike/seat.obj", 10);
-  meshes.common_wheel    = MODEL_MESH("./metro/3d_models/common_bike/wheel.obj", 20);
-  meshes.common_spokes   = MODEL_MESH("./metro/3d_models/common_bike/spokes.obj", 20);
+  meshes.common_frame      = MODEL_MESH("./metro/3d_models/common_bike/frame.obj", 10);
+  meshes.common_fork       = MODEL_MESH("./metro/3d_models/common_bike/fork.obj", 10);
+  meshes.common_handlebars = MODEL_MESH("./metro/3d_models/common_bike/handlebars.obj", 10);
+  meshes.common_grips      = MODEL_MESH("./metro/3d_models/common_bike/grips.obj", 10);
+  meshes.common_seatpost   = MODEL_MESH("./metro/3d_models/common_bike/seatpost.obj", 10);
+  meshes.common_saddle     = MODEL_MESH("./metro/3d_models/common_bike/saddle.obj", 10);
+  meshes.common_wheel      = MODEL_MESH("./metro/3d_models/common_bike/wheel.obj", 20);
+  meshes.common_spokes     = MODEL_MESH("./metro/3d_models/common_bike/spokes.obj", 20);
 }
 
 static void LoadGameMeshes(Tachyon* tachyon, State& state) {
@@ -53,8 +55,8 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
     bike.type          = BicycleType::COMMON_BIKE;
     bike.position      = tVec3f(-5000.f, -2000.f, -10000.f);
     bike.frame_color   = 0xFFF8;
-    bike.handles_color = tVec3f(0.1f);
-    bike.seat_color    = tVec3f(0.1f, 0, 0);
+    bike.grips_color   = tVec3f(0.1f);
+    bike.saddle_color  = tVec3f(0.1f, 0, 0);
     bike.wheel_color   = tVec3f(0.2f);
 
     BackgroundBicycles::SpawnBicycle(tachyon, state, bike);
@@ -66,8 +68,8 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
     bike.type          = BicycleType::COMMON_BIKE;
     bike.position      = tVec3f(0, -2000.f, -10000.f);
     bike.frame_color   = tVec3f(0.5f, 1.f, 0.4f);
-    bike.handles_color = tVec3f(0.1f);
-    bike.seat_color    = tVec3f(0.2f);
+    bike.grips_color   = tVec3f(0.1f);
+    bike.saddle_color  = tVec3f(0.2f);
     bike.wheel_color   = tVec3f(1.f, 0.9f, 0.7f);
 
     BackgroundBicycles::SpawnBicycle(tachyon, state, bike);
@@ -79,8 +81,8 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
     bike.type          = BicycleType::COMMON_BIKE;
     bike.position      = tVec3f(5000.f, -2000.f, -10000.f);
     bike.frame_color   = tVec3f(1.f, 0.2f, 0.4f);
-    bike.handles_color = tVec3f(0.1f);
-    bike.seat_color    = tVec3f(0.1f, 0, 0);
+    bike.grips_color   = tVec3f(0.1f);
+    bike.saddle_color  = tVec3f(0.1f, 0, 0);
     bike.wheel_color   = tVec3f(1.f, 0.9f, 0.7f);
 
     BackgroundBicycles::SpawnBicycle(tachyon, state, bike);
