@@ -11,6 +11,7 @@ using namespace metro;
 
 #define MODEL_MESH(path, total) Tachyon_AddMesh(tachyon, Tachyon_LoadMesh(path), total)
 
+// @todo pedals
 static void LoadCommonBikeMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
@@ -46,10 +47,19 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
     auto& cube = create(state.meshes.cube);
 
     cube.position = tVec3f(0, -8000.f, -10000.f);
-    cube.scale = tVec3f(50000.f, 5000.f, 50000.f);
+    cube.scale = tVec3f(500000.f, 5000.f, 50000.f);
     cube.color = tVec3f(0.8f);
 
     commit(cube);
+
+    auto& road = create(state.meshes.cube);
+
+    road.position = tVec3f(0, -8000.f, -10000.f);
+    road.scale = tVec3f(450000.f, 5010.f, 40000.f);
+    road.color = 0x1120;
+    road.material = tVec4f(0.4f, 1.f, 0, 0);
+
+    commit(road);
   }
 
   // @temporary

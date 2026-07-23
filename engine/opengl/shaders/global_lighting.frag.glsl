@@ -732,9 +732,13 @@ void main() {
       ssao += 1.0 * GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 250.0);
       ssao += 1.1 * GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 2000.0);
       ssao += 1.2 * GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 4000.0);
-      ssao += 1.3 * GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 8000.0);
-      ssao += 1.4 * GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 10000.0);
-      ssao += 1.5 * GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 12000.0);
+
+      #if ENABLE_ASTRO_FX
+        ssao += 1.3 * GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 8000.0);
+        ssao += 1.4 * GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 10000.0);
+        ssao += 1.5 * GetSSAO(SSAO_SAMPLES, depth, position, N, seed, 12000.0);
+      #endif
+
       ssao *= 0.075;
     #else
       float linear_depth = GetLinearDepth(frag_normal_and_depth.w, Z_NEAR, Z_FAR);
@@ -797,7 +801,10 @@ void main() {
     float tNdotL = max(dot(N, -L), 0.0);
 
     out_color += GetDirectionalLightRadiance(L, primary_light_color, albedo, position, N, V, NdotV, roughness, metalness, clearcoat, subsurface, shadow);
-    out_color += GetLightTransmittance(albedo, primary_light_color, tNdotL, NdotV, subsurface, shadow, sheen);
+
+    #if ENABLE_ASTRO_FX
+      out_color += GetLightTransmittance(albedo, primary_light_color, tNdotL, NdotV, subsurface, shadow, sheen);
+    #endif
   }
 
   // Mood lighting
@@ -868,7 +875,9 @@ void main() {
 
     // Apply a glancing angle highlight opposite to the primary light direction
     {
-      out_color += 0.25 * albedo * pow(NdotL, 2.0) * pow(1.0 - NdotV, 2.0);
+      #if ENABLE_ASTRO_FX
+        out_color += 0.25 * albedo * pow(NdotL, 2.0) * pow(1.0 - NdotV, 2.0);
+      #endif
     }
 
     // Apply SSAO

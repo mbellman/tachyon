@@ -48,6 +48,7 @@ void ControlSystem::Update(Tachyon* tachyon, State& state) {
 
   // Handle bicycle controls
   // @todo factor
+  // @todo more physically grounded steering/turning
   {
     auto& bike = *active_bike;
 
@@ -56,6 +57,8 @@ void ControlSystem::Update(Tachyon* tachyon, State& state) {
     const float top_speed = 30000.f;
 
     // Accelerating
+    // @todo smoothly increase velocity
+    // @todo rock the bike a little bit
     {
       if (DidPressPedalKey(tachyon)) {
         bike.speed += acceleration_impulse * state.dt;
@@ -65,7 +68,7 @@ void ControlSystem::Update(Tachyon* tachyon, State& state) {
     // Speed dampening
     {
       float speed_ratio = bike.speed / top_speed;
-      float friction = 0.05f + 0.5f * powf(speed_ratio, 20.f);
+      float friction = 0.025f + 0.4f * powf(speed_ratio, 20.f);
 
       bike.speed *= 1.f - friction * state.dt;
     }
