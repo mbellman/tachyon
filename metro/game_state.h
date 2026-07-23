@@ -24,10 +24,12 @@ namespace metro {
 
     tVec3f position;
     float speed = 0.f;
+    float pedal_speed = 0.f;
     tVec3f facing_direction;
 
     float steering_angle = 0.f;
     float leaning_angle = 0.f;
+    float pedal_revolution = 0.f;
     float wheel_revolution = 0.f;
 
     int32 id = -1;
@@ -47,6 +49,8 @@ namespace metro {
       common_grips,
       common_seatpost,
       common_saddle,
+      common_crank,
+      common_pedal,
       common_spokes,
       common_wheel
 

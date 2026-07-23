@@ -33,6 +33,7 @@ void CommonBike::Spawn(Tachyon* tachyon, State& state, const Bicycle& bike) {
   auto& grips = create(meshes.common_grips);
   auto& seatpost = create(meshes.common_seatpost);
   auto& saddle = create(meshes.common_saddle);
+  auto& crank = create(meshes.common_crank);
   auto& wheel1 = create(meshes.common_wheel);
   auto& spokes1 = create(meshes.common_spokes);
   auto& wheel2 = create(meshes.common_wheel);
@@ -44,6 +45,7 @@ void CommonBike::Spawn(Tachyon* tachyon, State& state, const Bicycle& bike) {
   grips.scale = tVec3f(2000.f);
   seatpost.scale = tVec3f(2000.f);
   saddle.scale = tVec3f(2000.f);
+  crank.scale = tVec3f(2000.f);
   wheel1.scale = tVec3f(2000.f);
   spokes1.scale = tVec3f(2000.f);
   wheel2.scale = tVec3f(2000.f);
@@ -113,6 +115,20 @@ void CommonBike::Update(Tachyon* tachyon, State& state, Bicycle& bike, const int
   commit(grips);
   commit(seatpost);
   commit(saddle);
+
+  // Crank + pedals
+  {
+    auto& crank = objects(meshes.common_crank)[index];
+
+    Quaternion pedal_rotation = Quaternion::fromAxisAngle(WHEEL_AXIS, bike.pedal_revolution);
+
+    crank.position = UnitBikeToWorldPosition(bike, tVec3f(0, -0.013f, -0.14f));
+    crank.rotation = bike.computed_rotation * pedal_rotation;
+    crank.color = tVec3f(0.8f);
+    crank.material = tVec4f(0.4f, 1.f, 0, 0);
+
+    commit(crank);
+  }
 
   // Wheels
   {

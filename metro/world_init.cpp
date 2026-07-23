@@ -11,7 +11,6 @@ using namespace metro;
 
 #define MODEL_MESH(path, total) Tachyon_AddMesh(tachyon, Tachyon_LoadMesh(path), total)
 
-// @todo pedals
 static void LoadCommonBikeMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
@@ -21,6 +20,8 @@ static void LoadCommonBikeMeshes(Tachyon* tachyon, State& state) {
   meshes.common_grips      = MODEL_MESH("./metro/3d_models/common_bike/grips.obj", 10);
   meshes.common_seatpost   = MODEL_MESH("./metro/3d_models/common_bike/seatpost.obj", 10);
   meshes.common_saddle     = MODEL_MESH("./metro/3d_models/common_bike/saddle.obj", 10);
+  meshes.common_crank      = MODEL_MESH("./metro/3d_models/common_bike/crank.obj", 10);
+  // @todo pedals
   meshes.common_wheel      = MODEL_MESH("./metro/3d_models/common_bike/wheel.obj", 20);
   meshes.common_spokes     = MODEL_MESH("./metro/3d_models/common_bike/spokes.obj", 20);
 
