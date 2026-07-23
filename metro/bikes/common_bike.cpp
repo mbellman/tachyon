@@ -4,9 +4,9 @@
 
 using namespace metro;
 
-const static tVec3f STEERING_AXIS = tVec3f(-0.2305f, 0.9731f, 0);
-const static tVec3f WHEEL_AXIS = tVec3f(0, 0, 1.f);
-const static tVec3f LEANING_AXIS = tVec3f(1.f, 0, 0);
+const static tVec3f STEERING_AXIS = tVec3f(0, 0.9731f, -0.2305f);
+const static tVec3f WHEEL_AXIS = tVec3f(1.f, 0, 0);
+const static tVec3f LEANING_AXIS = tVec3f(0, 0, 1.f);
 
 static tVec3f UnitBikeToWorldPosition(const Bicycle& bike, const tVec3f& position) {
   tVec3f translation = bike.position;
@@ -82,12 +82,12 @@ void CommonBike::Update(Tachyon* tachyon, State& state, Bicycle& bike, const int
   frame.color = bike.frame_color;
   frame.material = tVec4f(0.3f, 0, 0.2f, 0);
 
-  fork.position = UnitBikeToWorldPosition(bike, tVec3f(0.445f, 0.44f, 0));
+  fork.position = UnitBikeToWorldPosition(bike, tVec3f(0, 0.44f, 0.445f));
   fork.rotation = bike.computed_rotation * steering_rotation;
   fork.color = bike.frame_color;
   fork.material = tVec4f(0.3f, 0, 0.2f, 0);
 
-  handlebars.position = UnitBikeToWorldPosition(bike, tVec3f(0.39f, 0.68f, 0));
+  handlebars.position = UnitBikeToWorldPosition(bike, tVec3f(0, 0.68f, 0.39f));
   handlebars.rotation = fork.rotation;
   handlebars.color = tVec3f(0.8f);
   handlebars.material = tVec4f(0.4f, 1.f, 0, 0);
@@ -118,7 +118,7 @@ void CommonBike::Update(Tachyon* tachyon, State& state, Bicycle& bike, const int
   {
     int32 wheel_index = index * 2;
 
-    Quaternion wheel_axle_rotation = Quaternion::fromAxisAngle(WHEEL_AXIS, -bike.wheel_revolution);
+    Quaternion wheel_axle_rotation = Quaternion::fromAxisAngle(WHEEL_AXIS, bike.wheel_revolution);
 
     auto& front_wheel = objects(meshes.common_wheel)[wheel_index];
     auto& front_spokes = objects(meshes.common_spokes)[wheel_index];
@@ -126,7 +126,7 @@ void CommonBike::Update(Tachyon* tachyon, State& state, Bicycle& bike, const int
     auto& back_wheel = objects(meshes.common_wheel)[wheel_index + 1];
     auto& back_spokes = objects(meshes.common_spokes)[wheel_index + 1];
 
-    front_wheel.position = UnitObjectToWorldPosition(fork, tVec3f(0.15f, -0.43f, 0));
+    front_wheel.position = UnitObjectToWorldPosition(fork, tVec3f(0, -0.43f, 0.15f));
     front_wheel.rotation = fork.rotation * wheel_axle_rotation;
     front_wheel.color = bike.wheel_color;
     front_wheel.material = tVec4f(0.9f, 0, 0, 0.5f);
@@ -136,7 +136,7 @@ void CommonBike::Update(Tachyon* tachyon, State& state, Bicycle& bike, const int
     front_spokes.color = tVec3f(0.8f);
     front_spokes.material = tVec4f(0.4f, 1.f, 0, 0);
 
-    back_wheel.position = UnitBikeToWorldPosition(bike, tVec3f(-0.61f, 0, 0));
+    back_wheel.position = UnitBikeToWorldPosition(bike, tVec3f(0, 0, -0.61f));
     back_wheel.rotation = bike.computed_rotation * wheel_axle_rotation;
     back_wheel.color = bike.wheel_color;
     back_wheel.material = tVec4f(0.9f, 0, 0, 0.5f);
