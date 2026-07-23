@@ -23,7 +23,7 @@ namespace metro {
     tColor saddle_color;
 
     tVec3f position;
-    tVec3f velocity;
+    float speed = 0.f;
     tVec3f facing_direction;
 
     float steering_angle = 0.f;

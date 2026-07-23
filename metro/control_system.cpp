@@ -19,6 +19,12 @@ static bool DidPressPedalKey(Tachyon* tachyon) {
   return false;
 }
 
+static float GetSteering(Tachyon* tachyon) {
+  float steering = tachyon->left_stick.x;
+
+  return -1.f * steering;
+}
+
 // @todo move to utilities or elsewhere
 static Bicycle* GetActiveBicycle(State& state) {
   for (auto& bike : state.bicycles) {
@@ -40,15 +46,47 @@ void ControlSystem::Update(Tachyon* tachyon, State& state) {
 
   // Handle bicycle controls
   // @todo factor
-  // @todo speed dampening
-  // @todo steering
+  // @todo friction speed dampening
   {
     auto& bike = *active_bike;
 
-    if (DidPressPedalKey(tachyon)) {
-      bike.velocity += bike.facing_direction * 50000.f * state.dt;
+    // Accelerating
+    {
+      if (DidPressPedalKey(tachyon)) {
+        bike.speed += 50000.f * state.dt;
+      }
     }
 
-    bike.position += bike.velocity * state.dt;
+    // Steering
+    {
+      const float steering_speed = 4.f;
+      const float rotation_speed = bike.speed / 1000.f;
+
+      float steering = GetSteering(tachyon);
+
+      bike.steering_angle = Tachyon_Lerpf(bike.steering_angle, steering, steering_speed * state.dt);
+
+      float rotation_angle = bike.steering_angle * rotation_speed * state.dt;
+      Quaternion rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), rotation_angle);
+
+      bike.facing_direction = rotation.toMatrix4f() * bike.facing_direction;
+    }
+
+    // Braking
+    {
+      const float braking_speed = 2.f;
+
+      bike.speed *= 1.f - tachyon->right_trigger * braking_speed * state.dt;
+    }
+
+    // Wheels
+    {
+      const float wheel_revolution_speed = 0.001f;
+
+      bike.wheel_revolution += bike.speed * wheel_revolution_speed * state.dt;
+      bike.wheel_revolution = fmodf(bike.wheel_revolution, t_TAU);
+    }
+
+    bike.position += bike.facing_direction * bike.speed * state.dt;
   }
 }

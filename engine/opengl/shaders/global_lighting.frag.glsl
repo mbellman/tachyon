@@ -587,7 +587,7 @@ const vec3[] ssao_sample_points = {
 const vec2 texel_size = 1.0 / vec2(1920.0, 1080.0);
 
 const float ssao_temporal_denoising_strength = 1.0;
-const float shadow_temporal_denoising_strength = 0.5;
+const float shadow_temporal_denoising_strength = 0.2;
 const float spatial_spread = 2.0;
 
 float GetSSAO(int total_samples, float depth, vec3 position, vec3 normal, float seed, float radius) {

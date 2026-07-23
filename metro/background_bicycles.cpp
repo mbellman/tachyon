@@ -11,11 +11,6 @@ void BackgroundBicycles::Update(Tachyon* tachyon, State& state) {
   int32 total_common_bikes = 0;
 
   for (auto& bicycle : state.bicycles) {
-    // @temporary
-    bicycle.wheel_revolution += 5.f * state.dt;
-    bicycle.wheel_revolution = fmodf(bicycle.wheel_revolution, t_TAU);
-    bicycle.steering_angle = sinf(get_scene_time());
-
     switch (bicycle.type) {
       case BicycleType::COMMON_BIKE:
         CommonBike::Update(tachyon, state, bicycle, total_common_bikes++);
