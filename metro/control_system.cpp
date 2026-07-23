@@ -54,19 +54,22 @@ void ControlSystem::Update(Tachyon* tachyon, State& state) {
 
     // @todo define per-bicycle
     const float pedal_impulse = 300000.f;
-    const float acceleration_impulse = 100000.f;
     const float top_speed = 30000.f;
 
     // Pedaling
-    // @todo smoothly increase velocity
     // @todo rock the bike a little bit
     {
       if (DidPressPedalKey(tachyon)) {
         bike.pedal_speed += pedal_impulse * state.dt;
-        bike.speed += acceleration_impulse * state.dt;
       }
 
+      // Dampen pedal speed
       bike.pedal_speed *= 1.f - state.dt;
+
+      // Increase bike speed as pedals rotate
+      bike.speed += bike.pedal_speed * 0.8f * state.dt;
+
+      // Revolve pedals in proportion to speed
       bike.pedal_revolution += bike.pedal_speed * 0.001f * state.dt;
       bike.pedal_revolution = fmodf(bike.pedal_revolution, t_TAU);
     }
