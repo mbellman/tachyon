@@ -9,6 +9,33 @@ const static auto GAMEPAD_O = tKey::CONTROLLER_B;
 const static auto GAMEPAD_SQUARE = tKey::CONTROLLER_X;
 const static auto GAMEPAD_TRIANGLE = tKey::CONTROLLER_Y;
 
+// @todo move to utilities
+static tVec3f UnitBikeToWorldPosition(const Bicycle& bike, const tVec3f& position) {
+  tVec3f translation = bike.position;
+  Quaternion rotation = bike.computed_rotation;
+  tVec3f scale = tVec3f(2000.f);
+
+  return translation + rotation.toMatrix4f() * (position * scale);
+}
+
+static void DEV_ONLY_ShowRadiusRing(Tachyon* tachyon, State& state, const Bicycle& bike, const float radius) {
+  auto& ring = objects(state.meshes.dev_ring)[0];
+  float absolute_radius = abs(radius);
+
+  if (absolute_radius < 20000.f) {
+    tVec3f offset = tVec3f::cross(tVec3f(0, 1.f, 0), bike.facing_direction);
+    tVec3f pivot = UnitBikeToWorldPosition(bike, tVec3f(0, 0, 0.61f));
+
+    ring.position = bike.position + offset * radius;
+    ring.position.y -= 700.f;
+    ring.scale = tVec3f(absolute_radius);
+  } else {
+    ring.scale = tVec3f(0.f);
+  }
+
+  commit(ring);
+}
+
 static bool DidPressPedalKey(Tachyon* tachyon) {
   if (did_press_key(GAMEPAD_X)) {
     return true;
@@ -107,6 +134,12 @@ static void HandleBikeControls(Tachyon* tachyon, State& state, Bicycle& bike) {
     Quaternion turn_rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), turn_angle);
 
     bike.facing_direction = turn_rotation.toMatrix4f() * bike.facing_direction;
+    bike.facing_direction = bike.facing_direction.unit();
+
+    // @todo dev mode only
+    {
+      // DEV_ONLY_ShowRadiusRing(tachyon, state, bike, radius);
+    }
   }
 
   // Leaning

@@ -39,8 +39,8 @@ namespace metro {
   struct MeshIds {
     uint16
       // @temporary
-      cube,
-      bicycle,
+      dev_cube,
+      dev_ring,
 
       // Common bike
       common_frame,

@@ -8,6 +8,9 @@ const static tVec3f STEERING_AXIS = tVec3f(0, 0.9731f, -0.2305f);
 const static tVec3f WHEEL_AXIS = tVec3f(1.f, 0, 0);
 const static tVec3f LEANING_AXIS = tVec3f(0, 0, 1.f);
 
+const static tVec3f FRONT_WHEEL_UNIT_POSITION = tVec3f(0, 0, 0.61f);
+
+// @todo move to utilities
 static tVec3f UnitBikeToWorldPosition(const Bicycle& bike, const tVec3f& position) {
   tVec3f translation = bike.position;
   Quaternion rotation = bike.computed_rotation;
@@ -16,6 +19,7 @@ static tVec3f UnitBikeToWorldPosition(const Bicycle& bike, const tVec3f& positio
   return translation + rotation.toMatrix4f() * (position * scale);
 }
 
+// @todo move to utilities
 static tVec3f UnitObjectToWorldPosition(const tObject object, const tVec3f& position) {
   tVec3f translation = object.position;
   Quaternion rotation = object.rotation;
@@ -66,11 +70,18 @@ void CommonBike::Spawn(Tachyon* tachyon, State& state, const Bicycle& bike) {
 void CommonBike::Update(Tachyon* tachyon, State& state, Bicycle& bike, const int32 index) {
   auto& meshes = state.meshes;
 
-  Quaternion steering_rotation = Quaternion::fromAxisAngle(STEERING_AXIS, bike.steering_angle);
+  // Track the pivot before recomputing rotation
+  tVec3f old_pivot = UnitBikeToWorldPosition(bike, FRONT_WHEEL_UNIT_POSITION);
 
   bike.computed_rotation =
     Quaternion::FromDirection(bike.facing_direction, tVec3f(0, 1.f, 0)) *
     Quaternion::fromAxisAngle(LEANING_AXIS, bike.leaning_angle);
+
+  // Offset the bike by the pivot delta to keep it centered on the pivot.
+  // We rotate around the front wheel for more physically grounded motion.
+  tVec3f new_pivot = UnitBikeToWorldPosition(bike, FRONT_WHEEL_UNIT_POSITION);
+
+  bike.position += new_pivot - old_pivot;
 
   auto& frame = objects(meshes.common_frame)[index];
   auto& fork = objects(meshes.common_fork)[index];
@@ -78,6 +89,8 @@ void CommonBike::Update(Tachyon* tachyon, State& state, Bicycle& bike, const int
   auto& grips = objects(meshes.common_grips)[index];
   auto& seatpost = objects(meshes.common_seatpost)[index];
   auto& saddle = objects(meshes.common_saddle)[index];
+
+  Quaternion steering_rotation = Quaternion::fromAxisAngle(STEERING_AXIS, bike.steering_angle);
 
   frame.position = bike.position;
   frame.rotation = bike.computed_rotation;

@@ -32,10 +32,8 @@ static void LoadGameMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   // @temporary
-  meshes.cube = CUBE_MESH(10);
-
-  // @temporary
-  meshes.bicycle = MODEL_MESH("./metro/3d_models/bicycle.obj", 1);
+  meshes.dev_cube = CUBE_MESH(10);
+  meshes.dev_ring = MODEL_MESH("./metro/3d_models/ring.obj", 2);
 
   LoadCommonBikeMeshes(tachyon, state);
 
@@ -45,7 +43,7 @@ static void LoadGameMeshes(Tachyon* tachyon, State& state) {
 static void LoadGameWorld(Tachyon* tachyon, State& state) {
   // @temporary
   {
-    auto& cube = create(state.meshes.cube);
+    auto& cube = create(state.meshes.dev_cube);
 
     cube.position = tVec3f(0, -8000.f, -10000.f);
     cube.scale = tVec3f(500000.f, 5000.f, 50000.f);
@@ -53,7 +51,7 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
 
     commit(cube);
 
-    auto& road = create(state.meshes.cube);
+    auto& road = create(state.meshes.dev_cube);
 
     road.position = tVec3f(0, -8000.f, -10000.f);
     road.scale = tVec3f(450000.f, 5010.f, 40000.f);
@@ -61,6 +59,11 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
     road.material = tVec4f(0.4f, 1.f, 0, 0);
 
     commit(road);
+  }
+
+  // @temporary
+  {
+    create(state.meshes.dev_ring);
   }
 
   // @temporary
