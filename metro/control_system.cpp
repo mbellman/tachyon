@@ -48,7 +48,6 @@ void ControlSystem::Update(Tachyon* tachyon, State& state) {
 
   // Handle bicycle controls
   // @todo factor
-  // @todo more physically grounded steering/turning
   {
     auto& bike = *active_bike;
 
@@ -85,21 +84,43 @@ void ControlSystem::Update(Tachyon* tachyon, State& state) {
     // Steering
     {
       float speed_ratio = bike.speed / top_speed;
-      const float steering_speed = Tachyon_Lerpf(2.f, 0.f, sqrtf(speed_ratio));
+      const float steering_speed = Tachyon_Lerpf(2.f, 0.1f, sqrtf(speed_ratio));
       const float rotation_speed = bike.speed / 1200.f;
 
-      float steering = GetSteering(tachyon);
+      float target_steering_angle = 1.2f * GetSteering(tachyon);
 
       // Apply steering
-      bike.steering_angle = Tachyon_Lerpf(bike.steering_angle, steering, steering_speed * state.dt);
+      bike.steering_angle = Tachyon_Lerpf(
+        bike.steering_angle,
+        target_steering_angle,
+        steering_speed * state.dt
+      );
 
       // Reduce steering with speed
       bike.steering_angle *= 1.f - (bike.speed / 10000.f) * state.dt;
 
-      float rotation_angle = bike.steering_angle * rotation_speed * state.dt;
-      Quaternion rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), rotation_angle);
+      // Calculate turning radius r = w / δ * cos(φ)
+      float w = 1200.f;
+      float delta = bike.steering_angle;
+      float phi = t_HALF_PI * 0.1777f;
+      float radius = w / (delta * cosf(phi));
 
-      bike.facing_direction = rotation.toMatrix4f() * bike.facing_direction;
+      // Calculate instantaneous turn angle
+      float turn_angle;
+
+      if (std::isinf(radius)) {
+        // If the radius is infinite, don't turn at all
+        turn_angle = 0.f;
+      } else {
+        // Use bike.speed * state.dt as an approximation of arc length L.
+        // The turn angle is just computed as L / radius.
+        turn_angle = (bike.speed * state.dt) / radius;
+      }
+
+      // Turn and update the facing direction
+      Quaternion turn_rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), turn_angle);
+
+      bike.facing_direction = turn_rotation.toMatrix4f() * bike.facing_direction;
     }
 
     // Leaning
