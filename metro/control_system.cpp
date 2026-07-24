@@ -1,6 +1,7 @@
 #include "engine/tachyon.h"
 
 #include "metro/control_system.h"
+#include "metro/utilities.h"
 
 using namespace metro;
 
@@ -8,15 +9,6 @@ const static auto GAMEPAD_X = tKey::CONTROLLER_A;
 const static auto GAMEPAD_O = tKey::CONTROLLER_B;
 const static auto GAMEPAD_SQUARE = tKey::CONTROLLER_X;
 const static auto GAMEPAD_TRIANGLE = tKey::CONTROLLER_Y;
-
-// @todo move to utilities
-static tVec3f UnitBikeToWorldPosition(const Bicycle& bike, const tVec3f& position) {
-  tVec3f translation = bike.position;
-  Quaternion rotation = bike.computed_rotation;
-  tVec3f scale = tVec3f(2000.f);
-
-  return translation + rotation.toMatrix4f() * (position * scale);
-}
 
 static void DEV_ONLY_ShowRadiusRing(Tachyon* tachyon, State& state, const Bicycle& bike, const float radius) {
   auto& ring = objects(state.meshes.dev_ring)[0];

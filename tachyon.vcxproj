@@ -375,6 +375,7 @@
     <ClInclude Include="metro\game.h" />
     <ClInclude Include="metro\game_state.h" />
     <ClInclude Include="metro\player_bicycle.h" />
+    <ClInclude Include="metro\utilities.h" />
     <ClInclude Include="metro\world_init.h" />
   </ItemGroup>
   <ItemGroup>
@@ -462,6 +463,7 @@
     <ClCompile Include="metro\control_system.cpp" />
     <ClCompile Include="metro\game.cpp" />
     <ClCompile Include="metro\player_bicycle.cpp" />
+    <ClCompile Include="metro\utilities.cpp" />
     <ClCompile Include="metro\world_init.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
