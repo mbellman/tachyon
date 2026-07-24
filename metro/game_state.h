@@ -23,17 +23,20 @@ namespace metro {
     tColor saddle_color;
 
     tVec3f position;
+    tVec3f visual_position;
     float speed = 0.f;
     float pedal_speed = 0.f;
     tVec3f facing_direction;
 
     float steering_angle = 0.f;
     float leaning_angle = 0.f;
+    float rocking_factor = 0.f;
     float pedal_revolution = 0.f;
     float wheel_revolution = 0.f;
 
     int32 id = -1;
     Quaternion computed_rotation;
+    Quaternion visual_rotation;
   };
 
   struct MeshIds {

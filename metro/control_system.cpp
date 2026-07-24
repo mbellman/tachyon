@@ -69,7 +69,6 @@ static void HandleBikeControls(Tachyon* tachyon, State& state, Bicycle& bike) {
   const float top_speed = 30000.f;
 
   // Pedaling
-  // @todo rock the bike a little bit
   {
     if (DidPressPedalKey(tachyon)) {
       bike.pedal_speed += pedal_impulse * state.dt;
@@ -82,8 +81,33 @@ static void HandleBikeControls(Tachyon* tachyon, State& state, Bicycle& bike) {
     bike.speed += bike.pedal_speed * 0.8f * state.dt;
 
     // Revolve pedals in proportion to speed
-    bike.pedal_revolution += bike.pedal_speed * 0.001f * state.dt;
+    bike.pedal_revolution += bike.pedal_speed * 0.0005f * state.dt;
     bike.pedal_revolution = fmodf(bike.pedal_revolution, t_TAU);
+  }
+
+  // Rock back and forth when pedaling
+  {
+    float pedal_factor = bike.pedal_speed / 20000.f;
+    if (pedal_factor > 1.f) pedal_factor = 1.f;
+
+    pedal_factor *= pedal_factor;
+    pedal_factor *= pedal_factor;
+
+    float oscillation = sinf(bike.pedal_revolution);
+
+    if (oscillation < 0.f) {
+      oscillation = -sqrtf(abs(oscillation));
+    } else {
+      oscillation = sqrt(oscillation);
+    }
+
+    float target_rocking_factor = 0.25f * pedal_factor * oscillation;
+
+    bike.rocking_factor = Tachyon_Lerpf(
+      bike.rocking_factor,
+      target_rocking_factor,
+      4.f * state.dt
+    );
   }
 
   // Speed dampening
@@ -125,7 +149,7 @@ static void HandleBikeControls(Tachyon* tachyon, State& state, Bicycle& bike) {
       // If the radius is infinite, don't turn at all
       turn_angle = 0.f;
     } else {
-      // Use bike.speed * state.dt as an approximation of arc length L.
+      // Use bike.speed * dt as an approximation of arc length L.
       // The turn angle is just computed as L / radius.
       turn_angle = (bike.speed * state.dt) / radius;
     }
@@ -173,6 +197,7 @@ static void HandleBikeControls(Tachyon* tachyon, State& state, Bicycle& bike) {
   }
 
   bike.position += bike.facing_direction * bike.speed * state.dt;
+  bike.visual_position = bike.position;
 }
 
 void ControlSystem::Update(Tachyon* tachyon, State& state) {

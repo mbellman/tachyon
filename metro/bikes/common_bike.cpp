@@ -8,12 +8,22 @@ const static tVec3f STEERING_AXIS = tVec3f(0, 0.9731f, -0.2305f);
 const static tVec3f WHEEL_AXIS = tVec3f(1.f, 0, 0);
 const static tVec3f LEANING_AXIS = tVec3f(0, 0, 1.f);
 
-const static tVec3f FRONT_WHEEL_UNIT_POSITION = tVec3f(0, 0, 0.61f);
+const static tVec3f ROTATE_PIVOT_POSITION = tVec3f(0, 0, 0.61f);
+const static tVec3f ROCKING_PIVOT_POSITION = tVec3f(0, 0, -0.61f);
 
 // @todo move to utilities
 static tVec3f UnitBikeToWorldPosition(const Bicycle& bike, const tVec3f& position) {
   tVec3f translation = bike.position;
   Quaternion rotation = bike.computed_rotation;
+  tVec3f scale = tVec3f(2000.f);
+
+  return translation + rotation.toMatrix4f() * (position * scale);
+}
+
+// @todo move to utilities
+static tVec3f UnitVisualBikeToWorldPosition(const Bicycle& bike, const tVec3f& position) {
+  tVec3f translation = bike.visual_position;
+  Quaternion rotation = bike.visual_rotation;
   tVec3f scale = tVec3f(2000.f);
 
   return translation + rotation.toMatrix4f() * (position * scale);
@@ -70,18 +80,38 @@ void CommonBike::Spawn(Tachyon* tachyon, State& state, const Bicycle& bike) {
 void CommonBike::Update(Tachyon* tachyon, State& state, Bicycle& bike, const int32 index) {
   auto& meshes = state.meshes;
 
-  // Track the pivot before recomputing rotation
-  tVec3f old_pivot = UnitBikeToWorldPosition(bike, FRONT_WHEEL_UNIT_POSITION);
+  // Rotate around the default pivot position
+  {
+    // Track the pivot before recomputing rotation
+    tVec3f old_pivot = UnitBikeToWorldPosition(bike, ROTATE_PIVOT_POSITION);
 
-  bike.computed_rotation =
-    Quaternion::FromDirection(bike.facing_direction, tVec3f(0, 1.f, 0)) *
-    Quaternion::fromAxisAngle(LEANING_AXIS, bike.leaning_angle);
+    bike.computed_rotation =
+      Quaternion::FromDirection(bike.facing_direction, tVec3f(0, 1.f, 0)) *
+      Quaternion::fromAxisAngle(LEANING_AXIS, bike.leaning_angle + bike.rocking_factor);
 
-  // Offset the bike by the pivot delta to keep it centered on the pivot.
-  // We rotate around the front wheel for more physically grounded motion.
-  tVec3f new_pivot = UnitBikeToWorldPosition(bike, FRONT_WHEEL_UNIT_POSITION);
+    // Offset the bike by the pivot delta to keep it centered on the pivot.
+    // We rotate around the back wheel for more physically grounded motion.
+    tVec3f new_pivot = UnitBikeToWorldPosition(bike, ROTATE_PIVOT_POSITION);
 
-  bike.position += new_pivot - old_pivot;
+    bike.position += new_pivot - old_pivot;
+  }
+
+  // As the bike rocks when pedaling faster, rotate around
+  // the rocking pivot position
+  {
+    bike.visual_position = bike.position;
+    bike.visual_rotation = bike.computed_rotation;
+
+    tVec3f old_rocking_pivot = UnitVisualBikeToWorldPosition(bike, ROCKING_PIVOT_POSITION);
+
+    bike.visual_rotation =
+      Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), bike.rocking_factor) *
+      bike.computed_rotation;
+
+    tVec3f new_rocking_pivot = UnitVisualBikeToWorldPosition(bike, ROCKING_PIVOT_POSITION);
+
+    bike.visual_position += new_rocking_pivot - old_rocking_pivot;
+  }
 
   auto& frame = objects(meshes.common_frame)[index];
   auto& fork = objects(meshes.common_fork)[index];
@@ -92,17 +122,17 @@ void CommonBike::Update(Tachyon* tachyon, State& state, Bicycle& bike, const int
 
   Quaternion steering_rotation = Quaternion::fromAxisAngle(STEERING_AXIS, bike.steering_angle);
 
-  frame.position = bike.position;
-  frame.rotation = bike.computed_rotation;
+  frame.position = bike.visual_position;
+  frame.rotation = bike.visual_rotation;
   frame.color = bike.frame_color;
   frame.material = tVec4f(0.3f, 0, 0.2f, 0);
 
-  fork.position = UnitBikeToWorldPosition(bike, tVec3f(0, 0.44f, 0.445f));
-  fork.rotation = bike.computed_rotation * steering_rotation;
+  fork.position = UnitVisualBikeToWorldPosition(bike, tVec3f(0, 0.44f, 0.445f));
+  fork.rotation = bike.visual_rotation * steering_rotation;
   fork.color = bike.frame_color;
   fork.material = tVec4f(0.3f, 0, 0.2f, 0);
 
-  handlebars.position = UnitBikeToWorldPosition(bike, tVec3f(0, 0.68f, 0.39f));
+  handlebars.position = UnitVisualBikeToWorldPosition(bike, tVec3f(0, 0.68f, 0.39f));
   handlebars.rotation = fork.rotation;
   handlebars.color = tVec3f(0.8f);
   handlebars.material = tVec4f(0.4f, 1.f, 0, 0);
@@ -112,13 +142,13 @@ void CommonBike::Update(Tachyon* tachyon, State& state, Bicycle& bike, const int
   grips.color = bike.grips_color;
   grips.material = tVec4f(0.7f, 0, 0, 0.5f);
 
-  seatpost.position = bike.position;
-  seatpost.rotation = bike.computed_rotation;
+  seatpost.position = bike.visual_position;
+  seatpost.rotation = bike.visual_rotation;
   seatpost.color = tVec3f(0.8f);
   seatpost.material = tVec4f(0.4f, 1.f, 0, 0);
 
-  saddle.position = bike.position;
-  saddle.rotation = bike.computed_rotation;
+  saddle.position = bike.visual_position;
+  saddle.rotation = bike.visual_rotation;
   saddle.color = bike.saddle_color;
   saddle.material = tVec4f(0.6f, 0, 0, 0.2f);
 
@@ -135,8 +165,8 @@ void CommonBike::Update(Tachyon* tachyon, State& state, Bicycle& bike, const int
 
     Quaternion pedal_rotation = Quaternion::fromAxisAngle(WHEEL_AXIS, bike.pedal_revolution);
 
-    crank.position = UnitBikeToWorldPosition(bike, tVec3f(0, -0.013f, -0.14f));
-    crank.rotation = bike.computed_rotation * pedal_rotation;
+    crank.position = UnitVisualBikeToWorldPosition(bike, tVec3f(0, -0.013f, -0.14f));
+    crank.rotation = bike.visual_rotation * pedal_rotation;
     crank.color = tVec3f(0.8f);
     crank.material = tVec4f(0.4f, 1.f, 0, 0);
 
@@ -165,8 +195,8 @@ void CommonBike::Update(Tachyon* tachyon, State& state, Bicycle& bike, const int
     front_spokes.color = tVec3f(0.8f);
     front_spokes.material = tVec4f(0.4f, 1.f, 0, 0);
 
-    back_wheel.position = UnitBikeToWorldPosition(bike, tVec3f(0, 0, -0.61f));
-    back_wheel.rotation = bike.computed_rotation * wheel_axle_rotation;
+    back_wheel.position = UnitVisualBikeToWorldPosition(bike, tVec3f(0, 0, -0.61f));
+    back_wheel.rotation = bike.visual_rotation * wheel_axle_rotation;
     back_wheel.color = bike.wheel_color;
     back_wheel.material = tVec4f(0.9f, 0, 0, 0.5f);
 
