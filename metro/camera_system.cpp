@@ -1,6 +1,7 @@
 #include "engine/tachyon.h"
 
 #include "metro/camera_system.h"
+#include "metro/utilities.h"
 
 using namespace metro;
 
@@ -12,13 +13,13 @@ static void PointCameraAt(tCamera& camera, const tVec3f& target) {
 }
 
 static tVec3f GetCameraTargetPosition(State& state) {
-  for (auto& bike : state.bicycles) {
-    if (bike.id == state.player_bike_id) {
-      return bike.position + tVec3f(0, 3000.f, 0);
-    }
-  }
+  auto* active_bike = GetActiveBicycle(state);
 
-  return state.player_position;
+  if (active_bike != nullptr) {
+    return active_bike->position + tVec3f(0, 3000.f, 0);
+  } else {
+    return state.player_position;
+  }
 }
 
 void CameraSystem::Update(Tachyon* tachyon, State& state) {

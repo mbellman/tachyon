@@ -39,6 +39,14 @@ namespace metro {
     Quaternion visual_rotation;
   };
 
+  struct CollisionPlane {
+    // Plane corners
+    tVec3f p1, p2, p3, p4;
+    // Plane tangents
+    tVec3f t1, t2, t3, t4;
+    tVec3f normal;
+  };
+
   struct MeshIds {
     uint16
       // @temporary
@@ -65,8 +73,11 @@ namespace metro {
 
     MeshIds meshes;
 
+    tVec3f player_position;
+
     std::vector<Bicycle> bicycles;
     int32 player_bike_id = -1;
-    tVec3f player_position;
+
+    std::vector<CollisionPlane> collision_planes;
   };
 }

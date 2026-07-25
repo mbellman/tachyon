@@ -44,17 +44,6 @@ static float GetSteering(Tachyon* tachyon) {
   return -1.f * steering;
 }
 
-// @todo move to utilities or elsewhere
-static Bicycle* GetActiveBicycle(State& state) {
-  for (auto& bike : state.bicycles) {
-    if (bike.id == state.player_bike_id) {
-      return &bike;
-    }
-  }
-
-  return nullptr;
-}
-
 static void HandleBikeControls(Tachyon* tachyon, State& state, Bicycle& bike) {
   // @todo define per-bicycle
   const float pedal_impulse = 300000.f;

@@ -25,3 +25,13 @@ tVec3f metro::UnitObjectToWorldPosition(const tObject object, const tVec3f& posi
 
   return translation + rotation.toMatrix4f() * (position * scale);
 }
+
+Bicycle* metro::GetActiveBicycle(State& state) {
+  for (auto& bike : state.bicycles) {
+    if (bike.id == state.player_bike_id) {
+      return &bike;
+    }
+  }
+
+  return nullptr;
+}

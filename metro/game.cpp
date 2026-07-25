@@ -3,9 +3,11 @@
 #include "metro/game.h"
 #include "metro/background_bicycles.h"
 #include "metro/camera_system.h"
+#include "metro/collision.h"
 #include "metro/control_system.h"
 #include "metro/player_bicycle.h"
 #include "metro/world_init.h"
+#include "metro/utilities.h"
 
 using namespace metro;
 
@@ -47,6 +49,19 @@ void metro::Update(Tachyon* tachyon, State& state, const float dt) {
   BackgroundBicycles::Update(tachyon, state);
   PlayerBicycle::Update(tachyon, state);
   CameraSystem::Update(tachyon, state);
+
+  // @temporary
+  {
+    tVec3f position = GetActiveBicycle(state)->position;
+    tVec3f below = position - tVec3f(0, 50000.f, 0);
+    tVec3f ray = below - position;
+
+    for (auto& plane : state.collision_planes) {
+      auto test = Collision::TestRayHit(position, ray, plane);
+
+      console_log(test.hit);
+    }
+  }
 
   HandleFrameEnd(tachyon, state);
 }

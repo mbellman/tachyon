@@ -134,6 +134,7 @@ void CommonBike::Update(Tachyon* tachyon, State& state, Bicycle& bike, const int
   commit(saddle);
 
   // Crank + pedals
+  // @todo pedals
   {
     auto& crank = objects(meshes.common_crank)[index];
 
