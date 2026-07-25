@@ -53,7 +53,7 @@ void CommonBike::Spawn(Tachyon* tachyon, State& state, const Bicycle& bike) {
   commit(spokes2);
 }
 
-void CommonBike::HandleComplexPhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
+void CommonBike::HandleCollision(Tachyon* tachyon, State& state, Bicycle& bike) {
   tVec3f down_ray = tVec3f(0, -10000.f, 0);
 
   bike.front_wheel_fall_velocity += 50000.f * state.dt;
@@ -85,13 +85,21 @@ void CommonBike::HandleComplexPhysics(Tachyon* tachyon, State& state, Bicycle& b
     bike.back_wheel_fall_velocity == 0.f
   ) {
     bike.position.y = bike.front_wheel_position.y;
+    bike.pitch = Tachyon_Lerpf(bike.pitch, 0.f, 0.5f * state.dt);
 
     return;
   }
 
-  float fall_velocity = (bike.front_wheel_fall_velocity + bike.back_wheel_fall_velocity) / 2.f;
+  if (bike.front_wheel_fall_velocity > 0.f && bike.back_wheel_fall_velocity > 0.f) {
+    float fall_velocity = std::min(bike.front_wheel_fall_velocity, bike.back_wheel_fall_velocity);
 
-  bike.position.y -= fall_velocity * state.dt;
+    bike.position.y -= fall_velocity * state.dt;
+  }
+
+  float wheel_velocity_delta = bike.front_wheel_fall_velocity - bike.back_wheel_fall_velocity;
+  float target_pitch = wheel_velocity_delta / 20000.f;
+
+  bike.pitch = Tachyon_Lerpf(bike.pitch, target_pitch, 0.25f * state.dt);
 }
 
 void CommonBike::Update(Tachyon* tachyon, State& state, Bicycle& bike, const int32 index) {
@@ -128,6 +136,11 @@ void CommonBike::Update(Tachyon* tachyon, State& state, Bicycle& bike, const int
     tVec3f new_rocking_pivot = UnitVisualBikeToWorldPosition(bike, ROCKING_PIVOT_POSITION);
 
     bike.visual_position += new_rocking_pivot - old_rocking_pivot;
+  }
+
+  // Apply pitch
+  {
+    bike.visual_rotation = bike.visual_rotation * Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), bike.pitch);
   }
 
   auto& frame = objects(meshes.common_frame)[index];

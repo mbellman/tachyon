@@ -36,6 +36,7 @@ namespace metro {
     float steering_angle = 0.f;
     float leaning_angle = 0.f;
     float rocking_factor = 0.f;
+    float pitch = 0.f;
     float pedal_revolution = 0.f;
     float wheel_revolution = 0.f;
 
