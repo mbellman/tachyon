@@ -54,22 +54,30 @@ void CommonBike::Spawn(Tachyon* tachyon, State& state, const Bicycle& bike) {
 }
 
 void CommonBike::HandleCollision(Tachyon* tachyon, State& state, Bicycle& bike) {
+  // @todo move to Physics (?)
+  const float gravity = 50000.f;
+
   tVec3f down_ray = tVec3f(0, -10000.f, 0);
 
-  bike.front_wheel_fall_velocity += 50000.f * state.dt;
-  bike.back_wheel_fall_velocity += 50000.f * state.dt;
+  // @todo move to Physics (?)
+  bike.front_wheel_force.y -= gravity * state.dt;
+  bike.back_wheel_force.y -= gravity * state.dt;
 
   for (auto& plane : state.floor_collision_planes) {
     auto front_collision = Collision::TestRayHit(bike.front_wheel_position, down_ray, plane);
     auto back_collision = Collision::TestRayHit(bike.back_wheel_position, down_ray, plane);
 
     if (front_collision.hit) {
-      bike.front_wheel_fall_velocity = 0.f;
+      bike.front_wheel_force += plane.normal * bike.front_wheel_force.invert();
+
+      // @temporary
       bike.front_wheel_position.y = front_collision.point.y + 800.f;
     }
 
     if (back_collision.hit) {
-      bike.back_wheel_fall_velocity = 0.f;
+      bike.back_wheel_force += plane.normal * bike.back_wheel_force.invert();
+
+      // @temporary
       bike.back_wheel_position.y = back_collision.point.y + 800.f;
     }
   }
@@ -81,8 +89,8 @@ void CommonBike::HandleCollision(Tachyon* tachyon, State& state, Bicycle& bike) 
   }
 
   if (
-    bike.front_wheel_fall_velocity == 0.f &&
-    bike.back_wheel_fall_velocity == 0.f
+    bike.front_wheel_force.y == 0.f &&
+    bike.back_wheel_force.y == 0.f
   ) {
     bike.position.y = bike.front_wheel_position.y;
     bike.pitch = Tachyon_Lerpf(bike.pitch, 0.f, 0.5f * state.dt);
@@ -90,14 +98,20 @@ void CommonBike::HandleCollision(Tachyon* tachyon, State& state, Bicycle& bike) 
     return;
   }
 
-  if (bike.front_wheel_fall_velocity > 0.f && bike.back_wheel_fall_velocity > 0.f) {
-    float fall_velocity = std::min(bike.front_wheel_fall_velocity, bike.back_wheel_fall_velocity);
+  if (
+    bike.front_wheel_force.y < 0.f &&
+    bike.back_wheel_force.y < 0.f
+  ) {
+    float fall_velocity = std::min(
+      abs(bike.front_wheel_force.y),
+      abs(bike.back_wheel_force.y)
+    );
 
     bike.position.y -= fall_velocity * state.dt;
   }
 
-  float wheel_velocity_delta = bike.front_wheel_fall_velocity - bike.back_wheel_fall_velocity;
-  float target_pitch = wheel_velocity_delta / 20000.f;
+  float wheel_force_delta = bike.front_wheel_force.y - bike.back_wheel_force.y;
+  float target_pitch = -wheel_force_delta / 20000.f;
 
   bike.pitch = Tachyon_Lerpf(bike.pitch, target_pitch, 0.25f * state.dt);
 }
