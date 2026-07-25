@@ -49,17 +49,17 @@ CollisionTest Collision::TestRayHit(tVec3f& ray_start, tVec3f& ray, CollisionPla
     return test;
   }
 
-  float nDotP = tVec3f::dot(plane.normal, plane.p1);
-  float length = (nDotP - tVec3f::dot(plane.normal, ray_start)) / tVec3f::dot(plane.normal, ray);
+  float n_dot_p = tVec3f::dot(plane.normal, plane.p1);
+  float length = (n_dot_p - tVec3f::dot(plane.normal, ray_start)) / tVec3f::dot(plane.normal, ray);
   tVec3f point = ray_start + ray * length;
   tVec3f end = ray_start + ray;
 
   if (
-    // If the point is on the line segment
+    // If the point is on the line segment...
     IsInBetween(point.x, ray_start.x, end.x) &&
     IsInBetween(point.y, ray_start.y, end.y) &&
     IsInBetween(point.z, ray_start.z, end.z) &&
-    // And the point is inside the plane area
+    // And the point is inside the plane area...
     tVec3f::dot(point - plane.p1, plane.t1) >= 0.f &&
     tVec3f::dot(point - plane.p2, plane.t2) >= 0.f &&
     tVec3f::dot(point - plane.p3, plane.t3) >= 0.f &&

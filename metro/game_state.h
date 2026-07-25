@@ -25,6 +25,7 @@ namespace metro {
     tVec3f position;
     tVec3f visual_position;
     float speed = 0.f;
+    float fall_velocity = 0.f;
     float pedal_speed = 0.f;
     tVec3f facing_direction;
 

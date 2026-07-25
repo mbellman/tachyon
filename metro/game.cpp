@@ -50,18 +50,5 @@ void metro::Update(Tachyon* tachyon, State& state, const float dt) {
   PlayerBicycle::Update(tachyon, state);
   CameraSystem::Update(tachyon, state);
 
-  // @temporary
-  {
-    tVec3f position = GetActiveBicycle(state)->position;
-    tVec3f below = position - tVec3f(0, 50000.f, 0);
-    tVec3f ray = below - position;
-
-    for (auto& plane : state.collision_planes) {
-      auto test = Collision::TestRayHit(position, ray, plane);
-
-      console_log(test.hit);
-    }
-  }
-
   HandleFrameEnd(tachyon, state);
 }

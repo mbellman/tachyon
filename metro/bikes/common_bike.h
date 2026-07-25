@@ -5,6 +5,7 @@
 namespace metro {
   namespace CommonBike {
     void Spawn(Tachyon* tachyon, State& state, const Bicycle& bike);
+    void HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike);
     void Update(Tachyon* tachyon, State& state, Bicycle& bike, const int32 index);
     void Destroy(Tachyon* tachyon, State& state, Bicycle& bike);
   }

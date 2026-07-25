@@ -1,6 +1,7 @@
 #include "engine/tachyon.h"
 
 #include "metro/bikes/common_bike.h"
+#include "metro/collision.h"
 #include "metro/utilities.h"
 
 using namespace metro;
@@ -49,6 +50,24 @@ void CommonBike::Spawn(Tachyon* tachyon, State& state, const Bicycle& bike) {
   commit(spokes1);
   commit(wheel2);
   commit(spokes2);
+}
+
+void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
+  tVec3f down_ray = bike.position - tVec3f(0, 10000.f, 0);
+
+  for (auto& plane : state.collision_planes) {
+    auto test = Collision::TestRayHit(bike.position, down_ray, plane);
+
+    if (test.hit) {
+      bike.fall_velocity = 0.f;
+      bike.position.y = test.point.y + 800.f;
+
+      return;
+    }
+  }
+
+  bike.fall_velocity += 50000.f * state.dt;
+  bike.position.y -= bike.fall_velocity * state.dt;
 }
 
 void CommonBike::Update(Tachyon* tachyon, State& state, Bicycle& bike, const int32 index) {
