@@ -56,8 +56,8 @@ namespace metro {
     uint16
       // @temporary
       dev_cube,
-      dev_sphere,
-      dev_ring,
+      debug_sphere,
+      debug_ring,
 
       // Common bike
       common_frame,

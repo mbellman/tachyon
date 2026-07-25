@@ -10,8 +10,8 @@ const static auto GAMEPAD_O = tKey::CONTROLLER_B;
 const static auto GAMEPAD_SQUARE = tKey::CONTROLLER_X;
 const static auto GAMEPAD_TRIANGLE = tKey::CONTROLLER_Y;
 
-static void DEV_ONLY_ShowRadiusRing(Tachyon* tachyon, State& state, const Bicycle& bike, const float radius) {
-  auto& ring = objects(state.meshes.dev_ring)[0];
+static void DebugShowRadiusRing(Tachyon* tachyon, State& state, const Bicycle& bike, const float radius) {
+  auto& ring = use_instance(state.meshes.debug_ring);
   float absolute_radius = abs(radius);
 
   if (absolute_radius < 20000.f) {
@@ -136,8 +136,8 @@ static void HandleBikeControls(Tachyon* tachyon, State& state, Bicycle& bike) {
     bike.facing_direction = bike.facing_direction.unit();
 
     // @todo dev mode only
-    {
-      // DEV_ONLY_ShowRadiusRing(tachyon, state, bike, radius);
+    if (tachyon->show_timing_profile) {
+      DebugShowRadiusRing(tachyon, state, bike, radius);
     }
   }
 

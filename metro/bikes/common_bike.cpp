@@ -2,6 +2,7 @@
 
 #include "metro/bikes/common_bike.h"
 #include "metro/collision.h"
+#include "metro/debug.h"
 #include "metro/utilities.h"
 
 using namespace metro;
@@ -58,14 +59,6 @@ void CommonBike::HandleComplexPhysics(Tachyon* tachyon, State& state, Bicycle& b
   bike.front_wheel_fall_velocity += 50000.f * state.dt;
   bike.back_wheel_fall_velocity += 50000.f * state.dt;
 
-  auto& s = objects(state.meshes.dev_sphere)[0];
-
-  s.position = bike.front_wheel_position;
-  s.scale = tVec3f(300.f);
-  s.color = tVec3f(0, 0, 1.f);
-
-  commit(s);
-
   for (auto& plane : state.collision_planes) {
     auto front_collision = Collision::TestRayHit(bike.front_wheel_position, down_ray, plane);
     auto back_collision = Collision::TestRayHit(bike.back_wheel_position, down_ray, plane);
@@ -79,6 +72,12 @@ void CommonBike::HandleComplexPhysics(Tachyon* tachyon, State& state, Bicycle& b
       bike.back_wheel_fall_velocity = 0.f;
       bike.back_wheel_position.y = back_collision.point.y + 800.f;
     }
+  }
+
+  // @todo dev mode only
+  if (tachyon->show_timing_profile) {
+    Debug::ShowDebugSphere(tachyon, state, bike.front_wheel_position, 300.f);
+    Debug::ShowDebugSphere(tachyon, state, bike.back_wheel_position, 300.f);
   }
 
   if (

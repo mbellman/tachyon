@@ -29,17 +29,37 @@ static void LoadCommonBikeMeshes(Tachyon* tachyon, State& state) {
   mesh(meshes.common_spokes).shadow_cascade_ceiling = 1;
 }
 
+static void LoadDebugMeshes(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
+  meshes.debug_sphere = SPHERE_MESH(100, 12);
+  meshes.debug_ring = MODEL_MESH("./metro/3d_models/ring.obj", 10);
+
+  mesh(meshes.debug_sphere).shadow_cascade_ceiling = 0;
+  mesh(meshes.debug_ring).shadow_cascade_ceiling = 0;
+}
+
 static void LoadGameMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   // @temporary
   meshes.dev_cube = CUBE_MESH(10);
-  meshes.dev_sphere = SPHERE_MESH(10, 12);
-  meshes.dev_ring = MODEL_MESH("./metro/3d_models/ring.obj", 2);
 
+  LoadDebugMeshes(tachyon, state);
   LoadCommonBikeMeshes(tachyon, state);
 
   Tachyon_InitializeObjects(tachyon);
+
+  // @todo move to Debug
+  {
+    for_range(1, 100) {
+      create(meshes.debug_sphere);
+    }
+
+    for_range(1, 10) {
+      create(meshes.debug_ring);
+    }
+  }
 }
 
 static void LoadGameWorld(Tachyon* tachyon, State& state) {
@@ -86,13 +106,6 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
     road.material = tVec4f(0.4f, 1.f, 0, 0);
 
     commit(road);
-  }
-
-  // @temporary
-  {
-    create(state.meshes.dev_ring);
-    create(state.meshes.dev_sphere);
-    create(state.meshes.dev_sphere);
   }
 
   // @temporary

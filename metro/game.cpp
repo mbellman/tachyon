@@ -5,6 +5,7 @@
 #include "metro/camera_system.h"
 #include "metro/collision.h"
 #include "metro/control_system.h"
+#include "metro/debug.h"
 #include "metro/player_bicycle.h"
 #include "metro/world_init.h"
 #include "metro/utilities.h"
@@ -15,6 +16,8 @@ static void HandleFrameStart(Tachyon* tachyon, State& state, const float dt) {
   state.dt = dt;
 
   tachyon->scene.scene_time += state.dt;
+
+  Debug::HandleFrameStart(tachyon, state);
 }
 
 static void HandleFrameEnd(Tachyon* tachyon, State& state) {
