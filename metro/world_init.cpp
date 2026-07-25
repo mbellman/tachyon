@@ -74,6 +74,16 @@ static void LoadGameMeshes(Tachyon* tachyon, State& state) {
 }
 
 static void LoadGameWorld(Tachyon* tachyon, State& state) {
+  {
+    auto& scene = tachyon->scene;
+
+    scene.primary_light_color = tVec3f(1.f, 0.8f, 0.6f);
+    scene.primary_light_direction = tVec3f(0.2f, -1.f, 0.7f);
+
+    scene.sky_light_color = tVec3f(0.1f, 0.2f, 0.5f);
+    scene.sky_light_direction = tVec3f(0, -1.f, 0);
+  }
+
   // @temporary
   {
     auto& cube = create(state.meshes.dev_cube);
