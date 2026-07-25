@@ -45,14 +45,17 @@ void Collision::AddFloorCollision(State& state, const tObject& object) {
 CollisionTest Collision::TestRayHit(tVec3f& ray_start, tVec3f& ray, CollisionPlane& plane) {
   CollisionTest test;
 
-  if (tVec3f::dot(plane.normal, ray) == 0.f) {
+  tVec3f ray_end = ray_start + ray;
+  tVec3f line = ray_end - ray_start;
+
+  if (tVec3f::dot(plane.normal, line) == 0.f) {
     return test;
   }
 
   float n_dot_p = tVec3f::dot(plane.normal, plane.p1);
-  float length = (n_dot_p - tVec3f::dot(plane.normal, ray_start)) / tVec3f::dot(plane.normal, ray);
-  tVec3f point = ray_start + ray * length;
-  tVec3f end = ray_start + ray;
+  float length = (n_dot_p - tVec3f::dot(plane.normal, ray_start)) / tVec3f::dot(plane.normal, line);
+  tVec3f point = ray_start + line * length;
+  tVec3f end = ray_start + line;
 
   if (
     // If the point is on the line segment...

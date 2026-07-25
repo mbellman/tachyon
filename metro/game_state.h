@@ -25,9 +25,13 @@ namespace metro {
     tVec3f position;
     tVec3f visual_position;
     float speed = 0.f;
-    float fall_velocity = 0.f;
     float pedal_speed = 0.f;
     tVec3f facing_direction;
+
+    tVec3f front_wheel_position;
+    tVec3f back_wheel_position;
+    float front_wheel_fall_velocity = 0.f;
+    float back_wheel_fall_velocity = 0.f;
 
     float steering_angle = 0.f;
     float leaning_angle = 0.f;
@@ -52,6 +56,7 @@ namespace metro {
     uint16
       // @temporary
       dev_cube,
+      dev_sphere,
       dev_ring,
 
       // Common bike

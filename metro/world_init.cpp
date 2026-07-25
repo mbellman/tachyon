@@ -34,6 +34,7 @@ static void LoadGameMeshes(Tachyon* tachyon, State& state) {
 
   // @temporary
   meshes.dev_cube = CUBE_MESH(10);
+  meshes.dev_sphere = SPHERE_MESH(10, 12);
   meshes.dev_ring = MODEL_MESH("./metro/3d_models/ring.obj", 2);
 
   LoadCommonBikeMeshes(tachyon, state);
@@ -90,6 +91,8 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
   // @temporary
   {
     create(state.meshes.dev_ring);
+    create(state.meshes.dev_sphere);
+    create(state.meshes.dev_sphere);
   }
 
   // @temporary

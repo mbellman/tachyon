@@ -52,22 +52,47 @@ void CommonBike::Spawn(Tachyon* tachyon, State& state, const Bicycle& bike) {
   commit(spokes2);
 }
 
-void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
-  tVec3f down_ray = bike.position - tVec3f(0, 10000.f, 0);
+void CommonBike::HandleComplexPhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
+  tVec3f down_ray = tVec3f(0, -10000.f, 0);
+
+  bike.front_wheel_fall_velocity += 50000.f * state.dt;
+  bike.back_wheel_fall_velocity += 50000.f * state.dt;
+
+  auto& s = objects(state.meshes.dev_sphere)[0];
+
+  s.position = bike.front_wheel_position;
+  s.scale = tVec3f(300.f);
+  s.color = tVec3f(0, 0, 1.f);
+
+  commit(s);
 
   for (auto& plane : state.collision_planes) {
-    auto test = Collision::TestRayHit(bike.position, down_ray, plane);
+    auto front_collision = Collision::TestRayHit(bike.front_wheel_position, down_ray, plane);
+    auto back_collision = Collision::TestRayHit(bike.back_wheel_position, down_ray, plane);
 
-    if (test.hit) {
-      bike.fall_velocity = 0.f;
-      bike.position.y = test.point.y + 800.f;
+    if (front_collision.hit) {
+      bike.front_wheel_fall_velocity = 0.f;
+      bike.front_wheel_position.y = front_collision.point.y + 800.f;
+    }
 
-      return;
+    if (back_collision.hit) {
+      bike.back_wheel_fall_velocity = 0.f;
+      bike.back_wheel_position.y = back_collision.point.y + 800.f;
     }
   }
 
-  bike.fall_velocity += 50000.f * state.dt;
-  bike.position.y -= bike.fall_velocity * state.dt;
+  if (
+    bike.front_wheel_fall_velocity == 0.f &&
+    bike.back_wheel_fall_velocity == 0.f
+  ) {
+    bike.position.y = bike.front_wheel_position.y;
+
+    return;
+  }
+
+  float fall_velocity = (bike.front_wheel_fall_velocity + bike.back_wheel_fall_velocity) / 2.f;
+
+  bike.position.y -= fall_velocity * state.dt;
 }
 
 void CommonBike::Update(Tachyon* tachyon, State& state, Bicycle& bike, const int32 index) {
@@ -203,6 +228,9 @@ void CommonBike::Update(Tachyon* tachyon, State& state, Bicycle& bike, const int
     commit(front_spokes);
     commit(back_wheel);
     commit(back_spokes);
+
+    bike.front_wheel_position = front_wheel.position;
+    bike.back_wheel_position = back_wheel.position;
   }
 }
 
