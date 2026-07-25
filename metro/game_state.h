@@ -61,6 +61,8 @@ namespace metro {
       dev_cube,
       debug_sphere,
       debug_ring,
+      debug_line,
+      debug_cone,
 
       // Common bike
       common_frame,

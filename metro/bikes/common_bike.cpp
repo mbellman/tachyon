@@ -57,11 +57,12 @@ void CommonBike::HandleCollision(Tachyon* tachyon, State& state, Bicycle& bike) 
   // @todo move to Physics (?)
   const float gravity = 50000.f;
 
-  tVec3f down_ray = tVec3f(0, -10000.f, 0);
-
   // @todo move to Physics (?)
   bike.front_wheel_force.y -= gravity * state.dt;
   bike.back_wheel_force.y -= gravity * state.dt;
+
+  // @todo use the wheel radius for this
+  tVec3f down_ray = tVec3f(0, -10000.f, 0);
 
   for (auto& plane : state.floor_collision_planes) {
     auto front_collision = Collision::TestRayHit(bike.front_wheel_position, down_ray, plane);
@@ -84,8 +85,26 @@ void CommonBike::HandleCollision(Tachyon* tachyon, State& state, Bicycle& bike) 
 
   // @todo dev mode only
   if (tachyon->show_timing_profile) {
+    tVec3f steering_direction =
+      Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), bike.steering_angle).toMatrix4f() *
+      bike.facing_direction;
+
+    tVec3f steering_vector = steering_direction * 3000.f;
+    tVec3f front_force_vector = bike.front_wheel_force * 0.1f;
+    tVec3f back_force_vector = bike.back_wheel_force * 0.1f;
+
+    tVec3f momentum_vector = (
+      (bike.facing_direction * bike.speed) * 0.2f +
+      (bike.front_wheel_force + bike.back_wheel_force) / 2.f * 0.1f
+    );
+
     Debug::ShowDebugSphere(tachyon, state, bike.front_wheel_position, 300.f);
     Debug::ShowDebugSphere(tachyon, state, bike.back_wheel_position, 300.f);
+
+    Debug::ShowDebugVector(tachyon, state, bike.front_wheel_position, steering_vector, tVec3f(0, 0, 1.f));
+    Debug::ShowDebugVector(tachyon, state, bike.front_wheel_position, front_force_vector, tVec3f(1.f, 0, 0));
+    Debug::ShowDebugVector(tachyon, state, bike.back_wheel_position, back_force_vector, tVec3f(1.f, 0, 0));
+    Debug::ShowDebugVector(tachyon, state, bike.front_wheel_position, momentum_vector, tVec3f(0, 1.f, 0));
   }
 
   if (
