@@ -9,25 +9,9 @@ using namespace metro;
 #define CUBE_MESH(total) Tachyon_AddMesh(tachyon, Tachyon_CreateCubeMesh(), total)
 #define SPHERE_MESH(total, divisions) Tachyon_AddMesh(tachyon, Tachyon_CreateSphereMesh(divisions), total)
 #define PLANE_MESH(total) Tachyon_AddMesh(tachyon, Tachyon_CreatePlaneMesh(), total)
-
 #define MODEL_MESH(path, total) Tachyon_AddMesh(tachyon, Tachyon_LoadMesh(path), total)
 
-static void LoadCommonBikeMeshes(Tachyon* tachyon, State& state) {
-  auto& meshes = state.meshes;
-
-  meshes.common_frame      = MODEL_MESH("./metro/3d_models/common_bike/frame.obj", 10);
-  meshes.common_fork       = MODEL_MESH("./metro/3d_models/common_bike/fork.obj", 10);
-  meshes.common_handlebars = MODEL_MESH("./metro/3d_models/common_bike/handlebars.obj", 10);
-  meshes.common_grips      = MODEL_MESH("./metro/3d_models/common_bike/grips.obj", 10);
-  meshes.common_seatpost   = MODEL_MESH("./metro/3d_models/common_bike/seatpost.obj", 10);
-  meshes.common_saddle     = MODEL_MESH("./metro/3d_models/common_bike/saddle.obj", 10);
-  meshes.common_crank      = MODEL_MESH("./metro/3d_models/common_bike/crank.obj", 10);
-  // @todo pedals
-  meshes.common_wheel      = MODEL_MESH("./metro/3d_models/common_bike/wheel.obj", 20);
-  meshes.common_spokes     = MODEL_MESH("./metro/3d_models/common_bike/spokes.obj", 20);
-
-  mesh(meshes.common_spokes).shadow_cascade_ceiling = 1;
-}
+#define METRO_MODEL(path, total) MODEL_MESH("./metro/3d_models/" path, total)
 
 static void LoadDebugMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
@@ -39,6 +23,32 @@ static void LoadDebugMeshes(Tachyon* tachyon, State& state) {
   mesh(meshes.debug_ring).shadow_cascade_ceiling = 0;
 }
 
+static void LoadCommonBikeMeshes(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
+  meshes.common_frame      = METRO_MODEL("common_bike/frame.obj", 10);
+  meshes.common_fork       = METRO_MODEL("common_bike/fork.obj", 10);
+  meshes.common_handlebars = METRO_MODEL("common_bike/handlebars.obj", 10);
+  meshes.common_grips      = METRO_MODEL("common_bike/grips.obj", 10);
+  meshes.common_seatpost   = METRO_MODEL("common_bike/seatpost.obj", 10);
+  meshes.common_saddle     = METRO_MODEL("common_bike/saddle.obj", 10);
+  meshes.common_crank      = METRO_MODEL("common_bike/crank.obj", 10);
+  // @todo pedals
+  meshes.common_wheel      = METRO_MODEL("common_bike/wheel.obj", 20);
+  meshes.common_spokes     = METRO_MODEL("common_bike/spokes.obj", 20);
+
+  mesh(meshes.common_spokes).shadow_cascade_ceiling = 1;
+}
+
+static void LoadStaticEntityMeshes(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
+  // Ramps
+  {
+    meshes.ramp = METRO_MODEL("static_entities/ramp.obj", 100);
+  }
+}
+
 static void LoadGameMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
@@ -47,6 +57,7 @@ static void LoadGameMeshes(Tachyon* tachyon, State& state) {
 
   LoadDebugMeshes(tachyon, state);
   LoadCommonBikeMeshes(tachyon, state);
+  LoadStaticEntityMeshes(tachyon, state);
 
   Tachyon_InitializeObjects(tachyon);
 
@@ -157,6 +168,17 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
     bike.facing_direction = tVec3f(0, 0, -1.f);
 
     BackgroundBicycles::SpawnBicycle(tachyon, state, bike);
+  }
+
+  // @temporary
+  {
+    StaticEntity ramp;
+    ramp.position = tVec3f(50000.f, 0.f, -10000.f);
+    ramp.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_HALF_PI);
+    ramp.scale = tVec3f(3000.f);
+    ramp.color = tVec3f(0.5f);
+
+    state.ramps.push_back(ramp);
   }
 }
 

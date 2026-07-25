@@ -3,6 +3,8 @@
 #include "engine/tachyon_aliases.h"
 #include "engine/tachyon_types.h"
 
+#include "metro/entities.h"
+
 // @todo move to engine
 #define for_range(__low, __high) for (int i = __low; i <= __high; i++)
 #define time_since(t) (tachyon->scene.scene_time - (t))
@@ -70,7 +72,13 @@ namespace metro {
       common_crank,
       common_pedal,
       common_spokes,
-      common_wheel
+      common_wheel,
+
+      // Static entities
+      ramp,
+
+      // Interactive entities
+      vending_machine
 
       ;
   };
@@ -82,9 +90,12 @@ namespace metro {
 
     tVec3f player_position;
 
-    std::vector<Bicycle> bicycles;
     int32 player_bike_id = -1;
 
-    std::vector<CollisionPlane> collision_planes;
+    std::vector<Bicycle> bicycles;
+    std::vector<StaticEntity> ramps;
+    std::vector<InteractiveEntity> vending_machines;
+
+    std::vector<CollisionPlane> floor_collision_planes;
   };
 }

@@ -804,6 +804,15 @@
     <ClInclude Include="metro\debug.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="metro\entities.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="metro\static_entities.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="metro\interactive_entities.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -1068,6 +1077,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="metro\debug.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="metro\static_entities.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="metro\interactive_entities.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

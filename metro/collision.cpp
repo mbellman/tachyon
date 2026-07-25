@@ -39,7 +39,7 @@ void Collision::AddFloorCollision(State& state, const tObject& object) {
   plane.t3 = tVec3f::cross(plane.normal, plane.p4 - plane.p3);
   plane.t4 = tVec3f::cross(plane.normal, plane.p1 - plane.p4);
 
-  state.collision_planes.push_back(plane);
+  state.floor_collision_planes.push_back(plane);
 }
 
 CollisionTest Collision::TestRayHit(tVec3f& ray_start, tVec3f& ray, CollisionPlane& plane) {

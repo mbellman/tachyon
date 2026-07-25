@@ -59,7 +59,7 @@ void CommonBike::HandleCollision(Tachyon* tachyon, State& state, Bicycle& bike) 
   bike.front_wheel_fall_velocity += 50000.f * state.dt;
   bike.back_wheel_fall_velocity += 50000.f * state.dt;
 
-  for (auto& plane : state.collision_planes) {
+  for (auto& plane : state.floor_collision_planes) {
     auto front_collision = Collision::TestRayHit(bike.front_wheel_position, down_ray, plane);
     auto back_collision = Collision::TestRayHit(bike.back_wheel_position, down_ray, plane);
 
