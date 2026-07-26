@@ -7,12 +7,14 @@
 
 using namespace metro;
 
+const static float WHEELBASE = 2400.f;
+
 const static tVec3f STEERING_AXIS = tVec3f(0, 0.9731f, -0.2305f);
 const static tVec3f WHEEL_AXIS = tVec3f(1.f, 0, 0);
 const static tVec3f LEANING_AXIS = tVec3f(0, 0, 1.f);
 
-const static tVec3f ROTATE_PIVOT_POSITION = tVec3f(0, 0, 0.61f);
-const static tVec3f ROCKING_PIVOT_POSITION = tVec3f(0, 0, -0.61f);
+const static tVec3f BACK_WHEEL_PIVOT_POSITION = tVec3f(0, 0, 0.61f);
+const static tVec3f FRONT_WHEEL_PIVOT_POSITION = tVec3f(0, 0, -0.61f);
 
 void CommonBike::Spawn(Tachyon* tachyon, State& state, const Bicycle& bike) {
   auto& meshes = state.meshes;
@@ -61,8 +63,11 @@ void CommonBike::HandleCollision(Tachyon* tachyon, State& state, Bicycle& bike) 
   bike.front_wheel_force.y -= gravity * state.dt;
   bike.back_wheel_force.y -= gravity * state.dt;
 
+  tVec3f ideal_front_wheel_position = bike.front_wheel_position + bike.front_wheel_force.y * state.dt;
+  tVec3f ideal_back_wheel_position = bike.back_wheel_position + bike.back_wheel_force.y * state.dt;
+
   for (auto& plane : state.floor_collision_planes) {
-    tVec3f down_ray = plane.normal.invert() * 820.f;
+    tVec3f down_ray = plane.normal.invert() * 850.f;
 
     auto front_collision = Collision::TestRayHit(bike.front_wheel_position, down_ray, plane);
     auto back_collision = Collision::TestRayHit(bike.back_wheel_position, down_ray, plane);
@@ -70,51 +75,26 @@ void CommonBike::HandleCollision(Tachyon* tachyon, State& state, Bicycle& bike) 
     if (front_collision.hit) {
       bike.front_wheel_force += plane.normal * bike.front_wheel_force.invert();
 
-      // @temporary
-      bike.front_wheel_position = front_collision.point + plane.normal * 800.f;
+      ideal_front_wheel_position = front_collision.point + plane.normal * 820.f;
     }
 
     if (back_collision.hit) {
       bike.back_wheel_force += plane.normal * bike.back_wheel_force.invert();
 
-      // @temporary
-      bike.back_wheel_position = back_collision.point + plane.normal * 800.f;
+      ideal_back_wheel_position = back_collision.point + plane.normal * 820.f;
     }
   }
 
-  // @todo dev mode only
-  if (tachyon->show_timing_profile) {
-    tVec3f steering_direction =
-      Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), bike.steering_angle).toMatrix4f() *
-      bike.facing_direction;
+  if (ideal_back_wheel_position.y > bike.back_wheel_position.y) {
+    tVec3f delta = ideal_back_wheel_position - bike.back_wheel_position;
 
-    tVec3f steering_vector = steering_direction * 3000.f;
-    tVec3f front_force_vector = bike.front_wheel_force * 0.1f;
-    tVec3f back_force_vector = bike.back_wheel_force * 0.1f;
-
-    tVec3f momentum_vector = (
-      (bike.facing_direction * bike.speed) * 0.2f +
-      (bike.front_wheel_force + bike.back_wheel_force) / 2.f * 0.1f
-    );
-
-    Debug::ShowDebugSphere(tachyon, state, bike.front_wheel_position, 300.f);
-    Debug::ShowDebugSphere(tachyon, state, bike.back_wheel_position, 300.f);
-
-    Debug::ShowDebugVector(tachyon, state, bike.front_wheel_position, steering_vector, tVec3f(0, 0, 1.f));
-    Debug::ShowDebugVector(tachyon, state, bike.front_wheel_position, front_force_vector, tVec3f(1.f, 0, 0));
-    Debug::ShowDebugVector(tachyon, state, bike.back_wheel_position, back_force_vector, tVec3f(1.f, 0, 0));
-    Debug::ShowDebugVector(tachyon, state, bike.front_wheel_position, momentum_vector, tVec3f(0, 1.f, 0));
+    bike.position += delta;
   }
 
-  if (
-    bike.front_wheel_force.y == 0.f &&
-    bike.back_wheel_force.y == 0.f
-  ) {
-    bike.position.y = bike.front_wheel_position.y;
-    bike.pitch = Tachyon_Lerpf(bike.pitch, 0.f, 0.5f * state.dt);
+  float wheel_ground_delta = ideal_front_wheel_position.y - ideal_back_wheel_position.y;
+  float pitch = -atanf(wheel_ground_delta / WHEELBASE);
 
-    return;
-  }
+  bike.pitch = pitch;
 
   if (
     bike.front_wheel_force.y < 0.f &&
@@ -128,19 +108,48 @@ void CommonBike::HandleCollision(Tachyon* tachyon, State& state, Bicycle& bike) 
     bike.position.y -= fall_velocity * state.dt;
   }
 
-  float wheel_force_delta = bike.front_wheel_force.y - bike.back_wheel_force.y;
-  float target_pitch = -wheel_force_delta / 20000.f;
+  // @todo dev mode only
+  // @todo why is this here? put this in PlayerBicycle
+  if (tachyon->show_timing_profile) {
+    tVec3f steering_direction =
+      Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), bike.steering_angle).toMatrix4f() *
+      bike.facing_direction;
 
-  bike.pitch = Tachyon_Lerpf(bike.pitch, target_pitch, 0.25f * state.dt);
+    tVec3f steering_vector = steering_direction * 3000.f;
+
+    tVec3f momentum_vector = (
+      (bike.facing_direction * bike.speed) * 0.2f +
+      (bike.front_wheel_force + bike.back_wheel_force) / 2.f * 0.1f
+    );
+
+    tVec3f front_force_vector = bike.front_wheel_force * 0.1f;
+    tVec3f back_force_vector = bike.back_wheel_force * 0.1f;
+
+    Debug::ShowDebugSphere(tachyon, state, bike.front_wheel_position, 300.f);
+    Debug::ShowDebugSphere(tachyon, state, bike.back_wheel_position, 300.f);
+
+    Debug::ShowDebugVector(tachyon, state, bike.front_wheel_position, steering_vector, tVec3f(0, 0, 1.f));
+    Debug::ShowDebugVector(tachyon, state, bike.front_wheel_position, momentum_vector, tVec3f(0, 1.f, 0));
+
+    Debug::ShowDebugVector(tachyon, state, bike.front_wheel_position, front_force_vector, tVec3f(1.f, 0, 0));
+    Debug::ShowDebugVector(tachyon, state, bike.back_wheel_position, back_force_vector, tVec3f(1.f, 0, 0));
+  }
 }
 
 void CommonBike::Update(Tachyon* tachyon, State& state, Bicycle& bike, const int32 index) {
   auto& meshes = state.meshes;
 
-  // Rotate around the default pivot position
+  // Store the bike index if we're currently riding it
+  {
+    if (bike.id == state.player_bike_id) {
+      state.player_bike_index = index;
+    }
+  }
+
+  // Rotate around the turning pivot position
   {
     // Track the pivot before recomputing rotation
-    tVec3f old_pivot = UnitBikeToWorldPosition(bike, ROTATE_PIVOT_POSITION);
+    tVec3f old_pivot = UnitBikeToWorldPosition(bike, BACK_WHEEL_PIVOT_POSITION);
 
     bike.computed_rotation =
       Quaternion::FromDirection(bike.facing_direction, tVec3f(0, 1.f, 0)) *
@@ -148,31 +157,38 @@ void CommonBike::Update(Tachyon* tachyon, State& state, Bicycle& bike, const int
 
     // Offset the bike by the pivot delta to keep it centered on the pivot.
     // We rotate around the back wheel for more physically grounded motion.
-    tVec3f new_pivot = UnitBikeToWorldPosition(bike, ROTATE_PIVOT_POSITION);
+    tVec3f new_pivot = UnitBikeToWorldPosition(bike, BACK_WHEEL_PIVOT_POSITION);
+
+    bike.position += new_pivot - old_pivot;
+  }
+
+  // Apply pitch
+  {
+    tVec3f old_pivot = UnitBikeToWorldPosition(bike, BACK_WHEEL_PIVOT_POSITION);
+
+    bike.computed_rotation = bike.computed_rotation * Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), bike.pitch);
+
+    tVec3f new_pivot = UnitBikeToWorldPosition(bike, BACK_WHEEL_PIVOT_POSITION);
 
     bike.position += new_pivot - old_pivot;
   }
 
   // As the bike rocks when pedaling faster, rotate around
-  // the rocking pivot position
+  // the front wheel. This is a purely visual effect, and
+  // does not affect the bicycle's actual motion vector.
   {
     bike.visual_position = bike.position;
     bike.visual_rotation = bike.computed_rotation;
 
-    tVec3f old_rocking_pivot = UnitVisualBikeToWorldPosition(bike, ROCKING_PIVOT_POSITION);
+    tVec3f old_rocking_pivot = UnitVisualBikeToWorldPosition(bike, FRONT_WHEEL_PIVOT_POSITION);
 
     bike.visual_rotation =
       Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), bike.rocking_factor) *
       bike.computed_rotation;
 
-    tVec3f new_rocking_pivot = UnitVisualBikeToWorldPosition(bike, ROCKING_PIVOT_POSITION);
+    tVec3f new_rocking_pivot = UnitVisualBikeToWorldPosition(bike, FRONT_WHEEL_PIVOT_POSITION);
 
     bike.visual_position += new_rocking_pivot - old_rocking_pivot;
-  }
-
-  // Apply pitch
-  {
-    bike.visual_rotation = bike.visual_rotation * Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), bike.pitch);
   }
 
   auto& frame = objects(meshes.common_frame)[index];

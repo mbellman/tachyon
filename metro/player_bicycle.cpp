@@ -11,13 +11,16 @@ void PlayerBicycle::Update(Tachyon* tachyon, State& state) {
 
   auto* active_bike = GetActiveBicycle(state);
 
-  if (active_bike != nullptr) {
-    switch (active_bike->type) {
-      case BicycleType::COMMON_BIKE:
-        CommonBike::HandleCollision(tachyon, state, *active_bike);
-        break;
-      default:
-        break;
-    }
+  if (active_bike == nullptr) {
+    return;
+  }
+
+  switch (active_bike->type) {
+    case BicycleType::COMMON_BIKE:
+      CommonBike::HandleCollision(tachyon, state, *active_bike);
+      CommonBike::Update(tachyon, state, *active_bike, state.player_bike_index);
+      break;
+    default:
+      break;
   }
 }

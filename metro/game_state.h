@@ -95,6 +95,15 @@ namespace metro {
 
     int32 player_bike_id = -1;
 
+    // Refers to the iterated index of the bike the player is riding.
+    // This is an index in the set of bikes of a given type, which is
+    // also used for the object indexes of the bike's parts.
+    //
+    // We store this on the initial bike update, so that when we then
+    // run physics on the player bike, we can do a final secondary update
+    // on the same bike instance as a physics post-step.
+    int32 player_bike_index = -1;
+
     std::vector<Bicycle> bicycles;
     std::vector<StaticEntity> ramps;
     std::vector<InteractiveEntity> vending_machines;
