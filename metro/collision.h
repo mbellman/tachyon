@@ -4,8 +4,8 @@
 
 namespace metro {
   struct CollisionTest {
-    tVec3f point;
-    bool hit = false;
+    tVec3f collision_point;
+    bool has_collision = false;
   };
 
   struct Transform {

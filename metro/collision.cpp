@@ -101,8 +101,8 @@ CollisionTest Collision::TestRayHit(tVec3f& ray_start, tVec3f& ray, CollisionPla
     tVec3f::dot(point - plane.p3, plane.t3) >= 0.f &&
     tVec3f::dot(point - plane.p4, plane.t4) >= 0.f
   ) {
-    test.point = point;
-    test.hit = true;
+    test.collision_point = point;
+    test.has_collision = true;
   }
 
   return test;

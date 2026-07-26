@@ -65,22 +65,35 @@ void CommonBike::HandleCollision(Tachyon* tachyon, State& state, Bicycle& bike) 
   tVec3f ideal_front_wheel_position = bike.front_wheel_position + bike.front_wheel_force.y * state.dt;
   tVec3f ideal_back_wheel_position = bike.back_wheel_position + bike.back_wheel_force.y * state.dt;
 
+  float highest_front_y = -FLT_MAX;
+  float highest_back_y = -FLT_MAX;
+
   for (auto& plane : state.floor_collision_planes) {
     tVec3f down_ray = plane.normal.invert() * 850.f;
 
-    auto front_collision = Collision::TestRayHit(bike.front_wheel_position, down_ray, plane);
-    auto back_collision = Collision::TestRayHit(bike.back_wheel_position, down_ray, plane);
+    auto front = Collision::TestRayHit(bike.front_wheel_position, down_ray, plane);
+    auto back = Collision::TestRayHit(bike.back_wheel_position, down_ray, plane);
 
-    if (front_collision.hit) {
+    if (front.has_collision) {
       bike.front_wheel_force += plane.normal * bike.front_wheel_force.invert();
 
-      ideal_front_wheel_position = front_collision.point + plane.normal * 820.f;
+      tVec3f resolved_position = front.collision_point + plane.normal * 820.f;
+
+      if (resolved_position.y > highest_front_y) {
+        ideal_front_wheel_position = resolved_position;
+        highest_front_y = resolved_position.y;
+      }
     }
 
-    if (back_collision.hit) {
+    if (back.has_collision) {
       bike.back_wheel_force += plane.normal * bike.back_wheel_force.invert();
 
-      ideal_back_wheel_position = back_collision.point + plane.normal * 820.f;
+      tVec3f resolved_position = back.collision_point + plane.normal * 820.f;
+
+      if (resolved_position.y > highest_back_y) {
+        ideal_back_wheel_position = resolved_position;
+        highest_back_y = resolved_position.y;
+      }
     }
   }
 
