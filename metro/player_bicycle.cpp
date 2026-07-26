@@ -17,7 +17,7 @@ void PlayerBicycle::Update(Tachyon* tachyon, State& state) {
 
   switch (active_bike->type) {
     case BicycleType::COMMON_BIKE:
-      CommonBike::HandleCollision(tachyon, state, *active_bike);
+      CommonBike::HandlePhysics(tachyon, state, *active_bike);
       CommonBike::Update(tachyon, state, *active_bike, state.player_bike_index);
       break;
     default:

@@ -29,6 +29,7 @@ namespace metro {
     float speed = 0.f;
     float pedal_speed = 0.f;
     tVec3f facing_direction;
+    tVec3f momentum;
 
     tVec3f front_wheel_position;
     tVec3f back_wheel_position;
