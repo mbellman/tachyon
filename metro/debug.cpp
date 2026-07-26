@@ -9,6 +9,7 @@ void Debug::HandleFrameStart(Tachyon* tachyon, State& state) {
 
   reset_instances(meshes.debug_ring);
   reset_instances(meshes.debug_sphere);
+  reset_instances(meshes.debug_plane);
   reset_instances(meshes.debug_line);
   reset_instances(meshes.debug_cone);
 }
@@ -50,4 +51,20 @@ void Debug::ShowDebugVector(Tachyon* tachyon, State& state, const tVec3f& positi
   cone.color = line.color;
 
   commit(cone);
+}
+
+void Debug::ShowDebugPlane(Tachyon* tachyon, State& state, const CollisionPlane& plane, const tVec3f& color) {
+  tVec3f midpoint = (plane.p1 + plane.p2 + plane.p3 + plane.p4) / 4.f;
+  float x_scale = tVec3f::distance(plane.p1, plane.p4) / 2.f;
+  float z_scale = tVec3f::distance(plane.p1, plane.p2) / 2.f;
+  tVec3f direction = (plane.p1 - plane.p2).unit();
+
+  auto& debug_plane = use_instance(state.meshes.debug_plane);
+
+  debug_plane.position = midpoint;
+  debug_plane.rotation = Quaternion::FromDirection(direction, tVec3f(0, 1.f, 0));
+  debug_plane.scale = tVec3f(x_scale, 1.f, z_scale);
+  debug_plane.color = color;
+
+  commit(debug_plane);
 }

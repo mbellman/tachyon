@@ -8,8 +8,20 @@ namespace metro {
     bool hit = false;
   };
 
+  struct Transform {
+    tVec3f position;
+    Quaternion rotation;
+    tVec3f scale;
+
+    Transform(const tObject& object):
+      position(object.position),
+      rotation(object.rotation),
+      scale(object.scale) {};
+  };
+
   namespace Collision {
-    void AddFloorCollision(State& state, const tObject& object);
+    void AddFloorCollision(State& state, const Transform& transform);
+    void AddSlopeCollision(State& state, const Transform& transform);
     CollisionTest TestRayHit(tVec3f& ray_start, tVec3f& ray, CollisionPlane& plane);
   }
 }

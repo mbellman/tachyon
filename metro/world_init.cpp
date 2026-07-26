@@ -18,11 +18,13 @@ static void LoadDebugMeshes(Tachyon* tachyon, State& state) {
 
   meshes.debug_sphere = SPHERE_MESH(100, 12);
   meshes.debug_ring   = METRO_MODEL("ring.obj", 10);
+  meshes.debug_plane  = PLANE_MESH(100);
   meshes.debug_line   = METRO_MODEL("debug_line.obj", 100);
   meshes.debug_cone   = METRO_MODEL("debug_cone.obj", 100);
 
   mesh(meshes.debug_sphere).shadow_cascade_ceiling = 0;
   mesh(meshes.debug_ring).shadow_cascade_ceiling = 0;
+  mesh(meshes.debug_plane).shadow_cascade_ceiling = 0;
   mesh(meshes.debug_line).shadow_cascade_ceiling = 0;
   mesh(meshes.debug_cone).shadow_cascade_ceiling = 0;
 }
@@ -69,6 +71,7 @@ static void LoadGameMeshes(Tachyon* tachyon, State& state) {
   {
     for_range(1, 100) {
       create(meshes.debug_sphere);
+      create(meshes.debug_plane);
       create(meshes.debug_line);
       create(meshes.debug_cone);
     }
@@ -189,9 +192,10 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
   // @temporary
   {
     StaticEntity ramp;
-    ramp.position = tVec3f(50000.f, 0.f, -10000.f);
+    ramp.position = tVec3f(50000.f, -1500.f, -10000.f);
     ramp.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_HALF_PI);
     ramp.scale = tVec3f(3000.f);
+    ramp.scale.y = 1500.f;
     ramp.color = tVec3f(0.5f);
 
     state.ramps.push_back(ramp);

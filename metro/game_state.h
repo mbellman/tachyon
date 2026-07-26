@@ -61,6 +61,7 @@ namespace metro {
       dev_cube,
       debug_sphere,
       debug_ring,
+      debug_plane,
       debug_line,
       debug_cone,
 

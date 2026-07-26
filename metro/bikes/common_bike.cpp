@@ -61,10 +61,9 @@ void CommonBike::HandleCollision(Tachyon* tachyon, State& state, Bicycle& bike) 
   bike.front_wheel_force.y -= gravity * state.dt;
   bike.back_wheel_force.y -= gravity * state.dt;
 
-  // @todo use the wheel radius for this
-  tVec3f down_ray = tVec3f(0, -10000.f, 0);
-
   for (auto& plane : state.floor_collision_planes) {
+    tVec3f down_ray = plane.normal.invert() * 820.f;
+
     auto front_collision = Collision::TestRayHit(bike.front_wheel_position, down_ray, plane);
     auto back_collision = Collision::TestRayHit(bike.back_wheel_position, down_ray, plane);
 
@@ -72,14 +71,14 @@ void CommonBike::HandleCollision(Tachyon* tachyon, State& state, Bicycle& bike) 
       bike.front_wheel_force += plane.normal * bike.front_wheel_force.invert();
 
       // @temporary
-      bike.front_wheel_position.y = front_collision.point.y + 800.f;
+      bike.front_wheel_position = front_collision.point + plane.normal * 800.f;
     }
 
     if (back_collision.hit) {
       bike.back_wheel_force += plane.normal * bike.back_wheel_force.invert();
 
       // @temporary
-      bike.back_wheel_position.y = back_collision.point.y + 800.f;
+      bike.back_wheel_position = back_collision.point + plane.normal * 800.f;
     }
   }
 

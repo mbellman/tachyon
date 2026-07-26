@@ -12,13 +12,20 @@ const static std::vector<tVec3f> FACE_PLANE_POINTS = {
   tVec3f(1.f, 1.f, -1.f)
 };
 
+const static std::vector<tVec3f> SLOPE_PLANE_POINTS = {
+  tVec3f(-1.f, -1.f, -1.f ),
+  tVec3f(-1.f, 1.f, 1.f),
+  tVec3f(1.f, 1.f, 1.f),
+  tVec3f(1.f, -1.f, -1.f)
+};
+
 static inline bool IsInBetween(float n, float a, float b) {
   return n >= min(a, b) && n <= max(a, b);
 }
 
-void Collision::AddFloorCollision(State& state, const tObject& object) {
-  tMat4f rotation = object.rotation.toMatrix4f();
-  auto& scale = object.scale;
+void Collision::AddFloorCollision(State& state, const Transform& transform) {
+  tMat4f rotation = transform.rotation.toMatrix4f();
+  auto& scale = transform.scale;
 
   CollisionPlane plane;
 
@@ -27,10 +34,36 @@ void Collision::AddFloorCollision(State& state, const tObject& object) {
   auto& p3 = FACE_PLANE_POINTS[2];
   auto& p4 = FACE_PLANE_POINTS[3];
 
-  plane.p1 = object.position + (rotation * (scale * p1));
-  plane.p2 = object.position + (rotation * (scale * p2));
-  plane.p3 = object.position + (rotation * (scale * p3));
-  plane.p4 = object.position + (rotation * (scale * p4));
+  plane.p1 = transform.position + (rotation * (scale * p1));
+  plane.p2 = transform.position + (rotation * (scale * p2));
+  plane.p3 = transform.position + (rotation * (scale * p3));
+  plane.p4 = transform.position + (rotation * (scale * p4));
+
+  plane.normal = tVec3f::cross(plane.p2 - plane.p1, plane.p3 - plane.p2).unit();
+
+  plane.t1 = tVec3f::cross(plane.normal, plane.p2 - plane.p1);
+  plane.t2 = tVec3f::cross(plane.normal, plane.p3 - plane.p2);
+  plane.t3 = tVec3f::cross(plane.normal, plane.p4 - plane.p3);
+  plane.t4 = tVec3f::cross(plane.normal, plane.p1 - plane.p4);
+
+  state.floor_collision_planes.push_back(plane);
+}
+
+void Collision::AddSlopeCollision(State& state, const Transform& transform) {
+  tMat4f rotation = transform.rotation.toMatrix4f();
+  auto& scale = transform.scale;
+
+  CollisionPlane plane;
+
+  auto& p1 = SLOPE_PLANE_POINTS[0];
+  auto& p2 = SLOPE_PLANE_POINTS[1];
+  auto& p3 = SLOPE_PLANE_POINTS[2];
+  auto& p4 = SLOPE_PLANE_POINTS[3];
+
+  plane.p1 = transform.position + (rotation * (scale * p1));
+  plane.p2 = transform.position + (rotation * (scale * p2));
+  plane.p3 = transform.position + (rotation * (scale * p3));
+  plane.p4 = transform.position + (rotation * (scale * p4));
 
   plane.normal = tVec3f::cross(plane.p2 - plane.p1, plane.p3 - plane.p2).unit();
 

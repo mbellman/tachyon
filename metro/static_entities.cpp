@@ -17,6 +17,8 @@ static void InitRamps(Tachyon* tachyon, State& state) {
     ramp.color = entity.color;
 
     commit(ramp);
+
+    Collision::AddSlopeCollision(state, ramp);
   }
 }
 
