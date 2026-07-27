@@ -18,6 +18,7 @@ namespace metro {
 
   struct Bicycle {
     BicycleType type;
+    int32 id = -1;
 
     tColor frame_color;
     tColor wheel_color;
@@ -30,6 +31,7 @@ namespace metro {
     float pedal_speed = 0.f;
     tVec3f facing_direction;
     tVec3f momentum;
+    bool in_freefall = false;
 
     tVec3f front_wheel_position;
     tVec3f back_wheel_position;
@@ -40,9 +42,7 @@ namespace metro {
     float pitch = 0.f;
     float pedal_revolution = 0.f;
     float wheel_revolution = 0.f;
-    tVec3f pitch_pivot = tVec3f(0.f);
 
-    int32 id = -1;
     Quaternion computed_rotation;
     Quaternion visual_rotation;
   };
@@ -109,5 +109,10 @@ namespace metro {
     std::vector<InteractiveEntity> vending_machines;
 
     std::vector<CollisionPlane> floor_collision_planes;
+
+    // @todo dev only
+    bool use_slow_motion = false;
+    bool use_frame_stepping = false;
+    bool allow_frame_step = false;
   };
 }

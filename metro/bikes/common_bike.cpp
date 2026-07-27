@@ -12,7 +12,6 @@ const static tVec3f WHEEL_AXIS = tVec3f(1.f, 0, 0);
 const static tVec3f LEANING_AXIS = tVec3f(0, 0, 1.f);
 
 const static tVec3f BACK_WHEEL_PIVOT_POSITION = tVec3f(0, 0, -0.61f);
-const static tVec3f BACK_WHEEL_GROUND_PIVOT_POSITION = tVec3f(0, -0.4f, -0.61f);
 const static tVec3f FRONT_WHEEL_PIVOT_POSITION = tVec3f(0, 0, 0.61f);
 
 void CommonBike::Spawn(Tachyon* tachyon, State& state, const Bicycle& bike) {
@@ -65,7 +64,7 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
   float highest_back_y = -FLT_MAX;
 
   for (auto& plane : state.floor_collision_planes) {
-    tVec3f down_ray = plane.normal.invert() * 850.f;
+    tVec3f down_ray = plane.normal.invert() * 900.f;
 
     auto front = Collision::TestRayHit(bike.front_wheel_position, down_ray, plane);
     auto back = Collision::TestRayHit(bike.back_wheel_position, down_ray, plane);
@@ -93,10 +92,20 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
   bool back_wheel_down = highest_back_y > -FLT_MAX;
   bool in_freefall = !front_wheel_down && !back_wheel_down;
 
+  bike.in_freefall = in_freefall;
+
   if (ideal_back_wheel_position.y != bike.back_wheel_position.y) {
     tVec3f delta = ideal_back_wheel_position - bike.back_wheel_position;
 
     bike.position += delta;
+  }
+
+  if (front_wheel_down && !back_wheel_down) {
+    if (ideal_front_wheel_position.y != bike.front_wheel_position.y) {
+      tVec3f delta = ideal_front_wheel_position - bike.front_wheel_position;
+
+      bike.position += delta;
+    }
   }
 
   // Pitch
@@ -108,19 +117,16 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
       float pitch = -atanf(wheel_ground_delta / wheel_base);
 
       bike.pitch = pitch;
-      bike.pitch_pivot = tVec3f::lerp(bike.pitch_pivot, BACK_WHEEL_GROUND_PIVOT_POSITION, 10.f * state.dt);
     }
 
     // Pitch forward to try and land the front tire on the ground
     else if (back_wheel_down) {
       // @todo use proper mass or force values to control pitch rate
       if (bike.momentum.y >= 0.f) {
-        bike.pitch += 0.1f * state.dt;
+        bike.pitch += 0.025f * state.dt;
       } else {
         bike.pitch += 3.f * state.dt;
       }
-
-      bike.pitch_pivot = tVec3f::lerp(bike.pitch_pivot, BACK_WHEEL_GROUND_PIVOT_POSITION, 10.f * state.dt);
     }
 
     // Pitch backward to try and land the back tire on the ground
@@ -129,25 +135,22 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
       if (bike.momentum.y >= 0.f) {
         bike.pitch -= 0.1f * state.dt;
       } else {
-        // Pitch forward
-        bike.pitch -= 3.f * state.dt;
+        bike.pitch -= 5.f * state.dt;
       }
-
-      bike.pitch_pivot = tVec3f::lerp(bike.pitch_pivot, FRONT_WHEEL_PIVOT_POSITION, 10.f * state.dt);
     }
 
     // Pitch forward gradually in freefall
     // @todo use momentum to control pitch?
     else {
       bike.pitch += 0.5f * state.dt;
-      bike.pitch_pivot = tVec3f::lerp(bike.pitch_pivot, tVec3f(0.f), 2.f * state.dt);
     }
   }
 
   // Momentum
-  // @todo create constants for drag/friction
+  // @todo create constant for air resistance
   {
     if (in_freefall) {
+      // @todo terminal  velocity
       bike.momentum.y -= gravity * state.dt;
 
       // Air resistance
@@ -158,15 +161,6 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
 
       bike.momentum = forward * bike.speed * mass;
     }
-  }
-
-  if (in_freefall) {
-    // Cancel out controlled motion
-    // @todo we should probably just flag bikes in freefall and
-    // not apply facing direction motion to begin with
-    bike.position -= bike.facing_direction * bike.speed * state.dt;
-
-    bike.position += (bike.momentum / mass) * state.dt;
   }
 }
 
@@ -194,20 +188,12 @@ void CommonBike::Update(Tachyon* tachyon, State& state, Bicycle& bike, const int
     tVec3f new_pivot = UnitBikeToWorldPosition(bike, BACK_WHEEL_PIVOT_POSITION);
 
     bike.position += old_pivot - new_pivot;
+    bike.visual_position = bike.position;
   }
 
   // Apply pitch
   {
-    bike.visual_position = bike.position;
-    bike.visual_rotation = bike.computed_rotation;
-
-    tVec3f old_pivot = UnitVisualBikeToWorldPosition(bike, bike.pitch_pivot);
-
     bike.visual_rotation = bike.computed_rotation * Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), bike.pitch);
-
-    tVec3f new_pivot = UnitVisualBikeToWorldPosition(bike, bike.pitch_pivot);
-
-    bike.visual_position += old_pivot - new_pivot;
   }
 
   // As the bike rocks when pedaling faster, rotate around

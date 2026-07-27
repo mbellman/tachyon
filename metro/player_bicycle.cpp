@@ -7,6 +7,8 @@
 
 using namespace metro;
 
+const static int PHYSICS_ITERATIONS = 2;
+
 void PlayerBicycle::Update(Tachyon* tachyon, State& state) {
   profile("PlayerBicycle::Update()");
 
@@ -16,13 +18,35 @@ void PlayerBicycle::Update(Tachyon* tachyon, State& state) {
     return;
   }
 
-  switch (active_bike->type) {
-    case BicycleType::COMMON_BIKE:
-      CommonBike::HandlePhysics(tachyon, state, *active_bike);
-      CommonBike::Update(tachyon, state, *active_bike, state.player_bike_index);
-      break;
-    default:
-      break;
+  // Initial motion + update
+  {
+    auto& bike = *active_bike;
+
+    if (bike.in_freefall) {
+      bike.position += (bike.momentum / 25.f) * state.dt;
+    } else {
+      bike.position += bike.facing_direction * bike.speed * state.dt;
+    }
+
+    CommonBike::Update(tachyon, state, bike, state.player_bike_index);
+  }
+
+  // Physics
+  {
+    state.dt /= (float) PHYSICS_ITERATIONS;
+
+    for_range(1, PHYSICS_ITERATIONS) {
+      switch (active_bike->type) {
+        case BicycleType::COMMON_BIKE:
+          CommonBike::HandlePhysics(tachyon, state, *active_bike);
+          CommonBike::Update(tachyon, state, *active_bike, state.player_bike_index);
+          break;
+        default:
+          break;
+      }
+    }
+
+    state.dt *= (float) PHYSICS_ITERATIONS;
   }
 
   // @todo dev mode only
@@ -35,6 +59,8 @@ void PlayerBicycle::Update(Tachyon* tachyon, State& state) {
 
     tVec3f steering_vector = steering_direction * 3000.f;
     tVec3f momentum_vector = bike.momentum * 0.01f;
+
+    Debug::ShowDebugSphere(tachyon, state, bike.position, 300.f);
 
     Debug::ShowDebugSphere(tachyon, state, bike.front_wheel_position, 150.f);
     Debug::ShowDebugSphere(tachyon, state, bike.back_wheel_position, 150.f);

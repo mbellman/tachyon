@@ -12,13 +12,24 @@ static void PointCameraAt(tCamera& camera, const tVec3f& target) {
   camera.rotation = camera.orientation.toQuaternion();
 }
 
-static tVec3f GetCameraTargetPosition(State& state) {
+struct CameraParams {
+  tVec3f focus_point;
+  float blend_rate;
+};
+
+static CameraParams GetCameraParams(State& state) {
   auto* active_bike = GetActiveBicycle(state);
 
   if (active_bike != nullptr) {
-    return active_bike->position + tVec3f(0, 3000.f, 0);
+    return {
+      .focus_point = active_bike->position + tVec3f(0, 3000.f, 0),
+      .blend_rate = active_bike->in_freefall ? 16.f : 8.f
+    };
   } else {
-    return state.player_position;
+    return {
+      .focus_point = state.player_position,
+      .blend_rate = 8.f
+    };
   }
 }
 
@@ -53,10 +64,10 @@ void CameraSystem::Update(Tachyon* tachyon, State& state) {
     camera3p.radius = 10000.f + 15000.f * radius_alpha;
   }
 
-  tVec3f target = GetCameraTargetPosition(state);
-  tVec3f updated_position = target + camera3p.calculatePosition();
+  auto params = GetCameraParams(state);
+  tVec3f target_camera_position = params.focus_point + camera3p.calculatePosition();
 
-  camera.position = tVec3f::lerp(camera.position, updated_position, 8.f * state.dt);
+  camera.position = tVec3f::lerp(camera.position, target_camera_position, params.blend_rate * state.dt);
 
-  PointCameraAt(camera, target);
+  PointCameraAt(camera, params.focus_point);
 }

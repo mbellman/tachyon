@@ -170,9 +170,6 @@ static void HandleBikeControls(Tachyon* tachyon, State& state, Bicycle& bike) {
     bike.wheel_revolution += bike.speed * wheel_revolution_speed * state.dt;
     bike.wheel_revolution = fmodf(bike.wheel_revolution, t_TAU);
   }
-
-  bike.position += bike.facing_direction * bike.speed * state.dt;
-  bike.visual_position = bike.position;
 }
 
 void ControlSystem::Update(Tachyon* tachyon, State& state) {
