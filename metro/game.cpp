@@ -30,10 +30,6 @@ static void HandleFrameStart(Tachyon* tachyon, State& state, const float dt) {
 }
 
 static void HandleFrameEnd(Tachyon* tachyon, State& state) {
-  if (did_press_key(tKey::SPACE)) {
-    tachyon->show_timing_profile = !tachyon->show_timing_profile;
-  }
-
   state.allow_frame_step = false;
 }
 
@@ -63,6 +59,10 @@ void metro::Update(Tachyon* tachyon, State& state, const float dt) {
 
   // @temporary
   {
+    if (did_press_key(tKey::SPACE)) {
+      tachyon->show_timing_profile = !tachyon->show_timing_profile;
+    }
+
     if (did_press_key(GAMEPAD_O)) {
       state.use_slow_motion = !state.use_slow_motion;
     }
@@ -71,14 +71,19 @@ void metro::Update(Tachyon* tachyon, State& state, const float dt) {
       state.use_frame_stepping = !state.use_frame_stepping;
     }
 
-    if (state.use_frame_stepping && did_press_key(tKey::ARROW_RIGHT)) {
+    if (
+      state.use_frame_stepping && (
+        did_press_key(tKey::ARROW_RIGHT) ||
+        did_press_key(tKey::CONTROLLER_R1)
+      )
+    ) {
       state.allow_frame_step = true;
     }
   }
 
-  CameraSystem::Update(tachyon, state);
-
   if (state.use_frame_stepping && !state.allow_frame_step) {
+    CameraSystem::Update(tachyon, state);
+
     return;
   }
 
@@ -89,6 +94,7 @@ void metro::Update(Tachyon* tachyon, State& state, const float dt) {
   InteractiveEntities::Update(tachyon, state);
   BackgroundBicycles::Update(tachyon, state);
   PlayerBicycle::Update(tachyon, state);
+  CameraSystem::Update(tachyon, state);
 
   HandleFrameEnd(tachyon, state);
 }
