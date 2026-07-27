@@ -56,14 +56,15 @@ void CommonBike::Spawn(Tachyon* tachyon, State& state, const Bicycle& bike) {
 
 void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
   // @todo move to Physics (?)
-  const float gravity = 50000.f;
+  const float gravity = 20000.f;
+  const float mass = 50.f;
 
   // @todo move to Physics (?)
   bike.front_wheel_force.y -= gravity * state.dt;
   bike.back_wheel_force.y -= gravity * state.dt;
 
-  tVec3f ideal_front_wheel_position = bike.front_wheel_position + bike.front_wheel_force.y * 0.1f * state.dt;
-  tVec3f ideal_back_wheel_position = bike.back_wheel_position + bike.back_wheel_force.y * 0.1f * state.dt;
+  tVec3f ideal_front_wheel_position = bike.front_wheel_position;// + bike.front_wheel_force.y * state.dt;
+  tVec3f ideal_back_wheel_position = bike.back_wheel_position;// + bike.back_wheel_force.y * state.dt;
 
   float highest_front_y = -FLT_MAX;
   float highest_back_y = -FLT_MAX;
@@ -108,9 +109,9 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
   }
 
   // Pitch
-  // @todo improve physical accuracy
   {
     if (front_wheel_down && back_wheel_down) {
+      // Pitch the bike based on where the wheels need to be
       float wheel_ground_delta = ideal_front_wheel_position.y - ideal_back_wheel_position.y;
       float wheel_base = (ideal_front_wheel_position - ideal_back_wheel_position).xz().magnitude();
       float pitch = -atanf(wheel_ground_delta / wheel_base);
@@ -118,40 +119,56 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
       bike.pitch = pitch;
     }
     else if (back_wheel_down) {
-      bike.pitch += state.dt;
+      // @todo use proper mass or force values to control pitch rate
+      if (bike.momentum.y > 0.f) {
+        // Pitch forward
+        bike.pitch += 0.2f * state.dt;
+      } else {
+        // Pitch forward
+        bike.pitch += 5.f * state.dt;
+      }
     }
     else if (front_wheel_down) {
+      // Pitch backward
       bike.pitch -= state.dt;
     }
     else {
-      bike.pitch += state.dt;
+      // @todo use momentum to control pitch?
+      // Freefall
+      bike.pitch += 0.5f * state.dt;
     }
   }
 
   // Momentum
-  // @todo improve physical accuracy
+  // @todo create constants for drag/friction
   {
     if (in_freefall) {
-      bike.momentum.y -= gravity * state.dt;
-    } else {
-      tVec3f forward = bike.facing_direction + tVec3f(0, -bike.pitch, 0).unit();
+      bike.momentum.y -= gravity * mass * state.dt;
 
-      bike.momentum += forward * bike.speed * 10.f * state.dt;
-      bike.momentum += bike.front_wheel_force * state.dt;
-      bike.momentum += bike.back_wheel_force * state.dt;
+      // Air resistance
+      bike.momentum.x *= 1.f - 0.2f * state.dt;
+      bike.momentum.z *= 1.f - 0.2f * state.dt;
+    } else {
+      tVec3f forward = (bike.facing_direction + tVec3f(0, -bike.pitch, 0)).unit();
+
+      bike.momentum += forward * bike.speed * mass * state.dt;
 
       // Friction
-      bike.momentum.y = 0.f;
-      bike.momentum *= 1.f - 0.1f * state.dt;
-    }
+      bike.momentum *= 1.f - state.dt;
 
-    // Air resistance
-    bike.momentum.x *= 1.f - 0.1f * state.dt;
-    bike.momentum.z *= 1.f - 0.1f * state.dt;
+      // Air resistance
+      bike.momentum.x *= 1.f - 0.5f * state.dt;
+      bike.momentum.z *= 1.f - 0.5f * state.dt;
+    }
   }
 
   if (in_freefall) {
-    bike.position += bike.momentum * 0.1f * state.dt;
+    // Cancel out controlled motion
+    // @todo we should probably just flag bikes in freefall and
+    // not apply facing direction motion to begin with
+    bike.position -= bike.facing_direction * bike.speed * state.dt;
+
+    bike.position += bike.momentum * (1.f / mass) * state.dt;
   }
 
   // @todo dev mode only
