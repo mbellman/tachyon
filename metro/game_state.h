@@ -40,6 +40,7 @@ namespace metro {
     float pitch = 0.f;
     float pedal_revolution = 0.f;
     float wheel_revolution = 0.f;
+    tVec3f pitch_pivot = tVec3f(0.f);
 
     int32 id = -1;
     Quaternion computed_rotation;

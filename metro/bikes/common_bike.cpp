@@ -58,8 +58,8 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
   const float gravity = 500000.f;
   const float mass = 25.f;
 
-  tVec3f ideal_front_wheel_position = bike.front_wheel_position;// + bike.front_wheel_force.y * state.dt;
-  tVec3f ideal_back_wheel_position = bike.back_wheel_position;// + bike.back_wheel_force.y * state.dt;
+  tVec3f ideal_front_wheel_position = bike.front_wheel_position;
+  tVec3f ideal_back_wheel_position = bike.back_wheel_position;
 
   float highest_front_y = -FLT_MAX;
   float highest_back_y = -FLT_MAX;
@@ -108,33 +108,39 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
       float pitch = -atanf(wheel_ground_delta / wheel_base);
 
       bike.pitch = pitch;
+      bike.pitch_pivot = tVec3f::lerp(bike.pitch_pivot, BACK_WHEEL_GROUND_PIVOT_POSITION, 10.f * state.dt);
     }
 
     // Pitch forward to try and land the front tire on the ground
     else if (back_wheel_down) {
       // @todo use proper mass or force values to control pitch rate
-      if (bike.momentum.y > 0.f) {
-        bike.pitch += 0.2f * state.dt;
+      if (bike.momentum.y >= 0.f) {
+        bike.pitch += 0.1f * state.dt;
       } else {
         bike.pitch += 3.f * state.dt;
       }
+
+      bike.pitch_pivot = tVec3f::lerp(bike.pitch_pivot, BACK_WHEEL_GROUND_PIVOT_POSITION, 10.f * state.dt);
     }
 
     // Pitch backward to try and land the back tire on the ground
     else if (front_wheel_down) {
       // @todo use proper mass or force values to control pitch rate
-      if (bike.momentum.y > 0.f) {
-        bike.pitch -= 0.2f * state.dt;
+      if (bike.momentum.y >= 0.f) {
+        bike.pitch -= 0.1f * state.dt;
       } else {
         // Pitch forward
         bike.pitch -= 3.f * state.dt;
       }
+
+      bike.pitch_pivot = tVec3f::lerp(bike.pitch_pivot, FRONT_WHEEL_PIVOT_POSITION, 10.f * state.dt);
     }
 
     // Pitch forward gradually in freefall
     // @todo use momentum to control pitch?
     else {
       bike.pitch += 0.5f * state.dt;
+      bike.pitch_pivot = tVec3f::lerp(bike.pitch_pivot, tVec3f(0.f), 2.f * state.dt);
     }
   }
 
@@ -161,23 +167,6 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
     bike.position -= bike.facing_direction * bike.speed * state.dt;
 
     bike.position += (bike.momentum / mass) * state.dt;
-  }
-
-  // @todo dev mode only
-  // @todo why is this here? put this in PlayerBicycle
-  if (tachyon->show_timing_profile) {
-    tVec3f steering_direction =
-      Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), bike.steering_angle).toMatrix4f() *
-      bike.facing_direction;
-
-    tVec3f steering_vector = steering_direction * 3000.f;
-    tVec3f momentum_vector = bike.momentum * 0.01f;
-
-    Debug::ShowDebugSphere(tachyon, state, bike.front_wheel_position, 150.f);
-    Debug::ShowDebugSphere(tachyon, state, bike.back_wheel_position, 150.f);
-
-    Debug::ShowDebugVector(tachyon, state, bike.front_wheel_position, steering_vector, tVec3f(0, 0, 1.f));
-    Debug::ShowDebugVector(tachyon, state, bike.front_wheel_position, momentum_vector, tVec3f(0, 1.f, 0));
   }
 }
 
@@ -212,11 +201,11 @@ void CommonBike::Update(Tachyon* tachyon, State& state, Bicycle& bike, const int
     bike.visual_position = bike.position;
     bike.visual_rotation = bike.computed_rotation;
 
-    tVec3f old_pivot = UnitVisualBikeToWorldPosition(bike, BACK_WHEEL_GROUND_PIVOT_POSITION);
+    tVec3f old_pivot = UnitVisualBikeToWorldPosition(bike, bike.pitch_pivot);
 
     bike.visual_rotation = bike.computed_rotation * Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), bike.pitch);
 
-    tVec3f new_pivot = UnitVisualBikeToWorldPosition(bike, BACK_WHEEL_GROUND_PIVOT_POSITION);
+    tVec3f new_pivot = UnitVisualBikeToWorldPosition(bike, bike.pitch_pivot);
 
     bike.visual_position += old_pivot - new_pivot;
   }
