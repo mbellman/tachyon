@@ -7,7 +7,7 @@
 
 using namespace metro;
 
-const static int PHYSICS_ITERATIONS = 2;
+const static int PHYSICS_ITERATIONS = 3;
 
 void PlayerBicycle::Update(Tachyon* tachyon, State& state) {
   profile("PlayerBicycle::Update()");
@@ -25,7 +25,7 @@ void PlayerBicycle::Update(Tachyon* tachyon, State& state) {
     if (bike.in_freefall) {
       bike.position += (bike.momentum / 25.f) * state.dt;
     } else {
-      tVec3f true_facing_direction = GetTrueFacingDirection(bike);
+      tVec3f true_facing_direction = GetMovementDirection(bike);
 
       // @todo fix the direction of the velocity applied here;
       // we should be applying the correct directional force
@@ -62,7 +62,7 @@ void PlayerBicycle::Update(Tachyon* tachyon, State& state) {
   if (tachyon->show_timing_profile) {
     auto& bike = *active_bike;
 
-    tVec3f facing_direction = GetTrueFacingDirection(bike);
+    tVec3f movement_direction = GetMovementDirection(bike);
 
     tVec3f steering_direction =
       Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), bike.steering_angle).toMatrix4f() *
@@ -75,12 +75,10 @@ void PlayerBicycle::Update(Tachyon* tachyon, State& state) {
     tVec3f momentum_vector = bike.momentum * 0.01f;
 
     Debug::ShowDebugSphere(tachyon, state, bike.position, 300.f);
-
     Debug::ShowDebugSphere(tachyon, state, bike.front_wheel_position, 150.f);
     Debug::ShowDebugSphere(tachyon, state, bike.back_wheel_position, 150.f);
 
-    Debug::ShowDebugVector(tachyon, state, bike.front_wheel_position, facing_direction * 2000.f, tVec3f(1.f, 0, 1.f));
-
+    Debug::ShowDebugVector(tachyon, state, bike.position, movement_direction * 2000.f, tVec3f(1.f, 0, 1.f));
     Debug::ShowDebugVector(tachyon, state, steering_position, steering_vector, tVec3f(0, 0, 1.f));
     Debug::ShowDebugVector(tachyon, state, momentum_position, momentum_vector, tVec3f(0, 1.f, 0));
   }

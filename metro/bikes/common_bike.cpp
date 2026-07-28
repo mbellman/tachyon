@@ -175,9 +175,8 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
       bike.momentum.x *= 1.f - 0.05f * state.dt;
       bike.momentum.z *= 1.f - 0.05f * state.dt;
     } else {
-      tVec3f forward = (bike.facing_direction + tVec3f(0, -bike.pitch, 0)).unit();
-
-      bike.momentum = forward * bike.speed * mass;
+      // @todo we might want to blend momentum a little more gradually
+      bike.momentum = GetMovementDirection(bike) * bike.speed * mass;
     }
   }
 }
@@ -197,9 +196,9 @@ void CommonBike::Update(Tachyon* tachyon, State& state, Bicycle& bike, const int
     // Track the pivot before recomputing rotation
     tVec3f old_pivot = UnitBikeToWorldPosition(bike, BACK_WHEEL_PIVOT_POSITION);
 
-    bike.computed_rotation =
+    bike.flat_rotation =
       Quaternion::FromDirection(bike.facing_direction, tVec3f(0, 1.f, 0)) *
-      Quaternion::fromAxisAngle(LEANING_AXIS, bike.leaning_angle + bike.rocking_factor);
+      Quaternion::fromAxisAngle(LEANING_AXIS, bike.leaning_angle);
 
     // Offset the bike by the pivot delta to keep it centered on the pivot.
     // We rotate around the back wheel for more physically grounded motion.
@@ -211,18 +210,21 @@ void CommonBike::Update(Tachyon* tachyon, State& state, Bicycle& bike, const int
 
   // Apply pitch
   {
-    bike.visual_rotation = bike.computed_rotation * Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), bike.pitch);
+    bike.directional_rotation = bike.flat_rotation * Quaternion::fromAxisAngle(tVec3f(1.f, 0, 0), bike.pitch);
+    bike.visual_rotation = bike.directional_rotation;
   }
 
-  // As the bike rocks when pedaling faster, rotate around
-  // the front wheel. This is a purely visual effect, and
-  // does not affect the bicycle's actual motion vector.
+  // When pedaling faster, apply rocking effects in the form of slight
+  // lean adjustments and wobbling back and forth around the front wheel.
+  // This is a purely visual effect, and does not affect the bicycle's
+  // actual motion vector.
   {
     tVec3f old_rocking_pivot = UnitVisualBikeToWorldPosition(bike, FRONT_WHEEL_PIVOT_POSITION);
 
     bike.visual_rotation =
       Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), bike.rocking_factor) *
-      bike.visual_rotation;
+      bike.visual_rotation *
+      Quaternion::fromAxisAngle(LEANING_AXIS, bike.rocking_factor);
 
     tVec3f new_rocking_pivot = UnitVisualBikeToWorldPosition(bike, FRONT_WHEEL_PIVOT_POSITION);
 

@@ -4,7 +4,7 @@ using namespace metro;
 
 tVec3f metro::UnitBikeToWorldPosition(const Bicycle& bike, const tVec3f& position) {
   tVec3f translation = bike.position;
-  Quaternion rotation = bike.computed_rotation;
+  Quaternion rotation = bike.flat_rotation;
   tVec3f scale = tVec3f(2000.f);
 
   return translation + rotation.toMatrix4f() * (position * scale);
@@ -26,8 +26,8 @@ tVec3f metro::UnitObjectToWorldPosition(const tObject object, const tVec3f& posi
   return translation + rotation.toMatrix4f() * (position * scale);
 }
 
-tVec3f metro::GetTrueFacingDirection(const Bicycle& bike) {
-  return bike.visual_rotation.getDirection().invert();
+tVec3f metro::GetMovementDirection(const Bicycle& bike) {
+  return bike.directional_rotation.getDirection().invert();
 }
 
 Bicycle* metro::GetActiveBicycle(State& state) {

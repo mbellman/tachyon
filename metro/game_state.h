@@ -43,7 +43,8 @@ namespace metro {
     float pedal_revolution = 0.f;
     float wheel_revolution = 0.f;
 
-    Quaternion computed_rotation;
+    Quaternion flat_rotation;
+    Quaternion directional_rotation;
     Quaternion visual_rotation;
   };
 
