@@ -19,7 +19,7 @@ static void DebugShowRadiusRing(Tachyon* tachyon, State& state, const Bicycle& b
     tVec3f pivot = UnitBikeToWorldPosition(bike, tVec3f(0, 0, 0.61f));
 
     ring.position = bike.position + offset * radius;
-    ring.position.y -= 700.f;
+    ring.position.y -= 725.f;
     ring.scale = tVec3f(absolute_radius);
   } else {
     ring.scale = tVec3f(0.f);
@@ -95,9 +95,9 @@ static void HandleBikeControls(Tachyon* tachyon, State& state, Bicycle& bike) {
 
   // Steering
   {
-    float speed_ratio = abs(bike.speed) / top_speed;
-    const float steering_speed = Tachyon_Lerpf(2.f, 0.1f, sqrtf(speed_ratio));
-    const float rotation_speed = abs(bike.speed) / 1200.f;
+    float absolute_speed = abs(bike.speed);
+    float speed_ratio = absolute_speed / top_speed;
+    float steering_speed = Tachyon_Lerpf(2.f, 0.1f, sqrtf(speed_ratio));
 
     float target_steering_angle = 1.2f * GetSteering(tachyon);
 
@@ -109,7 +109,7 @@ static void HandleBikeControls(Tachyon* tachyon, State& state, Bicycle& bike) {
     );
 
     // Reduce steering with speed
-    bike.steering_angle *= 1.f - (bike.speed / 10000.f) * state.dt;
+    bike.steering_angle *= 1.f - (absolute_speed / 10000.f) * state.dt;
 
     // Calculate turning radius r = w / δ * cos(φ)
     float w = 2400.f;

@@ -25,7 +25,16 @@ void PlayerBicycle::Update(Tachyon* tachyon, State& state) {
     if (bike.in_freefall) {
       bike.position += (bike.momentum / 25.f) * state.dt;
     } else {
-      bike.position += bike.facing_direction * bike.speed * state.dt;
+      tVec3f true_facing_direction = GetTrueFacingDirection(bike);
+
+      // @todo fix the direction of the velocity applied here;
+      // we should be applying the correct directional force
+      // based on the ground slope across both wheels
+      if (true_facing_direction.y < 0.f || bike.speed < 0.f) {
+        bike.position += true_facing_direction * bike.speed * state.dt;
+      } else {
+        bike.position += bike.facing_direction * bike.speed * state.dt;
+      }
     }
 
     CommonBike::Update(tachyon, state, bike, state.player_bike_index);
@@ -53,11 +62,16 @@ void PlayerBicycle::Update(Tachyon* tachyon, State& state) {
   if (tachyon->show_timing_profile) {
     auto& bike = *active_bike;
 
+    tVec3f facing_direction = GetTrueFacingDirection(bike);
+
     tVec3f steering_direction =
       Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), bike.steering_angle).toMatrix4f() *
       bike.facing_direction;
 
+    tVec3f steering_position = bike.front_wheel_position + tVec3f(0, 500.f, 0);
     tVec3f steering_vector = steering_direction * 3000.f;
+
+    tVec3f momentum_position = bike.front_wheel_position + tVec3f(0, 250.f, 0);
     tVec3f momentum_vector = bike.momentum * 0.01f;
 
     Debug::ShowDebugSphere(tachyon, state, bike.position, 300.f);
@@ -65,7 +79,9 @@ void PlayerBicycle::Update(Tachyon* tachyon, State& state) {
     Debug::ShowDebugSphere(tachyon, state, bike.front_wheel_position, 150.f);
     Debug::ShowDebugSphere(tachyon, state, bike.back_wheel_position, 150.f);
 
-    Debug::ShowDebugVector(tachyon, state, bike.front_wheel_position, steering_vector, tVec3f(0, 0, 1.f));
-    Debug::ShowDebugVector(tachyon, state, bike.front_wheel_position, momentum_vector, tVec3f(0, 1.f, 0));
+    Debug::ShowDebugVector(tachyon, state, bike.front_wheel_position, facing_direction * 2000.f, tVec3f(1.f, 0, 1.f));
+
+    Debug::ShowDebugVector(tachyon, state, steering_position, steering_vector, tVec3f(0, 0, 1.f));
+    Debug::ShowDebugVector(tachyon, state, momentum_position, momentum_vector, tVec3f(0, 1.f, 0));
   }
 }
