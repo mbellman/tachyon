@@ -175,7 +175,6 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
       bike.momentum.x *= 1.f - 0.05f * state.dt;
       bike.momentum.z *= 1.f - 0.05f * state.dt;
     } else {
-      // @todo we might want to blend momentum a little more gradually
       bike.momentum = GetMovementDirection(bike) * bike.speed * mass;
     }
   }
