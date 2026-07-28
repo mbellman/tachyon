@@ -10,10 +10,10 @@ void BackgroundBicycles::Update(Tachyon* tachyon, State& state) {
 
   int32 total_common_bikes = 0;
 
-  for (auto& bicycle : state.bicycles) {
-    switch (bicycle.type) {
+  for (auto& bike : state.bicycles) {
+    switch (bike.type) {
       case BicycleType::COMMON_BIKE:
-        CommonBike::Update(tachyon, state, bicycle, total_common_bikes++);
+        CommonBike::Update(tachyon, state, bike, total_common_bikes++);
         break;
       default:
         break;

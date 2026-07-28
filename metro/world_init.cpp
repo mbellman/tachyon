@@ -199,6 +199,17 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
 
     state.ramps.push_back(ramp);
   }
+
+  // @temporary
+  {
+    StaticEntity ramp;
+    ramp.position = tVec3f(50000.f, -1500.f, 0);
+    ramp.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_HALF_PI);
+    ramp.scale = tVec3f(5000.f, 20000.f, 20000.f);
+    ramp.color = tVec3f(0.5f);
+
+    state.ramps.push_back(ramp);
+  }
 }
 
 void World::Init(Tachyon* tachyon, State& state) {

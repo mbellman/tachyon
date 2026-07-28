@@ -53,6 +53,7 @@ void CommonBike::Spawn(Tachyon* tachyon, State& state, const Bicycle& bike) {
   commit(spokes2);
 }
 
+// @todo see how much of this can be refactored when we add more bike types
 void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
   const float gravity = 500000.f;
   const float mass = 25.f;
@@ -62,6 +63,9 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
 
   float highest_front_y = -FLT_MAX;
   float highest_back_y = -FLT_MAX;
+
+  tVec3f front_wheel_plane_normal = tVec3f(0, 1.f, 0);
+  tVec3f back_wheel_plane_normal = tVec3f(0, 1.f, 0);
 
   for (auto& plane : state.floor_collision_planes) {
     tVec3f down_ray = plane.normal.invert() * 900.f;
@@ -75,6 +79,7 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
       if (resolved_position.y > highest_front_y) {
         ideal_front_wheel_position = resolved_position;
         highest_front_y = resolved_position.y;
+        front_wheel_plane_normal = plane.normal;
       }
     }
 
@@ -84,6 +89,7 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
       if (resolved_position.y > highest_back_y) {
         ideal_back_wheel_position = resolved_position;
         highest_back_y = resolved_position.y;
+        back_wheel_plane_normal = plane.normal;
       }
     }
   }
@@ -144,6 +150,18 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
     else {
       bike.pitch += 0.5f * state.dt;
     }
+  }
+
+  // Apply sloped surface forces as speed changes
+  {
+    tVec3f average_slope_normal = (
+      front_wheel_plane_normal +
+      back_wheel_plane_normal
+    ).unit();
+
+    float slope_dot = tVec3f::dot(average_slope_normal, bike.facing_direction);
+
+    bike.speed += (gravity / mass) * slope_dot * state.dt;
   }
 
   // Momentum

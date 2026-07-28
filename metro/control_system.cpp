@@ -87,7 +87,7 @@ static void HandleBikeControls(Tachyon* tachyon, State& state, Bicycle& bike) {
 
   // Speed dampening
   {
-    float speed_ratio = bike.speed / top_speed;
+    float speed_ratio = abs(bike.speed) / top_speed;
     float friction = 0.025f + 0.4f * powf(speed_ratio, 20.f);
 
     bike.speed *= 1.f - friction * state.dt;
@@ -95,9 +95,9 @@ static void HandleBikeControls(Tachyon* tachyon, State& state, Bicycle& bike) {
 
   // Steering
   {
-    float speed_ratio = bike.speed / top_speed;
+    float speed_ratio = abs(bike.speed) / top_speed;
     const float steering_speed = Tachyon_Lerpf(2.f, 0.1f, sqrtf(speed_ratio));
-    const float rotation_speed = bike.speed / 1200.f;
+    const float rotation_speed = abs(bike.speed) / 1200.f;
 
     float target_steering_angle = 1.2f * GetSteering(tachyon);
 
@@ -143,7 +143,7 @@ static void HandleBikeControls(Tachyon* tachyon, State& state, Bicycle& bike) {
 
   // Leaning
   {
-    float speed_ratio = bike.speed / top_speed;
+    float speed_ratio = abs(bike.speed) / top_speed;
 
     float steering = GetSteering(tachyon);
     float target_angle = 0.6f * sqrtf(speed_ratio) * -steering;
