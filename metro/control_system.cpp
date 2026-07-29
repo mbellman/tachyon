@@ -129,6 +129,11 @@ static void HandleBikeControls(Tachyon* tachyon, State& state, Bicycle& bike) {
       turn_angle = (bike.speed * state.dt) / radius;
     }
 
+    // Oversteer when drifting
+    if (bike.drifting) {
+      turn_angle *= 3.f;
+    }
+
     // Turn and update the facing direction
     Quaternion turn_rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), turn_angle);
 
@@ -152,8 +157,26 @@ static void HandleBikeControls(Tachyon* tachyon, State& state, Bicycle& bike) {
     bike.leaning_angle = Tachyon_Lerpf(bike.leaning_angle, target_angle, blend_speed * state.dt);
   }
 
-  // Braking
+  // Drifting
   {
+    bike.drifting = (
+      bike.speed > 20000.f && (
+        (tachyon->left_stick.x > 0.5f && tachyon->right_trigger > 0.5f) ||
+        (tachyon->left_stick.x < -0.5f && tachyon->right_trigger > 0.5f)
+      )
+    );
+
+    if (bike.drifting) {
+      // Transition into drifting
+      bike.drifting_factor = Tachyon_Lerpf(bike.drifting_factor, 1.f, 2.f * state.dt);
+    } else {
+      // Transition out of drifting
+      bike.drifting_factor = Tachyon_Lerpf(bike.drifting_factor, 0., state.dt);
+    }
+  }
+
+  // Braking
+  if (!bike.drifting) {
     const float braking_speed = 2.f;
 
     // Left brake

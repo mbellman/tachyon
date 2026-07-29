@@ -18,7 +18,7 @@ void PlayerBicycle::Update(Tachyon* tachyon, State& state) {
     return;
   }
 
-  // Initial motion + update
+  // Motion + position update
   {
     auto& bike = *active_bike;
 
@@ -26,15 +26,26 @@ void PlayerBicycle::Update(Tachyon* tachyon, State& state) {
       bike.position += (bike.momentum / 25.f) * state.dt;
     } else {
       tVec3f movement_direction = GetMovementDirection(bike);
+      tVec3f target_movement_vector;
 
       // @todo fix the direction of the velocity applied here;
       // we should be applying the correct directional force
       // based on the ground slope across both wheels
       if (movement_direction.y < 0.f || bike.speed < 0.f) {
-        bike.position += movement_direction * bike.speed * state.dt;
+        target_movement_vector = movement_direction;
       } else {
-        bike.position += bike.facing_direction * bike.speed * state.dt;
+        target_movement_vector = bike.facing_direction;
       }
+
+      float movement_vector_blend_rate = Tachyon_Lerpf(1.f, 3.f * state.dt, bike.drifting_factor);
+
+      bike.movement_vector = tVec3f::lerp(
+        bike.movement_vector,
+        target_movement_vector,
+        movement_vector_blend_rate
+      ).unit();
+
+      bike.position += bike.movement_vector * bike.speed * state.dt;
     }
 
     CommonBike::Update(tachyon, state, bike, state.player_bike_index);

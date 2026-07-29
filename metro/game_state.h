@@ -27,10 +27,13 @@ namespace metro {
 
     tVec3f position;
     tVec3f visual_position;
-    float speed = 0.f;
     float pedal_speed = 0.f;
+    float speed = 0.f;
+    float drifting_factor = 0.f;
     tVec3f facing_direction;
     tVec3f momentum;
+
+    bool drifting = false;
     bool in_freefall = false;
 
     tVec3f front_wheel_position;
@@ -44,6 +47,8 @@ namespace metro {
     float pitch = 0.f;
     float pedal_revolution = 0.f;
     float wheel_revolution = 0.f;
+
+    tVec3f movement_vector;
 
     Quaternion flat_rotation;
     Quaternion directional_rotation;
