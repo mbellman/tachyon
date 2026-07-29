@@ -160,6 +160,7 @@ static void HandleBikeControls(Tachyon* tachyon, State& state, Bicycle& bike) {
   // Drifting
   {
     bike.drifting = (
+      tachyon->left_trigger == 0.f &&
       bike.speed > 20000.f && (
         (tachyon->left_stick.x > 0.5f && tachyon->right_trigger > 0.5f) ||
         (tachyon->left_stick.x < -0.5f && tachyon->right_trigger > 0.5f)

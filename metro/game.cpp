@@ -29,6 +29,59 @@ static void HandleFrameStart(Tachyon* tachyon, State& state, const float dt) {
   tachyon->scene.scene_time += state.dt;
 }
 
+static void HandleDevHotkeys(Tachyon* tachyon, State& state) {
+  // Toggle function timings
+  if (did_press_key(tKey::SPACE)) {
+    tachyon->show_timing_profile = !tachyon->show_timing_profile;
+  }
+
+  // Toggle slow motion
+  if (did_press_key(GAMEPAD_O)) {
+    state.use_slow_motion = !state.use_slow_motion;
+  }
+
+  // Toggle frame-by-frame
+  if (did_press_key(GAMEPAD_TRIANGLE)) {
+    state.use_frame_stepping = !state.use_frame_stepping;
+  }
+
+  // Advance one frame at a time
+  if (
+    state.use_frame_stepping && (
+      did_press_key(tKey::ARROW_RIGHT) ||
+      did_press_key(tKey::CONTROLLER_R1)
+    )
+  ) {
+    state.allow_frame_step = true;
+  }
+
+  // Respawn bike at start
+  if (did_press_key(tKey::R)) {
+    auto* active_bike = GetActiveBicycle(state);
+
+    if (active_bike != nullptr) {
+      // @temporary
+      // @todo create a method for resetting motion/rotation etc.
+      active_bike->position = tVec3f(0, -2220.f, -10000.f);
+      active_bike->visual_position = active_bike->position;
+      active_bike->pedal_speed = 0.f;
+      active_bike->speed = 0.f;
+      active_bike->pitch = 0.f;
+      active_bike->facing_direction = tVec3f(0, 0, -1.f);
+      active_bike->drifting_factor = 0.f;
+      active_bike->steering_angle = 0.f;
+      active_bike->leaning_angle = 0.f;
+
+      active_bike->flat_rotation =
+        Quaternion::FromDirection(active_bike->facing_direction, tVec3f(0, 1.f, 0)) *
+        Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), active_bike->leaning_angle);
+
+      active_bike->directional_rotation = active_bike->flat_rotation;
+      active_bike->visual_rotation = active_bike->flat_rotation;
+    }
+  }
+}
+
 static void HandleFrameEnd(Tachyon* tachyon, State& state) {
   state.allow_frame_step = false;
 }
@@ -57,29 +110,7 @@ void metro::Update(Tachyon* tachyon, State& state, const float dt) {
   // @temporary
   tachyon->scene.primary_light_direction = tVec3f(0.5f, -1.f, 0.2f);
 
-  // @temporary
-  {
-    if (did_press_key(tKey::SPACE)) {
-      tachyon->show_timing_profile = !tachyon->show_timing_profile;
-    }
-
-    if (did_press_key(GAMEPAD_O)) {
-      state.use_slow_motion = !state.use_slow_motion;
-    }
-
-    if (did_press_key(GAMEPAD_TRIANGLE)) {
-      state.use_frame_stepping = !state.use_frame_stepping;
-    }
-
-    if (
-      state.use_frame_stepping && (
-        did_press_key(tKey::ARROW_RIGHT) ||
-        did_press_key(tKey::CONTROLLER_R1)
-      )
-    ) {
-      state.allow_frame_step = true;
-    }
-  }
+  HandleDevHotkeys(tachyon, state);
 
   if (state.use_frame_stepping && !state.allow_frame_step) {
     CameraSystem::Update(tachyon, state);
