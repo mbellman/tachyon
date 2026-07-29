@@ -27,6 +27,10 @@ static void LoadDebugMeshes(Tachyon* tachyon, State& state) {
   mesh(meshes.debug_plane).shadow_cascade_ceiling = 0;
   mesh(meshes.debug_line).shadow_cascade_ceiling = 0;
   mesh(meshes.debug_cone).shadow_cascade_ceiling = 0;
+
+  // @temporary
+  // @todo use a skinned mesh
+  meshes.debug_mannequin = METRO_MODEL("debug_mannequin.obj", 1);
 }
 
 static void LoadCommonBikeMeshes(Tachyon* tachyon, State& state) {
@@ -79,6 +83,8 @@ static void LoadGameMeshes(Tachyon* tachyon, State& state) {
     for_range(1, 10) {
       create(meshes.debug_ring);
     }
+
+    create(meshes.debug_mannequin);
   }
 }
 
@@ -91,6 +97,16 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
 
     scene.sky_light_color = tVec3f(0.1f, 0.2f, 0.5f);
     scene.sky_light_direction = tVec3f(0, -1.f, 0);
+  }
+
+  // @temporary
+  {
+    auto& player = objects(state.meshes.debug_mannequin)[0];
+
+    player.position = tVec3f(0, -2220.f, -10000.f);
+    player.scale = tVec3f(2000.f);
+
+    commit(player);
   }
 
   // @temporary

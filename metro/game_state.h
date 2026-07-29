@@ -67,11 +67,13 @@ namespace metro {
     uint16
       // @temporary
       dev_cube,
+
       debug_sphere,
       debug_ring,
       debug_plane,
       debug_line,
       debug_cone,
+      debug_mannequin,
 
       // Common bike
       common_frame,
