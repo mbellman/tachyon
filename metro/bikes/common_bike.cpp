@@ -114,8 +114,30 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
     }
   }
 
+  // Downward wheel forces. This is just used when landing
+  // on the front or back wheel first to determine how fast
+  // the other should fall, or how fast the bike should pitch
+  // to a level position.
+  {
+    if (front_wheel_down) {
+      bike.front_wheel_downward_force = 0.f;
+    } else {
+      bike.front_wheel_downward_force += gravity * state.dt;
+    }
+
+    if (back_wheel_down) {
+      bike.back_wheel_downward_force = 0.f;
+    } else {
+      bike.back_wheel_downward_force += gravity * state.dt;
+    }
+  }
+
   // Pitch
   {
+    // @todo this produces more "correct-looking" behavior,
+    // but we should use a value with a more physical basis
+    const float freefall_pitch_factor = 0.0005f;
+
     // Pitch the bike based on where the wheels need to be
     if (front_wheel_down && back_wheel_down) {
       float wheel_ground_delta = ideal_front_wheel_position.y - ideal_back_wheel_position.y;
@@ -127,28 +149,26 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
 
     // Pitch forward to try and land the front tire on the ground
     else if (back_wheel_down) {
-      // @todo use proper mass or force values to control pitch rate
-      if (bike.momentum.y >= 0.f) {
-        bike.pitch += 0.025f * state.dt;
-      } else {
-        bike.pitch += 3.f * state.dt;
-      }
+      float pitch_rate = freefall_pitch_factor * bike.front_wheel_downward_force / mass;
+
+      bike.pitch += pitch_rate * state.dt;
     }
 
     // Pitch backward to try and land the back tire on the ground
     else if (front_wheel_down) {
-      // @todo use proper mass or force values to control pitch rate
-      if (bike.momentum.y >= 0.f) {
-        bike.pitch -= 0.1f * state.dt;
-      } else {
-        bike.pitch -= 5.f * state.dt;
-      }
+      float pitch_rate = freefall_pitch_factor * bike.back_wheel_downward_force / mass;
+
+      bike.pitch -= pitch_rate * state.dt;
     }
 
     // Pitch forward gradually in freefall
-    // @todo use momentum to control pitch?
     else {
-      bike.pitch += 0.5f * state.dt;
+      float pitch_rate = freefall_pitch_factor * (
+        bike.front_wheel_downward_force -
+        bike.back_wheel_downward_force
+      ) / mass;
+
+      bike.pitch += pitch_rate * state.dt;
     }
   }
 
@@ -167,7 +187,7 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
   // Momentum
   // @todo create constant for air resistance
   {
-    if (in_freefall) {
+    if (!front_wheel_down || !back_wheel_down) {
       // @todo terminal  velocity
       bike.momentum.y -= gravity * state.dt;
 
