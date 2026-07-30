@@ -54,6 +54,22 @@ static void HandleCharacterControls(Tachyon* tachyon, State& state) {
   velocity += ground_forward * -tachyon->left_stick.y * speed;
   velocity += ground_left * -tachyon->left_stick.x * speed;
 
+  if (velocity.magnitude() > 0.f) {
+    state.target_camera_azimuth = atan2f(velocity.z, velocity.x) + t_PI;
+
+    state.target_camera_azimuth_blend_rate = Tachyon_Lerpf(
+      state.target_camera_azimuth_blend_rate,
+      1.f,
+      state.dt
+    );
+  } else {
+    state.target_camera_azimuth_blend_rate = Tachyon_Lerpf(
+      state.target_camera_azimuth_blend_rate,
+      0.f,
+      5.f * state.dt
+    );
+  }
+
   state.player_position += velocity * state.dt;
 
   // Update model

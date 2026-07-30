@@ -102,6 +102,8 @@ namespace metro {
     MeshIds meshes;
 
     tVec3f player_position;
+    float target_camera_azimuth = 0.f;
+    float target_camera_azimuth_blend_rate = 0.f;
 
     int32 player_bike_id = -1;
 

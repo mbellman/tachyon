@@ -91,10 +91,11 @@ void metro::Init(Tachyon* tachyon, State& state) {
   {
     auto& camera3p = tachyon->scene.camera3p;
 
+    camera3p.azimuth = t_HALF_PI;
     camera3p.altitude = 0.25f;
     camera3p.radius = 10000.f;
 
-    camera3p.azimuth = t_HALF_PI;
+    state.target_camera_azimuth = camera3p.azimuth;
   }
 }
 

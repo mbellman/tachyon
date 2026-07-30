@@ -33,6 +33,23 @@ static CameraParams GetCameraParams(State& state) {
   }
 }
 
+static void PerformAzimuthAdjustments(Tachyon* tachyon, State& state) {
+  auto& camera3p = tachyon->scene.camera3p;
+
+  if (abs(camera3p.azimuth - state.target_camera_azimuth) >= t_PI) {
+    if (camera3p.azimuth > state.target_camera_azimuth) {
+      state.target_camera_azimuth += t_TAU;
+    } else {
+      camera3p.azimuth += t_TAU;
+    }
+  }
+
+  if (state.target_camera_azimuth > t_TAU) {
+    state.target_camera_azimuth -= t_TAU;
+    camera3p.azimuth -= t_TAU;
+  }
+}
+
 void CameraSystem::Update(Tachyon* tachyon, State& state) {
   profile("CameraSystem::Update()");
 
@@ -45,6 +62,14 @@ void CameraSystem::Update(Tachyon* tachyon, State& state) {
     const float swivel_speed = 3.f;
 
     camera3p.azimuth += tachyon->right_stick.x * swivel_speed * state.dt;
+
+    PerformAzimuthAdjustments(tachyon, state);
+
+    camera3p.azimuth = Tachyon_Lerpf(
+      camera3p.azimuth,
+      state.target_camera_azimuth,
+      state.target_camera_azimuth_blend_rate * state.dt
+    );
   }
 
   // Zooming in/out (altitude)
