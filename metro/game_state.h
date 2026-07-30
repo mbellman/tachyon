@@ -104,6 +104,7 @@ namespace metro {
 
     tVec3f player_position;
     tVec3f player_velocity = tVec3f(0.f);
+    float recorded_player_speed = 0.f;
     float target_camera_azimuth = 0.f;
     float target_camera_azimuth_blend_rate = 0.f;
     float last_manual_camera_control_time = 0.f;

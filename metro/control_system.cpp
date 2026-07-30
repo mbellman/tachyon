@@ -69,43 +69,53 @@ static float GetSteering(Tachyon* tachyon) {
 static void HandleCharacterControls(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
 
-  float acceleration = is_key_held(GAMEPAD_X) ? 14000.f : 8000.f;
-  tVec3f ground_forward = camera.orientation.getDirection().xz().unit();
-  tVec3f ground_left = tVec3f::cross(Y_UP, ground_forward);
+  // Acceleration/movement
+  {
+    float acceleration = is_key_held(GAMEPAD_X) ? 14000.f : 8000.f;
+    tVec3f ground_forward = camera.orientation.getDirection().xz().unit();
+    tVec3f ground_left = tVec3f::cross(Y_UP, ground_forward);
 
-  state.player_velocity += ground_forward * -tachyon->left_stick.y * acceleration;
-  state.player_velocity += ground_left * -tachyon->left_stick.x * acceleration;
+    state.player_velocity += ground_forward * -tachyon->left_stick.y * acceleration;
+    state.player_velocity += ground_left * -tachyon->left_stick.x * acceleration;
+    state.recorded_player_speed = state.player_velocity.magnitude();
 
-  float speed = state.player_velocity.magnitude();
+    // Top speed dampening
+    if (state.recorded_player_speed > acceleration) {
+      // @todo this doesn't properly limit us to a defined top speed
+      state.player_velocity *= 1.f - 35.f * state.dt;
+    }
 
-  if (speed > acceleration) {
-    state.player_velocity *= 1.f - 35.f * state.dt;
+    state.player_position += state.player_velocity * state.dt;
+
+    // Velocity falloff/friction
+    state.player_velocity *= 1.f - 5.f * state.dt;
+    state.recorded_player_speed = state.player_velocity.magnitude();
+
+    // Stop at low velocities
+    if (state.recorded_player_speed < 100.f) {
+      state.player_velocity = tVec3f(0.f);
+      state.recorded_player_speed = 0.f;
+    }
   }
 
-  if (speed < 100.f) {
-    state.player_velocity = tVec3f(0.f);
+  // Determine camera auto-centering behavior
+  {
+    if (is_moving_left_stick() && !is_moving_right_stick()) {
+      state.target_camera_azimuth = atan2f(state.player_velocity.z, state.player_velocity.x) + t_PI;
 
-    speed = 0.f;
+      state.target_camera_azimuth_blend_rate = Tachyon_Lerpf(
+        state.target_camera_azimuth_blend_rate,
+        1.f,
+        state.dt
+      );
+    } else {
+      state.target_camera_azimuth_blend_rate = Tachyon_Lerpf(
+        state.target_camera_azimuth_blend_rate,
+        0.f,
+        state.dt
+      );
+    }
   }
-
-  if (is_moving_left_stick() && !is_moving_right_stick()) {
-    state.target_camera_azimuth = atan2f(state.player_velocity.z, state.player_velocity.x) + t_PI;
-
-    state.target_camera_azimuth_blend_rate = Tachyon_Lerpf(
-      state.target_camera_azimuth_blend_rate,
-      1.f,
-      state.dt
-    );
-  } else {
-    state.target_camera_azimuth_blend_rate = Tachyon_Lerpf(
-      state.target_camera_azimuth_blend_rate,
-      0.f,
-      state.dt
-    );
-  }
-
-  state.player_position += state.player_velocity * state.dt;
-  state.player_velocity *= 1.f - 5.f * state.dt;
 
   // Update model
   {
@@ -113,7 +123,7 @@ static void HandleCharacterControls(Tachyon* tachyon, State& state) {
 
     player.position = state.player_position;
 
-    if (speed > 0.f) {
+    if (state.recorded_player_speed > 0.f) {
       player.rotation = Quaternion::nlerp(
         player.rotation,
         Quaternion::FromDirection(state.player_velocity.unit(), Y_UP),

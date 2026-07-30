@@ -37,7 +37,7 @@ static void HandleDevHotkeys(Tachyon* tachyon, State& state) {
   }
 
   // Toggle frame-by-frame
-  if (did_press_key(GAMEPAD_TRIANGLE)) {
+  if (did_press_key(tKey::CONTROLLER_L1)) {
     state.use_frame_stepping = !state.use_frame_stepping;
   }
 
