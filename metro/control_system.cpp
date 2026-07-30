@@ -7,6 +7,7 @@
 
 using namespace metro;
 
+// @todo move to Debug::
 static void DebugShowRadiusRing(Tachyon* tachyon, State& state, const Bicycle& bike, const float radius) {
   auto& ring = use_instance(state.meshes.debug_ring);
   float absolute_radius = abs(radius);
@@ -23,6 +24,30 @@ static void DebugShowRadiusRing(Tachyon* tachyon, State& state, const Bicycle& b
   }
 
   commit(ring);
+}
+
+static void ShowCharacterDebugVisuals(Tachyon* tachyon, State& state) {
+  auto& camera = tachyon->scene.camera;
+  auto& player = objects(state.meshes.debug_mannequin)[0];
+  tVec3f facing_direction = player.rotation.getDirection().invert();
+
+  tVec3f ground_forward = camera.orientation.getDirection().xz().unit();
+  tVec3f ground_left = tVec3f::cross(Y_UP, ground_forward);
+
+  tVec3f velocity_position = state.player_position + tVec3f(0, 500.f, 0);
+  tVec3f velocity_vector = state.player_velocity * 0.5f;
+
+  tVec3f facing_position = state.player_position + tVec3f(0, 1000.f, 0);
+  tVec3f facing_vector = facing_direction * 2000.f;
+
+  Debug::ShowDebugVector(tachyon, state, state.player_position, ground_forward * 2000.f, tVec3f(1.f, 0, 0));
+  Debug::ShowDebugVector(tachyon, state, state.player_position, ground_forward.invert() * 2000.f, tVec3f(1.f, 0, 0));
+
+  Debug::ShowDebugVector(tachyon, state, state.player_position, ground_left * 2000.f, tVec3f(1.f, 0, 0));
+  Debug::ShowDebugVector(tachyon, state, state.player_position, ground_left.invert() * 2000.f, tVec3f(1.f, 0, 0));
+
+  Debug::ShowDebugVector(tachyon, state, velocity_position, velocity_vector, tVec3f(0, 0, 1.f));
+  Debug::ShowDebugVector(tachyon, state, facing_position, facing_vector, tVec3f(0, 1.f, 0));
 }
 
 static bool DidPressPedalKey(Tachyon* tachyon) {
@@ -44,18 +69,27 @@ static float GetSteering(Tachyon* tachyon) {
 static void HandleCharacterControls(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
 
+  float acceleration = is_key_held(GAMEPAD_X) ? 14000.f : 8000.f;
   tVec3f ground_forward = camera.orientation.getDirection().xz().unit();
   tVec3f ground_left = tVec3f::cross(Y_UP, ground_forward);
 
-  // @todo acceleration
-  float speed = is_key_held(GAMEPAD_X) ? 14000.f : 8000.f;
+  state.player_velocity += ground_forward * -tachyon->left_stick.y * acceleration;
+  state.player_velocity += ground_left * -tachyon->left_stick.x * acceleration;
 
-  tVec3f velocity;
-  velocity += ground_forward * -tachyon->left_stick.y * speed;
-  velocity += ground_left * -tachyon->left_stick.x * speed;
+  float speed = state.player_velocity.magnitude();
 
-  if (velocity.magnitude() > 0.f) {
-    state.target_camera_azimuth = atan2f(velocity.z, velocity.x) + t_PI;
+  if (speed > acceleration) {
+    state.player_velocity *= 1.f - 35.f * state.dt;
+  }
+
+  if (speed < 100.f) {
+    state.player_velocity = tVec3f(0.f);
+
+    speed = 0.f;
+  }
+
+  if (is_moving_left_stick() && !is_moving_right_stick()) {
+    state.target_camera_azimuth = atan2f(state.player_velocity.z, state.player_velocity.x) + t_PI;
 
     state.target_camera_azimuth_blend_rate = Tachyon_Lerpf(
       state.target_camera_azimuth_blend_rate,
@@ -66,28 +100,32 @@ static void HandleCharacterControls(Tachyon* tachyon, State& state) {
     state.target_camera_azimuth_blend_rate = Tachyon_Lerpf(
       state.target_camera_azimuth_blend_rate,
       0.f,
-      5.f * state.dt
+      state.dt
     );
   }
 
-  state.player_position += velocity * state.dt;
+  state.player_position += state.player_velocity * state.dt;
+  state.player_velocity *= 1.f - 5.f * state.dt;
 
   // Update model
   {
     auto& player = objects(state.meshes.debug_mannequin)[0];
 
     player.position = state.player_position;
-    // player.rotation = Quaternion::FromDirection(Z_BACKWARD, Y_UP);
+
+    if (speed > 0.f) {
+      player.rotation = Quaternion::nlerp(
+        player.rotation,
+        Quaternion::FromDirection(state.player_velocity.unit(), Y_UP),
+        10.f * state.dt
+      );
+    }
 
     commit(player);
   }
 
   if (tachyon->show_timing_profile) {
-    Debug::ShowDebugVector(tachyon, state, state.player_position, ground_forward * 2000.f, tVec3f(1.f, 0, 0));
-    Debug::ShowDebugVector(tachyon, state, state.player_position, ground_forward.invert() * 2000.f, tVec3f(1.f, 0, 0));
-
-    Debug::ShowDebugVector(tachyon, state, state.player_position, ground_left * 2000.f, tVec3f(1.f, 0, 0));
-    Debug::ShowDebugVector(tachyon, state, state.player_position, ground_left.invert() * 2000.f, tVec3f(1.f, 0, 0));
+    ShowCharacterDebugVisuals(tachyon, state);
   }
 }
 

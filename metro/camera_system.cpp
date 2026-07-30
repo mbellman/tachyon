@@ -56,6 +56,14 @@ void CameraSystem::Update(Tachyon* tachyon, State& state) {
   auto& camera3p = tachyon->scene.camera3p;
   auto& camera = tachyon->scene.camera;
 
+  // Tracking manual camera control time
+  {
+    if (is_moving_right_stick()) {
+      state.last_manual_camera_control_time = get_scene_time();
+      state.target_camera_azimuth = camera3p.azimuth;
+    }
+  }
+
   // Swiveling (azimuth)
   // @todo mouse support
   {
@@ -75,7 +83,7 @@ void CameraSystem::Update(Tachyon* tachyon, State& state) {
   // Zooming in/out (altitude)
   // @todo mouse support
   {
-    const float min = 0.1f;
+    const float min = 0.f;
     const float max = 1.2f;
     const float zoom_speed = 1.5f;
 

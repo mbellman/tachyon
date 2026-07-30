@@ -10,6 +10,7 @@
 #define time_since(t) (tachyon->scene.scene_time - (t))
 #define get_scene_time() tachyon->scene.scene_time
 #define is_moving_left_stick() (tachyon->left_stick.x != 0.f || tachyon->left_stick.y != 0.f)
+#define is_moving_right_stick() (tachyon->right_stick.x != 0.f || tachyon->right_stick.y != 0.f)
 
 namespace metro {
   enum BicycleType {
@@ -102,8 +103,10 @@ namespace metro {
     MeshIds meshes;
 
     tVec3f player_position;
+    tVec3f player_velocity = tVec3f(0.f);
     float target_camera_azimuth = 0.f;
     float target_camera_azimuth_blend_rate = 0.f;
+    float last_manual_camera_control_time = 0.f;
 
     int32 player_bike_id = -1;
 
