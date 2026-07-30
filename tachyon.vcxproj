@@ -372,12 +372,14 @@
     <ClInclude Include="metro\bikes\common_bike.h" />
     <ClInclude Include="metro\camera_system.h" />
     <ClInclude Include="metro\collision.h" />
+    <ClInclude Include="metro\constants.h" />
     <ClInclude Include="metro\control_system.h" />
     <ClInclude Include="metro\debug.h" />
     <ClInclude Include="metro\entities.h" />
     <ClInclude Include="metro\game.h" />
     <ClInclude Include="metro\game_state.h" />
     <ClInclude Include="metro\interactive_entities.h" />
+    <ClInclude Include="metro\player.h" />
     <ClInclude Include="metro\player_bicycle.h" />
     <ClInclude Include="metro\static_entities.h" />
     <ClInclude Include="metro\utilities.h" />
@@ -470,6 +472,7 @@
     <ClCompile Include="metro\debug.cpp" />
     <ClCompile Include="metro\game.cpp" />
     <ClCompile Include="metro\interactive_entities.cpp" />
+    <ClCompile Include="metro\player.cpp" />
     <ClCompile Include="metro\player_bicycle.cpp" />
     <ClCompile Include="metro\static_entities.cpp" />
     <ClCompile Include="metro\utilities.cpp" />

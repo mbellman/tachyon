@@ -813,6 +813,12 @@
     <ClInclude Include="metro\interactive_entities.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="metro\constants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="metro\player.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -1083,6 +1089,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="metro\interactive_entities.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="metro\player.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

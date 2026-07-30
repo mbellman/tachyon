@@ -26,30 +26,6 @@ static void DebugShowRadiusRing(Tachyon* tachyon, State& state, const Bicycle& b
   commit(ring);
 }
 
-static void ShowCharacterDebugVisuals(Tachyon* tachyon, State& state) {
-  auto& camera = tachyon->scene.camera;
-  auto& player = objects(state.meshes.debug_mannequin)[0];
-  tVec3f facing_direction = player.rotation.getDirection().invert();
-
-  tVec3f ground_forward = camera.orientation.getDirection().xz().unit();
-  tVec3f ground_left = tVec3f::cross(Y_UP, ground_forward);
-
-  tVec3f velocity_position = state.player_position + tVec3f(0, 500.f, 0);
-  tVec3f velocity_vector = state.player_velocity * 0.5f;
-
-  tVec3f facing_position = state.player_position + tVec3f(0, 1000.f, 0);
-  tVec3f facing_vector = facing_direction * 2000.f;
-
-  Debug::ShowDebugVector(tachyon, state, state.player_position, ground_forward * 2000.f, tVec3f(1.f, 0, 0));
-  Debug::ShowDebugVector(tachyon, state, state.player_position, ground_forward.invert() * 2000.f, tVec3f(1.f, 0, 0));
-
-  Debug::ShowDebugVector(tachyon, state, state.player_position, ground_left * 2000.f, tVec3f(1.f, 0, 0));
-  Debug::ShowDebugVector(tachyon, state, state.player_position, ground_left.invert() * 2000.f, tVec3f(1.f, 0, 0));
-
-  Debug::ShowDebugVector(tachyon, state, velocity_position, velocity_vector, tVec3f(0, 0, 1.f));
-  Debug::ShowDebugVector(tachyon, state, facing_position, facing_vector, tVec3f(0, 1.f, 0));
-}
-
 static bool DidPressPedalKey(Tachyon* tachyon) {
   if (did_press_key(GAMEPAD_X)) {
     return true;
@@ -117,25 +93,19 @@ static void HandleCharacterControls(Tachyon* tachyon, State& state) {
     }
   }
 
-  // Update model
+  // Interactions
   {
-    auto& player = objects(state.meshes.debug_mannequin)[0];
+    if (did_press_key(GAMEPAD_TRIANGLE)) {
+      for (auto& bike : state.bicycles) {
+        float distance = tVec3f::distance(bike.position, state.player_position);
 
-    player.position = state.player_position;
+        if (distance < 2000.f) {
+          state.player_bike_id = bike.id;
 
-    if (state.recorded_player_speed > 0.f) {
-      player.rotation = Quaternion::nlerp(
-        player.rotation,
-        Quaternion::FromDirection(state.player_velocity.unit(), Y_UP),
-        10.f * state.dt
-      );
+          break;
+        }
+      }
     }
-
-    commit(player);
-  }
-
-  if (tachyon->show_timing_profile) {
-    ShowCharacterDebugVisuals(tachyon, state);
   }
 }
 
@@ -288,6 +258,18 @@ static void HandleBikeControls(Tachyon* tachyon, State& state, Bicycle& bike) {
 
     bike.wheel_revolution += bike.speed * wheel_revolution_speed * state.dt;
     bike.wheel_revolution = fmodf(bike.wheel_revolution, t_TAU);
+  }
+
+  // Getting off the bike
+  {
+    if (
+      did_press_key(GAMEPAD_TRIANGLE) &&
+      !bike.in_freefall
+    ) {
+      state.player_bike_id = -1;
+      bike.pedal_speed = 0.f;
+      bike.speed = 0.f;
+    }
   }
 }
 
