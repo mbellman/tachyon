@@ -27,8 +27,8 @@ static CameraParams GetCameraParams(State& state) {
     };
   } else {
     return {
-      .focus_point = state.player_position,
-      .blend_rate = 8.f
+      .focus_point = state.player_position + tVec3f(0, 2000.f, 0),
+      .blend_rate = 20.f
     };
   }
 }

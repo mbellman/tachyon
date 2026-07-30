@@ -2,6 +2,7 @@
 
 #include "metro/control_system.h"
 #include "metro/constants.h"
+#include "metro/debug.h"
 #include "metro/utilities.h"
 
 using namespace metro;
@@ -38,6 +39,40 @@ static float GetSteering(Tachyon* tachyon) {
   float steering = tachyon->left_stick.x;
 
   return -1.f * steering;
+}
+
+static void HandleCharacterControls(Tachyon* tachyon, State& state) {
+  auto& camera = tachyon->scene.camera;
+
+  tVec3f ground_forward = camera.orientation.getDirection().xz().unit();
+  tVec3f ground_left = tVec3f::cross(Y_UP, ground_forward);
+
+  // @todo acceleration
+  float speed = is_key_held(GAMEPAD_X) ? 14000.f : 8000.f;
+
+  tVec3f velocity;
+  velocity += ground_forward * -tachyon->left_stick.y * speed;
+  velocity += ground_left * -tachyon->left_stick.x * speed;
+
+  state.player_position += velocity * state.dt;
+
+  // Update model
+  {
+    auto& player = objects(state.meshes.debug_mannequin)[0];
+
+    player.position = state.player_position;
+    // player.rotation = Quaternion::FromDirection(Z_BACKWARD, Y_UP);
+
+    commit(player);
+  }
+
+  if (tachyon->show_timing_profile) {
+    Debug::ShowDebugVector(tachyon, state, state.player_position, ground_forward * 2000.f, tVec3f(1.f, 0, 0));
+    Debug::ShowDebugVector(tachyon, state, state.player_position, ground_forward.invert() * 2000.f, tVec3f(1.f, 0, 0));
+
+    Debug::ShowDebugVector(tachyon, state, state.player_position, ground_left * 2000.f, tVec3f(1.f, 0, 0));
+    Debug::ShowDebugVector(tachyon, state, state.player_position, ground_left.invert() * 2000.f, tVec3f(1.f, 0, 0));
+  }
 }
 
 static void HandleBikeControls(Tachyon* tachyon, State& state, Bicycle& bike) {
@@ -198,7 +233,7 @@ void ControlSystem::Update(Tachyon* tachyon, State& state) {
   auto* active_bike = GetActiveBicycle(state);
 
   if (active_bike == nullptr) {
-    // @todo handle character controls
+    HandleCharacterControls(tachyon, state);
   } else {
     HandleBikeControls(tachyon, state, *active_bike);
   }

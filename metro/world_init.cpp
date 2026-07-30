@@ -102,17 +102,6 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
 
   // @temporary
   {
-    auto& player = objects(state.meshes.debug_mannequin)[0];
-
-    player.position = tVec3f(0, -2220.f, -10000.f);
-    player.scale = tVec3f(2000.f);
-    player.rotation = Quaternion::FromDirection(Z_BACKWARD, Y_UP);
-
-    commit(player);
-  }
-
-  // @temporary
-  {
     auto& cube = create(state.meshes.dev_cube);
 
     cube.position = tVec3f(0, -8000.f, -10000.f);
@@ -157,7 +146,19 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
   }
 
   // @temporary
-  state.player_bike_id = 2;
+  // state.player_bike_id = 2;
+  state.player_position = tVec3f(0, -1100.f, 0.f);
+
+  // @temporary
+  {
+    auto& player = objects(state.meshes.debug_mannequin)[0];
+
+    player.position = state.player_position;
+    player.scale = tVec3f(2000.f);
+    player.rotation = Quaternion::FromDirection(Z_BACKWARD, Y_UP);
+
+    commit(player);
+  }
 
   // @temporary
   {
