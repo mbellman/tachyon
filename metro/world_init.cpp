@@ -3,6 +3,7 @@
 #include "metro/world_init.h"
 #include "metro/background_bicycles.h"
 #include "metro/collision.h"
+#include "metro/constants.h"
 
 using namespace metro;
 
@@ -105,6 +106,7 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
 
     player.position = tVec3f(0, -2220.f, -10000.f);
     player.scale = tVec3f(2000.f);
+    player.rotation = Quaternion::FromDirection(Z_BACKWARD, Y_UP);
 
     commit(player);
   }
@@ -168,11 +170,11 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
     bike.saddle_color  = tVec3f(0.1f, 0, 0);
     bike.wheel_color   = tVec3f(0.2f);
 
-    bike.facing_direction = tVec3f(0, 0, -1.f);
+    bike.facing_direction = Z_BACKWARD;
 
     bike.flat_rotation =
-      Quaternion::FromDirection(bike.facing_direction, tVec3f(0, 1.f, 0)) *
-      Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), bike.leaning_angle);
+      Quaternion::FromDirection(bike.facing_direction, Y_UP) *
+      Quaternion::fromAxisAngle(AXIS_Z, bike.leaning_angle);
 
     BackgroundBicycles::SpawnBicycle(tachyon, state, bike);
   }
@@ -188,11 +190,11 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
     bike.saddle_color  = tVec3f(0.2f);
     bike.wheel_color   = tVec3f(1.f, 0.9f, 0.7f);
 
-    bike.facing_direction = tVec3f(0, 0, -1.f);
+    bike.facing_direction = Z_BACKWARD;
 
     bike.flat_rotation =
-      Quaternion::FromDirection(bike.facing_direction, tVec3f(0, 1.f, 0)) *
-      Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), bike.leaning_angle);
+      Quaternion::FromDirection(bike.facing_direction, Y_UP) *
+      Quaternion::fromAxisAngle(AXIS_Z, bike.leaning_angle);
 
     BackgroundBicycles::SpawnBicycle(tachyon, state, bike);
   }
@@ -208,11 +210,11 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
     bike.saddle_color  = tVec3f(0.1f, 0, 0);
     bike.wheel_color   = tVec3f(1.f, 0.9f, 0.7f);
 
-    bike.facing_direction = tVec3f(0, 0, -1.f);
+    bike.facing_direction = Z_BACKWARD;
 
     bike.flat_rotation =
-      Quaternion::FromDirection(bike.facing_direction, tVec3f(0, 1.f, 0)) *
-      Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), bike.leaning_angle);
+      Quaternion::FromDirection(bike.facing_direction, Y_UP) *
+      Quaternion::fromAxisAngle(AXIS_Z, bike.leaning_angle);
 
     BackgroundBicycles::SpawnBicycle(tachyon, state, bike);
   }
@@ -221,7 +223,7 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
   {
     StaticEntity ramp;
     ramp.position = tVec3f(50000.f, -1500.f, -10000.f);
-    ramp.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_HALF_PI);
+    ramp.rotation = Quaternion::fromAxisAngle(Y_UP, t_HALF_PI);
     ramp.scale = tVec3f(5000.f, 20000.f, 100000.f);
     ramp.color = tVec3f(0.5f);
 
@@ -232,7 +234,7 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
   {
     StaticEntity ramp;
     ramp.position = tVec3f(50000.f, -1500.f, 0);
-    ramp.rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), t_HALF_PI);
+    ramp.rotation = Quaternion::fromAxisAngle(Y_UP, t_HALF_PI);
     ramp.scale = tVec3f(5000.f, 100000.f, 100000.f);
     ramp.color = tVec3f(0.5f);
 

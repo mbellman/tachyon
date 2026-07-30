@@ -4,6 +4,7 @@
 #include "metro/background_bicycles.h"
 #include "metro/camera_system.h"
 #include "metro/collision.h"
+#include "metro/constants.h"
 #include "metro/control_system.h"
 #include "metro/debug.h"
 #include "metro/interactive_entities.h"
@@ -13,11 +14,6 @@
 #include "metro/utilities.h"
 
 using namespace metro;
-
-const static auto GAMEPAD_X = tKey::CONTROLLER_A;
-const static auto GAMEPAD_O = tKey::CONTROLLER_B;
-const static auto GAMEPAD_SQUARE = tKey::CONTROLLER_X;
-const static auto GAMEPAD_TRIANGLE = tKey::CONTROLLER_Y;
 
 static void HandleFrameStart(Tachyon* tachyon, State& state, const float dt) {
   if (state.use_slow_motion) {
@@ -73,8 +69,8 @@ static void HandleDevHotkeys(Tachyon* tachyon, State& state) {
       active_bike->leaning_angle = 0.f;
 
       active_bike->flat_rotation =
-        Quaternion::FromDirection(active_bike->facing_direction, tVec3f(0, 1.f, 0)) *
-        Quaternion::fromAxisAngle(tVec3f(0, 0, 1.f), active_bike->leaning_angle);
+        Quaternion::FromDirection(active_bike->facing_direction, Y_UP) *
+        Quaternion::fromAxisAngle(AXIS_Z, active_bike->leaning_angle);
 
       active_bike->directional_rotation = active_bike->flat_rotation;
       active_bike->visual_rotation = active_bike->flat_rotation;

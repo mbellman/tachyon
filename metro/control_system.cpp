@@ -1,14 +1,10 @@
 #include "engine/tachyon.h"
 
 #include "metro/control_system.h"
+#include "metro/constants.h"
 #include "metro/utilities.h"
 
 using namespace metro;
-
-const static auto GAMEPAD_X = tKey::CONTROLLER_A;
-const static auto GAMEPAD_O = tKey::CONTROLLER_B;
-const static auto GAMEPAD_SQUARE = tKey::CONTROLLER_X;
-const static auto GAMEPAD_TRIANGLE = tKey::CONTROLLER_Y;
 
 static void DebugShowRadiusRing(Tachyon* tachyon, State& state, const Bicycle& bike, const float radius) {
   auto& ring = use_instance(state.meshes.debug_ring);
@@ -135,7 +131,7 @@ static void HandleBikeControls(Tachyon* tachyon, State& state, Bicycle& bike) {
     }
 
     // Turn and update the facing direction
-    Quaternion turn_rotation = Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), turn_angle);
+    Quaternion turn_rotation = Quaternion::fromAxisAngle(AXIS_Y, turn_angle);
 
     bike.facing_direction = turn_rotation.toMatrix4f() * bike.facing_direction;
     bike.facing_direction = bike.facing_direction.unit();

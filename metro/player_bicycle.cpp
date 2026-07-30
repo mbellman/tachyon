@@ -2,6 +2,7 @@
 
 #include "metro/player_bicycle.h"
 #include "metro/bikes/common_bike.h"
+#include "metro/constants.h"
 #include "metro/debug.h"
 #include "metro/utilities.h"
 
@@ -76,7 +77,7 @@ void PlayerBicycle::Update(Tachyon* tachyon, State& state) {
     tVec3f movement_direction = GetMovementDirection(bike);
 
     tVec3f steering_direction =
-      Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), bike.steering_angle).toMatrix4f() *
+      Quaternion::fromAxisAngle(AXIS_Y, bike.steering_angle).toMatrix4f() *
       bike.facing_direction;
 
     tVec3f steering_position = bike.front_wheel_position + tVec3f(0, 500.f, 0);

@@ -2,14 +2,15 @@
 
 #include "metro/bikes/common_bike.h"
 #include "metro/collision.h"
+#include "metro/constants.h"
 #include "metro/debug.h"
 #include "metro/utilities.h"
 
 using namespace metro;
 
 const static tVec3f STEERING_AXIS = tVec3f(0, 0.9731f, -0.2305f);
-const static tVec3f WHEEL_AXIS = tVec3f(1.f, 0, 0);
-const static tVec3f LEANING_AXIS = tVec3f(0, 0, 1.f);
+const static tVec3f WHEEL_AXIS = AXIS_X;
+const static tVec3f LEANING_AXIS = AXIS_Z;
 
 const static tVec3f BACK_WHEEL_PIVOT_POSITION = tVec3f(0, 0, -0.61f);
 const static tVec3f FRONT_WHEEL_PIVOT_POSITION = tVec3f(0, 0, 0.61f);
@@ -241,7 +242,7 @@ void CommonBike::Update(Tachyon* tachyon, State& state, Bicycle& bike, const int
     tVec3f old_rocking_pivot = UnitVisualBikeToWorldPosition(bike, FRONT_WHEEL_PIVOT_POSITION);
 
     bike.visual_rotation =
-      Quaternion::fromAxisAngle(tVec3f(0, 1.f, 0), bike.rocking_factor) *
+      Quaternion::fromAxisAngle(AXIS_Y, bike.rocking_factor) *
       bike.visual_rotation *
       Quaternion::fromAxisAngle(LEANING_AXIS, bike.rocking_factor);
 
