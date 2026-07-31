@@ -198,8 +198,7 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
       bike.momentum.x *= 1.f - 0.05f * state.dt;
       bike.momentum.z *= 1.f - 0.05f * state.dt;
     } else {
-      // @todo this is incorrect when going up ramps!
-      bike.momentum = bike.movement_vector * bike.speed * mass;
+      bike.momentum = GetMovementDirection(bike) * bike.speed * mass;
     }
   }
 }

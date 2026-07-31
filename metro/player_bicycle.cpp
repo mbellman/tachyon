@@ -11,8 +11,6 @@ using namespace metro;
 const static int PHYSICS_ITERATIONS = 3;
 
 static void ShowDebugVisuals(Tachyon* tachyon, State& state, const Bicycle& bike) {
-  tVec3f movement_direction = GetMovementDirection(bike);
-
   tVec3f steering_direction =
     Quaternion::fromAxisAngle(AXIS_Y, bike.steering_angle).toMatrix4f() *
     bike.facing_direction;
@@ -27,7 +25,7 @@ static void ShowDebugVisuals(Tachyon* tachyon, State& state, const Bicycle& bike
   Debug::ShowDebugSphere(tachyon, state, bike.front_wheel_position, 150.f);
   Debug::ShowDebugSphere(tachyon, state, bike.back_wheel_position, 150.f);
 
-  Debug::ShowDebugVector(tachyon, state, bike.front_wheel_position, movement_direction * 2000.f, tVec3f(1.f, 0, 1.f));
+  Debug::ShowDebugVector(tachyon, state, bike.front_wheel_position, bike.movement_vector * 2000.f, tVec3f(1.f, 0, 1.f));
   Debug::ShowDebugVector(tachyon, state, steering_position, steering_vector, tVec3f(0, 0, 1.f));
   Debug::ShowDebugVector(tachyon, state, momentum_position, momentum_vector, tVec3f(0, 1.f, 0));
 
