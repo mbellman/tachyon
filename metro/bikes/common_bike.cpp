@@ -68,29 +68,40 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
   tVec3f front_wheel_plane_normal = tVec3f(0, 1.f, 0);
   tVec3f back_wheel_plane_normal = tVec3f(0, 1.f, 0);
 
-  for (auto& plane : state.floor_collision_planes) {
-    tVec3f down_ray = plane.normal.invert() * 900.f;
+  // Wheel collision
+  {
+    const float above_wheel_buffer = 500.f;
+    const float ray_length = 1500.f;
+    const float front_wheel_ground_distance = 800.f;
+    const float back_wheel_ground_distance = 820.f;
 
-    auto front = Collision::TestRayHit(bike.front_wheel_position, down_ray, plane);
-    auto back = Collision::TestRayHit(bike.back_wheel_position, down_ray, plane);
+    for (auto& plane : state.floor_collision_planes) {
+      tVec3f start_offset = plane.normal * above_wheel_buffer;
+      tVec3f front_ray_start = bike.front_wheel_position + start_offset;
+      tVec3f back_ray_start = bike.back_wheel_position + start_offset;
+      tVec3f down_ray = plane.normal.invert() * ray_length;
 
-    if (front.has_collision) {
-      tVec3f resolved_position = front.collision_point + plane.normal * 800.f;
+      auto front = Collision::TestRayHit(front_ray_start, down_ray, plane);
+      auto back = Collision::TestRayHit(back_ray_start, down_ray, plane);
 
-      if (resolved_position.y > highest_front_y) {
-        ideal_front_wheel_position = resolved_position;
-        highest_front_y = resolved_position.y;
-        front_wheel_plane_normal = plane.normal;
+      if (front.has_collision) {
+        tVec3f resolved_position = front.collision_point + plane.normal * front_wheel_ground_distance;
+
+        if (resolved_position.y > highest_front_y) {
+          ideal_front_wheel_position = resolved_position;
+          highest_front_y = resolved_position.y;
+          front_wheel_plane_normal = plane.normal;
+        }
       }
-    }
 
-    if (back.has_collision) {
-      tVec3f resolved_position = back.collision_point + plane.normal * 820.f;
+      if (back.has_collision) {
+        tVec3f resolved_position = back.collision_point + plane.normal * back_wheel_ground_distance;
 
-      if (resolved_position.y > highest_back_y) {
-        ideal_back_wheel_position = resolved_position;
-        highest_back_y = resolved_position.y;
-        back_wheel_plane_normal = plane.normal;
+        if (resolved_position.y > highest_back_y) {
+          ideal_back_wheel_position = resolved_position;
+          highest_back_y = resolved_position.y;
+          back_wheel_plane_normal = plane.normal;
+        }
       }
     }
   }
