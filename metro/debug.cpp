@@ -24,6 +24,44 @@ void Debug::ShowDebugSphere(Tachyon* tachyon, State& state, const tVec3f& positi
   commit(sphere);
 }
 
+void Debug::ShowDebugLine(Tachyon* tachyon, State& state, const DebugLineConfig& config) {
+  auto& line = use_instance(state.meshes.debug_line);
+
+  const tVec3f& vector = config.vector;
+  float length = vector.magnitude();
+  tVec3f direction = vector / length;
+
+  tVec3f up = vector.y != 0.f && vector.x == 0.f && vector.z == 0.f
+    ? tVec3f(1.f, 0, 0)
+    : tVec3f(0, 1.f, 0);
+
+  line.position = config.position;
+  line.rotation = Quaternion::FromDirection(direction, up);
+  line.scale.x = config.thickness;
+  line.scale.y = config.thickness;
+  line.scale.z = length;
+  line.color = tVec4f(config.color, 0.8f);
+
+  commit(line);
+}
+
+void Debug::ShowDebugCone(Tachyon* tachyon, State& state, const DebugConeConfig& config) {
+  auto& cone = use_instance(state.meshes.debug_cone);
+
+  tVec3f direction = config.direction;
+
+  tVec3f up = direction.y != 0.f && direction.x == 0.f && direction.z == 0.f
+    ? tVec3f(1.f, 0, 0)
+    : tVec3f(0, 1.f, 0);
+
+  cone.position = config.position;
+  cone.rotation = Quaternion::FromDirection(direction, up);
+  cone.scale = config.scale;
+  cone.color = tVec4f(config.color, 0.8f);
+
+  commit(cone);
+}
+
 void Debug::ShowDebugVector(Tachyon* tachyon, State& state, const tVec3f& position, const tVec3f& vector, const tVec3f& color) {
   float length = vector.magnitude();
   tVec3f direction = vector / length;
@@ -39,7 +77,7 @@ void Debug::ShowDebugVector(Tachyon* tachyon, State& state, const tVec3f& positi
   line.scale.y = 150.f;
   line.scale.x = 150.f;
   line.scale.z = length;
-  line.color = tVec4f(color, 0.5f);
+  line.color = tVec4f(color, 0.8f);
 
   commit(line);
 

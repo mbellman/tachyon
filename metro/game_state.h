@@ -71,6 +71,7 @@ namespace metro {
       // @temporary
       dev_cube,
 
+      debug_cube,
       debug_sphere,
       debug_ring,
       debug_plane,

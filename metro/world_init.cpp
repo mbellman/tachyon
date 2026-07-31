@@ -17,12 +17,14 @@ using namespace metro;
 static void LoadDebugMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
+  meshes.debug_cube   = CUBE_MESH(100);
   meshes.debug_sphere = SPHERE_MESH(100, 12);
   meshes.debug_ring   = METRO_MODEL("ring.obj", 10);
   meshes.debug_plane  = PLANE_MESH(100);
   meshes.debug_line   = METRO_MODEL("debug_line.obj", 100);
   meshes.debug_cone   = METRO_MODEL("debug_cone.obj", 100);
 
+  mesh(meshes.debug_cube).shadow_cascade_ceiling = 0;
   mesh(meshes.debug_sphere).shadow_cascade_ceiling = 0;
   mesh(meshes.debug_ring).shadow_cascade_ceiling = 0;
   mesh(meshes.debug_plane).shadow_cascade_ceiling = 0;
