@@ -122,12 +122,14 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
   {
     if (front_wheel_down) {
       bike.front_wheel_downward_force = 0.f;
+      bike.front_wheel_slope = front_wheel_plane_normal;
     } else {
       bike.front_wheel_downward_force += gravity * state.dt;
     }
 
     if (back_wheel_down) {
       bike.back_wheel_downward_force = 0.f;
+      bike.back_wheel_slope = back_wheel_plane_normal;
     } else {
       bike.back_wheel_downward_force += gravity * state.dt;
     }

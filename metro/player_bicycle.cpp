@@ -30,6 +30,9 @@ static void ShowDebugVisuals(Tachyon* tachyon, State& state, const Bicycle& bike
   Debug::ShowDebugVector(tachyon, state, bike.front_wheel_position, movement_direction * 2000.f, tVec3f(1.f, 0, 1.f));
   Debug::ShowDebugVector(tachyon, state, steering_position, steering_vector, tVec3f(0, 0, 1.f));
   Debug::ShowDebugVector(tachyon, state, momentum_position, momentum_vector, tVec3f(0, 1.f, 0));
+
+  Debug::ShowDebugVector(tachyon, state, bike.front_wheel_position, bike.front_wheel_slope * 1000.f, tVec3f(1.f, 0, 0));
+  Debug::ShowDebugVector(tachyon, state, bike.back_wheel_position, bike.back_wheel_slope * 1000.f, tVec3f(1.f, 0, 0));
 }
 
 void PlayerBicycle::Update(Tachyon* tachyon, State& state) {
@@ -49,15 +52,22 @@ void PlayerBicycle::Update(Tachyon* tachyon, State& state) {
       bike.position += (bike.momentum / 25.f) * state.dt;
     } else {
       tVec3f movement_direction = GetMovementDirection(bike);
-      tVec3f target_movement_vector;
+      tVec3f average_wheel_slope = (bike.front_wheel_slope + bike.back_wheel_slope) / 2.f;
+      tVec3f target_movement_vector = bike.facing_direction;
 
-      // @todo fix the direction of the velocity applied here;
-      // we should be applying the correct directional force
-      // based on the ground slope across both wheels
-      if (movement_direction.y < 0.f || bike.speed < 0.f) {
-        target_movement_vector = movement_direction;
-      } else {
-        target_movement_vector = bike.facing_direction;
+      // Moving downhill; apply gravity along the direction of the average wheel slope,
+      // forcing a downward bias and keeping the bike wheels locked to the ground
+      if (movement_direction.y < -0.01f) {
+        target_movement_vector -= average_wheel_slope;
+        target_movement_vector = target_movement_vector.unit();
+      }
+
+      // Moving backward downhill; similar to above except our movement vector is inverted,
+      // since the bike speed directs us negatively along the vector. Thus, we apply the
+      // inverted average wheel slope here.
+      if (bike.speed < 0.f) {
+        target_movement_vector -= average_wheel_slope.invert();
+        target_movement_vector = target_movement_vector.unit();
       }
 
       float movement_vector_blend_rate = Tachyon_Lerpf(1.f, 3.f * state.dt, bike.drifting_factor);

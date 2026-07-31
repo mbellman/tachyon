@@ -41,6 +41,8 @@ namespace metro {
     tVec3f back_wheel_position;
     float front_wheel_downward_force = 0.f;
     float back_wheel_downward_force = 0.f;
+    tVec3f front_wheel_slope;
+    tVec3f back_wheel_slope;
 
     float steering_angle = 0.f;
     float leaning_angle = 0.f;

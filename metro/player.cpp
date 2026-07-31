@@ -48,7 +48,7 @@ void Player::Update(Tachyon* tachyon, State& state) {
       player.rotation = Quaternion::nlerp(
         player.rotation,
         Quaternion::FromDirection(state.player_velocity.unit(), Y_UP),
-        10.f * state.dt
+        5.f * state.dt
       );
     }
 

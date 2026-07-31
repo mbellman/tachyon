@@ -17,9 +17,7 @@ struct CameraParams {
   float blend_rate;
 };
 
-static CameraParams GetCameraParams(State& state) {
-  auto* active_bike = GetActiveBicycle(state);
-
+static CameraParams GetCameraParams(State& state, Bicycle* active_bike) {
   if (active_bike != nullptr) {
     return {
       .focus_point = active_bike->position + tVec3f(0, 3000.f, 0),
@@ -55,6 +53,7 @@ void CameraSystem::Update(Tachyon* tachyon, State& state) {
 
   auto& camera3p = tachyon->scene.camera3p;
   auto& camera = tachyon->scene.camera;
+  auto* active_bike = GetActiveBicycle(state);
 
   // Tracking manual camera control time
   {
@@ -64,7 +63,7 @@ void CameraSystem::Update(Tachyon* tachyon, State& state) {
     }
   }
 
-  // Determine camera auto-centering behavior
+  // Auto-centering behavior
   {
     tVec3f last_move = state.player_position - state.previous_player_position;
     float last_move_distance = last_move.magnitude();
@@ -81,9 +80,19 @@ void CameraSystem::Update(Tachyon* tachyon, State& state) {
     );
 
     if (use_auto_centering) {
-      tVec3f move_direction = last_move / last_move_distance;
+      tVec3f forward_direction;
 
-      state.target_camera_azimuth = atan2f(move_direction.z, move_direction.x) + t_PI;
+      if (active_bike != nullptr) {
+        // If we're riding a bike, use the facing direction of the bike
+        // to center the camera behind it
+        forward_direction = active_bike->facing_direction;
+      } else {
+        // Otherwise, use our last movement direction
+        // @todo use the player model direction?
+        forward_direction = last_move / last_move_distance;
+      }
+
+      state.target_camera_azimuth = atan2f(forward_direction.z, forward_direction.x) + t_PI;
 
       state.target_camera_azimuth_blend_rate = Tachyon_Lerpf(
         state.target_camera_azimuth_blend_rate,
@@ -147,7 +156,7 @@ void CameraSystem::Update(Tachyon* tachyon, State& state) {
     camera3p.radius = 10000.f + 15000.f * radius_alpha;
   }
 
-  auto params = GetCameraParams(state);
+  auto params = GetCameraParams(state, active_bike);
   tVec3f target_camera_position = params.focus_point + camera3p.calculatePosition();
 
   camera.position = tVec3f::lerp(camera.position, target_camera_position, params.blend_rate * state.dt);
