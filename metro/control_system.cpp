@@ -61,6 +61,7 @@ static void HandleCharacterControls(Tachyon* tachyon, State& state) {
       state.player_velocity *= 1.f - 35.f * state.dt;
     }
 
+    state.previous_player_position = state.player_position;
     state.player_position += state.player_velocity * state.dt;
 
     // Velocity falloff/friction
@@ -71,25 +72,6 @@ static void HandleCharacterControls(Tachyon* tachyon, State& state) {
     if (state.recorded_player_speed < 100.f) {
       state.player_velocity = tVec3f(0.f);
       state.recorded_player_speed = 0.f;
-    }
-  }
-
-  // Determine camera auto-centering behavior
-  {
-    if (is_moving_left_stick() && !is_moving_right_stick()) {
-      state.target_camera_azimuth = atan2f(state.player_velocity.z, state.player_velocity.x) + t_PI;
-
-      state.target_camera_azimuth_blend_rate = Tachyon_Lerpf(
-        state.target_camera_azimuth_blend_rate,
-        1.f,
-        state.dt
-      );
-    } else {
-      state.target_camera_azimuth_blend_rate = Tachyon_Lerpf(
-        state.target_camera_azimuth_blend_rate,
-        0.f,
-        state.dt
-      );
     }
   }
 
@@ -123,6 +105,10 @@ static void HandleBikeControls(Tachyon* tachyon, State& state, Bicycle& bike) {
     // Dampen pedal speed
     bike.pedal_speed *= 1.f - state.dt;
 
+    if (bike.pedal_speed < 500.f) {
+      bike.pedal_speed = 0.f;
+    }
+
     // Increase bike speed as pedals rotate
     bike.speed += bike.pedal_speed * 0.8f * state.dt;
 
@@ -152,10 +138,25 @@ static void HandleBikeControls(Tachyon* tachyon, State& state, Bicycle& bike) {
 
   // Speed dampening
   {
-    float speed_ratio = abs(bike.speed) / top_speed;
+    float absolute_speed = abs(bike.speed);
+    float speed_ratio = absolute_speed / top_speed;
     float friction = 0.025f + 0.4f * powf(speed_ratio, 20.f);
+    bool is_on_flat_surface = abs(GetMovementDirection(bike).y) < 0.05f;
 
     bike.speed *= 1.f - friction * state.dt;
+
+    // When moving slowly enough on a flat surface, rapidly dampen speed to 0
+    if (
+      bike.pedal_speed == 0.f &&
+      absolute_speed < 1000.f &&
+      is_on_flat_surface
+    ) {
+      bike.speed *= 1.f - state.dt;
+
+      if (bike.speed < 200.f) {
+        bike.speed = 0.f;
+      }
+    }
   }
 
   // Steering

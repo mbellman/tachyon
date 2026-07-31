@@ -64,6 +64,41 @@ void CameraSystem::Update(Tachyon* tachyon, State& state) {
     }
   }
 
+  // Determine camera auto-centering behavior
+  {
+    tVec3f last_move = state.player_position - state.previous_player_position;
+    float last_move_distance = last_move.magnitude();
+
+    bool did_just_manually_control_camera = (
+      state.last_manual_camera_control_time != 0.f &&
+      time_since(state.last_manual_camera_control_time) < 2.f
+    );
+
+    bool use_auto_centering = (
+      !did_just_manually_control_camera &&
+      last_move_distance > 0.f &&
+      (state.player_bike_id != -1 || is_moving_left_stick())
+    );
+
+    if (use_auto_centering) {
+      tVec3f move_direction = last_move / last_move_distance;
+
+      state.target_camera_azimuth = atan2f(move_direction.z, move_direction.x) + t_PI;
+
+      state.target_camera_azimuth_blend_rate = Tachyon_Lerpf(
+        state.target_camera_azimuth_blend_rate,
+        1.f,
+        state.dt
+      );
+    } else {
+      state.target_camera_azimuth_blend_rate = Tachyon_Lerpf(
+        state.target_camera_azimuth_blend_rate,
+        0.f,
+        5.f * state.dt
+      );
+    }
+  }
+
   // Swiveling (azimuth)
   // @todo mouse support
   {
@@ -88,6 +123,21 @@ void CameraSystem::Update(Tachyon* tachyon, State& state) {
     const float zoom_speed = 1.5f;
 
     camera3p.altitude += tachyon->right_stick.y * zoom_speed * state.dt;
+
+    float target_altitude = camera3p.altitude;
+
+    if (!is_moving_right_stick()) {
+      float alpha = state.recorded_player_speed / 10000.f;
+      if (alpha > 1.f) alpha = 1.f;
+
+      target_altitude = Tachyon_Lerpf(camera3p.altitude, 0.3f, alpha);
+    }
+
+    camera3p.altitude = Tachyon_Lerpf(
+      camera3p.altitude,
+      target_altitude,
+      state.dt
+    );
 
     if (camera3p.altitude < min) camera3p.altitude = min;
     if (camera3p.altitude > max) camera3p.altitude = max;

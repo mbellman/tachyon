@@ -103,6 +103,7 @@ namespace metro {
     MeshIds meshes;
 
     tVec3f player_position;
+    tVec3f previous_player_position;
     tVec3f player_velocity = tVec3f(0.f);
     float recorded_player_speed = 0.f;
     float target_camera_azimuth = 0.f;

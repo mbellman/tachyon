@@ -146,8 +146,8 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
   }
 
   // @temporary
-  // state.player_bike_id = 2;
   state.player_position = tVec3f(0, -1100.f, 0.f);
+  state.previous_player_position = state.player_position;
 
   // @temporary
   {

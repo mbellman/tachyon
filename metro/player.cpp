@@ -35,6 +35,7 @@ void Player::Update(Tachyon* tachyon, State& state) {
 
   if (active_bike != nullptr) {
     // Lock the player to the active bike
+    state.previous_player_position = state.player_position;
     state.player_position = UnitVisualBikeToWorldPosition(*active_bike, tVec3f(0, 0.5f, -0.3f));
 
     player.position = state.player_position;
