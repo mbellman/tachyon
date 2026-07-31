@@ -819,6 +819,9 @@
     <ClInclude Include="metro\player.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="metro\world_editor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -1092,6 +1095,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="metro\player.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="metro\world_editor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

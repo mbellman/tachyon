@@ -11,8 +11,9 @@
 #include "metro/player.h"
 #include "metro/player_bicycle.h"
 #include "metro/static_entities.h"
-#include "metro/world_init.h"
 #include "metro/utilities.h"
+#include "metro/world_editor.h"
+#include "metro/world_init.h"
 
 using namespace metro;
 
@@ -27,6 +28,15 @@ static void HandleFrameStart(Tachyon* tachyon, State& state, const float dt) {
 }
 
 static void HandleDevHotkeys(Tachyon* tachyon, State& state) {
+  // Toggle editor
+  if (did_press_key(tKey::E)) {
+    if (state.is_editor_open) {
+      WorldEditor::Close(tachyon, state);
+    } else {
+      WorldEditor::Open(tachyon, state);
+    }
+  }
+
   // Toggle function timings
   if (did_press_key(tKey::SPACE)) {
     tachyon->show_timing_profile = !tachyon->show_timing_profile;
@@ -110,13 +120,20 @@ void metro::Update(Tachyon* tachyon, State& state, const float dt) {
 
   HandleDevHotkeys(tachyon, state);
 
+  if (state.is_editor_open) {
+    Debug::Reset(tachyon, state);
+    WorldEditor::Update(tachyon, state);
+
+    return;
+  }
+
   if (state.use_frame_stepping && !state.allow_frame_step) {
     CameraSystem::Update(tachyon, state);
 
     return;
   }
 
-  Debug::HandleFrameStart(tachyon, state);
+  Debug::Reset(tachyon, state);
 
   ControlSystem::Update(tachyon, state);
   StaticEntities::Update(tachyon, state);

@@ -4,7 +4,7 @@
 
 using namespace metro;
 
-void Debug::HandleFrameStart(Tachyon* tachyon, State& state) {
+void Debug::Reset(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   reset_instances(meshes.debug_ring);

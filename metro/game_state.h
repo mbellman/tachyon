@@ -130,6 +130,7 @@ namespace metro {
     std::vector<CollisionPlane> floor_collision_planes;
 
     // @todo dev only
+    bool is_editor_open = false;
     bool use_slow_motion = false;
     bool use_frame_stepping = false;
     bool allow_frame_step = false;
