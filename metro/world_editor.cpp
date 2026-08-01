@@ -20,8 +20,6 @@ static inline bool IsAnythingSelected() {
 }
 
 static tVec3f GetSelectionPosition() {
-  tVec3f entity_position;
-
   switch (editor.selection_type) {
     case BICYCLE:
       return ((Bicycle*)editor.selection)->position;
@@ -32,13 +30,37 @@ static tVec3f GetSelectionPosition() {
   }
 }
 
+static Quaternion GetSelectionRotation() {
+  switch (editor.selection_type) {
+    case BICYCLE:
+      return ((Bicycle*)editor.selection)->flat_rotation;
+    case STATIC_ENTITY:      // @todo
+    case INTERACTIVE_ENTITY: // @todo
+    default:
+      return Quaternion(1.f, 0, 0, 0);
+  }
+}
+
+static void MoveSelection(const tVec3f& offset) {
+  switch (editor.selection_type) {
+    case BICYCLE:
+      ((Bicycle*)editor.selection)->position += offset;
+      break;
+    case STATIC_ENTITY:      // @todo
+    case INTERACTIVE_ENTITY: // @todo
+    default:
+      break;
+  }
+}
+
 static void ShowSelectionGizmo(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
   tVec3f entity_position = GetSelectionPosition();
+  Quaternion entity_rotation = GetSelectionRotation();
   tVec3f entity_direction = (entity_position - camera.position).unit();
   tVec3f gizmo_position = camera.position + entity_direction * 2000.f;
 
-  EditorUtilities::ShowPositionGizmo(tachyon, state, gizmo_position);
+  EditorUtilities::ShowPositionGizmo(tachyon, state, gizmo_position, entity_rotation);
 }
 
 static void MaybeMakeSelection(Tachyon* tachyon, State& state) {
@@ -68,7 +90,7 @@ static inline void Deselect() {
   editor.selection = nullptr;
 }
 
-static void HandleFreeCameraControls(Tachyon* tachyon, State& state) {
+static void HandleCameraControls(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
   tVec3f camera_forward = camera.orientation.getDirection();
   tVec3f camera_left = camera.orientation.getLeftDirection();
@@ -92,11 +114,11 @@ static void HandleFreeCameraControls(Tachyon* tachyon, State& state) {
     }
   }
 
-  // Mouse movement
+  // Looking around with the mouse
   {
     const float camera_mouse_speed = 0.2f;
 
-    if (!is_key_held(tKey::SHIFT)) {
+    if (!is_key_held(tKey::SHIFT) && !is_left_mouse_held_down()) {
       camera.orientation.yaw += tachyon->mouse_delta_x * camera_mouse_speed * state.dt;
       camera.orientation.pitch += tachyon->mouse_delta_y * camera_mouse_speed * state.dt;
 
@@ -106,7 +128,10 @@ static void HandleFreeCameraControls(Tachyon* tachyon, State& state) {
 
   // Swiveling around selected objects with SHIFT
   {
-    if (is_key_held(tKey::SHIFT) && IsAnythingSelected()) {
+    if (
+      is_key_held(tKey::SHIFT) &&
+      IsAnythingSelected()
+    ) {
       tVec3f selection_position = GetSelectionPosition();
 
       EditorUtilities::SwivelAroundPosition(tachyon, state, selection_position);
@@ -124,6 +149,22 @@ static void HandleClickActions(Tachyon* tachyon, State& state) {
   }
 }
 
+static void HandleSelectionManipulationActions(Tachyon* tachyon, State& state) {
+  if (is_left_mouse_held_down()) {
+    auto& camera = tachyon->scene.camera;
+    tVec3f camera_left = camera.orientation.getLeftDirection();
+    Quaternion rotation = GetSelectionRotation();
+
+    tVec3f x_axis = EditorUtilities::GetClosestBasisAxis(rotation, camera_left);
+    tVec3f y_axis = tVec3f(0, 1.f, 0);
+
+    tVec3f move_x = x_axis * 4.f * (float) -tachyon->mouse_delta_x;
+    tVec3f move_y = y_axis * 4.f * (float) -tachyon->mouse_delta_y;
+
+    MoveSelection(move_x + move_y);
+  }
+}
+
 void WorldEditor::Open(Tachyon* tachyon, State& state) {
   state.is_editor_open = true;
 
@@ -131,13 +172,16 @@ void WorldEditor::Open(Tachyon* tachyon, State& state) {
 }
 
 void WorldEditor::Update(Tachyon* tachyon, State& state) {
+  profile("WorldEditor::Update()");
+
   auto& camera = tachyon->scene.camera;
 
   if (is_window_focused()) {
-    HandleFreeCameraControls(tachyon, state);
+    HandleCameraControls(tachyon, state);
     HandleClickActions(tachyon, state);
 
     if (IsAnythingSelected()) {
+      HandleSelectionManipulationActions(tachyon, state);
       ShowSelectionGizmo(tachyon, state);
     }
   }

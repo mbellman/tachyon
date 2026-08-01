@@ -3,15 +3,41 @@
 
 using namespace metro;
 
-void EditorUtilities::ShowPositionGizmo(Tachyon* tachyon, State& state, const tVec3f& position) {
+tVec3f EditorUtilities::GetClosestBasisAxis(const Quaternion& rotation, const tVec3f& vector) {
+  tVec3f basis_up = rotation.getUpDirection();
+  tVec3f basis_right = rotation.getLeftDirection().invert();
+  tVec3f basis_forward = rotation.getDirection();
+
+  float dot_up = tVec3f::dot(vector, basis_up);
+  float dot_right = tVec3f::dot(vector, basis_right);
+  float dot_forward = tVec3f::dot(vector, basis_forward);
+
+  float up_factor = abs(dot_up);
+  float right_factor = abs(dot_right);
+  float forward_factor = abs(dot_forward);
+
+  if (up_factor > right_factor && up_factor > forward_factor) {
+    return dot_up < 0.f ? basis_up.invert() : basis_up;
+  } else if (right_factor > up_factor && right_factor > forward_factor) {
+    return dot_right < 0.f ? basis_right.invert() : basis_right;
+  } else {
+    return dot_forward < 0.f ? basis_forward.invert() : basis_forward;
+  }
+}
+
+void EditorUtilities::ShowPositionGizmo(Tachyon* tachyon, State& state, const tVec3f& position, const Quaternion& basis_rotation) {
   const float line_thickness = 15.f;
   const tVec3f cone_scale = tVec3f(40.f);
 
+  tMat4f basis_matrix = basis_rotation.toMatrix4f();
+
   // Left vector
   {
+    tVec3f vector = basis_matrix * tVec3f(1.f, 0, 0);
+
     DebugLineConfig left_line = {
       .position = position,
-      .vector = tVec3f(250.f, 0, 0),
+      .vector = vector * 250.f,
       .color = tVec3f(1.f, 0, 0),
       .thickness = line_thickness
     };
@@ -19,7 +45,7 @@ void EditorUtilities::ShowPositionGizmo(Tachyon* tachyon, State& state, const tV
     DebugConeConfig left_cone = {
       .position = left_line.position + left_line.vector,
       .scale = cone_scale,
-      .direction = tVec3f(1.f, 0, 0),
+      .direction = vector,
       .color = tVec3f(1.f, 0, 0)
     };
 
@@ -29,9 +55,11 @@ void EditorUtilities::ShowPositionGizmo(Tachyon* tachyon, State& state, const tV
 
   // Up vector
   {
+    tVec3f vector = basis_matrix * tVec3f(0, 1.f, 0);
+
     DebugLineConfig up_line = {
       .position = position,
-      .vector = tVec3f(0, 250.f, 0),
+      .vector = vector * 250.f,
       .color = tVec3f(0, 1.f, 0),
       .thickness = line_thickness
     };
@@ -39,7 +67,7 @@ void EditorUtilities::ShowPositionGizmo(Tachyon* tachyon, State& state, const tV
     DebugConeConfig up_cone = {
       .position = up_line.position + up_line.vector,
       .scale = cone_scale,
-      .direction = tVec3f(0, 1.f, 0),
+      .direction = vector,
       .color = tVec3f(0, 1.f, 0)
     };
 
@@ -49,9 +77,11 @@ void EditorUtilities::ShowPositionGizmo(Tachyon* tachyon, State& state, const tV
 
   // Forward vector
   {
+    tVec3f vector = basis_matrix * tVec3f(0, 0, 1.f);
+
     DebugLineConfig forward_line = {
       .position = position,
-      .vector = tVec3f(0, 0, -250.f),
+      .vector = vector * 250.f,
       .color = tVec3f(0, 0, 1.f),
       .thickness = line_thickness
     };
@@ -59,7 +89,7 @@ void EditorUtilities::ShowPositionGizmo(Tachyon* tachyon, State& state, const tV
     DebugConeConfig forward_cone = {
       .position = forward_line.position + forward_line.vector,
       .scale = cone_scale,
-      .direction = tVec3f(0, 0, -1.f),
+      .direction = vector,
       .color = tVec3f(0, 0, 1.f)
     };
 
