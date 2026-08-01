@@ -3,7 +3,7 @@
 
 using namespace metro;
 
-static enum SelectionType {
+enum SelectionType {
   NOTHING_SELECTED = -1,
   BICYCLE,
   STATIC_ENTITY,
@@ -15,11 +15,33 @@ static struct EditorState {
   void* selection = nullptr;
 } editor;
 
-static bool IsAnythingSelected() {
+static inline bool IsAnythingSelected() {
   return editor.selection_type != NOTHING_SELECTED;
 }
 
-static void Deselect() {
+static void MaybeMakeSelection(Tachyon* tachyon, State& state) {
+  auto& camera = tachyon->scene.camera;
+  tVec3f camera_forward = camera.orientation.getDirection();
+
+  // Bike selection
+  {
+    for (auto& bike : state.bicycles) {
+      tVec3f camera_to_bike = bike.position - camera.position;
+      float distance = camera_to_bike.magnitude();
+      tVec3f direction = camera_to_bike / distance;
+      float dot = tVec3f::dot(direction, camera_forward);
+
+      if (dot > 0.98f && distance < 20000.f) {
+        editor.selection = &bike;
+        editor.selection_type = BICYCLE;
+
+        return;
+      }
+    }
+  }
+}
+
+static inline void Deselect() {
   editor.selection_type = NOTHING_SELECTED;
   editor.selection = nullptr;
 }
@@ -60,9 +82,8 @@ static void HandleFreeCameraControls(Tachyon* tachyon, State& state) {
 }
 
 static void HandleClickActions(Tachyon* tachyon, State& state) {
-  if (did_left_click_down()) {
-    // @temporary
-    editor.selection_type = BICYCLE;
+  if (did_left_click_down() && !IsAnythingSelected()) {
+    MaybeMakeSelection(tachyon, state);
   }
 
   if (did_right_click_down()) {
@@ -72,10 +93,24 @@ static void HandleClickActions(Tachyon* tachyon, State& state) {
 
 static void ShowSelectionGizmo(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
+  tVec3f entity_position;
 
-  tVec3f p = camera.position + camera.orientation.getDirection() * 2000.f;
+  switch (editor.selection_type) {
+    case BICYCLE:
+      entity_position = ((Bicycle*)editor.selection)->position;
+      break;
+    case STATIC_ENTITY:
+      break;
+    case INTERACTIVE_ENTITY:
+      break;
+    default:
+      break;
+  }
 
-  EditorUtilities::ShowPositionGizmo(tachyon, state, p);
+  tVec3f entity_direction = (entity_position - camera.position).unit();
+  tVec3f gizmo_position = camera.position + entity_direction * 2000.f;
+
+  EditorUtilities::ShowPositionGizmo(tachyon, state, gizmo_position);
 }
 
 void WorldEditor::Open(Tachyon* tachyon, State& state) {
