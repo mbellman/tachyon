@@ -7,23 +7,22 @@
 
 using namespace metro;
 
-// @todo move to Debug::
 static void DebugShowRadiusRing(Tachyon* tachyon, State& state, const Bicycle& bike, const float radius) {
-  auto& ring = use_instance(state.meshes.debug_ring);
   float absolute_radius = abs(radius);
 
   if (absolute_radius < 20000.f) {
-    tVec3f offset = tVec3f::cross(tVec3f(0, 1.f, 0), bike.facing_direction);
-    tVec3f pivot = UnitBikeToWorldPosition(bike, tVec3f(0, 0, 0.61f));
+    tVec3f offset = tVec3f::cross(Y_UP, bike.facing_direction);
+    tVec3f position = bike.position + offset * radius - tVec3f(0, 725.f, 0);
 
-    ring.position = bike.position + offset * radius;
-    ring.position.y -= 725.f;
-    ring.scale = tVec3f(absolute_radius);
-  } else {
-    ring.scale = tVec3f(0.f);
+    DebugShapeConfig config = {
+      .position = position,
+      .scale = tVec3f(absolute_radius),
+      .direction = Y_UP,
+      .color = tVec3f(1.f)
+    };
+
+    Debug::ShowDebugRing(tachyon, state, config);
   }
-
-  commit(ring);
 }
 
 static bool DidPressPedalKey(Tachyon* tachyon) {

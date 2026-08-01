@@ -172,7 +172,51 @@ void EditorUtilities::ShowScaleGizmo(Tachyon* tachyon, State& state, const tVec3
 }
 
 void EditorUtilities::ShowRotationGizmo(Tachyon* tachyon, State& state, const tVec3f& position, const Quaternion& basis_rotation) {
-  // @todo
+  const tVec3f ring_scale = tVec3f(300.f);
+
+  tMat4f basis_matrix = basis_rotation.toMatrix4f();
+
+  // X axis ring
+  {
+    tVec3f vector = basis_matrix * tVec3f(1.f, 0, 0);
+
+    DebugShapeConfig x_ring = {
+      .position = position,
+      .scale = ring_scale,
+      .direction = vector,
+      .color = tVec3f(1.f, 0, 0)
+    };
+
+    Debug::ShowDebugRing(tachyon, state, x_ring);
+  }
+
+  // Y axis ring
+  {
+    tVec3f vector = basis_matrix * tVec3f(0, 1.f, 0);
+
+    DebugShapeConfig y_ring = {
+      .position = position,
+      .scale = ring_scale,
+      .direction = vector,
+      .color = tVec3f(0, 1.f, 0)
+    };
+
+    Debug::ShowDebugRing(tachyon, state, y_ring);
+  }
+
+  // Z axis ring
+  {
+    tVec3f vector = basis_matrix * tVec3f(0, 0, 1.f);
+
+    DebugShapeConfig z_ring = {
+      .position = position,
+      .scale = ring_scale,
+      .direction = vector,
+      .color = tVec3f(0, 0, 1.f)
+    };
+
+    Debug::ShowDebugRing(tachyon, state, z_ring);
+  }
 }
 
 void EditorUtilities::SwivelAroundPosition(Tachyon* tachyon, State& state, const tVec3f& position) {

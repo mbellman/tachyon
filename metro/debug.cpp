@@ -7,11 +7,11 @@ using namespace metro;
 void Debug::Reset(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
-  reset_instances(meshes.debug_ring);
+  reset_instances(meshes.debug_line);
+  reset_instances(meshes.debug_plane);
   reset_instances(meshes.debug_cube);
   reset_instances(meshes.debug_sphere);
-  reset_instances(meshes.debug_plane);
-  reset_instances(meshes.debug_line);
+  reset_instances(meshes.debug_ring);
   reset_instances(meshes.debug_cone);
 }
 
@@ -61,6 +61,23 @@ void Debug::ShowDebugCube(Tachyon* tachyon, State& state, const DebugShapeConfig
   cube.color = tVec4f(config.color, 0.8f);
 
   commit(cube);
+}
+
+void Debug::ShowDebugRing(Tachyon* tachyon, State& state, const DebugShapeConfig& config) {
+  auto& ring = use_instance(state.meshes.debug_ring);
+
+  tVec3f direction = config.direction;
+
+  tVec3f up = direction.y != 0.f && direction.x == 0.f && direction.z == 0.f
+    ? tVec3f(1.f, 0, 0)
+    : tVec3f(0, 1.f, 0);
+
+  ring.position = config.position;
+  ring.scale = config.scale;
+  ring.rotation = Quaternion::FromDirection(direction, up);
+  ring.color = tVec4f(config.color, 0.8f);
+
+  commit(ring);
 }
 
 void Debug::ShowDebugCone(Tachyon* tachyon, State& state, const DebugShapeConfig& config) {

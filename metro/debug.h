@@ -20,10 +20,11 @@ namespace metro {
   namespace Debug {
     void Reset(Tachyon* tachyon, State& state);
     void ShowDebugLine(Tachyon* tachyon, State& state, const DebugLineConfig& config);
-    void ShowDebugCube(Tachyon* tachyon, State& state, const DebugShapeConfig& config);
-    void ShowDebugCone(Tachyon* tachyon, State& state, const DebugShapeConfig& config);
-    void ShowDebugSphere(Tachyon* tachyon, State& state, const tVec3f& position, const float radius);
-    void ShowDebugVector(Tachyon* tachyon, State& state, const tVec3f& position, const tVec3f& vector, const tVec3f& color);
     void ShowDebugPlane(Tachyon* tachyon, State& state, const CollisionPlane& plane, const tVec3f& color);
+    void ShowDebugCube(Tachyon* tachyon, State& state, const DebugShapeConfig& config);
+    void ShowDebugSphere(Tachyon* tachyon, State& state, const tVec3f& position, const float radius);
+    void ShowDebugRing(Tachyon* tachyon, State& state, const DebugShapeConfig& config);
+    void ShowDebugCone(Tachyon* tachyon, State& state, const DebugShapeConfig& config);
+    void ShowDebugVector(Tachyon* tachyon, State& state, const tVec3f& position, const tVec3f& vector, const tVec3f& color);
   }
 }

@@ -55,12 +55,12 @@ static void MoveSelection(const tVec3f& offset) {
 
 static void ShowSelectionGizmo(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
-  tVec3f entity_position = GetSelectionPosition();
-  Quaternion entity_rotation = GetSelectionRotation();
-  tVec3f entity_direction = (entity_position - camera.position).unit();
-  tVec3f gizmo_position = camera.position + entity_direction * 2000.f;
+  tVec3f selection_position = GetSelectionPosition();
+  Quaternion selection_rotation = GetSelectionRotation();
+  tVec3f selection_direction = (selection_position - camera.position).unit();
+  tVec3f gizmo_position = camera.position + selection_direction * 2000.f;
 
-  EditorUtilities::ShowPositionGizmo(tachyon, state, gizmo_position, entity_rotation);
+  EditorUtilities::ShowPositionGizmo(tachyon, state, gizmo_position, selection_rotation);
 }
 
 static void MaybeMakeSelection(Tachyon* tachyon, State& state) {
