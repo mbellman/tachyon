@@ -77,6 +77,7 @@ static void LoadGameMeshes(Tachyon* tachyon, State& state) {
   // @todo move to Debug
   {
     for_range(1, 100) {
+      create(meshes.debug_cube);
       create(meshes.debug_sphere);
       create(meshes.debug_plane);
       create(meshes.debug_line);

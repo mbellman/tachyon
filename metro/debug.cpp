@@ -8,6 +8,7 @@ void Debug::Reset(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   reset_instances(meshes.debug_ring);
+  reset_instances(meshes.debug_cube);
   reset_instances(meshes.debug_sphere);
   reset_instances(meshes.debug_plane);
   reset_instances(meshes.debug_line);
@@ -45,7 +46,24 @@ void Debug::ShowDebugLine(Tachyon* tachyon, State& state, const DebugLineConfig&
   commit(line);
 }
 
-void Debug::ShowDebugCone(Tachyon* tachyon, State& state, const DebugConeConfig& config) {
+void Debug::ShowDebugCube(Tachyon* tachyon, State& state, const DebugShapeConfig& config) {
+  auto& cube = use_instance(state.meshes.debug_cube);
+
+  tVec3f direction = config.direction;
+
+  tVec3f up = direction.y != 0.f && direction.x == 0.f && direction.z == 0.f
+    ? tVec3f(1.f, 0, 0)
+    : tVec3f(0, 1.f, 0);
+
+  cube.position = config.position;
+  cube.rotation = Quaternion::FromDirection(direction, up);
+  cube.scale = config.scale;
+  cube.color = tVec4f(config.color, 0.8f);
+
+  commit(cube);
+}
+
+void Debug::ShowDebugCone(Tachyon* tachyon, State& state, const DebugShapeConfig& config) {
   auto& cone = use_instance(state.meshes.debug_cone);
 
   tVec3f direction = config.direction;
