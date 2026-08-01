@@ -19,6 +19,28 @@ static inline bool IsAnythingSelected() {
   return editor.selection_type != NOTHING_SELECTED;
 }
 
+static tVec3f GetSelectionPosition() {
+  tVec3f entity_position;
+
+  switch (editor.selection_type) {
+    case BICYCLE:
+      return ((Bicycle*)editor.selection)->position;
+    case STATIC_ENTITY:      // @todo
+    case INTERACTIVE_ENTITY: // @todo
+    default:
+      return tVec3f(0.f);
+  }
+}
+
+static void ShowSelectionGizmo(Tachyon* tachyon, State& state) {
+  auto& camera = tachyon->scene.camera;
+  tVec3f entity_position = GetSelectionPosition();
+  tVec3f entity_direction = (entity_position - camera.position).unit();
+  tVec3f gizmo_position = camera.position + entity_direction * 2000.f;
+
+  EditorUtilities::ShowPositionGizmo(tachyon, state, gizmo_position);
+}
+
 static void MaybeMakeSelection(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
   tVec3f camera_forward = camera.orientation.getDirection();
@@ -74,10 +96,21 @@ static void HandleFreeCameraControls(Tachyon* tachyon, State& state) {
   {
     const float camera_mouse_speed = 0.2f;
 
-    camera.orientation.yaw += tachyon->mouse_delta_x * camera_mouse_speed * state.dt;
-    camera.orientation.pitch += tachyon->mouse_delta_y * camera_mouse_speed * state.dt;
+    if (!is_key_held(tKey::SHIFT)) {
+      camera.orientation.yaw += tachyon->mouse_delta_x * camera_mouse_speed * state.dt;
+      camera.orientation.pitch += tachyon->mouse_delta_y * camera_mouse_speed * state.dt;
 
-    camera.rotation = camera.orientation.toQuaternion();
+      camera.rotation = camera.orientation.toQuaternion();
+    }
+  }
+
+  // Swiveling around selected objects with SHIFT
+  {
+    if (is_key_held(tKey::SHIFT) && IsAnythingSelected()) {
+      tVec3f selection_position = GetSelectionPosition();
+
+      EditorUtilities::SwivelAroundPosition(tachyon, state, selection_position);
+    }
   }
 }
 
@@ -89,28 +122,6 @@ static void HandleClickActions(Tachyon* tachyon, State& state) {
   if (did_right_click_down()) {
     Deselect();
   }
-}
-
-static void ShowSelectionGizmo(Tachyon* tachyon, State& state) {
-  auto& camera = tachyon->scene.camera;
-  tVec3f entity_position;
-
-  switch (editor.selection_type) {
-    case BICYCLE:
-      entity_position = ((Bicycle*)editor.selection)->position;
-      break;
-    case STATIC_ENTITY:
-      break;
-    case INTERACTIVE_ENTITY:
-      break;
-    default:
-      break;
-  }
-
-  tVec3f entity_direction = (entity_position - camera.position).unit();
-  tVec3f gizmo_position = camera.position + entity_direction * 2000.f;
-
-  EditorUtilities::ShowPositionGizmo(tachyon, state, gizmo_position);
 }
 
 void WorldEditor::Open(Tachyon* tachyon, State& state) {

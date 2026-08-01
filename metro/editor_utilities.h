@@ -5,5 +5,6 @@
 namespace metro {
   namespace EditorUtilities {
     void ShowPositionGizmo(Tachyon* tachyon, State& state, const tVec3f& position);
+    void SwivelAroundPosition(Tachyon* tachyon, State& state, const tVec3f& position);
   }
 }

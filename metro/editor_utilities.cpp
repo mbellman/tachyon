@@ -67,3 +67,27 @@ void EditorUtilities::ShowPositionGizmo(Tachyon* tachyon, State& state, const tV
     Debug::ShowDebugCone(tachyon, state, forward_cone);
   }
 }
+
+void EditorUtilities::SwivelAroundPosition(Tachyon* tachyon, State& state, const tVec3f& position) {
+  auto& camera = tachyon->scene.camera;
+  tVec3f offset = camera.position - position;
+  tVec3f unit_offset = offset.unit();
+
+  tCamera3p camera3p;
+  camera3p.radius = offset.magnitude();
+  camera3p.azimuth = atan2f(unit_offset.z, unit_offset.x);
+  camera3p.altitude = atan2f(unit_offset.y, unit_offset.xz().magnitude());
+
+  if (tachyon->mouse_delta_x != 0 || tachyon->mouse_delta_y != 0) {
+    camera3p.azimuth += (float)tachyon->mouse_delta_x / 1000.f;
+    camera3p.altitude += (float)tachyon->mouse_delta_y / 1000.f;
+    camera3p.limitAltitude(0.99f);
+
+    camera.position = position + camera3p.calculatePosition();
+  }
+
+  tVec3f direction = position - camera.position;
+
+  camera.orientation.face(direction, tVec3f(0, 1.f, 0));
+  camera.rotation = camera.orientation.toQuaternion();
+}
