@@ -3,6 +3,12 @@
 
 using namespace metro;
 
+enum TransformType {
+  POSITION,
+  SCALE,
+  ROTATION
+};
+
 enum SelectionType {
   NOTHING_SELECTED = -1,
   BICYCLE,
@@ -11,6 +17,7 @@ enum SelectionType {
 };
 
 static struct EditorState {
+  TransformType transform_type = POSITION;
   SelectionType selection_type = NOTHING_SELECTED;
   void* selection = nullptr;
 } editor;
@@ -60,7 +67,13 @@ static void ShowSelectionGizmo(Tachyon* tachyon, State& state) {
   tVec3f selection_direction = (selection_position - camera.position).unit();
   tVec3f gizmo_position = camera.position + selection_direction * 2000.f;
 
-  EditorUtilities::ShowPositionGizmo(tachyon, state, gizmo_position, selection_rotation);
+  if (editor.transform_type == POSITION) {
+    EditorUtilities::ShowPositionGizmo(tachyon, state, gizmo_position, selection_rotation);
+  } else if (editor.transform_type == SCALE) {
+    EditorUtilities::ShowScaleGizmo(tachyon, state, gizmo_position, selection_rotation);
+  } else {
+    EditorUtilities::ShowRotationGizmo(tachyon, state, gizmo_position, selection_rotation);
+  }
 }
 
 static void MaybeMakeSelection(Tachyon* tachyon, State& state) {
@@ -78,6 +91,7 @@ static void MaybeMakeSelection(Tachyon* tachyon, State& state) {
       if (dot > 0.98f && distance < 20000.f) {
         editor.selection = &bike;
         editor.selection_type = BICYCLE;
+        editor.transform_type = POSITION;
 
         return;
       }
@@ -149,6 +163,28 @@ static void HandleClickActions(Tachyon* tachyon, State& state) {
   }
 }
 
+static void HandleTransformTypeCycleActions(Tachyon* tachyon, State& state) {
+  if (did_wheel_down()) {
+    if (editor.transform_type == POSITION) {
+      editor.transform_type = SCALE;
+    } else if (editor.transform_type == SCALE) {
+      editor.transform_type = ROTATION;
+    } else {
+      editor.transform_type = POSITION;
+    }
+  }
+
+  if (did_wheel_up()) {
+    if (editor.transform_type == POSITION) {
+      editor.transform_type = ROTATION;
+    } else if (editor.transform_type == SCALE) {
+      editor.transform_type = POSITION;
+    } else {
+      editor.transform_type = SCALE;
+    }
+  }
+}
+
 static void HandleSelectionManipulationActions(Tachyon* tachyon, State& state) {
   if (is_left_mouse_held_down()) {
     auto& camera = tachyon->scene.camera;
@@ -181,6 +217,7 @@ void WorldEditor::Update(Tachyon* tachyon, State& state) {
     HandleClickActions(tachyon, state);
 
     if (IsAnythingSelected()) {
+      HandleTransformTypeCycleActions(tachyon, state);
       HandleSelectionManipulationActions(tachyon, state);
       ShowSelectionGizmo(tachyon, state);
     }
