@@ -111,12 +111,8 @@ static void MaybeMakeSelection(Tachyon* tachyon, State& state) {
   }
 
   // Static entity selection
-  for (auto* entities : {
-      &state.platforms,
-      &state.ramps,
-      &state.walkway_segments
-  }) {
-    for (auto& entity : *entities) {
+  for_static_entity_containers() {
+    for_entities() {
       if (IsSelectable(entity.position, entity.scale, camera.position, camera_forward)) {
         editor.selection = &entity;
         editor.selection_type = STATIC_ENTITY;

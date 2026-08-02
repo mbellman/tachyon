@@ -2,6 +2,16 @@
 
 #include "engine/tachyon.h"
 
+#define for_static_entity_containers()\
+  for (auto* entities : {\
+      &state.platforms,\
+      &state.ramps,\
+      &state.walkway_segments\
+  })
+
+#define for_entities()\
+  for (auto& entity : *entities)
+
 namespace metro {
   struct CollisionPlane {
     // Plane corners

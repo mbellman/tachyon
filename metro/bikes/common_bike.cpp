@@ -75,13 +75,8 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
     const float front_wheel_ground_distance = 800.f;
     const float back_wheel_ground_distance = 820.f;
 
-    // @todo refine this to flatten the expression of the loop
-    for (auto* entities : {
-      &state.platforms,
-      &state.ramps,
-      &state.walkway_segments
-    }) {
-      for (auto& entity : *entities) {
+    for_static_entity_containers() {
+      for_entities() {
         for (auto& plane : entity.collision_planes) {
           tVec3f start_offset = plane.normal * above_wheel_buffer;
           tVec3f front_ray_start = bike.front_wheel_position + start_offset;
