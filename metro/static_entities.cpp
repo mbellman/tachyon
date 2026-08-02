@@ -10,6 +10,38 @@ static void Sync(tObject& object, const StaticEntity& entity) {
   object.color = entity.color;
 }
 
+// ---------
+// Platforms
+// ---------
+
+namespace Platforms {
+  void Init(Tachyon* tachyon, State& state) {
+    for (auto& entity : state.platforms) {
+      create(state.meshes.platform);
+    }
+  }
+
+  void Update(Tachyon* tachyon, State& state) {
+    int32 index = 0;
+
+    for (auto& entity : state.platforms) {
+      auto& platform = objects(state.meshes.platform)[index++];
+
+      if (!entity.needs_update) continue;
+
+      Sync(platform, entity);
+
+      commit(platform);
+
+      auto plane = Collision::CreateFloorCollisionPlane(platform);
+
+      entity.collision_planes.clear();
+      entity.collision_planes.push_back(plane);
+      entity.needs_update = false;
+    }
+  }
+};
+
 // -----
 // Ramps
 // -----
@@ -17,18 +49,28 @@ static void Sync(tObject& object, const StaticEntity& entity) {
 namespace Ramps {
   void Init(Tachyon* tachyon, State& state) {
     for (auto& entity : state.ramps) {
-      auto& ramp = create(state.meshes.ramp);
+      create(state.meshes.ramp);
+    }
+  }
+
+  void Update(Tachyon* tachyon, State& state) {
+    int32 index = 0;
+
+    for (auto& entity : state.ramps) {
+      auto& ramp = objects(state.meshes.ramp)[index++];
+
+      if (!entity.needs_update) continue;
 
       Sync(ramp, entity);
 
       commit(ramp);
 
-      Collision::AddSlopeCollision(state, ramp);
-    }
-  }
+      auto plane = Collision::CreateSlopeCollisionPlane(ramp);
 
-  void Update(Tachyon* tachyon, State& state) {
-    // @todo
+      entity.collision_planes.clear();
+      entity.collision_planes.push_back(plane);
+      entity.needs_update = false;
+    }
   }
 };
 
@@ -39,11 +81,7 @@ namespace Ramps {
 namespace Walkways {
   void Init(Tachyon* tachyon, State& state) {
     for (auto& entity : state.walkway_segments) {
-      auto& segment = create(state.meshes.walkway_segment);
-
-      Sync(segment, entity);
-
-      commit(segment);
+      create(state.meshes.walkway_segment);
     }
   }
 
@@ -53,13 +91,13 @@ namespace Walkways {
     for (auto& entity : state.walkway_segments) {
       auto& segment = objects(state.meshes.walkway_segment)[index++];
 
-      if (!entity.modified) continue;
+      if (!entity.needs_update) continue;
 
       Sync(segment, entity);
 
       commit(segment);
 
-      entity.modified = false;
+      entity.needs_update = false;
     }
   }
 };
@@ -67,6 +105,7 @@ namespace Walkways {
 // ---------------------------
 
 void StaticEntities::Init(Tachyon* tachyon, State& state) {
+  Platforms::Init(tachyon, state);
   Ramps::Init(tachyon, state);
   Walkways::Init(tachyon, state);
 }
@@ -74,6 +113,7 @@ void StaticEntities::Init(Tachyon* tachyon, State& state) {
 void StaticEntities::Update(Tachyon* tachyon, State& state) {
   profile("StaticEntities::Update()");
 
+  Platforms::Update(tachyon, state);
   Ramps::Update(tachyon, state);
   Walkways::Update(tachyon, state);
 }

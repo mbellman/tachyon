@@ -23,7 +23,7 @@ static inline bool IsInBetween(float n, float a, float b) {
   return n >= min(a, b) && n <= max(a, b);
 }
 
-void Collision::AddFloorCollision(State& state, const Transform& transform) {
+CollisionPlane Collision::CreateFloorCollisionPlane(const Transform& transform) {
   tMat4f rotation = transform.rotation.toMatrix4f();
   auto& scale = transform.scale;
 
@@ -46,10 +46,10 @@ void Collision::AddFloorCollision(State& state, const Transform& transform) {
   plane.t3 = tVec3f::cross(plane.normal, plane.p4 - plane.p3);
   plane.t4 = tVec3f::cross(plane.normal, plane.p1 - plane.p4);
 
-  state.floor_collision_planes.push_back(plane);
+  return plane;
 }
 
-void Collision::AddSlopeCollision(State& state, const Transform& transform) {
+CollisionPlane Collision::CreateSlopeCollisionPlane(const Transform& transform) {
   tMat4f rotation = transform.rotation.toMatrix4f();
   auto& scale = transform.scale;
 
@@ -72,7 +72,7 @@ void Collision::AddSlopeCollision(State& state, const Transform& transform) {
   plane.t3 = tVec3f::cross(plane.normal, plane.p4 - plane.p3);
   plane.t4 = tVec3f::cross(plane.normal, plane.p1 - plane.p4);
 
-  state.floor_collision_planes.push_back(plane);
+  return plane;
 }
 
 CollisionTest Collision::TestRayHit(tVec3f& ray_start, tVec3f& ray, CollisionPlane& plane) {

@@ -20,8 +20,8 @@ namespace metro {
   };
 
   namespace Collision {
-    void AddFloorCollision(State& state, const Transform& transform);
-    void AddSlopeCollision(State& state, const Transform& transform);
+    CollisionPlane CreateFloorCollisionPlane(const Transform& transform);
+    CollisionPlane CreateSlopeCollisionPlane(const Transform& transform);
     CollisionTest TestRayHit(tVec3f& ray_start, tVec3f& ray, CollisionPlane& plane);
   }
 }

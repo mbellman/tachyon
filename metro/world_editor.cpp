@@ -59,7 +59,7 @@ static void MoveSelection(const tVec3f& offset) {
       break;
     case STATIC_ENTITY:
       ((StaticEntity*)editor.selection)->position += offset;
-      ((StaticEntity*)editor.selection)->modified = true;
+      ((StaticEntity*)editor.selection)->needs_update = true;
       break;
     case INTERACTIVE_ENTITY: // @todo
     default:
@@ -83,13 +83,14 @@ static void ShowSelectionGizmo(Tachyon* tachyon, State& state) {
   }
 }
 
-static inline bool IsSelectable(const tCamera& camera, const tVec3f& camera_forward, const tVec3f& selectable_position) {
-  tVec3f camera_to_selectable = selectable_position - camera.position;
+static inline bool IsSelectable(const tVec3f& position, const tVec3f& scale, const tVec3f& camera_position, const tVec3f& camera_forward) {
+  tVec3f camera_to_selectable = position - camera_position;
   float distance = camera_to_selectable.magnitude();
   tVec3f direction = camera_to_selectable / distance;
+  float distance_threshold = scale.magnitude() * 5.f;
   float dot = tVec3f::dot(direction, camera_forward);
 
-  return distance < 20000.f && dot > 0.98f;
+  return distance < distance_threshold && dot > 0.98f;
 }
 
 static void MaybeMakeSelection(Tachyon* tachyon, State& state) {
@@ -99,7 +100,7 @@ static void MaybeMakeSelection(Tachyon* tachyon, State& state) {
   // Bike selection
   {
     for (auto& bike : state.bicycles) {
-      if (IsSelectable(camera, camera_forward, bike.position)) {
+      if (IsSelectable(bike.position, tVec3f(2000.f), camera.position, camera_forward)) {
         editor.selection = &bike;
         editor.selection_type = BICYCLE;
         editor.transform_type = POSITION;
@@ -111,11 +112,12 @@ static void MaybeMakeSelection(Tachyon* tachyon, State& state) {
 
   // Static entity selection
   for (auto* entities : {
+      &state.platforms,
       &state.ramps,
       &state.walkway_segments
   }) {
     for (auto& entity : *entities) {
-      if (IsSelectable(camera, camera_forward, entity.position)) {
+      if (IsSelectable(entity.position, entity.scale, camera.position, camera_forward)) {
         editor.selection = &entity;
         editor.selection_type = STATIC_ENTITY;
         editor.transform_type = POSITION;

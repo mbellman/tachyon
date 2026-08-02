@@ -58,14 +58,6 @@ namespace metro {
     Quaternion visual_rotation;
   };
 
-  struct CollisionPlane {
-    // Plane corners
-    tVec3f p1, p2, p3, p4;
-    // Plane tangents
-    tVec3f t1, t2, t3, t4;
-    tVec3f normal;
-  };
-
   struct MeshIds {
     uint16
       // @temporary
@@ -92,6 +84,7 @@ namespace metro {
       common_wheel,
 
       // Static entities
+      platform,
       ramp,
       walkway_segment,
 
@@ -126,11 +119,10 @@ namespace metro {
     int32 player_bike_index = -1;
 
     std::vector<Bicycle> bicycles;
+    std::vector<StaticEntity> platforms;
     std::vector<StaticEntity> ramps;
     std::vector<StaticEntity> walkway_segments;
     std::vector<InteractiveEntity> vending_machines;
-
-    std::vector<CollisionPlane> floor_collision_planes;
 
     // @todo dev only
     bool is_editor_open = false;

@@ -2,6 +2,12 @@
 
 using namespace metro;
 
+static int32 running_unique_id = 0;
+
+int32 metro::CreateUniqueId() {
+  return running_unique_id++;
+}
+
 tVec3f metro::UnitBikeToWorldPosition(const Bicycle& bike, const tVec3f& position) {
   tVec3f translation = bike.position;
   Quaternion rotation = bike.flat_rotation;
