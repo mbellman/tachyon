@@ -21,7 +21,7 @@ static void LoadDebugMeshes(Tachyon* tachyon, State& state) {
   meshes.debug_plane  = PLANE_MESH(100);
   meshes.debug_cube   = CUBE_MESH(100);
   meshes.debug_sphere = SPHERE_MESH(100, 12);
-  meshes.debug_ring   = METRO_MODEL("ring.obj", 100);
+  meshes.debug_ring   = METRO_MODEL("debug_ring.obj", 100);
   meshes.debug_cone   = METRO_MODEL("debug_cone.obj", 100);
 
   mesh(meshes.debug_cube).shadow_cascade_ceiling = 0;
@@ -53,12 +53,18 @@ static void LoadCommonBikeMeshes(Tachyon* tachyon, State& state) {
   mesh(meshes.common_spokes).shadow_cascade_ceiling = 1;
 }
 
+// @todo move to static_entities.cpp
 static void LoadStaticEntityMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   // Ramps
   {
     meshes.ramp = METRO_MODEL("static_entities/ramp.obj", 100);
+  }
+
+  // Walkway segments
+  {
+    meshes.walkway_segment = CUBE_MESH(500);
   }
 }
 
@@ -240,6 +246,17 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
     ramp.color = tVec3f(0.5f);
 
     state.ramps.push_back(ramp);
+  }
+
+  // @temporary
+  {
+    StaticEntity entity;
+    entity.position = tVec3f(20000.f, 0, 0);
+    // entity.rotation = Quaternion::fromAxisAngle(Y_UP, t_HALF_PI);
+    entity.scale = tVec3f(10000.f, 1000.f, 1000.f);
+    entity.color = tVec3f(0.5f);
+
+    state.walkway_segments.push_back(entity);
   }
 }
 

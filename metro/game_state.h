@@ -93,6 +93,7 @@ namespace metro {
 
       // Static entities
       ramp,
+      walkway_segment,
 
       // Interactive entities
       vending_machine
@@ -126,6 +127,7 @@ namespace metro {
 
     std::vector<Bicycle> bicycles;
     std::vector<StaticEntity> ramps;
+    std::vector<StaticEntity> walkway_segments;
     std::vector<InteractiveEntity> vending_machines;
 
     std::vector<CollisionPlane> floor_collision_planes;

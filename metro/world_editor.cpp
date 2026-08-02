@@ -1,3 +1,5 @@
+#include <array>
+
 #include "metro/world_editor.h"
 #include "metro/editor_utilities.h"
 
@@ -30,7 +32,8 @@ static tVec3f GetSelectionPosition() {
   switch (editor.selection_type) {
     case BICYCLE:
       return ((Bicycle*)editor.selection)->position;
-    case STATIC_ENTITY:      // @todo
+    case STATIC_ENTITY:
+      return ((StaticEntity*)editor.selection)->position;
     case INTERACTIVE_ENTITY: // @todo
     default:
       return tVec3f(0.f);
@@ -41,7 +44,8 @@ static Quaternion GetSelectionRotation() {
   switch (editor.selection_type) {
     case BICYCLE:
       return ((Bicycle*)editor.selection)->flat_rotation;
-    case STATIC_ENTITY:      // @todo
+    case STATIC_ENTITY:
+      return ((StaticEntity*)editor.selection)->rotation;
     case INTERACTIVE_ENTITY: // @todo
     default:
       return Quaternion(1.f, 0, 0, 0);
@@ -53,7 +57,10 @@ static void MoveSelection(const tVec3f& offset) {
     case BICYCLE:
       ((Bicycle*)editor.selection)->position += offset;
       break;
-    case STATIC_ENTITY:      // @todo
+    case STATIC_ENTITY:
+      ((StaticEntity*)editor.selection)->position += offset;
+      ((StaticEntity*)editor.selection)->modified = true;
+      break;
     case INTERACTIVE_ENTITY: // @todo
     default:
       break;
@@ -76,6 +83,15 @@ static void ShowSelectionGizmo(Tachyon* tachyon, State& state) {
   }
 }
 
+static inline bool IsSelectable(const tCamera& camera, const tVec3f& camera_forward, const tVec3f& selectable_position) {
+  tVec3f camera_to_selectable = selectable_position - camera.position;
+  float distance = camera_to_selectable.magnitude();
+  tVec3f direction = camera_to_selectable / distance;
+  float dot = tVec3f::dot(direction, camera_forward);
+
+  return distance < 20000.f && dot > 0.98f;
+}
+
 static void MaybeMakeSelection(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
   tVec3f camera_forward = camera.orientation.getDirection();
@@ -83,14 +99,25 @@ static void MaybeMakeSelection(Tachyon* tachyon, State& state) {
   // Bike selection
   {
     for (auto& bike : state.bicycles) {
-      tVec3f camera_to_bike = bike.position - camera.position;
-      float distance = camera_to_bike.magnitude();
-      tVec3f direction = camera_to_bike / distance;
-      float dot = tVec3f::dot(direction, camera_forward);
-
-      if (dot > 0.98f && distance < 20000.f) {
+      if (IsSelectable(camera, camera_forward, bike.position)) {
         editor.selection = &bike;
         editor.selection_type = BICYCLE;
+        editor.transform_type = POSITION;
+
+        return;
+      }
+    }
+  }
+
+  // Static entity selection
+  for (auto* entities : {
+      &state.ramps,
+      &state.walkway_segments
+  }) {
+    for (auto& entity : *entities) {
+      if (IsSelectable(camera, camera_forward, entity.position)) {
+        editor.selection = &entity;
+        editor.selection_type = STATIC_ENTITY;
         editor.transform_type = POSITION;
 
         return;
