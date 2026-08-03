@@ -271,6 +271,23 @@ static void HandleSelectionManipulationActions(Tachyon* tachyon, State& state) {
         ScaleSelection(scale_change);
       }
     }
+
+    // Rotation actions
+    else if (editor.transform_type == ROTATION) {
+      bool is_horizontal_action = abs(tachyon->mouse_delta_x) > abs(tachyon->mouse_delta_y);
+
+      if (is_horizontal_action) {
+        tVec3f rotation_axis = EditorUtilities::GetClosestBasisAxis(basis_rotation, tVec3f(0, 1.f, 0));
+        float angle = 0.002f * (float) tachyon->mouse_delta_x;
+
+        RotateSelection(rotation_axis, angle);
+      } else {
+        tVec3f rotation_axis = EditorUtilities::GetClosestBasisAxis(basis_rotation, camera_left);
+        float angle = 0.002f * (float) -tachyon->mouse_delta_y;
+
+        RotateSelection(rotation_axis, angle);
+      }
+    }
   }
 }
 

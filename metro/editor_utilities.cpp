@@ -52,6 +52,10 @@ tVec3f EditorUtilities::GetScalingAxis(const tVec3f& basis_axis, const Quaternio
   if (scaling_axis.x == 1.f) scaling_axis.x = -1.f;
   if (scaling_axis.z == 1.f) scaling_axis.z = -1.f;
 
+  // Ensure vertical scaling when an object is upside-down still scales it in the
+  // appropriate mouse direction
+  if (scaling_axis.y == -1.f) scaling_axis.y = 1.f;
+
   return scaling_axis;
 }
 
@@ -130,7 +134,7 @@ void EditorUtilities::ShowPositionGizmo(Tachyon* tachyon, State& state, const tV
 
 void EditorUtilities::ShowScaleGizmo(Tachyon* tachyon, State& state, const tVec3f& position, const Quaternion& basis_rotation) {
   const float line_thickness = 15.f;
-  const tVec3f tip_scale = tVec3f(20.f);
+  const tVec3f tip_scale = tVec3f(15.f);
 
   tMat4f basis_matrix = basis_rotation.toMatrix4f();
 
@@ -145,10 +149,10 @@ void EditorUtilities::ShowScaleGizmo(Tachyon* tachyon, State& state, const tVec3
       .thickness = line_thickness
     };
 
-    DebugShapeConfig left_tip = {
+    DebugCubeConfig left_tip = {
       .position = left_line.position + left_line.vector,
       .scale = tip_scale,
-      .direction = vector,
+      .rotation = basis_rotation,
       .color = tVec3f(1.f, 0, 0)
     };
 
@@ -167,10 +171,10 @@ void EditorUtilities::ShowScaleGizmo(Tachyon* tachyon, State& state, const tVec3
       .thickness = line_thickness
     };
 
-    DebugShapeConfig up_tip = {
+    DebugCubeConfig up_tip = {
       .position = up_line.position + up_line.vector,
       .scale = tip_scale,
-      .direction = vector,
+      .rotation = basis_rotation,
       .color = tVec3f(0, 1.f, 0)
     };
 
@@ -189,10 +193,10 @@ void EditorUtilities::ShowScaleGizmo(Tachyon* tachyon, State& state, const tVec3
       .thickness = line_thickness
     };
 
-    DebugShapeConfig forward_tip = {
+    DebugCubeConfig forward_tip = {
       .position = forward_line.position + forward_line.vector,
       .scale = tip_scale,
-      .direction = vector,
+      .rotation = basis_rotation,
       .color = tVec3f(0, 0, 1.f)
     };
 

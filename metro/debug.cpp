@@ -46,17 +46,11 @@ void Debug::ShowDebugLine(Tachyon* tachyon, State& state, const DebugLineConfig&
   commit(line);
 }
 
-void Debug::ShowDebugCube(Tachyon* tachyon, State& state, const DebugShapeConfig& config) {
+void Debug::ShowDebugCube(Tachyon* tachyon, State& state, const DebugCubeConfig& config) {
   auto& cube = use_instance(state.meshes.debug_cube);
 
-  tVec3f direction = config.direction;
-
-  tVec3f up = direction.y != 0.f && direction.x == 0.f && direction.z == 0.f
-    ? tVec3f(1.f, 0, 0)
-    : tVec3f(0, 1.f, 0);
-
   cube.position = config.position;
-  cube.rotation = Quaternion::FromDirection(direction, up);
+  cube.rotation = config.rotation;
   cube.scale = config.scale;
   cube.color = tVec4f(config.color, 0.8f);
 

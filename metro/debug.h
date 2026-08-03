@@ -17,11 +17,18 @@ namespace metro {
     tVec3f color;
   };
 
+  struct DebugCubeConfig {
+    tVec3f position;
+    tVec3f scale;
+    Quaternion rotation;
+    tVec3f color;
+  };
+
   namespace Debug {
     void Reset(Tachyon* tachyon, State& state);
     void ShowDebugLine(Tachyon* tachyon, State& state, const DebugLineConfig& config);
     void ShowDebugPlane(Tachyon* tachyon, State& state, const CollisionPlane& plane, const tVec3f& color);
-    void ShowDebugCube(Tachyon* tachyon, State& state, const DebugShapeConfig& config);
+    void ShowDebugCube(Tachyon* tachyon, State& state, const DebugCubeConfig& config);
     void ShowDebugSphere(Tachyon* tachyon, State& state, const tVec3f& position, const float radius);
     void ShowDebugRing(Tachyon* tachyon, State& state, const DebugShapeConfig& config);
     void ShowDebugCone(Tachyon* tachyon, State& state, const DebugShapeConfig& config);
