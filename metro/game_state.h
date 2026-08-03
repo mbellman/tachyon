@@ -3,6 +3,8 @@
 #include "engine/tachyon_aliases.h"
 #include "engine/tachyon_types.h"
 
+#include "metro/debug.h"
+
 #include "metro/entities.h"
 
 // @todo move to engine
@@ -63,13 +65,8 @@ namespace metro {
       // @temporary
       dev_cube,
 
-      debug_line,
-      debug_plane,
-      debug_cube,
-      debug_sphere,
-      debug_ring,
-      debug_cone,
-      debug_mannequin,
+      // @temporary
+      dev_mannequin,
 
       // Common bike
       common_frame,

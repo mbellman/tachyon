@@ -1,5 +1,4 @@
 #include "metro/editor_utilities.h"
-#include "metro/debug.h"
 
 using namespace metro;
 
@@ -47,13 +46,10 @@ tVec3f EditorUtilities::GetScalingAxis(const tVec3f& basis_axis, const Quaternio
   scaling_axis = basis_rotation.toMatrix4f().inverse() * basis_axis;
   scaling_axis = GetClosestWorldAxis(scaling_axis);
 
-  // Ensure dragging the mouse right or left always scales in the correct direction,
-  // regardless of which direction we're looking along X or Z
-  if (scaling_axis.x == 1.f) scaling_axis.x = -1.f;
-  if (scaling_axis.z == 1.f) scaling_axis.z = -1.f;
-
-  // Ensure vertical scaling when an object is upside-down still scales it in the
-  // appropriate mouse direction
+  // Restrict to positive axis directions so that mouse movements always
+  // scale up or down in the expected fashion, regardless of orientation
+  if (scaling_axis.x == -1.f) scaling_axis.x = 1.f;
+  if (scaling_axis.z == -1.f) scaling_axis.z = 1.f;
   if (scaling_axis.y == -1.f) scaling_axis.y = 1.f;
 
   return scaling_axis;
@@ -83,8 +79,8 @@ void EditorUtilities::ShowPositionGizmo(Tachyon* tachyon, State& state, const tV
       .color = tVec3f(1.f, 0, 0)
     };
 
-    Debug::ShowDebugLine(tachyon, state, left_line);
-    Debug::ShowDebugCone(tachyon, state, left_cone);
+    Debug::ShowDebugLine(tachyon, left_line);
+    Debug::ShowDebugCone(tachyon, left_cone);
   }
 
   // Up vector
@@ -105,8 +101,8 @@ void EditorUtilities::ShowPositionGizmo(Tachyon* tachyon, State& state, const tV
       .color = tVec3f(0, 1.f, 0)
     };
 
-    Debug::ShowDebugLine(tachyon, state, up_line);
-    Debug::ShowDebugCone(tachyon, state, up_cone);
+    Debug::ShowDebugLine(tachyon, up_line);
+    Debug::ShowDebugCone(tachyon, up_cone);
   }
 
   // Forward vector
@@ -127,8 +123,8 @@ void EditorUtilities::ShowPositionGizmo(Tachyon* tachyon, State& state, const tV
       .color = tVec3f(0, 0, 1.f)
     };
 
-    Debug::ShowDebugLine(tachyon, state, forward_line);
-    Debug::ShowDebugCone(tachyon, state, forward_cone);
+    Debug::ShowDebugLine(tachyon, forward_line);
+    Debug::ShowDebugCone(tachyon, forward_cone);
   }
 }
 
@@ -156,8 +152,8 @@ void EditorUtilities::ShowScaleGizmo(Tachyon* tachyon, State& state, const tVec3
       .color = tVec3f(1.f, 0, 0)
     };
 
-    Debug::ShowDebugLine(tachyon, state, left_line);
-    Debug::ShowDebugCube(tachyon, state, left_tip);
+    Debug::ShowDebugLine(tachyon, left_line);
+    Debug::ShowDebugCube(tachyon, left_tip);
   }
 
   // Up vector
@@ -178,8 +174,8 @@ void EditorUtilities::ShowScaleGizmo(Tachyon* tachyon, State& state, const tVec3
       .color = tVec3f(0, 1.f, 0)
     };
 
-    Debug::ShowDebugLine(tachyon, state, up_line);
-    Debug::ShowDebugCube(tachyon, state, up_tip);
+    Debug::ShowDebugLine(tachyon, up_line);
+    Debug::ShowDebugCube(tachyon, up_tip);
   }
 
   // Forward vector
@@ -200,8 +196,8 @@ void EditorUtilities::ShowScaleGizmo(Tachyon* tachyon, State& state, const tVec3
       .color = tVec3f(0, 0, 1.f)
     };
 
-    Debug::ShowDebugLine(tachyon, state, forward_line);
-    Debug::ShowDebugCube(tachyon, state, forward_tip);
+    Debug::ShowDebugLine(tachyon, forward_line);
+    Debug::ShowDebugCube(tachyon, forward_tip);
   }
 }
 
@@ -221,7 +217,7 @@ void EditorUtilities::ShowRotationGizmo(Tachyon* tachyon, State& state, const tV
       .color = tVec3f(1.f, 0, 0)
     };
 
-    Debug::ShowDebugRing(tachyon, state, x_ring);
+    Debug::ShowDebugRing(tachyon, x_ring);
   }
 
   // Y axis ring
@@ -235,7 +231,7 @@ void EditorUtilities::ShowRotationGizmo(Tachyon* tachyon, State& state, const tV
       .color = tVec3f(0, 1.f, 0)
     };
 
-    Debug::ShowDebugRing(tachyon, state, y_ring);
+    Debug::ShowDebugRing(tachyon, y_ring);
   }
 
   // Z axis ring
@@ -249,7 +245,7 @@ void EditorUtilities::ShowRotationGizmo(Tachyon* tachyon, State& state, const tV
       .color = tVec3f(0, 0, 1.f)
     };
 
-    Debug::ShowDebugRing(tachyon, state, z_ring);
+    Debug::ShowDebugRing(tachyon, z_ring);
   }
 }
 

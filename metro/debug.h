@@ -1,8 +1,10 @@
 #pragma once
 
-#include "metro/game_state.h"
+#include "engine/tachyon_types.h"
 
 namespace metro {
+  struct CollisionPlane;
+
   struct DebugLineConfig {
     tVec3f position;
     tVec3f vector;
@@ -25,13 +27,16 @@ namespace metro {
   };
 
   namespace Debug {
-    void Reset(Tachyon* tachyon, State& state);
-    void ShowDebugLine(Tachyon* tachyon, State& state, const DebugLineConfig& config);
-    void ShowDebugPlane(Tachyon* tachyon, State& state, const CollisionPlane& plane, const tVec3f& color);
-    void ShowDebugCube(Tachyon* tachyon, State& state, const DebugCubeConfig& config);
-    void ShowDebugSphere(Tachyon* tachyon, State& state, const tVec3f& position, const float radius);
-    void ShowDebugRing(Tachyon* tachyon, State& state, const DebugShapeConfig& config);
-    void ShowDebugCone(Tachyon* tachyon, State& state, const DebugShapeConfig& config);
-    void ShowDebugVector(Tachyon* tachyon, State& state, const tVec3f& position, const tVec3f& vector, const tVec3f& color);
+    void LoadMeshes(Tachyon* tachyon);
+    void CreateObjects(Tachyon* tachyon);
+    void Reset(Tachyon* tachyon);
+    void ShowDebugLine(Tachyon* tachyon, const DebugLineConfig& config);
+    void ShowDebugPlane(Tachyon* tachyon, const CollisionPlane& plane, const tVec3f& color);
+    void ShowDebugCube(Tachyon* tachyon, const DebugCubeConfig& config);
+    void ShowDebugSphere(Tachyon* tachyon, const tVec3f& position, const float radius);
+    void ShowDebugRing(Tachyon* tachyon, const DebugShapeConfig& config);
+    void ShowDebugCone(Tachyon* tachyon, const DebugShapeConfig& config);
+    void ShowDebugBox(Tachyon* tachyon, const DebugCubeConfig& config);
+    void ShowDebugVector(Tachyon* tachyon, const tVec3f& position, const tVec3f& vector, const tVec3f& color);
   }
 }

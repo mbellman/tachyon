@@ -2,7 +2,6 @@
 
 #include "metro/control_system.h"
 #include "metro/constants.h"
-#include "metro/debug.h"
 #include "metro/utilities.h"
 
 using namespace metro;
@@ -21,7 +20,7 @@ static void DebugShowRadiusRing(Tachyon* tachyon, State& state, const Bicycle& b
       .color = tVec3f(1.f)
     };
 
-    Debug::ShowDebugRing(tachyon, state, config);
+    Debug::ShowDebugRing(tachyon, config);
   }
 }
 

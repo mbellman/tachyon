@@ -6,7 +6,6 @@
 #include "metro/collision.h"
 #include "metro/constants.h"
 #include "metro/control_system.h"
-#include "metro/debug.h"
 #include "metro/interactive_entities.h"
 #include "metro/player.h"
 #include "metro/player_bicycle.h"
@@ -121,7 +120,7 @@ void metro::Update(Tachyon* tachyon, State& state, const float dt) {
   HandleDevHotkeys(tachyon, state);
 
   if (state.is_editor_open) {
-    Debug::Reset(tachyon, state);
+    Debug::Reset(tachyon);
     WorldEditor::Update(tachyon, state);
 
     // @todo @optimize We don't need to update ALL entities here
@@ -142,7 +141,7 @@ void metro::Update(Tachyon* tachyon, State& state, const float dt) {
     return;
   }
 
-  Debug::Reset(tachyon, state);
+  Debug::Reset(tachyon);
 
   ControlSystem::Update(tachyon, state);
   StaticEntities::Update(tachyon, state);

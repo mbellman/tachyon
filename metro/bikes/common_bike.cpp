@@ -3,7 +3,6 @@
 #include "metro/bikes/common_bike.h"
 #include "metro/collision.h"
 #include "metro/constants.h"
-#include "metro/debug.h"
 #include "metro/utilities.h"
 
 using namespace metro;

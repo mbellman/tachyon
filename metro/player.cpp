@@ -1,13 +1,12 @@
 #include "metro/player.h"
 #include "metro/constants.h"
-#include "metro/debug.h"
 #include "metro/utilities.h"
 
 using namespace metro;
 
 static void ShowCharacterDebugVisuals(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
-  auto& player = objects(state.meshes.debug_mannequin)[0];
+  auto& player = objects(state.meshes.dev_mannequin)[0];
   tVec3f facing_direction = player.rotation.getDirection().invert();
 
   tVec3f ground_forward = camera.orientation.getDirection().xz().unit();
@@ -19,19 +18,19 @@ static void ShowCharacterDebugVisuals(Tachyon* tachyon, State& state) {
   tVec3f facing_position = state.player_position + tVec3f(0, 1000.f, 0);
   tVec3f facing_vector = facing_direction * 2000.f;
 
-  Debug::ShowDebugVector(tachyon, state, state.player_position, ground_forward * 2000.f, tVec3f(1.f, 0, 0));
-  Debug::ShowDebugVector(tachyon, state, state.player_position, ground_forward.invert() * 2000.f, tVec3f(1.f, 0, 0));
+  Debug::ShowDebugVector(tachyon, state.player_position, ground_forward * 2000.f, tVec3f(1.f, 0, 0));
+  Debug::ShowDebugVector(tachyon, state.player_position, ground_forward.invert() * 2000.f, tVec3f(1.f, 0, 0));
 
-  Debug::ShowDebugVector(tachyon, state, state.player_position, ground_left * 2000.f, tVec3f(1.f, 0, 0));
-  Debug::ShowDebugVector(tachyon, state, state.player_position, ground_left.invert() * 2000.f, tVec3f(1.f, 0, 0));
+  Debug::ShowDebugVector(tachyon, state.player_position, ground_left * 2000.f, tVec3f(1.f, 0, 0));
+  Debug::ShowDebugVector(tachyon, state.player_position, ground_left.invert() * 2000.f, tVec3f(1.f, 0, 0));
 
-  Debug::ShowDebugVector(tachyon, state, velocity_position, velocity_vector, tVec3f(0, 0, 1.f));
-  Debug::ShowDebugVector(tachyon, state, facing_position, facing_vector, tVec3f(0, 1.f, 0));
+  Debug::ShowDebugVector(tachyon, velocity_position, velocity_vector, tVec3f(0, 0, 1.f));
+  Debug::ShowDebugVector(tachyon, facing_position, facing_vector, tVec3f(0, 1.f, 0));
 }
 
 void Player::Update(Tachyon* tachyon, State& state) {
   auto* active_bike = GetActiveBicycle(state);
-  auto& player = objects(state.meshes.debug_mannequin)[0];
+  auto& player = objects(state.meshes.dev_mannequin)[0];
 
   if (active_bike != nullptr) {
     // Lock the player to the active bike

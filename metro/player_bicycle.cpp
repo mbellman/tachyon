@@ -3,7 +3,6 @@
 #include "metro/player_bicycle.h"
 #include "metro/bikes/common_bike.h"
 #include "metro/constants.h"
-#include "metro/debug.h"
 #include "metro/utilities.h"
 
 using namespace metro;
@@ -21,16 +20,16 @@ static void ShowDebugVisuals(Tachyon* tachyon, State& state, const Bicycle& bike
   tVec3f momentum_position = bike.front_wheel_position + tVec3f(0, 250.f, 0);
   tVec3f momentum_vector = bike.momentum * 0.01f;
 
-  Debug::ShowDebugSphere(tachyon, state, bike.position, 300.f);
-  Debug::ShowDebugSphere(tachyon, state, bike.front_wheel_position, 150.f);
-  Debug::ShowDebugSphere(tachyon, state, bike.back_wheel_position, 150.f);
+  Debug::ShowDebugSphere(tachyon, bike.position, 300.f);
+  Debug::ShowDebugSphere(tachyon, bike.front_wheel_position, 150.f);
+  Debug::ShowDebugSphere(tachyon, bike.back_wheel_position, 150.f);
 
-  Debug::ShowDebugVector(tachyon, state, bike.front_wheel_position, bike.movement_vector * 2000.f, tVec3f(1.f, 0, 1.f));
-  Debug::ShowDebugVector(tachyon, state, steering_position, steering_vector, tVec3f(0, 0, 1.f));
-  Debug::ShowDebugVector(tachyon, state, momentum_position, momentum_vector, tVec3f(0, 1.f, 0));
+  Debug::ShowDebugVector(tachyon, bike.front_wheel_position, bike.movement_vector * 2000.f, tVec3f(1.f, 0, 1.f));
+  Debug::ShowDebugVector(tachyon, steering_position, steering_vector, tVec3f(0, 0, 1.f));
+  Debug::ShowDebugVector(tachyon, momentum_position, momentum_vector, tVec3f(0, 1.f, 0));
 
-  Debug::ShowDebugVector(tachyon, state, bike.front_wheel_position, bike.front_wheel_slope * 1000.f, tVec3f(1.f, 0, 0));
-  Debug::ShowDebugVector(tachyon, state, bike.back_wheel_position, bike.back_wheel_slope * 1000.f, tVec3f(1.f, 0, 0));
+  Debug::ShowDebugVector(tachyon, bike.front_wheel_position, bike.front_wheel_slope * 1000.f, tVec3f(1.f, 0, 0));
+  Debug::ShowDebugVector(tachyon, bike.back_wheel_position, bike.back_wheel_slope * 1000.f, tVec3f(1.f, 0, 0));
 }
 
 void PlayerBicycle::Update(Tachyon* tachyon, State& state) {

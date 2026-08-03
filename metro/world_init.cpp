@@ -15,28 +15,6 @@ using namespace metro;
 
 #define METRO_MODEL(path, total) MODEL_MESH("./metro/3d_models/" path, total)
 
-static void LoadDebugMeshes(Tachyon* tachyon, State& state) {
-  auto& meshes = state.meshes;
-
-  meshes.debug_line   = METRO_MODEL("debug_line.obj", 100);
-  meshes.debug_plane  = PLANE_MESH(100);
-  meshes.debug_cube   = CUBE_MESH(100);
-  meshes.debug_sphere = SPHERE_MESH(100, 12);
-  meshes.debug_ring   = METRO_MODEL("debug_ring.obj", 100);
-  meshes.debug_cone   = METRO_MODEL("debug_cone.obj", 100);
-
-  mesh(meshes.debug_cube).shadow_cascade_ceiling = 0;
-  mesh(meshes.debug_sphere).shadow_cascade_ceiling = 0;
-  mesh(meshes.debug_ring).shadow_cascade_ceiling = 0;
-  mesh(meshes.debug_plane).shadow_cascade_ceiling = 0;
-  mesh(meshes.debug_line).shadow_cascade_ceiling = 0;
-  mesh(meshes.debug_cone).shadow_cascade_ceiling = 0;
-
-  // @temporary
-  // @todo use a skinned mesh
-  meshes.debug_mannequin = METRO_MODEL("debug_mannequin.obj", 1);
-}
-
 static void LoadCommonBikeMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
@@ -80,25 +58,20 @@ static void LoadGameMeshes(Tachyon* tachyon, State& state) {
   // @temporary
   meshes.dev_cube = CUBE_MESH(10);
 
-  LoadDebugMeshes(tachyon, state);
+  // @temporary
+  // @todo use a skinned mesh
+  meshes.dev_mannequin = METRO_MODEL("dev_mannequin.obj", 1);
+
+  Debug::LoadMeshes(tachyon);
   LoadCommonBikeMeshes(tachyon, state);
   LoadStaticEntityMeshes(tachyon, state);
 
   Tachyon_InitializeObjects(tachyon);
 
-  // @todo move to Debug
-  {
-    for_range(1, 100) {
-      create(meshes.debug_line);
-      create(meshes.debug_plane);
-      create(meshes.debug_cube);
-      create(meshes.debug_sphere);
-      create(meshes.debug_ring);
-      create(meshes.debug_cone);
-    }
+  Debug::CreateObjects(tachyon);
 
-    create(meshes.debug_mannequin);
-  }
+  // @temporary
+  create(meshes.dev_mannequin);
 }
 
 static void LoadGameWorld(Tachyon* tachyon, State& state) {
@@ -159,7 +132,7 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
 
   // @temporary
   {
-    auto& player = objects(state.meshes.debug_mannequin)[0];
+    auto& player = objects(state.meshes.dev_mannequin)[0];
 
     player.position = state.player_position;
     player.scale = tVec3f(2000.f);

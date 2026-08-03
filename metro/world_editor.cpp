@@ -2,8 +2,15 @@
 
 #include "metro/world_editor.h"
 #include "metro/editor_utilities.h"
+#include "metro/utilities.h"
 
 using namespace metro;
+
+struct HighlightBox {
+  tVec3f position;
+  tVec3f scale;
+  Quaternion rotation;
+};
 
 enum TransformType {
   POSITION,
@@ -22,6 +29,7 @@ static struct EditorState {
   TransformType transform_type = POSITION;
   SelectionType selection_type = NOTHING_SELECTED;
   void* selection = nullptr;
+  tVec3f highlight_color = tVec3f(1.f, 0, 1.f);
 } editor;
 
 static inline bool IsAnythingSelected() {
@@ -40,6 +48,19 @@ static tVec3f GetSelectionPosition() {
   }
 }
 
+static tVec3f GetSelectionScale() {
+  switch (editor.selection_type) {
+    case BICYCLE:
+      // @temporary
+      return tVec3f(2000.f);
+    case STATIC_ENTITY:
+      return ((StaticEntity*)editor.selection)->scale;
+    case INTERACTIVE_ENTITY: // @todo
+    default:
+      return tVec3f(0.f);
+  }
+}
+
 static Quaternion GetSelectionRotation() {
   switch (editor.selection_type) {
     case BICYCLE:
@@ -49,6 +70,34 @@ static Quaternion GetSelectionRotation() {
     case INTERACTIVE_ENTITY: // @todo
     default:
       return Quaternion(1.f, 0, 0, 0);
+  }
+}
+
+static HighlightBox GetSelectionHighlightBox() {
+  switch (editor.selection_type) {
+    case BICYCLE: {
+      auto& bike = *(Bicycle*) editor.selection;
+
+      return {
+        .position = UnitBikeToWorldPosition(bike, tVec3f(0, 0.3f, 0)),
+        .scale = tVec3f(500.f, 1375.f, 2050.f),
+        .rotation = bike.flat_rotation
+      };
+    }
+    case STATIC_ENTITY: {
+      auto& entity = *(StaticEntity*) editor.selection;
+
+      return {
+        .position = entity.position,
+        .scale = entity.scale + tVec3f(250.f),
+        .rotation = entity.rotation
+      };
+    };
+    case INTERACTIVE_ENTITY:
+      // @todo
+      return {};
+    default:
+      return {};
   }
 }
 
@@ -96,12 +145,24 @@ static void RotateSelection(const tVec3f& axis, const float angle) {
   }
 }
 
-static void ShowSelectionGizmo(Tachyon* tachyon, State& state) {
+static void ShowSelectionDetails(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
   tVec3f selection_position = GetSelectionPosition();
   Quaternion selection_rotation = GetSelectionRotation();
   tVec3f selection_direction = (selection_position - camera.position).unit();
   tVec3f gizmo_position = camera.position + selection_direction * 2000.f;
+
+  // Highlight box
+  {
+    auto box = GetSelectionHighlightBox();
+
+    Debug::ShowDebugBox(tachyon, {
+      .position = box.position,
+      .scale = box.scale,
+      .rotation = box.rotation,
+      .color = editor.highlight_color
+    });
+  }
 
   if (editor.transform_type == POSITION) {
     EditorUtilities::ShowPositionGizmo(tachyon, state, gizmo_position, selection_rotation);
@@ -215,6 +276,18 @@ static void HandleClickActions(Tachyon* tachyon, State& state) {
   if (did_right_click_down()) {
     Deselect();
   }
+
+  // Alternate between highlight colors depending on mouse state
+  {
+    const tVec3f highlight_color = tVec3f(1.f, 0, 1.f);
+    const tVec3f mouse_down_highlight_color = tVec3f(1.f);
+
+    editor.highlight_color = tVec3f::lerp(
+      editor.highlight_color,
+      is_mouse_held_down() ? mouse_down_highlight_color : highlight_color,
+      10.f * state.dt
+    );
+  }
 }
 
 static void HandleTransformTypeCycleActions(Tachyon* tachyon, State& state) {
@@ -261,7 +334,7 @@ static void HandleSelectionManipulationActions(Tachyon* tachyon, State& state) {
 
       if (is_horizontal_action) {
         tVec3f scale_axis = EditorUtilities::GetScalingAxis(basis_x, basis_rotation);
-        tVec3f scale_change = scale_axis * 4.f * (float) -tachyon->mouse_delta_x;
+        tVec3f scale_change = scale_axis * 4.f * (float) tachyon->mouse_delta_x;
 
         ScaleSelection(scale_change);
       } else {
@@ -309,7 +382,7 @@ void WorldEditor::Update(Tachyon* tachyon, State& state) {
     if (IsAnythingSelected()) {
       HandleTransformTypeCycleActions(tachyon, state);
       HandleSelectionManipulationActions(tachyon, state);
-      ShowSelectionGizmo(tachyon, state);
+      ShowSelectionDetails(tachyon, state);
     }
   }
 }
