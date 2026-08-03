@@ -25,6 +25,36 @@ tVec3f EditorUtilities::GetClosestBasisAxis(const Quaternion& rotation, const tV
   }
 }
 
+tVec3f EditorUtilities::GetClosestWorldAxis(const tVec3f& vector) {
+  float abs_x = abs(vector.x);
+  float abs_y = abs(vector.y);
+  float abs_z = abs(vector.z);
+
+  if (abs_x > abs_y && abs_x > abs_z) {
+    return tVec3f(vector.x, 0, 0).unit();
+  } else if (abs_y > abs_x && abs_y > abs_z) {
+    return tVec3f(0, vector.y, 0).unit();
+  } else {
+    return tVec3f(0, 0, vector.z).unit();
+  }
+}
+
+tVec3f EditorUtilities::GetScalingAxis(const tVec3f& basis_axis, const Quaternion& basis_rotation) {
+  tVec3f scaling_axis;
+
+  // Transform the basis axis into a world axis which we can use
+  // as a cartesian axis for scaling along x, y, or z.
+  scaling_axis = basis_rotation.toMatrix4f().inverse() * basis_axis;
+  scaling_axis = GetClosestWorldAxis(scaling_axis);
+
+  // Ensure dragging the mouse right or left always scales in the correct direction,
+  // regardless of which direction we're looking along X or Z
+  if (scaling_axis.x == 1.f) scaling_axis.x = -1.f;
+  if (scaling_axis.z == 1.f) scaling_axis.z = -1.f;
+
+  return scaling_axis;
+}
+
 void EditorUtilities::ShowPositionGizmo(Tachyon* tachyon, State& state, const tVec3f& position, const Quaternion& basis_rotation) {
   const float line_thickness = 15.f;
   const tVec3f cone_scale = tVec3f(40.f);

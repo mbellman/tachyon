@@ -67,6 +67,35 @@ static void MoveSelection(const tVec3f& offset) {
   }
 }
 
+static void ScaleSelection(const tVec3f& scale_change) {
+  switch (editor.selection_type) {
+    case BICYCLE:
+      break;
+    case STATIC_ENTITY:
+      ((StaticEntity*)editor.selection)->scale += scale_change;
+      ((StaticEntity*)editor.selection)->needs_update = true;
+      break;
+    case INTERACTIVE_ENTITY: // @todo
+    default:
+      break;
+  }
+}
+
+static void RotateSelection(const tVec3f& axis, const float angle) {
+  switch (editor.selection_type) {
+    case BICYCLE:
+      // @todo
+      break;
+    case STATIC_ENTITY:
+      ((StaticEntity*)editor.selection)->rotation *= Quaternion::fromAxisAngle(axis, angle);
+      ((StaticEntity*)editor.selection)->needs_update = true;
+      break;
+    case INTERACTIVE_ENTITY: // @todo
+    default:
+      break;
+  }
+}
+
 static void ShowSelectionGizmo(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
   tVec3f selection_position = GetSelectionPosition();
@@ -214,15 +243,34 @@ static void HandleSelectionManipulationActions(Tachyon* tachyon, State& state) {
   if (is_left_mouse_held_down()) {
     auto& camera = tachyon->scene.camera;
     tVec3f camera_left = camera.orientation.getLeftDirection();
-    Quaternion rotation = GetSelectionRotation();
+    Quaternion basis_rotation = GetSelectionRotation();
 
-    tVec3f x_axis = EditorUtilities::GetClosestBasisAxis(rotation, camera_left);
-    tVec3f y_axis = tVec3f(0, 1.f, 0);
+    tVec3f basis_x = EditorUtilities::GetClosestBasisAxis(basis_rotation, camera_left);
+    tVec3f basis_y = tVec3f(0, 1.f, 0);
 
-    tVec3f move_x = x_axis * 4.f * (float) -tachyon->mouse_delta_x;
-    tVec3f move_y = y_axis * 4.f * (float) -tachyon->mouse_delta_y;
+    // Position actions
+    if (editor.transform_type == POSITION) {
+      tVec3f delta_x = basis_x * 4.f * (float) -tachyon->mouse_delta_x;
+      tVec3f delta_y = basis_y * 4.f * (float) -tachyon->mouse_delta_y;
 
-    MoveSelection(move_x + move_y);
+      MoveSelection(delta_x + delta_y);
+
+    // Scale actions
+    } else if (editor.transform_type == SCALE) {
+      bool is_horizontal_action = abs(tachyon->mouse_delta_x) > abs(tachyon->mouse_delta_y);
+
+      if (is_horizontal_action) {
+        tVec3f scale_axis = EditorUtilities::GetScalingAxis(basis_x, basis_rotation);
+        tVec3f scale_change = scale_axis * 4.f * (float) -tachyon->mouse_delta_x;
+
+        ScaleSelection(scale_change);
+      } else {
+        tVec3f scale_axis = EditorUtilities::GetScalingAxis(basis_y, basis_rotation);
+        tVec3f scale_change = scale_axis * 4.f * (float) -tachyon->mouse_delta_y;
+
+        ScaleSelection(scale_change);
+      }
+    }
   }
 }
 
