@@ -194,11 +194,11 @@ static void ShowSelectionDetails(Tachyon* tachyon, State& state) {
   // Gizmo
   {
     if (editor.transform_type == POSITION) {
-      EditorUtilities::ShowPositionGizmo(tachyon, state, gizmo_position, selection_rotation);
+      EditorUtilities::ShowPositionGizmo(tachyon, gizmo_position, selection_rotation);
     } else if (editor.transform_type == SCALE) {
-      EditorUtilities::ShowScaleGizmo(tachyon, state, gizmo_position, selection_rotation);
+      EditorUtilities::ShowScaleGizmo(tachyon, gizmo_position, selection_rotation);
     } else {
-      EditorUtilities::ShowRotationGizmo(tachyon, state, gizmo_position, selection_rotation);
+      EditorUtilities::ShowRotationGizmo(tachyon, gizmo_position, selection_rotation);
     }
   }
 
@@ -298,51 +298,24 @@ static void ShowPlacementPreview(Tachyon* tachyon, State& state) {
 }
 
 static void HandleCameraControls(Tachyon* tachyon, State& state) {
+  const float movement_speed = 15000.f;
+  const float mouse_sensivity = 0.2f;
+
   auto& camera = tachyon->scene.camera;
-  tVec3f camera_forward = camera.orientation.getDirection();
-  tVec3f camera_left = camera.orientation.getLeftDirection();
 
   // WASD movement
-  {
-    if (is_key_held(tKey::W)) {
-      camera.position += camera_forward * 15000.f * state.dt;
-    }
+  EditorUtilities::UseWASDCameraMovement(tachyon, state, movement_speed);
 
-    if (is_key_held(tKey::A)) {
-      camera.position += camera_left * 15000.f * state.dt;
-    }
-
-    if (is_key_held(tKey::S)) {
-      camera.position -= camera_forward * 15000.f * state.dt;
-    }
-
-    if (is_key_held(tKey::D)) {
-      camera.position -= camera_left * 15000.f * state.dt;
-    }
-  }
-
-  // Looking around with the mouse
-  {
-    const float camera_mouse_speed = 0.2f;
-
-    if (!is_key_held(tKey::SHIFT) && !is_left_mouse_held_down()) {
-      camera.orientation.yaw += tachyon->mouse_delta_x * camera_mouse_speed * state.dt;
-      camera.orientation.pitch += tachyon->mouse_delta_y * camera_mouse_speed * state.dt;
-
-      camera.rotation = camera.orientation.toQuaternion();
-    }
+  // Mouse look-around
+  if (!is_key_held(tKey::SHIFT) && !is_left_mouse_held_down()) {
+    EditorUtilities::UseMouseCameraLookaround(tachyon, state, mouse_sensivity);
   }
 
   // Swiveling around selected objects with SHIFT
-  {
-    if (
-      is_key_held(tKey::SHIFT) &&
-      IsAnythingSelected()
-    ) {
-      tVec3f selection_position = GetSelectionPosition();
+  if (is_key_held(tKey::SHIFT) && IsAnythingSelected()) {
+    tVec3f pivot_position = GetSelectionPosition();
 
-      EditorUtilities::SwivelAroundPosition(tachyon, state, selection_position);
-    }
+    EditorUtilities::SwivelAroundPosition(tachyon, pivot_position);
   }
 }
 

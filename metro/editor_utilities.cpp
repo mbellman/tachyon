@@ -55,7 +55,7 @@ tVec3f EditorUtilities::GetScalingAxis(const tVec3f& basis_axis, const Quaternio
   return scaling_axis;
 }
 
-void EditorUtilities::ShowPositionGizmo(Tachyon* tachyon, State& state, const tVec3f& position, const Quaternion& basis_rotation) {
+void EditorUtilities::ShowPositionGizmo(Tachyon* tachyon, const tVec3f& position, const Quaternion& basis_rotation) {
   const float line_thickness = 15.f;
   const tVec3f cone_scale = tVec3f(40.f);
 
@@ -128,7 +128,7 @@ void EditorUtilities::ShowPositionGizmo(Tachyon* tachyon, State& state, const tV
   }
 }
 
-void EditorUtilities::ShowScaleGizmo(Tachyon* tachyon, State& state, const tVec3f& position, const Quaternion& basis_rotation) {
+void EditorUtilities::ShowScaleGizmo(Tachyon* tachyon, const tVec3f& position, const Quaternion& basis_rotation) {
   const float line_thickness = 15.f;
   const tVec3f tip_scale = tVec3f(15.f);
 
@@ -201,7 +201,7 @@ void EditorUtilities::ShowScaleGizmo(Tachyon* tachyon, State& state, const tVec3
   }
 }
 
-void EditorUtilities::ShowRotationGizmo(Tachyon* tachyon, State& state, const tVec3f& position, const Quaternion& basis_rotation) {
+void EditorUtilities::ShowRotationGizmo(Tachyon* tachyon, const tVec3f& position, const Quaternion& basis_rotation) {
   const tVec3f ring_scale = tVec3f(300.f);
 
   tMat4f basis_matrix = basis_rotation.toMatrix4f();
@@ -249,7 +249,38 @@ void EditorUtilities::ShowRotationGizmo(Tachyon* tachyon, State& state, const tV
   }
 }
 
-void EditorUtilities::SwivelAroundPosition(Tachyon* tachyon, State& state, const tVec3f& position) {
+void EditorUtilities::UseWASDCameraMovement(Tachyon* tachyon, State& state, const float speed) {
+  auto& camera = tachyon->scene.camera;
+  tVec3f camera_forward = camera.orientation.getDirection();
+  tVec3f camera_left = camera.orientation.getLeftDirection();
+
+  if (is_key_held(tKey::W)) {
+    camera.position += camera_forward * speed * state.dt;
+  }
+
+  if (is_key_held(tKey::A)) {
+    camera.position += camera_left * speed * state.dt;
+  }
+
+  if (is_key_held(tKey::S)) {
+    camera.position -= camera_forward * speed * state.dt;
+  }
+
+  if (is_key_held(tKey::D)) {
+    camera.position -= camera_left * speed * state.dt;
+  }
+}
+
+void EditorUtilities::UseMouseCameraLookaround(Tachyon* tachyon, State& state, const float sensitivity) {
+  auto& camera = tachyon->scene.camera;
+
+  camera.orientation.yaw += tachyon->mouse_delta_x * sensitivity * state.dt;
+  camera.orientation.pitch += tachyon->mouse_delta_y * sensitivity * state.dt;
+
+  camera.rotation = camera.orientation.toQuaternion();
+}
+
+void EditorUtilities::SwivelAroundPosition(Tachyon* tachyon, const tVec3f& position) {
   auto& camera = tachyon->scene.camera;
   tVec3f offset = camera.position - position;
   tVec3f unit_offset = offset.unit();
@@ -267,8 +298,8 @@ void EditorUtilities::SwivelAroundPosition(Tachyon* tachyon, State& state, const
     camera.position = position + camera3p.calculatePosition();
   }
 
-  tVec3f direction = position - camera.position;
+  tVec3f facing_direction = position - camera.position;
 
-  camera.orientation.face(direction, tVec3f(0, 1.f, 0));
+  camera.orientation.face(facing_direction, tVec3f(0, 1.f, 0));
   camera.rotation = camera.orientation.toQuaternion();
 }
