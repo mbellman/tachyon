@@ -245,6 +245,7 @@ struct tUIDrawCommandOptions {
   bool centered = true;
   float rotation = 0.f;
   tVec3f color = tVec3f(1.f);
+  tVec4f background = tVec4f(0.f);
   float alpha = 1.f;
   std::string string = "";
 };

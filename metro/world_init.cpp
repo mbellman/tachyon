@@ -62,7 +62,7 @@ static void LoadGameMeshes(Tachyon* tachyon, State& state) {
   // @todo use a skinned mesh
   meshes.dev_mannequin = METRO_MODEL("dev_mannequin.obj", 1);
 
-  Debug::LoadMeshes(tachyon);
+  Debug::Init(tachyon);
   LoadCommonBikeMeshes(tachyon, state);
   LoadStaticEntityMeshes(tachyon, state);
 

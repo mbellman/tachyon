@@ -1,4 +1,5 @@
 #include <array>
+#include <format>
 
 #include "metro/world_editor.h"
 #include "metro/editor_utilities.h"
@@ -32,8 +33,30 @@ static struct EditorState {
   tVec3f highlight_color = tVec3f(1.f, 0, 1.f);
 } editor;
 
+static inline std::string Format(const tVec3f& v) {
+  return std::format("{:.2f}, {:.2f}, {:.2f}", v.x, v.y, v.z);
+}
+
+static inline std::string Format(const Quaternion& q) {
+  return std::format("{:.3f}, {:.3f}, {:.3f}, {:.3f}", q.w, q.x, q.y, q.z);
+}
+
 static inline bool IsAnythingSelected() {
   return editor.selection_type != NOTHING_SELECTED;
+}
+
+static std::string GetSelectionDisplayName() {
+  switch (editor.selection_type) {
+    case BICYCLE:
+      // @todo bicycle type
+      return "Bicycle";
+    case STATIC_ENTITY:
+      // @todo entity type
+      return "Static entity";
+    case INTERACTIVE_ENTITY: // @todo
+    default:
+      return "Entity";
+  }
 }
 
 static tVec3f GetSelectionPosition() {
@@ -164,12 +187,24 @@ static void ShowSelectionDetails(Tachyon* tachyon, State& state) {
     });
   }
 
-  if (editor.transform_type == POSITION) {
-    EditorUtilities::ShowPositionGizmo(tachyon, state, gizmo_position, selection_rotation);
-  } else if (editor.transform_type == SCALE) {
-    EditorUtilities::ShowScaleGizmo(tachyon, state, gizmo_position, selection_rotation);
-  } else {
-    EditorUtilities::ShowRotationGizmo(tachyon, state, gizmo_position, selection_rotation);
+  // Gizmo
+  {
+    if (editor.transform_type == POSITION) {
+      EditorUtilities::ShowPositionGizmo(tachyon, state, gizmo_position, selection_rotation);
+    } else if (editor.transform_type == SCALE) {
+      EditorUtilities::ShowScaleGizmo(tachyon, state, gizmo_position, selection_rotation);
+    } else {
+      EditorUtilities::ShowRotationGizmo(tachyon, state, gizmo_position, selection_rotation);
+    }
+  }
+
+  // Labels
+  {
+    auto name = GetSelectionDisplayName();
+
+    Debug::ShowDebugLabel(tachyon, selection_position, { .y = 50.f }, name);
+    Debug::ShowDebugLabel(tachyon, selection_position, { .y = 72.f }, Format(selection_position));
+    Debug::ShowDebugLabel(tachyon, selection_position, { .y = 94.f }, Format(selection_rotation));
   }
 }
 

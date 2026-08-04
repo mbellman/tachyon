@@ -24,23 +24,35 @@ struct Meshes {
     debug_box;
 } meshes;
 
-void Debug::LoadMeshes(Tachyon* tachyon) {
-  meshes.debug_line   = MODEL_MESH("./metro/3d_models/debug_line.obj", 100);
-  meshes.debug_plane  = PLANE_MESH(100);
-  meshes.debug_cube   = CUBE_MESH(100);
-  meshes.debug_sphere = SPHERE_MESH(100, 12);
-  meshes.debug_ring   = MODEL_MESH("./metro/3d_models/debug_ring.obj", 100);
-  meshes.debug_cone   = MODEL_MESH("./metro/3d_models/debug_cone.obj", 100);
-  meshes.debug_box    = CUBE_MESH(100);
+struct {
+  tUIText* debug_text = nullptr;
+} ui;
 
-  mesh(meshes.debug_cube).shadow_cascade_ceiling = 0;
-  mesh(meshes.debug_sphere).shadow_cascade_ceiling = 0;
-  mesh(meshes.debug_ring).shadow_cascade_ceiling = 0;
-  mesh(meshes.debug_plane).shadow_cascade_ceiling = 0;
-  mesh(meshes.debug_line).shadow_cascade_ceiling = 0;
-  mesh(meshes.debug_cone).shadow_cascade_ceiling = 0;
+void Debug::Init(Tachyon* tachyon) {
+  // Meshes
+  {
+    meshes.debug_line   = MODEL_MESH("./metro/3d_models/debug_line.obj", 100);
+    meshes.debug_plane  = PLANE_MESH(100);
+    meshes.debug_cube   = CUBE_MESH(100);
+    meshes.debug_sphere = SPHERE_MESH(100, 12);
+    meshes.debug_ring   = MODEL_MESH("./metro/3d_models/debug_ring.obj", 100);
+    meshes.debug_cone   = MODEL_MESH("./metro/3d_models/debug_cone.obj", 100);
+    meshes.debug_box    = CUBE_MESH(100);
 
-  mesh(meshes.debug_box).type = WIREFRAME_MESH;
+    mesh(meshes.debug_cube).shadow_cascade_ceiling = 0;
+    mesh(meshes.debug_sphere).shadow_cascade_ceiling = 0;
+    mesh(meshes.debug_ring).shadow_cascade_ceiling = 0;
+    mesh(meshes.debug_plane).shadow_cascade_ceiling = 0;
+    mesh(meshes.debug_line).shadow_cascade_ceiling = 0;
+    mesh(meshes.debug_cone).shadow_cascade_ceiling = 0;
+
+    mesh(meshes.debug_box).type = WIREFRAME_MESH;
+  }
+
+  // UI
+  {
+    ui.debug_text = Tachyon_CreateUIText("./fonts/CascadiaMonoNF.ttf", 16);
+  }
 }
 
 void Debug::CreateObjects(Tachyon* tachyon) {
@@ -196,4 +208,35 @@ void Debug::ShowDebugVector(Tachyon* tachyon, const tVec3f& position, const tVec
   cone.color = line.color;
 
   commit(cone);
+}
+
+void Debug::ShowDebugLabel(Tachyon* tachyon, const tVec3f& world_position, const tVec2f& offset, const std::string& label) {
+  auto& scene = tachyon->scene;
+  tCamera camera = scene.camera;
+
+  tMat4f camera_rotation_matrix = camera.rotation.toMatrix4f();
+
+  tMat4f view_matrix = (
+    camera_rotation_matrix *
+    tMat4f::translation(camera.position * tVec3f(-1.f))
+  );
+
+  tMat4f projection_matrix = tMat4f::perspective(camera.fov, scene.z_near, scene.z_far);
+
+  tVec3f local_position = view_matrix * world_position;
+
+  if (local_position.z < -0.1f) {
+    tVec3f clip_position = (projection_matrix * local_position) / local_position.z;
+
+    clip_position.x = -0.5f * clip_position.x + 0.5f;
+    clip_position.y = 0.5f * clip_position.y + 0.5f;
+
+    Tachyon_DrawUIText(tachyon, ui.debug_text, {
+      .screen_x = (int32) (clip_position.x * tachyon->window_width + offset.x),
+      .screen_y = (int32) (clip_position.y * tachyon->window_height + offset.y),
+      .centered = false,
+      .background = tVec4f(0, 0, 0.2f, 0.5f),
+      .string = label
+    });
+  }
 }

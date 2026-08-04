@@ -27,9 +27,10 @@ namespace metro {
   };
 
   namespace Debug {
-    void LoadMeshes(Tachyon* tachyon);
+    void Init(Tachyon* tachyon);
     void CreateObjects(Tachyon* tachyon);
     void Reset(Tachyon* tachyon);
+
     void ShowDebugLine(Tachyon* tachyon, const DebugLineConfig& config);
     void ShowDebugPlane(Tachyon* tachyon, const CollisionPlane& plane, const tVec3f& color);
     void ShowDebugCube(Tachyon* tachyon, const DebugCubeConfig& config);
@@ -38,5 +39,7 @@ namespace metro {
     void ShowDebugCone(Tachyon* tachyon, const DebugShapeConfig& config);
     void ShowDebugBox(Tachyon* tachyon, const DebugCubeConfig& config);
     void ShowDebugVector(Tachyon* tachyon, const tVec3f& position, const tVec3f& vector, const tVec3f& color);
+
+    void ShowDebugLabel(Tachyon* tachyon, const tVec3f& world_position, const tVec2f& offset, const std::string& label);
   }
 }

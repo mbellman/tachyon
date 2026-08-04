@@ -1433,7 +1433,7 @@ static void RenderUIElements(Tachyon* tachyon) {
     }
 
     // @todo @optimize batch render common surfaces
-    RenderSurface(tachyon, surface, x, y, surface->w, surface->h, options.rotation, tVec4f(options.color, options.alpha), tVec4f(0.f));
+    RenderSurface(tachyon, surface, x, y, surface->w, surface->h, options.rotation, tVec4f(options.color, options.alpha), options.background);
 
     if (command.ui_text != nullptr) {
       SDL_FreeSurface(surface);
