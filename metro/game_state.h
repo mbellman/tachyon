@@ -15,12 +15,8 @@
 #define is_moving_right_stick() (tachyon->right_stick.x != 0.f || tachyon->right_stick.y != 0.f)
 
 namespace metro {
-  enum BicycleType {
-    COMMON_BIKE
-  };
-
   struct Bicycle {
-    BicycleType type;
+    EntityType type = UNSPECIFIED;
     int32 id = -1;
 
     tColor frame_color;
@@ -116,10 +112,7 @@ namespace metro {
     int32 player_bike_index = -1;
 
     std::vector<Bicycle> bicycles;
-    std::vector<StaticEntity> platforms;
-    std::vector<StaticEntity> ramps;
-    std::vector<StaticEntity> walkway_segments;
-    std::vector<InteractiveEntity> vending_machines;
+    Entities entities;
 
     // @todo dev only
     bool is_editor_open = false;

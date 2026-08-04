@@ -12,7 +12,7 @@ void BackgroundBicycles::Update(Tachyon* tachyon, State& state) {
 
   for (auto& bike : state.bicycles) {
     switch (bike.type) {
-      case BicycleType::COMMON_BIKE:
+      case COMMON_BIKE:
         CommonBike::Update(tachyon, state, bike, total_common_bikes++);
         break;
       default:
@@ -23,7 +23,7 @@ void BackgroundBicycles::Update(Tachyon* tachyon, State& state) {
 
 void BackgroundBicycles::SpawnBicycle(Tachyon* tachyon, State& state, const Bicycle& bike) {
   switch (bike.type) {
-    case BicycleType::COMMON_BIKE:
+    case COMMON_BIKE:
       CommonBike::Spawn(tachyon, state, bike);
       break;
     default:

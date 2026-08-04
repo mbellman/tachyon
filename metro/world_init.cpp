@@ -87,13 +87,11 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
 
   // @temporary
   {
-    StaticEntity platform;
+    auto& platform = CreateStaticEntity(state.entities, PLATFORM);
     platform.id = CreateUniqueId();
     platform.position = tVec3f(0, -8000.f, -10000.f);
     platform.scale = tVec3f(500000.f, 5000.f, 50000.f);
     platform.color = tVec3f(0.8f);
-
-    state.platforms.push_back(platform);
 
     auto& road = create(state.meshes.dev_cube);
 
@@ -108,13 +106,11 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
 
   // @temporary
   {
-    StaticEntity platform;
+    auto& platform = CreateStaticEntity(state.entities, PLATFORM);
     platform.id = CreateUniqueId();
     platform.position = tVec3f(0, -250000.f, -200000.f);
     platform.scale = tVec3f(500000.f, 5000.f, 50000.f);
     platform.color = tVec3f(0.8f);
-
-    state.platforms.push_back(platform);
 
     auto& road = create(state.meshes.dev_cube);
 
@@ -144,8 +140,8 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
   // @temporary
   {
     Bicycle bike;
+    bike.type          = COMMON_BIKE;
     bike.id            = 1;
-    bike.type          = BicycleType::COMMON_BIKE;
     bike.position      = tVec3f(-5000.f, -2220.f, -10000.f);
     bike.frame_color   = 0xFFF8;
     bike.grips_color   = tVec3f(0.1f);
@@ -164,8 +160,8 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
   // @temporary
   {
     Bicycle bike;
+    bike.type          = COMMON_BIKE;
     bike.id            = 2;
-    bike.type          = BicycleType::COMMON_BIKE;
     bike.position      = tVec3f(0, -2220.f, -10000.f);
     bike.frame_color   = tVec3f(0.5f, 1.f, 0.4f);
     bike.grips_color   = tVec3f(0.1f);
@@ -184,8 +180,8 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
   // @temporary
   {
     Bicycle bike;
+    bike.type          = COMMON_BIKE;
     bike.id            = 3;
-    bike.type          = BicycleType::COMMON_BIKE;
     bike.position      = tVec3f(5000.f, -2220.f, -10000.f);
     bike.frame_color   = tVec3f(1.f, 0.2f, 0.4f);
     bike.grips_color   = tVec3f(0.1f);
@@ -203,37 +199,31 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
 
   // @temporary
   {
-    StaticEntity ramp;
+    auto& ramp = CreateStaticEntity(state.entities, RAMP);
     ramp.id = CreateUniqueId();
     ramp.position = tVec3f(50000.f, -1500.f, -10000.f);
     ramp.rotation = Quaternion::fromAxisAngle(Y_UP, t_HALF_PI);
     ramp.scale = tVec3f(5000.f, 20000.f, 100000.f);
     ramp.color = tVec3f(0.5f);
-
-    state.ramps.push_back(ramp);
   }
 
   // @temporary
   {
-    StaticEntity ramp;
+    auto& ramp = CreateStaticEntity(state.entities, RAMP);
     ramp.id = CreateUniqueId();
     ramp.position = tVec3f(50000.f, -1500.f, 0);
     ramp.rotation = Quaternion::fromAxisAngle(Y_UP, t_HALF_PI);
     ramp.scale = tVec3f(5000.f, 100000.f, 100000.f);
     ramp.color = tVec3f(0.5f);
-
-    state.ramps.push_back(ramp);
   }
 
   // @temporary
   {
-    StaticEntity entity;
+    auto& entity = CreateStaticEntity(state.entities, WALKWAY_SEGMENT);
     entity.id = CreateUniqueId();
     entity.position = tVec3f(20000.f, 0, 0);
     entity.scale = tVec3f(10000.f, 1000.f, 1000.f);
     entity.color = tVec3f(0.5f);
-
-    state.walkway_segments.push_back(entity);
   }
 }
 

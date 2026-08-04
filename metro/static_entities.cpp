@@ -16,7 +16,7 @@ static void Sync(tObject& object, const StaticEntity& entity) {
 
 namespace Platforms {
   void Init(Tachyon* tachyon, State& state) {
-    for (auto& entity : state.platforms) {
+    for (auto& entity : state.entities.platforms) {
       create(state.meshes.platform);
     }
   }
@@ -24,7 +24,7 @@ namespace Platforms {
   void Update(Tachyon* tachyon, State& state) {
     int32 index = 0;
 
-    for (auto& entity : state.platforms) {
+    for (auto& entity : state.entities.platforms) {
       auto& platform = objects(state.meshes.platform)[index++];
 
       if (!entity.needs_update) continue;
@@ -48,7 +48,7 @@ namespace Platforms {
 
 namespace Ramps {
   void Init(Tachyon* tachyon, State& state) {
-    for (auto& entity : state.ramps) {
+    for (auto& entity : state.entities.ramps) {
       create(state.meshes.ramp);
     }
   }
@@ -56,7 +56,7 @@ namespace Ramps {
   void Update(Tachyon* tachyon, State& state) {
     int32 index = 0;
 
-    for (auto& entity : state.ramps) {
+    for (auto& entity : state.entities.ramps) {
       auto& ramp = objects(state.meshes.ramp)[index++];
 
       if (!entity.needs_update) continue;
@@ -80,7 +80,7 @@ namespace Ramps {
 
 namespace Walkways {
   void Init(Tachyon* tachyon, State& state) {
-    for (auto& entity : state.walkway_segments) {
+    for (auto& entity : state.entities.walkway_segments) {
       create(state.meshes.walkway_segment);
     }
   }
@@ -88,7 +88,7 @@ namespace Walkways {
   void Update(Tachyon* tachyon, State& state) {
     int32 index = 0;
 
-    for (auto& entity : state.walkway_segments) {
+    for (auto& entity : state.entities.walkway_segments) {
       auto& segment = objects(state.meshes.walkway_segment)[index++];
 
       if (!entity.needs_update) continue;

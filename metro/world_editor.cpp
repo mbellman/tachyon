@@ -2,6 +2,7 @@
 #include <format>
 
 #include "metro/world_editor.h"
+#include "metro/collision.h"
 #include "metro/editor_utilities.h"
 #include "metro/utilities.h"
 
@@ -10,7 +11,7 @@ using namespace metro;
 struct HighlightBox {
   tVec3f position;
   tVec3f scale;
-  Quaternion rotation;
+  Quaternion rotation = Quaternion(1.f, 0, 0, 0);
 };
 
 enum TransformType {
@@ -29,8 +30,11 @@ enum SelectionType {
 static struct EditorState {
   TransformType transform_type = POSITION;
   SelectionType selection_type = NOTHING_SELECTED;
+  EntityType entity_type = UNSPECIFIED;
   void* selection = nullptr;
   tVec3f highlight_color = tVec3f(1.f, 0, 1.f);
+
+  bool is_placing_new_entity = false;
 } editor;
 
 static inline std::string Format(const tVec3f& v) {
@@ -228,6 +232,7 @@ static void MaybeMakeSelection(Tachyon* tachyon, State& state) {
       if (IsSelectable(bike.position, tVec3f(2000.f), camera.position, camera_forward)) {
         editor.selection = &bike;
         editor.selection_type = BICYCLE;
+        editor.entity_type = bike.type;
         editor.transform_type = POSITION;
 
         return;
@@ -241,6 +246,7 @@ static void MaybeMakeSelection(Tachyon* tachyon, State& state) {
       if (IsSelectable(entity.position, entity.scale, camera.position, camera_forward)) {
         editor.selection = &entity;
         editor.selection_type = STATIC_ENTITY;
+        editor.entity_type = entity.type;
         editor.transform_type = POSITION;
 
         return;
@@ -252,6 +258,43 @@ static void MaybeMakeSelection(Tachyon* tachyon, State& state) {
 static inline void Deselect() {
   editor.selection_type = NOTHING_SELECTED;
   editor.selection = nullptr;
+}
+
+static void ShowPlacementPreview(Tachyon* tachyon, State& state) {
+  const float ray_length = 30000.f;
+
+  auto& camera = tachyon->scene.camera;
+  tVec3f ray = camera.orientation.getDirection() * ray_length;
+
+  // @temporary
+  const float size = 2000.f;
+
+  HighlightBox box;
+  box.position = camera.position + ray;
+  box.scale = tVec3f(size);
+
+  for_static_entity_containers() {
+    for_entities() {
+      for (auto& plane : entity.collision_planes) {
+        auto ray_test = Collision::TestRayHit(camera.position, ray, plane);
+
+        if (ray_test.has_collision) {
+          // Position the preview box fully above the collision point,
+          // with a small additional buffer to avoid clipping through floors
+          box.position = ray_test.collision_point + tVec3f(0, size + 25.f, 0);
+
+          break;
+        }
+      }
+    }
+  }
+
+  Debug::ShowDebugBox(tachyon, {
+    .position = box.position,
+    .scale = box.scale,
+    .rotation = box.rotation,
+    .color = tVec3f(1.f, 0, 1.f)
+  });
 }
 
 static void HandleCameraControls(Tachyon* tachyon, State& state) {
@@ -305,11 +348,27 @@ static void HandleCameraControls(Tachyon* tachyon, State& state) {
 
 static void HandleClickActions(Tachyon* tachyon, State& state) {
   if (did_left_click_down() && !IsAnythingSelected()) {
-    MaybeMakeSelection(tachyon, state);
+    if (editor.is_placing_new_entity) {
+      editor.is_placing_new_entity = false;
+
+      // @temporary
+      console_log("Placed entity!");
+
+      // @todo
+      // CreateInteractiveEntity(state.entities, editor.entity_type);
+    } else {
+      MaybeMakeSelection(tachyon, state);
+    }
   }
 
   if (did_right_click_down()) {
-    Deselect();
+    if (IsAnythingSelected()) {
+      Deselect();
+    } else if (editor.is_placing_new_entity) {
+      editor.is_placing_new_entity = false;
+    } else {
+      editor.is_placing_new_entity = true;
+    }
   }
 
   // Alternate between highlight colors depending on mouse state
@@ -413,6 +472,10 @@ void WorldEditor::Update(Tachyon* tachyon, State& state) {
   if (is_window_focused()) {
     HandleCameraControls(tachyon, state);
     HandleClickActions(tachyon, state);
+
+    if (editor.is_placing_new_entity) {
+      ShowPlacementPreview(tachyon, state);
+    }
 
     if (IsAnythingSelected()) {
       HandleTransformTypeCycleActions(tachyon, state);

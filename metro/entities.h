@@ -4,9 +4,9 @@
 
 #define for_static_entity_containers()\
   for (auto* entities : {\
-      &state.platforms,\
-      &state.ramps,\
-      &state.walkway_segments\
+      &state.entities.platforms,\
+      &state.entities.ramps,\
+      &state.entities.walkway_segments\
   })
 
 #define for_entities()\
@@ -21,7 +21,16 @@ namespace metro {
     tVec3f normal;
   };
 
+  enum EntityType {
+    UNSPECIFIED,
+    COMMON_BIKE,
+    PLATFORM,
+    RAMP,
+    WALKWAY_SEGMENT
+  };
+
   struct StaticEntity {
+    EntityType type = UNSPECIFIED;
     int32 id = -1;
 
     tVec3f position;
@@ -42,4 +51,41 @@ namespace metro {
 
     // @todo
   };
+
+  struct Entities {
+    // Statics
+    std::vector<StaticEntity> platforms;
+    std::vector<StaticEntity> ramps;
+    std::vector<StaticEntity> walkway_segments;
+
+    // Interactives
+    std::vector<InteractiveEntity> vending_machines;
+  };
+
+  static StaticEntity& CreateStaticEntity(Entities& entities, EntityType type) {
+    StaticEntity entity;
+    entity.type = type;
+
+    switch (type) {
+      case PLATFORM:
+        entities.platforms.push_back(entity);
+
+        return entities.platforms.back();
+      case RAMP:
+        entities.ramps.push_back(entity);
+
+        return entities.ramps.back();
+      case WALKWAY_SEGMENT:
+        entities.walkway_segments.push_back(entity);
+
+        return entities.walkway_segments.back();
+      default:
+        console_error("CreateStaticEntity(): Invalid entity type");
+        exit(0);
+    }
+  }
+
+  static InteractiveEntity& CreateInteractiveEntity(Entities& entities, EntityType type) {
+    // @todo
+  }
 }

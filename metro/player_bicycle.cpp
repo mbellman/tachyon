@@ -87,7 +87,7 @@ void PlayerBicycle::Update(Tachyon* tachyon, State& state) {
 
     for_range(1, PHYSICS_ITERATIONS) {
       switch (active_bike->type) {
-        case BicycleType::COMMON_BIKE:
+        case COMMON_BIKE:
           CommonBike::HandlePhysics(tachyon, state, *active_bike);
           CommonBike::Update(tachyon, state, *active_bike, state.player_bike_index);
           break;
