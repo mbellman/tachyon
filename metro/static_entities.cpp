@@ -115,7 +115,15 @@ static void HandleLifeCycle(Tachyon* tachyon, State& state, std::vector<StaticEn
     if (entity.needs_deletion) {
       Entity::Remove(tachyon, state, i);
 
-      entities.erase(entities.begin() + i);
+      // Swap-and-pop to mimic the way the entity objects are managed,
+      // which also does an effective swap-and-pop on object deletion.
+      // This also avoids the need to update any other entities, e.g.
+      // the entity taking the deleted entity's place.
+      if (i < (int32) entities.size() - 1) {
+        std::swap(entities[i], entities.back());
+      }
+
+      entities.pop_back();
     }
   }
 

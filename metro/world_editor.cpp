@@ -34,6 +34,7 @@ static struct EditorState {
   void* selection = nullptr;
   tVec3f highlight_color = tVec3f(1.f, 0, 1.f);
 
+  SelectionType placement_type = NOTHING_SELECTED;
   bool is_placing_new_entity = false;
 } editor;
 
@@ -216,7 +217,7 @@ static inline bool IsSelectable(const tVec3f& position, const tVec3f& scale, con
   tVec3f camera_to_selectable = position - camera_position;
   float distance = camera_to_selectable.magnitude();
   tVec3f direction = camera_to_selectable / distance;
-  float distance_threshold = scale.magnitude() * 5.f;
+  float distance_threshold = scale.magnitude() * 8.f;
   float dot = tVec3f::dot(direction, camera_forward);
 
   return distance < distance_threshold && dot > 0.98f;
@@ -232,6 +233,7 @@ static void MaybeMakeSelection(Tachyon* tachyon, State& state) {
       if (IsSelectable(bike.position, tVec3f(2000.f), camera.position, camera_forward)) {
         editor.selection = &bike;
         editor.selection_type = BICYCLE;
+        editor.placement_type = BICYCLE;
         editor.entity_type = bike.type;
         editor.transform_type = POSITION;
 
@@ -246,6 +248,7 @@ static void MaybeMakeSelection(Tachyon* tachyon, State& state) {
       if (IsSelectable(entity.position, entity.scale, camera.position, camera_forward)) {
         editor.selection = &entity;
         editor.selection_type = STATIC_ENTITY;
+        editor.placement_type = STATIC_ENTITY;
         editor.entity_type = entity.type;
         editor.transform_type = POSITION;
 
@@ -258,6 +261,30 @@ static void MaybeMakeSelection(Tachyon* tachyon, State& state) {
 static inline void Deselect() {
   editor.selection_type = NOTHING_SELECTED;
   editor.selection = nullptr;
+}
+
+static void PlaceNewEntity(Tachyon* tachyon, State& state, const tVec3f& position) {
+  switch (editor.placement_type) {
+    case BICYCLE:
+      // @todo
+      break;
+    case STATIC_ENTITY: {
+      auto& entity = CreateStaticEntity(state.entities, editor.entity_type);
+
+      entity.position = position;
+      entity.scale = tVec3f(2000.f);
+      entity.color = tVec3f(1.f);
+
+      break;
+    }
+    case INTERACTIVE_ENTITY:
+      // @todo
+      break;
+    default:
+      break;
+  }
+
+  editor.is_placing_new_entity = false;
 }
 
 static void ShowPlacementPreview(Tachyon* tachyon, State& state) {
@@ -295,6 +322,10 @@ static void ShowPlacementPreview(Tachyon* tachyon, State& state) {
     .rotation = box.rotation,
     .color = tVec3f(1.f, 0, 1.f)
   });
+
+  if (did_left_click_down()) {
+    PlaceNewEntity(tachyon, state, box.position);
+  }
 }
 
 static void HandleCameraControls(Tachyon* tachyon, State& state) {
@@ -320,18 +351,8 @@ static void HandleCameraControls(Tachyon* tachyon, State& state) {
 }
 
 static void HandleClickActions(Tachyon* tachyon, State& state) {
-  if (did_left_click_down() && !IsAnythingSelected()) {
-    if (editor.is_placing_new_entity) {
-      editor.is_placing_new_entity = false;
-
-      // @temporary
-      console_log("Placed entity!");
-
-      // @todo
-      // CreateInteractiveEntity(state.entities, editor.entity_type);
-    } else {
-      MaybeMakeSelection(tachyon, state);
-    }
+  if (did_left_click_down() && !IsAnythingSelected() && !editor.is_placing_new_entity) {
+    MaybeMakeSelection(tachyon, state);
   }
 
   if (did_right_click_down()) {
