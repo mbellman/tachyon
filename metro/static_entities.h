@@ -4,7 +4,6 @@
 
 namespace metro {
   namespace StaticEntities {
-    void Init(Tachyon* tachyon, State& state);
     void Update(Tachyon* tachyon, State& state);
   };
 }

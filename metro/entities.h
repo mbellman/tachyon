@@ -13,6 +13,7 @@
   for (auto& entity : *entities)
 
 namespace metro {
+  // @todo move to engine
   struct CollisionPlane {
     // Plane corners
     tVec3f p1, p2, p3, p4;
@@ -22,33 +23,36 @@ namespace metro {
   };
 
   enum EntityType {
-    UNSPECIFIED,
+    UNSPECIFIED = -1,
     COMMON_BIKE,
     PLATFORM,
     RAMP,
     WALKWAY_SEGMENT
   };
 
-  struct StaticEntity {
+  struct BaseEntity {
     EntityType type = UNSPECIFIED;
     int32 id = -1;
 
+    bool needs_init = true;
+    bool needs_update = true;
+    bool needs_deletion = false;
+  };
+
+  struct StaticEntity : BaseEntity {
     tVec3f position;
     Quaternion rotation = Quaternion(1.f, 0, 0, 0);
     tVec3f scale;
     tVec3f color;
 
     bool active = true;
-    bool needs_update = true;
 
     // @todo @optimize come up with a non-heap-allocated solution for collision planes,
     // given that we don't know how many we'll need per entity type
     std::vector<CollisionPlane> collision_planes;
   };
 
-  struct InteractiveEntity {
-    int32 id = -1;
-
+  struct InteractiveEntity : BaseEntity {
     // @todo
   };
 

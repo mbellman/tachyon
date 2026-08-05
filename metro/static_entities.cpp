@@ -3,6 +3,13 @@
 
 using namespace metro;
 
+#define for_reversed(array)\
+  for (int32 i = (int32) array.size() - 1; i >= 0; i--)
+
+#define OnInit() static void Init(Tachyon* tachyon, State& state)
+#define OnUpdate() static void Update(Tachyon* tachyon, State& state, StaticEntity& entity, int32 index)
+#define OnRemove() static void Remove(Tachyon* tachyon, State& state, int32 index)
+
 static void Sync(tObject& object, const StaticEntity& entity) {
   object.position = entity.position;
   object.scale = entity.scale;
@@ -14,31 +21,29 @@ static void Sync(tObject& object, const StaticEntity& entity) {
 // Platforms
 // ---------
 
-namespace Platforms {
-  void Init(Tachyon* tachyon, State& state) {
-    for (auto& entity : state.entities.platforms) {
-      create(state.meshes.platform);
-    }
+struct Platforms {
+  OnInit() {
+    create(state.meshes.platform);
   }
 
-  void Update(Tachyon* tachyon, State& state) {
-    int32 index = 0;
+  OnUpdate() {
+    auto& platform = objects(state.meshes.platform)[index];
 
-    for (auto& entity : state.entities.platforms) {
-      auto& platform = objects(state.meshes.platform)[index++];
+    Sync(platform, entity);
 
-      if (!entity.needs_update) continue;
+    commit(platform);
 
-      Sync(platform, entity);
+    auto plane = Collision::CreateFloorCollisionPlane(platform);
 
-      commit(platform);
+    entity.collision_planes.clear();
+    entity.collision_planes.push_back(plane);
+    entity.needs_update = false;
+  }
 
-      auto plane = Collision::CreateFloorCollisionPlane(platform);
+  OnRemove() {
+    auto& object = objects(state.meshes.platform)[index];
 
-      entity.collision_planes.clear();
-      entity.collision_planes.push_back(plane);
-      entity.needs_update = false;
-    }
+    remove_object(object);
   }
 };
 
@@ -46,74 +51,93 @@ namespace Platforms {
 // Ramps
 // -----
 
-namespace Ramps {
-  void Init(Tachyon* tachyon, State& state) {
-    for (auto& entity : state.entities.ramps) {
-      create(state.meshes.ramp);
-    }
+struct Ramps {
+  OnInit() {
+    create(state.meshes.ramp);
   }
 
-  void Update(Tachyon* tachyon, State& state) {
-    int32 index = 0;
+  OnUpdate() {
+    auto& ramp = objects(state.meshes.ramp)[index];
 
-    for (auto& entity : state.entities.ramps) {
-      auto& ramp = objects(state.meshes.ramp)[index++];
+    Sync(ramp, entity);
 
-      if (!entity.needs_update) continue;
+    commit(ramp);
 
-      Sync(ramp, entity);
+    auto plane = Collision::CreateSlopeCollisionPlane(ramp);
 
-      commit(ramp);
+    entity.collision_planes.clear();
+    entity.collision_planes.push_back(plane);
+    entity.needs_update = false;
+  }
 
-      auto plane = Collision::CreateSlopeCollisionPlane(ramp);
+  OnRemove() {
+    auto& object = objects(state.meshes.ramp)[index];
 
-      entity.collision_planes.clear();
-      entity.collision_planes.push_back(plane);
-      entity.needs_update = false;
-    }
+    remove_object(object);
   }
 };
 
-// --------
-// Walkways
-// --------
+// ----------------
+// Walkway Segments
+// ----------------
 
-namespace Walkways {
-  void Init(Tachyon* tachyon, State& state) {
-    for (auto& entity : state.entities.walkway_segments) {
-      create(state.meshes.walkway_segment);
-    }
+struct WalkwaySegments {
+  OnInit() {
+    create(state.meshes.walkway_segment);
   }
 
-  void Update(Tachyon* tachyon, State& state) {
-    int32 index = 0;
+  OnUpdate() {
+    auto& segment = objects(state.meshes.walkway_segment)[index];
 
-    for (auto& entity : state.entities.walkway_segments) {
-      auto& segment = objects(state.meshes.walkway_segment)[index++];
+    Sync(segment, entity);
 
-      if (!entity.needs_update) continue;
+    commit(segment);
 
-      Sync(segment, entity);
+    entity.needs_update = false;
+  }
 
-      commit(segment);
+  OnRemove() {
+    auto& object = objects(state.meshes.walkway_segment)[index];
 
-      entity.needs_update = false;
-    }
+    remove_object(object);
   }
 };
 
 // ---------------------------
 
-void StaticEntities::Init(Tachyon* tachyon, State& state) {
-  Platforms::Init(tachyon, state);
-  Ramps::Init(tachyon, state);
-  Walkways::Init(tachyon, state);
+template<typename Entity>
+static void HandleLifeCycle(Tachyon* tachyon, State& state, std::vector<StaticEntity>& entities) {
+  int32 index = 0;
+
+  for_reversed(entities) {
+    auto& entity = entities[i];
+
+    if (entity.needs_deletion) {
+      Entity::Remove(tachyon, state, i);
+
+      entities.erase(entities.begin() + i);
+    }
+  }
+
+  for (auto& entity : entities) {
+    if (entity.needs_init) {
+      Entity::Init(tachyon, state);
+
+      entity.needs_init = false;
+    }
+
+    int32 current_index = index++;
+
+    if (entity.needs_update) {
+      Entity::Update(tachyon, state, entity, current_index);
+    }
+  }
 }
 
 void StaticEntities::Update(Tachyon* tachyon, State& state) {
   profile("StaticEntities::Update()");
 
-  Platforms::Update(tachyon, state);
-  Ramps::Update(tachyon, state);
-  Walkways::Update(tachyon, state);
+  HandleLifeCycle<Platforms>(tachyon, state, state.entities.platforms);
+  HandleLifeCycle<Ramps>(tachyon, state, state.entities.ramps);
+  HandleLifeCycle<WalkwaySegments>(tachyon, state, state.entities.walkway_segments);
 }

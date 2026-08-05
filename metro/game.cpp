@@ -94,8 +94,6 @@ static void HandleFrameEnd(Tachyon* tachyon, State& state) {
 
 void metro::Init(Tachyon* tachyon, State& state) {
   World::Init(tachyon, state);
-  StaticEntities::Init(tachyon, state);
-  InteractiveEntities::Init(tachyon, state);
 
   // @todo CameraSystem::Init()
   {
@@ -123,11 +121,6 @@ void metro::Update(Tachyon* tachyon, State& state, const float dt) {
     Debug::Reset(tachyon);
     WorldEditor::Update(tachyon, state);
 
-    // @todo @optimize We don't need to update ALL entities here
-    // based on potential editor actions; we can just update one
-    // thing at a time when we manipulate it. Still, we run all
-    // of these updates during the game anyway, so it's not a
-    // performance cost we're necessarily unable to deal with.
     StaticEntities::Update(tachyon, state);
     InteractiveEntities::Update(tachyon, state);
     BackgroundBicycles::Update(tachyon, state);

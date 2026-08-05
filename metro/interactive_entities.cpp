@@ -17,10 +17,6 @@ static void UpdateVendingMachines(Tachyon* tachyon, State& state) {
 
 // ---------------------------
 
-void InteractiveEntities::Init(Tachyon* tachyon, State& state) {
-  InitVendingMachines(tachyon, state);
-}
-
 void InteractiveEntities::Update(Tachyon* tachyon, State& state) {
   UpdateVendingMachines(tachyon, state);
 }

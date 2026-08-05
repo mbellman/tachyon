@@ -431,6 +431,26 @@ static void HandleSelectionManipulationActions(Tachyon* tachyon, State& state) {
   }
 }
 
+static void HandleSelectionHotkeys(Tachyon* tachyon, State& state) {
+  if (did_press_key(tKey::BACKSPACE)) {
+    switch (editor.selection_type) {
+      case BICYCLE:
+        // @todo
+        break;
+      case STATIC_ENTITY:
+        ((StaticEntity*) editor.selection)->needs_deletion = true;
+        break;
+      case INTERACTIVE_ENTITY:
+        // @todo
+        break;
+      default:
+        break;
+    }
+
+    Deselect();
+  }
+}
+
 void WorldEditor::Open(Tachyon* tachyon, State& state) {
   state.is_editor_open = true;
 
@@ -454,6 +474,7 @@ void WorldEditor::Update(Tachyon* tachyon, State& state) {
       HandleTransformTypeCycleActions(tachyon, state);
       HandleSelectionManipulationActions(tachyon, state);
       ShowSelectionDetails(tachyon, state);
+      HandleSelectionHotkeys(tachyon, state);
     }
   }
 }

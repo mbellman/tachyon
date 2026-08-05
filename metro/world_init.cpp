@@ -43,7 +43,7 @@ static void LoadStaticEntityMeshes(Tachyon* tachyon, State& state) {
 
   // Ramps
   {
-    meshes.ramp = METRO_MODEL("static_entities/ramp.obj", 100);
+    meshes.ramp = METRO_MODEL("static_entities/ramp.obj", 500);
   }
 
   // Walkway segments
@@ -142,7 +142,7 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
     Bicycle bike;
     bike.type          = COMMON_BIKE;
     bike.id            = 1;
-    bike.position      = tVec3f(-5000.f, -2220.f, -10000.f);
+    bike.position      = tVec3f(-5000.f, -2200.f, -10000.f);
     bike.frame_color   = 0xFFF8;
     bike.grips_color   = tVec3f(0.1f);
     bike.saddle_color  = tVec3f(0.1f, 0, 0);
@@ -162,7 +162,7 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
     Bicycle bike;
     bike.type          = COMMON_BIKE;
     bike.id            = 2;
-    bike.position      = tVec3f(0, -2220.f, -10000.f);
+    bike.position      = tVec3f(0, -2200.f, -10000.f);
     bike.frame_color   = tVec3f(0.5f, 1.f, 0.4f);
     bike.grips_color   = tVec3f(0.1f);
     bike.saddle_color  = tVec3f(0.2f);
@@ -182,7 +182,7 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
     Bicycle bike;
     bike.type          = COMMON_BIKE;
     bike.id            = 3;
-    bike.position      = tVec3f(5000.f, -2220.f, -10000.f);
+    bike.position      = tVec3f(5000.f, -2200.f, -10000.f);
     bike.frame_color   = tVec3f(1.f, 0.2f, 0.4f);
     bike.grips_color   = tVec3f(0.1f);
     bike.saddle_color  = tVec3f(0.1f, 0, 0);
