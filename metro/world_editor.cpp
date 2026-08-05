@@ -1,7 +1,9 @@
 #include <format>
 
 #include "metro/world_editor.h"
+#include "metro/background_bicycles.h"
 #include "metro/collision.h"
+#include "metro/constants.h"
 #include "metro/editor_utilities.h"
 #include "metro/utilities.h"
 
@@ -19,7 +21,7 @@ enum TransformType {
   ROTATION
 };
 
-enum SelectionType {
+enum EntityCategory {
   NOTHING_SELECTED = -1,
   BICYCLE,
   STATIC_ENTITY,
@@ -28,12 +30,9 @@ enum SelectionType {
 
 static struct EditorState {
   TransformType transform_type = POSITION;
-  SelectionType selection_type = NOTHING_SELECTED;
-  EntityType entity_type = UNSPECIFIED;
+  EntityType entity_type = COMMON_BIKE;
   void* selection = nullptr;
   tVec3f highlight_color = tVec3f(1.f, 0, 1.f);
-
-  SelectionType placement_type = NOTHING_SELECTED;
   bool is_placing_new_entity = false;
 } editor;
 
@@ -46,25 +45,35 @@ static inline std::string Format(const Quaternion& q) {
 }
 
 static inline bool IsAnythingSelected() {
-  return editor.selection_type != NOTHING_SELECTED;
+  return editor.selection != nullptr;
 }
 
-static std::string GetSelectionDisplayName() {
-  switch (editor.selection_type) {
-    case BICYCLE:
-      // @todo bicycle type
-      return "Bicycle";
-    case STATIC_ENTITY:
-      // @todo entity type
-      return "Static entity";
-    case INTERACTIVE_ENTITY: // @todo
+static EntityCategory GetEntityCategory() {
+  switch (editor.entity_type) {
+    case COMMON_BIKE:
+      return BICYCLE;
+    case PLATFORM:
+    case RAMP:
+    case WALKWAY_SEGMENT:
+      return STATIC_ENTITY;
+    default:
+      return NOTHING_SELECTED;
+  }
+}
+
+static std::string GetEntityDisplayName() {
+  switch (editor.entity_type) {
+    case COMMON_BIKE    : return "Common Bike";
+    case PLATFORM       : return "Platform";
+    case RAMP           : return "Ramp";
+    case WALKWAY_SEGMENT: return "Walkway Segment";
     default:
       return "Entity";
   }
 }
 
 static tVec3f GetSelectionPosition() {
-  switch (editor.selection_type) {
+  switch (GetEntityCategory()) {
     case BICYCLE:
       return ((Bicycle*)editor.selection)->position;
     case STATIC_ENTITY:
@@ -76,7 +85,7 @@ static tVec3f GetSelectionPosition() {
 }
 
 static tVec3f GetSelectionScale() {
-  switch (editor.selection_type) {
+  switch (GetEntityCategory()) {
     case BICYCLE:
       // @temporary
       return tVec3f(2000.f);
@@ -89,7 +98,7 @@ static tVec3f GetSelectionScale() {
 }
 
 static Quaternion GetSelectionRotation() {
-  switch (editor.selection_type) {
+  switch (GetEntityCategory()) {
     case BICYCLE:
       return ((Bicycle*)editor.selection)->flat_rotation;
     case STATIC_ENTITY:
@@ -101,7 +110,7 @@ static Quaternion GetSelectionRotation() {
 }
 
 static HighlightBox GetSelectionHighlightBox() {
-  switch (editor.selection_type) {
+  switch (GetEntityCategory()) {
     case BICYCLE: {
       auto& bike = *(Bicycle*) editor.selection;
 
@@ -129,7 +138,7 @@ static HighlightBox GetSelectionHighlightBox() {
 }
 
 static void MoveSelection(const tVec3f& offset) {
-  switch (editor.selection_type) {
+  switch (GetEntityCategory()) {
     case BICYCLE:
       ((Bicycle*)editor.selection)->position += offset;
       break;
@@ -144,7 +153,7 @@ static void MoveSelection(const tVec3f& offset) {
 }
 
 static void ScaleSelection(const tVec3f& scale_change) {
-  switch (editor.selection_type) {
+  switch (GetEntityCategory()) {
     case BICYCLE:
       break;
     case STATIC_ENTITY:
@@ -158,7 +167,7 @@ static void ScaleSelection(const tVec3f& scale_change) {
 }
 
 static void RotateSelection(const tVec3f& axis, const float angle) {
-  switch (editor.selection_type) {
+  switch (GetEntityCategory()) {
     case BICYCLE:
       // @todo
       break;
@@ -204,7 +213,7 @@ static void ShowSelectionDetails(Tachyon* tachyon, State& state) {
 
   // Labels
   {
-    auto name = GetSelectionDisplayName();
+    auto name = GetEntityDisplayName();
 
     Debug::ShowDebugLabel(tachyon, selection_position, { .y = 50.f }, name);
     Debug::ShowDebugLabel(tachyon, selection_position, { .y = 72.f }, Format(selection_position));
@@ -231,8 +240,6 @@ static void MaybeMakeSelection(Tachyon* tachyon, State& state) {
     for (auto& bike : state.bicycles) {
       if (IsSelectable(bike.position, tVec3f(2000.f), camera.position, camera_forward)) {
         editor.selection = &bike;
-        editor.selection_type = BICYCLE;
-        editor.placement_type = BICYCLE;
         editor.entity_type = bike.type;
         editor.transform_type = POSITION;
 
@@ -246,8 +253,6 @@ static void MaybeMakeSelection(Tachyon* tachyon, State& state) {
     for_entities() {
       if (IsSelectable(entity.position, entity.scale, camera.position, camera_forward)) {
         editor.selection = &entity;
-        editor.selection_type = STATIC_ENTITY;
-        editor.placement_type = STATIC_ENTITY;
         editor.entity_type = entity.type;
         editor.transform_type = POSITION;
 
@@ -258,14 +263,30 @@ static void MaybeMakeSelection(Tachyon* tachyon, State& state) {
 }
 
 static inline void Deselect() {
-  editor.selection_type = NOTHING_SELECTED;
   editor.selection = nullptr;
 }
 
+static void PlaceNewBicycle(Tachyon* tachyon, State& state, const tVec3f& position) {
+  Bicycle bike;
+  bike.type          = COMMON_BIKE;
+  bike.id            = CreateUniqueId();
+  bike.position      = position;
+
+  // @temporary
+  bike.frame_color   = tVec3f(1.f, 0.2f, 0.4f);
+  bike.grips_color   = tVec3f(0.1f);
+  bike.saddle_color  = tVec3f(0.1f, 0, 0);
+  bike.wheel_color   = tVec3f(1.f, 0.9f, 0.7f);
+
+  bike.facing_direction = Z_BACKWARD;
+
+  BackgroundBicycles::SpawnBicycle(tachyon, state, bike);
+}
+
 static void PlaceNewEntity(Tachyon* tachyon, State& state, const tVec3f& position) {
-  switch (editor.placement_type) {
+  switch (GetEntityCategory()) {
     case BICYCLE:
-      // @todo
+      PlaceNewBicycle(tachyon, state, position);
       break;
     case STATIC_ENTITY: {
       auto& entity = CreateStaticEntity(state.entities, editor.entity_type);
@@ -454,7 +475,7 @@ static void HandleSelectionManipulationActions(Tachyon* tachyon, State& state) {
 
 static void HandleSelectionHotkeys(Tachyon* tachyon, State& state) {
   if (did_press_key(tKey::BACKSPACE)) {
-    switch (editor.selection_type) {
+    switch (GetEntityCategory()) {
       case BICYCLE:
         // @todo
         break;

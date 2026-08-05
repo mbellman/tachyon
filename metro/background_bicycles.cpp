@@ -2,6 +2,7 @@
 
 #include "metro/background_bicycles.h"
 #include "metro/bikes/common_bike.h"
+#include "metro/constants.h"
 
 using namespace metro;
 
@@ -21,7 +22,10 @@ void BackgroundBicycles::Update(Tachyon* tachyon, State& state) {
   }
 }
 
-void BackgroundBicycles::SpawnBicycle(Tachyon* tachyon, State& state, const Bicycle& bike) {
+void BackgroundBicycles::SpawnBicycle(Tachyon* tachyon, State& state, Bicycle& bike) {
+  // Precompute rotation
+  bike.flat_rotation = Quaternion::FromDirection(bike.facing_direction, Y_UP);
+
   switch (bike.type) {
     case COMMON_BIKE:
       CommonBike::Spawn(tachyon, state, bike);

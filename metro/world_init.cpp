@@ -162,10 +162,6 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
 
     bike.facing_direction = Z_BACKWARD;
 
-    bike.flat_rotation =
-      Quaternion::FromDirection(bike.facing_direction, Y_UP) *
-      Quaternion::fromAxisAngle(AXIS_Z, bike.leaning_angle);
-
     BackgroundBicycles::SpawnBicycle(tachyon, state, bike);
   }
 
@@ -182,10 +178,6 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
 
     bike.facing_direction = Z_BACKWARD;
 
-    bike.flat_rotation =
-      Quaternion::FromDirection(bike.facing_direction, Y_UP) *
-      Quaternion::fromAxisAngle(AXIS_Z, bike.leaning_angle);
-
     BackgroundBicycles::SpawnBicycle(tachyon, state, bike);
   }
 
@@ -201,10 +193,6 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
     bike.wheel_color   = tVec3f(1.f, 0.9f, 0.7f);
 
     bike.facing_direction = Z_BACKWARD;
-
-    bike.flat_rotation =
-      Quaternion::FromDirection(bike.facing_direction, Y_UP) *
-      Quaternion::fromAxisAngle(AXIS_Z, bike.leaning_angle);
 
     BackgroundBicycles::SpawnBicycle(tachyon, state, bike);
   }
