@@ -80,6 +80,7 @@ namespace metro {
       platform,
       ramp,
       walkway_segment,
+      walkway_plane,
 
       // Interactive entities
       vending_machine

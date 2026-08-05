@@ -49,6 +49,7 @@ static void LoadStaticEntityMeshes(Tachyon* tachyon, State& state) {
   // Walkway segments
   {
     meshes.walkway_segment = CUBE_MESH(500);
+    meshes.walkway_plane   = PLANE_MESH(500);
   }
 }
 
@@ -69,6 +70,17 @@ static void LoadGameMeshes(Tachyon* tachyon, State& state) {
   Tachyon_InitializeObjects(tachyon);
 
   Debug::CreateObjects(tachyon);
+
+  // Provision planes for dynamic walkways
+  // @temporary
+  // @todo use dynamic geometry
+  {
+    for_range(1, 500) {
+      create(state.meshes.walkway_plane);
+    }
+
+    reset_instances(state.meshes.walkway_plane);
+  }
 
   // @temporary
   create(meshes.dev_mannequin);

@@ -1,4 +1,3 @@
-#include <array>
 #include <format>
 
 #include "metro/world_editor.h"
@@ -270,6 +269,7 @@ static void PlaceNewEntity(Tachyon* tachyon, State& state, const tVec3f& positio
       break;
     case STATIC_ENTITY: {
       auto& entity = CreateStaticEntity(state.entities, editor.entity_type);
+      entity.id = CreateUniqueId();
 
       entity.position = position;
       entity.scale = tVec3f(2000.f);

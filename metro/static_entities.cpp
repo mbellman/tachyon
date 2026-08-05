@@ -103,6 +103,28 @@ struct WalkwaySegments {
   }
 };
 
+  static void RebuildWalkways(Tachyon* tachyon, State& state) {
+    reset_instances(state.meshes.walkway_plane);
+
+    for (auto& entity : state.entities.walkway_segments) {
+      for (auto& next : state.entities.walkway_segments) {
+        if (IsSameEntity(entity, next)) continue;
+
+        float distance = tVec3f::distance(entity.position, next.position);
+
+        if (distance < 10000.f) {
+          auto& plane = use_instance(state.meshes.walkway_plane);
+
+          plane.position = (entity.position + next.position) / 2.f;
+          plane.scale = tVec3f(2000.f, 1.f, 2000.f);
+          plane.color = tVec3f(1.f);
+
+          commit(plane);
+        }
+      }
+    }
+  }
+
 // ---------------------------
 
 template<typename Entity>
@@ -144,6 +166,18 @@ static void HandleLifeCycle(Tachyon* tachyon, State& state, std::vector<StaticEn
 
 void StaticEntities::Update(Tachyon* tachyon, State& state) {
   profile("StaticEntities::Update()");
+
+  // If any walkway segments are updated, rebuild all walkway networks
+  // @todo needs to be upon deletion as well
+  {
+    for (auto& entity : state.entities.walkway_segments) {
+      if (entity.needs_update) {
+        RebuildWalkways(tachyon, state);
+
+        break;
+      }
+    }
+  }
 
   HandleLifeCycle<Platforms>(tachyon, state, state.entities.platforms);
   HandleLifeCycle<Ramps>(tachyon, state, state.entities.ramps);

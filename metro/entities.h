@@ -92,4 +92,8 @@ namespace metro {
   static InteractiveEntity& CreateInteractiveEntity(Entities& entities, EntityType type) {
     // @todo
   }
+
+  static bool IsSameEntity(const BaseEntity& a, const BaseEntity& b) {
+    return a.type == b.type && a.id == b.id;
+  }
 }
