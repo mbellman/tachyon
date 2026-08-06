@@ -235,15 +235,20 @@ static void MaybeMakeSelection(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
   tVec3f camera_forward = camera.orientation.getDirection();
 
+  // Track potential selections by distance so we can pick the closest one
+  float closest_distance = FLT_MAX;
+
   // Bike selection
-  {
-    for (auto& bike : state.bicycles) {
-      if (IsSelectable(bike.position, tVec3f(2000.f), camera.position, camera_forward)) {
+  for (auto& bike : state.bicycles) {
+    if (IsSelectable(bike.position, tVec3f(2000.f), camera.position, camera_forward)) {
+      float distance = tVec3f::distance(bike.position, camera.position);
+
+      if (distance < closest_distance) {
         editor.selection = &bike;
         editor.entity_type = bike.type;
         editor.transform_type = POSITION;
 
-        return;
+        closest_distance = distance;
       }
     }
   }
@@ -252,11 +257,15 @@ static void MaybeMakeSelection(Tachyon* tachyon, State& state) {
   for_static_entity_containers() {
     for_entities() {
       if (IsSelectable(entity.position, entity.scale, camera.position, camera_forward)) {
-        editor.selection = &entity;
-        editor.entity_type = entity.type;
-        editor.transform_type = POSITION;
+        float distance = tVec3f::distance(entity.position, camera.position);
 
-        return;
+        if (distance < closest_distance) {
+          editor.selection = &entity;
+          editor.entity_type = entity.type;
+          editor.transform_type = POSITION;
+
+          closest_distance = distance;
+        }
       }
     }
   }
@@ -315,11 +324,15 @@ static void ShowPlacementPreview(Tachyon* tachyon, State& state) {
   tVec3f ray = camera.orientation.getDirection() * ray_length;
 
   // @temporary
-  const float size = 2000.f;
+  // @todo define default scales per entity type
+  const tVec3f scale = 2000.f;
 
   HighlightBox box;
   box.position = camera.position + ray;
-  box.scale = tVec3f(size);
+  box.scale = scale;
+
+  // Track ray hits by distance so we can place entities at the closest one
+  float closest_distance = FLT_MAX;
 
   for_static_entity_containers() {
     for_entities() {
@@ -327,11 +340,15 @@ static void ShowPlacementPreview(Tachyon* tachyon, State& state) {
         auto ray_test = Collision::TestRayHit(camera.position, ray, plane);
 
         if (ray_test.has_collision) {
-          // Position the preview box fully above the collision point,
-          // with a small additional buffer to avoid clipping through floors
-          box.position = ray_test.collision_point + tVec3f(0, size + 25.f, 0);
+          float distance = tVec3f::distance(ray_test.collision_point, camera.position);
 
-          break;
+          if (distance < closest_distance) {
+            // Position the preview box fully above the collision point,
+            // with a small additional buffer to avoid clipping through floors
+            box.position = ray_test.collision_point + tVec3f(0, scale.y + 25.f, 0);
+
+            closest_distance = distance;
+          }
         }
       }
     }
