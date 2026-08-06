@@ -102,12 +102,13 @@ void Debug::ShowDebugPlane(Tachyon* tachyon, const CollisionPlane& plane, const 
   tVec3f midpoint = (plane.p1 + plane.p2 + plane.p3 + plane.p4) / 4.f;
   float x_scale = tVec3f::distance(plane.p1, plane.p4) / 2.f;
   float z_scale = tVec3f::distance(plane.p1, plane.p2) / 2.f;
-  tVec3f direction = (plane.p1 - plane.p2).unit();
+  tVec3f forward = (plane.p1 - plane.p2).unit();
+  tVec3f up = tVec3f::cross((plane.p3 - plane.p2).unit(), forward);
 
   auto& debug_plane = use_instance(meshes.debug_plane);
 
   debug_plane.position = midpoint;
-  debug_plane.rotation = Quaternion::FromDirection(direction, tVec3f(0, 1.f, 0));
+  debug_plane.rotation = Quaternion::FromDirection(forward, up);
   debug_plane.scale = tVec3f(x_scale, 1.f, z_scale);
   debug_plane.color = color;
 

@@ -105,38 +105,43 @@ struct WalkwaySegments {
   }
 };
 
-  static void RebuildWalkways(Tachyon* tachyon, State& state) {
-    reset_instances(state.meshes.walkway_plane);
+static void RebuildWalkways(Tachyon* tachyon, State& state) {
+  reset_instances(state.meshes.walkway_plane);
 
-    for (auto& entity : state.entities.walkway_segments) {
-      for (auto& next : state.entities.walkway_segments) {
-        if (IsSameEntity(entity, next)) continue;
+  // Clear any collision planes present on the segment entities.
+  // We'll add new ones based on connections between them.
+  for (auto& entity : state.entities.walkway_segments) {
+    entity.collision_planes.clear();
+  }
 
-        float distance = tVec3f::distance(entity.position, next.position);
+  for (auto& entity : state.entities.walkway_segments) {
+    for (auto& next : state.entities.walkway_segments) {
+      if (IsSameEntity(entity, next)) continue;
 
-        if (distance < 15000.f && entity.position.x > next.position.x) {
-          auto& plane = use_instance(state.meshes.walkway_plane);
+      float distance = tVec3f::distance(entity.position, next.position);
 
-          tVec3f path_direction = (entity.position - next.position) / distance;
-          float x_scale = (entity.scale.x + next.scale.x) / 2.f;
-          float z_scale = distance / 2.f;
+      if (distance < 15000.f && entity.position.x > next.position.x) {
+        auto& plane = use_instance(state.meshes.walkway_plane);
 
-          plane.position = (entity.position + next.position) / 2.f;
-          plane.scale = tVec3f(x_scale, 1.f, z_scale);
-          plane.rotation = Quaternion::FromDirection(path_direction, Y_UP);
-          plane.color = tVec3f(1.f);
+        tVec3f path_direction = (entity.position - next.position) / distance;
+        float x_scale = (entity.scale.x + next.scale.x) / 2.f;
+        float z_scale = distance / 2.f;
 
-          commit(plane);
+        plane.position = (entity.position + next.position) / 2.f;
+        plane.scale = tVec3f(x_scale, 1.f, z_scale);
+        plane.rotation = Quaternion::FromDirection(path_direction, Y_UP);
+        plane.color = tVec3f(1.f);
 
-          auto collision_plane = Collision::CreateFloorCollisionPlane(plane);
+        commit(plane);
 
-          // @allocation
-          entity.collision_planes.clear();
-          entity.collision_planes.push_back(collision_plane);
-        }
+        auto collision_plane = Collision::CreateFloorCollisionPlane(plane);
+
+        // @allocation
+        entity.collision_planes.push_back(collision_plane);
       }
     }
   }
+}
 
 // ---------------------------
 
