@@ -5,6 +5,7 @@
 
 #include "metro/debug.h"
 
+#include "metro/constants.h"
 #include "metro/entities.h"
 
 // @todo move to engine

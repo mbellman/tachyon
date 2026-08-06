@@ -35,6 +35,7 @@ struct Platforms {
 
     auto plane = Collision::CreateFloorCollisionPlane(platform);
 
+    // @allocation
     entity.collision_planes.clear();
     entity.collision_planes.push_back(plane);
     entity.needs_update = false;
@@ -65,6 +66,7 @@ struct Ramps {
 
     auto plane = Collision::CreateSlopeCollisionPlane(ramp);
 
+    // @allocation
     entity.collision_planes.clear();
     entity.collision_planes.push_back(plane);
     entity.needs_update = false;
@@ -112,14 +114,25 @@ struct WalkwaySegments {
 
         float distance = tVec3f::distance(entity.position, next.position);
 
-        if (distance < 10000.f) {
+        if (distance < 15000.f && entity.position.x > next.position.x) {
           auto& plane = use_instance(state.meshes.walkway_plane);
 
+          tVec3f path_direction = (entity.position - next.position) / distance;
+          float x_scale = (entity.scale.x + next.scale.x) / 2.f;
+          float z_scale = distance / 2.f;
+
           plane.position = (entity.position + next.position) / 2.f;
-          plane.scale = tVec3f(2000.f, 1.f, 2000.f);
+          plane.scale = tVec3f(x_scale, 1.f, z_scale);
+          plane.rotation = Quaternion::FromDirection(path_direction, Y_UP);
           plane.color = tVec3f(1.f);
 
           commit(plane);
+
+          auto collision_plane = Collision::CreateFloorCollisionPlane(plane);
+
+          // @allocation
+          entity.collision_planes.clear();
+          entity.collision_planes.push_back(collision_plane);
         }
       }
     }
