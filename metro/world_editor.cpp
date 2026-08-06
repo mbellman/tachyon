@@ -290,6 +290,10 @@ static void PlaceNewBicycle(Tachyon* tachyon, State& state, const tVec3f& positi
   bike.facing_direction = Z_BACKWARD;
 
   BackgroundBicycles::SpawnBicycle(tachyon, state, bike);
+
+  // @temporary
+  // @todo return from SpawnBicycle()
+  editor.selection = &state.bicycles.back();
 }
 
 static void PlaceNewEntity(Tachyon* tachyon, State& state, const tVec3f& position) {
@@ -304,6 +308,8 @@ static void PlaceNewEntity(Tachyon* tachyon, State& state, const tVec3f& positio
       entity.position = position;
       entity.scale = tVec3f(2000.f);
       entity.color = tVec3f(1.f);
+
+      editor.selection = &entity;
 
       break;
     }
