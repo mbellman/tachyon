@@ -109,6 +109,19 @@ static inline float GetWiderHorizontalScale(const StaticEntity& entity) {
   return std::max(entity.scale.x, entity.scale.z);
 }
 
+static inline std::tuple<tVec3f, tVec3f> GetSegmentEdge(const StaticEntity& entity) {
+  tVec3f axis = entity.scale.x > entity.scale.z
+    ? tVec3f(entity.scale.x, 0, 0)
+    : tVec3f(0, 0, entity.scale.z);
+
+  tVec3f axis_offset = entity.rotation.toMatrix4f() * axis;
+
+  return {
+    entity.position + axis_offset,
+    entity.position + axis_offset * -1.f
+  };
+}
+
 static void RebuildWalkways(Tachyon* tachyon, State& state) {
   reset_instances(state.meshes.walkway_plane);
 
@@ -125,23 +138,79 @@ static void RebuildWalkways(Tachyon* tachyon, State& state) {
       float distance = tVec3f::distance(entity.position, next.position);
 
       if (distance < 15000.f && entity.position.x > next.position.x) {
-        auto& plane = use_instance(state.meshes.walkway_plane);
-
         tVec3f path_direction = (entity.position - next.position) / distance;
         float x_scale = (GetWiderHorizontalScale(entity) + GetWiderHorizontalScale(next)) / 2.f;
         float z_scale = distance / 2.f;
 
-        plane.position = (entity.position + next.position) / 2.f;
-        plane.scale = tVec3f(x_scale, 1.f, z_scale);
-        plane.rotation = Quaternion::FromDirection(path_direction, Y_UP);
-        plane.color = tVec3f(1.f);
+        // Determine the four corners of the plane between the segments
+        auto [A, B] = GetSegmentEdge(entity);
+        auto [C, D] = GetSegmentEdge(next);
 
-        commit(plane);
+        // Subdivide the plane for a smoother gradient
+        for_range(1, 3) {
+          float a1 = float(i - 1) / 3.f;
+          float a2 = float(i) / 3.f;
 
-        auto collision_plane = Collision::CreateFloorCollisionPlane(plane);
+          // Get the four corners of the subdivision
+          tVec3f p1 = tVec3f::lerp(A, C, a1);
+          tVec3f p2 = tVec3f::lerp(B, D, a1);
+
+          tVec3f p3 = tVec3f::lerp(A, C, a2);
+          tVec3f p4 = tVec3f::lerp(B, D, a2);
+
+          // @temporary
+          // @todo generate actual walkway geometry
+          Debug::ShowDebugSphere(tachyon, p1, 200.f);
+          Debug::ShowDebugSphere(tachyon, p2, 200.f);
+          Debug::ShowDebugSphere(tachyon, p3, 200.f);
+          Debug::ShowDebugSphere(tachyon, p4, 200.f);
+
+          Debug::ShowDebugLine(tachyon, {
+            .position = p1,
+            .vector = (p4 - p1),
+            .color = tVec3f(1.f),
+            .thickness = 20
+          });
+
+          Debug::ShowDebugLine(tachyon, {
+            .position = p1,
+            .vector = (p2 - p1),
+            .color = tVec3f(1.f),
+            .thickness = 20
+          });
+
+          Debug::ShowDebugLine(tachyon, {
+            .position = p1,
+            .vector = (p3 - p1),
+            .color = tVec3f(1.f),
+            .thickness = 20
+          });
+
+          Debug::ShowDebugLine(tachyon, {
+            .position = p2,
+            .vector = (p4 - p2),
+            .color = tVec3f(1.f),
+            .thickness = 20
+          });
+
+          // auto& plane = use_instance(state.meshes.walkway_plane);
+
+          // tVec3f position = (p1 + p2 + p3 + p4) / 4.f;
+          // tVec3f forward = (p3 - p1).unit();
+          // tVec3f up = tVec3f::cross((p4 - p3).unit(), forward);
+
+          // plane.position = position;
+          // plane.scale = tVec3f(x_scale, 1.f, z_scale * 0.333f);
+          // plane.rotation = Quaternion::FromDirection(forward, up);
+          // plane.color = tVec3f(1.f);
+
+          // commit(plane);
+        }
+
+        // auto collision_plane = Collision::CreateFloorCollisionPlane(plane);
 
         // @allocation
-        entity.collision_planes.push_back(collision_plane);
+        // entity.collision_planes.push_back(collision_plane);
       }
     }
   }
