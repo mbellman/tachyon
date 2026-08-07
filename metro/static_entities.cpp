@@ -136,21 +136,21 @@ static void RebuildWalkways(Tachyon* tachyon, State& state) {
       if (IsSameEntity(entity, next)) continue;
 
       float distance = tVec3f::distance(entity.position, next.position);
+      tVec3f entity_facing_direction = entity.rotation.getDirection();
+      tVec3f next_facing_direction = next.rotation.getDirection();
+      tVec3f path_direction = next.position - entity.position;
+      float next_dot = tVec3f::dot(path_direction, next_facing_direction);
 
-      if (distance < 15000.f && entity.position.x > next.position.x) {
-        tVec3f path_direction = (entity.position - next.position) / distance;
+      if (distance < 15000.f && next_dot > 0.f) {
         float x_scale = (GetWiderHorizontalScale(entity) + GetWiderHorizontalScale(next)) / 2.f;
         float z_scale = distance / 2.f;
 
-        tVec3f start_direction = entity.rotation.getDirection();
-        tVec3f end_direction = next.rotation.getDirection();
-
-        Debug::ShowDebugVector(tachyon, entity.position, start_direction * 2000.f, tVec3f(1.f));
-        Debug::ShowDebugVector(tachyon, next.position, end_direction * 2000.f, tVec3f(1.f));
+        Debug::ShowDebugVector(tachyon, entity.position, entity_facing_direction * 2000.f, tVec3f(1.f));
+        Debug::ShowDebugVector(tachyon, next.position, next_facing_direction * 2000.f, tVec3f(1.f));
 
         float direction_dot = tVec3f::dot(
-          entity.rotation.getDirection(),
-          next.rotation.getLeftDirection().invert()
+          entity_facing_direction,
+          next.rotation.getLeftDirection()
         );
 
         // Determine the four corners of the plane between the segments
@@ -187,22 +187,8 @@ static void RebuildWalkways(Tachyon* tachyon, State& state) {
           // @todo generate actual walkway geometry
           Debug::ShowDebugSphere(tachyon, p1, 200.f);
           Debug::ShowDebugSphere(tachyon, p2, 200.f);
-          Debug::ShowDebugSphere(tachyon, p3, 200.f);
-          Debug::ShowDebugSphere(tachyon, p4, 200.f);
-
-          Debug::ShowDebugLine(tachyon, {
-            .position = p1,
-            .vector = (p4 - p1),
-            .color = tVec3f(1.f),
-            .thickness = 20
-          });
-
-          Debug::ShowDebugLine(tachyon, {
-            .position = p1,
-            .vector = (p2 - p1),
-            .color = tVec3f(1.f),
-            .thickness = 20
-          });
+          // Debug::ShowDebugSphere(tachyon, p3, 200.f);
+          // Debug::ShowDebugSphere(tachyon, p4, 200.f);
 
           Debug::ShowDebugLine(tachyon, {
             .position = p1,
@@ -218,18 +204,19 @@ static void RebuildWalkways(Tachyon* tachyon, State& state) {
             .thickness = 20
           });
 
-          // auto& plane = use_instance(state.meshes.walkway_plane);
+          Debug::ShowDebugLine(tachyon, {
+            .position = p1,
+            .vector = (p4 - p1),
+            .color = tVec3f(1.f),
+            .thickness = 20
+          });
 
-          // tVec3f position = (p1 + p2 + p3 + p4) / 4.f;
-          // tVec3f forward = (p3 - p1).unit();
-          // tVec3f up = tVec3f::cross((p4 - p3).unit(), forward);
-
-          // plane.position = position;
-          // plane.scale = tVec3f(x_scale, 1.f, z_scale * 0.333f);
-          // plane.rotation = Quaternion::FromDirection(forward, up);
-          // plane.color = tVec3f(1.f);
-
-          // commit(plane);
+          Debug::ShowDebugLine(tachyon, {
+            .position = p1,
+            .vector = (p2 - p1),
+            .color = tVec3f(1.f),
+            .thickness = 20
+          });
         }
 
         // auto collision_plane = Collision::CreateFloorCollisionPlane(plane);
