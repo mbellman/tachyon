@@ -320,6 +320,7 @@ static void PlaceNewEntity(Tachyon* tachyon, State& state, const tVec3f& positio
       break;
   }
 
+  editor.transform_type = POSITION;
   editor.is_placing_new_entity = false;
 }
 

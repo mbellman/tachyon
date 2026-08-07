@@ -105,6 +105,10 @@ struct WalkwaySegments {
   }
 };
 
+static inline float GetWiderHorizontalScale(const StaticEntity& entity) {
+  return std::max(entity.scale.x, entity.scale.z);
+}
+
 static void RebuildWalkways(Tachyon* tachyon, State& state) {
   reset_instances(state.meshes.walkway_plane);
 
@@ -124,7 +128,7 @@ static void RebuildWalkways(Tachyon* tachyon, State& state) {
         auto& plane = use_instance(state.meshes.walkway_plane);
 
         tVec3f path_direction = (entity.position - next.position) / distance;
-        float x_scale = (entity.scale.x + next.scale.x) / 2.f;
+        float x_scale = (GetWiderHorizontalScale(entity) + GetWiderHorizontalScale(next)) / 2.f;
         float z_scale = distance / 2.f;
 
         plane.position = (entity.position + next.position) / 2.f;
