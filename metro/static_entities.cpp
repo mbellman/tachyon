@@ -142,6 +142,17 @@ static void RebuildWalkways(Tachyon* tachyon, State& state) {
         float x_scale = (GetWiderHorizontalScale(entity) + GetWiderHorizontalScale(next)) / 2.f;
         float z_scale = distance / 2.f;
 
+        tVec3f start_direction = entity.rotation.getDirection();
+        tVec3f end_direction = next.rotation.getDirection();
+
+        Debug::ShowDebugVector(tachyon, entity.position, start_direction * 2000.f, tVec3f(1.f));
+        Debug::ShowDebugVector(tachyon, next.position, end_direction * 2000.f, tVec3f(1.f));
+
+        float direction_dot = tVec3f::dot(
+          entity.rotation.getDirection(),
+          next.rotation.getLeftDirection().invert()
+        );
+
         // Determine the four corners of the plane between the segments
         auto [A, B] = GetSegmentEdge(entity);
         auto [C, D] = GetSegmentEdge(next);
@@ -157,6 +168,20 @@ static void RebuildWalkways(Tachyon* tachyon, State& state) {
 
           tVec3f p3 = tVec3f::lerp(A, C, a2);
           tVec3f p4 = tVec3f::lerp(B, D, a2);
+
+          if (i > 1) {
+            tVec3f shift = (p2 - p1) * direction_dot * 0.2f;
+
+            p1 += shift;
+            p2 += shift;
+          }
+
+          if (i < 3) {
+            tVec3f shift = (p4 - p3) * direction_dot * 0.2f;
+
+            p3 += shift;
+            p4 += shift;
+          }
 
           // @temporary
           // @todo generate actual walkway geometry

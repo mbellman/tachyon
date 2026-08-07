@@ -1,6 +1,8 @@
 sfx credits:
 
 editor:
+* rotating bikes
+* make bikes fall to ground below?
 
 game:
 * reduce bike pedal rocking when leaning
