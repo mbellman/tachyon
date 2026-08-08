@@ -77,6 +77,10 @@ static std::string GetEntityDisplayName() {
   }
 }
 
+// ---------------------
+// Positioning utilities
+// ---------------------
+
 static tVec3f GetSelectionPosition() {
   switch (GetEntityCategory()) {
     case BICYCLE:
@@ -88,6 +92,25 @@ static tVec3f GetSelectionPosition() {
       return tVec3f(0.f);
   }
 }
+
+static void MoveSelection(const tVec3f& offset) {
+  switch (GetEntityCategory()) {
+    case BICYCLE:
+      ((Bicycle*)editor.selection)->position += offset;
+      break;
+    case STATIC_ENTITY:
+      ((StaticEntity*)editor.selection)->position += offset;
+      ((StaticEntity*)editor.selection)->needs_update = true;
+      break;
+    case INTERACTIVE_ENTITY: // @todo
+    default:
+      break;
+  }
+}
+
+// -----------------
+// Scaling utilities
+// -----------------
 
 static tVec3f GetSelectionScale() {
   switch (GetEntityCategory()) {
@@ -102,6 +125,24 @@ static tVec3f GetSelectionScale() {
   }
 }
 
+static void ScaleSelection(const tVec3f& scale_change) {
+  switch (GetEntityCategory()) {
+    case BICYCLE:
+      break;
+    case STATIC_ENTITY:
+      ((StaticEntity*)editor.selection)->scale += scale_change;
+      ((StaticEntity*)editor.selection)->needs_update = true;
+      break;
+    case INTERACTIVE_ENTITY: // @todo
+    default:
+      break;
+  }
+}
+
+// ------------------
+// Rotation utilities
+// ------------------
+
 static Quaternion GetSelectionRotation() {
   switch (GetEntityCategory()) {
     case BICYCLE:
@@ -113,6 +154,53 @@ static Quaternion GetSelectionRotation() {
       return Quaternion(1.f, 0, 0, 0);
   }
 }
+
+static void SetSelectionRotation(const Quaternion& rotation) {
+  switch (GetEntityCategory()) {
+    case BICYCLE: {
+      auto& bike = *(Bicycle*) editor.selection;
+      tVec3f direction = rotation.getDirection().invert();
+      float angle = atan2f(direction.z, direction.x);
+
+      bike.facing_direction = direction;
+      bike.flat_rotation = rotation;
+
+      break;
+    }
+    case STATIC_ENTITY:
+      ((StaticEntity*)editor.selection)->rotation = rotation;
+      break;
+    case INTERACTIVE_ENTITY: // @todo
+    default:
+      break;
+  }
+}
+
+static void RotateSelection(const tVec3f& axis, const float angle) {
+  switch (GetEntityCategory()) {
+    case BICYCLE: {
+      auto& bike = *(Bicycle*) editor.selection;
+
+      // Restrict bikes to y-axis rotations only
+      if (axis == Y_UP) {
+        bike.facing_direction = Quaternion::fromAxisAngle(axis, angle).toMatrix4f() * bike.facing_direction;
+        bike.facing_direction = bike.facing_direction.unit();
+        bike.flat_rotation = Quaternion::FromDirection(bike.facing_direction, Y_UP);
+      }
+
+      break;
+    }
+    case STATIC_ENTITY:
+      ((StaticEntity*)editor.selection)->rotation *= Quaternion::fromAxisAngle(axis, angle);
+      ((StaticEntity*)editor.selection)->needs_update = true;
+      break;
+    case INTERACTIVE_ENTITY: // @todo
+    default:
+      break;
+  }
+}
+
+// ------------------
 
 static HighlightBox GetSelectionHighlightBox() {
   switch (GetEntityCategory()) {
@@ -139,58 +227,6 @@ static HighlightBox GetSelectionHighlightBox() {
       return {};
     default:
       return {};
-  }
-}
-
-static void MoveSelection(const tVec3f& offset) {
-  switch (GetEntityCategory()) {
-    case BICYCLE:
-      ((Bicycle*)editor.selection)->position += offset;
-      break;
-    case STATIC_ENTITY:
-      ((StaticEntity*)editor.selection)->position += offset;
-      ((StaticEntity*)editor.selection)->needs_update = true;
-      break;
-    case INTERACTIVE_ENTITY: // @todo
-    default:
-      break;
-  }
-}
-
-static void ScaleSelection(const tVec3f& scale_change) {
-  switch (GetEntityCategory()) {
-    case BICYCLE:
-      break;
-    case STATIC_ENTITY:
-      ((StaticEntity*)editor.selection)->scale += scale_change;
-      ((StaticEntity*)editor.selection)->needs_update = true;
-      break;
-    case INTERACTIVE_ENTITY: // @todo
-    default:
-      break;
-  }
-}
-
-static void RotateSelection(const tVec3f& axis, const float angle) {
-  switch (GetEntityCategory()) {
-    case BICYCLE: {
-      auto& bike = *(Bicycle*) editor.selection;
-
-      // Restrict bikes to y-axis rotations only
-      if (axis == Y_UP) {
-        bike.facing_direction = Quaternion::fromAxisAngle(axis, angle).toMatrix4f() * bike.facing_direction;
-        bike.facing_direction = bike.facing_direction.unit();
-        bike.flat_rotation = Quaternion::FromDirection(bike.facing_direction, Y_UP);
-      }
-      break;
-    }
-    case STATIC_ENTITY:
-      ((StaticEntity*)editor.selection)->rotation *= Quaternion::fromAxisAngle(axis, angle);
-      ((StaticEntity*)editor.selection)->needs_update = true;
-      break;
-    case INTERACTIVE_ENTITY: // @todo
-    default:
-      break;
   }
 }
 
@@ -364,13 +400,14 @@ static void CloneSelection(Tachyon* tachyon, State& state, CloneDirection direct
     ? camera.orientation.getLeftDirection()
     : camera.orientation.getRightDirection();
 
-    tVec3f selection_position = GetSelectionPosition();
+  tVec3f selection_position = GetSelectionPosition();
   Quaternion selection_rotation = GetSelectionRotation();
 
   tVec3f basis_x = EditorUtilities::GetClosestBasisAxis(selection_rotation, camera_direction);
   tVec3f spawn_position = selection_position + basis_x * 5000.f;
 
   PlaceNewEntity(tachyon, state, spawn_position);
+  SetSelectionRotation(selection_rotation);
 }
 
 static void ShowPlacementPreview(Tachyon* tachyon, State& state) {
