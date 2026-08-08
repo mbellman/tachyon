@@ -168,9 +168,17 @@ static void ScaleSelection(const tVec3f& scale_change) {
 
 static void RotateSelection(const tVec3f& axis, const float angle) {
   switch (GetEntityCategory()) {
-    case BICYCLE:
-      // @todo
+    case BICYCLE: {
+      auto& bike = *(Bicycle*) editor.selection;
+
+      // Restrict bikes to y-axis rotations only
+      if (axis == Y_UP) {
+        bike.facing_direction = Quaternion::fromAxisAngle(axis, angle).toMatrix4f() * bike.facing_direction;
+        bike.facing_direction = bike.facing_direction.unit();
+        bike.flat_rotation = Quaternion::FromDirection(bike.facing_direction, Y_UP);
+      }
       break;
+    }
     case STATIC_ENTITY:
       ((StaticEntity*)editor.selection)->rotation *= Quaternion::fromAxisAngle(axis, angle);
       ((StaticEntity*)editor.selection)->needs_update = true;

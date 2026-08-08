@@ -1,7 +1,6 @@
 sfx credits:
 
 editor:
-* rotating bikes
 * make bikes fall to ground below?
 
 game:

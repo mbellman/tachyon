@@ -159,7 +159,7 @@ static void RebuildWalkways(Tachyon* tachyon, State& state) {
           next.rotation.getLeftDirection()
         );
 
-        tVec3f unit_path_direction = path_direction.unit();
+        tVec3f unit_path_direction = path_direction / distance;
 
         // Determine the four corners of the plane between the segments
         auto [A, B] = GetSegmentEdge(entity);
