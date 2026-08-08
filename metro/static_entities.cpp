@@ -163,6 +163,9 @@ static void RebuildWalkways(Tachyon* tachyon, State& state) {
         auto [A, B] = GetSegmentEdge(entity);
         auto [C, D] = GetSegmentEdge(next);
 
+        float edge_AC_factor = tVec3f::distance(A, C) / distance;
+        float edge_BD_factor = tVec3f::distance(B, D) / distance;
+
         // Subdivide the plane for a smoother gradient
         for_range(1, 3) {
           float a1 = float(i - 1) / 3.f;
@@ -178,47 +181,55 @@ static void RebuildWalkways(Tachyon* tachyon, State& state) {
           if (i > 1) {
             tVec3f shift = (p2 - p1) * direction_dot * 0.2f;
 
-            p1 += shift;
-            p2 += shift;
+            p1 += shift * edge_AC_factor;
+            p2 += shift * edge_BD_factor;
           }
 
           if (i < 3) {
             tVec3f shift = (p4 - p3) * direction_dot * 0.2f;
 
-            p3 += shift;
-            p4 += shift;
+            p3 += shift * edge_AC_factor;
+            p4 += shift * edge_BD_factor;
           }
+
+          tVec3f p1n = tVec3f::cross(p3 - p1, p2 - p1).unit();
+          tVec3f p2n = tVec3f::cross(p3 - p1, p2 - p1).unit();
+          tVec3f p3n = tVec3f::cross(p3 - p4, p3 - p1).unit();
+          tVec3f p4n = tVec3f::cross(p3 - p4, p3 - p1).unit();
+
+          Debug::ShowDebugVector(tachyon, p1, p1n * 1000.f, tVec3f(1.f, 0, 0));
+          Debug::ShowDebugVector(tachyon, p2, p2n * 1000.f, tVec3f(1.f, 0, 0));
+          Debug::ShowDebugVector(tachyon, p3, p3n * 1000.f, tVec3f(1.f, 0, 0));
+          Debug::ShowDebugVector(tachyon, p4, p4n * 1000.f, tVec3f(1.f, 0, 0));
 
           stream.vertices.push_back({
             .position = p1,
-            // @temporary
-            .normal = tVec3f(0, 1.f, 0)
+            .normal = p1n
           });
 
           stream.vertices.push_back({
             .position = p2,
-            // @temporary
-            .normal = tVec3f(0, 1.f, 0)
+            .normal = p2n
           });
 
           stream.vertices.push_back({
             .position = p3,
-            // @temporary
-            .normal = tVec3f(0, 1.f, 0)
+            .normal = p3n
           });
 
           stream.vertices.push_back({
             .position = p4,
-            // @temporary
-            .normal = tVec3f(0, 1.f, 0)
+            .normal = p4n
           });
 
           uint32 vertex_offset = (uint32) stream.vertices.size() - 4;
 
+          // 0 2 1
           stream.face_elements.push_back(vertex_offset);
           stream.face_elements.push_back(vertex_offset + 2);
           stream.face_elements.push_back(vertex_offset + 1);
 
+          // 1 2 3
           stream.face_elements.push_back(vertex_offset + 1);
           stream.face_elements.push_back(vertex_offset + 2);
           stream.face_elements.push_back(vertex_offset + 3);
