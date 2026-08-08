@@ -837,6 +837,52 @@ static void RenderStaticMeshes(Tachyon* tachyon) {
   }
 }
 
+static void RenderVertexStreams(Tachyon* tachyon, uint32& triangle_count, uint32& vertex_count) {
+  auto& scene = tachyon->scene;
+  auto& renderer = get_renderer();
+  auto& shader = renderer.shaders.vertex_stream;
+  auto& locations = renderer.shaders.locations.vertex_stream;
+  auto& ctx = renderer.ctx;
+
+  glUseProgram(shader.program);
+  SetShaderMat4f(locations.view_projection_matrix, ctx.view_projection_matrix);
+  SetShaderVec3f(locations.transform_origin, scene.transform_origin);
+
+  for (size_t i = 0; i < renderer.vertex_streams.size(); i++) {
+    auto& gl_stream = renderer.vertex_streams[i];
+    auto& base_stream = tachyon->vertex_streams[i];
+
+    glBindVertexArray(gl_stream.vao);
+
+    if (!base_stream.buffered) {
+      auto& vertices = base_stream.vertices;
+      auto& face_elements = base_stream.face_elements;
+
+      // Buffer vertex data
+      glBindBuffer(GL_ARRAY_BUFFER, gl_stream.vbo);
+      glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(tVertex), vertices.data(), GL_STATIC_DRAW);
+
+      // Buffer vertex element data
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gl_stream.ebo);
+      glBufferData(GL_ELEMENT_ARRAY_BUFFER, face_elements.size() * sizeof(uint32), face_elements.data(), GL_STATIC_DRAW);
+
+      base_stream.buffered = true;
+    }
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gl_stream.ebo);
+
+    glDrawElements(GL_TRIANGLES, base_stream.face_elements.size(), GL_UNSIGNED_INT, 0);
+
+    // @todo dev mode only
+    {
+      renderer.total_draw_calls += 1;
+
+      triangle_count += base_stream.face_elements.size() / 3;
+      vertex_count += base_stream.vertices.size();
+    }
+  }
+}
+
 static void RenderSingleSkinnedMesh(Tachyon* tachyon, tOpenGLSkinnedMesh& gl_skinned_mesh, tOpenGLShader& shader, uint32& triangle_count, uint32& vertex_count) {
   auto& renderer = get_renderer();
   auto& base_mesh = tachyon->skinned_meshes[gl_skinned_mesh.mesh_index];
@@ -1514,6 +1560,13 @@ void Tachyon_OpenGL_InitRenderer(Tachyon* tachyon) {
     renderer->screen_quad = Tachyon_CreateOpenGLScreenQuad(tachyon);
     renderer->point_light_disc = Tachyon_CreateOpenGLPointLightDisc(tachyon);
 
+    for (size_t index = 0; index < tachyon->vertex_streams.size(); index++) {
+      auto& stream = tachyon->vertex_streams[index];
+      auto gl_stream = Tachyon_CreateOpenGLVertexStream();
+
+      renderer->vertex_streams.push_back(gl_stream);
+    }
+
     for (size_t index = 0; index < tachyon->skinned_meshes.size(); index++) {
       auto& skinned_mesh = tachyon->skinned_meshes[index];
       auto gl_skinned_mesh = Tachyon_CreateOpenGLSkinnedMesh(tachyon, skinned_mesh);
@@ -1580,6 +1633,7 @@ void Tachyon_OpenGL_RenderScene(Tachyon* tachyon) {
 
   UpdateRendererContext(tachyon);
   RenderStaticMeshes(tachyon);
+  RenderVertexStreams(tachyon, renderer.total_triangles, renderer.total_vertices);
   RenderSkinnedMeshes(tachyon);
 
   if (tachyon->fx.enable_shadows) {

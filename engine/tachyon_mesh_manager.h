@@ -5,6 +5,7 @@
 
 #define add_mesh(__mesh, __total) Tachyon_AddMesh(tachyon, __mesh, __total)
 #define mesh(__mesh_index) tachyon->mesh_pack.mesh_records[__mesh_index]
+#define vertex_stream(__mesh_index) tachyon->vertex_streams[__mesh_index]
 #define skinned_mesh(__mesh_index) tachyon->skinned_meshes[__mesh_index]
 #define objects(__mesh_index) tachyon->mesh_pack.mesh_records[__mesh_index].group
 #define create(__mesh_index) Tachyon_CreateObject(tachyon, __mesh_index)
@@ -39,6 +40,7 @@ tMesh Tachyon_CreateSphereMesh(uint8 divisions);
 uint16 Tachyon_AddMesh(Tachyon* tachyon, const tMesh& mesh, uint16 total);
 uint16 Tachyon_AddMesh(Tachyon* tachyon, const tMesh& mesh, const tMesh& mesh2, uint16 total);
 uint16 Tachyon_AddMesh(Tachyon* tachyon, const tMesh& mesh, const tMesh& mesh2, const tMesh& mesh3, uint16 total);
+int32 Tachyon_AddVertexStream(Tachyon* tachyon);
 int32 Tachyon_AddSkinnedMesh(Tachyon* tachyon, const tSkinnedMesh& skinned_mesh);
 void Tachyon_InitializeObjects(Tachyon* tachyon);
 tObject& Tachyon_CreateObject(Tachyon* tachyon, uint16 mesh_index);

@@ -116,6 +116,16 @@ struct tObjectGroup {
   }
 };
 
+struct tVertexStream {
+  std::vector<tVertex> vertices;
+  std::vector<uint32> face_elements;
+
+  tColor color = tVec3f(1.f);
+  tMaterial material = tVec4f(0.6f, 0, 0, 0);
+
+  bool buffered = false;
+};
+
 struct tBone {
   std::string name = "";
   int32 index = -1;
@@ -271,6 +281,9 @@ struct Tachyon {
   std::vector<tObject> objects;
   std::vector<uint32> surfaces;
   std::vector<tMat4f> matrices;
+
+  // Procedural geometry
+  std::vector<tVertexStream> vertex_streams;
 
   // Skinned/animated meshes
   std::vector<tSkinnedMesh> skinned_meshes;

@@ -53,6 +53,10 @@ static void LoadStaticEntityMeshes(Tachyon* tachyon, State& state) {
   }
 }
 
+static void CreateVertexStreams(Tachyon* tachyon, State& state) {
+  state.meshes.walkway_stream = Tachyon_AddVertexStream(tachyon);
+}
+
 static void LoadGameMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
@@ -66,6 +70,7 @@ static void LoadGameMeshes(Tachyon* tachyon, State& state) {
   Debug::Init(tachyon);
   LoadCommonBikeMeshes(tachyon, state);
   LoadStaticEntityMeshes(tachyon, state);
+  CreateVertexStreams(tachyon, state);
 
   Tachyon_InitializeObjects(tachyon);
 

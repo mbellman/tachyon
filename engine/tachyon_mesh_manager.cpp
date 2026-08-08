@@ -518,6 +518,14 @@ uint16 Tachyon_AddMesh(Tachyon* tachyon, const tMesh& mesh_lod_1, const tMesh& m
   return record.mesh_index;
 }
 
+int32 Tachyon_AddVertexStream(Tachyon* tachyon) {
+  tVertexStream stream;
+
+  tachyon->vertex_streams.push_back(stream);
+
+  return (int32) (tachyon->vertex_streams.size() - 1);
+}
+
 int32 Tachyon_AddSkinnedMesh(Tachyon* tachyon, const tSkinnedMesh& skinned_mesh) {
   tachyon->skinned_meshes.push_back(skinned_mesh);
 

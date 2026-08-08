@@ -96,6 +96,9 @@ static void StoreShaderUniforms(tOpenGLShaders& shaders) {
   store_shader_uniform(main_geometry, use_close_camera_disocclusion);
   store_shader_uniform(main_geometry, disocclusion_target_position);
 
+  store_shader_uniform(vertex_stream, view_projection_matrix);
+  store_shader_uniform(vertex_stream, transform_origin);
+
   store_shader_uniform(skinned_mesh, view_projection_matrix);
   store_shader_uniform(skinned_mesh, transform_origin);
   store_shader_uniform(skinned_mesh, model_matrix);
@@ -261,6 +264,12 @@ void Tachyon_OpenGL_InitShaders(tOpenGLShaders& shaders) {
     shaders.main_geometry,
     "./engine/opengl/shaders/main_geometry.vert.glsl",
     "./engine/opengl/shaders/main_geometry.frag.glsl"
+  );
+
+  LoadVertexFragmentShader(
+    shaders.vertex_stream,
+    "./engine/opengl/shaders/vertex_stream.vert.glsl",
+    "./engine/opengl/shaders/vertex_stream.frag.glsl"
   );
 
   LoadVertexFragmentShader(

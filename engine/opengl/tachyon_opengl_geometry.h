@@ -16,6 +16,12 @@ struct tOpenGLMeshPack {
   GLuint ebo;
 };
 
+struct tOpenGLVertexStream {
+  GLuint vao;
+  GLuint vbo;
+  GLuint ebo;
+};
+
 struct tOpenGLSkinnedMesh {
   int32 mesh_index = -1;
   GLuint vao;
@@ -41,6 +47,7 @@ struct tOpenGLPointLightDiscInstance {
 };
 
 tOpenGLMeshPack Tachyon_CreateOpenGLMeshPack(Tachyon* tachyon);
+tOpenGLVertexStream Tachyon_CreateOpenGLVertexStream();
 tOpenGLSkinnedMesh Tachyon_CreateOpenGLSkinnedMesh(Tachyon* tachyon, const tSkinnedMesh& skinned_mesh);
 tOpenGLScreenQuad Tachyon_CreateOpenGLScreenQuad(Tachyon* tachyon);
 tOpenGLLightDisc Tachyon_CreateOpenGLPointLightDisc(Tachyon* tachyon);

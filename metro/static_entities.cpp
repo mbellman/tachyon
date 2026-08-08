@@ -123,6 +123,12 @@ static inline std::tuple<tVec3f, tVec3f> GetSegmentEdge(const StaticEntity& enti
 }
 
 static void RebuildWalkways(Tachyon* tachyon, State& state) {
+  auto& stream = vertex_stream(state.meshes.walkway_stream);
+
+  stream.vertices.clear();
+  stream.face_elements.clear();
+  stream.buffered = false;
+
   reset_instances(state.meshes.walkway_plane);
 
   // Clear any collision planes present on the segment entities.
@@ -183,40 +189,44 @@ static void RebuildWalkways(Tachyon* tachyon, State& state) {
             p4 += shift;
           }
 
-          // @temporary
-          // @todo generate actual walkway geometry
-          Debug::ShowDebugSphere(tachyon, p1, 200.f);
-          Debug::ShowDebugSphere(tachyon, p2, 200.f);
+          stream.vertices.push_back({
+            .position = p1,
+            // @temporary
+            .normal = tVec3f(0, 1.f, 0)
+          });
+
+          stream.vertices.push_back({
+            .position = p2,
+            // @temporary
+            .normal = tVec3f(0, 1.f, 0)
+          });
+
+          stream.vertices.push_back({
+            .position = p3,
+            // @temporary
+            .normal = tVec3f(0, 1.f, 0)
+          });
+
+          stream.vertices.push_back({
+            .position = p4,
+            // @temporary
+            .normal = tVec3f(0, 1.f, 0)
+          });
+
+          uint32 vertex_offset = (uint32) stream.vertices.size() - 4;
+
+          stream.face_elements.push_back(vertex_offset);
+          stream.face_elements.push_back(vertex_offset + 2);
+          stream.face_elements.push_back(vertex_offset + 1);
+
+          stream.face_elements.push_back(vertex_offset + 1);
+          stream.face_elements.push_back(vertex_offset + 2);
+          stream.face_elements.push_back(vertex_offset + 3);
+
+          // Debug::ShowDebugSphere(tachyon, p1, 200.f);
+          // Debug::ShowDebugSphere(tachyon, p2, 200.f);
           // Debug::ShowDebugSphere(tachyon, p3, 200.f);
           // Debug::ShowDebugSphere(tachyon, p4, 200.f);
-
-          Debug::ShowDebugLine(tachyon, {
-            .position = p1,
-            .vector = (p3 - p1),
-            .color = tVec3f(1.f),
-            .thickness = 20
-          });
-
-          Debug::ShowDebugLine(tachyon, {
-            .position = p2,
-            .vector = (p4 - p2),
-            .color = tVec3f(1.f),
-            .thickness = 20
-          });
-
-          Debug::ShowDebugLine(tachyon, {
-            .position = p1,
-            .vector = (p4 - p1),
-            .color = tVec3f(1.f),
-            .thickness = 20
-          });
-
-          Debug::ShowDebugLine(tachyon, {
-            .position = p1,
-            .vector = (p2 - p1),
-            .color = tVec3f(1.f),
-            .thickness = 20
-          });
         }
 
         // auto collision_plane = Collision::CreateFloorCollisionPlane(plane);

@@ -17,25 +17,25 @@
 tOpenGLMeshPack Tachyon_CreateOpenGLMeshPack(Tachyon* tachyon) {
   auto& pack = tachyon->mesh_pack;
   auto& vertices = pack.vertex_stream;
-  auto& faceElements = pack.face_element_stream;
-  tOpenGLMeshPack glPack;
+  auto& face_elements = pack.face_element_stream;
+  tOpenGLMeshPack gl_pack;
 
-  glGenVertexArrays(1, &glPack.vao);
-  glGenBuffers(3, &glPack.buffers[0]);
-  glGenBuffers(1, &glPack.ebo);
+  glGenVertexArrays(1, &gl_pack.vao);
+  glGenBuffers(3, &gl_pack.buffers[0]);
+  glGenBuffers(1, &gl_pack.ebo);
 
-  glBindVertexArray(glPack.vao);
+  glBindVertexArray(gl_pack.vao);
 
   // Buffer vertex data
-  glBindBuffer(GL_ARRAY_BUFFER, glPack.buffers[VERTEX_BUFFER]);
+  glBindBuffer(GL_ARRAY_BUFFER, gl_pack.buffers[VERTEX_BUFFER]);
   glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(tVertex), vertices.data(), GL_STATIC_DRAW);
 
   // Buffer vertex element data
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glPack.ebo);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, faceElements.size() * sizeof(uint32), faceElements.data(), GL_STATIC_DRAW);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gl_pack.ebo);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, face_elements.size() * sizeof(uint32), face_elements.data(), GL_STATIC_DRAW);
 
   // Define vertex attributes
-  glBindBuffer(GL_ARRAY_BUFFER, glPack.buffers[VERTEX_BUFFER]);
+  glBindBuffer(GL_ARRAY_BUFFER, gl_pack.buffers[VERTEX_BUFFER]);
 
   glEnableVertexAttribArray(VERTEX_POSITION);
   glVertexAttribPointer(VERTEX_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(tVertex), (void*)offsetof(tVertex, position));
@@ -50,13 +50,13 @@ tOpenGLMeshPack Tachyon_CreateOpenGLMeshPack(Tachyon* tachyon) {
   glVertexAttribPointer(VERTEX_UV, 2, GL_FLOAT, GL_FALSE, sizeof(tVertex), (void*)offsetof(tVertex, uv));
 
   // Define surface attributes
-  glBindBuffer(GL_ARRAY_BUFFER, glPack.buffers[SURFACE_BUFFER]);
+  glBindBuffer(GL_ARRAY_BUFFER, gl_pack.buffers[SURFACE_BUFFER]);
   glEnableVertexAttribArray(MODEL_SURFACE);
   glVertexAttribIPointer(MODEL_SURFACE, 1, GL_UNSIGNED_INT, sizeof(uint32), (void*)0);
   glVertexAttribDivisor(MODEL_SURFACE, 1);
 
   // Define matrix attributes
-  glBindBuffer(GL_ARRAY_BUFFER, glPack.buffers[MATRIX_BUFFER]);
+  glBindBuffer(GL_ARRAY_BUFFER, gl_pack.buffers[MATRIX_BUFFER]);
 
   for (uint32 i = 0; i < 4; i++) {
     glEnableVertexAttribArray(MODEL_MATRIX + i);
@@ -64,7 +64,33 @@ tOpenGLMeshPack Tachyon_CreateOpenGLMeshPack(Tachyon* tachyon) {
     glVertexAttribDivisor(MODEL_MATRIX + i, 1);
   }
 
-  return glPack;
+  return gl_pack;
+}
+
+tOpenGLVertexStream Tachyon_CreateOpenGLVertexStream() {
+  tOpenGLVertexStream gl_stream;
+
+  glGenVertexArrays(1, &gl_stream.vao);
+  glGenBuffers(1, &gl_stream.vbo);
+  glGenBuffers(1, &gl_stream.ebo);
+
+  // Define vertex attributes
+  glBindVertexArray(gl_stream.vao);
+  glBindBuffer(GL_ARRAY_BUFFER, gl_stream.vbo);
+
+  glEnableVertexAttribArray(VERTEX_POSITION);
+  glVertexAttribPointer(VERTEX_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(tVertex), (void*)offsetof(tVertex, position));
+
+  glEnableVertexAttribArray(VERTEX_NORMAL);
+  glVertexAttribPointer(VERTEX_NORMAL, 3, GL_FLOAT, GL_FALSE, sizeof(tVertex), (void*)offsetof(tVertex, normal));
+
+  glEnableVertexAttribArray(VERTEX_TANGENT);
+  glVertexAttribPointer(VERTEX_TANGENT, 3, GL_FLOAT, GL_FALSE, sizeof(tVertex), (void*)offsetof(tVertex, tangent));
+
+  glEnableVertexAttribArray(VERTEX_UV);
+  glVertexAttribPointer(VERTEX_UV, 2, GL_FLOAT, GL_FALSE, sizeof(tVertex), (void*)offsetof(tVertex, uv));
+
+  return gl_stream;
 }
 
 tOpenGLSkinnedMesh Tachyon_CreateOpenGLSkinnedMesh(Tachyon* tachyon, const tSkinnedMesh& skinned_mesh) {

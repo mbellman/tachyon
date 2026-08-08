@@ -13,6 +13,7 @@ struct tOpenGLRenderer {
   GLuint indirect_buffer;
   tOpenGLShaders shaders;
   tOpenGLMeshPack mesh_pack;
+  std::vector<tOpenGLVertexStream> vertex_streams;
   std::vector<tOpenGLSkinnedMesh> skinned_meshes;
 
   struct tOpenGLRendererContext {

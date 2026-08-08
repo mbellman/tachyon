@@ -40,6 +40,11 @@ struct tUniformLocations {
 
   uniform_locations(
     view_projection_matrix,
+    transform_origin
+  ) vertex_stream;
+
+  uniform_locations(
+    view_projection_matrix,
     transform_origin,
     model_matrix,
     model_surface
@@ -209,6 +214,7 @@ struct tUniformLocations {
 
 struct tOpenGLShaders {
   tOpenGLShader main_geometry;
+  tOpenGLShader vertex_stream;
   tOpenGLShader skinned_mesh;
   tOpenGLShader shadow_map;
   tOpenGLShader skinned_shadow_mesh;

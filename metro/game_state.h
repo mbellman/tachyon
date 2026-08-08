@@ -87,6 +87,8 @@ namespace metro {
       vending_machine
 
       ;
+
+    int32 walkway_stream;
   };
 
   struct State {
