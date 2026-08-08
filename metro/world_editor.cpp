@@ -15,6 +15,11 @@ struct HighlightBox {
   Quaternion rotation = Quaternion(1.f, 0, 0, 0);
 };
 
+enum CloneDirection {
+  LEFT,
+  RIGHT
+};
+
 enum TransformType {
   POSITION,
   SCALE,
@@ -352,6 +357,22 @@ static void PlaceNewEntity(Tachyon* tachyon, State& state, const tVec3f& positio
   editor.is_placing_new_entity = false;
 }
 
+static void CloneSelection(Tachyon* tachyon, State& state, CloneDirection direction) {
+  auto& camera = tachyon->scene.camera;
+
+  tVec3f camera_direction = direction == LEFT
+    ? camera.orientation.getLeftDirection()
+    : camera.orientation.getRightDirection();
+
+    tVec3f selection_position = GetSelectionPosition();
+  Quaternion selection_rotation = GetSelectionRotation();
+
+  tVec3f basis_x = EditorUtilities::GetClosestBasisAxis(selection_rotation, camera_direction);
+  tVec3f spawn_position = selection_position + basis_x * 5000.f;
+
+  PlaceNewEntity(tachyon, state, spawn_position);
+}
+
 static void ShowPlacementPreview(Tachyon* tachyon, State& state) {
   const float ray_length = 30000.f;
 
@@ -529,6 +550,14 @@ static void HandleSelectionHotkeys(Tachyon* tachyon, State& state) {
   if (did_press_key(tKey::BACKSPACE)) {
     DeleteSelection(tachyon, state);
     Deselect();
+  }
+
+  if (did_press_key(tKey::ARROW_LEFT)) {
+    CloneSelection(tachyon, state, LEFT);
+  }
+
+  if (did_press_key(tKey::ARROW_RIGHT)) {
+    CloneSelection(tachyon, state, RIGHT);
   }
 }
 
