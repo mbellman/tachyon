@@ -98,10 +98,14 @@ static void MoveSelection(const tVec3f& offset) {
     case BICYCLE:
       ((Bicycle*)editor.selection)->position += offset;
       break;
-    case STATIC_ENTITY:
-      ((StaticEntity*)editor.selection)->position += offset;
-      ((StaticEntity*)editor.selection)->needs_update = true;
+    case STATIC_ENTITY: {
+      auto& entity = *(StaticEntity*) editor.selection;
+
+      entity.position += offset;
+      entity.needs_update = true;
+
       break;
+    }
     case INTERACTIVE_ENTITY: // @todo
     default:
       break;
@@ -125,14 +129,38 @@ static tVec3f GetSelectionScale() {
   }
 }
 
+static void SetSelectionScale(const tVec3f& scale) {
+  switch (GetEntityCategory()) {
+    case BICYCLE:
+      // Bicycles cannot be scaled
+      break;
+    case STATIC_ENTITY: {
+      auto& entity = *(StaticEntity*) editor.selection;
+
+      entity.scale = scale;
+      entity.needs_update = true;
+
+      break;
+    }
+    case INTERACTIVE_ENTITY: // @todo
+    default:
+      break;
+  }
+}
+
 static void ScaleSelection(const tVec3f& scale_change) {
   switch (GetEntityCategory()) {
     case BICYCLE:
+      // Bicycles cannot be scaled
       break;
-    case STATIC_ENTITY:
-      ((StaticEntity*)editor.selection)->scale += scale_change;
-      ((StaticEntity*)editor.selection)->needs_update = true;
+    case STATIC_ENTITY: {
+      auto& entity = *(StaticEntity*) editor.selection;
+
+      entity.scale += scale_change;
+      entity.needs_update = true;
+
       break;
+    }
     case INTERACTIVE_ENTITY: // @todo
     default:
       break;
@@ -167,9 +195,14 @@ static void SetSelectionRotation(const Quaternion& rotation) {
 
       break;
     }
-    case STATIC_ENTITY:
-      ((StaticEntity*)editor.selection)->rotation = rotation;
+    case STATIC_ENTITY: {
+      auto& entity = *(StaticEntity*) editor.selection;
+
+      entity.rotation = rotation;
+      entity.needs_update = true;
+
       break;
+    }
     case INTERACTIVE_ENTITY: // @todo
     default:
       break;
@@ -190,10 +223,14 @@ static void RotateSelection(const tVec3f& axis, const float angle) {
 
       break;
     }
-    case STATIC_ENTITY:
-      ((StaticEntity*)editor.selection)->rotation *= Quaternion::fromAxisAngle(axis, angle);
-      ((StaticEntity*)editor.selection)->needs_update = true;
+    case STATIC_ENTITY: {
+      auto& entity = *(StaticEntity*) editor.selection;
+
+      entity.rotation *= Quaternion::fromAxisAngle(axis, angle);
+      entity.needs_update = true;
+
       break;
+    }
     case INTERACTIVE_ENTITY: // @todo
     default:
       break;
@@ -402,12 +439,16 @@ static void CloneSelection(Tachyon* tachyon, State& state, CloneDirection direct
 
   tVec3f selection_position = GetSelectionPosition();
   Quaternion selection_rotation = GetSelectionRotation();
+  tVec3f selection_scale = GetSelectionScale();
 
   tVec3f basis_x = EditorUtilities::GetClosestBasisAxis(selection_rotation, camera_direction);
   tVec3f spawn_position = selection_position + basis_x * 5000.f;
 
   PlaceNewEntity(tachyon, state, spawn_position);
+
+  // Copy rotation + scale to the new entity
   SetSelectionRotation(selection_rotation);
+  SetSelectionScale(selection_scale);
 }
 
 static void ShowPlacementPreview(Tachyon* tachyon, State& state) {
