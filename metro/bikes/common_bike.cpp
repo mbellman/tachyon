@@ -371,5 +371,23 @@ void CommonBike::Update(Tachyon* tachyon, State& state, Bicycle& bike, const int
 }
 
 void CommonBike::Destroy(Tachyon* tachyon, State& state, Bicycle& bike) {
-  // @todo
+  auto& meshes = state.meshes;
+
+  #define remove_one(__mesh_index) remove_object(objects(__mesh_index)[0])
+
+  remove_one(meshes.common_frame);
+  remove_one(meshes.common_fork);
+  remove_one(meshes.common_handlebars);
+  remove_one(meshes.common_grips);
+  remove_one(meshes.common_seatpost);
+  remove_one(meshes.common_saddle);
+  remove_one(meshes.common_crank);
+
+  remove_one(meshes.common_wheel);
+  remove_one(meshes.common_wheel);
+
+  remove_one(meshes.common_spokes);
+  remove_one(meshes.common_spokes);
+
+  #undef remove_one
 }

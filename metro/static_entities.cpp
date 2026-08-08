@@ -3,9 +3,6 @@
 
 using namespace metro;
 
-#define for_reversed(array)\
-  for (int32 i = (int32) array.size() - 1; i >= 0; i--)
-
 #define OnInit() static void Init(Tachyon* tachyon, State& state)
 #define OnUpdate() static void Update(Tachyon* tachyon, State& state, StaticEntity& entity, int32 index)
 #define OnRemove() static void Remove(Tachyon* tachyon, State& state, int32 index)

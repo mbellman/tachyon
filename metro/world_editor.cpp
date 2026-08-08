@@ -283,6 +283,26 @@ static inline void Deselect() {
   editor.selection = nullptr;
 }
 
+static void DeleteSelection(Tachyon* tachyon, State& state) {
+  switch (GetEntityCategory()) {
+    case BICYCLE: {
+      auto& bike = *(Bicycle*) editor.selection;
+
+      BackgroundBicycles::DestroyBicycle(tachyon, state, bike);
+
+      break;
+    }
+    case STATIC_ENTITY:
+      ((StaticEntity*) editor.selection)->needs_deletion = true;
+      break;
+    case INTERACTIVE_ENTITY:
+      // @todo
+      break;
+    default:
+      break;
+  }
+}
+
 static void PlaceNewBicycle(Tachyon* tachyon, State& state, const tVec3f& position) {
   Bicycle bike;
   bike.type          = COMMON_BIKE;
@@ -507,20 +527,7 @@ static void HandleSelectionManipulationActions(Tachyon* tachyon, State& state) {
 
 static void HandleSelectionHotkeys(Tachyon* tachyon, State& state) {
   if (did_press_key(tKey::BACKSPACE)) {
-    switch (GetEntityCategory()) {
-      case BICYCLE:
-        // @todo
-        break;
-      case STATIC_ENTITY:
-        ((StaticEntity*) editor.selection)->needs_deletion = true;
-        break;
-      case INTERACTIVE_ENTITY:
-        // @todo
-        break;
-      default:
-        break;
-    }
-
+    DeleteSelection(tachyon, state);
     Deselect();
   }
 }

@@ -10,8 +10,11 @@
 
 // @todo move to engine
 #define for_range(__low, __high) for (int i = __low; i <= __high; i++)
-#define time_since(t) (tachyon->scene.scene_time - (t))
+#define for_reversed(array) for (int32 i = (int32) array.size() - 1; i >= 0; i--)
+
 #define get_scene_time() tachyon->scene.scene_time
+#define time_since(t) (tachyon->scene.scene_time - (t))
+
 #define is_moving_left_stick() (tachyon->left_stick.x != 0.f || tachyon->left_stick.y != 0.f)
 #define is_moving_right_stick() (tachyon->right_stick.x != 0.f || tachyon->right_stick.y != 0.f)
 

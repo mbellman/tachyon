@@ -5,6 +5,7 @@
 namespace metro {
   namespace BackgroundBicycles {
     void Update(Tachyon* tachyon, State& state);
-    void SpawnBicycle(Tachyon* tachyon, State& state, Bicycle& bicycle);
+    void SpawnBicycle(Tachyon* tachyon, State& state, Bicycle& bike);
+    void DestroyBicycle(Tachyon* tachyon, State& state, Bicycle& bike);
   }
 }

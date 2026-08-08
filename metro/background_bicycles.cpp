@@ -36,3 +36,21 @@ void BackgroundBicycles::SpawnBicycle(Tachyon* tachyon, State& state, Bicycle& b
 
   state.bicycles.push_back(bike);
 }
+
+void BackgroundBicycles::DestroyBicycle(Tachyon* tachyon, State& state, Bicycle& bike) {
+  switch (bike.type) {
+    case COMMON_BIKE:
+      CommonBike::Destroy(tachyon, state, bike);
+      break;
+    default:
+      break;
+  }
+
+  for_reversed(state.bicycles) {
+    if (bike.id == state.bicycles[i].id) {
+      state.bicycles.erase(state.bicycles.begin() + i);
+
+      break;
+    }
+  }
+}
