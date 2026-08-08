@@ -159,6 +159,8 @@ static void RebuildWalkways(Tachyon* tachyon, State& state) {
           next.rotation.getLeftDirection()
         );
 
+        tVec3f unit_path_direction = path_direction.unit();
+
         // Determine the four corners of the plane between the segments
         auto [A, B] = GetSegmentEdge(entity);
         auto [C, D] = GetSegmentEdge(next);
@@ -166,78 +168,52 @@ static void RebuildWalkways(Tachyon* tachyon, State& state) {
         float edge_AC_factor = tVec3f::distance(A, C) / distance;
         float edge_BD_factor = tVec3f::distance(B, D) / distance;
 
-        // Subdivide the plane for a smoother gradient
-        for_range(1, 3) {
-          float a1 = float(i - 1) / 3.f;
-          float a2 = float(i) / 3.f;
+        uint32 vertex_offset = (uint32) stream.vertices.size();
 
-          // Get the four corners of the subdivision
-          tVec3f p1 = tVec3f::lerp(A, C, a1);
-          tVec3f p2 = tVec3f::lerp(B, D, a1);
+        // Create vertices to form subdivided slices of the plane
+        for_range(0, 3) {
+          float a = float(i) / 3.f;
 
-          tVec3f p3 = tVec3f::lerp(A, C, a2);
-          tVec3f p4 = tVec3f::lerp(B, D, a2);
+          tVec3f p1 = tVec3f::lerp(A, C, a);
+          tVec3f p2 = tVec3f::lerp(B, D, a);
 
-          if (i > 1) {
-            tVec3f shift = (p2 - p1) * direction_dot * 0.2f;
+          if (i > 0 && i < 3) {
+            tVec3f p1_shift = (p2 - p1) * direction_dot * 0.2f * edge_AC_factor;
+            tVec3f p2_shift = (p2 - p1) * direction_dot * 0.2f * edge_BD_factor;
 
-            p1 += shift * edge_AC_factor;
-            p2 += shift * edge_BD_factor;
+            p1 += p1_shift;
+            p2 += p2_shift;
           }
 
-          if (i < 3) {
-            tVec3f shift = (p4 - p3) * direction_dot * 0.2f;
-
-            p3 += shift * edge_AC_factor;
-            p4 += shift * edge_BD_factor;
-          }
-
-          tVec3f p1n = tVec3f::cross(p3 - p1, p2 - p1).unit();
-          tVec3f p2n = tVec3f::cross(p3 - p1, p2 - p1).unit();
-          tVec3f p3n = tVec3f::cross(p3 - p4, p3 - p1).unit();
-          tVec3f p4n = tVec3f::cross(p3 - p4, p3 - p1).unit();
-
-          Debug::ShowDebugVector(tachyon, p1, p1n * 1000.f, tVec3f(1.f, 0, 0));
-          Debug::ShowDebugVector(tachyon, p2, p2n * 1000.f, tVec3f(1.f, 0, 0));
-          Debug::ShowDebugVector(tachyon, p3, p3n * 1000.f, tVec3f(1.f, 0, 0));
-          Debug::ShowDebugVector(tachyon, p4, p4n * 1000.f, tVec3f(1.f, 0, 0));
+          tVec3f normal = tVec3f::cross(
+            unit_path_direction,
+            (p2 - p1).unit()
+          );
 
           stream.vertices.push_back({
             .position = p1,
-            .normal = p1n
+            .normal = normal
           });
 
           stream.vertices.push_back({
             .position = p2,
-            .normal = p2n
+            .normal = normal
           });
+        }
 
-          stream.vertices.push_back({
-            .position = p3,
-            .normal = p3n
-          });
-
-          stream.vertices.push_back({
-            .position = p4,
-            .normal = p4n
-          });
-
-          uint32 vertex_offset = (uint32) stream.vertices.size() - 4;
+        // Create face elements for the subdivided plane slices
+        for_range(1, 3) {
+          uint32 offset = vertex_offset + (i - 1) * 2;
 
           // 0 2 1
-          stream.face_elements.push_back(vertex_offset);
-          stream.face_elements.push_back(vertex_offset + 2);
-          stream.face_elements.push_back(vertex_offset + 1);
+          stream.face_elements.push_back(offset);
+          stream.face_elements.push_back(offset + 2);
+          stream.face_elements.push_back(offset + 1);
 
           // 1 2 3
-          stream.face_elements.push_back(vertex_offset + 1);
-          stream.face_elements.push_back(vertex_offset + 2);
-          stream.face_elements.push_back(vertex_offset + 3);
-
-          // Debug::ShowDebugSphere(tachyon, p1, 200.f);
-          // Debug::ShowDebugSphere(tachyon, p2, 200.f);
-          // Debug::ShowDebugSphere(tachyon, p3, 200.f);
-          // Debug::ShowDebugSphere(tachyon, p4, 200.f);
+          stream.face_elements.push_back(offset + 1);
+          stream.face_elements.push_back(offset + 2);
+          stream.face_elements.push_back(offset + 3);
         }
 
         // auto collision_plane = Collision::CreateFloorCollisionPlane(plane);
