@@ -1,5 +1,4 @@
 #include "metro/interactive_entities.h"
-#include "metro/collision.h"
 
 using namespace metro;
 

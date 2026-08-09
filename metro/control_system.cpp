@@ -1,7 +1,6 @@
 #include "engine/tachyon.h"
 
 #include "metro/control_system.h"
-#include "metro/constants.h"
 #include "metro/utilities.h"
 
 using namespace metro;

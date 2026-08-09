@@ -3,8 +3,6 @@
 #include "metro/game.h"
 #include "metro/background_bicycles.h"
 #include "metro/camera_system.h"
-#include "metro/collision.h"
-#include "metro/constants.h"
 #include "metro/control_system.h"
 #include "metro/interactive_entities.h"
 #include "metro/player.h"

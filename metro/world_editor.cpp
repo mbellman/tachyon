@@ -2,8 +2,6 @@
 
 #include "metro/world_editor.h"
 #include "metro/background_bicycles.h"
-#include "metro/collision.h"
-#include "metro/constants.h"
 #include "metro/editor_utilities.h"
 #include "metro/utilities.h"
 

@@ -1,8 +1,6 @@
 #include "engine/tachyon.h"
 
 #include "metro/bikes/common_bike.h"
-#include "metro/collision.h"
-#include "metro/constants.h"
 #include "metro/utilities.h"
 
 using namespace metro;

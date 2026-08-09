@@ -2,7 +2,6 @@
 
 #include "metro/player_bicycle.h"
 #include "metro/bikes/common_bike.h"
-#include "metro/constants.h"
 #include "metro/utilities.h"
 
 using namespace metro;

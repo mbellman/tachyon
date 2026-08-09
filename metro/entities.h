@@ -2,6 +2,8 @@
 
 #include "engine/tachyon.h"
 
+#include "metro/collision.h"
+
 #define for_static_entity_containers()\
   for (auto* entities : {\
       &state.entities.platforms,\
@@ -13,15 +15,6 @@
   for (auto& entity : *entities)
 
 namespace metro {
-  // @todo move to engine
-  struct CollisionPlane {
-    // Plane corners
-    tVec3f p1, p2, p3, p4;
-    // Plane tangents
-    tVec3f t1, t2, t3, t4;
-    tVec3f normal;
-  };
-
   enum EntityType {
     UNSPECIFIED = -1,
     COMMON_BIKE,

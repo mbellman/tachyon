@@ -2,8 +2,6 @@
 
 #include "metro/world_init.h"
 #include "metro/background_bicycles.h"
-#include "metro/collision.h"
-#include "metro/constants.h"
 #include "metro/utilities.h"
 
 using namespace metro;

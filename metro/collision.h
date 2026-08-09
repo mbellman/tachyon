@@ -1,8 +1,24 @@
 #pragma once
 
-#include "metro/game_state.h"
+#include "engine/tachyon_types.h"
 
 namespace metro {
+  struct CollisionPlane {
+    // Plane corners
+    tVec3f p1, p2, p3, p4;
+    // Plane tangents
+    tVec3f t1, t2, t3, t4;
+    tVec3f normal;
+  };
+
+  struct CollisionTriangle {
+    // Triangle points
+    tVec3f p1, p2, p3;
+    // Triangle tangents
+    tVec3f t1, t2, t3;
+    tVec3f normal;
+  };
+
   struct CollisionTest {
     tVec3f collision_point;
     bool has_collision = false;

@@ -2,7 +2,6 @@
 
 #include "metro/background_bicycles.h"
 #include "metro/bikes/common_bike.h"
-#include "metro/constants.h"
 
 using namespace metro;
 
