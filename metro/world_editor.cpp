@@ -3,6 +3,7 @@
 #include "metro/world_editor.h"
 #include "metro/background_bicycles.h"
 #include "metro/editor_utilities.h"
+#include "metro/serialization.h"
 #include "metro/utilities.h"
 
 using namespace metro;
@@ -74,6 +75,10 @@ static std::string GetEntityDisplayName() {
       return "Entity";
   }
 }
+
+// -------------
+// Serialization
+// -------------
 
 // ---------------------
 // Positioning utilities
@@ -528,6 +533,8 @@ static void HandleClickActions(Tachyon* tachyon, State& state) {
   if (did_right_click_down()) {
     if (IsAnythingSelected()) {
       Deselect();
+
+      Serialization::SaveWorldData(state, state.world_level_name);
     } else if (editor.is_placing_new_entity) {
       editor.is_placing_new_entity = false;
     } else {
@@ -626,6 +633,8 @@ static void HandleSelectionHotkeys(Tachyon* tachyon, State& state) {
   if (did_press_key(tKey::BACKSPACE)) {
     DeleteSelection(tachyon, state);
     Deselect();
+
+    Serialization::SaveWorldData(state, state.world_level_name);
   }
 
   if (did_press_key(tKey::ARROW_LEFT)) {
@@ -667,6 +676,8 @@ void WorldEditor::Update(Tachyon* tachyon, State& state) {
 
 void WorldEditor::Close(Tachyon* tachyon, State& state) {
   Deselect();
+
+  Serialization::SaveWorldData(state, state.world_level_name);
 
   state.is_editor_open = false;
 

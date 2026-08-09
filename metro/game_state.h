@@ -122,6 +122,8 @@ namespace metro {
     std::vector<Bicycle> bicycles;
     Entities entities;
 
+    std::string world_level_name = "test_world.lvl";
+
     // @todo dev only
     bool is_editor_open = false;
     bool use_slow_motion = false;
