@@ -41,6 +41,6 @@ namespace metro {
     void PrepareCollisionPlane(CollisionPlane& plane);
     CollisionPlane CreateFloorCollisionPlane(const Transform& transform);
     CollisionPlane CreateSlopeCollisionPlane(const Transform& transform);
-    CollisionTest TestRayHit(tVec3f& ray_start, tVec3f& ray, CollisionPlane& plane);
+    CollisionTest TestRayHit(const tVec3f& ray_start, const tVec3f& ray, const CollisionPlane& plane);
   }
 }

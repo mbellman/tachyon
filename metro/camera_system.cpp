@@ -55,6 +55,20 @@ void CameraSystem::Update(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
   auto* active_bike = GetActiveBicycle(state);
 
+  tVec3f last_move = state.player_position - state.previous_player_position;
+  float last_move_distance = last_move.magnitude();
+
+  bool was_just_manually_controlling_camera = (
+    state.last_manual_camera_control_time != 0.f &&
+    time_since(state.last_manual_camera_control_time) < 2.f
+  );
+
+  bool use_auto_centering = (
+    !was_just_manually_controlling_camera &&
+    last_move_distance > 0.f &&
+    (state.player_bike_id != -1 || is_moving_left_stick())
+  );
+
   // Tracking manual camera control time
   {
     if (is_moving_right_stick()) {
@@ -65,20 +79,6 @@ void CameraSystem::Update(Tachyon* tachyon, State& state) {
 
   // Auto-centering behavior
   {
-    tVec3f last_move = state.player_position - state.previous_player_position;
-    float last_move_distance = last_move.magnitude();
-
-    bool did_just_manually_control_camera = (
-      state.last_manual_camera_control_time != 0.f &&
-      time_since(state.last_manual_camera_control_time) < 2.f
-    );
-
-    bool use_auto_centering = (
-      !did_just_manually_control_camera &&
-      last_move_distance > 0.f &&
-      (state.player_bike_id != -1 || is_moving_left_stick())
-    );
-
     if (use_auto_centering) {
       tVec3f forward_direction;
 
@@ -135,7 +135,7 @@ void CameraSystem::Update(Tachyon* tachyon, State& state) {
 
     float target_altitude = camera3p.altitude;
 
-    if (!is_moving_right_stick()) {
+    if (use_auto_centering) {
       float alpha = state.recorded_player_speed / 10000.f;
       if (alpha > 1.f) alpha = 1.f;
 
@@ -161,5 +161,6 @@ void CameraSystem::Update(Tachyon* tachyon, State& state) {
 
   camera.position = tVec3f::lerp(camera.position, target_camera_position, params.blend_rate * state.dt);
 
+  // @todo smooth behavior when getting on/off bikes
   PointCameraAt(camera, params.focus_point);
 }

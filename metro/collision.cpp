@@ -83,7 +83,7 @@ CollisionPlane Collision::CreateSlopeCollisionPlane(const Transform& transform) 
   return plane;
 }
 
-CollisionTest Collision::TestRayHit(tVec3f& ray_start, tVec3f& ray, CollisionPlane& plane) {
+CollisionTest Collision::TestRayHit(const tVec3f& ray_start, const tVec3f& ray, const CollisionPlane& plane) {
   CollisionTest test;
 
   tVec3f ray_end = ray_start + ray;

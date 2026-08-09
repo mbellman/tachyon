@@ -81,6 +81,9 @@ static void HandleCharacterControls(Tachyon* tachyon, State& state) {
         if (distance < 2000.f) {
           state.player_bike_id = bike.id;
 
+          state.player_velocity = tVec3f(0.f);
+          state.recorded_player_speed = 0.f;
+
           break;
         }
       }
