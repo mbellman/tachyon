@@ -23,6 +23,15 @@ static inline bool IsInBetween(float n, float a, float b) {
   return n >= min(a, b) && n <= max(a, b);
 }
 
+void Collision::PadCollisionPlane(CollisionPlane& plane, const float padding) {
+  tVec3f center = (plane.p1 + plane.p2 + plane.p3 + plane.p4) / 4.f;
+
+  plane.p1 += (plane.p1 - center).unit() * padding;
+  plane.p2 += (plane.p2 - center).unit() * padding;
+  plane.p3 += (plane.p3 - center).unit() * padding;
+  plane.p4 += (plane.p4 - center).unit() * padding;
+}
+
 void Collision::PrepareCollisionPlane(CollisionPlane& plane) {
   plane.normal = tVec3f::cross(plane.p2 - plane.p1, plane.p3 - plane.p2).unit();
 

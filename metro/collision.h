@@ -37,6 +37,7 @@ namespace metro {
   };
 
   namespace Collision {
+    void PadCollisionPlane(CollisionPlane& plane, const float padding);
     void PrepareCollisionPlane(CollisionPlane& plane);
     CollisionPlane CreateFloorCollisionPlane(const Transform& transform);
     CollisionPlane CreateSlopeCollisionPlane(const Transform& transform);

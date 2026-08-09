@@ -219,6 +219,7 @@ static void RebuildWalkways(Tachyon* tachyon, State& state) {
             plane.p3 = stream.vertices[offset + 1].position;
             plane.p4 = stream.vertices[offset].position;
 
+            Collision::PadCollisionPlane(plane, 300.f);
             Collision::PrepareCollisionPlane(plane);
 
             // @allocation
@@ -233,6 +234,7 @@ static void RebuildWalkways(Tachyon* tachyon, State& state) {
             plane.p3 = stream.vertices[offset + 3].position;
             plane.p4 = stream.vertices[offset + 1].position;
 
+            Collision::PadCollisionPlane(plane, 300.f);
             Collision::PrepareCollisionPlane(plane);
 
             // @allocation
