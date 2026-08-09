@@ -11,6 +11,7 @@ namespace metro {
     tVec3f normal;
   };
 
+  // @todo
   struct CollisionTriangle {
     // Triangle points
     tVec3f p1, p2, p3;
@@ -36,6 +37,7 @@ namespace metro {
   };
 
   namespace Collision {
+    void PrepareCollisionPlane(CollisionPlane& plane);
     CollisionPlane CreateFloorCollisionPlane(const Transform& transform);
     CollisionPlane CreateSlopeCollisionPlane(const Transform& transform);
     CollisionTest TestRayHit(tVec3f& ray_start, tVec3f& ray, CollisionPlane& plane);

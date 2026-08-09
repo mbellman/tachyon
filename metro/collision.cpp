@@ -23,6 +23,15 @@ static inline bool IsInBetween(float n, float a, float b) {
   return n >= min(a, b) && n <= max(a, b);
 }
 
+void Collision::PrepareCollisionPlane(CollisionPlane& plane) {
+  plane.normal = tVec3f::cross(plane.p2 - plane.p1, plane.p3 - plane.p2).unit();
+
+  plane.t1 = tVec3f::cross(plane.normal, plane.p2 - plane.p1);
+  plane.t2 = tVec3f::cross(plane.normal, plane.p3 - plane.p2);
+  plane.t3 = tVec3f::cross(plane.normal, plane.p4 - plane.p3);
+  plane.t4 = tVec3f::cross(plane.normal, plane.p1 - plane.p4);
+}
+
 CollisionPlane Collision::CreateFloorCollisionPlane(const Transform& transform) {
   tMat4f rotation = transform.rotation.toMatrix4f();
   auto& scale = transform.scale;
@@ -39,12 +48,7 @@ CollisionPlane Collision::CreateFloorCollisionPlane(const Transform& transform) 
   plane.p3 = transform.position + (rotation * (scale * p3));
   plane.p4 = transform.position + (rotation * (scale * p4));
 
-  plane.normal = tVec3f::cross(plane.p2 - plane.p1, plane.p3 - plane.p2).unit();
-
-  plane.t1 = tVec3f::cross(plane.normal, plane.p2 - plane.p1);
-  plane.t2 = tVec3f::cross(plane.normal, plane.p3 - plane.p2);
-  plane.t3 = tVec3f::cross(plane.normal, plane.p4 - plane.p3);
-  plane.t4 = tVec3f::cross(plane.normal, plane.p1 - plane.p4);
+  PrepareCollisionPlane(plane);
 
   return plane;
 }
@@ -65,12 +69,7 @@ CollisionPlane Collision::CreateSlopeCollisionPlane(const Transform& transform) 
   plane.p3 = transform.position + (rotation * (scale * p3));
   plane.p4 = transform.position + (rotation * (scale * p4));
 
-  plane.normal = tVec3f::cross(plane.p2 - plane.p1, plane.p3 - plane.p2).unit();
-
-  plane.t1 = tVec3f::cross(plane.normal, plane.p2 - plane.p1);
-  plane.t2 = tVec3f::cross(plane.normal, plane.p3 - plane.p2);
-  plane.t3 = tVec3f::cross(plane.normal, plane.p4 - plane.p3);
-  plane.t4 = tVec3f::cross(plane.normal, plane.p1 - plane.p4);
+  PrepareCollisionPlane(plane);
 
   return plane;
 }

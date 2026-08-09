@@ -197,25 +197,48 @@ static void RebuildWalkways(Tachyon* tachyon, State& state) {
           });
         }
 
-        // Create face elements for the subdivided plane slices
+        // Create face elements + collision for the subdivided plane slices
         for_range(1, 3) {
           uint32 offset = vertex_offset + (i - 1) * 2;
 
-          // 0 2 1
+          // Triangle 1; 0 2 1
           stream.face_elements.push_back(offset);
           stream.face_elements.push_back(offset + 2);
           stream.face_elements.push_back(offset + 1);
 
-          // 1 2 3
+          // Triangle 2; 1 2 3
           stream.face_elements.push_back(offset + 1);
           stream.face_elements.push_back(offset + 2);
           stream.face_elements.push_back(offset + 3);
+
+          // Triangle 1 collision
+          {
+            CollisionPlane plane;
+            plane.p1 = stream.vertices[offset].position;
+            plane.p2 = stream.vertices[offset + 2].position;
+            plane.p3 = stream.vertices[offset + 1].position;
+            plane.p4 = stream.vertices[offset].position;
+
+            Collision::PrepareCollisionPlane(plane);
+
+            // @allocation
+            entity.collision_planes.push_back(plane);
+          }
+
+          // Triangle 2 collision
+          {
+            CollisionPlane plane;
+            plane.p1 = stream.vertices[offset + 1].position;
+            plane.p2 = stream.vertices[offset + 2].position;
+            plane.p3 = stream.vertices[offset + 3].position;
+            plane.p4 = stream.vertices[offset + 1].position;
+
+            Collision::PrepareCollisionPlane(plane);
+
+            // @allocation
+            entity.collision_planes.push_back(plane);
+          }
         }
-
-        // auto collision_plane = Collision::CreateFloorCollisionPlane(plane);
-
-        // @allocation
-        // entity.collision_planes.push_back(collision_plane);
       }
     }
   }
