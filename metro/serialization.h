@@ -4,6 +4,6 @@
 
 namespace metro {
   namespace Serialization {
-    void SaveWorldData(const State& state, const std::string& world_name);
+    void SaveWorldData(const State& state);
   }
 }

@@ -76,10 +76,6 @@ static std::string GetEntityDisplayName() {
   }
 }
 
-// -------------
-// Serialization
-// -------------
-
 // ---------------------
 // Positioning utilities
 // ---------------------
@@ -534,7 +530,7 @@ static void HandleClickActions(Tachyon* tachyon, State& state) {
     if (IsAnythingSelected()) {
       Deselect();
 
-      Serialization::SaveWorldData(state, state.world_level_name);
+      Serialization::SaveWorldData(state);
     } else if (editor.is_placing_new_entity) {
       editor.is_placing_new_entity = false;
     } else {
@@ -634,7 +630,7 @@ static void HandleSelectionHotkeys(Tachyon* tachyon, State& state) {
     DeleteSelection(tachyon, state);
     Deselect();
 
-    Serialization::SaveWorldData(state, state.world_level_name);
+    Serialization::SaveWorldData(state);
   }
 
   if (did_press_key(tKey::ARROW_LEFT)) {
@@ -677,7 +673,7 @@ void WorldEditor::Update(Tachyon* tachyon, State& state) {
 void WorldEditor::Close(Tachyon* tachyon, State& state) {
   Deselect();
 
-  Serialization::SaveWorldData(state, state.world_level_name);
+  Serialization::SaveWorldData(state);
 
   state.is_editor_open = false;
 

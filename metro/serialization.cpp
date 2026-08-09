@@ -51,7 +51,7 @@ static void SerializeEntities(std::string& data, const std::string& name, const 
   }
 }
 
-void Serialization::SaveWorldData(const State& state, const std::string& world_name) {
+void Serialization::SaveWorldData(const State& state) {
   std::string data = "";
 
   // Static entities
