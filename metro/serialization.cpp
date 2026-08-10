@@ -194,8 +194,6 @@ void Serialization::LoadWorldData(Tachyon* tachyon, State& state, const std::str
 
     if (line.starts_with("@")) {
       // @temporary
-      console_log(line.substr(1));
-
       current_entity_type = StringToEntityType(line.substr(1));
       current_entity_category = GetEntityCategory(current_entity_type);
     } else {

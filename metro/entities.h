@@ -66,47 +66,9 @@ namespace metro {
     std::vector<InteractiveEntity> vending_machines;
   };
 
-  static EntityCategory GetEntityCategory(EntityType entity_type) {
-    switch (entity_type) {
-      case COMMON_BIKE:
-        return BICYCLE;
-      case PLATFORM:
-      case RAMP:
-      case WALKWAY_SEGMENT:
-        return STATIC_ENTITY;
-      default:
-        return NOT_AN_ENTITY;
-    }
-  }
-
-  static StaticEntity& CreateStaticEntity(Entities& entities, EntityType type) {
-    StaticEntity entity;
-    entity.type = type;
-
-    switch (type) {
-      case PLATFORM:
-        entities.platforms.push_back(entity);
-
-        return entities.platforms.back();
-      case RAMP:
-        entities.ramps.push_back(entity);
-
-        return entities.ramps.back();
-      case WALKWAY_SEGMENT:
-        entities.walkway_segments.push_back(entity);
-
-        return entities.walkway_segments.back();
-      default:
-        console_error("CreateStaticEntity(): Invalid entity type");
-        exit(0);
-    }
-  }
-
-  static InteractiveEntity& CreateInteractiveEntity(Entities& entities, EntityType type) {
-    // @todo
-  }
-
-  static bool IsSameEntity(const BaseEntity& a, const BaseEntity& b) {
-    return a.type == b.type && a.id == b.id;
-  }
+  int32 CreateUniqueId();
+  EntityCategory GetEntityCategory(EntityType entity_type);
+  StaticEntity& CreateStaticEntity(Entities& entities, EntityType type);
+  InteractiveEntity& CreateInteractiveEntity(Entities& entities, EntityType type);
+  bool IsSameEntity(const BaseEntity& a, const BaseEntity& b);
 }

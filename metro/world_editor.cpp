@@ -45,6 +45,25 @@ static inline bool IsAnythingSelected() {
   return editor.selection != nullptr;
 }
 
+static std::string GetSelectionLabel() {
+  auto entity_name = Serialization::EntityTypeToString(editor.entity_type);
+  std::string id_string;
+
+  switch (GetEntityCategory(editor.entity_type)) {
+    case BICYCLE:
+      id_string = std::to_string(((Bicycle*)editor.selection)->id);
+      break;
+    case STATIC_ENTITY:
+      id_string = std::to_string(((StaticEntity*)editor.selection)->id);
+      break;
+    case INTERACTIVE_ENTITY: // @todo
+    default:
+      break;
+  }
+
+  return entity_name + " (ID: " + id_string + ")";
+}
+
 // ---------------------
 // Positioning utilities
 // ---------------------
@@ -274,9 +293,9 @@ static void ShowSelectionDetails(Tachyon* tachyon, State& state) {
 
   // Labels
   {
-    auto name = Serialization::EntityTypeToString(editor.entity_type);
+    auto label = GetSelectionLabel();
 
-    Debug::ShowDebugLabel(tachyon, selection_position, { .y = 50.f }, name);
+    Debug::ShowDebugLabel(tachyon, selection_position, { .y = 50.f }, label);
     Debug::ShowDebugLabel(tachyon, selection_position, { .y = 72.f }, Format(selection_position));
     Debug::ShowDebugLabel(tachyon, selection_position, { .y = 94.f }, Format(selection_rotation));
   }
@@ -386,7 +405,6 @@ static void PlaceNewEntity(Tachyon* tachyon, State& state, const tVec3f& positio
       break;
     case STATIC_ENTITY: {
       auto& entity = CreateStaticEntity(state.entities, editor.entity_type);
-      entity.id = CreateUniqueId();
 
       entity.position = position;
       entity.scale = tVec3f(2000.f);

@@ -474,6 +474,7 @@
     <ClCompile Include="metro\control_system.cpp" />
     <ClCompile Include="metro\debug.cpp" />
     <ClCompile Include="metro\editor_utilities.cpp" />
+    <ClCompile Include="metro\entities.cpp" />
     <ClCompile Include="metro\game.cpp" />
     <ClCompile Include="metro\interactive_entities.cpp" />
     <ClCompile Include="metro\player.cpp" />
