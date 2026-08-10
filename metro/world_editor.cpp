@@ -65,17 +65,6 @@ static EntityCategory GetEntityCategory() {
   }
 }
 
-static std::string GetEntityDisplayName() {
-  switch (editor.entity_type) {
-    case COMMON_BIKE    : return "Common Bike";
-    case PLATFORM       : return "Platform";
-    case RAMP           : return "Ramp";
-    case WALKWAY_SEGMENT: return "Walkway Segment";
-    default:
-      return "Entity";
-  }
-}
-
 // ---------------------
 // Positioning utilities
 // ---------------------
@@ -298,7 +287,7 @@ static void ShowSelectionDetails(Tachyon* tachyon, State& state) {
 
   // Labels
   {
-    auto name = GetEntityDisplayName();
+    auto name = Serialization::EntityTypeToString(editor.entity_type);
 
     Debug::ShowDebugLabel(tachyon, selection_position, { .y = 50.f }, name);
     Debug::ShowDebugLabel(tachyon, selection_position, { .y = 72.f }, Format(selection_position));

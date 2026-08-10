@@ -29,7 +29,7 @@ static inline std::string Serialize(const Quaternion& quaternion) {
   );
 }
 
-static inline std::string Serialize(tColor& color) {
+static inline std::string Serialize(const tColor& color) {
   return std::to_string(color.rgba);
 }
 
@@ -51,6 +51,30 @@ static void SerializeEntities(std::string& data, const std::string& name, const 
   }
 }
 
+static void SerializeBike(std::string& data, const Bicycle& bike) {
+  data += "@" + Serialization::EntityTypeToString(bike.type);
+  data += "\n";
+
+  data += Serialize(bike.position) + ",";
+  data += Serialize(bike.facing_direction) + ",";
+  data += Serialize(bike.frame_color) + ",";
+  data += Serialize(bike.grips_color) + ",";
+  data += Serialize(bike.saddle_color) + ",";
+  data += Serialize(bike.wheel_color);
+  data += "\n";
+}
+
+std::string Serialization::EntityTypeToString(EntityType type) {
+  switch (type) {
+    case COMMON_BIKE    : return "Common Bike";
+    case PLATFORM       : return "Platform";
+    case RAMP           : return "Ramp";
+    case WALKWAY_SEGMENT: return "Walkway Segment";
+    default:
+      return "Entity";
+  }
+}
+
 void Serialization::SaveWorldData(const State& state) {
   std::string data = "";
 
@@ -68,7 +92,9 @@ void Serialization::SaveWorldData(const State& state) {
 
   // Bikes
   {
-    // @todo
+    for (auto& bike : state.bicycles) {
+      SerializeBike(data, bike);
+    }
   }
 
   Tachyon_WriteFileContents("./metro/levels/" + state.world_level_name, data);
