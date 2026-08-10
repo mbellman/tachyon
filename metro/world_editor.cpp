@@ -25,13 +25,6 @@ enum TransformType {
   ROTATION
 };
 
-enum EntityCategory {
-  NOTHING_SELECTED = -1,
-  BICYCLE,
-  STATIC_ENTITY,
-  INTERACTIVE_ENTITY
-};
-
 static struct EditorState {
   TransformType transform_type = POSITION;
   EntityType entity_type = COMMON_BIKE;
@@ -52,25 +45,12 @@ static inline bool IsAnythingSelected() {
   return editor.selection != nullptr;
 }
 
-static EntityCategory GetEntityCategory() {
-  switch (editor.entity_type) {
-    case COMMON_BIKE:
-      return BICYCLE;
-    case PLATFORM:
-    case RAMP:
-    case WALKWAY_SEGMENT:
-      return STATIC_ENTITY;
-    default:
-      return NOTHING_SELECTED;
-  }
-}
-
 // ---------------------
 // Positioning utilities
 // ---------------------
 
 static tVec3f GetSelectionPosition() {
-  switch (GetEntityCategory()) {
+  switch (GetEntityCategory(editor.entity_type)) {
     case BICYCLE:
       return ((Bicycle*)editor.selection)->position;
     case STATIC_ENTITY:
@@ -82,7 +62,7 @@ static tVec3f GetSelectionPosition() {
 }
 
 static void MoveSelection(const tVec3f& offset) {
-  switch (GetEntityCategory()) {
+  switch (GetEntityCategory(editor.entity_type)) {
     case BICYCLE:
       ((Bicycle*)editor.selection)->position += offset;
       break;
@@ -105,7 +85,7 @@ static void MoveSelection(const tVec3f& offset) {
 // -----------------
 
 static tVec3f GetSelectionScale() {
-  switch (GetEntityCategory()) {
+  switch (GetEntityCategory(editor.entity_type)) {
     case BICYCLE:
       // @temporary
       return tVec3f(2000.f);
@@ -118,7 +98,7 @@ static tVec3f GetSelectionScale() {
 }
 
 static void SetSelectionScale(const tVec3f& scale) {
-  switch (GetEntityCategory()) {
+  switch (GetEntityCategory(editor.entity_type)) {
     case BICYCLE:
       // Bicycles cannot be scaled
       break;
@@ -137,7 +117,7 @@ static void SetSelectionScale(const tVec3f& scale) {
 }
 
 static void ScaleSelection(const tVec3f& scale_change) {
-  switch (GetEntityCategory()) {
+  switch (GetEntityCategory(editor.entity_type)) {
     case BICYCLE:
       // Bicycles cannot be scaled
       break;
@@ -160,7 +140,7 @@ static void ScaleSelection(const tVec3f& scale_change) {
 // ------------------
 
 static Quaternion GetSelectionRotation() {
-  switch (GetEntityCategory()) {
+  switch (GetEntityCategory(editor.entity_type)) {
     case BICYCLE:
       return ((Bicycle*)editor.selection)->flat_rotation;
     case STATIC_ENTITY:
@@ -172,7 +152,7 @@ static Quaternion GetSelectionRotation() {
 }
 
 static void SetSelectionRotation(const Quaternion& rotation) {
-  switch (GetEntityCategory()) {
+  switch (GetEntityCategory(editor.entity_type)) {
     case BICYCLE: {
       auto& bike = *(Bicycle*) editor.selection;
       tVec3f direction = rotation.getDirection().invert();
@@ -198,7 +178,7 @@ static void SetSelectionRotation(const Quaternion& rotation) {
 }
 
 static void RotateSelection(const tVec3f& axis, const float angle) {
-  switch (GetEntityCategory()) {
+  switch (GetEntityCategory(editor.entity_type)) {
     case BICYCLE: {
       auto& bike = *(Bicycle*) editor.selection;
 
@@ -228,7 +208,7 @@ static void RotateSelection(const tVec3f& axis, const float angle) {
 // ------------------
 
 static HighlightBox GetSelectionHighlightBox() {
-  switch (GetEntityCategory()) {
+  switch (GetEntityCategory(editor.entity_type)) {
     case BICYCLE: {
       auto& bike = *(Bicycle*) editor.selection;
 
@@ -350,7 +330,7 @@ static inline void Deselect() {
 }
 
 static void DeleteSelection(Tachyon* tachyon, State& state) {
-  switch (GetEntityCategory()) {
+  switch (GetEntityCategory(editor.entity_type)) {
     case BICYCLE: {
       auto& bike = *(Bicycle*) editor.selection;
 
@@ -391,9 +371,10 @@ static void PlaceNewBicycle(Tachyon* tachyon, State& state, const tVec3f& positi
 }
 
 static void PlaceNewEntity(Tachyon* tachyon, State& state, const tVec3f& position) {
-  switch (GetEntityCategory()) {
+  switch (GetEntityCategory(editor.entity_type)) {
     case BICYCLE:
       PlaceNewBicycle(tachyon, state, position);
+
       break;
     case STATIC_ENTITY: {
       auto& entity = CreateStaticEntity(state.entities, editor.entity_type);

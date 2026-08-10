@@ -2,6 +2,7 @@
 
 #include "metro/world_init.h"
 #include "metro/background_bicycles.h"
+#include "metro/serialization.h"
 #include "metro/utilities.h"
 
 using namespace metro;
@@ -90,6 +91,8 @@ static void LoadGameMeshes(Tachyon* tachyon, State& state) {
 }
 
 static void LoadGameWorld(Tachyon* tachyon, State& state) {
+  Serialization::LoadWorldData(state, "test_world.lvl");
+
   {
     auto& scene = tachyon->scene;
 

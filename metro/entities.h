@@ -15,6 +15,13 @@
   for (auto& entity : *entities)
 
 namespace metro {
+  enum EntityCategory {
+    NOT_AN_ENTITY = -1,
+    BICYCLE,
+    STATIC_ENTITY,
+    INTERACTIVE_ENTITY
+  };
+
   enum EntityType {
     UNSPECIFIED = -1,
     COMMON_BIKE,
@@ -58,6 +65,19 @@ namespace metro {
     // Interactives
     std::vector<InteractiveEntity> vending_machines;
   };
+
+  static EntityCategory GetEntityCategory(EntityType entity_type) {
+    switch (entity_type) {
+      case COMMON_BIKE:
+        return BICYCLE;
+      case PLATFORM:
+      case RAMP:
+      case WALKWAY_SEGMENT:
+        return STATIC_ENTITY;
+      default:
+        return NOT_AN_ENTITY;
+    }
+  }
 
   static StaticEntity& CreateStaticEntity(Entities& entities, EntityType type) {
     StaticEntity entity;
