@@ -53,20 +53,35 @@ void CameraSystem::Update(Tachyon* tachyon, State& state) {
 
   auto& camera3p = tachyon->scene.camera3p;
   auto& camera = tachyon->scene.camera;
+  tVec3f camera_forward = camera.orientation.getDirection();
   auto* active_bike = GetActiveBicycle(state);
-
   tVec3f last_move = state.player_position - state.previous_player_position;
   float last_move_distance = last_move.magnitude();
+  tVec3f facing_direction;
 
   bool was_just_manually_controlling_camera = (
     state.last_manual_camera_control_time != 0.f &&
     time_since(state.last_manual_camera_control_time) < 2.f
   );
 
-  bool use_auto_centering = (
+  bool use_automatic_camera = (
     !was_just_manually_controlling_camera &&
-    last_move_distance > 0.f &&
-    (state.player_bike_id != -1 || is_moving_left_stick())
+    last_move_distance > 0.f
+  );
+
+  if (active_bike != nullptr) {
+    // If we're riding a bike, use the facing direction of the bike
+    // to center the camera behind it
+    facing_direction = active_bike->facing_direction;
+  } else {
+    // Otherwise, use our last movement direction
+    // @todo use the player model direction?
+    facing_direction = last_move / last_move_distance;
+  }
+
+  bool moving_toward_camera_on_foot = (
+    tVec3f::dot(camera_forward, facing_direction) < 0.f &&
+    active_bike == nullptr
   );
 
   // Tracking manual camera control time
@@ -77,29 +92,28 @@ void CameraSystem::Update(Tachyon* tachyon, State& state) {
     }
   }
 
-  // Auto-centering behavior
+  // Azimuth blend rate determination
   {
-    if (use_auto_centering) {
-      tVec3f forward_direction;
-
-      if (active_bike != nullptr) {
-        // If we're riding a bike, use the facing direction of the bike
-        // to center the camera behind it
-        forward_direction = active_bike->facing_direction;
+    if (use_automatic_camera) {
+      if (moving_toward_camera_on_foot) {
+        // Slow down auto-centering when moving toward the camera
+        state.target_camera_azimuth_blend_rate = Tachyon_Lerpf(
+          state.target_camera_azimuth_blend_rate,
+          0.1f,
+          3.f * state.dt
+        );
       } else {
-        // Otherwise, use our last movement direction
-        // @todo use the player model direction?
-        forward_direction = last_move / last_move_distance;
+        // Speed up auto-centering when moving away from the camera
+        state.target_camera_azimuth_blend_rate = Tachyon_Lerpf(
+          state.target_camera_azimuth_blend_rate,
+          1.f,
+          state.dt
+        );
       }
 
-      state.target_camera_azimuth = atan2f(forward_direction.z, forward_direction.x) + t_PI;
-
-      state.target_camera_azimuth_blend_rate = Tachyon_Lerpf(
-        state.target_camera_azimuth_blend_rate,
-        1.f,
-        state.dt
-      );
+      state.target_camera_azimuth = atan2f(facing_direction.z, facing_direction.x) + t_PI;
     } else {
+      // Stop auto-centering when not in auto-camera mode
       state.target_camera_azimuth_blend_rate = Tachyon_Lerpf(
         state.target_camera_azimuth_blend_rate,
         0.f,
@@ -125,7 +139,7 @@ void CameraSystem::Update(Tachyon* tachyon, State& state) {
   }
 
   // Zooming in/out (altitude)
-  // @todo mouse support
+  // @todo mouse support?
   {
     const float min = 0.f;
     const float max = 1.2f;
@@ -135,11 +149,16 @@ void CameraSystem::Update(Tachyon* tachyon, State& state) {
 
     float target_altitude = camera3p.altitude;
 
-    if (use_auto_centering) {
-      float alpha = state.recorded_player_speed / 10000.f;
+    if (use_automatic_camera) {
+      float speed = active_bike != nullptr ? active_bike->speed : state.recorded_player_speed;
+      float alpha = speed / 10000.f;
       if (alpha > 1.f) alpha = 1.f;
 
-      target_altitude = Tachyon_Lerpf(camera3p.altitude, 0.3f, alpha);
+      if (moving_toward_camera_on_foot) {
+        target_altitude = Tachyon_Lerpf(camera3p.altitude, 0.9f, alpha);
+      } else {
+        target_altitude = Tachyon_Lerpf(camera3p.altitude, 0.2f, alpha);
+      }
     }
 
     camera3p.altitude = Tachyon_Lerpf(
