@@ -361,14 +361,15 @@ static void PlaceNewBicycle(Tachyon* tachyon, State& state, const tVec3f& positi
   bike.type          = COMMON_BIKE;
   bike.id            = CreateUniqueId();
   bike.position      = position;
-
   // @temporary
   bike.frame_color   = tVec3f(1.f, 0.2f, 0.4f);
   bike.grips_color   = tVec3f(0.1f);
   bike.saddle_color  = tVec3f(0.1f, 0, 0);
   bike.wheel_color   = tVec3f(1.f, 0.9f, 0.7f);
-
   bike.facing_direction = Z_BACKWARD;
+
+  bike.spawn_position = bike.position;
+  bike.spawn_facing_direction = bike.facing_direction;
 
   BackgroundBicycles::SpawnBicycle(tachyon, state, bike);
 
