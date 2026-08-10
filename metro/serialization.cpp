@@ -78,8 +78,8 @@ static void SerializeBike(std::string& data, const Bicycle& bike) {
   data += "@" + Serialization::EntityTypeToString(bike.type);
   data += "\n";
 
-  data += Serialize(bike.position) + ",";
-  data += Serialize(bike.facing_direction) + ",";
+  data += Serialize(bike.spawn_position) + ",";
+  data += Serialize(bike.spawn_facing_direction) + ",";
   data += Serialize(bike.frame_color) + ",";
   data += Serialize(bike.grips_color) + ",";
   data += Serialize(bike.saddle_color) + ",";
@@ -116,6 +116,9 @@ static Bicycle DeserializeBike(EntityType type, const std::string& bike_data) {
   bike.grips_color      = grips_color;
   bike.saddle_color     = saddle_color;
   bike.wheel_color      = wheel_color;
+
+  bike.spawn_position         = bike.position;
+  bike.spawn_facing_direction = bike.facing_direction;
 
   return bike;
 }

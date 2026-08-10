@@ -30,6 +30,9 @@ namespace metro {
     tColor grips_color;
     tColor saddle_color;
 
+    tVec3f spawn_position;
+    tVec3f spawn_facing_direction;
+
     tVec3f position;
     tVec3f visual_position;
     float pedal_speed = 0.f;

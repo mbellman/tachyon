@@ -52,7 +52,7 @@ static inline bool IsAnythingSelected() {
 static tVec3f GetSelectionPosition() {
   switch (GetEntityCategory(editor.entity_type)) {
     case BICYCLE:
-      return ((Bicycle*)editor.selection)->position;
+      return ((Bicycle*)editor.selection)->spawn_position;
     case STATIC_ENTITY:
       return ((StaticEntity*)editor.selection)->position;
     case INTERACTIVE_ENTITY: // @todo
@@ -63,9 +63,14 @@ static tVec3f GetSelectionPosition() {
 
 static void MoveSelection(const tVec3f& offset) {
   switch (GetEntityCategory(editor.entity_type)) {
-    case BICYCLE:
-      ((Bicycle*)editor.selection)->position += offset;
+    case BICYCLE: {
+      auto& bike = *(Bicycle*) editor.selection;
+
+      bike.spawn_position += offset;
+      bike.position = bike.spawn_position;
+
       break;
+    }
     case STATIC_ENTITY: {
       auto& entity = *(StaticEntity*) editor.selection;
 
@@ -158,7 +163,8 @@ static void SetSelectionRotation(const Quaternion& rotation) {
       tVec3f direction = rotation.getDirection().invert();
       float angle = atan2f(direction.z, direction.x);
 
-      bike.facing_direction = direction;
+      bike.spawn_facing_direction = direction;
+      bike.facing_direction = bike.spawn_facing_direction;
       bike.flat_rotation = rotation;
 
       break;
@@ -184,9 +190,10 @@ static void RotateSelection(const tVec3f& axis, const float angle) {
 
       // Restrict bikes to y-axis rotations only
       if (axis == Y_UP) {
-        bike.facing_direction = Quaternion::fromAxisAngle(axis, angle).toMatrix4f() * bike.facing_direction;
-        bike.facing_direction = bike.facing_direction.unit();
-        bike.flat_rotation = Quaternion::FromDirection(bike.facing_direction, Y_UP);
+        bike.spawn_facing_direction = Quaternion::fromAxisAngle(axis, angle).toMatrix4f() * bike.spawn_facing_direction;
+        bike.spawn_facing_direction = bike.spawn_facing_direction.unit();
+        bike.facing_direction = bike.spawn_facing_direction;
+        bike.flat_rotation = Quaternion::FromDirection(bike.spawn_facing_direction, Y_UP);
       }
 
       break;
@@ -614,6 +621,25 @@ static void HandleSelectionHotkeys(Tachyon* tachyon, State& state) {
 
 void WorldEditor::Open(Tachyon* tachyon, State& state) {
   state.is_editor_open = true;
+
+  // Sync bicycles to their spawn positions and dismount any active bike
+  // @todo remove/hide dynamically-spawned bikes, once those exist
+  {
+    for (auto& bike : state.bicycles) {
+      // @todo factor
+      bike.leaning_angle = 0.f;
+      bike.steering_angle = 0.f;
+      bike.pedal_speed = 0.f;
+      bike.speed = 0.f;
+      bike.pedal_revolution = 0.f;
+      bike.wheel_revolution = 0.f;
+      bike.position = bike.spawn_position;
+      bike.facing_direction = bike.spawn_facing_direction;
+      bike.flat_rotation = Quaternion::FromDirection(bike.spawn_facing_direction, Y_UP);
+    }
+
+    state.player_bike_id = -1;
+  }
 
   show_overlay_message("Entering editor");
 }
