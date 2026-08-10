@@ -20,6 +20,7 @@
 #define is_moving_right_stick() (tachyon->right_stick.x != 0.f || tachyon->right_stick.y != 0.f)
 
 namespace metro {
+  // @todo move to entities.h
   struct Bicycle {
     EntityType type = UNSPECIFIED;
     int32 id = -1;

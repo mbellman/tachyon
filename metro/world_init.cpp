@@ -91,7 +91,7 @@ static void LoadGameMeshes(Tachyon* tachyon, State& state) {
 }
 
 static void LoadGameWorld(Tachyon* tachyon, State& state) {
-  Serialization::LoadWorldData(state, "test_world.lvl");
+  Serialization::LoadWorldData(tachyon, state, "test_world.lvl");
 
   {
     auto& scene = tachyon->scene;
@@ -153,54 +153,6 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
     player.rotation = Quaternion::FromDirection(Z_BACKWARD, Y_UP);
 
     commit(player);
-  }
-
-  // @temporary
-  {
-    Bicycle bike;
-    bike.type          = COMMON_BIKE;
-    bike.id            = 1;
-    bike.position      = tVec3f(-5000.f, -2200.f, -10000.f);
-    bike.frame_color   = 0xFFF8;
-    bike.grips_color   = tVec3f(0.1f);
-    bike.saddle_color  = tVec3f(0.1f, 0, 0);
-    bike.wheel_color   = tVec3f(0.2f);
-
-    bike.facing_direction = Z_BACKWARD;
-
-    BackgroundBicycles::SpawnBicycle(tachyon, state, bike);
-  }
-
-  // @temporary
-  {
-    Bicycle bike;
-    bike.type          = COMMON_BIKE;
-    bike.id            = 2;
-    bike.position      = tVec3f(0, -2200.f, -10000.f);
-    bike.frame_color   = tVec3f(0.5f, 1.f, 0.4f);
-    bike.grips_color   = tVec3f(0.1f);
-    bike.saddle_color  = tVec3f(0.2f);
-    bike.wheel_color   = tVec3f(1.f, 0.9f, 0.7f);
-
-    bike.facing_direction = Z_BACKWARD;
-
-    BackgroundBicycles::SpawnBicycle(tachyon, state, bike);
-  }
-
-  // @temporary
-  {
-    Bicycle bike;
-    bike.type          = COMMON_BIKE;
-    bike.id            = 3;
-    bike.position      = tVec3f(5000.f, -2200.f, -10000.f);
-    bike.frame_color   = tVec3f(1.f, 0.2f, 0.4f);
-    bike.grips_color   = tVec3f(0.1f);
-    bike.saddle_color  = tVec3f(0.1f, 0, 0);
-    bike.wheel_color   = tVec3f(1.f, 0.9f, 0.7f);
-
-    bike.facing_direction = Z_BACKWARD;
-
-    BackgroundBicycles::SpawnBicycle(tachyon, state, bike);
   }
 
   // @temporary
