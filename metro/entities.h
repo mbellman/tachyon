@@ -43,7 +43,7 @@ namespace metro {
     tVec3f position;
     Quaternion rotation = Quaternion(1.f, 0, 0, 0);
     tVec3f scale;
-    tVec3f color;
+    tColor color;
 
     bool active = true;
 

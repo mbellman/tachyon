@@ -51,17 +51,17 @@ static std::string GetSelectionLabel() {
 
   switch (GetEntityCategory(editor.entity_type)) {
     case BICYCLE:
-      id_string = std::to_string(((Bicycle*)editor.selection)->id);
+      id_string = std::format("{:X}", ((Bicycle*)editor.selection)->id);
       break;
     case STATIC_ENTITY:
-      id_string = std::to_string(((StaticEntity*)editor.selection)->id);
+      id_string = std::format("{:X}", ((StaticEntity*)editor.selection)->id);
       break;
     case INTERACTIVE_ENTITY: // @todo
     default:
       break;
   }
 
-  return entity_name + " (ID: " + id_string + ")";
+  return entity_name + " (ID: 0x" + id_string + ")";
 }
 
 // ---------------------
@@ -265,6 +265,7 @@ static void ShowSelectionDetails(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
   tVec3f selection_position = GetSelectionPosition();
   Quaternion selection_rotation = GetSelectionRotation();
+  tVec3f selection_scale = GetSelectionScale();
   tVec3f selection_direction = (selection_position - camera.position).unit();
   tVec3f gizmo_position = camera.position + selection_direction * 2000.f;
 
@@ -298,6 +299,7 @@ static void ShowSelectionDetails(Tachyon* tachyon, State& state) {
     Debug::ShowDebugLabel(tachyon, selection_position, { .y = 50.f }, label);
     Debug::ShowDebugLabel(tachyon, selection_position, { .y = 72.f }, Format(selection_position));
     Debug::ShowDebugLabel(tachyon, selection_position, { .y = 94.f }, Format(selection_rotation));
+    Debug::ShowDebugLabel(tachyon, selection_position, { .y = 116.f }, Format(selection_scale));
   }
 }
 

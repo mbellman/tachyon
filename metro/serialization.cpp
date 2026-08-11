@@ -60,7 +60,8 @@ static std::string Serialize(const StaticEntity& entity) {
   return (
     Serialize(entity.position) + "," +
     Serialize(entity.rotation) + "," +
-    Serialize(entity.scale)
+    Serialize(entity.scale) + "," +
+    Serialize(entity.color)
   );
 }
 
@@ -123,8 +124,29 @@ static Bicycle DeserializeBike(EntityType type, const std::string& bike_data) {
   return bike;
 }
 
-static StaticEntity DeserializeStaticEntity(EntityType type, const std::string& entity_data) {
-  // @todo
+static void DeserializeStaticEntity(StaticEntity& entity, const std::string& entity_data) {
+  auto parts = SplitString(entity_data, ",");
+
+  entity.position = tVec3f(
+    stof(parts[0]),
+    stof(parts[1]),
+    stof(parts[2])
+  );
+
+  entity.rotation = Quaternion(
+    stof(parts[3]),
+    stof(parts[4]),
+    stof(parts[5]),
+    stof(parts[6])
+  );
+
+  entity.scale = tVec3f(
+    stof(parts[7]),
+    stof(parts[8]),
+    stof(parts[9])
+  );
+
+  entity.color = (uint16) stoi(parts[10]);
 }
 
 static InteractiveEntity DeserializeInteractiveEntity(EntityType type, const std::string& entity_data) {
@@ -207,8 +229,9 @@ void Serialization::LoadWorldData(Tachyon* tachyon, State& state, const std::str
           break;
         }
         case STATIC_ENTITY: {
-          // @todo
-          // StaticEntity entity = DeserializeStaticEntity(current_entity_type, line);
+          auto& entity = CreateStaticEntity(state.entities, current_entity_type);
+
+          DeserializeStaticEntity(entity, line);
 
           break;
         }

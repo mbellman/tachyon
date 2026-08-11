@@ -93,6 +93,7 @@ static void LoadGameMeshes(Tachyon* tachyon, State& state) {
 static void LoadGameWorld(Tachyon* tachyon, State& state) {
   Serialization::LoadWorldData(tachyon, state, "test_world.lvl");
 
+  // @temporary
   {
     auto& scene = tachyon->scene;
 
@@ -105,11 +106,6 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
 
   // @temporary
   {
-    auto& platform = CreateStaticEntity(state.entities, PLATFORM);
-    platform.position = tVec3f(0, -8000.f, -10000.f);
-    platform.scale = tVec3f(500000.f, 5000.f, 50000.f);
-    platform.color = tVec3f(0.8f);
-
     auto& road = create(state.meshes.dev_cube);
 
     road.position = tVec3f(0, -8000.f, -10000.f);
@@ -123,11 +119,6 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
 
   // @temporary
   {
-    auto& platform = CreateStaticEntity(state.entities, PLATFORM);
-    platform.position = tVec3f(0, -250000.f, -200000.f);
-    platform.scale = tVec3f(500000.f, 5000.f, 50000.f);
-    platform.color = tVec3f(0.8f);
-
     auto& road = create(state.meshes.dev_cube);
 
     road.position = tVec3f(0, -250000.f, -200000.f);
@@ -151,32 +142,6 @@ static void LoadGameWorld(Tachyon* tachyon, State& state) {
     player.rotation = Quaternion::FromDirection(Z_BACKWARD, Y_UP);
 
     commit(player);
-  }
-
-  // @temporary
-  {
-    auto& ramp = CreateStaticEntity(state.entities, RAMP);
-    ramp.position = tVec3f(50000.f, -1500.f, -10000.f);
-    ramp.rotation = Quaternion::fromAxisAngle(Y_UP, t_HALF_PI);
-    ramp.scale = tVec3f(5000.f, 20000.f, 100000.f);
-    ramp.color = tVec3f(0.5f);
-  }
-
-  // @temporary
-  {
-    auto& ramp = CreateStaticEntity(state.entities, RAMP);
-    ramp.position = tVec3f(50000.f, -1500.f, 0);
-    ramp.rotation = Quaternion::fromAxisAngle(Y_UP, t_HALF_PI);
-    ramp.scale = tVec3f(5000.f, 100000.f, 100000.f);
-    ramp.color = tVec3f(0.5f);
-  }
-
-  // @temporary
-  {
-    auto& entity = CreateStaticEntity(state.entities, WALKWAY_SEGMENT);
-    entity.position = tVec3f(20000.f, 0, 0);
-    entity.scale = tVec3f(10000.f, 1000.f, 1000.f);
-    entity.color = tVec3f(0.5f);
   }
 }
 

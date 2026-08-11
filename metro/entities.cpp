@@ -2,10 +2,17 @@
 
 using namespace metro;
 
-static int32 running_unique_id = 0;
+static uint32 running_unique_id = 0;
 
 int32 metro::CreateUniqueId() {
-  return running_unique_id++;
+  running_unique_id++;
+
+  uint32 id = running_unique_id;
+
+  id *= 1103515245u;
+  id &= 0x7fffffffu;
+
+  return (int32) id;
 }
 
 EntityCategory metro::GetEntityCategory(EntityType entity_type) {
