@@ -88,40 +88,29 @@ static void SerializeBike(std::string& data, const Bicycle& bike) {
   data += "\n";
 }
 
-static Bicycle DeserializeBike(EntityType type, const std::string& bike_data) {
+static void DeserializeBike(Bicycle& bike, const std::string& bike_data) {
   auto parts = SplitString(bike_data, ",");
 
-  tVec3f position = tVec3f(
+  bike.position = tVec3f(
     stof(parts[0]),
     stof(parts[1]),
     stof(parts[2])
   );
 
-  tVec3f facing_direction = tVec3f(
+  bike.facing_direction = tVec3f(
     stof(parts[3]),
     stof(parts[4]),
     stof(parts[5])
   );
 
-  uint16 frame_color = (uint16) stoi(parts[6]);
-  uint16 grips_color = (uint16) stoi(parts[7]);
-  uint16 saddle_color = (uint16) stoi(parts[8]);
-  uint16 wheel_color = (uint16) stoi(parts[9]);
 
-  Bicycle bike;
-  bike.type             = type;
-  bike.id               = CreateUniqueId();
-  bike.position         = position;
-  bike.facing_direction = facing_direction;
-  bike.frame_color      = frame_color;
-  bike.grips_color      = grips_color;
-  bike.saddle_color     = saddle_color;
-  bike.wheel_color      = wheel_color;
+  bike.frame_color  = (uint16) stoi(parts[6]);
+  bike.grips_color  = (uint16) stoi(parts[7]);
+  bike.saddle_color = (uint16) stoi(parts[8]);
+  bike.wheel_color  = (uint16) stoi(parts[9]);
 
   bike.spawn_position         = bike.position;
   bike.spawn_facing_direction = bike.facing_direction;
-
-  return bike;
 }
 
 static void DeserializeStaticEntity(StaticEntity& entity, const std::string& entity_data) {
@@ -222,7 +211,12 @@ void Serialization::LoadWorldData(Tachyon* tachyon, State& state, const std::str
       // @todo factor
       switch (current_entity_category) {
         case BICYCLE: {
-          Bicycle bike = DeserializeBike(current_entity_type, line);
+          // @todo make this part of bike spawning
+          Bicycle bike;
+          bike.type = current_entity_type;
+          bike.id = CreateUniqueId();
+
+          DeserializeBike(bike, line);
 
           BackgroundBicycles::SpawnBicycle(tachyon, state, bike);
 
