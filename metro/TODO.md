@@ -1,5 +1,7 @@
 sfx credits:
 
+* decouple SPACE and debug visualizations
+
 editor:
 * make bikes fall to ground below?
 

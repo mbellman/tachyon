@@ -164,18 +164,22 @@ static void RebuildWalkways(Tachyon* tachyon, State& state) {
         float edge_AC_factor = tVec3f::distance(A, C) / distance;
         float edge_BD_factor = tVec3f::distance(B, D) / distance;
 
+        const int total_slices = 5;
         uint32 vertex_offset = (uint32) stream.vertices.size();
 
         // Create vertices to form subdivided slices of the plane
-        for_range(0, 3) {
-          float a = float(i) / 3.f;
+        for_range(0, total_slices) {
+          float a = float(i) / (float) total_slices;
 
           tVec3f p1 = tVec3f::lerp(A, C, a);
           tVec3f p2 = tVec3f::lerp(B, D, a);
 
-          if (i > 0 && i < 3) {
-            tVec3f p1_shift = (p2 - p1) * direction_dot * 0.2f * edge_AC_factor;
-            tVec3f p2_shift = (p2 - p1) * direction_dot * 0.2f * edge_BD_factor;
+          if (i > 0 && i < total_slices) {
+            // @todo use an easing curve for this
+            float shift_factor = i == 2 || i == 3 ? 0.25f : 0.15f;
+
+            tVec3f p1_shift = (p2 - p1) * direction_dot * shift_factor * edge_AC_factor;
+            tVec3f p2_shift = (p2 - p1) * direction_dot * shift_factor * edge_BD_factor;
 
             p1 += p1_shift;
             p2 += p2_shift;
@@ -198,7 +202,7 @@ static void RebuildWalkways(Tachyon* tachyon, State& state) {
         }
 
         // Create face elements + collision for the subdivided plane slices
-        for_range(1, 3) {
+        for_range(1, total_slices) {
           uint32 offset = vertex_offset + (i - 1) * 2;
 
           // Triangle 1; 0 2 1

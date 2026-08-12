@@ -123,6 +123,8 @@ void metro::Update(Tachyon* tachyon, State& state, const float dt) {
     InteractiveEntities::Update(tachyon, state);
     BackgroundBicycles::Update(tachyon, state);
 
+    objects(state.meshes.walkway_segment).disabled = false;
+
     return;
   }
 
@@ -131,6 +133,8 @@ void metro::Update(Tachyon* tachyon, State& state, const float dt) {
 
     return;
   }
+
+  objects(state.meshes.walkway_segment).disabled = true;
 
   Debug::Reset(tachyon);
 
