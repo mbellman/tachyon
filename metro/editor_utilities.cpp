@@ -128,7 +128,7 @@ void EditorUtilities::ShowPositionGizmo(Tachyon* tachyon, const tVec3f& position
   }
 }
 
-void EditorUtilities::ShowScaleGizmo(Tachyon* tachyon, const tVec3f& position, const Quaternion& basis_rotation) {
+void EditorUtilities::ShowScaleGizmo(Tachyon* tachyon, const tVec3f& position, const Quaternion& basis_rotation, bool restricted) {
   const float line_thickness = 15.f;
   const tVec3f tip_scale = tVec3f(15.f);
 
@@ -137,11 +137,12 @@ void EditorUtilities::ShowScaleGizmo(Tachyon* tachyon, const tVec3f& position, c
   // Left vector
   {
     tVec3f vector = basis_matrix * tVec3f(1.f, 0, 0);
+    tVec3f color = restricted ? tVec3f(1.f, 1.f, 0) : tVec3f(1.f, 0, 0);
 
     DebugLineConfig left_line = {
       .position = position,
       .vector = vector * 250.f,
-      .color = tVec3f(1.f, 0, 0),
+      .color = color,
       .thickness = line_thickness
     };
 
@@ -149,7 +150,7 @@ void EditorUtilities::ShowScaleGizmo(Tachyon* tachyon, const tVec3f& position, c
       .position = left_line.position + left_line.vector,
       .scale = tip_scale,
       .rotation = basis_rotation,
-      .color = tVec3f(1.f, 0, 0)
+      .color = color
     };
 
     Debug::ShowDebugLine(tachyon, left_line);
@@ -159,11 +160,12 @@ void EditorUtilities::ShowScaleGizmo(Tachyon* tachyon, const tVec3f& position, c
   // Up vector
   {
     tVec3f vector = basis_matrix * tVec3f(0, 1.f, 0);
+    tVec3f color = restricted ? tVec3f(1.f, 1.f, 0) : tVec3f(0, 1.f, 0);
 
     DebugLineConfig up_line = {
       .position = position,
       .vector = vector * 250.f,
-      .color = tVec3f(0, 1.f, 0),
+      .color = color,
       .thickness = line_thickness
     };
 
@@ -171,7 +173,7 @@ void EditorUtilities::ShowScaleGizmo(Tachyon* tachyon, const tVec3f& position, c
       .position = up_line.position + up_line.vector,
       .scale = tip_scale,
       .rotation = basis_rotation,
-      .color = tVec3f(0, 1.f, 0)
+      .color = color
     };
 
     Debug::ShowDebugLine(tachyon, up_line);
@@ -181,11 +183,12 @@ void EditorUtilities::ShowScaleGizmo(Tachyon* tachyon, const tVec3f& position, c
   // Forward vector
   {
     tVec3f vector = basis_matrix * tVec3f(0, 0, 1.f);
+    tVec3f color = restricted ? tVec3f(1.f, 1.f, 0) : tVec3f(0, 0, 1.f);
 
     DebugLineConfig forward_line = {
       .position = position,
       .vector = vector * 250.f,
-      .color = tVec3f(0, 0, 1.f),
+      .color = color,
       .thickness = line_thickness
     };
 
@@ -193,7 +196,7 @@ void EditorUtilities::ShowScaleGizmo(Tachyon* tachyon, const tVec3f& position, c
       .position = forward_line.position + forward_line.vector,
       .scale = tip_scale,
       .rotation = basis_rotation,
-      .color = tVec3f(0, 0, 1.f)
+      .color = color
     };
 
     Debug::ShowDebugLine(tachyon, forward_line);
@@ -201,7 +204,7 @@ void EditorUtilities::ShowScaleGizmo(Tachyon* tachyon, const tVec3f& position, c
   }
 }
 
-void EditorUtilities::ShowRotationGizmo(Tachyon* tachyon, const tVec3f& position, const Quaternion& basis_rotation) {
+void EditorUtilities::ShowRotationGizmo(Tachyon* tachyon, const tVec3f& position, const Quaternion& basis_rotation, bool restricted) {
   const tVec3f ring_scale = tVec3f(300.f);
 
   tMat4f basis_matrix = basis_rotation.toMatrix4f();
@@ -214,7 +217,7 @@ void EditorUtilities::ShowRotationGizmo(Tachyon* tachyon, const tVec3f& position
       .position = position,
       .scale = ring_scale,
       .direction = vector,
-      .color = tVec3f(1.f, 0, 0)
+      .color = restricted ? tVec3f(0.4f) : tVec3f(1.f, 0, 0)
     };
 
     Debug::ShowDebugRing(tachyon, x_ring);
@@ -242,7 +245,7 @@ void EditorUtilities::ShowRotationGizmo(Tachyon* tachyon, const tVec3f& position
       .position = position,
       .scale = ring_scale,
       .direction = vector,
-      .color = tVec3f(0, 0, 1.f)
+      .color = restricted ? tVec3f(0.4f) : tVec3f(0, 0, 1.f)
     };
 
     Debug::ShowDebugRing(tachyon, z_ring);

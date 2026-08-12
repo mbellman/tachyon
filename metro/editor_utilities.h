@@ -8,8 +8,8 @@ namespace metro {
     tVec3f GetClosestWorldAxis(const tVec3f& vector);
     tVec3f GetScalingAxis(const tVec3f& basis_axis, const Quaternion& basis_rotation);
     void ShowPositionGizmo(Tachyon* tachyon, const tVec3f& position, const Quaternion& basis_rotation);
-    void ShowScaleGizmo(Tachyon* tachyon, const tVec3f& position, const Quaternion& basis_rotation);
-    void ShowRotationGizmo(Tachyon* tachyon, const tVec3f& position, const Quaternion& basis_rotation);
+    void ShowScaleGizmo(Tachyon* tachyon, const tVec3f& position, const Quaternion& basis_rotation, bool restricted = false);
+    void ShowRotationGizmo(Tachyon* tachyon, const tVec3f& position, const Quaternion& basis_rotation, bool restricted = false);
     void UseWASDCameraMovement(Tachyon* tachyon, State& state, const float speed);
     void UseMouseCameraLookaround(Tachyon* tachyon, State& state, const float sensitivity);
     void SwivelAroundPosition(Tachyon* tachyon, const tVec3f& position);

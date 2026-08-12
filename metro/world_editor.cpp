@@ -30,7 +30,9 @@ static struct EditorState {
   EntityType entity_type = COMMON_BIKE;
   void* selection = nullptr;
   tVec3f highlight_color = tVec3f(1.f, 0, 1.f);
+
   bool is_placing_new_entity = false;
+  bool use_restricted_transform = false;
 } editor;
 
 static inline std::string Format(const tVec3f& v) {
@@ -286,9 +288,9 @@ static void ShowSelectionDetails(Tachyon* tachyon, State& state) {
     if (editor.transform_type == POSITION) {
       EditorUtilities::ShowPositionGizmo(tachyon, gizmo_position, selection_rotation);
     } else if (editor.transform_type == SCALE) {
-      EditorUtilities::ShowScaleGizmo(tachyon, gizmo_position, selection_rotation);
+      EditorUtilities::ShowScaleGizmo(tachyon, gizmo_position, selection_rotation, editor.use_restricted_transform);
     } else {
-      EditorUtilities::ShowRotationGizmo(tachyon, gizmo_position, selection_rotation);
+      EditorUtilities::ShowRotationGizmo(tachyon, gizmo_position, selection_rotation, editor.use_restricted_transform);
     }
   }
 
@@ -591,7 +593,17 @@ static void HandleSelectionManipulationActions(Tachyon* tachyon, State& state) {
     } else if (editor.transform_type == SCALE) {
       bool is_horizontal_action = abs(tachyon->mouse_delta_x) > abs(tachyon->mouse_delta_y);
 
-      if (is_horizontal_action) {
+      if (editor.use_restricted_transform) {
+        tVec3f scale_change;
+
+        if (is_horizontal_action) {
+          scale_change = tVec3f(4.f * (float) tachyon->mouse_delta_x);
+        } else {
+          scale_change = tVec3f(4.f * (float) -tachyon->mouse_delta_y);
+        }
+
+        ScaleSelection(scale_change);
+      } else if (is_horizontal_action) {
         tVec3f scale_axis = EditorUtilities::GetScalingAxis(basis_x, basis_rotation);
         tVec3f scale_change = scale_axis * 4.f * (float) tachyon->mouse_delta_x;
 
@@ -608,7 +620,12 @@ static void HandleSelectionManipulationActions(Tachyon* tachyon, State& state) {
     else if (editor.transform_type == ROTATION) {
       bool is_horizontal_action = abs(tachyon->mouse_delta_x) > abs(tachyon->mouse_delta_y);
 
-      if (is_horizontal_action) {
+      if (editor.use_restricted_transform) {
+        tVec3f rotation_axis = tVec3f(0, 1.f, 0);
+        float angle = 0.002f * (float) tachyon->mouse_delta_x;
+
+        RotateSelection(rotation_axis, angle);
+      } else if (is_horizontal_action) {
         tVec3f rotation_axis = EditorUtilities::GetClosestBasisAxis(basis_rotation, tVec3f(0, 1.f, 0));
         float angle = 0.002f * (float) tachyon->mouse_delta_x;
 
@@ -637,6 +654,10 @@ static void HandleSelectionHotkeys(Tachyon* tachyon, State& state) {
 
   if (did_press_key(tKey::ARROW_RIGHT)) {
     CloneSelection(tachyon, state, RIGHT);
+  }
+
+  if (did_press_key(tKey::Q)) {
+    editor.use_restricted_transform = !editor.use_restricted_transform;
   }
 }
 
