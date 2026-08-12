@@ -175,8 +175,7 @@ static void RebuildWalkways(Tachyon* tachyon, State& state) {
           tVec3f p2 = tVec3f::lerp(B, D, a);
 
           if (i > 0 && i < total_slices) {
-            // @todo use an easing curve for this
-            float shift_factor = i == 2 || i == 3 ? 0.25f : 0.15f;
+            float shift_factor = 0.25f * sinf(a * t_PI);
 
             tVec3f p1_shift = (p2 - p1) * direction_dot * shift_factor * edge_AC_factor;
             tVec3f p2_shift = (p2 - p1) * direction_dot * shift_factor * edge_BD_factor;
