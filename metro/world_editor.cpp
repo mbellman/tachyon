@@ -500,7 +500,7 @@ static void ShowPlacementPreview(Tachyon* tachyon, State& state) {
 }
 
 static void HandleCameraControls(Tachyon* tachyon, State& state) {
-  const float movement_speed = 15000.f;
+  const float movement_speed = is_key_held(tKey::SPACE) ? 50000.f : 15000.f;
   const float mouse_sensivity = 0.2f;
 
   auto& camera = tachyon->scene.camera;
@@ -689,6 +689,9 @@ void WorldEditor::Open(Tachyon* tachyon, State& state) {
 void WorldEditor::Update(Tachyon* tachyon, State& state) {
   profile("WorldEditor::Update()");
 
+  // Leave timing features on while the editor is open
+  tachyon->show_timing_profile = true;
+
   auto& camera = tachyon->scene.camera;
 
   if (is_window_focused()) {
@@ -714,6 +717,7 @@ void WorldEditor::Close(Tachyon* tachyon, State& state) {
   Serialization::SaveWorldData(state);
 
   state.is_editor_open = false;
+  tachyon->show_timing_profile = false;
 
   show_overlay_message("Leaving editor");
 }
