@@ -83,7 +83,7 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
           auto front = Collision::TestRayHit(front_ray_start, down_ray, plane);
           auto back = Collision::TestRayHit(back_ray_start, down_ray, plane);
 
-          if (front.has_collision) {
+          if (front.has_collision && !bike.jumping_off_ramp) {
             tVec3f resolved_position = front.collision_point + plane.normal * front_wheel_ground_distance;
 
             if (resolved_position.y > highest_front_y) {
@@ -93,7 +93,7 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
             }
           }
 
-          if (back.has_collision) {
+          if (back.has_collision && !bike.jumping_off_ramp) {
             tVec3f resolved_position = back.collision_point + plane.normal * back_wheel_ground_distance;
 
             if (resolved_position.y > highest_back_y) {
@@ -112,6 +112,7 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
   bool in_freefall = !front_wheel_down && !back_wheel_down;
 
   bike.in_freefall = in_freefall;
+  bike.jumping_off_ramp = bike.momentum.y > 0.f && !front_wheel_down;
 
   if (ideal_back_wheel_position.y != bike.back_wheel_position.y) {
     tVec3f delta = ideal_back_wheel_position - bike.back_wheel_position;

@@ -42,6 +42,7 @@ namespace metro {
     tVec3f momentum;
 
     bool drifting = false;
+    bool jumping_off_ramp = false;
     bool in_freefall = false;
 
     tVec3f front_wheel_position;
