@@ -93,8 +93,18 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
             }
           }
 
-          if (back.has_collision && !bike.jumping_off_ramp) {
+          if (back.has_collision) {
             tVec3f resolved_position = back.collision_point + plane.normal * back_wheel_ground_distance;
+
+            float force_dot = tVec3f::dot(bike.facing_direction, plane.normal);
+
+            if (bike.jumping_off_ramp && force_dot >= 0.f) {
+              // If the bike is jumping off a ramp, and its horizontal force direction
+              // is pointing outward from this plane, don't collide it with the back wheel.
+              // For example, the flat plane at the top of a ramp should not "snap" the
+              // back wheel down as the bike is launching off that ramp.
+              continue;
+            }
 
             if (resolved_position.y > highest_back_y) {
               ideal_back_wheel_position = resolved_position;
