@@ -94,17 +94,17 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
           }
 
           if (back.has_collision) {
-            tVec3f resolved_position = back.collision_point + plane.normal * back_wheel_ground_distance;
-
             float force_dot = tVec3f::dot(bike.facing_direction, plane.normal);
 
             if (bike.jumping_off_ramp && force_dot >= 0.f) {
               // If the bike is jumping off a ramp, and its horizontal force direction
-              // is pointing outward from this plane, don't collide it with the back wheel.
-              // For example, the flat plane at the top of a ramp should not "snap" the
-              // back wheel down as the bike is launching off that ramp.
+              // is pointing outward from, or parallel to this plane, don't collide it
+              // with the back wheel. For example, the flat plane at the top of a ramp
+              // shouldn't "snap" the back wheel down as the bike launches off that ramp.
               continue;
             }
+
+            tVec3f resolved_position = back.collision_point + plane.normal * back_wheel_ground_distance;
 
             if (resolved_position.y > highest_back_y) {
               ideal_back_wheel_position = resolved_position;
@@ -160,9 +160,9 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
 
   // Pitch
   {
-    // @todo this produces more "correct-looking" behavior,
-    // but we should use a value with a more physical basis
-    const float freefall_pitch_factor = 0.0005f;
+    // @todo use values with a more physical basis
+    const float landing_pitch_factor = 0.0004f;
+    const float freefall_pitch_factor = 0.0003f;
 
     // Pitch the bike based on where the wheels need to be
     if (front_wheel_down && back_wheel_down) {
@@ -175,14 +175,14 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
 
     // Pitch forward to try and land the front tire on the ground
     else if (back_wheel_down) {
-      float pitch_rate = freefall_pitch_factor * bike.front_wheel_downward_force / mass;
+      float pitch_rate = landing_pitch_factor * bike.front_wheel_downward_force / mass;
 
       bike.pitch += pitch_rate * state.dt;
     }
 
     // Pitch backward to try and land the back tire on the ground
     else if (front_wheel_down) {
-      float pitch_rate = freefall_pitch_factor * bike.back_wheel_downward_force / mass;
+      float pitch_rate = landing_pitch_factor * bike.back_wheel_downward_force / mass;
 
       bike.pitch -= pitch_rate * state.dt;
     }
