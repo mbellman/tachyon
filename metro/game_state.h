@@ -50,6 +50,7 @@ namespace metro {
     float front_wheel_downward_force = 0.f;
     float front_wheel_recoil_force = 0.f;
     float front_wheel_recoil_timer = 0.f;
+    float recoil = 0.f;
 
     tVec3f back_wheel_position;
     tVec3f back_wheel_slope;

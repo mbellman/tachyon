@@ -69,7 +69,7 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
   {
     const float above_wheel_buffer = 500.f;
     const float ray_length = 1500.f;
-    const float front_wheel_ground_distance = 800.f;
+    const float front_wheel_ground_distance = 800.f - bike.recoil;
     const float back_wheel_ground_distance = 820.f;
 
     for_static_entity_containers() {
@@ -140,11 +140,11 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
 
   // Landing recoil effects
   {
-    // Landing on the front wheel
-    if (front_wheel_down && !back_wheel_down) {
+    if (front_wheel_down) {
+      // Landing on the front wheel
       if (bike.front_wheel_downward_force > 0.f) {
         // Transfer the downward force into recoil before the downward force resets
-        bike.front_wheel_recoil_force = 0.0002f * bike.front_wheel_downward_force;
+        bike.front_wheel_recoil_force = 0.0001f * bike.front_wheel_downward_force;
         bike.front_wheel_recoil_timer = 0.f;
       }
     }
@@ -154,6 +154,7 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
     }
 
     bike.front_wheel_recoil_timer += state.dt;
+    bike.recoil = sinf(3.f * t_TAU * bike.front_wheel_recoil_timer) * bike.front_wheel_recoil_force;
   }
 
   // Downward wheel forces. This is just used when landing
@@ -313,16 +314,13 @@ void CommonBike::Update(Tachyon* tachyon, State& state, Bicycle& bike, const int
   fork.color = bike.frame_color;
   fork.material = tVec4f(0.3f, 0, 0.2f, 0);
 
+  tVec3f recoil_axis = bike.visual_rotation.toMatrix4f() * STEERING_AXIS;
+
   handlebars.position = UnitVisualBikeToWorldPosition(bike, tVec3f(0, 0.68f, 0.39f));
+  handlebars.position -= recoil_axis * bike.recoil;
   handlebars.rotation = fork.rotation;
   handlebars.color = tVec3f(0.8f);
   handlebars.material = tVec4f(0.4f, 1.f, 0, 0);
-
-  // @todo cleanup
-  float recoil = sinf(10.f * bike.front_wheel_recoil_timer) * bike.front_wheel_recoil_force;
-  tVec3f recoil_axis = bike.visual_rotation.toMatrix4f() * STEERING_AXIS;
-
-  handlebars.position -= recoil_axis * recoil;
 
   grips.position = handlebars.position;
   grips.rotation = handlebars.rotation;
@@ -374,6 +372,7 @@ void CommonBike::Update(Tachyon* tachyon, State& state, Bicycle& bike, const int
     auto& back_spokes = objects(meshes.common_spokes)[wheel_index + 1];
 
     front_wheel.position = UnitObjectToWorldPosition(fork, tVec3f(0, -0.43f, 0.15f));
+    front_wheel.position.y += bike.recoil;
     front_wheel.rotation = fork.rotation * wheel_axle_rotation;
     front_wheel.color = bike.wheel_color;
     front_wheel.material = tVec4f(0.9f, 0, 0, 0.5f);
