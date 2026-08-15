@@ -138,6 +138,24 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
     }
   }
 
+  // Landing recoil effects
+  {
+    // Landing on the front wheel
+    if (front_wheel_down && !back_wheel_down) {
+      if (bike.front_wheel_downward_force > 0.f) {
+        // Transfer the downward force into recoil before the downward force resets
+        bike.front_wheel_recoil_force = 0.0002f * bike.front_wheel_downward_force;
+        bike.front_wheel_recoil_timer = 0.f;
+      }
+    }
+
+    if (bike.front_wheel_recoil_force != 0.f) {
+      bike.front_wheel_recoil_force *= 1.f - 2.f * state.dt;
+    }
+
+    bike.front_wheel_recoil_timer += state.dt;
+  }
+
   // Downward wheel forces. This is just used when landing
   // on the front or back wheel first to determine how fast
   // the other should fall, or how fast the bike should pitch
@@ -299,6 +317,12 @@ void CommonBike::Update(Tachyon* tachyon, State& state, Bicycle& bike, const int
   handlebars.rotation = fork.rotation;
   handlebars.color = tVec3f(0.8f);
   handlebars.material = tVec4f(0.4f, 1.f, 0, 0);
+
+  // @todo cleanup
+  float recoil = sinf(10.f * bike.front_wheel_recoil_timer) * bike.front_wheel_recoil_force;
+  tVec3f recoil_axis = bike.visual_rotation.toMatrix4f() * STEERING_AXIS;
+
+  handlebars.position -= recoil_axis * recoil;
 
   grips.position = handlebars.position;
   grips.rotation = handlebars.rotation;
