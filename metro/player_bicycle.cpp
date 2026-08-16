@@ -44,7 +44,7 @@ void PlayerBicycle::Update(Tachyon* tachyon, State& state) {
   {
     auto& bike = *active_bike;
 
-    if (bike.in_freefall) {
+    if (bike.in_freefall || bike.jumping_off_ramp) {
       bike.position += (bike.momentum / 25.f) * state.dt;
     } else {
       tVec3f movement_direction = GetMovementDirection(bike);
