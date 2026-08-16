@@ -74,6 +74,7 @@ namespace metro {
     uint16
       // @temporary
       dev_cube,
+      dev_sphere,
 
       // @temporary
       dev_mannequin,
@@ -138,5 +139,6 @@ namespace metro {
     bool use_slow_motion = false;
     bool use_frame_stepping = false;
     bool allow_frame_step = false;
+    uint16 tracker_index = 0;
   };
 }

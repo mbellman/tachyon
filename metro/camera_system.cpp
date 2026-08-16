@@ -5,6 +5,31 @@
 
 using namespace metro;
 
+// @todo move to debug.cpp
+static void TrackPosition(Tachyon* tachyon, State& state, const tVec3f& position) {
+  auto& meshes = state.meshes;
+  auto& trackers = objects(meshes.dev_sphere);
+  tObject tracker;
+
+  if (trackers.total_active == trackers.total) {
+    if (state.tracker_index == trackers.total) {
+      state.tracker_index = 0;
+    }
+
+    tracker = trackers[state.tracker_index];
+  } else {
+    tracker = create(meshes.dev_sphere);
+  }
+
+  tracker.position = position;
+  tracker.scale = tVec3f(150.f);
+  tracker.color = tVec3f(0, 0, 1.f);
+
+  commit(tracker);
+
+  state.tracker_index++;
+}
+
 static void PointCameraAt(tCamera& camera, const tVec3f& target) {
   tVec3f direction = (target - camera.position).unit();
 
@@ -179,6 +204,10 @@ void CameraSystem::Update(Tachyon* tachyon, State& state) {
   tVec3f target_camera_position = params.focus_point + camera3p.calculatePosition();
 
   camera.position = tVec3f::lerp(camera.position, target_camera_position, params.blend_rate * state.dt);
+
+  if (tachyon->show_timing_profile) {
+    TrackPosition(tachyon, state, params.focus_point);
+  }
 
   // @todo smooth behavior when getting on/off bikes
   PointCameraAt(camera, params.focus_point);

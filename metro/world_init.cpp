@@ -61,6 +61,9 @@ static void LoadGameMeshes(Tachyon* tachyon, State& state) {
 
   // @temporary
   meshes.dev_cube = CUBE_MESH(10);
+  meshes.dev_sphere = SPHERE_MESH(1000, 12);
+
+  mesh(meshes.dev_sphere).shadow_cascade_ceiling = 0;
 
   // @temporary
   // @todo use a skinned mesh
