@@ -53,7 +53,7 @@ void PlayerBicycle::Update(Tachyon* tachyon, State& state) {
 
       // Moving downhill; apply gravity along the direction of the average wheel slope,
       // forcing a downward bias and keeping the bike wheels locked to the ground
-      if (movement_direction.y < -0.01f) {
+      if (movement_direction.y < -0.1f) {
         target_movement_vector -= average_wheel_slope;
         target_movement_vector = target_movement_vector.unit();
       }
