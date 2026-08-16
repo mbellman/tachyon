@@ -2,6 +2,11 @@
 
 #include "engine/tachyon_camera.h"
 #include "engine/tachyon_constants.h"
+#include "engine/tachyon_easing.h"
+
+static inline float Modf(float value, float m) {
+  return value - m * floorf(value / m);
+}
 
 void tOrientation::operator+=(const tOrientation& orientation) {
   roll += orientation.roll;
@@ -104,4 +109,31 @@ void tCamera3p::limitAltitude(float factor) {
 
   if (altitude > altitudeLimit) altitude = altitudeLimit;
   else if (altitude < -altitudeLimit) altitude = -altitudeLimit;
+}
+
+void Tachyon_PointCameraAt(tCamera& camera, const tVec3f& target) {
+  tVec3f direction = (target - camera.position).unit();
+
+  camera.orientation.face(direction, tVec3f(0, 1.f, 0));
+  camera.rotation = camera.orientation.toQuaternion();
+}
+
+void Tachyon_SmoothlyPointCameraAt(tCamera& camera, const tVec3f& position, float alpha, bool upside_down) {
+  tVec3f forward = (position - camera.position).unit();
+  tVec3f sideways = tVec3f::cross(forward, tVec3f(0, 1.0f, 0));
+
+  tVec3f up = upside_down
+    ? tVec3f::cross(forward, sideways)
+    : tVec3f::cross(sideways, forward);
+
+  auto currentOrientation = camera.orientation;
+
+  camera.orientation.face(forward, up);
+
+  camera.orientation.roll = Tachyon_Lerpf(currentOrientation.roll, camera.orientation.roll, alpha);
+  camera.orientation.pitch = Tachyon_Lerpf(currentOrientation.pitch, camera.orientation.pitch, alpha);
+  camera.orientation.yaw = Tachyon_LerpCircularf(currentOrientation.yaw, camera.orientation.yaw, alpha, t_PI);
+  camera.orientation.yaw = Modf(camera.orientation.yaw, t_TAU);
+
+  camera.rotation = camera.orientation.toQuaternion();
 }

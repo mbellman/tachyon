@@ -5,53 +5,6 @@
 
 using namespace metro;
 
-// @todo move to engine
-inline float Modf(float value, float m) {
-  return value - m * floorf(value / m);
-}
-
-// @todo move to engine
-inline float LerpCircularf(float a, float b, float alpha, float max_range) {
-  float range = b - a;
-
-  if (range > max_range) {
-    a += max_range * 2.f;
-  } else if (range < -max_range) {
-    a -= max_range * 2.f;
-  }
-
-  return a + (b - a) * alpha;
-}
-
-// @todo move to engine
-void SmoothlyPointCameraAt(tCamera& camera, const tVec3f& position, float alpha, bool upside_down = false) {
-  tVec3f forward = (position - camera.position).unit();
-  tVec3f sideways = tVec3f::cross(forward, tVec3f(0, 1.0f, 0));
-
-  tVec3f up = upside_down
-    ? tVec3f::cross(forward, sideways)
-    : tVec3f::cross(sideways, forward);
-
-  auto currentOrientation = camera.orientation;
-
-  camera.orientation.face(forward, up);
-
-  camera.orientation.roll = Tachyon_Lerpf(currentOrientation.roll, camera.orientation.roll, alpha);
-  camera.orientation.pitch = Tachyon_Lerpf(currentOrientation.pitch, camera.orientation.pitch, alpha);
-  camera.orientation.yaw = LerpCircularf(currentOrientation.yaw, camera.orientation.yaw, alpha, t_PI);
-  camera.orientation.yaw = Modf(camera.orientation.yaw, t_TAU);
-
-  camera.rotation = camera.orientation.toQuaternion();
-}
-
-// @todo move to engine
-static void PointCameraAt(tCamera& camera, const tVec3f& target) {
-  tVec3f direction = (target - camera.position).unit();
-
-  camera.orientation.face(direction, tVec3f(0, 1.f, 0));
-  camera.rotation = camera.orientation.toQuaternion();
-}
-
 // @todo move to debug.cpp
 static void TrackPosition(Tachyon* tachyon, State& state, const tVec3f& position) {
   auto& meshes = state.meshes;
@@ -60,6 +13,8 @@ static void TrackPosition(Tachyon* tachyon, State& state, const tVec3f& position
 
   if (trackers.total_active == trackers.total) {
     if (state.tracker_index == trackers.total) {
+      // Whenever we get up to the last tracker, cycle back to the beginning
+      // to start recycling older tracker objects
       state.tracker_index = 0;
     }
 
@@ -69,7 +24,7 @@ static void TrackPosition(Tachyon* tachyon, State& state, const tVec3f& position
   }
 
   tracker.position = position;
-  tracker.scale = tVec3f(150.f);
+  tracker.scale = tVec3f(100.f);
   tracker.color = tVec3f(0, 0, 1.f);
 
   commit(tracker);
@@ -255,13 +210,9 @@ void CameraSystem::Update(Tachyon* tachyon, State& state) {
     float alpha = time_since(state.last_control_mode_change_time);
     if (alpha > 1.f) alpha = 1.f;
 
-    float point_camera_blend = Tachyon_Lerpf(
-      state.dt,
-      1.f,
-      alpha
-    );
+    float blend_rate = Tachyon_Lerpf(state.dt, 1.f, alpha);
 
-    SmoothlyPointCameraAt(camera, params.focus_point, point_camera_blend);
+    Tachyon_SmoothlyPointCameraAt(camera, params.focus_point, blend_rate);
   }
 
   // Track camera focus position over time

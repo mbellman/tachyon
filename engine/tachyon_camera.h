@@ -40,3 +40,6 @@ struct tCamera3p {
   bool isUpsideDown() const;
   void limitAltitude(float factor);
 };
+
+void Tachyon_PointCameraAt(tCamera& camera, const tVec3f& target);
+void Tachyon_SmoothlyPointCameraAt(tCamera& camera, const tVec3f& position, float alpha, bool upside_down = false);

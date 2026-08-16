@@ -15,6 +15,18 @@ float Tachyon_InverseLerp(const float start, const float end, const float value)
   return alpha;
 }
 
+float Tachyon_LerpCircularf(float a, float b, float alpha, float max_range) {
+  float range = b - a;
+
+  if (range > max_range) {
+    a += max_range * 2.f;
+  } else if (range < -max_range) {
+    a -= max_range * 2.f;
+  }
+
+  return a + (b - a) * alpha;
+}
+
 float Tachyon_EaseOutSine(float t) {
   return sinf((t * t_PI) * 0.5f);
 }
