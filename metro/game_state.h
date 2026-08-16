@@ -116,7 +116,9 @@ namespace metro {
     float recorded_player_speed = 0.f;
     float target_camera_azimuth = 0.f;
     float target_camera_azimuth_blend_rate = 0.f;
-    float last_manual_camera_control_time = 0.f;
+
+    float last_manual_camera_control_time = -FLT_MAX;
+    float last_control_mode_change_time = -FLT_MAX;
 
     int32 player_bike_id = -1;
 

@@ -5,6 +5,53 @@
 
 using namespace metro;
 
+// @todo move to engine
+inline float Modf(float value, float m) {
+  return value - m * floorf(value / m);
+}
+
+// @todo move to engine
+inline float LerpCircularf(float a, float b, float alpha, float max_range) {
+  float range = b - a;
+
+  if (range > max_range) {
+    a += max_range * 2.f;
+  } else if (range < -max_range) {
+    a -= max_range * 2.f;
+  }
+
+  return a + (b - a) * alpha;
+}
+
+// @todo move to engine
+void SmoothlyPointCameraAt(tCamera& camera, const tVec3f& position, float alpha, bool upside_down = false) {
+  tVec3f forward = (position - camera.position).unit();
+  tVec3f sideways = tVec3f::cross(forward, tVec3f(0, 1.0f, 0));
+
+  tVec3f up = upside_down
+    ? tVec3f::cross(forward, sideways)
+    : tVec3f::cross(sideways, forward);
+
+  auto currentOrientation = camera.orientation;
+
+  camera.orientation.face(forward, up);
+
+  camera.orientation.roll = Tachyon_Lerpf(currentOrientation.roll, camera.orientation.roll, alpha);
+  camera.orientation.pitch = Tachyon_Lerpf(currentOrientation.pitch, camera.orientation.pitch, alpha);
+  camera.orientation.yaw = LerpCircularf(currentOrientation.yaw, camera.orientation.yaw, alpha, t_PI);
+  camera.orientation.yaw = Modf(camera.orientation.yaw, t_TAU);
+
+  camera.rotation = camera.orientation.toQuaternion();
+}
+
+// @todo move to engine
+static void PointCameraAt(tCamera& camera, const tVec3f& target) {
+  tVec3f direction = (target - camera.position).unit();
+
+  camera.orientation.face(direction, tVec3f(0, 1.f, 0));
+  camera.rotation = camera.orientation.toQuaternion();
+}
+
 // @todo move to debug.cpp
 static void TrackPosition(Tachyon* tachyon, State& state, const tVec3f& position) {
   auto& meshes = state.meshes;
@@ -28,13 +75,6 @@ static void TrackPosition(Tachyon* tachyon, State& state, const tVec3f& position
   commit(tracker);
 
   state.tracker_index++;
-}
-
-static void PointCameraAt(tCamera& camera, const tVec3f& target) {
-  tVec3f direction = (target - camera.position).unit();
-
-  camera.orientation.face(direction, tVec3f(0, 1.f, 0));
-  camera.rotation = camera.orientation.toQuaternion();
 }
 
 struct CameraParams {
@@ -84,10 +124,7 @@ void CameraSystem::Update(Tachyon* tachyon, State& state) {
   float last_move_distance = last_move.magnitude();
   tVec3f facing_direction;
 
-  bool was_just_manually_controlling_camera = (
-    state.last_manual_camera_control_time != 0.f &&
-    time_since(state.last_manual_camera_control_time) < 2.f
-  );
+  bool was_just_manually_controlling_camera = time_since(state.last_manual_camera_control_time) < 2.f;
 
   bool use_automatic_camera = (
     !was_just_manually_controlling_camera &&
@@ -201,14 +238,41 @@ void CameraSystem::Update(Tachyon* tachyon, State& state) {
   }
 
   auto params = GetCameraParams(state, active_bike);
-  tVec3f target_camera_position = params.focus_point + camera3p.calculatePosition();
 
-  camera.position = tVec3f::lerp(camera.position, target_camera_position, params.blend_rate * state.dt);
+  // Blend to the target camera position
+  {
+    tVec3f target_camera_position = params.focus_point + camera3p.calculatePosition();
 
-  if (tachyon->show_timing_profile) {
-    TrackPosition(tachyon, state, params.focus_point);
+    camera.position = tVec3f::lerp(
+      camera.position,
+      target_camera_position,
+      params.blend_rate * state.dt
+    );
   }
 
-  // @todo smooth behavior when getting on/off bikes
-  PointCameraAt(camera, params.focus_point);
+  // Look at the focus point, and blend more smoothly right after changing control modes
+  {
+    float alpha = time_since(state.last_control_mode_change_time);
+    if (alpha > 1.f) alpha = 1.f;
+
+    float point_camera_blend = Tachyon_Lerpf(
+      state.dt,
+      1.f,
+      alpha
+    );
+
+    SmoothlyPointCameraAt(camera, params.focus_point, point_camera_blend);
+  }
+
+  // Track camera focus position over time
+  // @todo dev build only
+  {
+    if (tachyon->show_timing_profile) {
+      TrackPosition(tachyon, state, params.focus_point);
+    } else {
+      remove_all(state.meshes.dev_sphere);
+
+      state.tracker_index = 0;
+    }
+  }
 }

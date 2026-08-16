@@ -74,6 +74,7 @@ static void HandleCharacterControls(Tachyon* tachyon, State& state) {
 
   // Interactions
   {
+    // Getting on bicycles
     if (did_press_key(GAMEPAD_TRIANGLE)) {
       for (auto& bike : state.bicycles) {
         float distance = tVec3f::distance(bike.position, state.player_position);
@@ -83,6 +84,7 @@ static void HandleCharacterControls(Tachyon* tachyon, State& state) {
 
           state.player_velocity = tVec3f(0.f);
           state.recorded_player_speed = 0.f;
+          state.last_control_mode_change_time = get_scene_time();
 
           break;
         }
@@ -268,6 +270,8 @@ static void HandleBikeControls(Tachyon* tachyon, State& state, Bicycle& bike) {
       !bike.in_freefall
     ) {
       state.player_bike_id = -1;
+      state.last_control_mode_change_time = get_scene_time();
+
       bike.pedal_speed = 0.f;
       bike.speed = 0.f;
     }
