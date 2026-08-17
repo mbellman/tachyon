@@ -83,7 +83,17 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
           auto front = Collision::TestRayHit(front_ray_start, down_ray, plane);
           auto back = Collision::TestRayHit(back_ray_start, down_ray, plane);
 
-          if (front.has_collision && !bike.jumping_off_ramp) {
+          if (front.has_collision) {
+            float force_dot = tVec3f::dot(bike.facing_direction, plane.normal);
+
+            if (bike.jumping_off_ramp && force_dot >= 0.f) {
+              // If the bike is jumping off a ramp, and its horizontal force direction
+              // is pointing outward from, or parallel to this plane, don't collide it
+              // with the front wheel. For example, the flat plane at the top of a ramp
+              // shouldn't "snap" the front wheel down as the bike launches off that ramp.
+              continue;
+            }
+
             tVec3f resolved_position = front.collision_point + plane.normal * front_wheel_ground_distance;
 
             if (resolved_position.y > highest_front_y) {
@@ -97,10 +107,7 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
             float force_dot = tVec3f::dot(bike.facing_direction, plane.normal);
 
             if (bike.jumping_off_ramp && force_dot >= 0.f) {
-              // If the bike is jumping off a ramp, and its horizontal force direction
-              // is pointing outward from, or parallel to this plane, don't collide it
-              // with the back wheel. For example, the flat plane at the top of a ramp
-              // shouldn't "snap" the back wheel down as the bike launches off that ramp.
+              // Same principle as the front wheel collision restriction above
               continue;
             }
 
