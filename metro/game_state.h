@@ -35,6 +35,7 @@ namespace metro {
 
     tVec3f position;
     tVec3f visual_position;
+    tVec3f previous_position;
     float pedal_speed = 0.f;
     float speed = 0.f;
     float drifting_factor = 0.f;

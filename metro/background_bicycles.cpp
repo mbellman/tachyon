@@ -25,6 +25,9 @@ void BackgroundBicycles::SpawnBicycle(Tachyon* tachyon, State& state, Bicycle& b
   // Precompute rotation
   bike.flat_rotation = Quaternion::FromDirection(bike.facing_direction, Y_UP);
 
+  // Initialize previous position
+  bike.previous_position = bike.position;
+
   switch (bike.type) {
     case COMMON_BIKE:
       CommonBike::Spawn(tachyon, state, bike);

@@ -63,6 +63,7 @@ static void UpdateBikePositionOnGround(Bicycle& bike, const float dt) {
     movement_vector_blend_rate
   ).unit();
 
+  bike.previous_position = bike.position;
   bike.position += bike.movement_vector * bike.speed * dt;
 }
 

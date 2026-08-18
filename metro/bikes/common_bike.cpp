@@ -247,7 +247,18 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
       bike.momentum.x *= 1.f - 0.05f * state.dt;
       bike.momentum.z *= 1.f - 0.05f * state.dt;
     } else {
-      bike.momentum = GetMovementDirection(bike) * bike.speed * mass;
+      // Calculate ground momentum using the instantaneous last-move vector.
+      // Ground momentum doesn't affect the bike's movement while still on
+      // actual ground, but once one of the wheels moves off the ground
+      // we want a record of how the bike was moving just beforehand, so that
+      // we may plot its trajectory through the air.
+      tVec3f last_move_vector;
+
+      if (bike.position != bike.previous_position) {
+        last_move_vector = (bike.position - bike.previous_position).unit();
+      }
+
+      bike.momentum = last_move_vector * bike.speed * mass;
     }
   }
 }
