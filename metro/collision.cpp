@@ -1,9 +1,11 @@
+#include <algorithm>
+
 #include "metro/collision.h"
 
 using namespace metro;
 
-#define min(a, b) (a > b ? b : a)
-#define max(a, b) (a > b ? a : b)
+#define fast_min(a, b) (a > b ? b : a)
+#define fast_max(a, b) (a > b ? a : b)
 
 const static std::vector<tVec3f> FACE_PLANE_POINTS = {
   tVec3f(-1.f, 1.f, -1.f ),
@@ -20,7 +22,7 @@ const static std::vector<tVec3f> SLOPE_PLANE_POINTS = {
 };
 
 static inline bool IsInBetween(float n, float a, float b) {
-  return n >= min(a, b) && n <= max(a, b);
+  return n >= fast_min(a, b) && n <= fast_max(a, b);
 }
 
 void Collision::PadCollisionPlane(CollisionPlane& plane, const float padding) {
@@ -39,6 +41,9 @@ void Collision::PrepareCollisionPlane(CollisionPlane& plane) {
   plane.t2 = tVec3f::cross(plane.normal, plane.p3 - plane.p2);
   plane.t3 = tVec3f::cross(plane.normal, plane.p4 - plane.p3);
   plane.t4 = tVec3f::cross(plane.normal, plane.p1 - plane.p4);
+
+  plane.max_y = std::max({ plane.p1.y, plane.p2.y, plane.p3.y, plane.p4.y });
+  plane.min_y = std::min({ plane.p1.y, plane.p2.y, plane.p3.y, plane.p4.y });
 }
 
 CollisionPlane Collision::CreateFloorCollisionPlane(const Transform& transform) {

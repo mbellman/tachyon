@@ -74,7 +74,17 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
 
     for_static_entity_containers() {
       for_entities() {
+        // @todo skip collision checks against out-of-range entities
+
         for (auto& plane : entity.collision_planes) {
+          if (
+            bike.position.y > plane.max_y + ray_length ||
+            bike.position.y < plane.min_y
+          ) {
+            // Skip collision checks against planes below or above the bike
+            continue;
+          }
+
           tVec3f start_offset = plane.normal * above_wheel_buffer;
           tVec3f front_ray_start = bike.front_wheel_position + start_offset;
           tVec3f back_ray_start = bike.back_wheel_position + start_offset;

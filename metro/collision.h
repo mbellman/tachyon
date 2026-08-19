@@ -9,15 +9,9 @@ namespace metro {
     // Plane tangents
     tVec3f t1, t2, t3, t4;
     tVec3f normal;
-  };
 
-  // @todo
-  struct CollisionTriangle {
-    // Triangle points
-    tVec3f p1, p2, p3;
-    // Triangle tangents
-    tVec3f t1, t2, t3;
-    tVec3f normal;
+    float max_y = 0.f;
+    float min_y = 0.f;
   };
 
   struct CollisionTest {
