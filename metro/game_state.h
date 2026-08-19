@@ -138,6 +138,7 @@ namespace metro {
     std::string world_level_name = "test_world.lvl";
 
     bool use_acceleration_camera = false;
+    float acceleration_camera_factor = 0.f;
     float last_acceleration_camera_time = -FLT_MAX;
 
     // @todo dev only

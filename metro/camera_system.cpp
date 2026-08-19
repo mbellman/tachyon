@@ -194,29 +194,43 @@ void CameraSystem::Update(Tachyon* tachyon, State& state) {
 
   auto params = GetCameraParams(state, active_bike);
 
-  // @todo cleanup
-  if (active_bike != nullptr) {
-    auto& bike = *active_bike;
+  // Bike acceleration camera; bring the camera in and
+  // moves it slightly to the side whenever pedaling faster
+  {
+    if (active_bike != nullptr) {
+      auto& bike = *active_bike;
 
-    if (bike.pedal_speed > 10000.f && use_automatic_camera) {
-      state.use_acceleration_camera = true;
-      state.last_acceleration_camera_time = get_scene_time();
-    } else if (time_since(state.last_acceleration_camera_time) > 0.5f || !use_automatic_camera) {
-      state.use_acceleration_camera = false;
+      if (use_automatic_camera) {
+        // @todo check for flat or relatively flat ground only
+        if (bike.pedal_speed > 10000.f) {
+          // With autocam enabled, additionally use the acceleration camera
+          // if we're pedaling fast enough
+          state.use_acceleration_camera = true;
+          state.last_acceleration_camera_time = get_scene_time();
+        } else if (time_since(state.last_acceleration_camera_time) > 0.5f) {
+          // After a slight delay below the speed threshold, stop using
+          // the acceleration camera
+          state.use_acceleration_camera = false;
+        }
+      } else {
+        // Don't use the acceleration camera at all if autocam isn't enabled
+        state.use_acceleration_camera = false;
+      }
+
+      float target_factor = state.use_acceleration_camera ? 1.f : 0.f;
+
+      state.acceleration_camera_factor = Tachyon_Lerpf(
+        state.acceleration_camera_factor,
+        target_factor,
+        0.5f * state.dt
+      );
+
+      // @todo change sides based on where the camera currently is
+      Quaternion facing_rotation = Quaternion::FromDirection(bike.facing_direction, Y_UP);
+
+      params.focus_point += facing_rotation.getLeftDirection() * 3000.f * state.acceleration_camera_factor;
+      camera3p.radius -= 5000.f * state.acceleration_camera_factor;
     }
-
-    static float alpha = 0.f;
-
-    if (state.use_acceleration_camera) {
-      alpha = Tachyon_Lerpf(alpha, 1.f, 0.5f * state.dt);
-    } else {
-      alpha = Tachyon_Lerpf(alpha, 0.f, 0.5f * state.dt);
-    }
-
-    Quaternion rotation = Quaternion::FromDirection(bike.facing_direction, Y_UP);
-
-    params.focus_point += rotation.getLeftDirection() * 3000.f * alpha;
-    camera3p.radius -= 5000.f * alpha;
   }
 
   // Blend to the target camera position
