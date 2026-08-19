@@ -194,6 +194,31 @@ void CameraSystem::Update(Tachyon* tachyon, State& state) {
 
   auto params = GetCameraParams(state, active_bike);
 
+  // @todo cleanup
+  if (active_bike != nullptr) {
+    auto& bike = *active_bike;
+
+    if (bike.pedal_speed > 10000.f) {
+      state.use_acceleration_camera = true;
+      state.last_acceleration_camera_time = get_scene_time();
+    } else if (time_since(state.last_acceleration_camera_time) > 0.5f) {
+      state.use_acceleration_camera = false;
+    }
+
+    static float alpha = 0.f;
+
+    if (state.use_acceleration_camera) {
+      alpha = Tachyon_Lerpf(alpha, 1.f, state.dt);
+    } else {
+      alpha = Tachyon_Lerpf(alpha, 0.f, state.dt);
+    }
+
+    Quaternion rotation = Quaternion::FromDirection(bike.facing_direction, Y_UP);
+
+    params.focus_point += rotation.getLeftDirection() * 3000.f * alpha;
+    camera3p.radius -= 5000.f * alpha;
+  }
+
   // Blend to the target camera position
   {
     tVec3f target_camera_position = params.focus_point + camera3p.calculatePosition();
