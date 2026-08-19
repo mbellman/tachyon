@@ -198,19 +198,19 @@ void CameraSystem::Update(Tachyon* tachyon, State& state) {
   if (active_bike != nullptr) {
     auto& bike = *active_bike;
 
-    if (bike.pedal_speed > 10000.f) {
+    if (bike.pedal_speed > 10000.f && use_automatic_camera) {
       state.use_acceleration_camera = true;
       state.last_acceleration_camera_time = get_scene_time();
-    } else if (time_since(state.last_acceleration_camera_time) > 0.5f) {
+    } else if (time_since(state.last_acceleration_camera_time) > 0.5f || !use_automatic_camera) {
       state.use_acceleration_camera = false;
     }
 
     static float alpha = 0.f;
 
     if (state.use_acceleration_camera) {
-      alpha = Tachyon_Lerpf(alpha, 1.f, state.dt);
+      alpha = Tachyon_Lerpf(alpha, 1.f, 0.5f * state.dt);
     } else {
-      alpha = Tachyon_Lerpf(alpha, 0.f, state.dt);
+      alpha = Tachyon_Lerpf(alpha, 0.f, 0.5f * state.dt);
     }
 
     Quaternion rotation = Quaternion::FromDirection(bike.facing_direction, Y_UP);

@@ -159,7 +159,15 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
   {
     if (front_wheel_down) {
       // Landing on the front wheel
-      if (bike.front_wheel_downward_force > 0.f) {
+      if (
+        bike.front_wheel_downward_force > 0.f &&
+        // Ensure it's been at least a second since the previous landing.
+        // Hard landings from high up sometimes cause the front wheel to
+        // briefly lift back up as the bike rotates, and "land" again.
+        // This is visually imperceptible and has no effect on controls,
+        // but does miscalculate recoil, so we want to ignore these events
+        bike.front_wheel_recoil_timer > 1.f
+      ) {
         // Transfer the downward force into recoil before the downward force resets
         bike.front_wheel_recoil_force = 0.0001f * bike.front_wheel_downward_force;
         bike.front_wheel_recoil_timer = 0.f;
