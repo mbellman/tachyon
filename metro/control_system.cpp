@@ -112,7 +112,7 @@ static void HandleBikeControls(Tachyon* tachyon, State& state, Bicycle& bike) {
     }
 
     // Increase bike speed as pedals rotate
-    bike.speed += bike.pedal_speed * 0.8f * state.dt;
+    bike.speed += bike.pedal_speed * state.dt;
 
     // Revolve pedals in proportion to speed
     bike.pedal_revolution += bike.pedal_speed * 0.0005f * state.dt;

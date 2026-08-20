@@ -200,8 +200,12 @@ void CameraSystem::Update(Tachyon* tachyon, State& state) {
     if (active_bike != nullptr) {
       auto& bike = *active_bike;
 
-      if (use_automatic_camera) {
-        // @todo check for flat or relatively flat ground only
+      tVec3f average_wheel_slope = (
+        bike.front_wheel_slope +
+        bike.back_wheel_slope
+      ) / 2.f;
+
+      if (use_automatic_camera && average_wheel_slope.y > 0.99f) {
         if (bike.pedal_speed > 10000.f) {
           // With autocam enabled, additionally use the acceleration camera
           // if we're pedaling fast enough
@@ -225,11 +229,23 @@ void CameraSystem::Update(Tachyon* tachyon, State& state) {
         0.5f * state.dt
       );
 
-      // @todo change sides based on where the camera currently is
-      Quaternion facing_rotation = Quaternion::FromDirection(bike.facing_direction, Y_UP);
+      Quaternion bike_facing_rotation = Quaternion::FromDirection(bike.facing_direction, Y_UP);
+      tVec3f left = bike_facing_rotation.getLeftDirection();
+      tVec3f right = left.invert();
+      tVec3f bike_to_camera = camera.position - bike.position;
+      bool use_left_side = tVec3f::dot(bike_to_camera, left) > 0.f;
 
-      params.focus_point += facing_rotation.getLeftDirection() * 3000.f * state.acceleration_camera_factor;
-      camera3p.radius -= 5000.f * state.acceleration_camera_factor;
+      static tVec3f side_direction;
+
+      side_direction = tVec3f::lerp(
+        side_direction,
+        (use_left_side ? left : right),
+        state.dt
+      );
+
+
+      params.focus_point += side_direction * 1000.f * state.acceleration_camera_factor;
+      camera3p.radius -= 4000.f * state.acceleration_camera_factor;
     }
   }
 
