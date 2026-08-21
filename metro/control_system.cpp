@@ -23,14 +23,14 @@ static void DebugShowRadiusRing(Tachyon* tachyon, State& state, const Bicycle& b
   }
 }
 
+// @todo keyboard support (?)
 static bool DidPressPedalKey(Tachyon* tachyon) {
-  if (did_press_key(GAMEPAD_X)) {
-    return true;
-  }
+  return did_press_key(GAMEPAD_X);
+}
 
-  // @todo keyboard support (?)
-
-  return false;
+// @todo keyboard support?
+static bool IsHoldingPedalKey(Tachyon* tachyon) {
+  return is_key_held(GAMEPAD_X);
 }
 
 static float GetSteering(Tachyon* tachyon) {
@@ -96,12 +96,20 @@ static void HandleCharacterControls(Tachyon* tachyon, State& state) {
 static void HandleBikeControls(Tachyon* tachyon, State& state, Bicycle& bike) {
   // @todo define per-bicycle
   const float pedal_impulse = 300000.f;
+  const float idle_pedal_impulse = 25000.f;
   const float top_speed = 30000.f;
 
   // Pedaling
   {
     if (DidPressPedalKey(tachyon)) {
+      // Rapid pedaling
       bike.pedal_speed += pedal_impulse * state.dt;
+    }
+
+    if (IsHoldingPedalKey(tachyon)) {
+      // Steady-but-slower pedaling
+      bike.pedal_speed += idle_pedal_impulse * state.dt;
+      bike.pedal_speed *= 1.f - state.dt;
     }
 
     // Dampen pedal speed

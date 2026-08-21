@@ -206,7 +206,7 @@ void CameraSystem::Update(Tachyon* tachyon, State& state) {
       ) / 2.f;
 
       if (use_automatic_camera && average_wheel_slope.y > 0.99f) {
-        if (bike.pedal_speed > 10000.f) {
+        if (bike.pedal_speed > 15000.f) {
           // With autocam enabled, additionally use the acceleration camera
           // if we're pedaling fast enough
           state.use_acceleration_camera = true;
