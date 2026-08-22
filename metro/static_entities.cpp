@@ -291,19 +291,23 @@ static void HandleLifeCycle(Tachyon* tachyon, State& state, std::vector<StaticEn
 void StaticEntities::Update(Tachyon* tachyon, State& state) {
   profile("StaticEntities::Update()");
 
-  // If any walkway segments are updated, rebuild all walkway networks
-  // @todo needs to be upon deletion as well
-  {
-    for (auto& entity : state.entities.walkway_segments) {
-      if (entity.needs_update) {
-        RebuildWalkways(tachyon, state);
+  // Determine whether we need to rebuild walkways based on
+  // updated or deleted entities
+  bool should_rebuild_walkways = false;
 
-        break;
-      }
+  for (auto& entity : state.entities.walkway_segments) {
+    if (entity.needs_update || entity.needs_deletion) {
+      should_rebuild_walkways = true;
+
+      break;
     }
   }
 
   HandleLifeCycle<Platforms>(tachyon, state, state.entities.platforms);
   HandleLifeCycle<Ramps>(tachyon, state, state.entities.ramps);
   HandleLifeCycle<WalkwaySegments>(tachyon, state, state.entities.walkway_segments);
+
+  if (should_rebuild_walkways) {
+    RebuildWalkways(tachyon, state);
+  }
 }
