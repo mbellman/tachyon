@@ -130,14 +130,21 @@ static void HandleBikeControls(Tachyon* tachyon, State& state, Bicycle& bike) {
   // Rock back and forth when pedaling
   {
     // Use the pedal speed to determine the intensity of the rocking
-    float pedal_factor = bike.pedal_speed / 20000.f;
-    if (pedal_factor > 1.f) pedal_factor = 1.f;
+    float pedaling_intensity = bike.pedal_speed / 20000.f;
+    if (pedaling_intensity > 1.f) pedaling_intensity = 1.f;
 
     // Diminish the effect at lower speeds
-    pedal_factor *= pedal_factor;
-    pedal_factor *= pedal_factor;
+    pedaling_intensity *= pedaling_intensity;
+    pedaling_intensity *= pedaling_intensity;
 
-    float target_rocking_factor = 0.25f * pedal_factor * sinf(bike.pedal_revolution);
+    // Diminish the effect when the bike leans left or right
+    float leaning_reduction_factor = 1.f - abs(bike.leaning_angle);
+
+    float target_rocking_factor = 0.25f * (
+      pedaling_intensity *
+      leaning_reduction_factor *
+      sinf(bike.pedal_revolution)
+    );
 
     bike.rocking_factor = Tachyon_Lerpf(
       bike.rocking_factor,
