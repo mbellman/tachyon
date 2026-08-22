@@ -8,6 +8,7 @@
   for (auto* entities : {\
       &state.entities.platforms,\
       &state.entities.ramps,\
+      &state.entities.road_segments,\
       &state.entities.walkway_segments\
   })
 
@@ -27,6 +28,7 @@ namespace metro {
     COMMON_BIKE,
     PLATFORM,
     RAMP,
+    ROAD_SEGMENT,
     WALKWAY_SEGMENT
   };
 
@@ -60,6 +62,7 @@ namespace metro {
     // Statics
     std::vector<StaticEntity> platforms;
     std::vector<StaticEntity> ramps;
+    std::vector<StaticEntity> road_segments;
     std::vector<StaticEntity> walkway_segments;
 
     // Interactives

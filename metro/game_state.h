@@ -93,12 +93,14 @@ namespace metro {
       common_wheel,
 
       // Static entities
+      // @todo move to entities.h
       platform,
       ramp,
       walkway_segment,
       walkway_plane,
 
       // Interactive entities
+      // @todo move to entities.h
       vending_machine
 
       ;

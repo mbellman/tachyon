@@ -75,6 +75,24 @@ struct Ramps {
   }
 };
 
+// -------------
+// Road Segments
+// -------------
+
+struct RoadSegments {
+  OnInit() {
+
+  }
+
+  OnUpdate() {
+    entity.needs_update = false;
+  }
+
+  OnRemove() {
+
+  }
+};
+
 // ----------------
 // Walkway Segments
 // ----------------
@@ -305,6 +323,7 @@ void StaticEntities::Update(Tachyon* tachyon, State& state) {
 
   HandleLifeCycle<Platforms>(tachyon, state, state.entities.platforms);
   HandleLifeCycle<Ramps>(tachyon, state, state.entities.ramps);
+  HandleLifeCycle<RoadSegments>(tachyon, state, state.entities.road_segments);
   HandleLifeCycle<WalkwaySegments>(tachyon, state, state.entities.walkway_segments);
 
   if (should_rebuild_walkways) {

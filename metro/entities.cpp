@@ -33,6 +33,7 @@ StaticEntity& metro::CreateStaticEntity(Entities& entities, EntityType type) {
   entity.type = type;
   entity.id = CreateUniqueId();
 
+  // @todo refactor this
   switch (type) {
     case PLATFORM:
       entities.platforms.push_back(entity);
@@ -42,6 +43,10 @@ StaticEntity& metro::CreateStaticEntity(Entities& entities, EntityType type) {
       entities.ramps.push_back(entity);
 
       return entities.ramps.back();
+    case ROAD_SEGMENT:
+      entities.road_segments.push_back(entity);
+
+      return entities.road_segments.back();
     case WALKWAY_SEGMENT:
       entities.walkway_segments.push_back(entity);
 
