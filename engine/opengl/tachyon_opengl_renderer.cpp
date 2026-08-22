@@ -852,6 +852,10 @@ static void RenderVertexStreams(Tachyon* tachyon, uint32& triangle_count, uint32
     auto& gl_stream = renderer.vertex_streams[i];
     auto& base_stream = tachyon->vertex_streams[i];
 
+    uint32 mesh_surface = (uint32(base_stream.color.rgba) << 16) | (uint32)base_stream.material.data;
+
+    SetShaderUint(locations.mesh_surface, mesh_surface);
+
     glBindVertexArray(gl_stream.vao);
 
     if (!base_stream.buffered) {

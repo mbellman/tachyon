@@ -1,7 +1,12 @@
 #version 460 core
 
-// in vec2 fragUv;
 
+uniform uvec4 surface;
+
+uniform bool has_texture;
+uniform sampler2D albedo_texture;
+
+flat in uvec4 fragSurface;
 in vec3 fragWorldPosition;
 in vec3 fragNormal;
 in vec3 fragTangent;
@@ -13,5 +18,5 @@ layout (location = 1) out uvec4 out_color_and_material;
 
 void main() {
   out_normal_and_depth = vec4(normalize(fragNormal), gl_FragCoord.z);
-  out_color_and_material = uvec4(0xFF, 0xF0, 0xF0, 0x00);
+  out_color_and_material = fragSurface;
 }

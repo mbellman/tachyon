@@ -98,6 +98,7 @@ static void StoreShaderUniforms(tOpenGLShaders& shaders) {
 
   store_shader_uniform(vertex_stream, view_projection_matrix);
   store_shader_uniform(vertex_stream, transform_origin);
+  store_shader_uniform(vertex_stream, mesh_surface);
 
   store_shader_uniform(skinned_mesh, view_projection_matrix);
   store_shader_uniform(skinned_mesh, transform_origin);

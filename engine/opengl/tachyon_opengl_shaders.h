@@ -40,7 +40,8 @@ struct tUniformLocations {
 
   uniform_locations(
     view_projection_matrix,
-    transform_origin
+    transform_origin,
+    mesh_surface
   ) vertex_stream;
 
   uniform_locations(
