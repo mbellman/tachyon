@@ -66,6 +66,16 @@ static std::string GetSelectionLabel() {
   return entity_name + " (ID: 0x" + id_string + ")";
 }
 
+static int32 GetSelectedEntityIndex() {
+  for (size_t i = 0; i < entity_types.size(); i++) {
+    if (entity_types[i] == editor.entity_type) {
+      return (int32) i;
+    }
+  }
+
+  return -1;
+}
+
 // ---------------------
 // Positioning utilities
 // ---------------------
@@ -502,7 +512,6 @@ static void ShowPlacementPreview(Tachyon* tachyon, State& state) {
     Debug::ShowDebugLabel(tachyon, box.position, tVec2f(0.f), entity_name);
   }
 
-
   if (did_left_click_down()) {
     PlaceNewEntity(tachyon, state, box.position);
   }
@@ -650,18 +659,24 @@ static void HandleSelectionManipulationActions(Tachyon* tachyon, State& state) {
 }
 
 static void HandlePlacementHotkeys(Tachyon* tachyon, State& state) {
-  if (did_press_key(tKey::ARROW_LEFT)) {
-    // Change to previous entity type
+  auto current_index = GetSelectedEntityIndex();
 
-    // @todo
-    console_log("Left");
+  if (did_press_key(tKey::ARROW_LEFT)) {
+    // Cycle to previous entity
+    if (current_index == 0) {
+      editor.entity_type = entity_types.back();
+    } else {
+      editor.entity_type = entity_types[current_index - 1];
+    }
   }
 
   if (did_press_key(tKey::ARROW_RIGHT)) {
-    // Change to next entity type
-
-    // @todo
-    console_log("Right");
+    // Cycle to next entity
+    if (current_index == entity_types.size() - 1) {
+      editor.entity_type = entity_types[0];
+    } else {
+      editor.entity_type = entity_types[current_index + 1];
+    }
   }
 }
 

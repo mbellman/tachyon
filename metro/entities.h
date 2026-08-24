@@ -32,7 +32,7 @@ namespace metro {
     WALKWAY_SEGMENT
   };
 
-  static std::vector<EntityType> entity_order = {
+  static std::vector<EntityType> entity_types = {
     COMMON_BIKE,
     PLATFORM,
     RAMP,
