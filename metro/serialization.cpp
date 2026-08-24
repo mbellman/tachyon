@@ -76,7 +76,7 @@ static void SerializeEntities(std::string& data, const std::string& name, const 
 }
 
 static void SerializeBike(std::string& data, const Bicycle& bike) {
-  data += "@" + Serialization::EntityTypeToString(bike.type);
+  data += "@" + EntityTypeToString(bike.type);
   data += "\n";
 
   data += Serialize(bike.spawn_position) + ",";
@@ -138,33 +138,8 @@ static void DeserializeStaticEntity(StaticEntity& entity, const std::string& ent
   entity.color = (uint16) stoi(parts[10]);
 }
 
-static InteractiveEntity DeserializeInteractiveEntity(EntityType type, const std::string& entity_data) {
+static InteractiveEntity DeserializeInteractiveEntity(InteractiveEntity& entity, const std::string& entity_data) {
   // @todo
-}
-
-// @todo combine this and below into a map or tuple array
-// @todo move to entities.h/cpp
-static EntityType StringToEntityType(const std::string& entity_name) {
-  if (entity_name == "Common Bike")     return COMMON_BIKE;
-  if (entity_name == "Platform")        return PLATFORM;
-  if (entity_name == "Ramp")            return RAMP;
-  if (entity_name == "Road Segment")    return ROAD_SEGMENT;
-  if (entity_name == "Walkway Segment") return WALKWAY_SEGMENT;
-
-  return UNSPECIFIED;
-}
-
-// @todo move to entities.h/cpp
-std::string Serialization::EntityTypeToString(EntityType type) {
-  switch (type) {
-    case COMMON_BIKE    : return "Common Bike";
-    case PLATFORM       : return "Platform";
-    case RAMP           : return "Ramp";
-    case ROAD_SEGMENT   : return "Road Segment";
-    case WALKWAY_SEGMENT: return "Walkway Segment";
-    default:
-      return "Entity";
-  }
 }
 
 void Serialization::SaveWorldData(const State& state) {

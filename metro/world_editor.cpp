@@ -48,7 +48,7 @@ static inline bool IsAnythingSelected() {
 }
 
 static std::string GetSelectionLabel() {
-  auto entity_name = Serialization::EntityTypeToString(editor.entity_type);
+  auto entity_name = EntityTypeToString(editor.entity_type);
   std::string id_string;
 
   switch (GetEntityCategory(editor.entity_type)) {
@@ -507,7 +507,7 @@ static void ShowPlacementPreview(Tachyon* tachyon, State& state) {
 
   // Show placement details
   {
-    auto entity_name = Serialization::EntityTypeToString(editor.entity_type);
+    auto entity_name = EntityTypeToString(editor.entity_type);
 
     Debug::ShowDebugLabel(tachyon, box.position, tVec2f(0.f), entity_name);
   }

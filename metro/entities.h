@@ -82,4 +82,6 @@ namespace metro {
   StaticEntity& CreateStaticEntity(Entities& entities, EntityType type);
   InteractiveEntity& CreateInteractiveEntity(Entities& entities, EntityType type);
   bool IsSameEntity(const BaseEntity& a, const BaseEntity& b);
+  EntityType StringToEntityType(const std::string& entity_name);
+  std::string EntityTypeToString(EntityType type);
 }
