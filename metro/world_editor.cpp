@@ -487,12 +487,21 @@ static void ShowPlacementPreview(Tachyon* tachyon, State& state) {
     }
   }
 
+  // Show tentative entity bounding box
   Debug::ShowDebugBox(tachyon, {
     .position = box.position,
     .scale = box.scale,
     .rotation = box.rotation,
     .color = tVec3f(1.f, 0, 1.f)
   });
+
+  // Show placement details
+  {
+    auto entity_name = Serialization::EntityTypeToString(editor.entity_type);
+
+    Debug::ShowDebugLabel(tachyon, box.position, tVec2f(0.f), entity_name);
+  }
+
 
   if (did_left_click_down()) {
     PlaceNewEntity(tachyon, state, box.position);
@@ -640,6 +649,22 @@ static void HandleSelectionManipulationActions(Tachyon* tachyon, State& state) {
   }
 }
 
+static void HandlePlacementHotkeys(Tachyon* tachyon, State& state) {
+  if (did_press_key(tKey::ARROW_LEFT)) {
+    // Change to previous entity type
+
+    // @todo
+    console_log("Left");
+  }
+
+  if (did_press_key(tKey::ARROW_RIGHT)) {
+    // Change to next entity type
+
+    // @todo
+    console_log("Right");
+  }
+}
+
 static void HandleSelectionHotkeys(Tachyon* tachyon, State& state) {
   if (did_press_key(tKey::BACKSPACE)) {
     DeleteSelection(tachyon, state);
@@ -700,6 +725,7 @@ void WorldEditor::Update(Tachyon* tachyon, State& state) {
 
     if (editor.is_placing_new_entity) {
       ShowPlacementPreview(tachyon, state);
+      HandlePlacementHotkeys(tachyon, state);
     }
 
     if (IsAnythingSelected()) {
