@@ -45,6 +45,12 @@ static void LoadStaticEntityMeshes(Tachyon* tachyon, State& state) {
     meshes.ramp = METRO_MODEL("static_entities/ramp.obj", 500);
   }
 
+  // Road segments
+  {
+    // @todo use a different model
+    meshes.road_segment = PLANE_MESH(500);
+  }
+
   // Walkway segments
   {
     meshes.walkway_segment = CUBE_MESH(500);

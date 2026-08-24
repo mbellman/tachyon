@@ -81,15 +81,23 @@ struct Ramps {
 
 struct RoadSegments {
   OnInit() {
-
+    create(state.meshes.road_segment);
   }
 
   OnUpdate() {
+    auto& segment = objects(state.meshes.road_segment)[index];
+
+    Sync(segment, entity);
+
+    commit(segment);
+
     entity.needs_update = false;
   }
 
   OnRemove() {
+    auto& object = objects(state.meshes.road_segment)[index];
 
+    remove_object(object);
   }
 };
 

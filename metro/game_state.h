@@ -96,6 +96,7 @@ namespace metro {
       // @todo move to entities.h
       platform,
       ramp,
+      road_segment,
       walkway_segment,
       walkway_plane,
 
