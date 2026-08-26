@@ -245,6 +245,30 @@ static void RotateSelection(const tVec3f& axis, const float angle) {
 
 // ------------------
 
+static HighlightBox GetCurrentEntityHighlightBox() {
+  switch (GetEntityCategory(editor.entity_type)) {
+    case BICYCLE: {
+      return {
+        .position = tVec3f(0.f),
+        .scale = tVec3f(500.f, 1375.f, 2050.f),
+        .rotation = Quaternion(1.f, 0, 0, 0)
+      };
+    }
+    case STATIC_ENTITY: {
+      return {
+        .position = tVec3f(0.f),
+        .scale = tVec3f(2000.f),  // @todo use default scale based on entity type
+        .rotation = Quaternion(1.f, 0, 0, 0)
+      };
+    };
+    case INTERACTIVE_ENTITY:
+      // @todo
+      return {};
+    default:
+      return {};
+  }
+}
+
 static HighlightBox GetSelectionHighlightBox() {
   switch (GetEntityCategory(editor.entity_type)) {
     case BICYCLE: {
@@ -461,24 +485,22 @@ static void CloneSelection(Tachyon* tachyon, State& state, CloneDirection direct
 }
 
 static void ShowPlacementPreview(Tachyon* tachyon, State& state) {
-  const float ray_length = 30000.f;
-
-  // @temporary
-  // @todo define default scales per entity type
-  const tVec3f scale = 2000.f;
-
   auto& camera = tachyon->scene.camera;
   tVec3f camera_direction = camera.orientation.getDirection();
+
+  const float ray_length = 30000.f;
   tVec3f ray = camera_direction * ray_length;
+
+  HighlightBox box = GetCurrentEntityHighlightBox();
+  float base_y_offset = box.scale.y + 25.f;
 
   // Use the bottom of the bounding box as the basis for our hit test,
   // so the box does not penetrate intersected geometry
-  ray.y -= scale.y;
+  ray.y -= box.scale.y;
 
-  HighlightBox box;
+  // Adjust the preview box position based on our hit test ray
   box.position = camera.position + ray;
-  box.position.y += scale.y + 25.f;
-  box.scale = scale;
+  box.position.y += base_y_offset;
 
   // Track ray hits by distance so we can place entities at the closest one
   float closest_distance = FLT_MAX;
@@ -496,7 +518,7 @@ static void ShowPlacementPreview(Tachyon* tachyon, State& state) {
             // Position the preview box fully above the collision point,
             // with a small additional buffer to avoid clipping through floors
             box.position = ray_test.collision_point;
-            box.position.y += scale.y + 25.f;
+            box.position.y += base_y_offset;
 
             closest_distance = distance;
             collision_point = ray_test.collision_point;
