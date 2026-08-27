@@ -245,7 +245,7 @@ static void RotateSelection(const tVec3f& axis, const float angle) {
 
 // ------------------
 
-static HighlightBox GetCurrentEntityHighlightBox() {
+static HighlightBox GetPlacementPreviewHighlightBox() {
   switch (GetEntityCategory(editor.entity_type)) {
     case BICYCLE: {
       return {
@@ -257,7 +257,8 @@ static HighlightBox GetCurrentEntityHighlightBox() {
     case STATIC_ENTITY: {
       return {
         .position = tVec3f(0.f),
-        .scale = tVec3f(2000.f),  // @todo use default scale based on entity type
+        // @todo use default scale based on entity type
+        .scale = tVec3f(2000.f) + tVec3f(250.f),
         .rotation = Quaternion(1.f, 0, 0, 0)
       };
     };
@@ -491,7 +492,7 @@ static void ShowPlacementPreview(Tachyon* tachyon, State& state) {
   const float ray_length = 30000.f;
   tVec3f ray = camera_direction * ray_length;
 
-  HighlightBox box = GetCurrentEntityHighlightBox();
+  HighlightBox box = GetPlacementPreviewHighlightBox();
   float base_y_offset = box.scale.y + 25.f;
 
   // Use the bottom of the bounding box as the basis for our hit test,
@@ -529,6 +530,7 @@ static void ShowPlacementPreview(Tachyon* tachyon, State& state) {
   }
 
   if (editor.entity_type == ROAD_SEGMENT && closest_distance == FLT_MAX) {
+    // Disallow placing road segments if we're not close enough to a ground plane
     return;
   }
 
@@ -548,6 +550,15 @@ static void ShowPlacementPreview(Tachyon* tachyon, State& state) {
   }
 
   if (did_left_click_down()) {
+    if (GetEntityCategory(editor.entity_type) == BICYCLE) {
+      // When placing a new bicycle, shift the spawn position down
+      // to ensure the bike spawns exactly within the preview box
+      // bounds. The preview box has an origin at its center, but
+      // selected bikes have a box origin slightly below center, so
+      // we have to make that adjustment here.
+      box.position.y -= 600.f;
+    }
+
     PlaceNewEntity(tachyon, state, box.position);
   }
 }
