@@ -245,6 +245,16 @@ static void RotateSelection(const tVec3f& axis, const float angle) {
 
 // ------------------
 
+// @todo relocate this
+static tVec3f GetDefaultEntityScale(EntityType entity_type) {
+  switch (entity_type) {
+    case ROAD_SEGMENT:
+      return tVec3f(2000.f, 50.f, 2000.f);
+    default:
+      return tVec3f(2000.f);
+  }
+}
+
 static HighlightBox GetPlacementPreviewHighlightBox() {
   switch (GetEntityCategory(editor.entity_type)) {
     case BICYCLE: {
@@ -255,10 +265,11 @@ static HighlightBox GetPlacementPreviewHighlightBox() {
       };
     }
     case STATIC_ENTITY: {
+      auto default_scale = GetDefaultEntityScale(editor.entity_type);
+
       return {
         .position = tVec3f(0.f),
-        // @todo use default scale based on entity type
-        .scale = tVec3f(2000.f) + tVec3f(250.f),
+        .scale = default_scale + tVec3f(250.f),
         .rotation = Quaternion(1.f, 0, 0, 0)
       };
     };
@@ -444,9 +455,10 @@ static void PlaceNewEntity(Tachyon* tachyon, State& state, const tVec3f& positio
       break;
     case STATIC_ENTITY: {
       auto& entity = CreateStaticEntity(state.entities, editor.entity_type);
+      auto default_scale = GetDefaultEntityScale(editor.entity_type);
 
       entity.position = position;
-      entity.scale = tVec3f(2000.f);
+      entity.scale = default_scale;
       entity.color = tVec3f(1.f);
 
       editor.selection = &entity;
