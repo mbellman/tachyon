@@ -126,7 +126,8 @@ static void RebuildRoads(Tachyon* tachyon, State& state) {
         plane.position = (entity.position + next.position) / 2.f;
         plane.scale = tVec3f(x_scale, 1.f, z_scale);
         plane.rotation = Quaternion::FromDirection(direction, Y_UP);
-        plane.color = tVec3f(0.1f);
+        plane.color = 0x1110;
+        plane.material = tVec4f(0.5f, 0.2f, 0, 0);
 
         commit(plane);
       }
