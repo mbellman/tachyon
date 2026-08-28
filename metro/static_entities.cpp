@@ -101,6 +101,39 @@ struct RoadSegments {
   }
 };
 
+static void RebuildRoads(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
+  reset_instances(meshes.road_plane);
+
+  for (auto& entity : state.entities.road_segments) {
+    for (auto& next : state.entities.road_segments) {
+      if (IsSameEntity(entity, next)) continue;
+
+      float distance = tVec3f::distance(entity.position, next.position);
+      tVec3f entity_facing_direction = entity.rotation.getDirection();
+      tVec3f next_facing_direction = next.rotation.getDirection();
+      tVec3f path_direction = next.position - entity.position;
+      float next_dot = tVec3f::dot(path_direction, next_facing_direction);
+
+      if (distance < 30000.f && next_dot > 0.f) {
+        float x_scale = 4000.f;
+        float z_scale = distance / 2.f;
+        tVec3f direction = path_direction / distance;
+
+        auto& plane = use_instance(meshes.road_plane);
+
+        plane.position = (entity.position + next.position) / 2.f;
+        plane.scale = tVec3f(x_scale, 1.f, z_scale);
+        plane.rotation = Quaternion::FromDirection(direction, Y_UP);
+        plane.color = tVec3f(0.1f);
+
+        commit(plane);
+      }
+    }
+  }
+}
+
 // ----------------
 // Walkway Segments
 // ----------------
@@ -151,8 +184,6 @@ static void RebuildWalkways(Tachyon* tachyon, State& state) {
   stream.face_elements.clear();
   stream.buffered = false;
 
-  reset_instances(state.meshes.walkway_plane);
-
   // Clear any collision planes present on the segment entities.
   // We'll add new ones based on connections between them.
   for (auto& entity : state.entities.walkway_segments) {
@@ -170,11 +201,8 @@ static void RebuildWalkways(Tachyon* tachyon, State& state) {
       float next_dot = tVec3f::dot(path_direction, next_facing_direction);
 
       if (distance < 15000.f && next_dot > 0.f) {
-        float x_scale = (GetWiderHorizontalScale(entity) + GetWiderHorizontalScale(next)) / 2.f;
-        float z_scale = distance / 2.f;
-
-        Debug::ShowDebugVector(tachyon, entity.position, entity_facing_direction * 2000.f, tVec3f(1.f));
-        Debug::ShowDebugVector(tachyon, next.position, next_facing_direction * 2000.f, tVec3f(1.f));
+        // Debug::ShowDebugVector(tachyon, entity.position, entity_facing_direction * 2000.f, tVec3f(1.f));
+        // Debug::ShowDebugVector(tachyon, next.position, next_facing_direction * 2000.f, tVec3f(1.f));
 
         float direction_dot = tVec3f::dot(
           entity_facing_direction,
@@ -317,15 +345,20 @@ static void HandleLifeCycle(Tachyon* tachyon, State& state, std::vector<StaticEn
 void StaticEntities::Update(Tachyon* tachyon, State& state) {
   profile("StaticEntities::Update()");
 
-  // Determine whether we need to rebuild walkways based on
-  // updated or deleted entities
+  // Determine whether we need to rebuild roads/walkways
+  // based on updated or deleted entities
   bool should_rebuild_walkways = false;
+  bool should_rebuild_roads = false;
 
   for (auto& entity : state.entities.walkway_segments) {
     if (entity.needs_update || entity.needs_deletion) {
       should_rebuild_walkways = true;
+    }
+  }
 
-      break;
+  for (auto& entity : state.entities.road_segments) {
+    if (entity.needs_update || entity.needs_deletion) {
+      should_rebuild_roads = true;
     }
   }
 
@@ -336,5 +369,9 @@ void StaticEntities::Update(Tachyon* tachyon, State& state) {
 
   if (should_rebuild_walkways) {
     RebuildWalkways(tachyon, state);
+  }
+
+  if (should_rebuild_roads) {
+    RebuildRoads(tachyon, state);
   }
 }

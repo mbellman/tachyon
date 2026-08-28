@@ -48,12 +48,12 @@ static void LoadStaticEntityMeshes(Tachyon* tachyon, State& state) {
   // Road segments
   {
     meshes.road_segment = METRO_MODEL("static_entities/road_segment.obj", 500);
+    meshes.road_plane   = PLANE_MESH(500);
   }
 
   // Walkway segments
   {
     meshes.walkway_segment = CUBE_MESH(500);
-    meshes.walkway_plane   = PLANE_MESH(500);
   }
 }
 
@@ -83,15 +83,13 @@ static void LoadGameMeshes(Tachyon* tachyon, State& state) {
 
   Debug::CreateObjects(tachyon);
 
-  // Provision planes for dynamic walkways
-  // @temporary
-  // @todo use dynamic geometry
+  // Provision planes for dynamic roads
   {
     for_range(1, 500) {
-      create(state.meshes.walkway_plane);
+      create(state.meshes.road_plane);
     }
 
-    reset_instances(state.meshes.walkway_plane);
+    reset_instances(state.meshes.road_plane);
   }
 
   // @temporary
