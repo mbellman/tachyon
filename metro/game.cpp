@@ -86,6 +86,20 @@ static void HandleDevHotkeys(Tachyon* tachyon, State& state) {
   }
 }
 
+static void EnableEditorOnlyMeshes(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
+  objects(meshes.walkway_segment).disabled = false;
+  objects(meshes.road_segment).disabled = false;
+}
+
+static void DisableEditorOnlyMeshes(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
+  objects(meshes.walkway_segment).disabled = true;
+  objects(meshes.road_segment).disabled = true;
+}
+
 static void HandleFrameEnd(Tachyon* tachyon, State& state) {
   state.allow_frame_step = false;
 }
@@ -123,7 +137,7 @@ void metro::Update(Tachyon* tachyon, State& state, const float dt) {
     InteractiveEntities::Update(tachyon, state);
     BackgroundBicycles::Update(tachyon, state);
 
-    objects(state.meshes.walkway_segment).disabled = false;
+    EnableEditorOnlyMeshes(tachyon, state);
 
     return;
   }
@@ -134,7 +148,7 @@ void metro::Update(Tachyon* tachyon, State& state, const float dt) {
     return;
   }
 
-  objects(state.meshes.walkway_segment).disabled = true;
+  DisableEditorOnlyMeshes(tachyon, state);
 
   Debug::Reset(tachyon);
 
