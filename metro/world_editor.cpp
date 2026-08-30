@@ -47,6 +47,13 @@ static inline bool IsAnythingSelected() {
   return editor.selection != nullptr;
 }
 
+static inline bool ShouldUseRestrictedTransform() {
+  return (
+    editor.use_restricted_transform ||
+    editor.entity_type == ROAD_SEGMENT
+  );
+}
+
 static std::string GetSelectionLabel() {
   auto entity_name = EntityTypeToString(editor.entity_type);
   std::string id_string;
@@ -249,9 +256,18 @@ static void RotateSelection(const tVec3f& axis, const float angle) {
 static tVec3f GetDefaultEntityScale(EntityType entity_type) {
   switch (entity_type) {
     case ROAD_SEGMENT:
-      return tVec3f(2000.f, 50.f, 2000.f);
+      return tVec3f(2000.f, 10.f, 2000.f);
     default:
       return tVec3f(2000.f);
+  }
+}
+
+static tVec3f GetEntityScalePadding(EntityType entity_type) {
+  switch (entity_type) {
+    case ROAD_SEGMENT:
+      return tVec3f(250.f, 5.f, 250.f);
+    default:
+      return tVec3f(250.f);
   }
 }
 
@@ -266,10 +282,11 @@ static HighlightBox GetPlacementPreviewHighlightBox() {
     }
     case STATIC_ENTITY: {
       auto default_scale = GetDefaultEntityScale(editor.entity_type);
+      auto padding = GetEntityScalePadding(editor.entity_type);
 
       return {
         .position = tVec3f(0.f),
-        .scale = default_scale + tVec3f(250.f),
+        .scale = default_scale + padding,
         .rotation = Quaternion(1.f, 0, 0, 0)
       };
     };
@@ -294,10 +311,11 @@ static HighlightBox GetSelectionHighlightBox() {
     }
     case STATIC_ENTITY: {
       auto& entity = *(StaticEntity*) editor.selection;
+      auto padding = GetEntityScalePadding(editor.entity_type);
 
       return {
         .position = entity.position,
-        .scale = entity.scale + tVec3f(250.f),
+        .scale = entity.scale + padding,
         .rotation = entity.rotation
       };
     };
@@ -334,9 +352,9 @@ static void ShowSelectionDetails(Tachyon* tachyon, State& state) {
     if (editor.transform_type == POSITION) {
       EditorUtilities::ShowPositionGizmo(tachyon, gizmo_position, selection_rotation);
     } else if (editor.transform_type == SCALE) {
-      EditorUtilities::ShowScaleGizmo(tachyon, gizmo_position, selection_rotation, editor.use_restricted_transform);
+      EditorUtilities::ShowScaleGizmo(tachyon, gizmo_position, selection_rotation, ShouldUseRestrictedTransform());
     } else {
-      EditorUtilities::ShowRotationGizmo(tachyon, gizmo_position, selection_rotation, editor.use_restricted_transform);
+      EditorUtilities::ShowRotationGizmo(tachyon, gizmo_position, selection_rotation, ShouldUseRestrictedTransform());
     }
   }
 
@@ -669,7 +687,7 @@ static void HandleSelectionManipulationActions(Tachyon* tachyon, State& state) {
     } else if (editor.transform_type == SCALE) {
       bool is_horizontal_action = abs(tachyon->mouse_delta_x) > abs(tachyon->mouse_delta_y);
 
-      if (editor.use_restricted_transform) {
+      if (ShouldUseRestrictedTransform()) {
         tVec3f scale_change;
 
         if (is_horizontal_action) {
@@ -696,7 +714,7 @@ static void HandleSelectionManipulationActions(Tachyon* tachyon, State& state) {
     else if (editor.transform_type == ROTATION) {
       bool is_horizontal_action = abs(tachyon->mouse_delta_x) > abs(tachyon->mouse_delta_y);
 
-      if (editor.use_restricted_transform) {
+      if (ShouldUseRestrictedTransform()) {
         tVec3f rotation_axis = tVec3f(0, 1.f, 0);
         float angle = 0.002f * (float) tachyon->mouse_delta_x;
 

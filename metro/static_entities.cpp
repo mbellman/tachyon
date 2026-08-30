@@ -111,21 +111,20 @@ static void RebuildRoads(Tachyon* tachyon, State& state) {
       if (IsSameEntity(entity, next)) continue;
 
       float distance = tVec3f::distance(entity.position, next.position);
-      tVec3f entity_facing_direction = entity.rotation.getDirection();
-      tVec3f next_facing_direction = next.rotation.getDirection();
-      tVec3f path_direction = next.position - entity.position;
-      float next_dot = tVec3f::dot(path_direction, next_facing_direction);
+      // @todo fix direction
+      tVec3f entity_facing_direction = entity.rotation.getDirection().invert();
+      tVec3f path_direction = (next.position - entity.position).unit();
+      float next_dot = tVec3f::dot(path_direction, entity_facing_direction);
 
-      if (distance < 30000.f && next_dot > 0.f) {
+      if (distance < 30000.f && next_dot > 0.5f) {
         float x_scale = 4000.f;
         float z_scale = distance / 2.f;
-        tVec3f direction = path_direction / distance;
 
         auto& plane = use_instance(meshes.road_plane);
 
         plane.position = (entity.position + next.position) / 2.f;
         plane.scale = tVec3f(x_scale, 1.f, z_scale);
-        plane.rotation = Quaternion::FromDirection(direction, Y_UP);
+        plane.rotation = Quaternion::FromDirection(path_direction, Y_UP);
         plane.color = 0x1110;
         plane.material = tVec4f(0.5f, 0.2f, 0, 0);
 
