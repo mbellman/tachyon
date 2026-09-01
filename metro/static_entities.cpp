@@ -105,6 +105,7 @@ static void RebuildRoads(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
   reset_instances(meshes.road_plane);
+  reset_instances(meshes.road_pivot);
 
   for (auto& entity : state.entities.road_segments) {
     for (auto& next : state.entities.road_segments) {
@@ -129,6 +130,15 @@ static void RebuildRoads(Tachyon* tachyon, State& state) {
         plane.material = tVec4f(0.5f, 0.2f, 0, 0);
 
         commit(plane);
+
+        auto& pivot = use_instance(meshes.road_pivot);
+
+        pivot.position = entity.position + path_direction * z_scale * 2.f;
+        pivot.scale = 4000.f;
+        pivot.color = plane.color;
+        pivot.material = plane.material;
+
+        commit(pivot);
       }
     }
   }

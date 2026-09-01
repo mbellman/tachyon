@@ -98,6 +98,7 @@ namespace metro {
       ramp,
       road_segment,
       road_plane,
+      road_pivot,
       walkway_segment,
 
       // Interactive entities
