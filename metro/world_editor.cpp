@@ -667,7 +667,7 @@ static void HandleTransformTypeCycleActions(Tachyon* tachyon, State& state) {
   }
 }
 
-static void HandleSelectionManipulationActions(Tachyon* tachyon, State& state) {
+static void HandleTransformActions(Tachyon* tachyon, State& state) {
   if (is_left_mouse_held_down()) {
     auto& camera = tachyon->scene.camera;
     tVec3f camera_left = camera.orientation.getLeftDirection();
@@ -680,6 +680,13 @@ static void HandleSelectionManipulationActions(Tachyon* tachyon, State& state) {
     if (editor.transform_type == POSITION) {
       tVec3f delta_x = basis_x * 4.f * (float) -tachyon->mouse_delta_x;
       tVec3f delta_y = basis_y * 4.f * (float) -tachyon->mouse_delta_y;
+
+      if (editor.entity_type == ROAD_SEGMENT) {
+        // Zero out y movement to limit the road segment
+        // to the ground it was placed on
+        // @todo lock the entity to the ground height
+        delta_y = tVec3f(0.f);
+      }
 
       MoveSelection(delta_x + delta_y);
 
@@ -821,7 +828,7 @@ void WorldEditor::Update(Tachyon* tachyon, State& state) {
 
     if (IsAnythingSelected()) {
       HandleTransformTypeCycleActions(tachyon, state);
-      HandleSelectionManipulationActions(tachyon, state);
+      HandleTransformActions(tachyon, state);
       ShowSelectionDetails(tachyon, state);
       HandleSelectionHotkeys(tachyon, state);
     }

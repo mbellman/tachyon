@@ -118,7 +118,7 @@ static void RebuildRoads(Tachyon* tachyon, State& state) {
       float next_dot = tVec3f::dot(path_direction, entity_facing_direction);
 
       if (distance < 30000.f && next_dot > 0.5f) {
-        float x_scale = 4000.f;
+        float x_scale = 6000.f;
         float z_scale = distance / 2.f;
 
         auto& plane = use_instance(meshes.road_plane);
@@ -134,7 +134,7 @@ static void RebuildRoads(Tachyon* tachyon, State& state) {
         auto& pivot = use_instance(meshes.road_pivot);
 
         pivot.position = entity.position + path_direction * z_scale * 2.f;
-        pivot.scale = 4000.f;
+        pivot.scale = 6000.f;
         pivot.color = plane.color;
         pivot.material = plane.material;
 
