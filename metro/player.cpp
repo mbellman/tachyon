@@ -27,33 +27,46 @@ static void ShowCharacterDebugVisuals(Tachyon* tachyon, State& state) {
   Debug::ShowDebugVector(tachyon, facing_position, facing_vector, tVec3f(0, 1.f, 0));
 }
 
-void Player::Update(Tachyon* tachyon, State& state) {
-  auto* active_bike = GetActiveBicycle(state);
+static void UpdatePlayerOnBike(Tachyon* tachyon, State& state, const Bicycle& bike) {
   auto& player = objects(state.meshes.dev_mannequin)[0];
 
-  if (active_bike != nullptr) {
-    // Lock the player to the active bike
-    state.previous_player_position = state.player_position;
-    state.player_position = UnitVisualBikeToWorldPosition(*active_bike, tVec3f(0, 0.5f, -0.3f));
+  state.previous_player_position = state.player_position;
+  state.player_position = UnitVisualBikeToWorldPosition(bike, tVec3f(0, 0.5f, -0.3f));
 
-    player.position = state.player_position;
-    player.rotation = active_bike->visual_rotation;
-  } else {
-    // Update based on free player properties
-    player.position = state.player_position;
+  player.position = state.player_position;
+  player.rotation = bike.visual_rotation;
 
-    if (state.recorded_player_speed > 0.f) {
-      player.rotation = Quaternion::nlerp(
-        player.rotation,
-        Quaternion::FromDirection(state.player_velocity.unit(), Y_UP),
-        5.f * state.dt
-      );
-    }
+  commit(player);
+}
 
-    if (tachyon->show_timing_profile) {
-      ShowCharacterDebugVisuals(tachyon, state);
-    }
+static void UpdatePlayerOnFoot(Tachyon* tachyon, State& state) {
+  auto& player = objects(state.meshes.dev_mannequin)[0];
+
+  // @todo collision checks
+
+  player.position = state.player_position;
+
+  if (state.recorded_player_speed > 0.f) {
+    player.rotation = Quaternion::nlerp(
+      player.rotation,
+      Quaternion::FromDirection(state.player_velocity.unit(), Y_UP),
+      5.f * state.dt
+    );
+  }
+
+  if (tachyon->show_timing_profile) {
+    ShowCharacterDebugVisuals(tachyon, state);
   }
 
   commit(player);
+}
+
+void Player::Update(Tachyon* tachyon, State& state) {
+  auto* active_bike = GetActiveBicycle(state);
+
+  if (active_bike != nullptr) {
+    UpdatePlayerOnBike(tachyon, state, *active_bike);
+  } else {
+    UpdatePlayerOnFoot(tachyon, state);
+  }
 }
