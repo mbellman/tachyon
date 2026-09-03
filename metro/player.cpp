@@ -42,7 +42,26 @@ static void UpdatePlayerOnBike(Tachyon* tachyon, State& state, const Bicycle& bi
 static void UpdatePlayerOnFoot(Tachyon* tachyon, State& state) {
   auto& player = objects(state.meshes.dev_mannequin)[0];
 
-  // @todo collision checks
+  // Collisions
+  {
+    for_static_entity_containers() {
+      for_entities() {
+        // @todo skip collision checks against out-of-range entities
+
+        tVec3f ray_start = state.player_position;
+        // @todo use a constant based on player scale + padding
+        tVec3f down_ray = tVec3f(0, -2500.f, 0);
+
+        for (auto& plane : entity.collision_planes) {
+          auto test = Collision::TestRayHit(ray_start, down_ray, plane);
+
+          if (test.has_collision) {
+            state.player_position.y = test.collision_point.y + 2000.f;
+          }
+        }
+      }
+    }
+  }
 
   player.position = state.player_position;
 
