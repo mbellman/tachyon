@@ -77,7 +77,7 @@ static void UpdatePlayerOnFoot(Tachyon* tachyon, State& state) {
   if (state.recorded_player_speed > 0.f) {
     player.rotation = Quaternion::nlerp(
       player.rotation,
-      Quaternion::FromDirection(state.player_velocity.unit(), Y_UP),
+      Quaternion::FromDirection(state.player_velocity.xz().unit(), Y_UP),
       5.f * state.dt
     );
   }
