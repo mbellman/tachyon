@@ -55,14 +55,16 @@ static void HandleCharacterControls(Tachyon* tachyon, State& state) {
     // Top speed dampening
     if (state.recorded_player_speed > acceleration) {
       // @todo this doesn't properly limit us to a defined top speed
-      state.player_velocity *= 1.f - 35.f * state.dt;
+      state.player_velocity.x *= 1.f - 35.f * state.dt;
+      state.player_velocity.z *= 1.f - 35.f * state.dt;
     }
 
     state.previous_player_position = state.player_position;
     state.player_position += state.player_velocity * state.dt;
 
     // Velocity falloff/friction
-    state.player_velocity *= 1.f - 5.f * state.dt;
+    state.player_velocity.x *= 1.f - 5.f * state.dt;
+    state.player_velocity.z *= 1.f - 5.f * state.dt;
     state.recorded_player_speed = state.player_velocity.magnitude();
 
     // Stop at low velocities

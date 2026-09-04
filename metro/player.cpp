@@ -41,6 +41,7 @@ static void UpdatePlayerOnBike(Tachyon* tachyon, State& state, const Bicycle& bi
 
 static void UpdatePlayerOnFoot(Tachyon* tachyon, State& state) {
   auto& player = objects(state.meshes.dev_mannequin)[0];
+  bool has_collision = false;
 
   // Collisions
   {
@@ -57,10 +58,18 @@ static void UpdatePlayerOnFoot(Tachyon* tachyon, State& state) {
 
           if (test.has_collision) {
             state.player_position.y = test.collision_point.y + 2000.f;
+
+            has_collision = true;
           }
         }
       }
     }
+  }
+
+  if (has_collision) {
+    state.player_velocity.y = 0.f;
+  } else {
+    state.player_velocity.y -= 50000.f * state.dt;
   }
 
   player.position = state.player_position;
