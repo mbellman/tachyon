@@ -59,7 +59,7 @@ static std::string GetSelectionLabel() {
   std::string id_string;
 
   switch (GetEntityCategory(editor.entity_type)) {
-    case BICYCLE:
+    case VEHICLE:
       id_string = std::format("{:X}", ((Bicycle*)editor.selection)->id);
       break;
     case STATIC_ENTITY:
@@ -89,7 +89,7 @@ static int32 GetSelectedEntityIndex() {
 
 static tVec3f GetSelectionPosition() {
   switch (GetEntityCategory(editor.entity_type)) {
-    case BICYCLE:
+    case VEHICLE:
       return ((Bicycle*)editor.selection)->spawn_position;
     case STATIC_ENTITY:
       return ((StaticEntity*)editor.selection)->position;
@@ -101,7 +101,7 @@ static tVec3f GetSelectionPosition() {
 
 static void MoveSelection(const tVec3f& offset) {
   switch (GetEntityCategory(editor.entity_type)) {
-    case BICYCLE: {
+    case VEHICLE: {
       auto& bike = *(Bicycle*) editor.selection;
 
       bike.spawn_position += offset;
@@ -129,7 +129,7 @@ static void MoveSelection(const tVec3f& offset) {
 
 static tVec3f GetSelectionScale() {
   switch (GetEntityCategory(editor.entity_type)) {
-    case BICYCLE:
+    case VEHICLE:
       // @temporary
       return tVec3f(2000.f);
     case STATIC_ENTITY:
@@ -142,7 +142,7 @@ static tVec3f GetSelectionScale() {
 
 static void SetSelectionScale(const tVec3f& scale) {
   switch (GetEntityCategory(editor.entity_type)) {
-    case BICYCLE:
+    case VEHICLE:
       // Bicycles cannot be scaled
       break;
     case STATIC_ENTITY: {
@@ -161,7 +161,7 @@ static void SetSelectionScale(const tVec3f& scale) {
 
 static void ScaleSelection(const tVec3f& scale_change) {
   switch (GetEntityCategory(editor.entity_type)) {
-    case BICYCLE:
+    case VEHICLE:
       // Bicycles cannot be scaled
       break;
     case STATIC_ENTITY: {
@@ -184,7 +184,7 @@ static void ScaleSelection(const tVec3f& scale_change) {
 
 static Quaternion GetSelectionRotation() {
   switch (GetEntityCategory(editor.entity_type)) {
-    case BICYCLE:
+    case VEHICLE:
       return ((Bicycle*)editor.selection)->flat_rotation;
     case STATIC_ENTITY:
       return ((StaticEntity*)editor.selection)->rotation;
@@ -196,7 +196,7 @@ static Quaternion GetSelectionRotation() {
 
 static void SetSelectionRotation(const Quaternion& rotation) {
   switch (GetEntityCategory(editor.entity_type)) {
-    case BICYCLE: {
+    case VEHICLE: {
       auto& bike = *(Bicycle*) editor.selection;
       tVec3f direction = rotation.getDirection().invert();
       float angle = atan2f(direction.z, direction.x);
@@ -223,7 +223,7 @@ static void SetSelectionRotation(const Quaternion& rotation) {
 
 static void RotateSelection(const tVec3f& axis, const float angle) {
   switch (GetEntityCategory(editor.entity_type)) {
-    case BICYCLE: {
+    case VEHICLE: {
       auto& bike = *(Bicycle*) editor.selection;
 
       // Restrict bikes to y-axis rotations only
@@ -273,7 +273,7 @@ static tVec3f GetEntityScalePadding(EntityType entity_type) {
 
 static HighlightBox GetPlacementPreviewHighlightBox() {
   switch (GetEntityCategory(editor.entity_type)) {
-    case BICYCLE: {
+    case VEHICLE: {
       return {
         .position = tVec3f(0.f),
         .scale = tVec3f(500.f, 1375.f, 2050.f),
@@ -300,7 +300,7 @@ static HighlightBox GetPlacementPreviewHighlightBox() {
 
 static HighlightBox GetSelectionHighlightBox() {
   switch (GetEntityCategory(editor.entity_type)) {
-    case BICYCLE: {
+    case VEHICLE: {
       auto& bike = *(Bicycle*) editor.selection;
 
       return {
@@ -425,7 +425,7 @@ static inline void Deselect() {
 
 static void DeleteSelection(Tachyon* tachyon, State& state) {
   switch (GetEntityCategory(editor.entity_type)) {
-    case BICYCLE: {
+    case VEHICLE: {
       auto& bike = *(Bicycle*) editor.selection;
 
       BackgroundBicycles::DestroyBicycle(tachyon, state, bike);
@@ -467,7 +467,7 @@ static void PlaceNewBicycle(Tachyon* tachyon, State& state, const tVec3f& positi
 
 static void PlaceNewEntity(Tachyon* tachyon, State& state, const tVec3f& position) {
   switch (GetEntityCategory(editor.entity_type)) {
-    case BICYCLE:
+    case VEHICLE:
       PlaceNewBicycle(tachyon, state, position);
 
       break;
@@ -580,12 +580,14 @@ static void ShowPlacementPreview(Tachyon* tachyon, State& state) {
   }
 
   if (did_left_click_down()) {
-    if (GetEntityCategory(editor.entity_type) == BICYCLE) {
-      // When placing a new bicycle, shift the spawn position down
+    if (GetEntityCategory(editor.entity_type) == VEHICLE) {
+      // When placing a new vehicle, shift the spawn position down
       // to ensure the bike spawns exactly within the preview box
       // bounds. The preview box has an origin at its center, but
       // selected bikes have a box origin slightly below center, so
       // we have to make that adjustment here.
+      //
+      // @todo configure this per vehicle type
       box.position.y -= 600.f;
     }
 

@@ -191,8 +191,9 @@ void Serialization::LoadWorldData(Tachyon* tachyon, State& state, const std::str
     } else {
       // @todo factor
       switch (current_entity_category) {
-        case BICYCLE: {
+        case VEHICLE: {
           // @todo make this part of bike spawning
+          // @todo don't assume every vehicle is a bike!
           Bicycle bike;
           bike.type = current_entity_type;
           bike.id = CreateUniqueId();

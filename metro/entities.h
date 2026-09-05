@@ -18,7 +18,7 @@
 namespace metro {
   enum EntityCategory {
     NOT_AN_ENTITY = -1,
-    BICYCLE,
+    VEHICLE,
     STATIC_ENTITY,
     INTERACTIVE_ENTITY
   };
