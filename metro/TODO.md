@@ -6,3 +6,5 @@ editor:
 game:
 * curved ramps
 * round bumps
+* e-scooters
+* e-bikes

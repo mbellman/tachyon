@@ -42,9 +42,17 @@ static float GetSteering(Tachyon* tachyon) {
 static void HandleCharacterControls(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
 
+  // Jumping
+  {
+    if (did_press_key(GAMEPAD_X) && state.player_velocity.y == 0.f) {
+      state.player_velocity.y = 10000.f;
+    }
+  }
+
   // Acceleration/movement
   {
-    float acceleration = is_key_held(GAMEPAD_X) ? 14000.f : 8000.f;
+    float stick_magnitude = tachyon->left_stick.magnitude();
+    float acceleration = stick_magnitude > 0.5f ? 14000.f : 8000.f;
     tVec3f ground_forward = camera.orientation.getDirection().xz().unit();
     tVec3f ground_left = tVec3f::cross(Y_UP, ground_forward);
 
@@ -65,7 +73,7 @@ static void HandleCharacterControls(Tachyon* tachyon, State& state) {
     // Velocity falloff/friction
     state.player_velocity.x *= 1.f - 5.f * state.dt;
     state.player_velocity.z *= 1.f - 5.f * state.dt;
-    state.recorded_player_speed = state.player_velocity.magnitude();
+    state.recorded_player_speed = state.player_velocity.xz().magnitude();
 
     // Stop at low velocities
     if (state.recorded_player_speed < 100.f) {

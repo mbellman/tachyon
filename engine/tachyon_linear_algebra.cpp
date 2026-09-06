@@ -8,12 +8,16 @@
 #include "engine/tachyon_linear_algebra.h"
 #include "engine/tachyon_quaternion.h"
 
+float tVec2f::magnitude() const {
+  return sqrt(x*x + y*y);
+}
+
 tVec2f tVec2f::unit() const {
-  float magnitude = sqrtf(x*x + y*y);
+  float m = magnitude();
 
   return {
-    x / magnitude,
-    y / magnitude
+    x / m,
+    y / m
   };
 }
 

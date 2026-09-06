@@ -8,6 +8,7 @@ struct tVec2f {
   float x = 0.f;
   float y = 0.f;
 
+  float magnitude() const;
   tVec2f unit() const;
 };
 
