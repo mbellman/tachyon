@@ -380,7 +380,7 @@
     <ClInclude Include="metro\game_state.h" />
     <ClInclude Include="metro\interactive_entities.h" />
     <ClInclude Include="metro\player.h" />
-    <ClInclude Include="metro\player_bicycle.h" />
+    <ClInclude Include="metro\player_vehicle.h" />
     <ClInclude Include="metro\serialization.h" />
     <ClInclude Include="metro\static_entities.h" />
     <ClInclude Include="metro\utilities.h" />
@@ -478,7 +478,7 @@
     <ClCompile Include="metro\game.cpp" />
     <ClCompile Include="metro\interactive_entities.cpp" />
     <ClCompile Include="metro\player.cpp" />
-    <ClCompile Include="metro\player_bicycle.cpp" />
+    <ClCompile Include="metro\player_vehicle.cpp" />
     <ClCompile Include="metro\serialization.cpp" />
     <ClCompile Include="metro\static_entities.cpp" />
     <ClCompile Include="metro\utilities.cpp" />

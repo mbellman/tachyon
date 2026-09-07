@@ -6,7 +6,7 @@
 #include "metro/control_system.h"
 #include "metro/interactive_entities.h"
 #include "metro/player.h"
-#include "metro/player_bicycle.h"
+#include "metro/player_vehicle.h"
 #include "metro/static_entities.h"
 #include "metro/utilities.h"
 #include "metro/world_editor.h"
@@ -158,7 +158,7 @@ void metro::Update(Tachyon* tachyon, State& state, const float dt) {
   StaticEntities::Update(tachyon, state);
   InteractiveEntities::Update(tachyon, state);
   BackgroundBicycles::Update(tachyon, state);
-  PlayerBicycle::Update(tachyon, state);
+  PlayerVehicle::Update(tachyon, state);
   Player::Update(tachyon, state);
   CameraSystem::Update(tachyon, state);
 

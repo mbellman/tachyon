@@ -1,6 +1,6 @@
 #include "engine/tachyon.h"
 
-#include "metro/player_bicycle.h"
+#include "metro/player_vehicle.h"
 #include "metro/vehicles/common_bike.h"
 #include "metro/utilities.h"
 
@@ -67,8 +67,8 @@ static void UpdateBikePositionOnGround(Bicycle& bike, const float dt) {
   bike.position += bike.movement_vector * bike.speed * dt;
 }
 
-void PlayerBicycle::Update(Tachyon* tachyon, State& state) {
-  profile("PlayerBicycle::Update()");
+void PlayerVehicle::Update(Tachyon* tachyon, State& state) {
+  profile("PlayerVehicle::Update()");
 
   auto* active_vehicle = GetActiveVehicle(state);
 
