@@ -37,11 +37,13 @@ struct CameraParams {
   float blend_rate;
 };
 
-static CameraParams GetCameraParams(State& state, Bicycle* active_bike) {
-  if (active_bike != nullptr) {
+static CameraParams GetCameraParams(State& state, BaseVehicle* active_vehicle) {
+  if (GetVehicleCategory(active_vehicle) == BICYCLE) {
+    auto& bike = *(Bicycle*) active_vehicle;
+
     return {
-      .focus_point = active_bike->position + tVec3f(0, 3000.f, 0),
-      .blend_rate = active_bike->in_freefall ? 16.f : 8.f
+      .focus_point = bike.position + tVec3f(0, 3000.f, 0),
+      .blend_rate = bike.in_freefall ? 16.f : 8.f
     };
   } else {
     return {
@@ -74,7 +76,7 @@ void CameraSystem::Update(Tachyon* tachyon, State& state) {
   auto& camera3p = tachyon->scene.camera3p;
   auto& camera = tachyon->scene.camera;
   tVec3f camera_forward = camera.orientation.getDirection();
-  auto* active_bike = GetActiveBicycle(state);
+  auto* active_vehicle = GetActiveVehicle(state);
   tVec3f last_move = state.player_position - state.previous_player_position;
   float last_move_distance = last_move.magnitude();
   tVec3f facing_direction;
@@ -86,10 +88,10 @@ void CameraSystem::Update(Tachyon* tachyon, State& state) {
     last_move_distance > 0.f
   );
 
-  if (active_bike != nullptr) {
+  if (is_bicycle(active_vehicle)) {
     // If we're riding a bike, use the facing direction of the bike
     // to center the camera behind it
-    facing_direction = active_bike->facing_direction;
+    facing_direction = as_bicycle(active_vehicle).facing_direction;
   } else {
     // Otherwise, use our last movement direction
     // @todo use the player model direction?
@@ -98,7 +100,7 @@ void CameraSystem::Update(Tachyon* tachyon, State& state) {
 
   bool moving_toward_camera_on_foot = (
     tVec3f::dot(camera_forward, facing_direction) < 0.f &&
-    active_bike == nullptr
+    active_vehicle == nullptr
   );
 
   // Tracking manual camera control time
@@ -167,7 +169,11 @@ void CameraSystem::Update(Tachyon* tachyon, State& state) {
     float target_altitude = camera3p.altitude;
 
     if (use_automatic_camera) {
-      float speed = active_bike != nullptr ? active_bike->speed : state.recorded_player_speed;
+      float speed = (
+        is_bicycle(active_vehicle) ? as_bicycle(active_vehicle).speed :
+        state.recorded_player_speed
+      );
+
       float alpha = speed / 10000.f;
       if (alpha > 1.f) alpha = 1.f;
 
@@ -192,13 +198,13 @@ void CameraSystem::Update(Tachyon* tachyon, State& state) {
     camera3p.radius = 10000.f + 15000.f * radius_alpha;
   }
 
-  auto params = GetCameraParams(state, active_bike);
+  auto params = GetCameraParams(state, active_vehicle);
 
   // Bike acceleration camera; bring the camera in and
   // moves it slightly to the side whenever pedaling faster
   {
-    if (active_bike != nullptr) {
-      auto& bike = *active_bike;
+    if (is_bicycle(active_vehicle)) {
+      auto& bike = as_bicycle(active_vehicle);
 
       tVec3f average_wheel_slope = (
         bike.front_wheel_slope +

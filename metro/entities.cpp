@@ -18,7 +18,9 @@ int32 metro::CreateUniqueId() {
 EntityCategory metro::GetEntityCategory(EntityType entity_type) {
   switch (entity_type) {
     case COMMON_BIKE:
-      return VEHICLE;
+      return BICYCLE;
+    case ELECTRIC_SCOOTER:
+      return SCOOTER;
     case PLATFORM:
     case RAMP:
     case ROAD_SEGMENT:

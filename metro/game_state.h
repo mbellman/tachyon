@@ -19,12 +19,18 @@
 #define is_moving_left_stick() (tachyon->left_stick.x != 0.f || tachyon->left_stick.y != 0.f)
 #define is_moving_right_stick() (tachyon->right_stick.x != 0.f || tachyon->right_stick.y != 0.f)
 
+#define is_bicycle(__vehicle) GetVehicleCategory(__vehicle) == BICYCLE
+#define as_bicycle(__vehicle) (*(Bicycle*) __vehicle)
+
 namespace metro {
   // @todo move to entities.h
-  struct Bicycle {
+  struct BaseVehicle {
     EntityType type = UNSPECIFIED;
     int32 id = -1;
+  };
 
+  // @todo move to entities.h
+  struct Bicycle : BaseVehicle {
     tColor frame_color;
     tColor wheel_color;
     tColor grips_color;
@@ -72,7 +78,7 @@ namespace metro {
   };
 
   // @todo move to entities.h
-  struct Scooter {
+  struct Scooter : BaseVehicle {
 
   };
 

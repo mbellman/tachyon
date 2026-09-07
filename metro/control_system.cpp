@@ -306,11 +306,11 @@ static void HandleBikeControls(Tachyon* tachyon, State& state, Bicycle& bike) {
 void ControlSystem::Update(Tachyon* tachyon, State& state) {
   profile("ControlSystem::Update()");
 
-  auto* active_bike = GetActiveBicycle(state);
+  auto* active_vehicle = GetActiveVehicle(state);
 
-  if (active_bike == nullptr) {
-    HandleCharacterControls(tachyon, state);
+  if (is_bicycle(active_vehicle)) {
+    HandleBikeControls(tachyon, state, as_bicycle(active_vehicle));
   } else {
-    HandleBikeControls(tachyon, state, *active_bike);
+    HandleCharacterControls(tachyon, state);
   }
 }

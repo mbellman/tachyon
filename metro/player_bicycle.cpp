@@ -8,7 +8,7 @@ using namespace metro;
 
 const static int PHYSICS_ITERATIONS = 3;
 
-static void ShowDebugVisuals(Tachyon* tachyon, State& state, const Bicycle& bike) {
+static void ShowBicycleDebugVisuals(Tachyon* tachyon, State& state, const Bicycle& bike) {
   tVec3f steering_direction =
     Quaternion::fromAxisAngle(AXIS_Y, bike.steering_angle).toMatrix4f() *
     bike.facing_direction;
@@ -70,23 +70,31 @@ static void UpdateBikePositionOnGround(Bicycle& bike, const float dt) {
 void PlayerBicycle::Update(Tachyon* tachyon, State& state) {
   profile("PlayerBicycle::Update()");
 
-  auto* active_bike = GetActiveBicycle(state);
+  auto* active_vehicle = GetActiveVehicle(state);
 
-  if (active_bike == nullptr) {
+  if (active_vehicle == nullptr) {
     return;
   }
 
   // Position update
   {
-    auto& bike = *active_bike;
+    if (is_bicycle(active_vehicle)) {
+      auto& bike = as_bicycle(active_vehicle);
 
-    if (bike.in_freefall || bike.jumping_off_ramp) {
-      UpdateBikePositionInFreefall(bike, state.dt);
-    } else {
-      UpdateBikePositionOnGround(bike, state.dt);
+      if (bike.in_freefall || bike.jumping_off_ramp) {
+        UpdateBikePositionInFreefall(bike, state.dt);
+      } else {
+        UpdateBikePositionOnGround(bike, state.dt);
+      }
+
+      switch (bike.type) {
+        case COMMON_BIKE:
+          CommonBike::Update(tachyon, state, bike, state.player_bike_index);
+          break;
+        default:
+          break;
+      }
     }
-
-    CommonBike::Update(tachyon, state, bike, state.player_bike_index);
   }
 
   // Physics
@@ -94,10 +102,10 @@ void PlayerBicycle::Update(Tachyon* tachyon, State& state) {
     state.dt /= (float) PHYSICS_ITERATIONS;
 
     for_range(1, PHYSICS_ITERATIONS) {
-      switch (active_bike->type) {
+      switch (active_vehicle->type) {
         case COMMON_BIKE:
-          CommonBike::HandlePhysics(tachyon, state, *active_bike);
-          CommonBike::Update(tachyon, state, *active_bike, state.player_bike_index);
+          CommonBike::HandlePhysics(tachyon, state, as_bicycle(active_vehicle));
+          CommonBike::Update(tachyon, state, as_bicycle(active_vehicle), state.player_bike_index);
           break;
         default:
           break;
@@ -109,8 +117,8 @@ void PlayerBicycle::Update(Tachyon* tachyon, State& state) {
 
   // @todo dev mode only
   if (tachyon->show_timing_profile) {
-    auto& bike = *active_bike;
-
-    ShowDebugVisuals(tachyon, state, bike);
+    if (is_bicycle(active_vehicle)) {
+      ShowBicycleDebugVisuals(tachyon, state, as_bicycle(active_vehicle));
+    }
   }
 }

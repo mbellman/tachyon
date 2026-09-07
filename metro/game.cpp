@@ -61,27 +61,29 @@ static void HandleDevHotkeys(Tachyon* tachyon, State& state) {
 
   // Respawn bike at start
   if (did_press_key(tKey::R)) {
-    auto* active_bike = GetActiveBicycle(state);
+    auto* active_vehicle = GetActiveVehicle(state);
 
-    if (active_bike != nullptr) {
+    if (GetVehicleCategory(active_vehicle) == BICYCLE) {
+      auto& bike = as_bicycle(active_vehicle);
+
       // @temporary
       // @todo create a method for resetting motion/rotation etc.
-      active_bike->position = tVec3f(0, -2220.f, -10000.f);
-      active_bike->visual_position = active_bike->position;
-      active_bike->pedal_speed = 0.f;
-      active_bike->speed = 0.f;
-      active_bike->pitch = 0.f;
-      active_bike->facing_direction = tVec3f(0, 0, -1.f);
-      active_bike->drifting_factor = 0.f;
-      active_bike->steering_angle = 0.f;
-      active_bike->leaning_angle = 0.f;
+      bike.position = tVec3f(0, -2220.f, -10000.f);
+      bike.visual_position = bike.position;
+      bike.pedal_speed = 0.f;
+      bike.speed = 0.f;
+      bike.pitch = 0.f;
+      bike.facing_direction = tVec3f(0, 0, -1.f);
+      bike.drifting_factor = 0.f;
+      bike.steering_angle = 0.f;
+      bike.leaning_angle = 0.f;
 
-      active_bike->flat_rotation =
-        Quaternion::FromDirection(active_bike->facing_direction, Y_UP) *
-        Quaternion::fromAxisAngle(AXIS_Z, active_bike->leaning_angle);
+      bike.flat_rotation =
+        Quaternion::FromDirection(bike.facing_direction, Y_UP) *
+        Quaternion::fromAxisAngle(AXIS_Z, bike.leaning_angle);
 
-      active_bike->directional_rotation = active_bike->flat_rotation;
-      active_bike->visual_rotation = active_bike->flat_rotation;
+      bike.directional_rotation = bike.flat_rotation;
+      bike.visual_rotation = bike.flat_rotation;
     }
   }
 }

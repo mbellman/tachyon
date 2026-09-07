@@ -30,7 +30,7 @@ tVec3f metro::GetMovementDirection(const Bicycle& bike) {
   return bike.directional_rotation.getDirection().invert();
 }
 
-Bicycle* metro::GetActiveBicycle(State& state) {
+BaseVehicle* metro::GetActiveVehicle(State& state) {
   for (auto& bike : state.bicycles) {
     if (bike.id == state.player_bike_id) {
       return &bike;
@@ -38,4 +38,19 @@ Bicycle* metro::GetActiveBicycle(State& state) {
   }
 
   return nullptr;
+}
+
+EntityCategory metro::GetVehicleCategory(BaseVehicle* vehicle) {
+  if (vehicle == nullptr) {
+    return NOT_AN_ENTITY;
+  }
+
+  switch (vehicle->type) {
+    case COMMON_BIKE:
+      return EntityCategory::BICYCLE;
+    case ELECTRIC_SCOOTER:
+      return EntityCategory::SCOOTER;
+    default:
+      return NOT_AN_ENTITY;
+  }
 }

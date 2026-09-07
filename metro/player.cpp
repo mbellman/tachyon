@@ -90,10 +90,10 @@ static void UpdatePlayerOnFoot(Tachyon* tachyon, State& state) {
 }
 
 void Player::Update(Tachyon* tachyon, State& state) {
-  auto* active_bike = GetActiveBicycle(state);
+  auto* active_vehicle = GetActiveVehicle(state);
 
-  if (active_bike != nullptr) {
-    UpdatePlayerOnBike(tachyon, state, *active_bike);
+  if (is_bicycle(active_vehicle)) {
+    UpdatePlayerOnBike(tachyon, state, as_bicycle(active_vehicle));
   } else {
     UpdatePlayerOnFoot(tachyon, state);
   }
