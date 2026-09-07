@@ -1,7 +1,7 @@
 #include <format>
 
 #include "metro/serialization.h"
-#include "metro/background_bicycles.h"
+#include "metro/background_vehicles.h"
 #include "metro/utilities.h"
 
 using namespace metro;
@@ -199,7 +199,7 @@ void Serialization::LoadWorldData(Tachyon* tachyon, State& state, const std::str
 
           DeserializeBike(bike, line);
 
-          BackgroundBicycles::SpawnBicycle(tachyon, state, bike);
+          BackgroundVehicles::SpawnBicycle(tachyon, state, bike);
 
           break;
         }

@@ -1,12 +1,13 @@
 #include "engine/tachyon.h"
 
-#include "metro/background_bicycles.h"
+#include "metro/background_vehicles.h"
 #include "metro/vehicles/common_bike.h"
+#include "metro/vehicles/electric_scooter.h"
 
 using namespace metro;
 
-void BackgroundBicycles::Update(Tachyon* tachyon, State& state) {
-  profile("BackgroundBicycles::Update()");
+void BackgroundVehicles::Update(Tachyon* tachyon, State& state) {
+  profile("BackgroundVehicles::Update()");
 
   int32 total_common_bikes = 0;
 
@@ -19,9 +20,19 @@ void BackgroundBicycles::Update(Tachyon* tachyon, State& state) {
         break;
     }
   }
+
+  for (auto& scooter : state.scooters) {
+    switch (scooter.type) {
+      case ELECTRIC_SCOOTER:
+        // @todo
+        break;
+      default:
+        break;
+    }
+  }
 }
 
-void BackgroundBicycles::SpawnBicycle(Tachyon* tachyon, State& state, Bicycle& bike) {
+void BackgroundVehicles::SpawnBicycle(Tachyon* tachyon, State& state, Bicycle& bike) {
   // Precompute rotation
   bike.flat_rotation = Quaternion::FromDirection(bike.facing_direction, Y_UP);
 
@@ -39,7 +50,7 @@ void BackgroundBicycles::SpawnBicycle(Tachyon* tachyon, State& state, Bicycle& b
   state.bicycles.push_back(bike);
 }
 
-void BackgroundBicycles::DestroyBicycle(Tachyon* tachyon, State& state, Bicycle& bike) {
+void BackgroundVehicles::DestroyBicycle(Tachyon* tachyon, State& state, Bicycle& bike) {
   switch (bike.type) {
     case COMMON_BIKE:
       CommonBike::Destroy(tachyon, state, bike);

@@ -1,7 +1,7 @@
 #include "engine/tachyon.h"
 
 #include "metro/game.h"
-#include "metro/background_bicycles.h"
+#include "metro/background_vehicles.h"
 #include "metro/camera_system.h"
 #include "metro/control_system.h"
 #include "metro/interactive_entities.h"
@@ -137,7 +137,7 @@ void metro::Update(Tachyon* tachyon, State& state, const float dt) {
 
     StaticEntities::Update(tachyon, state);
     InteractiveEntities::Update(tachyon, state);
-    BackgroundBicycles::Update(tachyon, state);
+    BackgroundVehicles::Update(tachyon, state);
 
     EnableEditorOnlyMeshes(tachyon, state);
 
@@ -157,7 +157,7 @@ void metro::Update(Tachyon* tachyon, State& state, const float dt) {
   ControlSystem::Update(tachyon, state);
   StaticEntities::Update(tachyon, state);
   InteractiveEntities::Update(tachyon, state);
-  BackgroundBicycles::Update(tachyon, state);
+  BackgroundVehicles::Update(tachyon, state);
   PlayerVehicle::Update(tachyon, state);
   Player::Update(tachyon, state);
   CameraSystem::Update(tachyon, state);

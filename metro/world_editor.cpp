@@ -1,7 +1,7 @@
 #include <format>
 
 #include "metro/world_editor.h"
-#include "metro/background_bicycles.h"
+#include "metro/background_vehicles.h"
 #include "metro/editor_utilities.h"
 #include "metro/serialization.h"
 #include "metro/utilities.h"
@@ -428,7 +428,7 @@ static void DeleteSelection(Tachyon* tachyon, State& state) {
     case BICYCLE: {
       auto& bike = *(Bicycle*) editor.selection;
 
-      BackgroundBicycles::DestroyBicycle(tachyon, state, bike);
+      BackgroundVehicles::DestroyBicycle(tachyon, state, bike);
 
       break;
     }
@@ -458,7 +458,7 @@ static void PlaceNewBicycle(Tachyon* tachyon, State& state, const tVec3f& positi
   bike.spawn_position = bike.position;
   bike.spawn_facing_direction = bike.facing_direction;
 
-  BackgroundBicycles::SpawnBicycle(tachyon, state, bike);
+  BackgroundVehicles::SpawnBicycle(tachyon, state, bike);
 
   // @temporary
   // @todo return from SpawnBicycle()

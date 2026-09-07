@@ -1,9 +1,7 @@
 #include "engine/tachyon.h"
 
 #include "metro/world_init.h"
-#include "metro/background_bicycles.h"
 #include "metro/serialization.h"
-#include "metro/utilities.h"
 
 using namespace metro;
 
@@ -76,6 +74,7 @@ static void LoadGameMeshes(Tachyon* tachyon, State& state) {
   meshes.dev_mannequin = METRO_MODEL("dev_mannequin.obj", 1);
 
   Debug::Init(tachyon);
+
   LoadCommonBikeMeshes(tachyon, state);
   LoadStaticEntityMeshes(tachyon, state);
   CreateVertexStreams(tachyon, state);

@@ -368,7 +368,7 @@
     <ClInclude Include="external\SDL2\include\SDL_vulkan.h" />
     <ClInclude Include="external\SDL_image\include\SDL_image.h" />
     <ClInclude Include="external\SDL_ttf\include\SDL_ttf.h" />
-    <ClInclude Include="metro\background_bicycles.h" />
+    <ClInclude Include="metro\background_vehicles.h" />
     <ClInclude Include="metro\camera_system.h" />
     <ClInclude Include="metro\collision.h" />
     <ClInclude Include="metro\constants.h" />
@@ -468,7 +468,7 @@
     <ClCompile Include="engine\tachyon_ui.cpp" />
     <ClCompile Include="external\miniaudio\miniaudio.c" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="metro\background_bicycles.cpp" />
+    <ClCompile Include="metro\background_vehicles.cpp" />
     <ClCompile Include="metro\camera_system.cpp" />
     <ClCompile Include="metro\collision.cpp" />
     <ClCompile Include="metro\control_system.cpp" />

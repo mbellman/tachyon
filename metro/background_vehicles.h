@@ -3,7 +3,7 @@
 #include "metro/game_state.h"
 
 namespace metro {
-  namespace BackgroundBicycles {
+  namespace BackgroundVehicles {
     void Update(Tachyon* tachyon, State& state);
     void SpawnBicycle(Tachyon* tachyon, State& state, Bicycle& bike);
     void DestroyBicycle(Tachyon* tachyon, State& state, Bicycle& bike);
