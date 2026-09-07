@@ -369,7 +369,6 @@
     <ClInclude Include="external\SDL_image\include\SDL_image.h" />
     <ClInclude Include="external\SDL_ttf\include\SDL_ttf.h" />
     <ClInclude Include="metro\background_bicycles.h" />
-    <ClInclude Include="metro\bikes\common_bike.h" />
     <ClInclude Include="metro\camera_system.h" />
     <ClInclude Include="metro\collision.h" />
     <ClInclude Include="metro\constants.h" />
@@ -385,6 +384,8 @@
     <ClInclude Include="metro\serialization.h" />
     <ClInclude Include="metro\static_entities.h" />
     <ClInclude Include="metro\utilities.h" />
+    <ClInclude Include="metro\vehicles\common_bike.h" />
+    <ClInclude Include="metro\vehicles\electric_scooter.h" />
     <ClInclude Include="metro\world_editor.h" />
     <ClInclude Include="metro\world_init.h" />
   </ItemGroup>
@@ -468,7 +469,6 @@
     <ClCompile Include="external\miniaudio\miniaudio.c" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="metro\background_bicycles.cpp" />
-    <ClCompile Include="metro\bikes\common_bike.cpp" />
     <ClCompile Include="metro\camera_system.cpp" />
     <ClCompile Include="metro\collision.cpp" />
     <ClCompile Include="metro\control_system.cpp" />
@@ -482,6 +482,8 @@
     <ClCompile Include="metro\serialization.cpp" />
     <ClCompile Include="metro\static_entities.cpp" />
     <ClCompile Include="metro\utilities.cpp" />
+    <ClCompile Include="metro\vehicles\common_bike.cpp" />
+    <ClCompile Include="metro\vehicles\electric_scooter.cpp" />
     <ClCompile Include="metro\world_editor.cpp" />
     <ClCompile Include="metro\world_init.cpp" />
   </ItemGroup>

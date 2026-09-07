@@ -71,6 +71,11 @@ namespace metro {
     Quaternion visual_rotation;
   };
 
+  // @todo move to entities.h
+  struct Scooter {
+
+  };
+
   struct MeshIds {
     uint16
       // @temporary
@@ -137,6 +142,7 @@ namespace metro {
     int32 player_bike_index = -1;
 
     std::vector<Bicycle> bicycles;
+    std::vector<Scooter> scooters;
     Entities entities;
 
     std::string world_level_name = "test_world.lvl";

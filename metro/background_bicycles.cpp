@@ -1,7 +1,7 @@
 #include "engine/tachyon.h"
 
 #include "metro/background_bicycles.h"
-#include "metro/bikes/common_bike.h"
+#include "metro/vehicles/common_bike.h"
 
 using namespace metro;
 

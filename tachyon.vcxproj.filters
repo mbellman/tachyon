@@ -786,9 +786,6 @@
     <ClInclude Include="metro\player_bicycle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="metro\bikes\common_bike.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="metro\camera_system.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -826,6 +823,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="metro\serialization.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="metro\vehicles\common_bike.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="metro\vehicles\electric_scooter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1076,9 +1079,6 @@
     <ClCompile Include="metro\player_bicycle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="metro\bikes\common_bike.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="metro\camera_system.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1113,6 +1113,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="metro\entities.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="metro\vehicles\common_bike.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="metro\vehicles\electric_scooter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

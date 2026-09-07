@@ -26,6 +26,7 @@ namespace metro {
   enum EntityType {
     UNSPECIFIED = -1,
     COMMON_BIKE,
+    ELECTRIC_SCOOTER,
     PLATFORM,
     RAMP,
     ROAD_SEGMENT,
@@ -34,6 +35,7 @@ namespace metro {
 
   static std::vector<EntityType> entity_types = {
     COMMON_BIKE,
+    ELECTRIC_SCOOTER,
     PLATFORM,
     RAMP,
     ROAD_SEGMENT,
