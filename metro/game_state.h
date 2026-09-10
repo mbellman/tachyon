@@ -79,7 +79,7 @@ namespace metro {
 
   // @todo move to entities.h
   struct Scooter : BaseVehicle {
-
+    tVec3f position;
   };
 
   struct MeshIds {
@@ -92,6 +92,7 @@ namespace metro {
       dev_mannequin,
 
       // Common bike
+      // @todo move to entities.h
       common_frame,
       common_fork,
       common_handlebars,
@@ -102,6 +103,13 @@ namespace metro {
       common_pedal,
       common_spokes,
       common_wheel,
+
+      // Electric scooter
+      // @todo move to entities.h
+      e_scooter_stem,
+      e_scooter_fold,
+      e_scooter_deck,
+      e_scooter_wheel,
 
       // Static entities
       // @todo move to entities.h

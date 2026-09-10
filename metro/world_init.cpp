@@ -29,6 +29,15 @@ static void LoadCommonBikeMeshes(Tachyon* tachyon, State& state) {
   mesh(meshes.common_spokes).shadow_cascade_ceiling = 1;
 }
 
+static void LoadEScooterMeshes(Tachyon* tachyon, State& state) {
+  auto& meshes = state.meshes;
+
+  meshes.e_scooter_stem   = METRO_MODEL("electric_scooter/stem.obj", 10);
+  meshes.e_scooter_fold   = METRO_MODEL("electric_scooter/fold.obj", 10);
+  meshes.e_scooter_deck   = METRO_MODEL("electric_scooter/deck.obj", 10);
+  meshes.e_scooter_wheel  = METRO_MODEL("electric_scooter/wheel.obj", 10);
+}
+
 // @todo move to static_entities.cpp
 static void LoadStaticEntityMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
@@ -76,6 +85,7 @@ static void LoadGameMeshes(Tachyon* tachyon, State& state) {
   Debug::Init(tachyon);
 
   LoadCommonBikeMeshes(tachyon, state);
+  LoadEScooterMeshes(tachyon, state);
   LoadStaticEntityMeshes(tachyon, state);
   CreateVertexStreams(tachyon, state);
 
