@@ -88,8 +88,16 @@ static void SerializeBike(std::string& data, const Bicycle& bike) {
   data += "\n";
 }
 
-static void DeserializeBike(Bicycle& bike, const std::string& bike_data) {
-  auto parts = SplitString(bike_data, ",");
+static void SerializeScooter(std::string& data, const Scooter& scooter) {
+  data += "@" + EntityTypeToString(scooter.type);
+  data += "\n";
+
+  data += Serialize(scooter.position);
+  data += "\n";
+}
+
+static void DeserializeBike(Bicycle& bike, const std::string& data) {
+  auto parts = SplitString(data, ",");
 
   bike.position = tVec3f(
     stof(parts[0]),
@@ -111,6 +119,16 @@ static void DeserializeBike(Bicycle& bike, const std::string& bike_data) {
 
   bike.spawn_position         = bike.position;
   bike.spawn_facing_direction = bike.facing_direction;
+}
+
+static void DeserializeScooter(Scooter& scooter, const std::string& data) {
+  auto parts = SplitString(data, ",");
+
+  scooter.position = tVec3f(
+    stof(parts[0]),
+    stof(parts[1]),
+    stof(parts[2])
+  );
 }
 
 static void DeserializeStaticEntity(StaticEntity& entity, const std::string& entity_data) {
@@ -159,10 +177,14 @@ void Serialization::SaveWorldData(const State& state) {
     // @todo
   }
 
-  // Bikes
+  // Vehicles
   {
     for (auto& bike : state.bicycles) {
       SerializeBike(data, bike);
+    }
+
+    for (auto& scooter : state.scooters) {
+      SerializeScooter(data, scooter);
     }
   }
 
@@ -205,6 +227,13 @@ void Serialization::LoadWorldData(Tachyon* tachyon, State& state, const std::str
         }
         case SCOOTER: {
           // @todo
+          Scooter scooter;
+          scooter.type = current_entity_type;
+          scooter.id = CreateUniqueId();
+
+          DeserializeScooter(scooter, line);
+
+          BackgroundVehicles::SpawnScooter(tachyon, state, scooter);
 
           break;
         }

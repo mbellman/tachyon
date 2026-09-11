@@ -15,16 +15,16 @@ using namespace metro;
 static void LoadCommonBikeMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
-  meshes.common_frame      = METRO_MODEL("common_bike/frame.obj", 10);
-  meshes.common_fork       = METRO_MODEL("common_bike/fork.obj", 10);
-  meshes.common_handlebars = METRO_MODEL("common_bike/handlebars.obj", 10);
-  meshes.common_grips      = METRO_MODEL("common_bike/grips.obj", 10);
-  meshes.common_seatpost   = METRO_MODEL("common_bike/seatpost.obj", 10);
-  meshes.common_saddle     = METRO_MODEL("common_bike/saddle.obj", 10);
-  meshes.common_crank      = METRO_MODEL("common_bike/crank.obj", 10);
+  meshes.common_frame      = METRO_MODEL("common_bike/frame.obj", 50);
+  meshes.common_fork       = METRO_MODEL("common_bike/fork.obj", 50);
+  meshes.common_handlebars = METRO_MODEL("common_bike/handlebars.obj", 50);
+  meshes.common_grips      = METRO_MODEL("common_bike/grips.obj", 50);
+  meshes.common_seatpost   = METRO_MODEL("common_bike/seatpost.obj", 50);
+  meshes.common_saddle     = METRO_MODEL("common_bike/saddle.obj", 50);
+  meshes.common_crank      = METRO_MODEL("common_bike/crank.obj", 50);
   // @todo pedals
-  meshes.common_wheel      = METRO_MODEL("common_bike/wheel.obj", 20);
-  meshes.common_spokes     = METRO_MODEL("common_bike/spokes.obj", 20);
+  meshes.common_wheel      = METRO_MODEL("common_bike/wheel.obj", 100);
+  meshes.common_spokes     = METRO_MODEL("common_bike/spokes.obj", 100);
 
   mesh(meshes.common_spokes).shadow_cascade_ceiling = 1;
 }
@@ -32,10 +32,10 @@ static void LoadCommonBikeMeshes(Tachyon* tachyon, State& state) {
 static void LoadEScooterMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
-  meshes.e_scooter_stem   = METRO_MODEL("electric_scooter/stem.obj", 10);
-  meshes.e_scooter_fold   = METRO_MODEL("electric_scooter/fold.obj", 10);
-  meshes.e_scooter_deck   = METRO_MODEL("electric_scooter/deck.obj", 10);
-  meshes.e_scooter_wheel  = METRO_MODEL("electric_scooter/wheel.obj", 10);
+  meshes.e_scooter_stem   = METRO_MODEL("electric_scooter/stem.obj", 50);
+  meshes.e_scooter_fold   = METRO_MODEL("electric_scooter/fold.obj", 50);
+  meshes.e_scooter_deck   = METRO_MODEL("electric_scooter/deck.obj", 50);
+  meshes.e_scooter_wheel  = METRO_MODEL("electric_scooter/wheel.obj", 100);
 }
 
 // @todo move to static_entities.cpp

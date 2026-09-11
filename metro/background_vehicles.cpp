@@ -50,6 +50,18 @@ void BackgroundVehicles::SpawnBicycle(Tachyon* tachyon, State& state, Bicycle& b
   state.bicycles.push_back(bike);
 }
 
+void BackgroundVehicles::SpawnScooter(Tachyon* tachyon, State& state, Scooter& scooter) {
+  switch (scooter.type) {
+    case ELECTRIC_SCOOTER:
+      ElectricScooter::Spawn(tachyon, state, scooter);
+      break;
+    default:
+      break;
+  }
+
+  state.scooters.push_back(scooter);
+}
+
 void BackgroundVehicles::DestroyBicycle(Tachyon* tachyon, State& state, Bicycle& bike) {
   switch (bike.type) {
     case COMMON_BIKE:

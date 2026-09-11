@@ -76,22 +76,24 @@ bool metro::IsSameEntity(const BaseEntity& a, const BaseEntity& b) {
 
 // @todo combine this and below into a map or tuple array
 EntityType metro::StringToEntityType(const std::string& entity_name) {
-  if (entity_name == "Common Bike")     return COMMON_BIKE;
-  if (entity_name == "Platform")        return PLATFORM;
-  if (entity_name == "Ramp")            return RAMP;
-  if (entity_name == "Road Segment")    return ROAD_SEGMENT;
-  if (entity_name == "Walkway Segment") return WALKWAY_SEGMENT;
+  if (entity_name == "Common Bike")      return COMMON_BIKE;
+  if (entity_name == "Electric Scooter") return ELECTRIC_SCOOTER;
+  if (entity_name == "Platform")         return PLATFORM;
+  if (entity_name == "Ramp")             return RAMP;
+  if (entity_name == "Road Segment")     return ROAD_SEGMENT;
+  if (entity_name == "Walkway Segment")  return WALKWAY_SEGMENT;
 
   return UNSPECIFIED;
 }
 
 std::string metro::EntityTypeToString(EntityType type) {
   switch (type) {
-    case COMMON_BIKE    : return "Common Bike";
-    case PLATFORM       : return "Platform";
-    case RAMP           : return "Ramp";
-    case ROAD_SEGMENT   : return "Road Segment";
-    case WALKWAY_SEGMENT: return "Walkway Segment";
+    case COMMON_BIKE      : return "Common Bike";
+    case ELECTRIC_SCOOTER : return "Electric Scooter";
+    case PLATFORM         : return "Platform";
+    case RAMP             : return "Ramp";
+    case ROAD_SEGMENT     : return "Road Segment";
+    case WALKWAY_SEGMENT  : return "Walkway Segment";
     default:
       return "Entity";
   }

@@ -373,7 +373,7 @@ static inline bool IsSelectable(const tVec3f& position, const tVec3f& scale, con
   tVec3f camera_to_selectable = position - camera_position;
   float distance = camera_to_selectable.magnitude();
   tVec3f direction = camera_to_selectable / distance;
-  float distance_threshold = scale.magnitude() * 8.f;
+  float distance_threshold = scale.magnitude() * 16.f;
   float dot = tVec3f::dot(direction, camera_forward);
 
   return distance < distance_threshold && dot > 0.98f;
