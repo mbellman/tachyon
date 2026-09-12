@@ -86,6 +86,10 @@ namespace metro {
     tVec3f spawn_facing_direction;
 
     tVec3f position;
+    tVec3f facing_direction;
+
+    Quaternion flat_rotation;
+    Quaternion directional_rotation;
   };
 
   struct MeshIds {

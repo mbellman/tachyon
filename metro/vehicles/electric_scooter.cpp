@@ -40,12 +40,25 @@ void ElectricScooter::Update(Tachyon* tachyon, State& state, Scooter& scooter, c
   auto& wheel_1 = objects(meshes.e_scooter_wheel)[wheel_index];
   auto& wheel_2 = objects(meshes.e_scooter_wheel)[wheel_index + 1];
 
+  {
+    // @temporary
+    scooter.directional_rotation = scooter.flat_rotation;
+  }
+
   stem.position = scooter.position;
   fold.position = scooter.position;
   deck.position = scooter.position;
   // @temporary
   wheel_1.position = scooter.position;
   wheel_2.position = scooter.position;
+
+  stem.rotation = scooter.directional_rotation;
+  fold.rotation = scooter.directional_rotation;
+  deck.rotation = scooter.directional_rotation;
+  deck.rotation = scooter.directional_rotation;
+  // @temporary
+  wheel_1.rotation = scooter.directional_rotation;
+  wheel_2.rotation = scooter.directional_rotation;
 
   commit(stem);
   commit(fold);

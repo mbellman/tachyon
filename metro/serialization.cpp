@@ -111,7 +111,6 @@ static void DeserializeBike(Bicycle& bike, const std::string& data) {
     stof(parts[5])
   );
 
-
   bike.frame_color  = (uint16) stoi(parts[6]);
   bike.grips_color  = (uint16) stoi(parts[7]);
   bike.saddle_color = (uint16) stoi(parts[8]);
@@ -131,6 +130,10 @@ static void DeserializeScooter(Scooter& scooter, const std::string& data) {
   );
 
   scooter.spawn_position = scooter.position;
+
+  // @temporary
+  scooter.spawn_facing_direction = Z_FORWARD;
+  scooter.facing_direction = Z_FORWARD;
 }
 
 static void DeserializeStaticEntity(StaticEntity& entity, const std::string& entity_data) {

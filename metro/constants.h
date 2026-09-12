@@ -9,6 +9,7 @@ namespace metro {
   const static tVec3f AXIS_Z = tVec3f(0, 0, 1.f);
 
   const static tVec3f Y_UP = tVec3f(0, 1.f, 0);
+  const static tVec3f Z_FORWARD = tVec3f(0, 0, 1.f);
   const static tVec3f Z_BACKWARD = tVec3f(0, 0, -1.f);
 
   const static auto GAMEPAD_X = tKey::CONTROLLER_A;

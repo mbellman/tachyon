@@ -50,6 +50,8 @@ static inline bool IsAnythingSelected() {
 static inline bool ShouldUseRestrictedTransform() {
   return (
     editor.use_restricted_transform ||
+    GetEntityCategory(editor.entity_type) == BICYCLE ||
+    GetEntityCategory(editor.entity_type) == SCOOTER ||
     editor.entity_type == ROAD_SEGMENT
   );
 }
@@ -201,7 +203,9 @@ static void ScaleSelection(const tVec3f& scale_change) {
 static Quaternion GetSelectionRotation() {
   switch (GetEntityCategory(editor.entity_type)) {
     case BICYCLE:
-      return ((Bicycle*)editor.selection)->flat_rotation;
+      return as_bicycle(editor.selection).flat_rotation;
+    case SCOOTER:
+      return as_scooter(editor.selection).flat_rotation;
     case STATIC_ENTITY:
       return ((StaticEntity*)editor.selection)->rotation;
     case INTERACTIVE_ENTITY: // @todo
@@ -213,13 +217,24 @@ static Quaternion GetSelectionRotation() {
 static void SetSelectionRotation(const Quaternion& rotation) {
   switch (GetEntityCategory(editor.entity_type)) {
     case BICYCLE: {
-      auto& bike = *(Bicycle*) editor.selection;
+      auto& bike = as_bicycle(editor.selection);
       tVec3f direction = rotation.getDirection().invert();
-      float angle = atan2f(direction.z, direction.x);
 
+      // @todo refactor with below
       bike.spawn_facing_direction = direction;
       bike.facing_direction = bike.spawn_facing_direction;
       bike.flat_rotation = rotation;
+
+      break;
+    }
+    case SCOOTER: {
+      auto& scooter = as_scooter(editor.selection);
+      tVec3f direction = rotation.getDirection().invert();
+
+      // @todo refactor with above
+      scooter.spawn_facing_direction = direction;
+      scooter.facing_direction = scooter.spawn_facing_direction;
+      scooter.flat_rotation = rotation;
 
       break;
     }
@@ -240,15 +255,24 @@ static void SetSelectionRotation(const Quaternion& rotation) {
 static void RotateSelection(const tVec3f& axis, const float angle) {
   switch (GetEntityCategory(editor.entity_type)) {
     case BICYCLE: {
-      auto& bike = *(Bicycle*) editor.selection;
+      auto& bike = as_bicycle(editor.selection);
 
-      // Restrict bikes to y-axis rotations only
-      if (axis == Y_UP) {
-        bike.spawn_facing_direction = Quaternion::fromAxisAngle(axis, angle).toMatrix4f() * bike.spawn_facing_direction;
-        bike.spawn_facing_direction = bike.spawn_facing_direction.unit();
-        bike.facing_direction = bike.spawn_facing_direction;
-        bike.flat_rotation = Quaternion::FromDirection(bike.spawn_facing_direction, Y_UP);
-      }
+      // @todo refactor with below
+      bike.spawn_facing_direction = Quaternion::fromAxisAngle(axis, angle).toMatrix4f() * bike.spawn_facing_direction;
+      bike.spawn_facing_direction = bike.spawn_facing_direction.unit();
+      bike.facing_direction = bike.spawn_facing_direction;
+      bike.flat_rotation = Quaternion::FromDirection(bike.spawn_facing_direction, Y_UP);
+
+      break;
+    }
+    case SCOOTER: {
+      auto& scooter = as_scooter(editor.selection);
+
+      // @todo refactor with above
+      scooter.spawn_facing_direction = Quaternion::fromAxisAngle(axis, angle).toMatrix4f() * scooter.spawn_facing_direction;
+      scooter.spawn_facing_direction = scooter.spawn_facing_direction.unit();
+      scooter.facing_direction = scooter.spawn_facing_direction;
+      scooter.flat_rotation = Quaternion::FromDirection(scooter.spawn_facing_direction, Y_UP);
 
       break;
     }
@@ -785,12 +809,12 @@ static void HandleTransformActions(Tachyon* tachyon, State& state) {
       bool is_horizontal_action = abs(tachyon->mouse_delta_x) > abs(tachyon->mouse_delta_y);
 
       if (ShouldUseRestrictedTransform()) {
-        tVec3f rotation_axis = tVec3f(0, 1.f, 0);
+        tVec3f rotation_axis = Y_UP;;
         float angle = 0.002f * (float) tachyon->mouse_delta_x;
 
         RotateSelection(rotation_axis, angle);
       } else if (is_horizontal_action) {
-        tVec3f rotation_axis = EditorUtilities::GetClosestBasisAxis(basis_rotation, tVec3f(0, 1.f, 0));
+        tVec3f rotation_axis = EditorUtilities::GetClosestBasisAxis(basis_rotation, Y_UP);
         float angle = 0.002f * (float) tachyon->mouse_delta_x;
 
         RotateSelection(rotation_axis, angle);
