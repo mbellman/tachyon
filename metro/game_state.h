@@ -20,7 +20,10 @@
 #define is_moving_right_stick() (tachyon->right_stick.x != 0.f || tachyon->right_stick.y != 0.f)
 
 #define is_bicycle(__vehicle) GetVehicleCategory(__vehicle) == BICYCLE
+#define is_scooter(__vehicle) GetVehicleCategory(__vehicle) == SCOOTER
+
 #define as_bicycle(__vehicle) (*(Bicycle*) __vehicle)
+#define as_scooter(__vehicle) (*(Scooter*) __vehicle)
 
 namespace metro {
   // @todo move to entities.h
@@ -79,6 +82,9 @@ namespace metro {
 
   // @todo move to entities.h
   struct Scooter : BaseVehicle {
+    tVec3f spawn_position;
+    tVec3f spawn_facing_direction;
+
     tVec3f position;
   };
 

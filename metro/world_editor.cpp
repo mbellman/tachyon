@@ -60,7 +60,10 @@ static std::string GetSelectionLabel() {
 
   switch (GetEntityCategory(editor.entity_type)) {
     case BICYCLE:
-      id_string = std::format("{:X}", ((Bicycle*)editor.selection)->id);
+      id_string = std::format("{:X}", as_bicycle(editor.selection).id);
+      break;
+    case SCOOTER:
+      id_string = std::format("{:X}", as_scooter(editor.selection).id);
       break;
     case STATIC_ENTITY:
       id_string = std::format("{:X}", ((StaticEntity*)editor.selection)->id);
@@ -90,7 +93,9 @@ static int32 GetSelectedEntityIndex() {
 static tVec3f GetSelectionPosition() {
   switch (GetEntityCategory(editor.entity_type)) {
     case BICYCLE:
-      return ((Bicycle*)editor.selection)->spawn_position;
+      return as_bicycle(editor.selection).spawn_position;
+    case SCOOTER:
+      return as_scooter(editor.selection).spawn_position;
     case STATIC_ENTITY:
       return ((StaticEntity*)editor.selection)->position;
     case INTERACTIVE_ENTITY: // @todo
@@ -102,10 +107,18 @@ static tVec3f GetSelectionPosition() {
 static void MoveSelection(const tVec3f& offset) {
   switch (GetEntityCategory(editor.entity_type)) {
     case BICYCLE: {
-      auto& bike = *(Bicycle*) editor.selection;
+      auto& bike = as_bicycle(editor.selection);
 
       bike.spawn_position += offset;
       bike.position = bike.spawn_position;
+
+      break;
+    }
+    case SCOOTER: {
+      auto& scooter = as_scooter(editor.selection);
+
+      scooter.spawn_position += offset;
+      scooter.position = scooter.spawn_position;
 
       break;
     }
@@ -130,6 +143,7 @@ static void MoveSelection(const tVec3f& offset) {
 static tVec3f GetSelectionScale() {
   switch (GetEntityCategory(editor.entity_type)) {
     case BICYCLE:
+    case SCOOTER:
       // @temporary
       return tVec3f(2000.f);
     case STATIC_ENTITY:
@@ -143,7 +157,8 @@ static tVec3f GetSelectionScale() {
 static void SetSelectionScale(const tVec3f& scale) {
   switch (GetEntityCategory(editor.entity_type)) {
     case BICYCLE:
-      // Bicycles cannot be scaled
+    case SCOOTER:
+      // Vehicles cannot be scaled
       break;
     case STATIC_ENTITY: {
       auto& entity = *(StaticEntity*) editor.selection;
@@ -162,7 +177,8 @@ static void SetSelectionScale(const tVec3f& scale) {
 static void ScaleSelection(const tVec3f& scale_change) {
   switch (GetEntityCategory(editor.entity_type)) {
     case BICYCLE:
-      // Bicycles cannot be scaled
+    case SCOOTER:
+      // Vehicles cannot be scaled
       break;
     case STATIC_ENTITY: {
       auto& entity = *(StaticEntity*) editor.selection;
@@ -273,7 +289,8 @@ static tVec3f GetEntityScalePadding(EntityType entity_type) {
 
 static HighlightBox GetPlacementPreviewHighlightBox() {
   switch (GetEntityCategory(editor.entity_type)) {
-    case BICYCLE: {
+    case BICYCLE:
+    case SCOOTER: {
       return {
         .position = tVec3f(0.f),
         .scale = tVec3f(500.f, 1375.f, 2050.f),
@@ -307,6 +324,15 @@ static HighlightBox GetSelectionHighlightBox() {
         .position = UnitBikeToWorldPosition(bike, tVec3f(0, 0.3f, 0)),
         .scale = tVec3f(500.f, 1375.f, 2050.f),
         .rotation = bike.flat_rotation
+      };
+    }
+    case SCOOTER: {
+      auto& scooter = as_scooter(editor.selection);
+
+      return {
+        .position = scooter.position,
+        .scale = tVec3f(500.f, 1375.f, 2050.f),
+        .rotation = Quaternion(1.f, 0, 0, 0)
       };
     }
     case STATIC_ENTITY: {
@@ -379,6 +405,7 @@ static inline bool IsSelectable(const tVec3f& position, const tVec3f& scale, con
   return distance < distance_threshold && dot > 0.98f;
 }
 
+// @todo cleanup
 static void MaybeMakeSelection(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
   tVec3f camera_forward = camera.orientation.getDirection();
@@ -394,6 +421,21 @@ static void MaybeMakeSelection(Tachyon* tachyon, State& state) {
       if (distance < closest_distance) {
         editor.selection = &bike;
         editor.entity_type = bike.type;
+        editor.transform_type = POSITION;
+
+        closest_distance = distance;
+      }
+    }
+  }
+
+  // Scooter selection
+  for (auto& scooter : state.scooters) {
+    if (IsSelectable(scooter.position, tVec3f(2000.f), camera.position, camera_forward)) {
+      float distance = tVec3f::distance(scooter.position, camera.position);
+
+      if (distance < closest_distance) {
+        editor.selection = &scooter;
+        editor.entity_type = scooter.type;
         editor.transform_type = POSITION;
 
         closest_distance = distance;
@@ -465,10 +507,29 @@ static void PlaceNewBicycle(Tachyon* tachyon, State& state, const tVec3f& positi
   editor.selection = &state.bicycles.back();
 }
 
+static void PlaceNewScooter(Tachyon* tachyon, State& state, const tVec3f& position) {
+  Scooter scooter;
+  scooter.type  = ELECTRIC_SCOOTER;
+  scooter.id    = CreateUniqueId();
+
+  scooter.position       = position;
+  scooter.spawn_position = position;
+
+  BackgroundVehicles::SpawnScooter(tachyon, state, scooter);
+
+  // @temporary
+  // @todo return from SpawnScooter()
+  editor.selection = &state.scooters.back();
+}
+
 static void PlaceNewEntity(Tachyon* tachyon, State& state, const tVec3f& position) {
   switch (GetEntityCategory(editor.entity_type)) {
     case BICYCLE:
       PlaceNewBicycle(tachyon, state, position);
+
+      break;
+    case SCOOTER:
+      PlaceNewScooter(tachyon, state, position);
 
       break;
     case STATIC_ENTITY: {

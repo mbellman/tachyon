@@ -10,6 +10,7 @@ void BackgroundVehicles::Update(Tachyon* tachyon, State& state) {
   profile("BackgroundVehicles::Update()");
 
   int32 total_common_bikes = 0;
+  int32 total_electric_scooters = 0;
 
   for (auto& bike : state.bicycles) {
     switch (bike.type) {
@@ -24,7 +25,7 @@ void BackgroundVehicles::Update(Tachyon* tachyon, State& state) {
   for (auto& scooter : state.scooters) {
     switch (scooter.type) {
       case ELECTRIC_SCOOTER:
-        // @todo
+        ElectricScooter::Update(tachyon, state, scooter, total_electric_scooters++);
         break;
       default:
         break;

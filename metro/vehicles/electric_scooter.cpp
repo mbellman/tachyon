@@ -35,19 +35,24 @@ void ElectricScooter::Update(Tachyon* tachyon, State& state, Scooter& scooter, c
   auto& fold = objects(meshes.e_scooter_fold)[index];
   auto& deck = objects(meshes.e_scooter_deck)[index];
   // @temporary
-  auto& wheels = objects(meshes.e_scooter_wheel)[index];
+  uint16 wheel_index = 2 * index;
+
+  auto& wheel_1 = objects(meshes.e_scooter_wheel)[wheel_index];
+  auto& wheel_2 = objects(meshes.e_scooter_wheel)[wheel_index + 1];
 
   stem.position = scooter.position;
   fold.position = scooter.position;
   deck.position = scooter.position;
   // @temporary
-  wheels.position = scooter.position;
+  wheel_1.position = scooter.position;
+  wheel_2.position = scooter.position;
 
   commit(stem);
   commit(fold);
   commit(deck);
   // @temporary
-  commit(wheels);
+  commit(wheel_1);
+  commit(wheel_2);
 }
 
 void ElectricScooter::Destroy(Tachyon* tachyon, State& state, Scooter& scooter) {
