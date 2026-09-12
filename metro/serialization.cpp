@@ -129,6 +129,8 @@ static void DeserializeScooter(Scooter& scooter, const std::string& data) {
     stof(parts[1]),
     stof(parts[2])
   );
+
+  scooter.spawn_position = scooter.position;
 }
 
 static void DeserializeStaticEntity(StaticEntity& entity, const std::string& entity_data) {
