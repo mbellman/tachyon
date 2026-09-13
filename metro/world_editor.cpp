@@ -354,8 +354,8 @@ static HighlightBox GetSelectionHighlightBox() {
       auto& scooter = as_scooter(editor.selection);
 
       return {
-        .position = scooter.position,
-        .scale = tVec3f(500.f, 1375.f, 2050.f),
+        .position = scooter.position + tVec3f(0, 775.f, 0),
+        .scale = tVec3f(500.f, 1375.f, 1500.f),
         .rotation = scooter.flat_rotation
       };
     }
