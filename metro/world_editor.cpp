@@ -311,6 +311,14 @@ static tVec3f GetEntityScalePadding(EntityType entity_type) {
   }
 }
 
+static tVec3f GetEntityCenterOffset(EntityType entity_type) {
+  switch (entity_type) {
+    case COMMON_BIKE:      return tVec3f(0, 600.f, 0);
+    case ELECTRIC_SCOOTER: return tVec3f(0, 775.f, 0);
+    default:               return tVec3f(0.f);
+  }
+}
+
 static HighlightBox GetPlacementPreviewHighlightBox() {
   switch (GetEntityCategory(editor.entity_type)) {
     case BICYCLE:
@@ -344,12 +352,14 @@ static HighlightBox GetPlacementPreviewHighlightBox() {
 }
 
 static HighlightBox GetSelectionHighlightBox() {
+  tVec3f center_offset = GetEntityCenterOffset(editor.entity_type);
+
   switch (GetEntityCategory(editor.entity_type)) {
     case BICYCLE: {
-      auto& bike = *(Bicycle*) editor.selection;
+      auto& bike = as_bicycle(editor.selection);
 
       return {
-        .position = UnitBikeToWorldPosition(bike, tVec3f(0, 0.3f, 0)),
+        .position = bike.position + center_offset,
         .scale = tVec3f(500.f, 1375.f, 2050.f),
         .rotation = bike.flat_rotation
       };
@@ -358,7 +368,7 @@ static HighlightBox GetSelectionHighlightBox() {
       auto& scooter = as_scooter(editor.selection);
 
       return {
-        .position = scooter.position + tVec3f(0, 775.f, 0),
+        .position = scooter.position + center_offset,
         .scale = tVec3f(500.f, 1375.f, 1500.f),
         .rotation = scooter.flat_rotation
       };
@@ -368,7 +378,7 @@ static HighlightBox GetSelectionHighlightBox() {
       auto padding = GetEntityScalePadding(editor.entity_type);
 
       return {
-        .position = entity.position,
+        .position = entity.position + center_offset,
         .scale = entity.scale + padding,
         .rotation = entity.rotation
       };
@@ -672,21 +682,12 @@ static void ShowPlacementPreview(Tachyon* tachyon, State& state) {
   }
 
   if (did_left_click_down()) {
-    if (GetEntityCategory(editor.entity_type) == BICYCLE) {
-      // When placing a new bicycle, shift the spawn position down
-      // to ensure the bike spawns exactly within the preview box
-      // bounds. The preview box has an origin at its center, but
-      // selected bikes have a box origin slightly below center, so
-      // we have to make that adjustment here.
-      //
-      // @todo configure this per bicycle type
-      box.position.y -= 600.f;
-    }
+    tVec3f center_offset = GetEntityCenterOffset(editor.entity_type);
 
-    if (GetEntityCategory(editor.entity_type) == SCOOTER) {
-      // @todo configure this per scooter type
-      box.position.y -= 775.f;
-    }
+    // When placing a new entity, shift the spawn position according
+    // to the entity's center offset, so its spawned highlight box
+    // exactly aligns with the preview highlight box
+    box.position -= center_offset;
 
     PlaceNewEntity(tachyon, state, box.position);
   }
