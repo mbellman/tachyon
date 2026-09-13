@@ -52,6 +52,9 @@ void BackgroundVehicles::SpawnBicycle(Tachyon* tachyon, State& state, Bicycle& b
 }
 
 void BackgroundVehicles::SpawnScooter(Tachyon* tachyon, State& state, Scooter& scooter) {
+  // Precompute rotation
+  scooter.flat_rotation = Quaternion::FromDirection(scooter.facing_direction, Y_UP);
+
   switch (scooter.type) {
     case ELECTRIC_SCOOTER:
       ElectricScooter::Spawn(tachyon, state, scooter);

@@ -314,13 +314,17 @@ static tVec3f GetEntityScalePadding(EntityType entity_type) {
 static HighlightBox GetPlacementPreviewHighlightBox() {
   switch (GetEntityCategory(editor.entity_type)) {
     case BICYCLE:
-    case SCOOTER: {
       return {
         .position = tVec3f(0.f),
         .scale = tVec3f(500.f, 1375.f, 2050.f),
         .rotation = Quaternion(1.f, 0, 0, 0)
       };
-    }
+    case SCOOTER:
+      return {
+        .position = tVec3f(0.f),
+        .scale = tVec3f(500.f, 1375.f, 1500.f),
+        .rotation = Quaternion(1.f, 0, 0, 0)
+      };
     case STATIC_ENTITY: {
       auto default_scale = GetDefaultEntityScale(editor.entity_type);
       auto padding = GetEntityScalePadding(editor.entity_type);
@@ -536,8 +540,11 @@ static void PlaceNewScooter(Tachyon* tachyon, State& state, const tVec3f& positi
   scooter.type  = ELECTRIC_SCOOTER;
   scooter.id    = CreateUniqueId();
 
-  scooter.position       = position;
-  scooter.spawn_position = position;
+  scooter.position         = position;
+  scooter.facing_direction = Z_BACKWARD;
+
+  scooter.spawn_position         = position;
+  scooter.spawn_facing_direction = scooter.facing_direction;
 
   BackgroundVehicles::SpawnScooter(tachyon, state, scooter);
 
@@ -674,6 +681,11 @@ static void ShowPlacementPreview(Tachyon* tachyon, State& state) {
       //
       // @todo configure this per bicycle type
       box.position.y -= 600.f;
+    }
+
+    if (GetEntityCategory(editor.entity_type) == SCOOTER) {
+      // @todo configure this per scooter type
+      box.position.y -= 775.f;
     }
 
     PlaceNewEntity(tachyon, state, box.position);
