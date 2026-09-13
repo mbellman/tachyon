@@ -92,7 +92,8 @@ static void SerializeScooter(std::string& data, const Scooter& scooter) {
   data += "@" + EntityTypeToString(scooter.type);
   data += "\n";
 
-  data += Serialize(scooter.position);
+  data += Serialize(scooter.spawn_position) + ",";
+  data += Serialize(scooter.spawn_facing_direction);
   data += "\n";
 }
 
@@ -129,11 +130,14 @@ static void DeserializeScooter(Scooter& scooter, const std::string& data) {
     stof(parts[2])
   );
 
-  scooter.spawn_position = scooter.position;
+  scooter.facing_direction = tVec3f(
+    stof(parts[3]),
+    stof(parts[4]),
+    stof(parts[5])
+  );
 
-  // @temporary
-  scooter.spawn_facing_direction = Z_FORWARD;
-  scooter.facing_direction = Z_FORWARD;
+  scooter.spawn_position         = scooter.position;
+  scooter.spawn_facing_direction = scooter.facing_direction;
 }
 
 static void DeserializeStaticEntity(StaticEntity& entity, const std::string& entity_data) {

@@ -297,7 +297,7 @@ void CommonBike::Update(Tachyon* tachyon, State& state, Bicycle& bike, const int
     tVec3f old_pivot = UnitBikeToWorldPosition(bike, BACK_WHEEL_PIVOT_POSITION);
 
     bike.flat_rotation =
-      Quaternion::FromDirection(bike.facing_direction, tVec3f(0, 1.f, 0)) *
+      Quaternion::FromDirection(bike.facing_direction, Y_UP) *
       Quaternion::fromAxisAngle(LEANING_AXIS, bike.leaning_angle);
 
     // Offset the bike by the pivot delta to keep it centered on the pivot.

@@ -41,6 +41,8 @@ void ElectricScooter::Update(Tachyon* tachyon, State& state, Scooter& scooter, c
   auto& wheel_2 = objects(meshes.e_scooter_wheel)[wheel_index + 1];
 
   {
+    scooter.flat_rotation = Quaternion::FromDirection(scooter.facing_direction, Y_UP);
+
     // @temporary
     scooter.directional_rotation = scooter.flat_rotation;
   }
