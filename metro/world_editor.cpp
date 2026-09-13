@@ -356,7 +356,7 @@ static HighlightBox GetSelectionHighlightBox() {
       return {
         .position = scooter.position,
         .scale = tVec3f(500.f, 1375.f, 2050.f),
-        .rotation = Quaternion(1.f, 0, 0, 0)
+        .rotation = scooter.flat_rotation
       };
     }
     case STATIC_ENTITY: {

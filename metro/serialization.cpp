@@ -223,8 +223,8 @@ void Serialization::LoadWorldData(Tachyon* tachyon, State& state, const std::str
       // @todo factor
       switch (current_entity_category) {
         case BICYCLE: {
-          // @todo make this part of bike spawning
           Bicycle bike;
+          // @todo make this part of bike spawning
           bike.type = current_entity_type;
           bike.id = CreateUniqueId();
 
@@ -235,8 +235,8 @@ void Serialization::LoadWorldData(Tachyon* tachyon, State& state, const std::str
           break;
         }
         case SCOOTER: {
-          // @todo
           Scooter scooter;
+          // @todo make this part of scooter spawning
           scooter.type = current_entity_type;
           scooter.id = CreateUniqueId();
 
