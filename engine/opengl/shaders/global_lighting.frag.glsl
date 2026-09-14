@@ -845,7 +845,7 @@ void main() {
 
   out_color += primary_light_color * albedo * 0.2 * GetAmbientFresnel(NdotV);
 
-  #if ENABLE_ASTRO_FX == 1
+  #if ENABLE_ASTRO_FX
     out_color += primary_light_color * albedo * sheen * 10.0 * GetAmbientFresnel(NdotV);
   #endif
 
@@ -922,7 +922,7 @@ void main() {
     }
 
     // Subtly brighten the scene near the player for visibility
-    #if ENABLE_ASTRO_FX == 1
+    #if ENABLE_ASTRO_FX
       float alpha = frag_distance_from_player / player_light_radius;
       if (alpha > 1.0) alpha = 1.0;
 

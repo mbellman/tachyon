@@ -32,10 +32,12 @@ static void LoadCommonBikeMeshes(Tachyon* tachyon, State& state) {
 static void LoadEScooterMeshes(Tachyon* tachyon, State& state) {
   auto& meshes = state.meshes;
 
-  meshes.e_scooter_stem   = METRO_MODEL("electric_scooter/stem.obj", 50);
-  meshes.e_scooter_fold   = METRO_MODEL("electric_scooter/fold.obj", 50);
-  meshes.e_scooter_deck   = METRO_MODEL("electric_scooter/deck.obj", 50);
-  meshes.e_scooter_wheel  = METRO_MODEL("electric_scooter/wheel.obj", 100);
+  meshes.e_scooter_stem       = METRO_MODEL("electric_scooter/stem.obj", 50);
+  meshes.e_scooter_fold       = METRO_MODEL("electric_scooter/fold.obj", 50);
+  meshes.e_scooter_handlebars = METRO_MODEL("electric_scooter/handlebars.obj", 50);
+  meshes.e_scooter_grips      = METRO_MODEL("electric_scooter/grips.obj", 50);
+  meshes.e_scooter_deck       = METRO_MODEL("electric_scooter/deck.obj", 50);
+  meshes.e_scooter_wheel      = METRO_MODEL("electric_scooter/wheel.obj", 100);
 }
 
 // @todo move to static_entities.cpp

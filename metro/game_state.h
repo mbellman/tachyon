@@ -118,6 +118,8 @@ namespace metro {
       // @todo move to entities.h
       e_scooter_stem,
       e_scooter_fold,
+      e_scooter_handlebars,
+      e_scooter_grips,
       e_scooter_deck,
       e_scooter_wheel,
 
