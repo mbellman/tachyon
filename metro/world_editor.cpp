@@ -314,7 +314,7 @@ static tVec3f GetEntityScalePadding(EntityType entity_type) {
 static tVec3f GetEntityCenterOffset(EntityType entity_type) {
   switch (entity_type) {
     case COMMON_BIKE:      return tVec3f(0, 600.f, 0);
-    case ELECTRIC_SCOOTER: return tVec3f(0, 775.f, 0);
+    case ELECTRIC_SCOOTER: return tVec3f(0, 1000.f, 0);
     default:               return tVec3f(0.f);
   }
 }
@@ -330,7 +330,7 @@ static HighlightBox GetPlacementPreviewHighlightBox() {
     case SCOOTER:
       return {
         .position = tVec3f(0.f),
-        .scale = tVec3f(500.f, 1375.f, 1500.f),
+        .scale = tVec3f(500.f, 1600.f, 1500.f),
         .rotation = Quaternion(1.f, 0, 0, 0)
       };
     case STATIC_ENTITY: {
@@ -369,7 +369,7 @@ static HighlightBox GetSelectionHighlightBox() {
 
       return {
         .position = scooter.position + center_offset,
-        .scale = tVec3f(500.f, 1375.f, 1500.f),
+        .scale = tVec3f(500.f, 1600.f, 1500.f),
         .rotation = scooter.flat_rotation
       };
     }
