@@ -286,8 +286,8 @@ void CommonBike::Update(Tachyon* tachyon, State& state, Bicycle& bike, const int
 
   // Store the bike index if we're currently riding it
   {
-    if (bike.id == state.player_bike_id) {
-      state.player_bike_index = index;
+    if (bike.id == state.player_vehicle_id) {
+      state.player_vehicle_index = index;
     }
   }
 

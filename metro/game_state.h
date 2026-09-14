@@ -156,16 +156,15 @@ namespace metro {
     float last_manual_camera_control_time = -FLT_MAX;
     float last_control_mode_change_time = -FLT_MAX;
 
-    int32 player_bike_id = -1;
+    int32 player_vehicle_id = -1;
 
-    // Refers to the iterated index of the bike the player is riding.
-    // This is an index in the set of bikes of a given type, which is
-    // also used for the object indexes of the bike's parts.
+    // Refers to the iterated index of the vehicle the player is riding.
+    // This is an index in the set of vehicles of a given type, which is
+    // also used for the object indexes of the vehicle's parts.
     //
-    // We store this on the initial bike update, so that when we then
-    // run physics on the player bike, we can do a final secondary update
-    // on the same bike instance as a physics post-step.
-    int32 player_bike_index = -1;
+    // We use this to do an additional physics step/redraw of the specific
+    // vehicle the player is riding.
+    int32 player_vehicle_index = -1;
 
     std::vector<Bicycle> bicycles;
     std::vector<Scooter> scooters;

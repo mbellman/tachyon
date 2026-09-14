@@ -90,6 +90,8 @@ static void UpdatePlayerOnFoot(Tachyon* tachyon, State& state) {
 }
 
 void Player::Update(Tachyon* tachyon, State& state) {
+  profile("Player::Update()");
+
   auto* active_vehicle = GetActiveVehicle(state);
 
   if (is_bicycle(active_vehicle)) {

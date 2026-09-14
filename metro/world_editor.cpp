@@ -903,7 +903,7 @@ void WorldEditor::Open(Tachyon* tachyon, State& state) {
       bike.flat_rotation = Quaternion::FromDirection(bike.spawn_facing_direction, Y_UP);
     }
 
-    state.player_bike_id = -1;
+    state.player_vehicle_id = -1;
   }
 
   show_overlay_message("Entering editor");

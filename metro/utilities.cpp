@@ -32,7 +32,7 @@ tVec3f metro::GetMovementDirection(const Bicycle& bike) {
 
 BaseVehicle* metro::GetActiveVehicle(State& state) {
   for (auto& bike : state.bicycles) {
-    if (bike.id == state.player_bike_id) {
+    if (bike.id == state.player_vehicle_id) {
       return &bike;
     }
   }

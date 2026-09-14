@@ -89,7 +89,7 @@ void PlayerVehicle::Update(Tachyon* tachyon, State& state) {
 
       switch (bike.type) {
         case COMMON_BIKE:
-          CommonBike::Update(tachyon, state, bike, state.player_bike_index);
+          CommonBike::Update(tachyon, state, bike, state.player_vehicle_index);
           break;
         default:
           break;
@@ -105,7 +105,7 @@ void PlayerVehicle::Update(Tachyon* tachyon, State& state) {
       switch (active_vehicle->type) {
         case COMMON_BIKE:
           CommonBike::HandlePhysics(tachyon, state, as_bicycle(active_vehicle));
-          CommonBike::Update(tachyon, state, as_bicycle(active_vehicle), state.player_bike_index);
+          CommonBike::Update(tachyon, state, as_bicycle(active_vehicle), state.player_vehicle_index);
           break;
         default:
           break;
