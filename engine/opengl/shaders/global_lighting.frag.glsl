@@ -139,7 +139,7 @@ float DistributionGGX(float NdotH, float roughness) {
 }
 
 float GeometryGGX(float NdotH, float roughness, float metalness) {
-  return pow(NdotH, 2 * roughness) * pow(1.0 - metalness, 4);
+  return pow(NdotH, 2.0 * roughness) * pow(1.0 - metalness, 4);
 }
 
 float Clearcoat(float NdotH, float NdotV, float clearcoat) {

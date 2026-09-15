@@ -39,6 +39,27 @@ static float GetSteering(Tachyon* tachyon) {
   return -1.f * steering;
 }
 
+static void HandleVehicleInteraction(Tachyon* tachyon, State& state) {
+  #define handle_single_vehicle_interaction(__vehicle)\
+    float distance = tVec3f::distance(__vehicle.position, state.player_position);\
+    \
+    if (distance < 2000.f) {\
+      state.player_vehicle_id = __vehicle.id;\
+      state.player_velocity = tVec3f(0.f);\
+      state.recorded_player_speed = 0.f;\
+      state.last_control_mode_change_time = get_scene_time();\
+      return;\
+    }\
+
+  for (auto& bike : state.bicycles) {
+    handle_single_vehicle_interaction(bike);
+  }
+
+  for (auto& scooter : state.scooters) {
+    handle_single_vehicle_interaction(scooter);
+  }
+}
+
 static void HandleCharacterControls(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
 
@@ -85,21 +106,8 @@ static void HandleCharacterControls(Tachyon* tachyon, State& state) {
 
   // Interactions
   {
-    // Getting on bicycles
     if (did_press_key(GAMEPAD_TRIANGLE)) {
-      for (auto& bike : state.bicycles) {
-        float distance = tVec3f::distance(bike.position, state.player_position);
-
-        if (distance < 2000.f) {
-          state.player_vehicle_id = bike.id;
-
-          state.player_velocity = tVec3f(0.f);
-          state.recorded_player_speed = 0.f;
-          state.last_control_mode_change_time = get_scene_time();
-
-          break;
-        }
-      }
+      HandleVehicleInteraction(tachyon, state);
     }
   }
 }
