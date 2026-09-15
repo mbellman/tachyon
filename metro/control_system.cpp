@@ -58,7 +58,7 @@ static void HandleCharacterControls(Tachyon* tachyon, State& state) {
 
     state.player_velocity += ground_forward * -tachyon->left_stick.y * acceleration;
     state.player_velocity += ground_left * -tachyon->left_stick.x * acceleration;
-    state.recorded_player_speed = state.player_velocity.magnitude();
+    state.recorded_player_speed = state.player_velocity.xz().magnitude();
 
     // Top speed dampening
     if (state.recorded_player_speed > acceleration) {
@@ -77,7 +77,8 @@ static void HandleCharacterControls(Tachyon* tachyon, State& state) {
 
     // Stop at low velocities
     if (state.recorded_player_speed < 100.f) {
-      state.player_velocity = tVec3f(0.f);
+      state.player_velocity.x = 0.f;
+      state.player_velocity.z = 0.f;
       state.recorded_player_speed = 0.f;
     }
   }
