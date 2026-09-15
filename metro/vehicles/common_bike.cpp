@@ -67,10 +67,19 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
 
   // Wheel collision
   {
+    bool front_wheel_just_landed = bike.front_wheel_recoil_timer < 1.f;
+
     const float above_wheel_buffer = 500.f;
-    const float ray_length = 1500.f;
+    const float ray_length = 2500.f;
     const float front_wheel_ground_distance = 800.f - bike.recoil;
     const float back_wheel_ground_distance = 820.f;
+
+    // Snapping distances. Use a higher distance for the front wheel
+    // if it just landed to keep the wheel "clamped down" when we land
+    // from higher jumps. Otherwise it tends to demonstrate undesirable
+    // clipping and jittering behavior. Not ideal but we do what we must!
+    const float front_snapping_distance = front_wheel_just_landed ? 1000.f : 100.f;
+    const float back_snapping_distance = 100.f;
 
     for_static_entity_containers() {
       for_entities() {
@@ -106,7 +115,10 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
 
             tVec3f resolved_position = front.collision_point + plane.normal * front_wheel_ground_distance;
 
-            if (resolved_position.y > highest_front_y) {
+            if (
+              resolved_position.y > highest_front_y &&
+              resolved_position.y >= ideal_front_wheel_position.y - front_snapping_distance
+            ) {
               ideal_front_wheel_position = resolved_position;
               highest_front_y = resolved_position.y;
               front_wheel_plane_normal = plane.normal;
@@ -123,7 +135,10 @@ void CommonBike::HandlePhysics(Tachyon* tachyon, State& state, Bicycle& bike) {
 
             tVec3f resolved_position = back.collision_point + plane.normal * back_wheel_ground_distance;
 
-            if (resolved_position.y > highest_back_y) {
+            if (
+              resolved_position.y > highest_back_y &&
+              resolved_position.y >= ideal_back_wheel_position.y - back_snapping_distance
+            ) {
               ideal_back_wheel_position = resolved_position;
               highest_back_y = resolved_position.y;
               back_wheel_plane_normal = plane.normal;

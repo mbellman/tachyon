@@ -31,6 +31,8 @@ struct Platforms {
 
     auto plane = Collision::CreateFloorCollisionPlane(platform);
 
+    Collision::PadCollisionPlane(plane, 250.f);
+
     // @allocation
     entity.collision_planes.clear();
     entity.collision_planes.push_back(plane);
@@ -61,6 +63,8 @@ struct Ramps {
     commit(ramp);
 
     auto plane = Collision::CreateSlopeCollisionPlane(ramp);
+
+    Collision::PadCollisionPlane(plane, 250.f);
 
     // @allocation
     entity.collision_planes.clear();
