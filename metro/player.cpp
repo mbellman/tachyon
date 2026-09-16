@@ -39,6 +39,18 @@ static void UpdatePlayerOnBike(Tachyon* tachyon, State& state, const Bicycle& bi
   commit(player);
 }
 
+static void UpdatePlayerOnScooter(Tachyon* tachyon, State& state, const Scooter& scooter) {
+  auto& player = objects(state.meshes.dev_mannequin)[0];
+
+  state.previous_player_position = state.player_position;
+  state.player_position = scooter.position + tVec3f(0, 1500.f, 0);
+
+  player.position = state.player_position;
+  player.rotation = scooter.directional_rotation;
+
+  commit(player);
+}
+
 static void UpdatePlayerOnFoot(Tachyon* tachyon, State& state) {
   auto& player = objects(state.meshes.dev_mannequin)[0];
   bool has_collision = false;
@@ -96,6 +108,8 @@ void Player::Update(Tachyon* tachyon, State& state) {
 
   if (is_bicycle(active_vehicle)) {
     UpdatePlayerOnBike(tachyon, state, as_bicycle(active_vehicle));
+  } else if (is_scooter(active_vehicle)) {
+    UpdatePlayerOnScooter(tachyon, state, as_scooter(active_vehicle));
   } else {
     UpdatePlayerOnFoot(tachyon, state);
   }

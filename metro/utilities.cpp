@@ -37,6 +37,12 @@ BaseVehicle* metro::GetActiveVehicle(State& state) {
     }
   }
 
+  for (auto& scooter : state.scooters) {
+    if (scooter.id == state.player_vehicle_id) {
+      return &scooter;
+    }
+  }
+
   return nullptr;
 }
 

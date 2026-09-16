@@ -60,6 +60,11 @@ static void HandleVehicleInteraction(Tachyon* tachyon, State& state) {
   }
 }
 
+static void HandleGettingOffVehicle(Tachyon* tachyon, State& state) {
+  state.player_vehicle_id = -1;
+  state.last_control_mode_change_time = get_scene_time();
+}
+
 static void HandleCharacterControls(Tachyon* tachyon, State& state) {
   auto& camera = tachyon->scene.camera;
 
@@ -299,15 +304,20 @@ static void HandleBikeControls(Tachyon* tachyon, State& state, Bicycle& bike) {
 
   // Getting off the bike
   {
-    if (
-      did_press_key(GAMEPAD_TRIANGLE) &&
-      !bike.in_freefall
-    ) {
-      state.player_vehicle_id = -1;
-      state.last_control_mode_change_time = get_scene_time();
-
+    if (did_press_key(GAMEPAD_TRIANGLE) && !bike.in_freefall) {
       bike.pedal_speed = 0.f;
       bike.speed = 0.f;
+
+      HandleGettingOffVehicle(tachyon, state);
+    }
+  }
+}
+
+static void HandleScooterControls(Tachyon* tachyon, State& state, Scooter& scooter) {
+  // Getting off the scooter
+  {
+    if (did_press_key(GAMEPAD_TRIANGLE)) {
+      HandleGettingOffVehicle(tachyon, state);
     }
   }
 }
@@ -319,6 +329,8 @@ void ControlSystem::Update(Tachyon* tachyon, State& state) {
 
   if (is_bicycle(active_vehicle)) {
     HandleBikeControls(tachyon, state, as_bicycle(active_vehicle));
+  } else if (is_scooter(active_vehicle)) {
+    HandleScooterControls(tachyon, state, as_scooter(active_vehicle));
   } else {
     HandleCharacterControls(tachyon, state);
   }
