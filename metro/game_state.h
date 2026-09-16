@@ -90,6 +90,8 @@ namespace metro {
 
     Quaternion flat_rotation;
     Quaternion directional_rotation;
+
+    float speed = 0.f;
   };
 
   struct MeshIds {

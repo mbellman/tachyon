@@ -24,12 +24,12 @@ static void DebugShowRadiusRing(Tachyon* tachyon, State& state, const Bicycle& b
 }
 
 // @todo keyboard support (?)
-static bool DidPressPedalKey(Tachyon* tachyon) {
+static bool DidPressAccelerationButton(Tachyon* tachyon) {
   return did_press_key(GAMEPAD_X);
 }
 
 // @todo keyboard support?
-static bool IsHoldingPedalKey(Tachyon* tachyon) {
+static bool IsHoldingAccelerationButton(Tachyon* tachyon) {
   return is_key_held(GAMEPAD_X);
 }
 
@@ -125,12 +125,12 @@ static void HandleBikeControls(Tachyon* tachyon, State& state, Bicycle& bike) {
 
   // Pedaling
   {
-    if (DidPressPedalKey(tachyon)) {
+    if (DidPressAccelerationButton(tachyon)) {
       // Rapid pedaling
       bike.pedal_speed += rapid_pedal_impulse * state.dt;
     }
 
-    if (IsHoldingPedalKey(tachyon)) {
+    if (IsHoldingAccelerationButton(tachyon)) {
       // Steady-but-slower pedaling
       bike.pedal_speed += steady_pedal_impulse * state.dt;
       bike.pedal_speed *= 1.f - state.dt;
@@ -314,9 +314,31 @@ static void HandleBikeControls(Tachyon* tachyon, State& state, Bicycle& bike) {
 }
 
 static void HandleScooterControls(Tachyon* tachyon, State& state, Scooter& scooter) {
+  const float acceleration_speed = 30000.f;
+
+  // Accelerating
+  {
+    if (IsHoldingAccelerationButton(tachyon)) {
+      scooter.speed += acceleration_speed * state.dt;
+    }
+
+    scooter.speed *= 1.f - state.dt;
+
+    // @todo update position
+  }
+
+  // Wheels
+  {
+    const float wheel_revolution_speed = 0.001f;
+
+    // @todo
+  }
+
   // Getting off the scooter
   {
     if (did_press_key(GAMEPAD_TRIANGLE)) {
+      scooter.speed = 0.f;
+
       HandleGettingOffVehicle(tachyon, state);
     }
   }

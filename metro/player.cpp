@@ -43,7 +43,7 @@ static void UpdatePlayerOnScooter(Tachyon* tachyon, State& state, const Scooter&
   auto& player = objects(state.meshes.dev_mannequin)[0];
 
   state.previous_player_position = state.player_position;
-  state.player_position = scooter.position + tVec3f(0, 1500.f, 0);
+  state.player_position = scooter.position + tVec3f(0, 1650.f, 0);
 
   player.position = state.player_position;
   player.rotation = scooter.directional_rotation;
